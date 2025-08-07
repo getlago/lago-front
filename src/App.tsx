@@ -1,11 +1,13 @@
 import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client'
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
+import '@copilotkit/react-ui/styles.css'
 import { StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { DesignSystemProvider } from 'lago-design-system'
 import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
+import { AIAssistant } from '~/components/aiAssistant/AIAssistant'
 import { ToastContainer } from '~/components/designSystem/Toasts'
 import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
@@ -49,17 +51,24 @@ const App = () => {
           <DesignSystemProvider>
             <ErrorBoundary>
               <DeveloperToolProvider>
-                <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                  <Panel id="app-panel" order={1}>
-                    <div className="h-full overflow-auto">
-                      <BrowserRouter basename="/">
-                        <RouteWrapper />
-                      </BrowserRouter>
-                    </div>
+                <PanelGroup direction="horizontal">
+                  <Panel>
+                    <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                      <Panel id="app-panel" order={1}>
+                        <div className="h-full overflow-auto">
+                          <BrowserRouter basename="/">
+                            <RouteWrapper />
+                          </BrowserRouter>
+                        </div>
+                      </Panel>
+                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                        <DevtoolsView />
+                      </MemoryRouter>
+                    </PanelGroup>
                   </Panel>
-                  <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
-                    <DevtoolsView />
-                  </MemoryRouter>
+                  <Panel>
+                    <AIAssistant />
+                  </Panel>
                 </PanelGroup>
               </DeveloperToolProvider>
             </ErrorBoundary>
