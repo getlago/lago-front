@@ -65,6 +65,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.InvoiceDrafted]: 'text_1747404656632jux35a9cxrt',
   [ActivityTypeEnum.InvoiceFailed]: 'text_1747404656632twxlowkc160',
   [ActivityTypeEnum.InvoiceGenerated]: 'text_174740465663232x0p7cp9d3',
+  [ActivityTypeEnum.InvoiceRegenerated]: 'text_174740465663232x0p7cp9d3',
   [ActivityTypeEnum.InvoiceOneOffCreated]: 'text_174740465663240bop3g6rbp',
   [ActivityTypeEnum.InvoicePaidCreditAdded]: 'text_1747404656632eu9n87cmyi2',
   [ActivityTypeEnum.InvoicePaymentFailure]: 'text_1747404656632e428r46tabf',
@@ -158,6 +159,7 @@ export function getActivityDescription(
     case ActivityTypeEnum.InvoiceDrafted:
     case ActivityTypeEnum.InvoiceFailed:
     case ActivityTypeEnum.InvoiceGenerated:
+    case ActivityTypeEnum.InvoiceRegenerated:
     case ActivityTypeEnum.InvoiceOneOffCreated:
     case ActivityTypeEnum.InvoicePaidCreditAdded:
     case ActivityTypeEnum.InvoicePaymentFailure:
