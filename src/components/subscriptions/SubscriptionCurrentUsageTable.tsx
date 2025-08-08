@@ -215,11 +215,19 @@ export const SubscriptionCurrentUsageTableComponent = ({
         title: translate('text_1753095692838zn4t5a0wrg1'),
         unitsHeader: translate('text_17531019276915hby502cvzy'),
         amountHeader: translate('text_1753101927691j5chrkhmoma'),
+        emptyUsage:
+          subscription?.status === StatusTypeEnum.Pending
+            ? translate('text_1754662684478jvakvxllwie')
+            : translate('text_1754662542899l1ms7k49n67'),
       }
     : {
         title: translate('text_17530956928381jy5n59318d'),
         unitsHeader: translate('text_1753095789277t9kbe8y5pmh'),
         amountHeader: translate('text_1753101927691fbbwyk7p39q'),
+        emptyUsage:
+          subscription?.status === StatusTypeEnum.Pending
+            ? translate('text_173142196943714qsq737sre')
+            : translate('text_62c3f454e5d7f4ec8888c1d7'),
       }
 
   const amountCentsKey = showProjected ? 'projectedAmountCents' : 'amountCents'
@@ -265,6 +273,19 @@ export const SubscriptionCurrentUsageTableComponent = ({
         )}
       </div>
 
+      <NavigationTab
+        managedBy={TabManagedBy.INDEX}
+        onChange={(index) => setActiveTab(index)}
+        tabs={[
+          {
+            title: translate('text_1753094834414fgnvuior3iv'),
+          },
+          {
+            title: translate('text_1753094834414tu9mxavuco7'),
+          },
+        ]}
+      />
+
       {!!hasError && !isLoading && (
         <>
           {(usageError?.graphQLErrors?.length || 0) > 0 &&
@@ -303,29 +324,12 @@ export const SubscriptionCurrentUsageTableComponent = ({
           ) : (
             <GenericPlaceholder
               title={translate('text_62c3f454e5d7f4ec8888c1d5')}
-              subtitle={
-                subscription?.status === StatusTypeEnum.Pending
-                  ? translate('text_173142196943714qsq737sre')
-                  : translate('text_62c3f454e5d7f4ec8888c1d7')
-              }
+              subtitle={TRANSLATION_MAP.emptyUsage}
               image={<EmptyImage width="136" height="104" />}
             />
           )}
         </>
       )}
-
-      <NavigationTab
-        managedBy={TabManagedBy.INDEX}
-        onChange={(index) => setActiveTab(index)}
-        tabs={[
-          {
-            title: translate('text_1753094834414fgnvuior3iv'),
-          },
-          {
-            title: translate('text_1753094834414tu9mxavuco7'),
-          },
-        ]}
-      />
 
       {!hasError && !!usageData?.chargesUsage.length && (
         <>
