@@ -120,9 +120,7 @@ export const TerminateCustomerSubscriptionDialog =
     const formikProps = useFormik({
       initialValues: {
         onTerminationInvoice: true,
-        onTerminationCreditNote: context?.payInAdvance
-          ? OnTerminationCreditNoteEnum.Credit
-          : undefined,
+        onTerminationCreditNote: OnTerminationCreditNoteEnum.Credit,
       },
       onSubmit: async (values) => {
         const payload: TerminateSubscriptionInput = {
