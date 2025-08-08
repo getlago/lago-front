@@ -30,7 +30,6 @@ import {
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForDetailsTableFragment,
   InvoiceStatusTypeEnum,
-  InvoiceSubscription,
   InvoiceSubscriptionFormatingFragmentDoc,
   InvoiceTypeEnum,
   PremiumIntegrationTypeEnum,
@@ -50,16 +49,6 @@ gql`
     itemName
     units
     preciseUnitAmount
-    appliedTaxes {
-      id
-      taxRate
-    }
-    trueUpFee {
-      id
-    }
-    trueUpParentFee {
-      id
-    }
     charge {
       id
       payInAdvance
@@ -97,11 +86,6 @@ gql`
     fees {
       id
       ...FeeForInvoiceDetailsTable
-    }
-    customer {
-      id
-      currency
-      applicableTimezone
     }
     invoiceSubscriptions {
       fromDatetime
@@ -344,7 +328,8 @@ export const InvoiceDetailsTable = memo(
     }
 
     const newFormattedInvoiceItemsMap = groupAndFormatFees({
-      invoiceSubscriptions: invoice?.invoiceSubscriptions as InvoiceSubscription[],
+      invoiceSubscriptions:
+        invoice?.invoiceSubscriptions as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
       hasOldZeroFeeManagement,
     })
 
