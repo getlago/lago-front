@@ -43,6 +43,7 @@ gql`
     plan {
       id
       isOverridden
+      payInAdvance
       amountCurrency
       name
       interval
