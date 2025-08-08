@@ -130,6 +130,8 @@ export enum ActivityTypeEnum {
   InvoicePaymentOverdue = 'invoice_payment_overdue',
   /** invoice.payment_status_updated */
   InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  /** invoice.regenerated */
+  InvoiceRegenerated = 'invoice_regenerated',
   /** invoice.voided */
   InvoiceVoided = 'invoice_voided',
   /** payment_receipt.created */
