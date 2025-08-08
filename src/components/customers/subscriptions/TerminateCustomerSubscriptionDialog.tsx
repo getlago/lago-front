@@ -84,13 +84,8 @@ export const TerminateCustomerSubscriptionDialog =
 
     const invoice = invoicesData?.invoices?.collection?.[0]
     const currency = invoice?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
-    const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
 
     const creditableAmount = deserializeAmount(invoice?.creditableAmountCents, currency)
-    const availableToCreditAmount = deserializeAmount(
-      invoice?.availableToCreditAmountCents,
-      currency,
-    )
     const refundAmount = deserializeAmount(invoice?.refundableAmountCents, currency)
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
@@ -204,9 +199,7 @@ export const TerminateCustomerSubscriptionDialog =
                   options={[
                     {
                       label: translate('text_1753198825180a94n1872cz4', {
-                        amount: intlFormatNumber(
-                          isPrepaidCreditsInvoice ? availableToCreditAmount : creditableAmount,
-                        ),
+                        amount: intlFormatNumber(creditableAmount),
                       }),
                       sublabel: translate('text_17531988251808so7qch9zrf'),
                       value: OnTerminationCreditNoteEnum.Credit,
