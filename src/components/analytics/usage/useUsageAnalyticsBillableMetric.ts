@@ -82,16 +82,12 @@ export const useUsageAnalyticsBillableMetric = ({
       return `${now.minus({ month: 1 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
     }
 
-    return `${now.minus({ month: 12 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
+    return `${now.minus({ days: 30 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
   }, [hasAccessToAnalyticsDashboardsFeature])
 
   const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
-    if (!hasAccessToAnalyticsDashboardsFeature) {
-      return TimeGranularityEnum.Daily
-    }
-
-    return TimeGranularityEnum.Monthly
-  }, [hasAccessToAnalyticsDashboardsFeature])
+    return TimeGranularityEnum.Daily
+  }, [])
 
   const filtersForUsageBillableMetricQuery = useMemo(() => {
     if (!hasAccessToAnalyticsDashboardsFeature) {
