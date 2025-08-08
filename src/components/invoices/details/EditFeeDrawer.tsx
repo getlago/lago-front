@@ -168,8 +168,8 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       invoiceDisplayName: fee?.invoiceDisplayName || '',
       chargeFilterId: '',
       chargeId: '',
-      unitPreciseAmount: undefined,
-      units: undefined,
+      unitPreciseAmount: localData?.onAdd ? fee?.preciseUnitAmount?.toString() : undefined,
+      units: localData?.onAdd ? fee?.units : undefined,
       adjustmentType: undefined,
     },
     validationSchema: object().shape({
@@ -287,10 +287,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
   // Reset unitPreciseAmount and units if adjustmentType changes, also triggers again validations
   useEffect(() => {
-    const newValues = { ...formikProps.values, unitPreciseAmount: undefined, units: undefined }
+    if (!localData?.onAdd) {
+      const newValues = { ...formikProps.values, unitPreciseAmount: undefined, units: undefined }
 
-    formikProps.setValues(newValues)
-
+      formikProps.setValues(newValues)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.adjustmentType])
 
