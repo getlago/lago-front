@@ -8403,6 +8403,11 @@ export type GetUsageBreakdownQueryVariables = Exact<{
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -8416,6 +8421,10 @@ export type GetUsageOverviewQueryVariables = Exact<{
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -16733,13 +16742,18 @@ export type GetUsageBillableMetricLazyQueryHookResult = ReturnType<typeof useGet
 export type GetUsageBillableMetricSuspenseQueryHookResult = ReturnType<typeof useGetUsageBillableMetricSuspenseQuery>;
 export type GetUsageBillableMetricQueryResult = Apollo.QueryResult<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>;
 export const GetUsageBreakdownDocument = gql`
-    query getUsageBreakdown($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $isBillableMetricRecurring: Boolean) {
+    query getUsageBreakdown($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $isBillableMetricRecurring: Boolean, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $planCode: String, $externalSubscriptionId: String) {
   dataApiUsages(
     currency: $currency
     timeGranularity: $timeGranularity
     fromDate: $fromDate
     toDate: $toDate
     isBillableMetricRecurring: $isBillableMetricRecurring
+    customerCountry: $customerCountry
+    customerType: $customerType
+    externalCustomerId: $externalCustomerId
+    planCode: $planCode
+    externalSubscriptionId: $externalSubscriptionId
   ) {
     collection {
       startOfPeriodDt
@@ -16771,6 +16785,11 @@ export const GetUsageBreakdownDocument = gql`
  *      fromDate: // value for 'fromDate'
  *      toDate: // value for 'toDate'
  *      isBillableMetricRecurring: // value for 'isBillableMetricRecurring'
+ *      customerCountry: // value for 'customerCountry'
+ *      customerType: // value for 'customerType'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      planCode: // value for 'planCode'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
  *   },
  * });
  */
@@ -16791,7 +16810,7 @@ export type GetUsageBreakdownLazyQueryHookResult = ReturnType<typeof useGetUsage
 export type GetUsageBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetUsageBreakdownSuspenseQuery>;
 export type GetUsageBreakdownQueryResult = Apollo.QueryResult<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>;
 export const GetUsageOverviewDocument = gql`
-    query getUsageOverview($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $billingEntityCode: String, $isCustomerTinEmpty: Boolean, $planCode: String) {
+    query getUsageOverview($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $billingEntityCode: String, $isCustomerTinEmpty: Boolean, $planCode: String, $externalCustomerId: String, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalSubscriptionId: String) {
   dataApiUsagesAggregatedAmounts(
     currency: $currency
     timeGranularity: $timeGranularity
@@ -16800,6 +16819,10 @@ export const GetUsageOverviewDocument = gql`
     billingEntityCode: $billingEntityCode
     isCustomerTinEmpty: $isCustomerTinEmpty
     planCode: $planCode
+    externalCustomerId: $externalCustomerId
+    customerCountry: $customerCountry
+    customerType: $customerType
+    externalSubscriptionId: $externalSubscriptionId
   ) {
     collection {
       amountCents
@@ -16830,6 +16853,10 @@ export const GetUsageOverviewDocument = gql`
  *      billingEntityCode: // value for 'billingEntityCode'
  *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
  *      planCode: // value for 'planCode'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      customerCountry: // value for 'customerCountry'
+ *      customerType: // value for 'customerType'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
  *   },
  * });
  */

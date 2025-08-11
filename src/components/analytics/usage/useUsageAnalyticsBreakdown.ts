@@ -29,6 +29,11 @@ gql`
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
     $isBillableMetricRecurring: Boolean
+    $customerCountry: CountryCode
+    $customerType: CustomerTypeEnum
+    $externalCustomerId: String
+    $planCode: String
+    $externalSubscriptionId: String
   ) {
     dataApiUsages(
       currency: $currency
@@ -36,6 +41,11 @@ gql`
       fromDate: $fromDate
       toDate: $toDate
       isBillableMetricRecurring: $isBillableMetricRecurring
+      customerCountry: $customerCountry
+      customerType: $customerType
+      externalCustomerId: $externalCustomerId
+      planCode: $planCode
+      externalSubscriptionId: $externalSubscriptionId
     ) {
       collection {
         startOfPeriodDt

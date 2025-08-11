@@ -33,6 +33,10 @@ gql`
     $billingEntityCode: String
     $isCustomerTinEmpty: Boolean
     $planCode: String
+    $externalCustomerId: String
+    $customerCountry: CountryCode
+    $customerType: CustomerTypeEnum
+    $externalSubscriptionId: String
   ) {
     dataApiUsagesAggregatedAmounts(
       currency: $currency
@@ -42,6 +46,10 @@ gql`
       billingEntityCode: $billingEntityCode
       isCustomerTinEmpty: $isCustomerTinEmpty
       planCode: $planCode
+      externalCustomerId: $externalCustomerId
+      customerCountry: $customerCountry
+      customerType: $customerType
+      externalSubscriptionId: $externalSubscriptionId
     ) {
       collection {
         amountCents
