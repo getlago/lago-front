@@ -73,7 +73,6 @@ gql`
 
   fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
     amountCents
-    # projectedAmountCents
     currency
     fromDatetime
     toDatetime
@@ -82,8 +81,6 @@ gql`
       units
       amountCents
       pricingUnitAmountCents
-      # projectedAmountCents
-      # projectedUnits
       charge {
         id
         invoiceDisplayName
@@ -108,8 +105,6 @@ gql`
         groupedBy
         eventsCount
         units
-        # projectedAmountCents
-        # projectedUnits
         filters {
           id
         }
@@ -163,17 +158,10 @@ type SubscriptionCurrentUsageTableComponentProps = {
 export const getPricingUnitAmountCents = (
   row: Pick<
     ChargeUsage | ChargeFilterUsage | GroupedChargeUsage,
-    | 'amountCents'
-    | 'pricingUnitAmountCents'
-    | 'projectedAmountCents'
-    | 'pricingUnitProjectedAmountCents'
+    'amountCents' | 'pricingUnitAmountCents'
   >,
-  // isProjected: boolean,
 ) => {
   return row.pricingUnitAmountCents || row.amountCents
-  // return isProjected
-  //   ? row.pricingUnitProjectedAmountCents || row.projectedAmountCents
-  //   : row.pricingUnitAmountCents || row.amountCents
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
