@@ -358,7 +358,15 @@ export const formatFiltersForWebhookLogsQuery = (searchParams: URLSearchParams) 
 }
 
 export const formatFiltersForUsageOverviewQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.country]: 'customerCountry',
+    [AvailableFiltersEnum.customerAccountType]: 'customerType',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
+  }
+
   return formatFiltersForQuery({
+    keyMap,
     searchParams,
     availableFilters: [...UsageOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
     filtersNamePrefix: ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
@@ -366,7 +374,15 @@ export const formatFiltersForUsageOverviewQuery = (searchParams: URLSearchParams
 }
 
 export const formatFiltersForUsageBreakdownQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.country]: 'customerCountry',
+    [AvailableFiltersEnum.customerAccountType]: 'customerType',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
+  }
+
   return formatFiltersForQuery({
+    keyMap,
     searchParams,
     availableFilters: UsageBreakdownAvailableFilters,
     filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
