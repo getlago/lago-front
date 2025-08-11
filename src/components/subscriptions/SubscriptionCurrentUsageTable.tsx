@@ -73,7 +73,6 @@ gql`
 
   fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
     amountCents
-    # projectedAmountCents
     currency
     fromDatetime
     toDatetime
@@ -82,8 +81,6 @@ gql`
       units
       amountCents
       pricingUnitAmountCents
-      # projectedAmountCents
-      # projectedUnits
       charge {
         id
         invoiceDisplayName
@@ -108,8 +105,6 @@ gql`
         groupedBy
         eventsCount
         units
-        # projectedAmountCents
-        # projectedUnits
         filters {
           id
         }
@@ -163,16 +158,10 @@ type SubscriptionCurrentUsageTableComponentProps = {
 export const getPricingUnitAmountCents = (
   row: Pick<
     ChargeUsage | ChargeFilterUsage | GroupedChargeUsage,
-    | 'amountCents'
-    | 'pricingUnitAmountCents'
-    | 'projectedAmountCents'
-    | 'pricingUnitProjectedAmountCents'
+    'amountCents' | 'pricingUnitAmountCents'
   >,
-  isProjected: boolean,
 ) => {
-  return isProjected
-    ? row.pricingUnitProjectedAmountCents || row.projectedAmountCents
-    : row.pricingUnitAmountCents || row.amountCents
+  return row.pricingUnitAmountCents || row.amountCents
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
@@ -446,10 +435,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                     <div className="flex flex-col">
                       <Typography variant="bodyHl" color="grey700">
                         {intlFormatNumber(
-                          deserializeAmount(
-                            getPricingUnitAmountCents(row, showProjected),
-                            currency,
-                          ),
+                          deserializeAmount(getPricingUnitAmountCents(row), currency),
                           {
                             currency,
                             locale,

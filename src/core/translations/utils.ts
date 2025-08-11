@@ -1,3 +1,5 @@
+import { captureMessage } from '@sentry/react'
+
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 
 import { Locale, TranslateData, Translation, Translations } from './types'
@@ -50,9 +52,13 @@ export const translateKey: (
   }
 
   if (!translations || !translations[key]) {
-    if ([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)) {
+    const translationErrorMessage = `Translation '${key}' for locale '${locale}' not found.`
+
+    if (appEnv === AppEnvEnum.production) {
+      captureMessage(translationErrorMessage)
+    } else if ([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)) {
       // eslint-disable-next-line no-console
-      console.warn(`Translation '${key}' for locale '${locale}' not found.`)
+      console.warn(translationErrorMessage)
     }
     return key
   }

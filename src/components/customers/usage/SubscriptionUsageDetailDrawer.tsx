@@ -37,39 +37,26 @@ type AmountCentsCellProps = {
   currency: CurrencyEnum
   locale?: LocaleEnum
   pricingUnitShortName?: string
-  showProjected: boolean
 }
 
-const AmountCentsCell = ({
-  row,
-  currency,
-  locale,
-  pricingUnitShortName,
-  showProjected,
-}: AmountCentsCellProps) => (
+const AmountCentsCell = ({ row, currency, locale, pricingUnitShortName }: AmountCentsCellProps) => (
   <div className="flex flex-col items-end">
     <Typography variant="bodyHl" color="grey700">
-      {intlFormatNumber(
-        deserializeAmount(getPricingUnitAmountCents(row, showProjected), currency) || 0,
-        {
-          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-          currency,
-          locale,
-          pricingUnitShortName,
-        },
-      )}
+      {intlFormatNumber(deserializeAmount(getPricingUnitAmountCents(row), currency) || 0, {
+        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+        currency,
+        locale,
+        pricingUnitShortName,
+      })}
     </Typography>
 
     {!!pricingUnitShortName && (
       <Typography variant="caption" color="grey600">
-        {intlFormatNumber(
-          deserializeAmount(showProjected ? row.projectedAmountCents : row.amountCents, currency),
-          {
-            currency,
-            locale,
-            currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-          },
-        )}
+        {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
+          currency,
+          locale,
+          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+        })}
       </Typography>
     )}
   </div>
@@ -82,9 +69,6 @@ gql`
     chargesUsage {
       id
       pricingUnitAmountCents
-      projectedAmountCents
-      pricingUnitProjectedAmountCents
-      projectedUnits
       charge {
         id
         invoiceDisplayName
@@ -106,9 +90,6 @@ gql`
         values
         invoiceDisplayName
         pricingUnitAmountCents
-        projectedAmountCents
-        pricingUnitProjectedAmountCents
-        projectedUnits
       }
       groupedUsage {
         id
@@ -117,9 +98,6 @@ gql`
         eventsCount
         units
         pricingUnitAmountCents
-        projectedAmountCents
-        pricingUnitProjectedAmountCents
-        projectedUnits
         filters {
           id
           amountCents
@@ -127,9 +105,6 @@ gql`
           values
           invoiceDisplayName
           pricingUnitAmountCents
-          projectedAmountCents
-          pricingUnitProjectedAmountCents
-          projectedUnits
         }
       }
     }
@@ -186,7 +161,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           amountHeader: translate('text_1753101927691fbbwyk7p39q'),
         }
 
-    const unitsKey = showProjected ? 'projectedUnits' : 'units'
+    const unitsKey = 'units'
 
     const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
     const hasAnyFilterInGroupUsage = usage?.groupedUsage?.some(
@@ -339,7 +314,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                             currency={currency}
                             locale={locale}
                             pricingUnitShortName={pricingUnitShortName}
-                            showProjected={showProjected}
                           />
                         ),
                       },
@@ -393,7 +367,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                     currency={currency}
                     locale={locale}
                     pricingUnitShortName={pricingUnitShortName}
-                    showProjected={showProjected}
                   />
                 ),
               },
@@ -455,7 +428,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                     currency={currency}
                     locale={locale}
                     pricingUnitShortName={pricingUnitShortName}
-                    showProjected={showProjected}
                   />
                 ),
               },
