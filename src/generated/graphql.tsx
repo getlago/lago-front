@@ -6235,6 +6235,8 @@ export type QueryCustomerUsageArgs = {
 
 export type QueryCustomersArgs = {
   accountType?: InputMaybe<Array<CustomerAccountTypeEnum>>;
+  activeSubscriptionsCountFrom?: InputMaybe<Scalars['Int']['input']>;
+  activeSubscriptionsCountTo?: InputMaybe<Scalars['Int']['input']>;
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -11492,6 +11494,8 @@ export type CustomersQueryVariables = Exact<{
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   accountType?: InputMaybe<Array<CustomerAccountTypeEnum> | CustomerAccountTypeEnum>;
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  activeSubscriptionsCountFrom?: InputMaybe<Scalars['Int']['input']>;
+  activeSubscriptionsCountTo?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
@@ -31223,13 +31227,15 @@ export type CreatePaymentRequestMutationHookResult = ReturnType<typeof useCreate
 export type CreatePaymentRequestMutationResult = Apollo.MutationResult<CreatePaymentRequestMutation>;
 export type CreatePaymentRequestMutationOptions = Apollo.BaseMutationOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
 export const CustomersDocument = gql`
-    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!]) {
+    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!], $activeSubscriptionsCountFrom: Int, $activeSubscriptionsCountTo: Int) {
   customers(
     page: $page
     limit: $limit
     searchTerm: $searchTerm
     accountType: $accountType
     billingEntityIds: $billingEntityIds
+    activeSubscriptionsCountFrom: $activeSubscriptionsCountFrom
+    activeSubscriptionsCountTo: $activeSubscriptionsCountTo
   ) {
     metadata {
       currentPage
@@ -31259,6 +31265,8 @@ export const CustomersDocument = gql`
  *      searchTerm: // value for 'searchTerm'
  *      accountType: // value for 'accountType'
  *      billingEntityIds: // value for 'billingEntityIds'
+ *      activeSubscriptionsCountFrom: // value for 'activeSubscriptionsCountFrom'
+ *      activeSubscriptionsCountTo: // value for 'activeSubscriptionsCountTo'
  *   },
  * });
  */

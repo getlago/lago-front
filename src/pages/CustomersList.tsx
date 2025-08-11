@@ -52,6 +52,8 @@ gql`
     $searchTerm: String
     $accountType: [CustomerAccountTypeEnum!]
     $billingEntityIds: [ID!]
+    $activeSubscriptionsCountFrom: Int
+    $activeSubscriptionsCountTo: Int
   ) {
     customers(
       page: $page
@@ -59,6 +61,8 @@ gql`
       searchTerm: $searchTerm
       accountType: $accountType
       billingEntityIds: $billingEntityIds
+      activeSubscriptionsCountFrom: $activeSubscriptionsCountFrom
+      activeSubscriptionsCountTo: $activeSubscriptionsCountTo
     ) {
       metadata {
         currentPage

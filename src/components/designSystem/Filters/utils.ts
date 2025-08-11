@@ -239,11 +239,26 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
 }
 
 export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+  const formatted = formatFiltersForQuery({
     searchParams,
     availableFilters: CustomerAvailableFilters,
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
   })
+
+  if (
+    formatted.activeSubscriptionsFrom !== undefined &&
+    formatted.activeSubscriptionsFrom !== null
+  ) {
+    formatted.activeSubscriptionsCountFrom = formatted.activeSubscriptionsFrom
+    delete formatted.activeSubscriptionsFrom
+  }
+
+  if (formatted.activeSubscriptionsTo !== undefined && formatted.activeSubscriptionsTo !== null) {
+    formatted.activeSubscriptionsCountTo = formatted.activeSubscriptionsTo
+    delete formatted.activeSubscriptionsTo
+  }
+
+  return formatted
 }
 
 export const formatFiltersForSubscriptionQuery = (searchParams: URLSearchParams) => {
