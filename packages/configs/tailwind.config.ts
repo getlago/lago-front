@@ -312,6 +312,13 @@ const config: Config = {
         },
       })
 
+      addUtilities({
+        '.rotate-90-tl': {
+          transform: 'rotate(90deg) translate(0%, -100%)',
+          transformOrigin: 'top left',
+        },
+      })
+
       /**
        * Variants
        */

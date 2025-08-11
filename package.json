@@ -108,7 +108,11 @@
   "dependencies": {
     "@apollo/client": "3.11.4",
     "@copilotkit/react-core": "^1.9.3",
+    "@copilotkit/react-textarea": "^1.10.0",
     "@copilotkit/react-ui": "^1.9.3",
+    "@llm-ui/code": "^0.13.3",
+    "@llm-ui/markdown": "^0.13.3",
+    "@llm-ui/react": "^0.13.3",
     "@mui/material": "5.14.18",
     "@mui/x-date-pickers": "6.20.0",
     "@nangohq/frontend": "^0.64.4",
@@ -125,6 +129,7 @@
     "formik": "2.4.6",
     "graphql": "^16.6.0",
     "graphql-ruby-client": "^1.14.8",
+    "html-react-parser": "^5.2.6",
     "lago-configs": "workspace:*",
     "lago-design-system": "workspace:*",
     "lago-expression": "0.1.6",
@@ -136,10 +141,13 @@
     "react": "18.2.0",
     "react-ace": "^11.0.1",
     "react-dom": "18.2.0",
+    "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.9",
     "react-router-dom": "6.15.0",
     "recharts": "^2.15.1",
+    "remark-gfm": "^4.0.1",
     "sanitize-html": "2.12.1",
+    "shiki": "^3.9.2",
     "yup": "1.2.0"
   },
   "engines": {

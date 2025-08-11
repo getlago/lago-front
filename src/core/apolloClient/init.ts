@@ -69,7 +69,6 @@ export const initializeApolloClient = async () => {
 
   // Create ActionCable link with proper configuration
   const cable = ActionCable.createConsumer(wsUrl)
-  // @ts-expect-error TODO: fix this
   const actionCableLink = new ActionCableLink({ cable })
 
   // Create upload link for file uploads

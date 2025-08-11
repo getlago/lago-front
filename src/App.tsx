@@ -17,6 +17,7 @@ import { UserIdentifier } from '~/components/UserIdentifier'
 import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { initializeYup } from '~/formValidation/initializeYup'
+import { AIAssistantProvider } from '~/hooks/useAIAssistantTool'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
 import { theme } from '~/styles'
 
@@ -50,9 +51,9 @@ const App = () => {
         <ThemeProvider theme={theme}>
           <DesignSystemProvider>
             <ErrorBoundary>
-              <DeveloperToolProvider>
-                <PanelGroup direction="horizontal">
-                  <Panel>
+              <PanelGroup direction="horizontal">
+                <Panel>
+                  <DeveloperToolProvider>
                     <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
                       <Panel id="app-panel" order={1}>
                         <div className="h-full overflow-auto">
@@ -65,12 +66,12 @@ const App = () => {
                         <DevtoolsView />
                       </MemoryRouter>
                     </PanelGroup>
-                  </Panel>
-                  <Panel>
-                    <AIAssistant />
-                  </Panel>
-                </PanelGroup>
-              </DeveloperToolProvider>
+                  </DeveloperToolProvider>
+                </Panel>
+                <AIAssistantProvider>
+                  <AIAssistant />
+                </AIAssistantProvider>
+              </PanelGroup>
             </ErrorBoundary>
             <UserIdentifier />
             <ToastContainer />

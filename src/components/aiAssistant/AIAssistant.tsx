@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import { Button } from 'lago-design-system'
-import { useState } from 'react'
+import { Panel } from 'react-resizable-panels'
 
-import { useCreateAiConversationMutation, useOnConversationSubscription } from '~/generated/graphql'
+import { NavSection } from '~/components/aiAssistant/NavSection'
+import { PANEL_CLOSED, PANEL_OPEN, useAIAssistantTool } from '~/hooks/useAIAssistantTool'
 
 gql`
   subscription onConversation($conversationId: ID!) {
@@ -26,52 +26,69 @@ gql`
 `
 
 export const AIAssistant = () => {
-  const [conversationId, setConversationId] = useState<string | null>(null)
+  const { panelRef } = useAIAssistantTool()
+  // const [conversationId, setConversationId] = useState<string | null>(null)
 
-  const [createAiConversation, { loading: mutationLoading, error: mutationError }] =
-    useCreateAiConversationMutation()
+  // const [createAiConversation, { loading: mutationLoading, error: mutationError }] =
+  //   useCreateAiConversationMutation()
 
-  const handleCreateAiConversation = async () => {
-    try {
-      await createAiConversation({
-        variables: { input: { inputData: 'Hello, how are you?' } },
+  // const handleCreateAiConversation = async () => {
+  //   try {
+  //     await createAiConversation({
+  //       variables: { input: { inputData: 'Hello, how are you?' } },
 
-        onCompleted: (data) => {
-          if (data.createAiConversation) {
-            setConversationId(data.createAiConversation.conversationId)
-          }
-        },
-      })
-    } catch {
-      // Handle error silently or log to monitoring service
-    }
-  }
+  //       onCompleted: (data) => {
+  //         if (data.createAiConversation) {
+  //           setConversationId(data.createAiConversation.conversationId)
+  //         }
+  //       },
+  //     })
+  //   } catch {
+  //     // Handle error silently or log to monitoring service
+  //   }
+  // }
 
-  const { data: subscriptionData, error: subscriptionError } = useOnConversationSubscription({
-    variables: { conversationId: conversationId ?? '' },
-    skip: !conversationId,
-  })
+  // const { data: subscriptionData, error: subscriptionError } = useOnConversationSubscription({
+  //   variables: { conversationId: conversationId ?? '' },
+  //   skip: !conversationId,
+  // })
 
-  console.log(conversationId, subscriptionData)
+  // const { blockMatches } = useLLMOutput({
+  //   llmOutput: subscriptionData?.aiConversationStreamed.inputData ?? '',
+  //   fallbackBlock: {
+  //     component: MarkdownComponent,
+  //     lookBack: markdownLookBack(),
+  //   },
+  //   blocks: [
+  //     {
+  //       component: CodeBlock,
+  //       findCompleteMatch: findCompleteCodeBlock(),
+  //       findPartialMatch: findPartialCodeBlock(),
+  //       lookBack: codeBlockLookBack(),
+  //     },
+  //   ],
+  //   isStreamFinished: false,
+  // })
 
   return (
-    <div>
-      <Button onClick={handleCreateAiConversation} disabled={mutationLoading}>
-        {mutationLoading ? 'Creating...' : 'Create AI Conversation'}
-      </Button>
-
-      {mutationError && <div className="mt-4 text-red-500">Error: {mutationError.message}</div>}
-
-      {subscriptionError && (
-        <div className="mt-4 text-red-500">Subscription Error: {subscriptionError.message}</div>
-      )}
-
-      {subscriptionData && (
-        <div className="mt-4">
-          <h3>Conversation Data:</h3>
-          <pre>{JSON.stringify(subscriptionData, null, 2)}</pre>
+    <>
+      <div className="relative">
+        <div className="h-screen w-12 bg-white shadow-l">
+          <div className="absolute rotate-90-tl">
+            <NavSection />
+          </div>
         </div>
-      )}
-    </div>
+      </div>
+
+      <Panel
+        ref={panelRef}
+        defaultSize={PANEL_CLOSED}
+        minSize={PANEL_CLOSED}
+        maxSize={PANEL_OPEN}
+        className="shadow-l"
+      >
+        <div>Hello</div>
+      </Panel>
+    </>
   )
 }
