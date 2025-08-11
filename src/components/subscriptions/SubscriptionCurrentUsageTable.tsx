@@ -168,11 +168,12 @@ export const getPricingUnitAmountCents = (
     | 'projectedAmountCents'
     | 'pricingUnitProjectedAmountCents'
   >,
-  isProjected: boolean,
+  // isProjected: boolean,
 ) => {
-  return isProjected
-    ? row.pricingUnitProjectedAmountCents || row.projectedAmountCents
-    : row.pricingUnitAmountCents || row.amountCents
+  return row.pricingUnitAmountCents || row.amountCents
+  // return isProjected
+  //   ? row.pricingUnitProjectedAmountCents || row.projectedAmountCents
+  //   : row.pricingUnitAmountCents || row.amountCents
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
@@ -446,10 +447,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                     <div className="flex flex-col">
                       <Typography variant="bodyHl" color="grey700">
                         {intlFormatNumber(
-                          deserializeAmount(
-                            getPricingUnitAmountCents(row, showProjected),
-                            currency,
-                          ),
+                          deserializeAmount(getPricingUnitAmountCents(row), currency),
                           {
                             currency,
                             locale,
