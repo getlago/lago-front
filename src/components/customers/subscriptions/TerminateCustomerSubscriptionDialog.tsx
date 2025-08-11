@@ -7,7 +7,6 @@ import { DialogRef } from '~/components/designSystem'
 import { RadioGroupField, SwitchField } from '~/components/form'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -44,8 +43,6 @@ gql`
         number
         currency
         invoiceType
-        availableToCreditAmountCents
-        creditableAmountCents
         refundableAmountCents
       }
     }
@@ -85,7 +82,6 @@ export const TerminateCustomerSubscriptionDialog =
     const invoice = invoicesData?.invoices?.collection?.[0]
     const currency = invoice?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
 
-    const creditableAmount = deserializeAmount(invoice?.creditableAmountCents, currency)
     const refundAmount = deserializeAmount(invoice?.refundableAmountCents, currency)
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
@@ -104,12 +100,18 @@ export const TerminateCustomerSubscriptionDialog =
       },
     })
 
+    const closeDialog = () => {
+      setContext(undefined)
+      formikProps.resetForm()
+      dialogRef.current?.closeDialog()
+    }
+
     useImperativeHandle(ref, () => ({
       openDialog: (infos) => {
         setContext(infos)
         dialogRef.current?.openDialog()
       },
-      closeDialog: () => dialogRef.current?.closeDialog(),
+      closeDialog,
     }))
 
     const formikProps = useFormik({
@@ -160,6 +162,7 @@ export const TerminateCustomerSubscriptionDialog =
         description={content.description}
         continueText={content.continueText}
         onContinue={() => formikProps.handleSubmit()}
+        onClose={closeDialog}
       >
         {context?.status === StatusTypeEnum.Active && (
           <div className="mb-8 flex flex-col gap-8">
@@ -198,17 +201,13 @@ export const TerminateCustomerSubscriptionDialog =
                   optionLabelVariant="body"
                   options={[
                     {
-                      label: translate('text_1753198825180a94n1872cz4', {
-                        amount: intlFormatNumber(creditableAmount),
-                      }),
+                      label: translate('text_1753198825180a94n1872cz4'),
                       sublabel: translate('text_17531988251808so7qch9zrf'),
                       value: OnTerminationCreditNoteEnum.Credit,
                     },
                     refundAmount > 0
                       ? {
-                          label: translate('text_1753198825180jnk5xbdev57', {
-                            amount: intlFormatNumber(refundAmount),
-                          }),
+                          label: translate('text_1753198825180jnk5xbdev57'),
                           sublabel: translate('text_1753198825180bu4iaf2tczy'),
                           value: OnTerminationCreditNoteEnum.Refund,
                         }
