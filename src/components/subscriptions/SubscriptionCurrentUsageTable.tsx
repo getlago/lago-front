@@ -73,7 +73,7 @@ gql`
 
   fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
     amountCents
-    projectedAmountCents
+    # projectedAmountCents
     currency
     fromDatetime
     toDatetime
@@ -82,8 +82,8 @@ gql`
       units
       amountCents
       pricingUnitAmountCents
-      projectedAmountCents
-      projectedUnits
+      # projectedAmountCents
+      # projectedUnits
       charge {
         id
         invoiceDisplayName
@@ -108,8 +108,8 @@ gql`
         groupedBy
         eventsCount
         units
-        projectedAmountCents
-        projectedUnits
+        # projectedAmountCents
+        # projectedUnits
         filters {
           id
         }
@@ -230,8 +230,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
             : translate('text_62c3f454e5d7f4ec8888c1d7'),
       }
 
-  const amountCentsKey = showProjected ? 'projectedAmountCents' : 'amountCents'
-  const unitsKey = showProjected ? 'projectedUnits' : 'units'
+  const amountCentsKey = 'amountCents' // showProjected ? 'projectedAmountCents' : 'amountCents'
+  const unitsKey = 'units' // showProjected ? 'projectedUnits' : 'units'
 
   return (
     <section>
@@ -280,9 +280,11 @@ export const SubscriptionCurrentUsageTableComponent = ({
           {
             title: translate('text_1753094834414fgnvuior3iv'),
           },
+          /*
           {
             title: translate('text_1753094834414tu9mxavuco7'),
           },
+          */
         ]}
       />
 
