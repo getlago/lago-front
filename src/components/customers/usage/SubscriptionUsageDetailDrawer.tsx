@@ -259,9 +259,11 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
             {
               title: translate('text_1753094834414fgnvuior3iv'),
             },
+            /*
             {
               title: translate('text_1753094834414tu9mxavuco7'),
             },
+            */
           ]}
         />
 
