@@ -67,7 +67,7 @@ gql`
     $searchTerm: String
     $status: [StatusTypeEnum!]
     $externalCustomerId: String
-    $overriden: Boolean
+    $overridden: Boolean
     $planCode: String
   ) {
     subscriptions(
@@ -76,7 +76,7 @@ gql`
       status: $status
       searchTerm: $searchTerm
       externalCustomerId: $externalCustomerId
-      overriden: $overriden
+      overridden: $overridden
       planCode: $planCode
     ) {
       collection {
@@ -201,11 +201,11 @@ const SubscriptionsPage = () => {
             },
 
             {
-              key: 'isOverriden',
+              key: 'isOverridden',
               title: translate('text_65281f686a80b400c8e2f6c4'),
-              content: ({ isOverriden }) => (
+              content: ({ isOverridden }) => (
                 <Typography>
-                  {isOverriden
+                  {isOverridden
                     ? translate('text_65281f686a80b400c8e2f6dd')
                     : translate('text_65281f686a80b400c8e2f6d1')}
                 </Typography>

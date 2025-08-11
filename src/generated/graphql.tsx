@@ -6620,7 +6620,7 @@ export type QuerySubscriptionArgs = {
 export type QuerySubscriptionsArgs = {
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  overriden?: InputMaybe<Scalars['Boolean']['input']>;
+  overridden?: InputMaybe<Scalars['Boolean']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -11623,7 +11623,7 @@ export type GetSubscriptionsListQueryVariables = Exact<{
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<StatusTypeEnum> | StatusTypeEnum>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
-  overriden?: InputMaybe<Scalars['Boolean']['input']>;
+  overridden?: InputMaybe<Scalars['Boolean']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
@@ -31869,14 +31869,14 @@ export type GetSubscriptionForDetailsLazyQueryHookResult = ReturnType<typeof use
 export type GetSubscriptionForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsSuspenseQuery>;
 export type GetSubscriptionForDetailsQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>;
 export const GetSubscriptionsListDocument = gql`
-    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!], $externalCustomerId: String, $overriden: Boolean, $planCode: String) {
+    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!], $externalCustomerId: String, $overridden: Boolean, $planCode: String) {
   subscriptions(
     limit: $limit
     page: $page
     status: $status
     searchTerm: $searchTerm
     externalCustomerId: $externalCustomerId
-    overriden: $overriden
+    overridden: $overridden
     planCode: $planCode
   ) {
     collection {
@@ -31908,7 +31908,7 @@ export const GetSubscriptionsListDocument = gql`
  *      searchTerm: // value for 'searchTerm'
  *      status: // value for 'status'
  *      externalCustomerId: // value for 'externalCustomerId'
- *      overriden: // value for 'overriden'
+ *      overridden: // value for 'overridden'
  *      planCode: // value for 'planCode'
  *   },
  * });

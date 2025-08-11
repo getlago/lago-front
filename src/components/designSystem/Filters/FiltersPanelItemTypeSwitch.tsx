@@ -83,7 +83,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
     [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,
     [AvailableFiltersEnum.loggedDate]: <FiltersItemLoggedDate {...props} />,
-    [AvailableFiltersEnum.overriden]: <FiltersItemOverridden {...props} />,
+    [AvailableFiltersEnum.overridden]: <FiltersItemOverridden {...props} />,
     [AvailableFiltersEnum.partiallyPaid]: <FiltersItemPartiallyPaid {...props} />,
     [AvailableFiltersEnum.paymentDisputeLost]: <FiltersItemPaymentDisputeLost {...props} />,
     [AvailableFiltersEnum.paymentOverdue]: <FiltersItemPaymentOverdue {...props} />,

@@ -136,7 +136,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       toDate: (value as string).split(',')[1],
     }
   },
-  [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.overridden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',

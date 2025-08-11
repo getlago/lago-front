@@ -46,7 +46,7 @@ export enum AvailableFiltersEnum {
   invoiceType = 'invoiceType',
   issuingDate = 'issuingDate',
   loggedDate = 'loggedDate',
-  overriden = 'overriden',
+  overridden = 'overridden',
   partiallyPaid = 'partiallyPaid',
   paymentDisputeLost = 'paymentDisputeLost',
   paymentOverdue = 'paymentOverdue',
@@ -214,7 +214,7 @@ export const ApiLogsAvailableFilters = [
 
 export const SubscriptionAvailableFilters = [
   AvailableFiltersEnum.customerExternalId,
-  AvailableFiltersEnum.overriden,
+  AvailableFiltersEnum.overridden,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionStatus,
 ]
@@ -243,7 +243,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.invoiceType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.issuingDate]: 'text_6419c64eace749372fc72b39',
   [AvailableFiltersEnum.loggedDate]: 'text_1747666154074cdsfaq5c4bz',
-  [AvailableFiltersEnum.overriden]: 'text_65281f686a80b400c8e2f6dd',
+  [AvailableFiltersEnum.overridden]: 'text_65281f686a80b400c8e2f6dd',
   [AvailableFiltersEnum.partiallyPaid]: 'text_1738071221799vib0l2z1bxe',
   [AvailableFiltersEnum.paymentDisputeLost]: 'text_66141e30699a0631f0b2ed32',
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
