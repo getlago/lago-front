@@ -69,14 +69,10 @@ export const FiltersItemActiveSubscriptions = ({
       { from: 'activeSubscriptionsFrom', to: 'activeSubscriptionsTo' },
     )
 
-    setFilterValue?.(`${interval},${from || ''},${to || ''}`)
+    setFilterValue?.(`${interval},${from !== null ? from : ''},${to !== null ? to : ''}`)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    formikProps.values.interval,
-    formikProps.values.activeSubscriptionsFrom,
-    formikProps.values.activeSubscriptionsTo,
-  ])
+  }, [formikProps.values])
 
   return (
     <div className="flex items-center gap-2 lg:gap-3">
@@ -94,7 +90,7 @@ export const FiltersItemActiveSubscriptions = ({
       {showFrom && (
         <TextInputField
           name="activeSubscriptionsFrom"
-          beforeChangeFormatter={['chargeDecimal']}
+          beforeChangeFormatter={['int', 'positiveNumber']}
           type="number"
           placeholder="0"
           formikProps={formikProps}
@@ -106,7 +102,7 @@ export const FiltersItemActiveSubscriptions = ({
       {showTo && (
         <TextInputField
           name="activeSubscriptionsTo"
-          beforeChangeFormatter={['chargeDecimal']}
+          beforeChangeFormatter={['int', 'positiveNumber']}
           type="number"
           placeholder="0"
           formikProps={formikProps}

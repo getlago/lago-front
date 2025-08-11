@@ -66,8 +66,8 @@ const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${k
 export const parseFromToValue = (value: string, keys: { from: string; to: string }) => {
   const [interval, from, to] = value.split(',')
 
-  const fromAmount = from ? Number(from) : null
-  const toAmount = to ? Number(to) : null
+  const fromAmount = from !== undefined && from !== '' ? Number(from) : null
+  const toAmount = to !== undefined && to !== '' ? Number(to) : null
 
   switch (interval) {
     case AmountFilterInterval.isEqualTo:
@@ -81,24 +81,16 @@ export const parseFromToValue = (value: string, keys: { from: string; to: string
         [keys.to]: toAmount,
       }
     case AmountFilterInterval.isUpTo:
+    case ActiveSubscriptionsFilterInterval.isLessThan:
       return {
         [keys.from]: null,
         [keys.to]: toAmount,
       }
     case AmountFilterInterval.isAtLeast:
-      return {
-        [keys.from]: fromAmount,
-        [keys.to]: null,
-      }
     case ActiveSubscriptionsFilterInterval.isGreaterThan:
       return {
         [keys.from]: fromAmount,
         [keys.to]: null,
-      }
-    case ActiveSubscriptionsFilterInterval.isLessThan:
-      return {
-        [keys.from]: null,
-        [keys.to]: toAmount,
       }
     default:
       return {
