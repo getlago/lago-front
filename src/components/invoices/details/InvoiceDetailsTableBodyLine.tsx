@@ -9,6 +9,7 @@ import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   AdjustedFeeTypeEnum,
   ChargeModelEnum,
@@ -44,6 +45,10 @@ gql`
     adjustedFee
     adjustedFeeType
     succeededAt
+    properties {
+      fromDatetime
+      toDatetime
+    }
     pricingUnitUsage {
       amountCents
       conversionRate
@@ -259,6 +264,14 @@ export const InvoiceDetailsTableBodyLine = memo(
                 </Typography>
               )}
             </Stack>
+            {!!fee?.properties?.fromDatetime && !!fee?.properties?.toDatetime && (
+              <Typography variant="caption" color="grey600">
+                {translate('text_633dae57ca9a923dd53c2097', {
+                  fromDate: intlFormatDateTime(fee.properties.fromDatetime).date,
+                  toDate: intlFormatDateTime(fee.properties.toDatetime).date,
+                })}
+              </Typography>
+            )}
             {(succeededDate || !!subLabel) && (
               <Typography variant="caption" color="grey600">
                 {succeededDate}

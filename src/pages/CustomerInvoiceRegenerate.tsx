@@ -470,6 +470,8 @@ const CustomerInvoiceRegenerate = () => {
                         serializeAmount(f.preciseUnitAmount, invoice?.currency || CurrencyEnum.Usd),
                       ),
                       units: f.units,
+                      fromDatetime: f.properties?.fromDatetime,
+                      toDatetime: f.properties?.toDatetime,
                     })),
                   },
                 },

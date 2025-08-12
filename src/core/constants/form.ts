@@ -18,6 +18,7 @@ export const dateErrorCodes = {
   wrongFormat: 'wrongFormat',
   shouldBeInFuture: 'shouldBeInFuture',
   shouldBeFutureAndBiggerThanSubscriptionAt: 'shouldBeFutureAndBiggerThanSubscriptionAt',
+  shouldBeFutureAndBiggerThanFromDatetime: 'shouldBeFutureAndBiggerThanFromDatetime',
 } as const
 export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLowerThanMax'
 

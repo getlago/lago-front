@@ -6,8 +6,8 @@ import {
   ChargeFilterUsage,
   Fee,
   FeeTypesEnum,
+  InvoiceForDetailsTableFragment,
   InvoiceStatusTypeEnum,
-  InvoiceSubscription,
 } from '~/generated/graphql'
 
 gql`
@@ -154,7 +154,7 @@ export const groupAndFormatFees = ({
   invoiceSubscriptions,
   hasOldZeroFeeManagement,
 }: {
-  invoiceSubscriptions: InvoiceSubscription[] | null | undefined
+  invoiceSubscriptions: InvoiceForDetailsTableFragment['invoiceSubscriptions'] | null | undefined
   hasOldZeroFeeManagement: boolean
 }): TFormatedInvoiceSubscriptionDataForDisplay => {
   let hasAnyFeeParsed = false

@@ -7,7 +7,7 @@ import {
   groupAndFormatFees,
   TExtendedRemainingFee,
 } from '~/core/formats/formatInvoiceItemsMap'
-import { InvoiceSubscription } from '~/generated/graphql'
+import { InvoiceForDetailsTableFragment } from '~/generated/graphql'
 
 import {
   chargeZeroAmount,
@@ -78,7 +78,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return default values if there are no fees', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: noFees as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            noFees as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: true,
         })
 
@@ -86,7 +87,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return default values if there are only sub fee with 0 amountCents', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: subZeroAmount as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            subZeroAmount as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: true,
         })
 
@@ -94,7 +96,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: chargeZeroAmount as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            chargeZeroAmount as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: true,
         })
 
@@ -102,7 +105,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return all values if invoice has draft status', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: chargeZeroAmountDraftInvoice as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            chargeZeroAmountDraftInvoice as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: true,
         })
 
@@ -110,7 +114,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return the correct values if there are 1 subscription', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: oneSubscription as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            oneSubscription as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: true,
         })
 
@@ -118,7 +123,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return the correct values if there are 2 subscription', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: twoSubscriptions as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            twoSubscriptions as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: true,
         })
 
@@ -126,7 +132,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return the correct order for a given subscription', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: unorderedSubscriptionWithFees as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            unorderedSubscriptionWithFees as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: true,
         })
 
@@ -148,7 +155,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return default values if there are no fees', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: noFees as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            noFees as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: false,
         })
 
@@ -156,7 +164,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return default values if there are only sub fee with 0 amountCents', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: subZeroAmount as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            subZeroAmount as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: false,
         })
 
@@ -164,7 +173,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: chargeZeroAmount as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            chargeZeroAmount as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: false,
         })
 
@@ -172,7 +182,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return all values if invoice has draft status', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: chargeZeroAmountDraftInvoice as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            chargeZeroAmountDraftInvoice as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: false,
         })
 
@@ -180,7 +191,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return the correct values if there are 1 subscription', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: oneSubscription as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            oneSubscription as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: false,
         })
 
@@ -188,7 +200,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return the correct values if there are 2 subscription', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: twoSubscriptions as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            twoSubscriptions as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: false,
         })
 
@@ -196,7 +209,8 @@ describe('formatInvoiceItemsMap', () => {
       })
       it('should return the correct order for a given subscription', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: unorderedSubscriptionWithFees as unknown as InvoiceSubscription[],
+          invoiceSubscriptions:
+            unorderedSubscriptionWithFees as unknown as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
           hasOldZeroFeeManagement: false,
         })
 
