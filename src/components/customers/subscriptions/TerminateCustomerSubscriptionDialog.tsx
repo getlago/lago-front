@@ -100,18 +100,15 @@ export const TerminateCustomerSubscriptionDialog =
       },
     })
 
-    const closeDialog = () => {
-      setContext(undefined)
-      formikProps.resetForm()
-      dialogRef.current?.closeDialog()
-    }
-
     useImperativeHandle(ref, () => ({
       openDialog: (infos) => {
+        formikProps.resetForm()
         setContext(infos)
         dialogRef.current?.openDialog()
       },
-      closeDialog,
+      closeDialog: () => {
+        dialogRef.current?.closeDialog()
+      },
     }))
 
     const formikProps = useFormik({
@@ -162,7 +159,6 @@ export const TerminateCustomerSubscriptionDialog =
         description={content.description}
         continueText={content.continueText}
         onContinue={() => formikProps.handleSubmit()}
-        onClose={closeDialog}
       >
         {context?.status === StatusTypeEnum.Active && (
           <div className="mb-8 flex flex-col gap-8">
