@@ -82,6 +82,7 @@ export const ComboBoxVirtualizedList = ({ elements, value }: ComboBoxVirtualized
           <div
             key={virtualRow.key}
             ref={rowVirtualizer.measureElement}
+            data-index={virtualRow.index}
             className="absolute left-0 top-0 w-full"
             style={{
               height: `${virtualRow.size}px`,
