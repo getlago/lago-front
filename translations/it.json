@@ -140,5 +140,13 @@
   "text_1736972452609qdjngeuqsz0": "Declassamento",
   "text_1736972452609g2v8mzgvi2t": "Programmato",
   "text_17429854230668s8zhn9ujq6": "Annullato",
-  "text_1746621029319goh9pr7g67d": "Consegnato"
+  "text_1746621029319goh9pr7g67d": "Consegnato",
+  "text_17265631916994iccuwziryu": "Ultima soglia: {{amount}}",
+  "text_172656319170006dm5ta4sd8": "Prossima soglia: {{amount}}",
+  "text_17265631917004vcwz8zc0gy": "Prossima soglia non impostata",
+  "text_17530956928381jy5n59318d": "Utilizzo totale attuale",
+  "text_1753095789277h17a2varizl": "(escl. tasse)",
+  "text_1753095789277t9kbe8y5pmh": "Unità attuali",
+  "text_1753101927691fbbwyk7p39q": "Importo attuale"
 }
+
