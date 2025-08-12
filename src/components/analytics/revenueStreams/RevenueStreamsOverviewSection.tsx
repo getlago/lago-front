@@ -3,7 +3,7 @@ import { Icon } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useRevenueAnalyticsOverview } from '~/components/analytics/revenueStreams/useRevenueAnalyticsOverview'
-import { Button, HorizontalDataTable, Typography } from '~/components/designSystem'
+import { Button, HorizontalDataTable, RowType, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
   Filters,
@@ -17,7 +17,10 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { TimeGranularityEnum } from '~/generated/graphql'
+import {
+  RevenueStreamDataForOverviewSectionFragment,
+  TimeGranularityEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
@@ -33,6 +36,11 @@ gql`
     startOfPeriodDt
     subscriptionFeeAmountCents
     usageBasedFeeAmountCents
+    contraRevenueAmountCents
+    creditNotesCreditsAmountCents
+    freeCreditsAmountCents
+    prepaidCreditsAmountCents
+    progressiveBillingCreditAmountCents
   }
 `
 
@@ -216,8 +224,39 @@ export const RevenueStreamsOverviewSection = ({
                 },
               },
               {
+                key: 'group-gross-revenue',
+                type: 'group',
+                label: (
+                  <Typography variant="bodyHl" color="grey700">
+                    {translate('text_175500671394912uwyzji3j3')}
+                  </Typography>
+                ),
+                content: (item) => {
+                  const grossRevenueAmountCents = Number(item.grossRevenueAmountCents) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-grey-700': grossRevenueAmountCents > 0,
+                        'text-grey-500': grossRevenueAmountCents === 0,
+                      })}
+                    >
+                      {intlFormatNumber(
+                        deserializeAmount(grossRevenueAmountCents || 0, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
+                    </Typography>
+                  )
+                },
+              },
+              {
                 key: 'subscriptionFeeAmountCents',
                 type: 'data',
+                groupKey: 'group-gross-revenue',
                 label: (
                   <div className="flex items-center gap-2">
                     <div
@@ -226,7 +265,7 @@ export const RevenueStreamsOverviewSection = ({
                         backgroundColor: REVENUE_STREAMS_GRAPH_COLORS.subscriptionFeeAmountCents,
                       }}
                     ></div>
-                    <Typography variant="bodyHl" color="grey700">
+                    <Typography variant="bodyHl" color="grey600">
                       {translate('text_1728472697691k6k2e9m5ibb')}
                     </Typography>
                   </div>
@@ -256,6 +295,7 @@ export const RevenueStreamsOverviewSection = ({
               {
                 key: 'usageBasedFeeAmountCents',
                 type: 'data',
+                groupKey: 'group-gross-revenue',
                 label: (
                   <div className="flex items-center gap-2">
                     <div
@@ -264,7 +304,7 @@ export const RevenueStreamsOverviewSection = ({
                         backgroundColor: REVENUE_STREAMS_GRAPH_COLORS.usageBasedFeeAmountCents,
                       }}
                     ></div>
-                    <Typography variant="bodyHl" color="grey700">
+                    <Typography variant="bodyHl" color="grey600">
                       {translate('text_1725983967306cei92rkdtvb')}
                     </Typography>
                   </div>
@@ -294,6 +334,7 @@ export const RevenueStreamsOverviewSection = ({
               {
                 key: 'commitmentFeeAmountCents',
                 type: 'data',
+                groupKey: 'group-gross-revenue',
                 label: (
                   <div className="flex items-center gap-2">
                     <div
@@ -302,7 +343,7 @@ export const RevenueStreamsOverviewSection = ({
                         backgroundColor: REVENUE_STREAMS_GRAPH_COLORS.commitmentFeeAmountCents,
                       }}
                     ></div>
-                    <Typography variant="bodyHl" color="grey700">
+                    <Typography variant="bodyHl" color="grey600">
                       {translate('text_1739270764222q8lrgvllulk')}
                     </Typography>
                   </div>
@@ -332,6 +373,7 @@ export const RevenueStreamsOverviewSection = ({
               {
                 key: 'oneOffFeeAmountCents',
                 type: 'data',
+                groupKey: 'group-gross-revenue',
                 label: (
                   <div className="flex items-center gap-2">
                     <div
@@ -340,7 +382,7 @@ export const RevenueStreamsOverviewSection = ({
                         backgroundColor: REVENUE_STREAMS_GRAPH_COLORS.oneOffFeeAmountCents,
                       }}
                     ></div>
-                    <Typography variant="bodyHl" color="grey700">
+                    <Typography variant="bodyHl" color="grey600">
                       {translate('text_1728472697691t126b808cm9')}
                     </Typography>
                   </div>
@@ -368,57 +410,90 @@ export const RevenueStreamsOverviewSection = ({
                 },
               },
               {
-                key: 'grossRevenueAmountCents',
-                type: 'data',
+                key: 'group-contra-revenue',
+                type: 'group',
                 label: (
                   <Typography variant="bodyHl" color="grey700">
-                    {translate('text_1739869126030nbuobu5baxi')}
+                    {translate('text_1755006713949kxxllkhyhs8')}
                   </Typography>
                 ),
                 content: (item) => {
-                  const grossRevenueAmountCents = Number(item.grossRevenueAmountCents) || 0
+                  const amountCents = Number(item.contraRevenueAmountCents) || 0
 
                   return (
                     <Typography
                       variant="body"
                       className={tw({
-                        'text-grey-700': grossRevenueAmountCents > 0,
-                        'text-grey-500': grossRevenueAmountCents === 0,
+                        'text-grey-700': amountCents > 0,
+                        'text-grey-500': amountCents === 0,
                       })}
                     >
-                      {intlFormatNumber(
-                        deserializeAmount(grossRevenueAmountCents || 0, selectedCurrency),
-                        {
-                          currencyDisplay: 'symbol',
-                          currency: selectedCurrency,
-                        },
-                      )}
+                      {intlFormatNumber(deserializeAmount(amountCents || 0, selectedCurrency), {
+                        currencyDisplay: 'symbol',
+                        currency: selectedCurrency,
+                      })}
                     </Typography>
                   )
                 },
               },
-              {
-                key: 'couponsAmountCents',
-                type: 'data',
+              ...[
+                ['progressiveBillingCreditAmountCents', translate('text_1755006713949x80sxn5bvd4')],
+                ['couponsAmountCents', translate('text_637ccf8133d2c9a7d11ce705')],
+                ['creditNotesCreditsAmountCents', translate('text_1755006713949ksjohbrgqo5')],
+                ['freeCreditsAmountCents', translate('text_1755006713949geovngomwmu')],
+                ['prepaidCreditsAmountCents', translate('text_1755006713949odq7tdintz4')],
+              ].map((rowData: string[]) => ({
+                key: rowData[0],
+                type: 'data' as RowType,
+                groupKey: 'group-contra-revenue',
                 label: (
-                  <Typography variant="bodyHl" color="grey700">
-                    {translate('text_637ccf8133d2c9a7d11ce705')}
+                  <Typography variant="bodyHl" color="grey600">
+                    {rowData[1]}
                   </Typography>
                 ),
-                content: (item) => {
-                  const couponsAmountCents = Number(item.couponsAmountCents) || 0
+                content: (item: RevenueStreamDataForOverviewSectionFragment) => {
+                  const amount =
+                    item[rowData[0] as keyof RevenueStreamDataForOverviewSectionFragment]
+                  const amountCents = Number(amount) || 0
 
                   return (
                     <Typography
                       variant="body"
                       className={tw({
-                        'text-red-600': couponsAmountCents > 0,
-                        'text-grey-500': couponsAmountCents === 0,
+                        'text-red-600': amountCents > 0,
+                        'text-grey-500': amountCents === 0,
                       })}
                     >
-                      {couponsAmountCents > 0 && '-'}
+                      {amountCents > 0 && '-'}
+                      {intlFormatNumber(deserializeAmount(amountCents || 0, selectedCurrency), {
+                        currencyDisplay: 'symbol',
+                        currency: selectedCurrency,
+                      })}
+                    </Typography>
+                  )
+                },
+              })),
+              {
+                key: 'group-net-revenue',
+                type: 'group',
+                label: (
+                  <Typography variant="bodyHl" color="grey700">
+                    {translate('text_1755006713949xtjl2283qt5')}
+                  </Typography>
+                ),
+                content: (item) => {
+                  const netRevenueAmountCents = Number(item.netRevenueAmountCents) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-grey-700': netRevenueAmountCents > 0,
+                        'text-grey-500': netRevenueAmountCents === 0,
+                      })}
+                    >
                       {intlFormatNumber(
-                        deserializeAmount(couponsAmountCents || 0, selectedCurrency),
+                        deserializeAmount(netRevenueAmountCents || 0, selectedCurrency),
                         {
                           currencyDisplay: 'symbol',
                           currency: selectedCurrency,
@@ -431,8 +506,9 @@ export const RevenueStreamsOverviewSection = ({
               {
                 key: 'netRevenueAmountCents',
                 type: 'data',
+                groupKey: 'group-net-revenue',
                 label: (
-                  <Typography variant="bodyHl" color="grey700">
+                  <Typography variant="bodyHl" color="grey600">
                     {translate('text_1739869126030kuxz0uvfj02')}
                   </Typography>
                 ),
