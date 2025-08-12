@@ -2724,11 +2724,16 @@ export type DataApiRevenueStream = {
   __typename?: 'DataApiRevenueStream';
   amountCurrency: CurrencyEnum;
   commitmentFeeAmountCents: Scalars['BigInt']['output'];
+  contraRevenueAmountCents: Scalars['BigInt']['output'];
   couponsAmountCents: Scalars['BigInt']['output'];
+  creditNotesCreditsAmountCents: Scalars['BigInt']['output'];
   endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  freeCreditsAmountCents: Scalars['BigInt']['output'];
   grossRevenueAmountCents: Scalars['BigInt']['output'];
   netRevenueAmountCents: Scalars['BigInt']['output'];
   oneOffFeeAmountCents: Scalars['BigInt']['output'];
+  prepaidCreditsAmountCents: Scalars['BigInt']['output'];
+  progressiveBillingCreditAmountCents: Scalars['BigInt']['output'];
   startOfPeriodDt: Scalars['ISO8601Date']['output'];
   subscriptionFeeAmountCents: Scalars['BigInt']['output'];
   usageBasedFeeAmountCents: Scalars['BigInt']['output'];
@@ -8484,7 +8489,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 
 export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare?: number | null }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
-export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
+export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any, contraRevenueAmountCents: any, creditNotesCreditsAmountCents: any, freeCreditsAmountCents: any, prepaidCreditsAmountCents: any, progressiveBillingCreditAmountCents: any };
 
 export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -8510,7 +8515,7 @@ export type GetRevenueStreamsQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
+export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any, contraRevenueAmountCents: any, creditNotesCreditsAmountCents: any, freeCreditsAmountCents: any, prepaidCreditsAmountCents: any, progressiveBillingCreditAmountCents: any }> } };
 
 export type GetUsageBillableMetricQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -12428,6 +12433,11 @@ export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
   startOfPeriodDt
   subscriptionFeeAmountCents
   usageBasedFeeAmountCents
+  contraRevenueAmountCents
+  creditNotesCreditsAmountCents
+  freeCreditsAmountCents
+  prepaidCreditsAmountCents
+  progressiveBillingCreditAmountCents
 }
     `;
 export const BillableMetricDetailsFragmentDoc = gql`
