@@ -249,7 +249,7 @@ const SubscriptionsPage = () => {
                 ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_1751462194856885bttkg6wt')}
+          actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
           onRowActionLink={({ id, customer }) =>
             generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
               customerId: customer.id,
