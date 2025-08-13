@@ -36,6 +36,8 @@ import {
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
+  ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP,
+  ActiveSubscriptionsFilterInterval,
   ActivityLogsAvailableFilters,
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   AmountFilterInterval,
@@ -61,37 +63,39 @@ import {
 
 const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
 
-export const parseAmountValue = (value: string) => {
+export const parseFromToValue = (value: string, keys: { from: string; to: string }) => {
   const [interval, from, to] = value.split(',')
 
-  const fromAmount = from ? Number(from) : null
-  const toAmount = to ? Number(to) : null
+  const fromAmount = from !== undefined && from !== '' ? Number(from) : null
+  const toAmount = to !== undefined && to !== '' ? Number(to) : null
 
   switch (interval) {
     case AmountFilterInterval.isEqualTo:
       return {
-        amountFrom: fromAmount,
-        amountTo: fromAmount,
+        [keys.from]: fromAmount,
+        [keys.to]: fromAmount,
       }
     case AmountFilterInterval.isBetween:
       return {
-        amountFrom: fromAmount,
-        amountTo: toAmount,
+        [keys.from]: fromAmount,
+        [keys.to]: toAmount,
       }
     case AmountFilterInterval.isUpTo:
+    case ActiveSubscriptionsFilterInterval.isLessThan:
       return {
-        amountFrom: null,
-        amountTo: toAmount,
+        [keys.from]: null,
+        [keys.to]: toAmount,
       }
     case AmountFilterInterval.isAtLeast:
+    case ActiveSubscriptionsFilterInterval.isGreaterThan:
       return {
-        amountFrom: fromAmount,
-        amountTo: null,
+        [keys.from]: fromAmount,
+        [keys.to]: null,
       }
     default:
       return {
-        amountFrom: null,
-        amountTo: null,
+        [keys.from]: null,
+        [keys.to]: null,
       }
   }
 }
@@ -100,7 +104,10 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activityIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.activitySources]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.activityTypes]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.amount]: parseAmountValue,
+  [AvailableFiltersEnum.activeSubscriptions]: (value: string) =>
+    parseFromToValue(value, { from: 'activeSubscriptionsFrom', to: 'activeSubscriptionsTo' }),
+  [AvailableFiltersEnum.amount]: (value: string) =>
+    parseFromToValue(value, { from: 'amountFrom', to: 'amountTo' }),
   [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
     value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
@@ -232,11 +239,26 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
 }
 
 export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+  const formatted = formatFiltersForQuery({
     searchParams,
     availableFilters: CustomerAvailableFilters,
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
   })
+
+  if (
+    formatted.activeSubscriptionsFrom !== undefined &&
+    formatted.activeSubscriptionsFrom !== null
+  ) {
+    formatted.activeSubscriptionsCountFrom = formatted.activeSubscriptionsFrom
+    delete formatted.activeSubscriptionsFrom
+  }
+
+  if (formatted.activeSubscriptionsTo !== undefined && formatted.activeSubscriptionsTo !== null) {
+    formatted.activeSubscriptionsCountTo = formatted.activeSubscriptionsTo
+    delete formatted.activeSubscriptionsTo
+  }
+
+  return formatted
 }
 
 export const formatFiltersForSubscriptionQuery = (searchParams: URLSearchParams) => {
@@ -459,6 +481,23 @@ export const formatActiveFilterValueDisplay = (
 
     const and =
       interval === AmountFilterInterval.isBetween
+        ? translate?.('text_65f8472df7593301061e27d6').toLowerCase()
+        : ''
+
+    return `${intervalLabel} ${from || ''} ${and} ${isEqual ? '' : to || ''}`
+  }
+
+  if (key === AvailableFiltersEnum.activeSubscriptions) {
+    const [interval, from, to] = value.split(',')
+
+    const intervalLabel = translate?.(
+      ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP[interval as ActiveSubscriptionsFilterInterval],
+    )
+
+    const isEqual = interval === ActiveSubscriptionsFilterInterval.isEqualTo
+
+    const and =
+      interval === ActiveSubscriptionsFilterInterval.isBetween
         ? translate?.('text_65f8472df7593301061e27d6').toLowerCase()
         : ''
 

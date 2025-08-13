@@ -7,7 +7,7 @@ import {
   AmountFilterInterval,
   FiltersFormValues,
 } from '~/components/designSystem/Filters/types'
-import { parseAmountValue } from '~/components/designSystem/Filters/utils'
+import { parseFromToValue } from '~/components/designSystem/Filters/utils'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -51,11 +51,12 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
   useEffect(() => {
     const { interval, amountFrom, amountTo } = formikProps.values
 
-    const { amountFrom: from, amountTo: to } = parseAmountValue(
+    const { amountFrom: from, amountTo: to } = parseFromToValue(
       `${interval},${amountFrom},${amountTo}`,
+      { from: 'amountFrom', to: 'amountTo' },
     )
 
-    setFilterValue?.(`${interval},${from || ''},${to || ''}`)
+    setFilterValue?.(`${interval},${from !== null ? from : ''},${to !== null ? to : ''}`)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.interval, formikProps.values.amountFrom, formikProps.values.amountTo])

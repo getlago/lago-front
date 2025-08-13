@@ -5,6 +5,7 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForRevenueStreamsQuery,
   getFilterValue,
+  parseFromToValue,
 } from '../utils'
 
 describe('Filters utils', () => {
@@ -243,6 +244,71 @@ describe('Filters utils', () => {
       })
 
       expect(result).toBe('monthly')
+    })
+  })
+
+  describe('parseFromToValue', () => {
+    it('should handle zero values correctly', () => {
+      const result = parseFromToValue('isEqualTo,0,0', { from: 'from', to: 'to' })
+
+      expect(result).toEqual({
+        from: 0,
+        to: 0,
+      })
+    })
+
+    it('should handle empty values correctly', () => {
+      const result = parseFromToValue('isEqualTo,,', { from: 'from', to: 'to' })
+
+      expect(result).toEqual({
+        from: null,
+        to: null,
+      })
+    })
+
+    it('should handle positive numbers correctly', () => {
+      const result = parseFromToValue('isBetween,5,10', { from: 'from', to: 'to' })
+
+      expect(result).toEqual({
+        from: 5,
+        to: 10,
+      })
+    })
+
+    it('should handle isEqualTo interval', () => {
+      const result = parseFromToValue('isEqualTo,7,', { from: 'from', to: 'to' })
+
+      expect(result).toEqual({
+        from: 7,
+        to: 7,
+      })
+    })
+
+    it('should handle isBetween interval', () => {
+      const result = parseFromToValue('isBetween,3,8', { from: 'from', to: 'to' })
+
+      expect(result).toEqual({
+        from: 3,
+        to: 8,
+      })
+    })
+
+    it('should handle isLessThan interval', () => {
+      const result = parseFromToValue('isLessThan,,15', { from: 'from', to: 'to' })
+
+      expect(result).toEqual({
+        from: null,
+        to: 15,
+      })
+    })
+
+    it('should handle isGreaterThan interval', () => {
+      const result = parseFromToValue('isGreaterThan,20,', { from: 'from', to: 'to' })
+
+      expect(result).toEqual({
+        from: 20,
+        to: null,
+      })
     })
   })
 })
