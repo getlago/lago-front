@@ -52,10 +52,16 @@ export const translateKey: (
   }
 
   if (!translations || !translations[key]) {
-    const translationErrorMessage = `Translation '${key}' for locale '${locale}' not found.`
+    // Capture the current stack trace to get file location
+    const stack = new Error().stack
+    const callerLine = stack?.split('\n')[2]?.trim() || 'unknown location'
+    const fileLocation = callerLine.match(/\((.*?)\)$/)?.[1] || callerLine
+    const translationErrorMessage = `Translation '${key}' for locale '${locale}' not found. Location: ${fileLocation}`
 
     if (appEnv === AppEnvEnum.production) {
-      captureMessage(translationErrorMessage)
+      captureMessage(translationErrorMessage, {
+        level: 'warning',
+      })
     } else if ([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)) {
       // eslint-disable-next-line no-console
       console.warn(translationErrorMessage)
