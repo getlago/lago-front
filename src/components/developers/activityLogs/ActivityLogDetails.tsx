@@ -21,12 +21,18 @@ import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tab
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import {
   LagoApiError,
+  ResourceTypeEnum,
   useGetCustomerIdForActivityLogDetailsQuery,
   useGetSingleActivityLogQuery,
   useGetSubscriptionIdForActivityLogDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+const remapResourceTypeNames = (resourceType: string): keyof typeof ResourceTypeEnum => {
+  if (resourceType === 'FeatureObject') return 'Feature'
+  return resourceType as keyof typeof ResourceTypeEnum
+}
 
 gql`
   fragment ActivityLogDetails on ActivityLog {
@@ -68,6 +74,9 @@ gql`
         customer {
           id
         }
+      }
+      ... on FeatureObject {
+        id
       }
       ... on Plan {
         id
@@ -223,9 +232,9 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               ],
               [
                 translate('text_1747666154075y3lcupj1zdd'),
-                resource
+                !!resource?.__typename
                   ? formatResourceObject(resource, {
-                      resourceType: resource.__typename,
+                      resourceType: remapResourceTypeNames(resource.__typename),
                       activityType,
                     })
                   : '-',

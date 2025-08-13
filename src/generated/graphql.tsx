@@ -67,7 +67,7 @@ export type ActivityLogCollection = {
 };
 
 /** Activity log resource */
-export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | Invoice | PaymentRequest | Plan | Subscription | Wallet;
+export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | FeatureObject | Invoice | PaymentRequest | Plan | Subscription | Wallet;
 
 /** Activity Logs source enums */
 export enum ActivitySourceEnum {
@@ -112,6 +112,12 @@ export enum ActivityTypeEnum {
   CustomerDeleted = 'customer_deleted',
   /** customer.updated */
   CustomerUpdated = 'customer_updated',
+  /** feature.created */
+  FeatureCreated = 'feature_created',
+  /** feature.deleted */
+  FeatureDeleted = 'feature_deleted',
+  /** feature.updated */
+  FeatureUpdated = 'feature_updated',
   /** invoice.created */
   InvoiceCreated = 'invoice_created',
   /** invoice.drafted */
@@ -1799,12 +1805,14 @@ export type CreatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
+  billFixedChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   entitlements?: InputMaybe<Array<EntitlementInput>>;
+  fixedCharges?: InputMaybe<Array<FixedChargeInput>>;
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
@@ -3469,6 +3477,51 @@ export type FinalizedInvoiceCollectionCollection = {
   collection: Array<FinalizedInvoiceCollection>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+export type FixedCharge = {
+  __typename?: 'FixedCharge';
+  addOn: AddOn;
+  chargeModel: FixedChargeChargeModelEnum;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  payInAdvance: Scalars['Boolean']['output'];
+  properties?: Maybe<FixedChargeProperties>;
+  prorated: Scalars['Boolean']['output'];
+  taxes?: Maybe<Array<Tax>>;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
+export enum FixedChargeChargeModelEnum {
+  Graduated = 'graduated',
+  Standard = 'standard',
+  Volume = 'volume'
+}
+
+export type FixedChargeInput = {
+  addOnId: Scalars['ID']['input'];
+  chargeModel: FixedChargeChargeModelEnum;
+  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  payInAdvance?: InputMaybe<Scalars['Boolean']['input']>;
+  properties?: InputMaybe<FixedChargePropertiesInput>;
+  prorated?: InputMaybe<Scalars['Boolean']['input']>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  units?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type FixedChargeProperties = {
+  __typename?: 'FixedChargeProperties';
+  amount?: Maybe<Scalars['String']['output']>;
+  graduatedRanges?: Maybe<Array<GraduatedRange>>;
+  volumeRanges?: Maybe<Array<VolumeRange>>;
+};
+
+export type FixedChargePropertiesInput = {
+  amount?: InputMaybe<Scalars['String']['input']>;
+  graduatedRanges?: InputMaybe<Array<GraduatedRangeInput>>;
+  volumeRanges?: InputMaybe<Array<VolumeRangeInput>>;
 };
 
 export type FlutterwaveProvider = {
@@ -5516,6 +5569,7 @@ export type Plan = {
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']['output']>;
+  billFixedChargesMonthly?: Maybe<Scalars['Boolean']['output']>;
   charges?: Maybe<Array<Charge>>;
   /** Number of charges attached to a plan */
   chargesCount: Scalars['Int']['output'];
@@ -5527,10 +5581,12 @@ export type Plan = {
   description?: Maybe<Scalars['String']['output']>;
   draftInvoicesCount: Scalars['Int']['output'];
   entitlements?: Maybe<Array<PlanEntitlement>>;
+  fixedCharges?: Maybe<Array<FixedCharge>>;
   hasActiveSubscriptions: Scalars['Boolean']['output'];
   hasCharges: Scalars['Boolean']['output'];
   hasCustomers: Scalars['Boolean']['output'];
   hasDraftInvoices: Scalars['Boolean']['output'];
+  hasFixedCharges: Scalars['Boolean']['output'];
   hasOverriddenPlans?: Maybe<Scalars['Boolean']['output']>;
   hasSubscriptions: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
@@ -6822,6 +6878,8 @@ export enum ResourceTypeEnum {
   CreditNote = 'credit_note',
   /** Customer */
   Customer = 'customer',
+  /** Feature */
+  Feature = 'feature',
   /** Invoice */
   Invoice = 'invoice',
   /** PaymentRequest */
@@ -9124,14 +9182,14 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null };
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'FeatureObject', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null };
 
 export type GetSingleActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null } | null };
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'FeatureObject', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null } | null };
 
 export type GetCustomerIdForActivityLogDetailsQueryVariables = Exact<{
   externalId?: InputMaybe<Scalars['ID']['input']>;
@@ -12983,6 +13041,9 @@ export const ActivityLogDetailsFragmentDoc = gql`
       customer {
         id
       }
+    }
+    ... on FeatureObject {
+      id
     }
     ... on Plan {
       id
