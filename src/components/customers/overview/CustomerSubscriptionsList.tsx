@@ -111,6 +111,7 @@ export const CustomerSubscriptionsList = () => {
             customerTimezone={data?.customer?.applicableTimezone}
             containerSize={4}
             isLoading={loading}
+            actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
                 customerId: customerId as string,
