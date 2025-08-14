@@ -8,6 +8,7 @@ import {
   CouponDetailsTabsOptionsEnum,
   CustomerDetailsTabsOptions,
   CustomerInvoiceDetailsTabsOptionsEnum,
+  FeatureDetailsTabsOptionsEnum,
   PlanDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -18,6 +19,7 @@ import {
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
+  FEATURE_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -61,6 +63,9 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.CustomerCreated]: 'text_1747404656632oqee107ov8u',
   [ActivityTypeEnum.CustomerDeleted]: 'text_1747404656632qp9qrpp0k7g',
   [ActivityTypeEnum.CustomerUpdated]: 'text_1747404656632j5yxb9h6lsu',
+  [ActivityTypeEnum.FeatureCreated]: 'text_1754570508183f0dl9q0pqtx',
+  [ActivityTypeEnum.FeatureDeleted]: 'text_1754570508183pw3m9k2lv68',
+  [ActivityTypeEnum.FeatureUpdated]: 'text_1754570508183pw3m9k2lv69',
   [ActivityTypeEnum.InvoiceCreated]: 'text_174740465663205ip0mama6w',
   [ActivityTypeEnum.InvoiceDrafted]: 'text_1747404656632jux35a9cxrt',
   [ActivityTypeEnum.InvoiceFailed]: 'text_1747404656632twxlowkc160',
@@ -175,6 +180,13 @@ export function getActivityDescription(
           style: 'currency',
           currency,
         }),
+      }
+      break
+    case ActivityTypeEnum.FeatureCreated:
+    case ActivityTypeEnum.FeatureDeleted:
+    case ActivityTypeEnum.FeatureUpdated:
+      parameters = {
+        featureCode: activityObject.code,
       }
       break
     case ActivityTypeEnum.PaymentReceiptCreated:
@@ -326,6 +338,12 @@ export function formatResourceObject(
           customerId: (resource as Invoice).customer?.id,
           invoiceId: resource.id,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+        })
+        break
+      case 'Feature':
+        link = generatePath(FEATURE_DETAILS_ROUTE, {
+          featureId: resource.id,
+          tab: FeatureDetailsTabsOptionsEnum.overview,
         })
         break
       case 'Plan':
