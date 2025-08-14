@@ -1,5 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { ReactNode, useCallback, useEffect, useMemo, useRef } from 'react'
+import { Icon } from 'lago-design-system'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
 import { Skeleton } from '~/components/designSystem/Skeleton'
@@ -14,7 +15,7 @@ type DataItem = {
   [key: string]: unknown
 }
 
-type RowType = 'header' | 'data'
+export type RowType = 'header' | 'data' | 'group'
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 type DotNestedKeys<T> = (
   T extends object
@@ -29,9 +30,10 @@ type DotNestedKeys<T> = (
 
 type TRows<T> = {
   content: (item: T) => ReactNode
-  key: DotNestedKeys<T>
+  key: DotNestedKeys<T> | string
   label: string | ReactNode
   type: RowType
+  groupKey?: string
 }[]
 
 type HorizontalDataTableProps<T> = {
@@ -43,7 +45,11 @@ type HorizontalDataTableProps<T> = {
   loading?: boolean
 }
 
-const getRowHeight = (rowType: RowType) => {
+const getRowHeight = (rowType: RowType, isCollapsed?: boolean) => {
+  if (isCollapsed) {
+    return 0
+  }
+
   if (rowType === 'header') return 40
 
   return 48
@@ -60,6 +66,7 @@ export const HorizontalDataTable = <T extends DataItem>({
   // Get the hover and click state from context
   const { clickedDataIndex, setHoverDataIndex, setClickedDataIndex } = useAnalyticsState()
   const parentRef = useRef(null)
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
 
   const columnVirtualizer = useVirtualizer({
     count: loading ? 12 : data?.length || 0,
@@ -88,44 +95,79 @@ export const HorizontalDataTable = <T extends DataItem>({
   }, [clickedDataIndex, columnVirtualizer])
 
   const tableHeight = useMemo(
-    () => rows.reduce((acc, item) => acc + getRowHeight(item.type), 0),
-    [rows],
+    () =>
+      rows.reduce(
+        (acc, item) =>
+          acc + getRowHeight(item.type as RowType, !!(item.groupKey && !openGroups[item.groupKey])),
+        0,
+      ),
+    [rows, openGroups],
   )
+
+  const onRowClick = (item: { type: RowType; key: string }) => {
+    if (item.type !== 'group') {
+      return
+    }
+
+    setOpenGroups({
+      ...openGroups,
+      [item.key]: !openGroups[item.key],
+    })
+  }
 
   return (
     <div className="relative w-full">
       {!!rows.length && (
         <div
-          className={tw('pointer-events-none absolute left-0 top-0 z-10 bg-white', {
+          className={tw('absolute left-0 top-0 z-10 bg-white', {
             'shadow-r': !!columnVirtualizer?.scrollOffset,
           })}
           style={{ width: leftColumnWidth }}
         >
-          {rows.map((item, index) => (
-            <div
-              key={`left-column-item-${index}`}
-              className={tw('flex items-center shadow-b', {
-                'shadow-y': index === 0,
-              })}
-              style={{ height: getRowHeight(item.type) }}
-            >
-              {!!loading && <Skeleton className="w-5/6" variant="text" />}
-              {!loading && (
-                <>
-                  {typeof item.label === 'string' ? (
-                    <Typography
-                      variant={item.type === 'header' ? 'captionHl' : 'bodyHl'}
-                      color={item.type === 'header' ? 'grey600' : 'grey700'}
-                    >
-                      {item.label}
-                    </Typography>
-                  ) : (
-                    <>{item.label}</>
-                  )}
-                </>
-              )}
-            </div>
-          ))}
+          {rows
+            .filter((row) => (row?.groupKey ? openGroups[row.groupKey] : true))
+            .map((item, index) => (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+              <div
+                role="button"
+                tabIndex={item.type === 'group' ? 0 : -1}
+                key={`left-column-item-${index}`}
+                className={tw('flex items-center shadow-b', {
+                  'shadow-y': index === 0,
+                  'pl-6': !!item.groupKey && item.type !== 'group',
+                  'pointer-events-none': item.type !== 'group',
+                  'cursor-pointer': item.type === 'group',
+                })}
+                style={{ height: getRowHeight(item.type) }}
+                onClick={() => onRowClick(item)}
+              >
+                {!!loading && <Skeleton className="w-5/6" variant="text" />}
+                {!loading && (
+                  <>
+                    {item.type === 'group' && (
+                      <Icon
+                        className={tw('mr-2', {
+                          'rotate-180': item.type === 'group' && openGroups[item.key],
+                        })}
+                        name={'chevron-down-filled'}
+                        size="small"
+                      />
+                    )}
+
+                    {typeof item.label === 'string' ? (
+                      <Typography
+                        variant={item.type === 'header' ? 'captionHl' : 'bodyHl'}
+                        color={item.type === 'header' ? 'grey600' : 'grey700'}
+                      >
+                        {item.label}
+                      </Typography>
+                    ) : (
+                      <>{item.label}</>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
         </div>
       )}
 
@@ -178,20 +220,22 @@ export const HorizontalDataTable = <T extends DataItem>({
                   : undefined
               }
             >
-              {rows.map((row, index) => {
-                return (
-                  <div
-                    key={`key-column-${virtualColumn.index}-item-${index}-row-${row.key}`}
-                    className={tw('flex items-center justify-end px-1 shadow-b', {
-                      'shadow-y': index === 0,
-                    })}
-                    style={{ height: getRowHeight(row.type) }}
-                  >
-                    {!!loading && <Skeleton className="w-5/6 justify-end" variant="text" />}
-                    {!!data?.length && !loading && row.content(data[virtualColumn.index])}
-                  </div>
-                )
-              })}
+              {rows
+                .filter((row) => (row?.groupKey ? openGroups[row.groupKey] : true))
+                .map((row, index) => {
+                  return (
+                    <div
+                      key={`key-column-${virtualColumn.index}-item-${index}-row-${row.key}`}
+                      className={tw('flex items-center justify-end px-1 shadow-b', {
+                        'shadow-y': index === 0,
+                      })}
+                      style={{ height: getRowHeight(row.type) }}
+                    >
+                      {!!loading && <Skeleton className="w-5/6 justify-end" variant="text" />}
+                      {!!data?.length && !loading && row.content(data[virtualColumn.index])}
+                    </div>
+                  )
+                })}
             </div>
           ))}
         </div>
