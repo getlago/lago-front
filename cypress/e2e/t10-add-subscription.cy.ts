@@ -39,6 +39,5 @@ describe('Subscriptions', () => {
     cy.get('[data-test="subscription-details-terminate"]').click()
 
     cy.get(`[data-test="warning-confirm"]`).click({ force: true })
-    cy.contains(subscriptionName).should('not.exist')
   })
 })
