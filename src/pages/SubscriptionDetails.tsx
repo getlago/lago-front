@@ -44,6 +44,7 @@ gql`
         id
         name
         code
+        payInAdvance
         parent {
           id
           name
@@ -197,8 +198,9 @@ const SubscriptionDetails = () => {
                     onClick={() => {
                       terminateSubscriptionDialogRef.current?.openDialog({
                         id: subscription?.id as string,
-                        name: subscription?.name,
+                        name: subscription?.name as string,
                         status: subscription?.status as StatusTypeEnum,
+                        payInAdvance: !!subscription?.plan.payInAdvance,
                         callback: () => {
                           navigate(
                             generatePath(CUSTOMER_DETAILS_ROUTE, {
