@@ -46,6 +46,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { formatCityStateZipcodeString } from '~/core/formats/formatAddress'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
@@ -760,7 +761,11 @@ const CreateInvoice = () => {
                         )}
                         {(customer?.zipcode || customer?.city || customer?.state) && (
                           <Typography variant="body" color="grey700">
-                            {customer?.zipcode} {customer?.city} {customer?.state}
+                            {formatCityStateZipcodeString({
+                              city: customer?.city,
+                              state: customer?.state,
+                              zipcode: customer?.zipcode,
+                            })}
                           </Typography>
                         )}
                         {customer?.country && (
