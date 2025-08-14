@@ -3,6 +3,7 @@ import {
   formatActiveFilterValueDisplay,
   formatFiltersForInvoiceQuery,
   formatFiltersForMrrQuery,
+  formatFiltersForQuery,
   formatFiltersForRevenueStreamsQuery,
   getFilterValue,
   parseFromToValue,
@@ -308,6 +309,269 @@ describe('Filters utils', () => {
       expect(result).toEqual({
         from: 20,
         to: null,
+      })
+    })
+  })
+
+  describe('formatFiltersForQuery', () => {
+    it('should format filters without prefix and keyMap', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('country', 'US')
+      searchParams.set('currency', 'USD')
+      searchParams.set('customerType', 'company')
+      searchParams.set('invalidFilter', 'shouldBeIgnored')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [
+          AvailableFiltersEnum.country,
+          AvailableFiltersEnum.currency,
+          AvailableFiltersEnum.customerType,
+        ],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        country: 'US',
+        currency: 'USD',
+        customerType: 'company',
+      })
+      expect(result).not.toHaveProperty('invalidFilter')
+    })
+
+    it('should format filters with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('rs_country', 'FR')
+      searchParams.set('rs_currency', 'EUR')
+      searchParams.set('rs_timeGranularity', 'month')
+      searchParams.set('other_filter', 'shouldBeIgnored')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [
+          AvailableFiltersEnum.country,
+          AvailableFiltersEnum.currency,
+          AvailableFiltersEnum.timeGranularity,
+        ],
+        filtersNamePrefix: 'rs',
+      })
+
+      expect(result).toEqual({
+        country: 'FR',
+        currency: 'EUR',
+        timeGranularity: 'month',
+      })
+      expect(result).not.toHaveProperty('other_filter')
+    })
+
+    it('should format filters with keyMap', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('country', 'US')
+      searchParams.set('currency', 'USD')
+
+      const keyMap = {
+        [AvailableFiltersEnum.country]: 'customerCountry',
+        [AvailableFiltersEnum.currency]: 'customerCurrency',
+      }
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        keyMap,
+        availableFilters: [AvailableFiltersEnum.country, AvailableFiltersEnum.currency],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        customerCountry: 'US',
+        customerCurrency: 'USD',
+      })
+    })
+
+    it('should apply filter value transformations', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('paymentStatus', 'failed,pending')
+      searchParams.set('paymentOverdue', 'true')
+      searchParams.set('amount', 'isBetween,10,100')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [
+          AvailableFiltersEnum.paymentStatus,
+          AvailableFiltersEnum.paymentOverdue,
+          AvailableFiltersEnum.amount,
+        ],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        paymentStatus: ['failed', 'pending'],
+        paymentOverdue: true,
+        amountFrom: 10,
+        amountTo: 100,
+      })
+    })
+
+    it('should handle date filters that return objects', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('date', '2023-01-01,2023-01-31')
+      searchParams.set('issuingDate', '2023-02-01,2023-02-28')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [AvailableFiltersEnum.date, AvailableFiltersEnum.issuingDate],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        fromDate: '2023-01-01',
+        toDate: '2023-01-31',
+        issuingDateFrom: '2023-02-01',
+        issuingDateTo: '2023-02-28',
+      })
+    })
+
+    it('should handle customerExternalId with separator', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'customerExternalId',
+        `customer123${filterDataInlineSeparator}Customer Display Name`,
+      )
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [AvailableFiltersEnum.customerExternalId],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        customerExternalId: 'customer123',
+      })
+    })
+
+    it('should handle boolean filters correctly', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('paymentOverdue', 'true')
+      searchParams.set('paymentDisputeLost', 'false')
+      searchParams.set('selfBilled', 'true')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [
+          AvailableFiltersEnum.paymentOverdue,
+          AvailableFiltersEnum.paymentDisputeLost,
+          AvailableFiltersEnum.selfBilled,
+        ],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        paymentOverdue: true,
+        paymentDisputeLost: false,
+        selfBilled: true,
+      })
+    })
+
+    it('should handle array filters correctly', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invoiceType', 'subscription,one_off')
+      searchParams.set('status', 'finalized,draft')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [AvailableFiltersEnum.invoiceType, AvailableFiltersEnum.status],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        invoiceType: ['subscription', 'one_off'],
+        status: ['finalized', 'draft'],
+      })
+    })
+
+    it('should handle filters with no transformation function', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('planCode', 'premium')
+      searchParams.set('invoiceNumber', 'INV-001')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [AvailableFiltersEnum.planCode, AvailableFiltersEnum.invoiceNumber],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        planCode: 'premium',
+        invoiceNumber: 'INV-001',
+      })
+    })
+
+    it('should return empty object when no valid filters are provided', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+      searchParams.set('anotherInvalid', 'anotherValue')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [AvailableFiltersEnum.country, AvailableFiltersEnum.currency],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({})
+    })
+
+    it('should handle mixed valid and invalid filters', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('country', 'US')
+      searchParams.set('invalidFilter', 'shouldBeIgnored')
+      searchParams.set('currency', 'USD')
+      searchParams.set('anotherInvalid', 'alsoIgnored')
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        availableFilters: [AvailableFiltersEnum.country, AvailableFiltersEnum.currency],
+        filtersNamePrefix: '',
+      })
+
+      expect(result).toEqual({
+        country: 'US',
+        currency: 'USD',
+      })
+      expect(result).not.toHaveProperty('invalidFilter')
+      expect(result).not.toHaveProperty('anotherInvalid')
+    })
+
+    it('should handle filters with prefix and keyMap together', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('rs_country', 'FR')
+      searchParams.set('rs_currency', 'EUR')
+
+      const keyMap = {
+        [AvailableFiltersEnum.country]: 'customerCountry',
+        [AvailableFiltersEnum.currency]: 'customerCurrency',
+      }
+
+      const result = formatFiltersForQuery({
+        searchParams,
+        keyMap,
+        availableFilters: [AvailableFiltersEnum.country, AvailableFiltersEnum.currency],
+        filtersNamePrefix: 'rs',
+      })
+
+      expect(result).toEqual({
+        customerCountry: 'FR',
+        customerCurrency: 'EUR',
       })
     })
   })
