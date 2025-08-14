@@ -206,7 +206,7 @@ export const RevenueStreamsOverviewSection = ({
           />
 
           <HorizontalDataTable
-            leftColumnWidth={190}
+            leftColumnWidth={220}
             columnWidth={timeGranularity === TimeGranularityEnum.Monthly ? 180 : 228}
             data={data}
             loading={isLoading}
