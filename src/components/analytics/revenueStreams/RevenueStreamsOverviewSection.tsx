@@ -428,6 +428,7 @@ export const RevenueStreamsOverviewSection = ({
                         'text-grey-500': amountCents === 0,
                       })}
                     >
+                      {amountCents > 0 ? '-' : ''}
                       {intlFormatNumber(deserializeAmount(amountCents || 0, selectedCurrency), {
                         currencyDisplay: 'symbol',
                         currency: selectedCurrency,
