@@ -57,7 +57,7 @@ export const ComboBox = ({
 
   useEffect(() => {
     prevRawDataRef.current = rawData
-  })
+  }, [rawData])
   const prevRawData = prevRawDataRef.current
 
   // when `data` gets updated, make sure that if the current value is not belonging to
