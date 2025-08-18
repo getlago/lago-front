@@ -168,12 +168,13 @@
   "text_1736972452609g2v8mzgvi2t": "Schemalagd",
   "text_17429854230668s8zhn9ujq6": "Status: Avbruten",
   "text_1746621029319goh9pr7g67d": "Levererad",
-  "text_17265631916994iccuwziryu": "Senaste tröskel: {{amount}}",
-  "text_172656319170006dm5ta4sd8": "Nästa tröskel: {{amount}}",
   "text_17265631917004vcwz8zc0gy": "Nästa tröskel ej angiven",
   "text_17530956928381jy5n59318d": "Total aktuell användning",
   "text_1753095789277h17a2varizl": "(exkl. moms)",
   "text_1753095789277t9kbe8y5pmh": "Nuvarande enheter",
-  "text_1753101927691fbbwyk7p39q": "Nuvarande belopp"
+  "text_1753101927691fbbwyk7p39q": "Nuvarande belopp",
+  "text_1726576554903s2dddtq5qz4": "{{rate}} förbrukad",
+  "text_1726576554903930hsa8vg23": "{{rate}} gjenstår",
+  "text_62c3f454e5d7f4ec8888c1d7": "Lägg till en plan med avgifter för den här kunden för att börja rapportera den aktuella användningen.",
+  "text_1753094834414fgnvuior3iv": "Aktuell användning"
 }
-

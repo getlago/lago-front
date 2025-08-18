@@ -168,12 +168,13 @@
   "text_1736972452609g2v8mzgvi2t": "Geplant",
   "text_17429854230668s8zhn9ujq6": "Abgebrochen",
   "text_1746621029319goh9pr7g67d": "Geliefert",
-  "text_17265631916994iccuwziryu": "Letzte Schwelle: {{amount}}",
-  "text_172656319170006dm5ta4sd8": "Nächste Schwelle: {{amount}}",
   "text_17265631917004vcwz8zc0gy": "Nächste Schwelle nicht festgelegt",
   "text_17530956928381jy5n59318d": "Aktueller Gesamtverbrauch",
   "text_1753095789277h17a2varizl": "(ohne MwSt.)",
   "text_1753095789277t9kbe8y5pmh": "Aktuelle Einheiten",
-  "text_1753101927691fbbwyk7p39q": "Aktueller Betrag"
+  "text_1753101927691fbbwyk7p39q": "Aktueller Betrag",
+  "text_1726576554903s2dddtq5qz4": "{{rate}} verbraucht",
+  "text_1726576554903930hsa8vg23": "{{rate}} verbleibend",
+  "text_62c3f454e5d7f4ec8888c1d7": "Fügen Sie diesem Kunden einen Tarif mit Gebühren hinzu, um die aktuelle Nutzung zu erfassen.",
+  "text_1753094834414fgnvuior3iv": "Aktuelle Nutzung"
 }
-

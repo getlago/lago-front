@@ -2,7 +2,7 @@ import { captureMessage } from '@sentry/react'
 
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 
-import { Locale, TranslateData, Translation, Translations } from './types'
+import { Locale, LocaleEnum, TranslateData, Translation, Translations } from './types'
 
 export const getTranslations: (locale: Locale) => Promise<Record<string, string>> = async (
   locale,
@@ -52,15 +52,17 @@ export const translateKey: (
   }
 
   if (!translations || !translations[key]) {
-    // Capture the current stack trace to get file location
-    const stack = new Error().stack
-    const callerLine = stack?.split('\n')[2]?.trim() || 'unknown location'
-    const fileLocation = callerLine.match(/\((.*?)\)$/)?.[1] || callerLine
-    const translationErrorMessage = `Translation '${key}' for locale '${locale}' not found. Location: ${fileLocation}`
+    const translationErrorMessage = `Translation '${key}' for locale '${locale}' not found.`
 
-    if (appEnv === AppEnvEnum.production) {
+    // We decide to capture the error in production only for non english locale
+    if (appEnv === AppEnvEnum.production && locale !== LocaleEnum.en) {
+      const customStack = new Error().stack
+
       captureMessage(translationErrorMessage, {
         level: 'warning',
+        extra: {
+          customStack,
+        },
       })
     } else if ([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)) {
       // eslint-disable-next-line no-console

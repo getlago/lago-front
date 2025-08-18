@@ -168,12 +168,13 @@
   "text_1736972452609g2v8mzgvi2t": "Programado",
   "text_17429854230668s8zhn9ujq6": "Cancelado",
   "text_1746621029319goh9pr7g67d": "Entregado",
-  "text_17265631916994iccuwziryu": "Último umbral: {{amount}}",
-  "text_172656319170006dm5ta4sd8": "Próximo umbral: {{amount}}",
   "text_17265631917004vcwz8zc0gy": "Próximo umbral no establecido",
   "text_17530956928381jy5n59318d": "Uso total actual",
   "text_1753095789277h17a2varizl": "(sin impuestos)",
   "text_1753095789277t9kbe8y5pmh": "Unidades actuales",
-  "text_1753101927691fbbwyk7p39q": "Monto actual"
+  "text_1753101927691fbbwyk7p39q": "Monto actual",
+  "text_1726576554903s2dddtq5qz4": "{{rate}} consumido",
+  "text_1726576554903930hsa8vg23": "{{rate}} restante",
+  "text_62c3f454e5d7f4ec8888c1d7": "Agrega un plan con cargos a este cliente para empezar a reportar el uso actual.",
+  "text_1753094834414fgnvuior3iv": "Uso actual"
 }
-
