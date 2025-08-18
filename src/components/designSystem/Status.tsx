@@ -71,7 +71,7 @@ const statusLabelMapping: Record<StatusLabel, string> = {
   processing: 'text_1740135074392314rc3ldv02',
   canceled: 'text_17429854230668s8zhn9ujq6',
   delivered: 'text_1746621029319goh9pr7g67d',
-  ['n/a']: '-',
+  ['n/a']: 'text_1754570508183hxl33n573yi',
   // These keys below are displayed in the customer portal
   // Hence they must be translated in all available languages
   pay: 'text_6419c64eace749372fc72b54',
