@@ -167,12 +167,13 @@
   "text_1736972452609g2v8mzgvi2t": "Planlagt",
   "text_17429854230668s8zhn9ujq6": "Kansellert",
   "text_1746621029319goh9pr7g67d": "Levert",
-  "text_17265631916994iccuwziryu": "Last threshold: {{amount}}",
-  "text_172656319170006dm5ta4sd8": "Next threshold: {{amount}}",
-  "text_17265631917004vcwz8zc0gy": "Next threshold not set",
-  "text_17530956928381jy5n59318d": "Total current usage",
-  "text_1753095789277h17a2varizl": "(excl. tax)",
-  "text_1753095789277t9kbe8y5pmh": "Current units",
-  "text_1753101927691fbbwyk7p39q": "Current amount"
+  "text_17265631917004vcwz8zc0gy": "Neste terskel ikke satt",
+  "text_17530956928381jy5n59318d": "Totalt nåværende bruk",
+  "text_1753095789277h17a2varizl": "(ekskl. mva.)",
+  "text_1753095789277t9kbe8y5pmh": "Nåværende enheter",
+  "text_1753101927691fbbwyk7p39q": "Nåværende beløp",
+  "text_1726576554903s2dddtq5qz4": "{{rate}} forbrukt",
+  "text_1726576554903930hsa8vg23": "{{rate}} gjenstår",
+  "text_62c3f454e5d7f4ec8888c1d7": "Legg til en plan med kostnader for denne kunden for å begynne å rapportere nåværende bruk.",
+  "text_1753094834414fgnvuior3iv": "Nåværende bruk"
 }
-
