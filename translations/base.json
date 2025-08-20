@@ -3477,5 +3477,10 @@
   "text_1759933141735g1r551m8os0": "Search or select multiple countries",
   "text_1759933204078u1tne7oow48": "Type one or multiple states",
   "text_1759933204078h2854rr8kve": "Type one or multiple zipcodes",
-  "text_1759933204078d8saqn06pdf": "Search or select multiple currencies"
+  "text_1759933204078d8saqn06pdf": "Search or select multiple currencies",
+  "text_1755695821678c8hkgkxkh73": "Priority",
+  "text_1755695821678c8hkgkxkh4": "Priority: {{priority}}",
+  "text_1755697949545w7vb1hox4n5": "Wallet priority",
+  "text_175569794954699gxpjhn4fe": "Order in which this wallet is used compared to others (1 and 50 — 1 is the highest). If wallets share the same priority, the oldest will be used first.",
+  "text_1755697949546zuqgeved2ma": "Type a priority. Default to 50"
 }
