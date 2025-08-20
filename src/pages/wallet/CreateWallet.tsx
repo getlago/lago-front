@@ -44,12 +44,15 @@ import { walletFormSchema } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+const WALLET_DEFAULT_PRIORITY = 50
+
 gql`
   fragment WalletForUpdate on Wallet {
     id
     expirationAt
     name
     rateAmount
+    priority
     invoiceRequiresSuccessfulPayment
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
@@ -213,7 +216,6 @@ const CreateWallet = () => {
 
   const formikProps = useFormik<TWalletDataForm>({
     initialValues: {
-      priority: wallet?.priority || 50,
       currency,
       expirationAt: wallet?.expirationAt || undefined,
       grantedCredits: '',
@@ -238,6 +240,7 @@ const CreateWallet = () => {
         ? deserializeAmount(wallet.paidTopUpMaxAmountCents, currency)
         : undefined,
       ignorePaidTopUpLimitsOnCreation: false,
+      priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
     },
     validationSchema: walletFormSchema(),
     validateOnMount: true,
@@ -249,6 +252,7 @@ const CreateWallet = () => {
       currency: valuesCurrency,
       recurringTransactionRules,
       appliesTo,
+      priority,
       ...values
     }) => {
       const recurringTransactionRulesFormatted =
@@ -334,6 +338,7 @@ const CreateWallet = () => {
                 ),
               }
             : {}),
+          priority: priority || WALLET_DEFAULT_PRIORITY,
         } satisfies UpdateCustomerWalletInput
 
         // eslint-disable-next-line
@@ -368,6 +373,7 @@ const CreateWallet = () => {
                 ),
               }
             : {}),
+          priority: priority || WALLET_DEFAULT_PRIORITY,
         } satisfies CreateCustomerWalletInput
 
         const { errors } = await createWallet({ variables: { input } })

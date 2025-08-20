@@ -103,6 +103,24 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography variant="captionHl" color="grey700">
+            {translate('text_1755697949545w7vb1hox4n5')}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_175569794954699gxpjhn4fe')}
+          </Typography>
+        </div>
+
+        <TextInputField
+          name="priority"
+          beforeChangeFormatter={['positiveNumber', 'int']}
+          placeholder={translate('text_1755697949546zuqgeved2ma')}
+          formikProps={formikProps}
+        />
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <Typography variant="captionHl" color="grey700">
             {translate('text_1748422458559n8iqcz37i2z')}
           </Typography>
           <Typography variant="caption" color="grey600">
