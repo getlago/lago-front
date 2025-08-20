@@ -7,14 +7,13 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
-import { CREATE_WALLET_ROUTE, CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
+import { CREATE_WALLET_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
   useGetCustomerWalletListQuery,
   WalletAccordionFragmentDoc,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
-  WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -58,9 +57,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 20 },
   })
-  const list = data?.wallets?.collection || []
-  const hasNoWallet = !list || !list.length
-  const activeWallet = list.find((wallet) => wallet.status === WalletStatusEnum.Active)
+  const walletsCollection = data?.wallets?.collection || []
 
   if (!loading && !!error) {
     return (
@@ -82,7 +79,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
         subtitle={translate('text_1737647019083bbxjrexen5s')}
         customAction={
           <>
-            {!activeWallet && hasPermissions(['walletsCreate']) && (
+            {hasPermissions(['walletsCreate']) && (
               <Button
                 variant="inline"
                 onClick={() =>
@@ -94,21 +91,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
                 }
               >
                 {translate('text_62d175066d2dbf1d50bc9382')}
-              </Button>
-            )}
-            {activeWallet && hasPermissions(['walletsTopUp']) && (
-              <Button
-                variant="inline"
-                onClick={() =>
-                  navigate(
-                    generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
-                      customerId: customerId,
-                      walletId: activeWallet.id,
-                    }),
-                  )
-                }
-              >
-                {translate('text_62e161ceb87c201025388ada')}
               </Button>
             )}
           </>
@@ -123,13 +105,13 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
         </div>
       )}
 
-      {!loading && hasNoWallet && (
+      {!loading && !walletsCollection.length && (
         <Typography className="text-grey-500">
           {translate('text_62d175066d2dbf1d50bc9386')}
         </Typography>
       )}
 
-      {!loading && !hasNoWallet && (
+      {!loading && !!walletsCollection.length && (
         <InfiniteScroll
           onBottom={() => {
             const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
@@ -142,7 +124,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
           }}
         >
           <div className="flex flex-col gap-4">
-            {list.map((wallet) => (
+            {walletsCollection.map((wallet) => (
               <WalletAccordion
                 key={`wallet-${wallet.id}`}
                 premiumWarningDialogRef={premiumWarningDialogRef}

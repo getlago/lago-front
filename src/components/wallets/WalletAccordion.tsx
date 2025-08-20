@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC, PropsWithChildren, RefObject, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
@@ -69,6 +69,7 @@ gql`
     terminatedAt
     ongoingBalanceCents
     creditsOngoingBalance
+    priority
 
     ...WalletInfosForTransactions
   }
@@ -121,6 +122,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
     terminatedAt,
     ongoingBalanceCents,
     creditsOngoingBalance,
+    priority,
   } = wallet
   const { isPremium } = useCurrentUser()
   const { customerId } = useParams()
@@ -169,27 +171,23 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
         transitionProps={{ unmountOnExit: false }}
         summary={
           <div className="flex flex-1 items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Avatar size="big" variant="connector">
-                <Icon name="wallet" color="dark" />
-              </Avatar>
-              <div>
-                <Typography variant="bodyHl" color="grey700">
-                  {name
-                    ? name
-                    : translate('text_62da6ec24a8e24e44f8128b2', {
-                        createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
-                      })}
-                </Typography>
-                <Typography variant="caption">
-                  {translate('text_62da6ec24a8e24e44f812872', {
-                    rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
-                      currencyDisplay: 'symbol',
-                      currency,
-                    }),
+            <div className="flex flex-col">
+              <Typography variant="bodyHl" color="grey700">
+                {name ||
+                  translate('text_62da6ec24a8e24e44f8128b2', {
+                    createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
                   })}
-                </Typography>
-              </div>
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {`${translate('text_62da6ec24a8e24e44f812872', {
+                  rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  }),
+                })} • ${translate('text_1755695821678c8hkgkxkh4', {
+                  priority: priority,
+                })}`}
+              </Typography>
             </div>
 
             <div className="flex flex-row items-center gap-3">
