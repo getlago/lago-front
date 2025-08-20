@@ -1621,7 +1621,7 @@ export type CreateCustomerWalletInput = {
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   paidCredits: Scalars['String']['input'];
-  priority?: InputMaybe<Scalars['Int']['input']>;
+  priority: Scalars['Int']['input'];
   rateAmount: Scalars['String']['input'];
   recurringTransactionRules?: InputMaybe<Array<CreateRecurringTransactionRuleInput>>;
 };
@@ -6319,6 +6319,7 @@ export type QueryCustomerPortalSubscriptionsArgs = {
 export type QueryCustomerPortalWalletsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<WalletStatusEnum>;
 };
 
 
@@ -7876,7 +7877,7 @@ export type UpdateCustomerWalletInput = {
   id: Scalars['ID']['input'];
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
-  priority?: InputMaybe<Scalars['Int']['input']>;
+  priority: Scalars['Int']['input'];
   recurringTransactionRules?: InputMaybe<Array<UpdateRecurringTransactionRuleInput>>;
 };
 
@@ -10917,7 +10918,7 @@ export type DeleteTaxMutationVariables = Exact<{
 
 export type DeleteTaxMutation = { __typename?: 'Mutation', destroyTax?: { __typename?: 'DestroyTaxPayload', id?: string | null } | null };
 
-export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, priority: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -10926,7 +10927,7 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, priority: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
 
 export type TerminateCustomerWalletMutationVariables = Exact<{
   input: TerminateCustomerWalletInput;
@@ -12482,7 +12483,7 @@ export type CreateOrUpdateSubscriptionEntitlementMutationVariables = Exact<{
 
 export type CreateOrUpdateSubscriptionEntitlementMutation = { __typename?: 'Mutation', createOrUpdateSubscriptionEntitlement?: { __typename?: 'SubscriptionEntitlement', code: string } | null };
 
-export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, priority: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerInfosForWalletFormQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -12496,7 +12497,7 @@ export type GetWalletInfosForWalletFormQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, priority: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type CreateCustomerWalletMutationVariables = Exact<{
   input: CreateCustomerWalletInput;
@@ -12510,7 +12511,7 @@ export type UpdateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, priority: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type GetWalletForTopUpQueryVariables = Exact<{
   walletId: Scalars['ID']['input'];
@@ -14326,6 +14327,7 @@ export const WalletForUpdateFragmentDoc = gql`
   expirationAt
   name
   rateAmount
+  priority
   invoiceRequiresSuccessfulPayment
   appliesTo {
     feeTypes

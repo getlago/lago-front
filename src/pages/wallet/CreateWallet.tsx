@@ -15,12 +15,14 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
+  CreateCustomerWalletInput,
   CreateRecurringTransactionRuleInput,
   CurrencyEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
+  UpdateCustomerWalletInput,
   UpdateRecurringTransactionRuleInput,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
@@ -38,12 +40,15 @@ import { walletFormSchema } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+const WALLET_DEFAULT_PRIORITY = 50
+
 gql`
   fragment WalletForUpdate on Wallet {
     id
     expirationAt
     name
     rateAmount
+    priority
     invoiceRequiresSuccessfulPayment
     appliesTo {
       feeTypes
@@ -208,6 +213,7 @@ const CreateWallet = () => {
       }),
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
+      priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
     },
     validationSchema: walletFormSchema(formType),
     validateOnMount: true,
@@ -219,6 +225,7 @@ const CreateWallet = () => {
       currency: valuesCurrency,
       recurringTransactionRules,
       appliesTo,
+      priority,
       ...values
     }) => {
       const recurringTransactionRulesFormatted =
@@ -289,7 +296,8 @@ const CreateWallet = () => {
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
           appliesTo: formattedAppliesTo,
-        }
+          priority: priority || WALLET_DEFAULT_PRIORITY,
+        } satisfies UpdateCustomerWalletInput
 
         const { errors } = await updateWallet({ variables: { input } })
 
@@ -304,7 +312,8 @@ const CreateWallet = () => {
           paidCredits: paidCredits === '' ? '0' : String(paidCredits),
           recurringTransactionRules: recurringTransactionRulesFormatted,
           appliesTo: formattedAppliesTo,
-        }
+          priority: priority || WALLET_DEFAULT_PRIORITY,
+        } satisfies CreateCustomerWalletInput
 
         const { errors } = await createWallet({ variables: { input } })
 

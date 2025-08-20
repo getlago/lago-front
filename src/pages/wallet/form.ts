@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { array, object, string } from 'yup'
+import { array, number, object, string } from 'yup'
 
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { metadataSchema } from '~/formValidation/metadataSchema'
@@ -219,5 +219,6 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
         }),
       )
       .nullable(),
+    priority: number().min(1).max(50),
   })
 }
