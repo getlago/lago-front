@@ -3,39 +3,55 @@ import { ImperativePanelHandle } from 'react-resizable-panels'
 
 interface AIAssistantContextType {
   isOpen: boolean
+  panelOpened: AIPanelEnum | undefined
   panelRef: RefObject<ImperativePanelHandle>
-  togglePanel: () => void
+  togglePanel: (panel: AIPanelEnum) => void
+  closePanel: () => void
 }
 
 export const AIAssistantContext = createContext<AIAssistantContextType | undefined>(undefined)
 
-export const PANEL_OPEN = 20
+export const PANEL_OPEN = 33
 export const PANEL_CLOSED = 0
 
+export enum AIPanelEnum {
+  ai = 'ai',
+}
+
 export function AIAssistantProvider({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false)
   const panelRef = useRef<ImperativePanelHandle>(null)
+  const [panelOpened, setCurrentPanel] = useState<AIPanelEnum | undefined>(undefined)
 
-  const togglePanel = () => {
-    const panel = panelRef.current
+  const openPanel = (panel: AIPanelEnum) => {
+    if (panelRef.current) {
+      panelRef.current.resize(PANEL_OPEN)
+      setCurrentPanel(panel)
+    }
+  }
 
-    if (panel) {
-      if (panel.getSize() === PANEL_OPEN) {
-        panel.resize(PANEL_CLOSED)
-        setIsOpen(false)
-      } else {
-        panel.resize(PANEL_OPEN)
-        setIsOpen(true)
-      }
+  const closePanel = () => {
+    if (panelRef.current) {
+      panelRef.current.resize(PANEL_CLOSED)
+      setCurrentPanel(undefined)
+    }
+  }
+
+  const togglePanel = (panel: AIPanelEnum) => {
+    if (panelOpened === panel) {
+      closePanel()
+    } else {
+      openPanel(panel)
     }
   }
 
   return (
     <AIAssistantContext.Provider
       value={{
-        isOpen,
+        isOpen: !!panelOpened,
+        panelOpened,
         panelRef,
         togglePanel,
+        closePanel,
       }}
     >
       {children}

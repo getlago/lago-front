@@ -1,81 +1,48 @@
-import { gql } from '@apollo/client'
+import { Button, tw, Typography } from 'lago-design-system'
 import { Panel } from 'react-resizable-panels'
 
-import { NavSection } from '~/components/aiAssistant/NavSection'
-import { PANEL_CLOSED, PANEL_OPEN, useAIAssistantTool } from '~/hooks/useAIAssistantTool'
+import { AINavSection } from '~/components/aiAssistant/AINavSection'
+import { AIPanel } from '~/components/aiAssistant/AIPanel'
+import {
+  AIPanelEnum,
+  PANEL_CLOSED,
+  PANEL_OPEN,
+  useAIAssistantTool,
+} from '~/hooks/useAIAssistantTool'
 
-gql`
-  subscription onConversation($conversationId: ID!) {
-    aiConversationStreamed(conversationId: $conversationId) {
-      id
-      conversationId
-      inputData
-      organization {
-        id
-      }
-      updatedAt
-    }
-  }
+const AIWrapper = ({ children, title }: { children: React.ReactNode; title: string }) => {
+  const { closePanel } = useAIAssistantTool()
 
-  mutation createAiConversation($input: CreateAiConversationInput!) {
-    createAiConversation(input: $input) {
-      conversationId
-      inputData
-    }
-  }
-`
+  return (
+    <div>
+      <div className="flex flex-row justify-between gap-4 px-6 py-5 shadow-b">
+        <div className="flex items-center gap-2">
+          <Typography variant="bodyHl" noWrap color="grey700">
+            {title}
+          </Typography>
+          <Typography variant="noteHl" noWrap color="warning700">
+            BETA
+          </Typography>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button size="small" variant="quaternary" icon="resize-expand" />
+          <Button size="small" variant="quaternary" icon="close" onClick={() => closePanel()} />
+        </div>
+      </div>
+      <div className="min-height-minus-nav overflow-y-auto p-4">{children}</div>
+    </div>
+  )
+}
 
 export const AIAssistant = () => {
-  const { panelRef } = useAIAssistantTool()
-  // const [conversationId, setConversationId] = useState<string | null>(null)
-
-  // const [createAiConversation, { loading: mutationLoading, error: mutationError }] =
-  //   useCreateAiConversationMutation()
-
-  // const handleCreateAiConversation = async () => {
-  //   try {
-  //     await createAiConversation({
-  //       variables: { input: { inputData: 'Hello, how are you?' } },
-
-  //       onCompleted: (data) => {
-  //         if (data.createAiConversation) {
-  //           setConversationId(data.createAiConversation.conversationId)
-  //         }
-  //       },
-  //     })
-  //   } catch {
-  //     // Handle error silently or log to monitoring service
-  //   }
-  // }
-
-  // const { data: subscriptionData, error: subscriptionError } = useOnConversationSubscription({
-  //   variables: { conversationId: conversationId ?? '' },
-  //   skip: !conversationId,
-  // })
-
-  // const { blockMatches } = useLLMOutput({
-  //   llmOutput: subscriptionData?.aiConversationStreamed.inputData ?? '',
-  //   fallbackBlock: {
-  //     component: MarkdownComponent,
-  //     lookBack: markdownLookBack(),
-  //   },
-  //   blocks: [
-  //     {
-  //       component: CodeBlock,
-  //       findCompleteMatch: findCompleteCodeBlock(),
-  //       findPartialMatch: findPartialCodeBlock(),
-  //       lookBack: codeBlockLookBack(),
-  //     },
-  //   ],
-  //   isStreamFinished: false,
-  // })
+  const { panelRef, panelOpened, isOpen } = useAIAssistantTool()
 
   return (
     <>
       <div className="relative">
         <div className="h-screen w-12 bg-white shadow-l">
           <div className="absolute rotate-90-tl">
-            <NavSection />
+            <AINavSection />
           </div>
         </div>
       </div>
@@ -85,9 +52,13 @@ export const AIAssistant = () => {
         defaultSize={PANEL_CLOSED}
         minSize={PANEL_CLOSED}
         maxSize={PANEL_OPEN}
-        className="shadow-l"
+        className={tw(isOpen ? 'min-w-[420px]' : 'min-w-[0px]', 'shadow-l')}
       >
-        <div>Hello</div>
+        {panelOpened === AIPanelEnum.ai && (
+          <AIWrapper title="AI Assistant">
+            <AIPanel />
+          </AIWrapper>
+        )}
       </Panel>
     </>
   )

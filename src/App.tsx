@@ -51,10 +51,10 @@ const App = () => {
         <ThemeProvider theme={theme}>
           <DesignSystemProvider>
             <ErrorBoundary>
-              <PanelGroup direction="horizontal">
-                <Panel>
-                  <DeveloperToolProvider>
-                    <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+              <DeveloperToolProvider>
+                <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                  <Panel>
+                    <PanelGroup direction="horizontal">
                       <Panel id="app-panel" order={1}>
                         <div className="h-full overflow-auto">
                           <BrowserRouter basename="/">
@@ -62,16 +62,16 @@ const App = () => {
                           </BrowserRouter>
                         </div>
                       </Panel>
-                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
-                        <DevtoolsView />
-                      </MemoryRouter>
+                      <AIAssistantProvider>
+                        <AIAssistant />
+                      </AIAssistantProvider>
                     </PanelGroup>
-                  </DeveloperToolProvider>
-                </Panel>
-                <AIAssistantProvider>
-                  <AIAssistant />
-                </AIAssistantProvider>
-              </PanelGroup>
+                  </Panel>
+                  <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                    <DevtoolsView />
+                  </MemoryRouter>
+                </PanelGroup>
+              </DeveloperToolProvider>
             </ErrorBoundary>
             <UserIdentifier />
             <ToastContainer />
