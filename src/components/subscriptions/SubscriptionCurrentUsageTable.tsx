@@ -1,4 +1,5 @@
-import { ApolloError, gql } from '@apollo/client'
+import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { useRef, useState } from 'react'
 
 import {
@@ -16,6 +17,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -23,25 +25,28 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
-  ChargeFilterUsage,
   ChargeUsage,
   CurrencyEnum,
   CustomerForSubscriptionUsageQuery,
+  CustomerProjectedUsageForUsageDetailsFragmentDoc,
   CustomerUsageForUsageDetailsFragmentDoc,
+  GetCustomerProjectedUsageForPortalQuery,
   GetCustomerUsageForPortalQuery,
-  GetCustomerUsageForPortalQueryResult,
-  GroupedChargeUsage,
   LagoApiError,
+  PremiumIntegrationTypeEnum,
+  ProjectedChargeUsage,
+  ProjectedUsageForSubscriptionUsageQuery,
   StatusTypeEnum,
   SubscrptionForSubscriptionUsageQuery,
   TimezoneEnum,
   UsageForSubscriptionUsageQuery,
-  UsageForSubscriptionUsageQueryResult,
   useCustomerForSubscriptionUsageQuery,
+  useProjectedUsageForSubscriptionUsageQuery,
   useSubscrptionForSubscriptionUsageQuery,
   useUsageForSubscriptionUsageQuery,
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
@@ -112,6 +117,53 @@ gql`
     }
   }
 
+  fragment SubscriptionCurrentUsageTableComponentCustomerProjectedUsage on CustomerProjectedUsage {
+    amountCents
+    projectedAmountCents
+    currency
+    fromDatetime
+    toDatetime
+    chargesUsage {
+      id
+      units
+      amountCents
+      pricingUnitAmountCents
+      projectedUnits
+      projectedAmountCents
+      pricingUnitProjectedAmountCents
+      charge {
+        id
+        invoiceDisplayName
+        appliedPricingUnit {
+          id
+          pricingUnit {
+            id
+            shortName
+          }
+        }
+      }
+      billableMetric {
+        id
+        code
+        name
+      }
+      filters {
+        id
+      }
+      groupedUsage {
+        amountCents
+        groupedBy
+        eventsCount
+        units
+        projectedUnits
+        projectedAmountCents
+        filters {
+          id
+        }
+      }
+    }
+  }
+
   query usageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
     customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
       amountCents
@@ -120,7 +172,17 @@ gql`
     }
   }
 
+  query projectedUsageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
+    customerProjectedUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
+      amountCents
+      projectedAmountCents
+      ...SubscriptionCurrentUsageTableComponentCustomerProjectedUsage
+      ...CustomerProjectedUsageForUsageDetails
+    }
+  }
+
   ${CustomerUsageForUsageDetailsFragmentDoc}
+  ${CustomerProjectedUsageForUsageDetailsFragmentDoc}
 `
 
 interface SubscriptionCurrentUsageTableProps {
@@ -129,9 +191,9 @@ interface SubscriptionCurrentUsageTableProps {
 }
 
 type SubscriptionCurrentUsageTableComponentProps = {
-  usageData?:
-    | UsageForSubscriptionUsageQuery['customerUsage']
-    | GetCustomerUsageForPortalQuery['customerPortalCustomerUsage']
+  usageData?: UsageForSubscriptionUsageQuery['customerUsage'] &
+    ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage'] &
+    GetCustomerUsageForPortalQuery['customerPortalCustomerUsage']
   usageLoading: boolean
   usageError?: ApolloError
 
@@ -145,9 +207,14 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerError?: ApolloError
   showExcludingTaxLabel?: boolean
 
-  refetchUsage:
-    | UsageForSubscriptionUsageQueryResult['refetch']
-    | GetCustomerUsageForPortalQueryResult['refetch']
+  refetchUsage: () => Promise<
+    ApolloQueryResult<
+      | UsageForSubscriptionUsageQuery
+      | ProjectedUsageForSubscriptionUsageQuery
+      | GetCustomerUsageForPortalQuery
+      | GetCustomerProjectedUsageForPortalQuery
+    >
+  >
 
   noUsageOverride?: React.ReactNode
 
@@ -156,36 +223,49 @@ type SubscriptionCurrentUsageTableComponentProps = {
 }
 
 export const getPricingUnitAmountCents = (
-  row: Pick<
-    ChargeUsage | ChargeFilterUsage | GroupedChargeUsage,
-    'amountCents' | 'pricingUnitAmountCents'
-  >,
+  row: {
+    amountCents?: string | number
+    pricingUnitAmountCents?: string | number
+    pricingUnitProjectedAmountCents?: string | number
+    projectedAmountCents?: string | number
+  },
+  isProjected?: boolean,
 ) => {
-  return row.pricingUnitAmountCents || row.amountCents
+  return isProjected
+    ? row.pricingUnitProjectedAmountCents || row.projectedAmountCents
+    : row.pricingUnitAmountCents || row.amountCents
+}
+
+export type MixedCharge = {
+  projectedAmountCents?: string | number
+  amountCents?: string | number
+  projectedUnits?: string | number
+  units?: string | number
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
   usageData,
   usageLoading,
   usageError,
-
   subscription,
   subscriptionLoading,
   subscriptionError,
-
   customerData,
   customerLoading,
   customerError,
   showExcludingTaxLabel = false,
-
   refetchUsage,
-
   noUsageOverride,
-
   translate,
   locale,
 }: SubscriptionCurrentUsageTableComponentProps) => {
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [activeTab, setActiveTab] = useState<number>(0)
+
+  const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.ProjectedUsage,
+  )
 
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
@@ -219,8 +299,9 @@ export const SubscriptionCurrentUsageTableComponent = ({
             : translate('text_62c3f454e5d7f4ec8888c1d7'),
       }
 
-  const amountCentsKey = 'amountCents' // showProjected ? 'projectedAmountCents' : 'amountCents'
-  const unitsKey = 'units' // showProjected ? 'projectedUnits' : 'units'
+  const amountCentsKey = showProjected ? 'projectedAmountCents' : 'amountCents'
+  const unitsKey = showProjected ? 'projectedUnits' : 'units'
+  const showPremiumError = showProjected && !hasAccessToProjectedUsage
 
   return (
     <section>
@@ -244,6 +325,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
         </div>
 
         {isLoading && <Skeleton variant="text" className="mt-1 w-36" />}
+
         {!isLoading && !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime && (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
@@ -269,11 +351,9 @@ export const SubscriptionCurrentUsageTableComponent = ({
           {
             title: translate('text_1753094834414fgnvuior3iv'),
           },
-          /*
           {
             title: translate('text_1753094834414tu9mxavuco7'),
           },
-          */
         ]}
       />
 
@@ -308,6 +388,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
           )}
         </>
       )}
+
       {!hasError && !isLoading && !usageData?.chargesUsage.length && (
         <>
           {noUsageOverride ? (
@@ -322,7 +403,39 @@ export const SubscriptionCurrentUsageTableComponent = ({
         </>
       )}
 
-      {!hasError && !!usageData?.chargesUsage.length && (
+      {!hasError && !!usageData?.chargesUsage.length && showPremiumError && (
+        <div className="mt-6 flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
+          <div className="flex flex-col">
+            <div className="flex flex-row items-center gap-2">
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_1755599398258j905gj9xihx')}
+              </Typography>
+              <Icon name="sparkles" />
+            </div>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_1755599398258ce1ilgc5swg')}
+            </Typography>
+          </div>
+
+          <Button
+            endIcon="sparkles"
+            variant="tertiary"
+            onClick={() =>
+              premiumWarningDialogRef.current?.openDialog({
+                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                mailtoSubject: translate('text_1755599398258mj61iwjhhfk'),
+                mailtoBody: translate('text_1755599398258w59pin31rfe'),
+              })
+            }
+          >
+            {translate('text_65ae73ebe3a66bec2b91d72d')}
+          </Button>
+        </div>
+      )}
+
+      {!hasError && !!usageData?.chargesUsage.length && !showPremiumError && (
         <>
           <div className="flex h-12 flex-row items-center justify-between shadow-b">
             <Typography variant="bodyHl" color="grey700" noWrap>
@@ -334,11 +447,15 @@ export const SubscriptionCurrentUsageTableComponent = ({
               <Skeleton variant="text" className="w-36" />
             ) : (
               <Typography variant="bodyHl" color="grey700" noWrap>
-                {intlFormatNumber(deserializeAmount(usageData?.[amountCentsKey], currency) || 0, {
-                  currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                  currency,
-                  locale,
-                })}
+                {intlFormatNumber(
+                  deserializeAmount((usageData as MixedCharge)?.[amountCentsKey] || 0, currency) ||
+                    0,
+                  {
+                    currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+                    currency,
+                    locale,
+                  },
+                )}
               </Typography>
             )}
           </div>
@@ -360,7 +477,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                     (groupedUsage) => !!groupedUsage?.filters?.length,
                   )
                   const hasAnyGroupedUsageUnits = row.groupedUsage.some(
-                    (groupedUsage) => groupedUsage?.[unitsKey] > 0,
+                    (groupedUsage) => Number((groupedUsage as MixedCharge)?.[unitsKey] || 0) > 0,
                   )
 
                   return (
@@ -382,21 +499,37 @@ export const SubscriptionCurrentUsageTableComponent = ({
                                 className="h-auto whitespace-nowrap rounded-none p-0 text-purple-600 hover:underline focus:underline"
                                 onClick={() => {
                                   subscriptionUsageDetailDrawerRef.current?.openDrawer(
-                                    row as ChargeUsage,
+                                    row as ChargeUsage & ProjectedChargeUsage,
                                     async () => {
                                       const { data } = await refetchUsage()
 
+                                      let filtered = undefined
+
                                       if ('customerPortalCustomerUsage' in data) {
-                                        return data?.customerPortalCustomerUsage.chargesUsage.find(
-                                          (usage) =>
-                                            usage.billableMetric.id === row.billableMetric.id,
-                                        ) as ChargeUsage | undefined
+                                        filtered =
+                                          data?.customerPortalCustomerUsage.chargesUsage.find(
+                                            (usage) =>
+                                              usage.billableMetric.id === row.billableMetric.id,
+                                          ) as ChargeUsage | undefined
                                       } else if ('customerUsage' in data) {
-                                        return data?.customerUsage.chargesUsage.find(
+                                        filtered = data?.customerUsage.chargesUsage.find(
                                           (usage) =>
                                             usage.billableMetric.id === row.billableMetric.id,
                                         ) as ChargeUsage | undefined
+                                      } else if ('customerProjectedUsage' in data) {
+                                        filtered = data?.customerProjectedUsage.chargesUsage.find(
+                                          (usage) =>
+                                            usage.billableMetric.id === row.billableMetric.id,
+                                        ) as ChargeUsage | undefined
+                                      } else if ('customerPortalCustomerProjectedUsage' in data) {
+                                        filtered =
+                                          data?.customerPortalCustomerProjectedUsage.chargesUsage.find(
+                                            (usage) =>
+                                              usage.billableMetric.id === row.billableMetric.id,
+                                          ) as ChargeUsage | undefined
                                       }
+
+                                      return filtered
                                     },
                                     activeTab,
                                   )
@@ -419,7 +552,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                 minWidth: 70,
                 content: (row) => (
                   <Typography variant="body" color="grey700">
-                    {row[unitsKey]}
+                    {(row as MixedCharge)?.[unitsKey]}
                   </Typography>
                 ),
               },
@@ -435,7 +568,10 @@ export const SubscriptionCurrentUsageTableComponent = ({
                     <div className="flex flex-col">
                       <Typography variant="bodyHl" color="grey700">
                         {intlFormatNumber(
-                          deserializeAmount(getPricingUnitAmountCents(row), currency),
+                          deserializeAmount(
+                            getPricingUnitAmountCents(row, showProjected) || 0,
+                            currency,
+                          ),
                           {
                             currency,
                             locale,
@@ -448,11 +584,17 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
                       {!!row.charge.appliedPricingUnit && (
                         <Typography variant="caption" color="grey600">
-                          {intlFormatNumber(deserializeAmount(row[amountCentsKey], currency), {
-                            currency,
-                            locale,
-                            currencyDisplay,
-                          })}
+                          {intlFormatNumber(
+                            deserializeAmount(
+                              (row as MixedCharge)?.[amountCentsKey] || 0,
+                              currency,
+                            ),
+                            {
+                              currency,
+                              locale,
+                              currencyDisplay,
+                            },
+                          )}
                         </Typography>
                       )}
                     </div>
@@ -473,6 +615,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
         translate={translate}
         locale={locale}
       />
+
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </section>
   )
 }
@@ -482,6 +626,11 @@ export const SubscriptionCurrentUsageTable = ({
   subscriptionId,
 }: SubscriptionCurrentUsageTableProps) => {
   const { translate } = useInternationalization()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
+  const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.ProjectedUsage,
+  )
 
   const {
     data: customerData,
@@ -502,12 +651,16 @@ export const SubscriptionCurrentUsageTable = ({
 
   const subscription = subscriptionData?.subscription
 
+  const usageQuery = hasAccessToProjectedUsage
+    ? useProjectedUsageForSubscriptionUsageQuery
+    : useUsageForSubscriptionUsageQuery
+
   const {
     data: usageData,
     loading: usageLoading,
     error: usageError,
     refetch: refetchUsage,
-  } = useUsageForSubscriptionUsageQuery({
+  } = usageQuery({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
@@ -523,6 +676,10 @@ export const SubscriptionCurrentUsageTable = ({
     notifyOnNetworkStatusChange: true,
   })
 
+  const customerUsage = hasAccessToProjectedUsage
+    ? (usageData as ProjectedUsageForSubscriptionUsageQuery)?.customerProjectedUsage
+    : (usageData as UsageForSubscriptionUsageQuery)?.customerUsage
+
   return (
     <SubscriptionCurrentUsageTableComponent
       customerData={customerData?.customer}
@@ -531,7 +688,10 @@ export const SubscriptionCurrentUsageTable = ({
       subscription={subscription}
       subscriptionLoading={subscriptionLoading}
       subscriptionError={subscriptionError}
-      usageData={usageData?.customerUsage}
+      usageData={
+        customerUsage as UsageForSubscriptionUsageQuery['customerUsage'] &
+          ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage']
+      }
       usageLoading={usageLoading}
       usageError={usageError}
       refetchUsage={() => refetchUsage()}
