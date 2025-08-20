@@ -53,6 +53,7 @@ gql`
     invoiceRequiresSuccessfulPayment
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
+    priority
     appliesTo {
       feeTypes
       billableMetrics {
@@ -212,6 +213,7 @@ const CreateWallet = () => {
 
   const formikProps = useFormik<TWalletDataForm>({
     initialValues: {
+      priority: wallet?.priority || 50,
       currency,
       expirationAt: wallet?.expirationAt || undefined,
       grantedCredits: '',

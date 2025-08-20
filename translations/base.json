@@ -3475,5 +3475,10 @@
   "text_1759933204078h2854rr8kve": "Type one or multiple zipcodes",
   "text_1759933204078d8saqn06pdf": "Search or select multiple currencies",
   "text_1760721761361octnb0dfqm5": "Apply unit changes at plan update",
-  "text_1760721761361lqhc17vjr2b": "If true, unit changes update all linked subscriptions on save and may trigger invoices for advanced charges. If false, changes apply from the next billing period."
+  "text_1760721761361lqhc17vjr2b": "If true, unit changes update all linked subscriptions on save and may trigger invoices for advanced charges. If false, changes apply from the next billing period.",
+  "text_1755695821678c8hkgkxkh73": "Priority",
+  "text_1755695821678c8hkgkxkh4": "Priority: {{priority}}",
+  "text_1755697949545w7vb1hox4n5": "Wallet priority",
+  "text_175569794954699gxpjhn4fe": "Order in which this wallet is used compared to others (1 and 50 — 1 is the highest). If wallets share the same priority, the oldest will be used first.",
+  "text_1755697949546zuqgeved2ma": "Type a priority. Default to 50"
 }
