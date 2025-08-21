@@ -14,7 +14,7 @@ importers:
     dependencies:
       '@apollo/client':
         specifier: 3.11.4
-        version: 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@copilotkit/react-core':
         specifier: ^1.9.3
         version: 1.9.3(@types/react@18.2.38)(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -62,13 +62,13 @@ importers:
         version: 1.2.14(graphql@16.10.0)
       apollo-link-timeout:
         specifier: 4.0.0
-        version: 4.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
+        version: 4.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
       apollo-upload-client:
         specifier: 17.0.0
-        version: 17.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0)
+        version: 17.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0)
       apollo3-cache-persist:
         specifier: 0.15.0
-        version: 0.15.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
+        version: 0.15.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
       decimal.js:
         specifier: ^10.4.3
         version: 10.4.3
@@ -80,7 +80,10 @@ importers:
         version: 16.10.0
       graphql-ruby-client:
         specifier: ^1.14.8
-        version: 1.14.8(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0)
+        version: 1.14.8(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0)
+      graphql-ws:
+        specifier: ^6.0.6
+        version: 6.0.6(graphql@16.10.0)(ws@8.18.3)
       html-react-parser:
         specifier: ^5.2.6
         version: 5.2.6(@types/react@18.2.38)(react@18.2.0)
@@ -204,7 +207,7 @@ importers:
         version: 4.3.0(prettier@3.4.2)
       '@types/apollo-upload-client':
         specifier: 17.0.5
-        version: 17.0.5(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 17.0.5(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@types/jest':
         specifier: 29.5.14
         version: 29.5.14
@@ -343,6 +346,9 @@ importers:
       vite-plugin-wasm:
         specifier: ^3.4.1
         version: 3.4.1(vite@6.3.4(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.7.0))
+      ws:
+        specifier: ^8.18.3
+        version: 8.18.3
 
   packages/configs:
     dependencies:
@@ -5289,6 +5295,25 @@ packages:
     peerDependencies:
       graphql: '>=0.11 <=16'
 
+  graphql-ws@6.0.6:
+    resolution: {integrity: sha512-zgfER9s+ftkGKUZgc0xbx8T7/HMO4AV5/YuYiFc+AtgcO5T0v8AxYYNQ+ltzuzDZgNkYJaFspm5MMYLjQzrkmw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@fastify/websocket': ^10 || ^11
+      crossws: ~0.3
+      graphql: ^15.10.1 || ^16
+      uWebSockets.js: ^20
+      ws: ^8
+    peerDependenciesMeta:
+      '@fastify/websocket':
+        optional: true
+      crossws:
+        optional: true
+      uWebSockets.js:
+        optional: true
+      ws:
+        optional: true
+
   graphql@16.10.0:
     resolution: {integrity: sha512-AjqGKbDGUFRKIRCP9tCKiIGHyriz2oHEbPIbEtcSLSs4YjReZOIPQQWek4+6hjw62H9QShXHyaGivGiYVLeYFQ==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
@@ -8704,8 +8729,8 @@ packages:
     resolution: {integrity: sha512-+QU2zd6OTD8XWIJCbffaiQeH9U73qIqafo1x6V1snCWYGJf6cVE0cDR4D8xRzcEnfI21IFrUPzPGtcPf8AC+Rw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  ws@8.18.0:
-    resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
+  ws@8.18.3:
+    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -8819,7 +8844,7 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
       '@wry/caches': 1.0.1
@@ -8837,7 +8862,7 @@ snapshots:
       tslib: 2.8.1
       zen-observable-ts: 1.2.5
     optionalDependencies:
-      graphql-ws: 5.16.0(graphql@16.10.0)
+      graphql-ws: 6.0.6(graphql@16.10.0)(ws@8.18.3)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -10755,9 +10780,9 @@ snapshots:
       '@whatwg-node/disposablestack': 0.0.5
       graphql: 16.10.0
       graphql-ws: 5.16.0(graphql@16.10.0)
-      isomorphic-ws: 5.0.0(ws@8.18.0)
+      isomorphic-ws: 5.0.0(ws@8.18.3)
       tslib: 2.8.1
-      ws: 8.18.0
+      ws: 8.18.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -10783,9 +10808,9 @@ snapshots:
       '@graphql-tools/utils': 10.7.2(graphql@16.10.0)
       '@types/ws': 8.5.13
       graphql: 16.10.0
-      isomorphic-ws: 5.0.0(ws@8.18.0)
+      isomorphic-ws: 5.0.0(ws@8.18.3)
       tslib: 2.8.1
-      ws: 8.18.0
+      ws: 8.18.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -10966,10 +10991,10 @@ snapshots:
       '@types/ws': 8.5.13
       '@whatwg-node/fetch': 0.10.1
       graphql: 16.10.0
-      isomorphic-ws: 5.0.0(ws@8.18.0)
+      isomorphic-ws: 5.0.0(ws@8.18.3)
       tslib: 2.8.1
       value-or-promise: 1.0.12
-      ws: 8.18.0
+      ws: 8.18.3
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -12239,9 +12264,9 @@ snapshots:
 
   '@types/actioncable@5.2.11': {}
 
-  '@types/apollo-upload-client@17.0.5(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@types/apollo-upload-client@17.0.5(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@types/extract-files': 13.0.1
       graphql: 16.10.0
     transitivePeerDependencies:
@@ -12688,9 +12713,9 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  apollo-link-timeout@4.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)):
+  apollo-link-timeout@4.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)):
     dependencies:
-      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
 
   apollo-link@1.2.14(graphql@16.10.0):
     dependencies:
@@ -12700,9 +12725,9 @@ snapshots:
       tslib: 1.14.1
       zen-observable-ts: 0.8.21
 
-  apollo-upload-client@17.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0):
+  apollo-upload-client@17.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0):
     dependencies:
-      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       extract-files: 11.0.0
       graphql: 16.10.0
 
@@ -12714,9 +12739,9 @@ snapshots:
       ts-invariant: 0.4.4
       tslib: 1.14.1
 
-  apollo3-cache-persist@0.15.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)):
+  apollo3-cache-persist@0.15.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)):
     dependencies:
-      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
 
   arch@2.2.0: {}
 
@@ -14687,9 +14712,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  graphql-ruby-client@1.14.8(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0):
+  graphql-ruby-client@1.14.8(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0):
     dependencies:
-      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       glob: 10.4.5
       graphql: 16.10.0
       minimist: 1.2.8
@@ -14702,6 +14727,12 @@ snapshots:
   graphql-ws@5.16.0(graphql@16.10.0):
     dependencies:
       graphql: 16.10.0
+
+  graphql-ws@6.0.6(graphql@16.10.0)(ws@8.18.3):
+    dependencies:
+      graphql: 16.10.0
+    optionalDependencies:
+      ws: 8.18.3
 
   graphql@16.10.0: {}
 
@@ -15237,9 +15268,9 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  isomorphic-ws@5.0.0(ws@8.18.0):
+  isomorphic-ws@5.0.0(ws@8.18.3):
     dependencies:
-      ws: 8.18.0
+      ws: 8.18.3
 
   isstream@0.1.2: {}
 
@@ -15706,7 +15737,7 @@ snapshots:
       whatwg-encoding: 2.0.0
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
-      ws: 8.18.0
+      ws: 8.18.3
       xml-name-validator: 4.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -18893,7 +18924,7 @@ snapshots:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
 
-  ws@8.18.0: {}
+  ws@8.18.3: {}
 
   xml-name-validator@4.0.0: {}
 

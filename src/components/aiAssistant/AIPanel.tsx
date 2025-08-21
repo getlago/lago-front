@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Icon, Typography } from 'lago-design-system'
+import { Icon, Typography } from 'lago-design-system'
 import { useState } from 'react'
 
 import { TextInputField } from '~/components/form'
@@ -25,14 +25,6 @@ gql`
       inputData
     }
   }
-`
-
-const example = `## Python
-
-\`\`\`python
-print('Hello llm-ui!')
-\`\`\`
-...continues...
 `
 
 export const AIPanel = () => {
@@ -62,77 +54,37 @@ export const AIPanel = () => {
     },
   })
 
-  const {
-    data: subscriptionData,
-    error: subscriptionError,
-    loading: subscriptionLoading,
-  } = useOnConversationSubscription({
+  const subscription = useOnConversationSubscription({
     variables: { conversationId: conversationId ?? '' },
+    skip: !conversationId,
     onError: (error) => {
-      console.log('onError', error)
+      // eslint-disable-next-line no-console
+      console.log('Subscription error:', error)
+      // eslint-disable-next-line no-console
+      console.log('Error details:', {
+        message: error.message,
+        graphQLErrors: error.graphQLErrors,
+        networkError: error.networkError,
+        extraInfo: error.extraInfo,
+      })
     },
     onData: (data) => {
-      console.log('onData', data)
+      // eslint-disable-next-line no-console
+      console.log('Subscription data received:', data)
     },
     onComplete: () => {
-      console.log('onComplete')
+      // eslint-disable-next-line no-console
+      console.log('Subscription completed')
     },
   })
 
-  console.log({ subscriptionData, subscriptionError, subscriptionLoading })
-
-  // const client = useApolloClient()
-
-  // const subscription = client
-  //   .subscribe({
-  //     query: gql`
-  //       subscription onConversation($conversationId: ID!) {
-  //         aiConversationStreamed(conversationId: $conversationId) {
-  //           id
-  //           conversationId
-  //           inputData
-  //           organization {
-  //             id
-  //           }
-  //           updatedAt
-  //         }
-  //       }
-  //     `,
-  //     variables: { conversationId },
-  //   })
-  //   .subscribe({
-  //     complete: () => {
-  //       console.log('complete')
-  //     },
-  //     error: (error) => {
-  //       console.log('error', error)
-  //     },
-  //     next({ data }) {
-  //       console.log('Streamed update:', data.aiConversationStreamed.inputData)
-  //     },
-  //     start: () => {
-  //       console.log('start')
-  //     },
-  //   })
-
-  // const { isStreamFinished, output } = useStreamExample(example)
-
-  // const { blockMatches } = useLLMOutput({
-  //   llmOutput: output,
-  //   fallbackBlock: {
-  //     component: MarkdownComponent,
-  //     lookBack: markdownLookBack(),
-  //   },
-  //   blocks: [
-  //     {
-  //       component: CodeBlock,
-  //       findCompleteMatch: findCompleteCodeBlock(),
-  //       findPartialMatch: findPartialCodeBlock(),
-  //       lookBack: codeBlockLookBack(),
-  //     },
-  //   ],
-  //   isStreamFinished,
-  // })
+  // eslint-disable-next-line no-console
+  console.log('Subscription state:', {
+    loading: subscription.loading,
+    error: subscription.error,
+    data: subscription.data,
+    conversationId,
+  })
 
   return (
     <div className="flex h-full flex-col justify-end">
@@ -145,7 +97,7 @@ export const AIPanel = () => {
             I’m here to help you move faster
           </Typography>
 
-          <div className="flex flex-wrap gap-2">
+          {/* <div className="flex flex-wrap gap-2">
             <Button variant="tertiary" size="small">
               Revenue & Insights
             </Button>
@@ -164,7 +116,7 @@ export const AIPanel = () => {
             <Button variant="tertiary" size="small">
               Subscriptions & Usage
             </Button>
-          </div>
+          </div> */}
         </div>
 
         {/*
