@@ -1629,6 +1629,7 @@ export type CreateCustomerWalletTransactionInput = {
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   metadata?: InputMaybe<Array<WalletTransactionMetadataInput>>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
+  priority?: InputMaybe<Scalars['Int']['input']>;
   voidedCredits?: InputMaybe<Scalars['String']['input']>;
   walletId: Scalars['ID']['input'];
 };
@@ -3762,6 +3763,7 @@ export enum IntegrationTypeEnum {
   Okta = 'okta',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
+  ProjectedUsage = 'projected_usage',
   RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
@@ -5684,6 +5686,7 @@ export enum PremiumIntegrationTypeEnum {
   Okta = 'okta',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
+  ProjectedUsage = 'projected_usage',
   RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
@@ -5933,6 +5936,8 @@ export type Query = {
   customer?: Maybe<Customer>;
   /** Query invoices of a customer */
   customerInvoices: InvoiceCollection;
+  /** Query the projected usage of the customer on the current billing period */
+  customerPortalCustomerProjectedUsage: CustomerProjectedUsage;
   /** Query the usage of the customer on the current billing period */
   customerPortalCustomerUsage: CustomerUsage;
   /** Query invoice collections of a customer portal user */
@@ -6236,6 +6241,11 @@ export type QueryCustomerInvoicesArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
+};
+
+
+export type QueryCustomerPortalCustomerProjectedUsageArgs = {
+  subscriptionId: Scalars['ID']['input'];
 };
 
 
@@ -7323,8 +7333,6 @@ export enum TimezoneEnum {
   TzAmericaChihuahua = 'TZ_AMERICA_CHIHUAHUA',
   /** America/Denver */
   TzAmericaDenver = 'TZ_AMERICA_DENVER',
-  /** America/Godthab */
-  TzAmericaGodthab = 'TZ_AMERICA_GODTHAB',
   /** America/Guatemala */
   TzAmericaGuatemala = 'TZ_AMERICA_GUATEMALA',
   /** America/Guyana */
@@ -7409,8 +7417,6 @@ export enum TimezoneEnum {
   TzAsiaMuscat = 'TZ_ASIA_MUSCAT',
   /** Asia/Novosibirsk */
   TzAsiaNovosibirsk = 'TZ_ASIA_NOVOSIBIRSK',
-  /** Asia/Rangoon */
-  TzAsiaRangoon = 'TZ_ASIA_RANGOON',
   /** Asia/Riyadh */
   TzAsiaRiyadh = 'TZ_ASIA_RIYADH',
   /** Asia/Seoul */
@@ -7493,8 +7499,6 @@ export enum TimezoneEnum {
   TzEuropeIstanbul = 'TZ_EUROPE_ISTANBUL',
   /** Europe/Kaliningrad */
   TzEuropeKaliningrad = 'TZ_EUROPE_KALININGRAD',
-  /** Europe/Kiev */
-  TzEuropeKiev = 'TZ_EUROPE_KIEV',
   /** Europe/Lisbon */
   TzEuropeLisbon = 'TZ_EUROPE_LISBON',
   /** Europe/Ljubljana */
@@ -8266,6 +8270,7 @@ export type WalletTransaction = {
   invoice?: Maybe<Invoice>;
   invoiceRequiresSuccessfulPayment: Scalars['Boolean']['output'];
   metadata?: Maybe<Array<WalletTransactionMetadataObject>>;
+  priority: Scalars['Int']['output'];
   settledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   source: WalletTransactionSourceEnum;
   status: WalletTransactionStatusEnum;
