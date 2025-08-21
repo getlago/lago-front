@@ -1629,6 +1629,7 @@ export type CreateCustomerWalletTransactionInput = {
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   metadata?: InputMaybe<Array<WalletTransactionMetadataInput>>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
+  priority?: InputMaybe<Scalars['Int']['input']>;
   voidedCredits?: InputMaybe<Scalars['String']['input']>;
   walletId: Scalars['ID']['input'];
 };
@@ -2724,11 +2725,16 @@ export type DataApiRevenueStream = {
   __typename?: 'DataApiRevenueStream';
   amountCurrency: CurrencyEnum;
   commitmentFeeAmountCents: Scalars['BigInt']['output'];
+  contraRevenueAmountCents?: Maybe<Scalars['BigInt']['output']>;
   couponsAmountCents: Scalars['BigInt']['output'];
+  creditNotesCreditsAmountCents?: Maybe<Scalars['BigInt']['output']>;
   endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  freeCreditsAmountCents?: Maybe<Scalars['BigInt']['output']>;
   grossRevenueAmountCents: Scalars['BigInt']['output'];
   netRevenueAmountCents: Scalars['BigInt']['output'];
   oneOffFeeAmountCents: Scalars['BigInt']['output'];
+  prepaidCreditsAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  progressiveBillingCreditAmountCents?: Maybe<Scalars['BigInt']['output']>;
   startOfPeriodDt: Scalars['ISO8601Date']['output'];
   subscriptionFeeAmountCents: Scalars['BigInt']['output'];
   usageBasedFeeAmountCents: Scalars['BigInt']['output'];
@@ -3757,6 +3763,7 @@ export enum IntegrationTypeEnum {
   Okta = 'okta',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
+  ProjectedUsage = 'projected_usage',
   RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
@@ -5679,6 +5686,7 @@ export enum PremiumIntegrationTypeEnum {
   Okta = 'okta',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
+  ProjectedUsage = 'projected_usage',
   RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
@@ -5928,6 +5936,8 @@ export type Query = {
   customer?: Maybe<Customer>;
   /** Query invoices of a customer */
   customerInvoices: InvoiceCollection;
+  /** Query the projected usage of the customer on the current billing period */
+  customerPortalCustomerProjectedUsage: CustomerProjectedUsage;
   /** Query the usage of the customer on the current billing period */
   customerPortalCustomerUsage: CustomerUsage;
   /** Query invoice collections of a customer portal user */
@@ -6231,6 +6241,11 @@ export type QueryCustomerInvoicesArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
+};
+
+
+export type QueryCustomerPortalCustomerProjectedUsageArgs = {
+  subscriptionId: Scalars['ID']['input'];
 };
 
 
@@ -7318,8 +7333,6 @@ export enum TimezoneEnum {
   TzAmericaChihuahua = 'TZ_AMERICA_CHIHUAHUA',
   /** America/Denver */
   TzAmericaDenver = 'TZ_AMERICA_DENVER',
-  /** America/Godthab */
-  TzAmericaGodthab = 'TZ_AMERICA_GODTHAB',
   /** America/Guatemala */
   TzAmericaGuatemala = 'TZ_AMERICA_GUATEMALA',
   /** America/Guyana */
@@ -7404,8 +7417,6 @@ export enum TimezoneEnum {
   TzAsiaMuscat = 'TZ_ASIA_MUSCAT',
   /** Asia/Novosibirsk */
   TzAsiaNovosibirsk = 'TZ_ASIA_NOVOSIBIRSK',
-  /** Asia/Rangoon */
-  TzAsiaRangoon = 'TZ_ASIA_RANGOON',
   /** Asia/Riyadh */
   TzAsiaRiyadh = 'TZ_ASIA_RIYADH',
   /** Asia/Seoul */
@@ -7488,8 +7499,6 @@ export enum TimezoneEnum {
   TzEuropeIstanbul = 'TZ_EUROPE_ISTANBUL',
   /** Europe/Kaliningrad */
   TzEuropeKaliningrad = 'TZ_EUROPE_KALININGRAD',
-  /** Europe/Kiev */
-  TzEuropeKiev = 'TZ_EUROPE_KIEV',
   /** Europe/Lisbon */
   TzEuropeLisbon = 'TZ_EUROPE_LISBON',
   /** Europe/Ljubljana */
@@ -8261,6 +8270,7 @@ export type WalletTransaction = {
   invoice?: Maybe<Invoice>;
   invoiceRequiresSuccessfulPayment: Scalars['Boolean']['output'];
   metadata?: Maybe<Array<WalletTransactionMetadataObject>>;
+  priority: Scalars['Int']['output'];
   settledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   source: WalletTransactionSourceEnum;
   status: WalletTransactionStatusEnum;
@@ -8484,7 +8494,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 
 export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare?: number | null }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
-export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
+export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any, contraRevenueAmountCents?: any | null, creditNotesCreditsAmountCents?: any | null, freeCreditsAmountCents?: any | null, prepaidCreditsAmountCents?: any | null, progressiveBillingCreditAmountCents?: any | null };
 
 export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -8510,7 +8520,7 @@ export type GetRevenueStreamsQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
+export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any, contraRevenueAmountCents?: any | null, creditNotesCreditsAmountCents?: any | null, freeCreditsAmountCents?: any | null, prepaidCreditsAmountCents?: any | null, progressiveBillingCreditAmountCents?: any | null }> } };
 
 export type GetUsageBillableMetricQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -12428,6 +12438,11 @@ export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
   startOfPeriodDt
   subscriptionFeeAmountCents
   usageBasedFeeAmountCents
+  contraRevenueAmountCents
+  creditNotesCreditsAmountCents
+  freeCreditsAmountCents
+  prepaidCreditsAmountCents
+  progressiveBillingCreditAmountCents
 }
     `;
 export const BillableMetricDetailsFragmentDoc = gql`
