@@ -10,8 +10,14 @@ import { Typography } from '~/components/designSystem'
 import { SubscriptionCurrentUsageTableComponent } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import { SubscriptionUsageLifetimeGraphComponent } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import {
+  CustomerProjectedUsageForUsageDetailsFragmentDoc,
   CustomerUsageForUsageDetailsFragmentDoc,
+  GetCustomerProjectedUsageForPortalQuery,
+  GetCustomerUsageForPortalQuery,
+  PremiumIntegrationTypeEnum,
+  SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmentDoc,
   SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc,
+  useGetCustomerProjectedUsageForPortalQuery,
   useGetCustomerUsageForPortalQuery,
   useGetPortalOrgaInfosQuery,
   useGetSubscriptionForPortalQuery,
@@ -63,8 +69,18 @@ gql`
     }
   }
 
+  query getCustomerProjectedUsageForPortal($subscriptionId: ID!) {
+    customerPortalCustomerProjectedUsage(subscriptionId: $subscriptionId) {
+      amountCents
+      ...SubscriptionCurrentUsageTableComponentCustomerProjectedUsage
+      ...CustomerProjectedUsageForUsageDetails
+    }
+  }
+
   ${SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc}
+  ${SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmentDoc}
   ${CustomerUsageForUsageDetailsFragmentDoc}
+  ${CustomerProjectedUsageForUsageDetailsFragmentDoc}
 `
 
 const UsagePage = () => {
@@ -74,6 +90,14 @@ const UsagePage = () => {
   const { itemId } = useParams()
 
   const subscriptionId = itemId
+
+  const { data: organization, loading: organizationLoading } = useGetPortalOrgaInfosQuery()
+
+  const customerPortalOrganization = organization?.customerPortalOrganization
+
+  const hasAccessToProjectedUsage = customerPortalOrganization?.premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.ProjectedUsage,
+  )
 
   const {
     data: customerPortalSubscriptionData,
@@ -87,12 +111,16 @@ const UsagePage = () => {
     skip: !itemId,
   })
 
+  const usageQuery = hasAccessToProjectedUsage
+    ? useGetCustomerProjectedUsageForPortalQuery
+    : useGetCustomerUsageForPortalQuery
+
   const {
     data: usageData,
     loading: usageLoading,
     error: usageError,
     refetch: usageRefetch,
-  } = useGetCustomerUsageForPortalQuery({
+  } = usageQuery({
     variables: {
       subscriptionId: itemId as string,
     },
@@ -101,10 +129,11 @@ const UsagePage = () => {
     nextFetchPolicy: 'no-cache',
   })
 
-  const { data: organization, loading: organizationLoading } = useGetPortalOrgaInfosQuery()
   const customerPortalSubscription = customerPortalSubscriptionData?.customerPortalSubscription
 
-  const customerPortalOrganization = organization?.customerPortalOrganization
+  const customerUsage = hasAccessToProjectedUsage
+    ? (usageData as GetCustomerProjectedUsageForPortalQuery)?.customerPortalCustomerProjectedUsage
+    : (usageData as GetCustomerUsageForPortalQuery)?.customerPortalCustomerUsage
 
   return (
     <div>
@@ -139,7 +168,10 @@ const UsagePage = () => {
         <div className="mt-12">
           <SubscriptionCurrentUsageTableComponent
             showExcludingTaxLabel
-            usageData={usageData?.customerPortalCustomerUsage}
+            usageData={
+              customerUsage as GetCustomerUsageForPortalQuery['customerPortalCustomerUsage'] &
+                GetCustomerProjectedUsageForPortalQuery['customerPortalCustomerProjectedUsage']
+            }
             usageLoading={usageLoading}
             usageError={usageError}
             subscription={customerPortalSubscription}

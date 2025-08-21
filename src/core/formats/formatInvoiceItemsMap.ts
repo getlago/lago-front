@@ -2,8 +2,6 @@ import { gql } from '@apollo/client'
 
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import {
-  ChargeFilter,
-  ChargeFilterUsage,
   Fee,
   FeeTypesEnum,
   InvoiceForDetailsTableFragment,
@@ -100,7 +98,11 @@ type TFormatedInvoiceSubscriptionDataForDisplay = {
 }
 
 export const composeChargeFilterDisplayName = (
-  chargeFilter?: Omit<ChargeFilter, 'properties'> | ChargeFilterUsage | null,
+  chargeFilter?: {
+    id?: string | null
+    invoiceDisplayName?: string | null
+    values: Record<string, string[]>
+  } | null,
 ): string => {
   if (!chargeFilter) return ''
   if (chargeFilter.invoiceDisplayName) return chargeFilter.invoiceDisplayName

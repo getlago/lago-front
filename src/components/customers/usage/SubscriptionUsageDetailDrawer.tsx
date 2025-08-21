@@ -11,7 +11,10 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { getPricingUnitAmountCents } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
+import {
+  getPricingUnitAmountCents,
+  MixedCharge,
+} from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import {
   composeChargeFilterDisplayName,
   composeGroupedByDisplayName,
@@ -22,10 +25,11 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
-  ChargeFilterUsage,
   ChargeUsage,
   CurrencyEnum,
   GroupedChargeUsage,
+  ProjectedChargeFilterUsage,
+  ProjectedChargeUsage,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -33,30 +37,51 @@ import { TranslateFunc } from '~/hooks/core/useInternationalization'
 const NO_ID_FILTER_DEFAULT_VALUE = 'NO_ID_FILTER_DEFAULT_VALUE'
 
 type AmountCentsCellProps = {
-  row: ChargeFilterUsage | GroupedChargeUsage
+  row: {
+    amountCents?: string | number
+    pricingUnitAmountCents?: string | number
+    pricingUnitProjectedAmountCents?: string | number
+    projectedAmountCents?: string | number
+  }
   currency: CurrencyEnum
   locale?: LocaleEnum
   pricingUnitShortName?: string
+  showProjected?: boolean
 }
 
-const AmountCentsCell = ({ row, currency, locale, pricingUnitShortName }: AmountCentsCellProps) => (
+const AmountCentsCell = ({
+  row,
+  currency,
+  locale,
+  pricingUnitShortName,
+  showProjected,
+}: AmountCentsCellProps) => (
   <div className="flex flex-col items-end">
     <Typography variant="bodyHl" color="grey700">
-      {intlFormatNumber(deserializeAmount(getPricingUnitAmountCents(row), currency) || 0, {
-        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-        currency,
-        locale,
-        pricingUnitShortName,
-      })}
+      {intlFormatNumber(
+        deserializeAmount(getPricingUnitAmountCents(row, showProjected) || 0, currency) || 0,
+        {
+          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+          currency,
+          locale,
+          pricingUnitShortName,
+        },
+      )}
     </Typography>
 
     {!!pricingUnitShortName && (
       <Typography variant="caption" color="grey600">
-        {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
-          currency,
-          locale,
-          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-        })}
+        {intlFormatNumber(
+          deserializeAmount(
+            showProjected ? row.amountCents : (row as ProjectedChargeUsage).projectedAmountCents,
+            currency,
+          ),
+          {
+            currency,
+            locale,
+            currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+          },
+        )}
       </Typography>
     )}
   </div>
@@ -109,12 +134,69 @@ gql`
       }
     }
   }
+
+  fragment CustomerProjectedUsageForUsageDetails on CustomerProjectedUsage {
+    fromDatetime
+    toDatetime
+    chargesUsage {
+      id
+      pricingUnitAmountCents
+      pricingUnitProjectedAmountCents
+      charge {
+        id
+        invoiceDisplayName
+        appliedPricingUnit {
+          id
+          pricingUnit {
+            id
+            shortName
+          }
+        }
+      }
+      billableMetric {
+        name
+      }
+      filters {
+        id
+        amountCents
+        units
+        values
+        invoiceDisplayName
+        pricingUnitAmountCents
+        projectedAmountCents
+        pricingUnitProjectedAmountCents
+        projectedUnits
+      }
+      groupedUsage {
+        id
+        amountCents
+        groupedBy
+        eventsCount
+        units
+        pricingUnitAmountCents
+        projectedAmountCents
+        pricingUnitProjectedAmountCents
+        projectedUnits
+        filters {
+          id
+          amountCents
+          units
+          values
+          invoiceDisplayName
+          pricingUnitAmountCents
+          projectedAmountCents
+          pricingUnitProjectedAmountCents
+          projectedUnits
+        }
+      }
+    }
+  }
 `
 
 export interface SubscriptionUsageDetailDrawerRef {
   openDrawer: (
-    usage: ChargeUsage,
-    refreshUsage: () => Promise<ChargeUsage | undefined>,
+    usage: ChargeUsage | ProjectedChargeUsage,
+    refreshUsage: () => Promise<ChargeUsage | ProjectedChargeUsage | undefined>,
     defaultTab?: number,
   ) => unknown
   closeDialog: () => unknown
@@ -145,8 +227,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     ref,
   ) => {
     const drawerRef = useRef<DrawerRef>(null)
-    const [usage, setUsage] = useState<ChargeUsage>()
-    const [refreshFunction, setRefreshFunction] = useState<() => Promise<ChargeUsage | undefined>>()
+    const [usage, setUsage] = useState<ChargeUsage | ProjectedChargeUsage>()
+    const [refreshFunction, setRefreshFunction] =
+      useState<() => Promise<ChargeUsage | ProjectedChargeUsage | undefined>>()
     const [activeTab, setActiveTab] = useState<number>(0)
 
     const showProjected = activeTab === 1
@@ -161,7 +244,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           amountHeader: translate('text_1753101927691fbbwyk7p39q'),
         }
 
-    const unitsKey = 'units'
+    const unitsKey = showProjected ? 'projectedUnits' : 'units'
 
     const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
     const hasAnyFilterInGroupUsage = usage?.groupedUsage?.some(
@@ -234,11 +317,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
             {
               title: translate('text_1753094834414fgnvuior3iv'),
             },
-            /*
             {
               title: translate('text_1753094834414tu9mxavuco7'),
             },
-            */
           ]}
         />
 
@@ -299,7 +380,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                         minWidth: 70,
                         content: (row) => (
                           <Typography variant="body" color="grey700">
-                            {row[unitsKey]}
+                            {showProjected
+                              ? (row as ProjectedChargeFilterUsage).projectedUnits
+                              : row.units}
                           </Typography>
                         ),
                       },
@@ -314,6 +397,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                             currency={currency}
                             locale={locale}
                             pricingUnitShortName={pricingUnitShortName}
+                            showProjected={showProjected}
                           />
                         ),
                       },
@@ -328,7 +412,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
             name="grouped-usage-table"
             containerSize={0}
             rowSize={!!pricingUnitShortName ? 72 : 48}
-            data={usage?.groupedUsage || []}
+            data={(usage?.groupedUsage as GroupedChargeUsage[]) || []}
             columns={[
               {
                 key: 'id',
@@ -352,7 +436,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                 minWidth: 70,
                 content: (row) => (
                   <Typography variant="body" color="grey700">
-                    {row[unitsKey]}
+                    {(row as MixedCharge)[unitsKey]}
                   </Typography>
                 ),
               },
@@ -367,6 +451,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                     currency={currency}
                     locale={locale}
                     pricingUnitShortName={pricingUnitShortName}
+                    showProjected={showProjected}
                   />
                 ),
               },
@@ -413,7 +498,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                 minWidth: 70,
                 content: (row) => (
                   <Typography variant="body" color="grey700">
-                    {row[unitsKey]}
+                    {(row as MixedCharge)[unitsKey]}
                   </Typography>
                 ),
               },
@@ -428,6 +513,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                     currency={currency}
                     locale={locale}
                     pricingUnitShortName={pricingUnitShortName}
+                    showProjected={showProjected}
                   />
                 ),
               },

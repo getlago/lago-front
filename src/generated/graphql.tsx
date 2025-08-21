@@ -8803,6 +8803,13 @@ export type GetCustomerUsageForPortalQueryVariables = Exact<{
 
 export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, id: string, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null }> }> } };
 
+export type GetCustomerProjectedUsageForPortalQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetCustomerProjectedUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerProjectedUsage: { __typename?: 'CustomerProjectedUsage', amountCents: any, projectedAmountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ProjectedChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, projectedUnits: number, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null, groupedUsage: Array<{ __typename?: 'ProjectedGroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, projectedUnits: number, projectedAmountCents: any, id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null }> }> } };
+
 export type GetPortalUsageQueryVariables = Exact<{
   status?: InputMaybe<Array<StatusTypeEnum> | StatusTypeEnum>;
 }>;
@@ -9170,6 +9177,8 @@ export type GetCustomerSubscriptionForUsageQueryVariables = Exact<{
 export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null } | null };
 
 export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null }> }> };
+
+export type CustomerProjectedUsageForUsageDetailsFragment = { __typename?: 'CustomerProjectedUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ProjectedChargeUsage', id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null, groupedUsage: Array<{ __typename?: 'ProjectedGroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null }> }> };
 
 export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -10739,6 +10748,8 @@ export type SubscrptionForSubscriptionUsageQuery = { __typename?: 'Query', subsc
 
 export type SubscriptionCurrentUsageTableComponentCustomerUsageFragment = { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null }> }> };
 
+export type SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragment = { __typename?: 'CustomerProjectedUsage', amountCents: any, projectedAmountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ProjectedChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, projectedUnits: number, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null }> | null, groupedUsage: Array<{ __typename?: 'ProjectedGroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, projectedUnits: number, projectedAmountCents: any, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null }> | null }> }> };
+
 export type UsageForSubscriptionUsageQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
   subscriptionId: Scalars['ID']['input'];
@@ -10746,6 +10757,14 @@ export type UsageForSubscriptionUsageQueryVariables = Exact<{
 
 
 export type UsageForSubscriptionUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, id: string, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null }> }> } };
+
+export type ProjectedUsageForSubscriptionUsageQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectedUsageForSubscriptionUsageQuery = { __typename?: 'Query', customerProjectedUsage: { __typename?: 'CustomerProjectedUsage', amountCents: any, projectedAmountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ProjectedChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, projectedUnits: number, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null, groupedUsage: Array<{ __typename?: 'ProjectedGroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, projectedUnits: number, projectedAmountCents: any, id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null }> }> } };
 
 export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -13029,6 +13048,64 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
   }
 }
     `;
+export const CustomerProjectedUsageForUsageDetailsFragmentDoc = gql`
+    fragment CustomerProjectedUsageForUsageDetails on CustomerProjectedUsage {
+  fromDatetime
+  toDatetime
+  chargesUsage {
+    id
+    pricingUnitAmountCents
+    pricingUnitProjectedAmountCents
+    charge {
+      id
+      invoiceDisplayName
+      appliedPricingUnit {
+        id
+        pricingUnit {
+          id
+          shortName
+        }
+      }
+    }
+    billableMetric {
+      name
+    }
+    filters {
+      id
+      amountCents
+      units
+      values
+      invoiceDisplayName
+      pricingUnitAmountCents
+      projectedAmountCents
+      pricingUnitProjectedAmountCents
+      projectedUnits
+    }
+    groupedUsage {
+      id
+      amountCents
+      groupedBy
+      eventsCount
+      units
+      pricingUnitAmountCents
+      projectedAmountCents
+      pricingUnitProjectedAmountCents
+      projectedUnits
+      filters {
+        id
+        amountCents
+        units
+        values
+        invoiceDisplayName
+        pricingUnitAmountCents
+        projectedAmountCents
+        pricingUnitProjectedAmountCents
+        projectedUnits
+      }
+    }
+  }
+}
+    `;
 export const ActivityLogDetailsFragmentDoc = gql`
     fragment ActivityLogDetails on ActivityLog {
   activityType
@@ -13972,6 +14049,54 @@ export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gq
       groupedBy
       eventsCount
       units
+      filters {
+        id
+      }
+    }
+  }
+}
+    `;
+export const SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmentDoc = gql`
+    fragment SubscriptionCurrentUsageTableComponentCustomerProjectedUsage on CustomerProjectedUsage {
+  amountCents
+  projectedAmountCents
+  currency
+  fromDatetime
+  toDatetime
+  chargesUsage {
+    id
+    units
+    amountCents
+    pricingUnitAmountCents
+    projectedUnits
+    projectedAmountCents
+    pricingUnitProjectedAmountCents
+    charge {
+      id
+      invoiceDisplayName
+      appliedPricingUnit {
+        id
+        pricingUnit {
+          id
+          shortName
+        }
+      }
+    }
+    billableMetric {
+      id
+      code
+      name
+    }
+    filters {
+      id
+    }
+    groupedUsage {
+      amountCents
+      groupedBy
+      eventsCount
+      units
+      projectedUnits
+      projectedAmountCents
       filters {
         id
       }
@@ -18277,6 +18402,49 @@ export type GetCustomerUsageForPortalQueryHookResult = ReturnType<typeof useGetC
 export type GetCustomerUsageForPortalLazyQueryHookResult = ReturnType<typeof useGetCustomerUsageForPortalLazyQuery>;
 export type GetCustomerUsageForPortalSuspenseQueryHookResult = ReturnType<typeof useGetCustomerUsageForPortalSuspenseQuery>;
 export type GetCustomerUsageForPortalQueryResult = Apollo.QueryResult<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>;
+export const GetCustomerProjectedUsageForPortalDocument = gql`
+    query getCustomerProjectedUsageForPortal($subscriptionId: ID!) {
+  customerPortalCustomerProjectedUsage(subscriptionId: $subscriptionId) {
+    amountCents
+    ...SubscriptionCurrentUsageTableComponentCustomerProjectedUsage
+    ...CustomerProjectedUsageForUsageDetails
+  }
+}
+    ${SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmentDoc}
+${CustomerProjectedUsageForUsageDetailsFragmentDoc}`;
+
+/**
+ * __useGetCustomerProjectedUsageForPortalQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerProjectedUsageForPortalQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerProjectedUsageForPortalQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerProjectedUsageForPortalQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetCustomerProjectedUsageForPortalQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables> & ({ variables: GetCustomerProjectedUsageForPortalQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>(GetCustomerProjectedUsageForPortalDocument, options);
+      }
+export function useGetCustomerProjectedUsageForPortalLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>(GetCustomerProjectedUsageForPortalDocument, options);
+        }
+export function useGetCustomerProjectedUsageForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>(GetCustomerProjectedUsageForPortalDocument, options);
+        }
+export type GetCustomerProjectedUsageForPortalQueryHookResult = ReturnType<typeof useGetCustomerProjectedUsageForPortalQuery>;
+export type GetCustomerProjectedUsageForPortalLazyQueryHookResult = ReturnType<typeof useGetCustomerProjectedUsageForPortalLazyQuery>;
+export type GetCustomerProjectedUsageForPortalSuspenseQueryHookResult = ReturnType<typeof useGetCustomerProjectedUsageForPortalSuspenseQuery>;
+export type GetCustomerProjectedUsageForPortalQueryResult = Apollo.QueryResult<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>;
 export const GetPortalUsageDocument = gql`
     query getPortalUsage($status: [StatusTypeEnum!]) {
   customerPortalSubscriptions(status: $status) {
@@ -27185,6 +27353,51 @@ export type UsageForSubscriptionUsageQueryHookResult = ReturnType<typeof useUsag
 export type UsageForSubscriptionUsageLazyQueryHookResult = ReturnType<typeof useUsageForSubscriptionUsageLazyQuery>;
 export type UsageForSubscriptionUsageSuspenseQueryHookResult = ReturnType<typeof useUsageForSubscriptionUsageSuspenseQuery>;
 export type UsageForSubscriptionUsageQueryResult = Apollo.QueryResult<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>;
+export const ProjectedUsageForSubscriptionUsageDocument = gql`
+    query projectedUsageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
+  customerProjectedUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
+    amountCents
+    projectedAmountCents
+    ...SubscriptionCurrentUsageTableComponentCustomerProjectedUsage
+    ...CustomerProjectedUsageForUsageDetails
+  }
+}
+    ${SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmentDoc}
+${CustomerProjectedUsageForUsageDetailsFragmentDoc}`;
+
+/**
+ * __useProjectedUsageForSubscriptionUsageQuery__
+ *
+ * To run a query within a React component, call `useProjectedUsageForSubscriptionUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectedUsageForSubscriptionUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectedUsageForSubscriptionUsageQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useProjectedUsageForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables> & ({ variables: ProjectedUsageForSubscriptionUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>(ProjectedUsageForSubscriptionUsageDocument, options);
+      }
+export function useProjectedUsageForSubscriptionUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>(ProjectedUsageForSubscriptionUsageDocument, options);
+        }
+export function useProjectedUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>(ProjectedUsageForSubscriptionUsageDocument, options);
+        }
+export type ProjectedUsageForSubscriptionUsageQueryHookResult = ReturnType<typeof useProjectedUsageForSubscriptionUsageQuery>;
+export type ProjectedUsageForSubscriptionUsageLazyQueryHookResult = ReturnType<typeof useProjectedUsageForSubscriptionUsageLazyQuery>;
+export type ProjectedUsageForSubscriptionUsageSuspenseQueryHookResult = ReturnType<typeof useProjectedUsageForSubscriptionUsageSuspenseQuery>;
+export type ProjectedUsageForSubscriptionUsageQueryResult = Apollo.QueryResult<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>;
 export const GetSubscriptionForDetailsOverviewDocument = gql`
     query getSubscriptionForDetailsOverview($subscriptionId: ID!) {
   subscription(id: $subscriptionId) {
