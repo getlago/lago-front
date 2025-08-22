@@ -176,5 +176,18 @@
   "text_1726576554903s2dddtq5qz4": "{{rate}} consommé",
   "text_1726576554903930hsa8vg23": "{{rate}} restant",
   "text_62c3f454e5d7f4ec8888c1d7": "Ajoutez un plan avec des frais à ce client pour commencer à suivre l’utilisation actuelle.",
-  "text_1753094834414fgnvuior3iv": "Utilisation actuelle"
+  "text_1753094834414fgnvuior3iv": "Utilisation actuelle",
+  "text_1753094834414tu9mxavuco7": "Utilisation prévisionnelle",
+  "text_1753095692838zn4t5a0wrg1": "Utilisation totale prévisionnelle",
+  "text_17531019276915hby502cvzy": "Unités prévisionnelles",
+  "text_1753101927691j5chrkhmoma": "Montant prévisionnel",
+  "text_1754662542899l1ms7k49n67": "Ajoutez un plan avec des charges à ce client pour commencer à suivre l’utilisation prévisionnelle",
+  "text_1754662684478jvakvxllwie": "Cette abonnement n'est pas encore actif. L'utilisation prévisionnelle n'est affichée que pour les abonnements actifs.",
+  "text_1755599398258j905gj9xihx": "Débloquer l'utilisation prévisionnelle",
+  "text_1755599398258ce1ilgc5swg": "Débloquez l'utilisation prévisionnelle pour que les clients puissent voir leur utilisation prévisionnelle à la fin de chaque période et planifier leurs futurs coûts.",
+  "text_1755599398258mj61iwjhhfk": "Demander l'accès à l'utilisation prévisionnelle",
+  "text_1755599398258w59pin31rfe": "Bonjour, je souhaiterais accéder à votre complément d'utilisation prévisionnelle. \n\nVeuillez me contacter si vous avez besoin de plus d'informations !",
+  "text_65ae73ebe3a66bec2b91d72d": "Nous contacter",
+  "text_661ff6e56ef7e1b7c542b1ea": "Il s'agit d'un module complémentaire premium",
+  "text_661ff6e56ef7e1b7c542b1f6": "Les modules complémentaires premium sont disponibles sur demande. Veuillez contacter Lago pour débloquer cette nouvelle fonctionnalité."
 }

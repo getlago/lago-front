@@ -176,5 +176,18 @@
   "text_1726576554903s2dddtq5qz4": "{{rate}} förbrukad",
   "text_1726576554903930hsa8vg23": "{{rate}} gjenstår",
   "text_62c3f454e5d7f4ec8888c1d7": "Lägg till en plan med avgifter för den här kunden för att börja rapportera den aktuella användningen.",
-  "text_1753094834414fgnvuior3iv": "Aktuell användning"
+  "text_1753094834414fgnvuior3iv": "Aktuell användning",
+  "text_1753094834414tu9mxavuco7": "Beräknad användning",
+  "text_1753095692838zn4t5a0wrg1": "Total beräknad användning",
+  "text_17531019276915hby502cvzy": "Beräknade enheter",
+  "text_1753101927691j5chrkhmoma": "Beräknat belopp",
+  "text_1754662542899l1ms7k49n67": "Lägg till en plan med avgifter för denna kund för att börja rapportera den beräknade användningen",
+  "text_1754662684478jvakvxllwie": "Denna prenumeration är ännu inte aktiv. Beräknad användning visas endast för aktiva prenumerationer.",
+  "text_1755599398258j905gj9xihx": "Lås upp beräknad användning",
+  "text_1755599398258ce1ilgc5swg": "Lås upp beräknad användning så att kunderna kan se sin förväntade användning i slutet av varje period och planera för kommande kostnader.",
+  "text_1755599398258mj61iwjhhfk": "Begär åtkomst till beräknad användning",
+  "text_1755599398258w59pin31rfe": "Hej, jag skulle vilja få åtkomst till ert tillägg för beräknad användning. \n\nHör av er om ni behöver mer information!",
+  "text_65ae73ebe3a66bec2b91d72d": "Kontakta oss",
+  "text_661ff6e56ef7e1b7c542b1ea": "Detta är ett premiumtillägg",
+  "text_661ff6e56ef7e1b7c542b1f6": "Premiumtillägg är tillgängliga på begäran. Kontakta Lago för att låsa upp den här nya funktionen."
 }
