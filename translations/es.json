@@ -176,5 +176,18 @@
   "text_1726576554903s2dddtq5qz4": "{{rate}} consumido",
   "text_1726576554903930hsa8vg23": "{{rate}} restante",
   "text_62c3f454e5d7f4ec8888c1d7": "Agrega un plan con cargos a este cliente para empezar a reportar el uso actual.",
-  "text_1753094834414fgnvuior3iv": "Uso actual"
+  "text_1753094834414fgnvuior3iv": "Uso actual",
+  "text_1753094834414tu9mxavuco7": "Uso previsto",
+  "text_1753095692838zn4t5a0wrg1": "Uso total previsto",
+  "text_17531019276915hby502cvzy": "Unidades previstas",
+  "text_1753101927691j5chrkhmoma": "Importe previsto",
+  "text_1754662542899l1ms7k49n67": "Añada un plan con cargos a este cliente para empezar a informar del uso previsto",
+  "text_1754662684478jvakvxllwie": "Esta suscripción aún no está activa. El uso previsto solo se muestra para las suscripciones activas.",
+  "text_1755599398258j905gj9xihx": "Desbloquear el uso previsto",
+  "text_1755599398258ce1ilgc5swg": "Desbloquee el uso previsto para que los clientes puedan ver su uso esperado al final de cada período y planificar los próximos costes.",
+  "text_1755599398258mj61iwjhhfk": "Solicitar acceso al uso previsto",
+  "text_1755599398258w59pin31rfe": "Hola, me gustaría acceder a su complemento de uso previsto. \n\n¡Por favor, avíseme si necesita más información!",
+  "text_65ae73ebe3a66bec2b91d72d": "Contáctenos",
+  "text_661ff6e56ef7e1b7c542b1ea": "Este es un complemento premium",
+  "text_661ff6e56ef7e1b7c542b1f6": "Los complementos premium están disponibles bajo petición. Póngase en contacto con Lago para desbloquear esta nueva función."
 }
