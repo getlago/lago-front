@@ -92,22 +92,13 @@ export const ChargeTable = <T extends Record<string, unknown>>({
               data-test={`row-${i}`}
             >
               <>
-                {columns.map(({ content, mapKey, size = 124 }, j) => {
-                  const sizeStyle = {
-                    width: `${size}px`,
-                    minWidth: `${size}px`,
-                    maxWidth: `${size}px`,
-                  }
-
+                {columns.map(({ content, mapKey }, j) => {
                   return (
                     <td
                       className={tw(
                         CELL_HEIGHT,
-                        'border-b border-r border-solid border-grey-300 p-0',
+                        'w-full border-b border-r border-solid border-grey-300 p-0',
                       )}
-                      // Tailwind doesn't support interpolation in class names
-                      // https://tailwindcss.com/docs/content-configuration#dynamic-class-names
-                      style={sizeStyle}
                       key={`table-${name}-cell-${i}-${j}`}
                     >
                       {mapKey ? (
