@@ -7,6 +7,7 @@ import {
   DeleteFeatureDialog,
   DeleteFeatureDialogRef,
 } from '~/components/features/DeleteFeatureDialog'
+import { FeatureDetailsActivityLogs } from '~/components/features/FeatureDetailsActivityLogs'
 import { FeatureDetailsOverview } from '~/components/features/FeatureDetailsOverview'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -16,6 +17,7 @@ import {
   useGetFeatureForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -36,6 +38,7 @@ const FeatureDetails = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
+  const { isPremium } = useCurrentUser()
   const { featureId } = useParams()
 
   const deleteDialogRef = useRef<DeleteFeatureDialogRef>(null)
@@ -142,6 +145,16 @@ const FeatureDetails = () => {
                 <FeatureDetailsOverview />
               </DetailsPage.Container>
             ),
+          },
+
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(FEATURE_DETAILS_ROUTE, {
+              featureId: featureId as string,
+              tab: FeatureDetailsTabsOptionsEnum.activityLogs,
+            }),
+            component: <FeatureDetailsActivityLogs featureId={featureId as string} />,
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

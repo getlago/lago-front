@@ -9467,6 +9467,16 @@ export type DestroyFeatureMutationVariables = Exact<{
 
 export type DestroyFeatureMutation = { __typename?: 'Mutation', destroyFeature?: { __typename?: 'FeatureObject', id: string } | null };
 
+export type FeatureDetailsActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type FeatureDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+
 export type FeatureDetailsFragment = { __typename?: 'FeatureObject', id: string, name?: string | null, code: string, description?: string | null, privileges: Array<{ __typename?: 'PrivilegeObject', id: string, name?: string | null, code: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> };
 
 export type GetFeatureForDetailsOverviewQueryVariables = Exact<{
@@ -21730,6 +21740,60 @@ export function useDestroyFeatureMutation(baseOptions?: Apollo.MutationHookOptio
 export type DestroyFeatureMutationHookResult = ReturnType<typeof useDestroyFeatureMutation>;
 export type DestroyFeatureMutationResult = Apollo.MutationResult<DestroyFeatureMutation>;
 export type DestroyFeatureMutationOptions = Apollo.BaseMutationOptions<DestroyFeatureMutation, DestroyFeatureMutationVariables>;
+export const FeatureDetailsActivityLogsDocument = gql`
+    query FeatureDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useFeatureDetailsActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useFeatureDetailsActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFeatureDetailsActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFeatureDetailsActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useFeatureDetailsActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>(FeatureDetailsActivityLogsDocument, options);
+      }
+export function useFeatureDetailsActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>(FeatureDetailsActivityLogsDocument, options);
+        }
+export function useFeatureDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>(FeatureDetailsActivityLogsDocument, options);
+        }
+export type FeatureDetailsActivityLogsQueryHookResult = ReturnType<typeof useFeatureDetailsActivityLogsQuery>;
+export type FeatureDetailsActivityLogsLazyQueryHookResult = ReturnType<typeof useFeatureDetailsActivityLogsLazyQuery>;
+export type FeatureDetailsActivityLogsSuspenseQueryHookResult = ReturnType<typeof useFeatureDetailsActivityLogsSuspenseQuery>;
+export type FeatureDetailsActivityLogsQueryResult = Apollo.QueryResult<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>;
 export const GetFeatureForDetailsOverviewDocument = gql`
     query getFeatureForDetailsOverview($id: ID!) {
   feature(id: $id) {
