@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { Icon, Typography } from 'lago-design-system'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { TextInputField } from '~/components/form'
 import { useCreateAiConversationMutation, useOnConversationSubscription } from '~/generated/graphql'
@@ -54,37 +54,32 @@ export const AIPanel = () => {
     },
   })
 
-  const subscription = useOnConversationSubscription({
+  const { data, loading, error } = useOnConversationSubscription({
     variables: { conversationId: conversationId ?? '' },
     skip: !conversationId,
-    onError: (error) => {
-      // eslint-disable-next-line no-console
-      console.log('Subscription error:', error)
-      // eslint-disable-next-line no-console
-      console.log('Error details:', {
-        message: error.message,
-        graphQLErrors: error.graphQLErrors,
-        networkError: error.networkError,
-        extraInfo: error.extraInfo,
-      })
+    onError: (errorData) => {
+      console.log('🔴 Subscription error:', errorData)
     },
-    onData: (data) => {
-      // eslint-disable-next-line no-console
-      console.log('Subscription data received:', data)
+    onData: (dataData) => {
+      console.log('🟢 Subscription data received:', dataData)
     },
     onComplete: () => {
-      // eslint-disable-next-line no-console
-      console.log('Subscription completed')
+      console.log('🟡 Subscription completed')
     },
   })
 
-  // eslint-disable-next-line no-console
-  console.log('Subscription state:', {
-    loading: subscription.loading,
-    error: subscription.error,
-    data: subscription.data,
-    conversationId,
-  })
+  // Monitor subscription state changes
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('🔄 Subscription state changed:', {
+      conversationId,
+      loading,
+      error,
+      data,
+      hasConversationId: !!conversationId,
+      timestamp: new Date().toISOString(),
+    })
+  }, [conversationId, loading, error, data])
 
   return (
     <div className="flex h-full flex-col justify-end">

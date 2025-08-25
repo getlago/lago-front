@@ -29,18 +29,6 @@ const hasSubscriptionOperation = ({ query }: Operation) => {
       definition.operation === 'subscription',
   )
 
-  // Debug: Check browser console for subscription operation detection
-  if (hasSub) {
-    // eslint-disable-next-line no-console
-    console.log('🔍 Subscription operation detected:', {
-      operationName: query.definitions
-        .filter((def) => def.kind === 'OperationDefinition')
-        .map((def) => 'operation' in def && def.operation)
-        .filter(Boolean),
-      definitions: query.definitions,
-    })
-  }
-
   return hasSub
 }
 
@@ -52,14 +40,6 @@ export const initializeApolloClient = async () => {
     subscriptionLink as unknown as ApolloLink,
     uploadLink,
   )
-
-  // Debug: Log the split configuration
-  // eslint-disable-next-line no-console
-  console.log('🔧 Apollo Client split configuration:', {
-    hasSubscriptionOperation: hasSubscriptionOperation.toString(),
-    subscriptionLink: !!subscriptionLink,
-    uploadLink: !!uploadLink,
-  })
 
   const links = ApolloLink.from([
     initialLink.concat(timeoutLink),
