@@ -53,7 +53,7 @@ export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
   })
 
   return (
-    <div className="w-full pb-20 pt-8">
+    <div className="w-full pb-20 pt-6">
       <div className="flex flex-col gap-12">
         <div>
           <PageSectionTitle

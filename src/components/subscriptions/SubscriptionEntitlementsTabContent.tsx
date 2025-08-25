@@ -66,7 +66,7 @@ export const SubscriptionEntitlementsTabContent = () => {
   }
 
   return (
-    <section className="flex flex-col gap-4 pt-8">
+    <section className="flex flex-col gap-4 pt-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <Typography variant="subhead1" color="grey700">

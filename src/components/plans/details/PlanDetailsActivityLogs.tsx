@@ -62,7 +62,7 @@ export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps
   })
 
   return (
-    <div className="w-full px-12 pb-20 pt-8">
+    <div className="w-full px-12 pb-20 pt-6">
       <div className="flex flex-col gap-12">
         <div>
           <PageSectionTitle
