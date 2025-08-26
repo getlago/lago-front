@@ -9,13 +9,8 @@ import { useCreateAiConversationMutation, useOnConversationSubscription } from '
 gql`
   subscription onConversation($conversationId: ID!) {
     aiConversationStreamed(conversationId: $conversationId) {
-      id
-      conversationId
-      inputData
-      organization {
-        id
-      }
-      updatedAt
+      chunk
+      done
     }
   }
 
@@ -54,11 +49,19 @@ export const AIPanel = () => {
     },
   })
 
-  const { data, loading, error } = useOnConversationSubscription({
+  const subscription = useOnConversationSubscription({
     variables: { conversationId: conversationId ?? '' },
     skip: !conversationId,
-    onError: (errorData) => {
-      console.log('🔴 Subscription error:', errorData)
+    onError: (error) => {
+      // eslint-disable-next-line no-console
+      console.log('Subscription error:', error)
+      // eslint-disable-next-line no-console
+      console.log('Error details:', {
+        message: error.message,
+        graphQLErrors: error.graphQLErrors,
+        networkError: error.networkError,
+        extraInfo: error.extraInfo,
+      })
     },
     onData: (dataData) => {
       console.log('🟢 Subscription data received:', dataData)
@@ -68,18 +71,13 @@ export const AIPanel = () => {
     },
   })
 
-  // Monitor subscription state changes
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('🔄 Subscription state changed:', {
-      conversationId,
-      loading,
-      error,
-      data,
-      hasConversationId: !!conversationId,
-      timestamp: new Date().toISOString(),
-    })
-  }, [conversationId, loading, error, data])
+  // eslint-disable-next-line no-console
+  console.log('Subscription state:', {
+    loading: subscription.loading,
+    error: subscription.error,
+    data: subscription.data,
+    conversationId,
+  })
 
   return (
     <div className="flex h-full flex-col justify-end">

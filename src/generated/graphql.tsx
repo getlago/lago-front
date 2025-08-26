@@ -305,7 +305,14 @@ export type AiConversation = {
   id: Scalars['ID']['output'];
   inputData: Scalars['String']['output'];
   organization?: Maybe<Organization>;
+  status: StatusEnum;
   updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
+export type AiConversationStream = {
+  __typename?: 'AiConversationStream';
+  chunk?: Maybe<Scalars['String']['output']>;
+  done: Scalars['Boolean']['output'];
 };
 
 export type Alert = {
@@ -3665,7 +3672,7 @@ export type GraduatedRangeInput = {
 
 export type GraphqlSubscription = {
   __typename?: 'GraphqlSubscription';
-  aiConversationStreamed: AiConversation;
+  aiConversationStreamed: AiConversationStream;
 };
 
 
@@ -7102,6 +7109,11 @@ export type SanitizedApiKeyCollection = {
   metadata: CollectionMetadata;
 };
 
+export enum StatusEnum {
+  Completed = 'completed',
+  Pending = 'pending'
+}
+
 export enum StatusTypeEnum {
   Active = 'active',
   Canceled = 'canceled',
@@ -8528,7 +8540,7 @@ export type OnConversationSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnConversationSubscription = { __typename?: 'GraphqlSubscription', aiConversationStreamed: { __typename?: 'AiConversation', id: string, conversationId: string, inputData: string, updatedAt: any, organization?: { __typename?: 'Organization', id: string } | null } };
+export type OnConversationSubscription = { __typename?: 'GraphqlSubscription', aiConversationStreamed: { __typename?: 'AiConversationStream', chunk?: string | null, done: boolean } };
 
 export type CreateAiConversationMutationVariables = Exact<{
   input: CreateAiConversationInput;
@@ -16809,13 +16821,8 @@ export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnM
 export const OnConversationDocument = gql`
     subscription onConversation($conversationId: ID!) {
   aiConversationStreamed(conversationId: $conversationId) {
-    id
-    conversationId
-    inputData
-    organization {
-      id
-    }
-    updatedAt
+    chunk
+    done
   }
 }
     `;
