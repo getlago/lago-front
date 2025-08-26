@@ -1,5 +1,7 @@
 import { DateTime, Duration } from 'luxon'
 
+import { TimezoneEnum } from '~/generated/graphql'
+
 const currentDate = DateTime.now().toISO()
 
 const getOffsetInMinute = (zone: string) => DateTime.fromISO(currentDate as string, { zone }).offset
@@ -21,7 +23,8 @@ export interface TimezoneConfigObject {
   offsetInMinute: number
 }
 
-export const TimeZonesConfig: Record<string, TimezoneConfigObject> = {
+// NOTE: When adding a new timezone, make sure to add it to the translations file as well.
+export const TimeZonesConfig: Record<TimezoneEnum, TimezoneConfigObject> = {
   TZ_AFRICA_ALGIERS: {
     name: 'Africa/Algiers',
     offset: getOffset('Africa/Algiers'),
@@ -87,10 +90,10 @@ export const TimeZonesConfig: Record<string, TimezoneConfigObject> = {
     offset: getOffset('America/Denver'),
     offsetInMinute: getOffsetInMinute('America/Denver'),
   },
-  TZ_AMERICA_GODTHAB: {
-    name: 'America/Godthab',
-    offset: getOffset('America/Godthab'),
-    offsetInMinute: getOffsetInMinute('America/Godthab'),
+  TZ_AMERICA_NUUK: {
+    name: 'America/Nuuk',
+    offset: getOffset('America/Nuuk'),
+    offsetInMinute: getOffsetInMinute('America/Nuuk'),
   },
   TZ_AMERICA_GUATEMALA: {
     name: 'America/Guatemala',
@@ -302,10 +305,10 @@ export const TimeZonesConfig: Record<string, TimezoneConfigObject> = {
     offset: getOffset('Asia/Novosibirsk'),
     offsetInMinute: getOffsetInMinute('Asia/Novosibirsk'),
   },
-  TZ_ASIA_RANGOON: {
-    name: 'Asia/Rangoon',
-    offset: getOffset('Asia/Rangoon'),
-    offsetInMinute: getOffsetInMinute('Asia/Rangoon'),
+  TZ_ASIA_YANGON: {
+    name: 'Asia/Yangon',
+    offset: getOffset('Asia/Yangon'),
+    offsetInMinute: getOffsetInMinute('Asia/Yangon'),
   },
   TZ_ASIA_RIYADH: {
     name: 'Asia/Riyadh',
@@ -507,10 +510,10 @@ export const TimeZonesConfig: Record<string, TimezoneConfigObject> = {
     offset: getOffset('Europe/Kaliningrad'),
     offsetInMinute: getOffsetInMinute('Europe/Kaliningrad'),
   },
-  TZ_EUROPE_KIEV: {
-    name: 'Europe/Kiev',
-    offset: getOffset('Europe/Kiev'),
-    offsetInMinute: getOffsetInMinute('Europe/Kiev'),
+  TZ_EUROPE_KYIV: {
+    name: 'Europe/Kyiv',
+    offset: getOffset('Europe/Kyiv'),
+    offsetInMinute: getOffsetInMinute('Europe/Kyiv'),
   },
   TZ_EUROPE_LISBON: {
     name: 'Europe/Lisbon',
