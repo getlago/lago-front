@@ -53,7 +53,7 @@ import {
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -416,11 +416,7 @@ const CustomerInvoiceDetails = () => {
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
-        copyToClipboard(generatedPaymentUrl.paymentUrl)
-        addToast({
-          severity: 'info',
-          translateKey: 'text_1753384873899kf7djox30b6',
-        })
+        openNewTab(generatedPaymentUrl.paymentUrl)
       }
     },
   })

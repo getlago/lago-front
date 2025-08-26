@@ -48,7 +48,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
@@ -130,11 +130,7 @@ const InvoicesList = ({
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
-        copyToClipboard(generatedPaymentUrl.paymentUrl)
-        addToast({
-          severity: 'info',
-          translateKey: 'text_1753384873899kf7djox30b6',
-        })
+        openNewTab(generatedPaymentUrl.paymentUrl)
       }
     },
   })
