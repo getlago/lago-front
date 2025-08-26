@@ -128,9 +128,20 @@ const InvoicesList = ({
   })
 
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
         openNewTab(generatedPaymentUrl.paymentUrl)
+      }
+    },
+    onError(resError) {
+      if (hasDefinedGQLError('MissingPaymentProviderCustomer', resError)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1756225393560tonww8d3bgq',
+        })
       }
     },
   })

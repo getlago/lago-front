@@ -34,7 +34,7 @@ import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteLi
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, envGlobalVar, LagoGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
@@ -414,9 +414,20 @@ const CustomerInvoiceDetails = () => {
   })
 
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
         openNewTab(generatedPaymentUrl.paymentUrl)
+      }
+    },
+    onError(resError) {
+      if (hasDefinedGQLError('MissingPaymentProviderCustomer', resError)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1756225393560tonww8d3bgq',
+        })
       }
     },
   })

@@ -35,6 +35,7 @@ export const typeDefs = gql`
     invoices_not_overdue
 
     # Object not found
+    missing_payment_provider_customer
     plan_not_found
 
     # SSO errors

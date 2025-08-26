@@ -178,14 +178,19 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   })
 
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
         openNewTab(generatedPaymentUrl.paymentUrl)
       }
     },
+    onError(error) {
+      if (hasDefinedGQLError('MissingPaymentProviderCustomer', error)) {
         addToast({
-          severity: 'info',
-          translateKey: 'text_1753384873899kf7djox30b6',
+          severity: 'danger',
+          translateKey: 'text_1756225393560tonww8d3bgq',
         })
       }
     },

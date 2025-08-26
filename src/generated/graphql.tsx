@@ -4063,6 +4063,7 @@ export enum LagoApiError {
   InviteNotFound = 'invite_not_found',
   InvoicesNotOverdue = 'invoices_not_overdue',
   LoginMethodNotAuthorized = 'login_method_not_authorized',
+  MissingPaymentProviderCustomer = 'missing_payment_provider_customer',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
   OktaLoginMethodNotAuthorized = 'okta_login_method_not_authorized',
