@@ -27,7 +27,6 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -67,7 +66,6 @@ const SubscriptionDetails = () => {
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
-  const hasAccessToFeatures = isFeatureFlagActive(FeatureFlags.FTR_FEATURES)
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsQuery({
       variables: { subscriptionId: subscriptionId as string },
@@ -282,41 +280,37 @@ const SubscriptionDetails = () => {
               </DetailsPage.Container>
             ),
           },
-          ...(hasAccessToFeatures
-            ? [
-                {
-                  title: translate('text_63e26d8308d03687188221a6'),
-                  link: !!customerId
-                    ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                        customerId,
-                        subscriptionId: subscriptionId as string,
-                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-                      })
-                    : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                        planId: planId || '',
-                        subscriptionId: subscriptionId as string,
-                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-                      }),
-                  match: [
-                    generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                      customerId: customerId || '',
-                      subscriptionId: subscriptionId as string,
-                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-                    }),
-                    generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                      planId: planId || '',
-                      subscriptionId: subscriptionId as string,
-                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-                    }),
-                  ],
-                  component: (
-                    <DetailsPage.Container>
-                      <SubscriptionEntitlementsTabContent />
-                    </DetailsPage.Container>
-                  ),
-                },
-              ]
-            : []),
+          {
+            title: translate('text_63e26d8308d03687188221a6'),
+            link: !!customerId
+              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId,
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
+                })
+              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                  planId: planId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
+                }),
+            match: [
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
+              }),
+              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                planId: planId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
+              }),
+            ],
+            component: (
+              <DetailsPage.Container>
+                <SubscriptionEntitlementsTabContent />
+              </DetailsPage.Container>
+            ),
+          },
           ...(subscription?.status !== StatusTypeEnum.Canceled &&
           subscription?.status !== StatusTypeEnum.Terminated
             ? [

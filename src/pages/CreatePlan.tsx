@@ -35,7 +35,6 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   ChargeAccordionFragmentDoc,
   FeatureEntitlementForPlanFragmentDoc,
@@ -149,7 +148,6 @@ const CreatePlan = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
-  const hasAccessToFeatures = isFeatureFlagActive(FeatureFlags.FTR_FEATURES)
 
   const canBeEdited = !plan?.subscriptionsCount
 
@@ -288,13 +286,11 @@ const CreatePlan = () => {
                       editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                     />
 
-                    {hasAccessToFeatures && (
-                      <FeatureEntitlementSection
-                        formikProps={formikProps}
-                        isEdition={isEdition}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
-                      />
-                    )}
+                    <FeatureEntitlementSection
+                      formikProps={formikProps}
+                      isEdition={isEdition}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
+                    />
                   </Card>
                 </SectionWrapper>
               </Stack>
