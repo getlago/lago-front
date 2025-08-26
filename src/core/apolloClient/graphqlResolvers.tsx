@@ -70,6 +70,7 @@ export const typeDefs = gql`
     analytic
     applied_coupon
     billable_metric
+    billing_entity
     coupon
     credit_note
     customer
