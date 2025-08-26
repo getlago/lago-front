@@ -295,6 +295,7 @@ export const InvoiceDetailsTable = memo(
                   key={`one-off-fee-${i}`}
                   canHaveUnitPrice={canHaveUnitPrice}
                   currency={currency}
+                  displayFeeBoundaries={true}
                   displayName={
                     invoice.invoiceType === InvoiceTypeEnum.AddOn
                       ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
