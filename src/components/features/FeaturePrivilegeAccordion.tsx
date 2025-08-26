@@ -100,15 +100,17 @@ export const FeaturePrivilegeAccordion = ({
             </Typography>
           </div>
 
-          <Button
-            icon="trash"
-            variant="quaternary"
-            onClick={(e) => {
-              e.stopPropagation()
+          <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+            <Button
+              icon="trash"
+              variant="quaternary"
+              onClick={(e) => {
+                e.stopPropagation()
 
-              deletePrivilege(privilegeIndex)
-            }}
-          />
+                deletePrivilege(privilegeIndex)
+              }}
+            />
+          </Tooltip>
         </div>
       }
     >

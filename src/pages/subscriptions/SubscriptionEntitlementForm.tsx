@@ -440,13 +440,18 @@ const SubscriptionEntitlementForm = () => {
                             setDisplayAddPrivilegeInput(false)
                           }}
                         />
-                        <Button
-                          variant="quaternary"
-                          icon="trash"
-                          onClick={() => {
-                            setDisplayAddPrivilegeInput(false)
-                          }}
-                        />
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                        >
+                          <Button
+                            variant="quaternary"
+                            icon="trash"
+                            onClick={() => {
+                              setDisplayAddPrivilegeInput(false)
+                            }}
+                          />
+                        </Tooltip>
                       </div>
                     ) : (
                       <Tooltip

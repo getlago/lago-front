@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { Alert } from 'lago-design-system'
+import { Alert, Tooltip } from 'lago-design-system'
 import { FC, useId, useMemo, useState } from 'react'
 
 import { Accordion, Button, ChargeTable, Typography } from '~/components/designSystem'
@@ -118,18 +118,20 @@ export const FeatureEntitlementSectionPrivilegeAccordion: FC<
             </Typography>
           </div>
 
-          <Button
-            icon="trash"
-            variant="quaternary"
-            onClick={() => {
-              formikProps.setFieldValue(
-                'entitlements',
-                formikProps.values.entitlements.filter(
-                  ({ featureCode }) => featureCode !== entitlement.featureCode,
-                ),
-              )
-            }}
-          />
+          <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
+            <Button
+              icon="trash"
+              variant="quaternary"
+              onClick={() => {
+                formikProps.setFieldValue(
+                  'entitlements',
+                  formikProps.values.entitlements.filter(
+                    ({ featureCode }) => featureCode !== entitlement.featureCode,
+                  ),
+                )
+              }}
+            />
+          </Tooltip>
         </div>
       }
     >
@@ -273,13 +275,16 @@ export const FeatureEntitlementSectionPrivilegeAccordion: FC<
                 setDisplayAddPrivilegeInput(false)
               }}
             />
-            <Button
-              variant="quaternary"
-              icon="trash"
-              onClick={() => {
-                setDisplayAddPrivilegeInput(false)
-              }}
-            />
+
+            <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
+              <Button
+                variant="quaternary"
+                icon="trash"
+                onClick={() => {
+                  setDisplayAddPrivilegeInput(false)
+                }}
+              />
+            </Tooltip>
           </div>
         ) : (
           <Button

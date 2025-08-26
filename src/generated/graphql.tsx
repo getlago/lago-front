@@ -3505,6 +3505,7 @@ export type FixedCharge = {
   properties?: Maybe<FixedChargeProperties>;
   prorated: Scalars['Boolean']['output'];
   taxes?: Maybe<Array<Tax>>;
+  units: Scalars['String']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
@@ -3516,6 +3517,7 @@ export enum FixedChargeChargeModelEnum {
 
 export type FixedChargeInput = {
   addOnId: Scalars['ID']['input'];
+  applyUnitsImmediately?: InputMaybe<Scalars['Boolean']['input']>;
   chargeModel: FixedChargeChargeModelEnum;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   payInAdvance?: InputMaybe<Scalars['Boolean']['input']>;
@@ -6932,7 +6934,7 @@ export enum ResourceTypeEnum {
   CreditNote = 'credit_note',
   /** Customer */
   Customer = 'customer',
-  /** Feature */
+  /** Entitlement::Feature */
   Feature = 'feature',
   /** Invoice */
   Invoice = 'invoice',
@@ -8063,6 +8065,7 @@ export type UpdatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
+  billFixedChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
   cascadeUpdates?: InputMaybe<Scalars['Boolean']['input']>;
   charges: Array<ChargeInput>;
   /** A unique identifier for the client performing the mutation. */
@@ -8070,6 +8073,7 @@ export type UpdatePlanInput = {
   code: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   entitlements?: InputMaybe<Array<EntitlementInput>>;
+  fixedCharges?: InputMaybe<Array<FixedChargeInput>>;
   id: Scalars['ID']['input'];
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;

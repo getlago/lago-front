@@ -98,7 +98,7 @@ const FeatureDetails = () => {
                     closePopper()
                   }}
                 >
-                  {translate('text_625fd39a15394c0117e7d792')}
+                  {translate('text_1756217474408noiuzsd087w')}
                 </Button>
                 {!!feature && (
                   <Button
@@ -114,7 +114,7 @@ const FeatureDetails = () => {
                       closePopper()
                     }}
                   >
-                    {translate('text_629728388c4d2300e2d38182')}
+                    {translate('text_1752693359315sd2ms0qxvi3')}
                   </Button>
                 )}
               </MenuPopper>
@@ -125,7 +125,7 @@ const FeatureDetails = () => {
 
       <DetailsPage.Header
         isLoading={isFeatureLoading}
-        icon="puzzle"
+        icon="switch"
         title={feature?.name || '-'}
         description={feature?.code || ''}
       />

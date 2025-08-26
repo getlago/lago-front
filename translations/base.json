@@ -3091,9 +3091,9 @@
   "text_174740465663205ip0mama6w": "{{invoiceNumber}} for {{totalAmount}} was finalized",
   "text_1747404656632jux35a9cxrt": "{{invoiceNumber}} for {{totalAmount}} was drafted",
   "text_1747404656632twxlowkc160": "{{invoiceNumber}} for {{totalAmount}} failed to issue",
-  "text_1754570508183f0dl9q0pqtx": "Feature {{feature_code}} was created",
-  "text_1754570508183pw3m9k2lv69": "Feature {{feature_code}} was updated",
-  "text_1754570508183pw3m9k2lv68": "Feature {{feature_code}} was deleted",
+  "text_1754570508183f0dl9q0pqtx": "Feature {{featureCode}} was created",
+  "text_1754570508183pw3m9k2lv69": "Feature {{featureCode}} was updated",
+  "text_1754570508183pw3m9k2lv68": "Feature {{featureCode}} was deleted",
   "text_174740465663232x0p7cp9d3": "PDF document for invoice {{invoiceNumber}} was generated",
   "text_174740465663240bop3g6rbp": "One-off invoice {{invoiceNumber}} for {{totalAmount}} was finalized",
   "text_1747404656632eu9n87cmyi2": "Prepaid credit invoice {{invoiceNumber}} for {{totalAmount}} was finalized",
@@ -3453,5 +3453,6 @@
   "text_1756125489057oq6le0rt7mw": "Select the feature this subscription should be entitled to.",
   "text_1756125489057qfgsq8im2b2": "Select a feature first",
   "text_17561254890574dcio8alli4": "Create entitlement",
-  "text_17561254890579cfr8pj6afl": "By clicking 'Leave', the unsaved entitlement data will be lost forever. Are you sure you want to leave?"
+  "text_17561254890579cfr8pj6afl": "By clicking 'Leave', the unsaved entitlement data will be lost forever. Are you sure you want to leave?",
+  "text_1756217474408noiuzsd087w": "Edit feature"
 }

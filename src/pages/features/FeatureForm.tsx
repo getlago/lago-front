@@ -232,7 +232,7 @@ const FeatureForm = () => {
     <>
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate(
                 isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj',
@@ -277,6 +277,8 @@ const FeatureForm = () => {
                   </div>
                   <div className="flex gap-6 *:flex-1">
                     <TextInput
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
                       name="name"
                       label={translate('text_1732286530467zstzwbegfiq')}
                       placeholder={translate('text_62876e85e32e0300e1803121')}
@@ -324,7 +326,8 @@ const FeatureForm = () => {
                     </div>
                   ) : (
                     <Button
-                      className="self-start"
+                      fitContent
+                      align="left"
                       startIcon="plus"
                       variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
@@ -357,6 +360,7 @@ const FeatureForm = () => {
                     ))}
 
                     <Button
+                      fitContent
                       align="left"
                       variant="inline"
                       startIcon="plus"

@@ -106,7 +106,7 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
   return (
     <div className="flex flex-col items-start gap-4">
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Typography variant="bodyHl" color="grey700">
             {translate('text_63e26d8308d03687188221a6')}
           </Typography>
@@ -192,7 +192,7 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
                 }}
               />
 
-              <Tooltip placement="top-end" title={translate('text_6411e6b530cb47007488b027')}>
+              <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
                 <Button
                   icon="trash"
                   variant="quaternary"
