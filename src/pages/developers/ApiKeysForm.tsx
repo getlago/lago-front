@@ -68,6 +68,7 @@ const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.Analytic]: 'text_6553885df387fd0097fd7384',
   [ApiKeysPermissionsEnum.AppliedCoupon]: 'text_17328948204857eb1ecwe5me',
   [ApiKeysPermissionsEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
+  [ApiKeysPermissionsEnum.BillingEntity]: 'text_1743077296189ms0shds6g53',
   [ApiKeysPermissionsEnum.Coupon]: 'text_637ccf8133d2c9a7d11ce705',
   [ApiKeysPermissionsEnum.CreditNote]: 'text_66461ada56a84401188e8c63',
   [ApiKeysPermissionsEnum.Customer]: 'text_624efab67eb2570101d117a5',
