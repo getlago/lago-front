@@ -107,6 +107,7 @@ type InvoiceDetailsTableBodyLineProps = {
   fee: TExtendedRemainingFee | undefined
   isDraftInvoice: boolean
   hideVat?: boolean
+  displayFeeBoundaries?: boolean
   editFeeDrawerRef?: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
@@ -182,6 +183,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     fee,
     hideVat,
     isDraftInvoice,
+    displayFeeBoundaries,
     succeededDate,
     hasTaxProviderError,
     onAdd,
@@ -264,14 +266,16 @@ export const InvoiceDetailsTableBodyLine = memo(
                 </Typography>
               )}
             </Stack>
-            {!!fee?.properties?.fromDatetime && !!fee?.properties?.toDatetime && (
-              <Typography variant="caption" color="grey600">
-                {translate('text_633dae57ca9a923dd53c2097', {
-                  fromDate: intlFormatDateTime(fee.properties.fromDatetime).date,
-                  toDate: intlFormatDateTime(fee.properties.toDatetime).date,
-                })}
-              </Typography>
-            )}
+            {displayFeeBoundaries &&
+              !!fee?.properties?.fromDatetime &&
+              !!fee?.properties?.toDatetime && (
+                <Typography variant="caption" color="grey600">
+                  {translate('text_633dae57ca9a923dd53c2097', {
+                    fromDate: intlFormatDateTime(fee.properties.fromDatetime).date,
+                    toDate: intlFormatDateTime(fee.properties.toDatetime).date,
+                  })}
+                </Typography>
+              )}
             {(succeededDate || !!subLabel) && (
               <Typography variant="caption" color="grey600">
                 {succeededDate}
