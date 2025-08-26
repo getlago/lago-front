@@ -1,5 +1,5 @@
 import { Button, tw, Typography } from 'lago-design-system'
-import { Panel } from 'react-resizable-panels'
+import { Panel, PanelResizeHandle } from 'react-resizable-panels'
 
 import { AINavSection } from '~/components/aiAssistant/AINavSection'
 import { AIPanel } from '~/components/aiAssistant/AIPanel'
@@ -9,33 +9,57 @@ import {
   PANEL_OPEN,
   useAIAssistantTool,
 } from '~/hooks/useAIAssistantTool'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
-const AIWrapper = ({ children, title }: { children: React.ReactNode; title: string }) => {
+const AIWrapper = ({
+  children,
+  title,
+  isBeta,
+  onBackButton,
+}: {
+  children: React.ReactNode
+  title: string
+  isBeta: boolean
+  onBackButton?: () => void
+}) => {
   const { closePanel } = useAIAssistantTool()
 
   return (
     <div>
       <div className="flex flex-row justify-between gap-4 px-6 py-5 shadow-b">
         <div className="flex items-center gap-2">
+          {!!onBackButton && (
+            <Button size="small" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
+          )}
           <Typography variant="bodyHl" noWrap color="grey700">
             {title}
           </Typography>
-          <Typography variant="noteHl" noWrap color="warning700">
-            BETA
-          </Typography>
+          {isBeta && (
+            <Typography variant="noteHl" noWrap color="warning700">
+              BETA
+            </Typography>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Button size="small" variant="quaternary" icon="resize-expand" />
           <Button size="small" variant="quaternary" icon="close" onClick={() => closePanel()} />
         </div>
       </div>
-      <div className="min-height-minus-nav overflow-y-auto p-4">{children}</div>
+      <div className="height-minus-nav flex flex-col justify-between overflow-y-auto p-4">
+        {children}
+      </div>
     </div>
   )
 }
 
 export const AIAssistant = () => {
-  const { panelRef, panelOpened, isOpen } = useAIAssistantTool()
+  const { panelRef, panelOpened, isOpen, message, resetConversation } = useAIAssistantTool()
+
+  const { currentUser } = useCurrentUser()
+
+  if (!currentUser) {
+    return null
+  }
 
   return (
     <>
@@ -47,6 +71,8 @@ export const AIAssistant = () => {
         </div>
       </div>
 
+      <PanelResizeHandle />
+
       <Panel
         ref={panelRef}
         defaultSize={PANEL_CLOSED}
@@ -55,7 +81,13 @@ export const AIAssistant = () => {
         className={tw(isOpen ? 'min-w-[420px]' : 'min-w-[0px]', 'shadow-l')}
       >
         {panelOpened === AIPanelEnum.ai && (
-          <AIWrapper title="AI Assistant">
+          <AIWrapper
+            title={message ? 'Test' : 'AI Assistant'}
+            isBeta={!message}
+            onBackButton={() => {
+              resetConversation()
+            }}
+          >
             <AIPanel />
           </AIWrapper>
         )}

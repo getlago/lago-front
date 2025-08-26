@@ -5,8 +5,12 @@ interface AIAssistantContextType {
   isOpen: boolean
   panelOpened: AIPanelEnum | undefined
   panelRef: RefObject<ImperativePanelHandle>
+  conversationId: string | undefined
+  message: string
   togglePanel: (panel: AIPanelEnum) => void
   closePanel: () => void
+  startNewConversation: (params: { conversationId: string; message: string }) => void
+  resetConversation: () => void
 }
 
 export const AIAssistantContext = createContext<AIAssistantContextType | undefined>(undefined)
@@ -21,6 +25,8 @@ export enum AIPanelEnum {
 export function AIAssistantProvider({ children }: { children: ReactNode }) {
   const panelRef = useRef<ImperativePanelHandle>(null)
   const [panelOpened, setCurrentPanel] = useState<AIPanelEnum | undefined>(undefined)
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined)
+  const [message, setMessage] = useState('')
 
   const openPanel = (panel: AIPanelEnum) => {
     if (panelRef.current) {
@@ -44,14 +50,28 @@ export function AIAssistantProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const startNewConversation = (params: { conversationId: string; message: string }) => {
+    setConversationId(params.conversationId)
+    setMessage(params.message)
+  }
+
+  const resetConversation = () => {
+    setConversationId(undefined)
+    setMessage('')
+  }
+
   return (
     <AIAssistantContext.Provider
       value={{
         isOpen: !!panelOpened,
         panelOpened,
         panelRef,
+        conversationId,
+        message,
         togglePanel,
         closePanel,
+        startNewConversation,
+        resetConversation,
       }}
     >
       {children}

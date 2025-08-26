@@ -60,6 +60,7 @@ export const initializeApolloClient = async () => {
     version: appVersion,
     typeDefs,
     resolvers,
+    connectToDevTools: true,
     defaultOptions: {
       watchQuery: {
         fetchPolicy: 'cache-and-network',

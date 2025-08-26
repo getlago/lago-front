@@ -123,9 +123,6 @@ const createAuthenticatedCable = () => {
 
 export const subscriptionLink = new ActionCableLink({
   cable: createAuthenticatedCable(),
-  // Configure for GraphQL-Ruby ActionCable subscriptions
   channelName: 'GraphqlChannel',
-  // The ActionCableLink should automatically handle GraphQL subscriptions
-  // by sending the query in the ActionCable message format
-  actionName: 'execute', // This is the default, but let's be explicit
+  actionName: 'execute',
 })

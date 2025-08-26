@@ -100,6 +100,7 @@ import Scissor from '~/icons/scissor.svg'
 import Settings from '~/icons/settings.svg'
 import Share from '~/icons/share.svg'
 import Smartphone from '~/icons/smartphone.svg'
+import SparklesUnion from '~/icons/sparkles-union.svg'
 import Sparkles from '~/icons/sparkles.svg'
 import StarFilled from '~/icons/star-filled.svg'
 import StarOutlinedHidden from '~/icons/star-outlined-hidden.svg'
@@ -226,6 +227,7 @@ export const ALL_ICONS = {
   settings: Settings,
   share: Share,
   smartphone: Smartphone,
+  'sparkles-union': SparklesUnion,
   sparkles: Sparkles,
   'star-filled': StarFilled,
   'star-outlined-hidden': StarOutlinedHidden,
