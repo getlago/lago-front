@@ -34,7 +34,7 @@ import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteLi
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, envGlobalVar, LagoGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
@@ -53,7 +53,7 @@ import {
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -414,12 +414,19 @@ const CustomerInvoiceDetails = () => {
   })
 
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
-        copyToClipboard(generatedPaymentUrl.paymentUrl)
+        openNewTab(generatedPaymentUrl.paymentUrl)
+      }
+    },
+    onError(resError) {
+      if (hasDefinedGQLError('MissingPaymentProviderCustomer', resError)) {
         addToast({
-          severity: 'info',
-          translateKey: 'text_1753384873899kf7djox30b6',
+          severity: 'danger',
+          translateKey: 'text_1756225393560tonww8d3bgq',
         })
       }
     },

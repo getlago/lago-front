@@ -48,7 +48,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
@@ -128,12 +128,19 @@ const InvoicesList = ({
   })
 
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
-        copyToClipboard(generatedPaymentUrl.paymentUrl)
+        openNewTab(generatedPaymentUrl.paymentUrl)
+      }
+    },
+    onError(resError) {
+      if (hasDefinedGQLError('MissingPaymentProviderCustomer', resError)) {
         addToast({
-          severity: 'info',
-          translateKey: 'text_1753384873899kf7djox30b6',
+          severity: 'danger',
+          translateKey: 'text_1756225393560tonww8d3bgq',
         })
       }
     },
