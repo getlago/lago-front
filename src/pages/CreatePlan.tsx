@@ -10,6 +10,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import {
   ImpactOverridenSubscriptionsDialog,
@@ -36,6 +37,7 @@ import {
 } from '~/core/router'
 import {
   ChargeAccordionFragmentDoc,
+  FeatureEntitlementForPlanFragmentDoc,
   PlanForChargeAccordionFragmentDoc,
   PlanForFixedFeeSectionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
@@ -126,12 +128,14 @@ gql`
     ...PlanForChargeAccordion
     ...PlanForSettingsSection
     ...PlanForFixedFeeSection
+    ...FeatureEntitlementForPlan
   }
 
   ${ChargeAccordionFragmentDoc}
   ${PlanForChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForFixedFeeSectionFragmentDoc}
+  ${FeatureEntitlementForPlanFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -280,6 +284,12 @@ const CreatePlan = () => {
                       formikProps={formikProps}
                       premiumWarningDialogRef={premiumWarningDialogRef}
                       editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    />
+
+                    <FeatureEntitlementSection
+                      formikProps={formikProps}
+                      isEdition={isEdition}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
                     />
                   </Card>
                 </SectionWrapper>

@@ -138,6 +138,20 @@ export const usePlanForm: ({
       name: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.name || '',
       code: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.code || '',
       description: plan?.description || '',
+      entitlements:
+        plan?.entitlements?.map(({ code, privileges, name, ...restEntitlement }) => ({
+          featureName: name || '',
+          featureCode: code,
+          privileges: privileges.map(
+            ({ code: privilegeCode, name: privilegeName, value, ...restPrivilege }) => ({
+              privilegeCode,
+              privilegeName,
+              value: value || '',
+              ...restPrivilege,
+            }),
+          ),
+          ...restEntitlement,
+        })) || [],
       interval: plan?.interval || PlanInterval.Monthly,
       taxes: plan?.taxes || [],
       invoiceDisplayName: plan?.invoiceDisplayName || undefined,
@@ -250,6 +264,18 @@ export const usePlanForm: ({
       amountCents: string().required(''),
       trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')).nullable(),
       amountCurrency: string().required(''),
+      entitlements: array().of(
+        object().shape({
+          featureCode: string().required(''),
+          privileges: array().of(
+            object().shape({
+              privilegeCode: string().required(''),
+              privilegeName: string().required(''),
+              value: string().required(''),
+            }),
+          ),
+        }),
+      ),
       minimumCommitment: object()
         .test({
           test: function (value, { from }) {

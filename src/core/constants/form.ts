@@ -33,6 +33,11 @@ export const SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME = 'searchTaxForChargeInput'
 export const SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME = 'searchTaxForMinCommitmentInput'
 export const SEARCH_FILTER_FOR_CHARGE_CLASSNAME = 'searchFilterForChargeInput'
 export const SEARCH_PRICING_GROUP_KEY_INPUT_CLASSNAME = 'searchPricingGroupKeyInput'
+export const SEARCH_FEATURE_SELECT_OPTIONS_INPUT_CLASSNAME = 'searchFeatureSelectOptionsInput'
+export const SEARCH_FEATURE_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME =
+  'searchFeaturePrivilegeSelectOptionsInput'
+export const SEARCH_SUBSCRIPTION_ENTITLEMENT_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME =
+  'searchSubscriptionEntitlementPrivilegeSelectOptionsInput'
 export const ONE_TIER_EXAMPLE_UNITS = 10
 // AddOns
 export const SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME = 'searchTaxForAddOnInput'

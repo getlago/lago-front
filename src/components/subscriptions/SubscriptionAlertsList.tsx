@@ -82,8 +82,8 @@ export const SubscriptionAlertsList = ({
 
   return (
     <>
-      <section className="flex flex-col gap-4 pt-8">
-        <div className="flex items-center justify-between gap-2">
+      <section className="flex flex-col gap-4 pt-6">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
             <Typography variant="subhead1" color="grey700">
               {translate('text_17465238490269pahbvl3s2m')}
@@ -95,7 +95,7 @@ export const SubscriptionAlertsList = ({
 
           {isPremium && canCreateOrUpdateAlert && (
             <Button
-              variant="quaternary"
+              variant="inline"
               onClick={() => {
                 if (!!customerId) {
                   navigate(

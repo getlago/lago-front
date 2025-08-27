@@ -107,7 +107,7 @@ const FeaturesList = () => {
   return (
     <>
       <PageHeader.Wrapper withSide>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Typography variant="bodyHl" color="grey700">
             {translate('text_1752692673070k7z0mmf0494')}
           </Typography>
@@ -215,7 +215,7 @@ const FeaturesList = () => {
                 content: (feature) => (
                   <div className="flex items-center gap-3">
                     <Avatar size="big" variant="connector">
-                      <Icon name="box" color="dark" />
+                      <Icon name="switch" color="dark" />
                     </Avatar>
                     <div>
                       <Typography variant="bodyHl" color="grey700">

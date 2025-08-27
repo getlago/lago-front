@@ -16,6 +16,7 @@ describe('cleanPlanValues', () => {
     code: 'PLAN_CODE',
     description: 'Test Description',
     interval: PlanInterval.Monthly,
+    entitlements: [],
     amountCents: '1000',
     amountCurrency: CurrencyEnum.Usd,
     trialPeriod: 7,

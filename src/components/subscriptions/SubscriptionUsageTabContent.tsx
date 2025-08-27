@@ -34,7 +34,7 @@ export const SubscriptionUsageTabContent = () => {
   }
 
   return (
-    <div className="flex flex-col gap-12 pt-8">
+    <div className="flex flex-col gap-12 pt-6">
       <SubscriptionUsageLifetimeGraph
         customerId={customerId || ''}
         subscriptionId={subscriptionId}

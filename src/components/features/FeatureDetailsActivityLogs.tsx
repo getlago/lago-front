@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { FC } from 'react'
 
 import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
@@ -7,7 +6,8 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ActivityLogsTableDataFragmentDoc,
-  useSubscriptionActivityLogsQuery,
+  ResourceTypeEnum,
+  useFeatureDetailsActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -15,8 +15,18 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
-  query SubscriptionActivityLogs($page: Int, $limit: Int, $externalSubscriptionId: String) {
-    activityLogs(page: $page, limit: $limit, externalSubscriptionId: $externalSubscriptionId) {
+  query FeatureDetailsActivityLogs(
+    $page: Int
+    $limit: Int
+    $resourceTypes: [ResourceTypeEnum!]
+    $resourceIds: [String!]
+  ) {
+    activityLogs(
+      page: $page
+      limit: $limit
+      resourceTypes: $resourceTypes
+      resourceIds: $resourceIds
+    ) {
       collection {
         ...ActivityLogsTableData
       }
@@ -30,13 +40,11 @@ gql`
   ${ActivityLogsTableDataFragmentDoc}
 `
 
-interface SubscriptionActivityLogsProps {
-  externalSubscriptionId: string
+interface FeatureDetailsActivityLogsProps {
+  featureId: string
 }
 
-export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
-  externalSubscriptionId,
-}) => {
+export const FeatureDetailsActivityLogs = ({ featureId }: FeatureDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
   const { open, setUrl } = useDeveloperTool()
   const { isPremium } = useCurrentUser()
@@ -44,21 +52,22 @@ export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
 
   const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
-  const { data, loading, error, refetch, fetchMore } = useSubscriptionActivityLogsQuery({
+  const { data, loading, error, refetch, fetchMore } = useFeatureDetailsActivityLogsQuery({
     variables: {
-      externalSubscriptionId: externalSubscriptionId,
+      resourceTypes: [ResourceTypeEnum.Feature],
+      resourceIds: [featureId],
       limit: 20,
     },
     skip: !canViewLogs,
   })
 
   return (
-    <div className="w-full pb-20 pt-6">
+    <div className="w-full px-12 pb-20 pt-6">
       <div className="flex flex-col gap-12">
         <div>
           <PageSectionTitle
             title={translate('text_1747314141347qq6rasuxisl')}
-            subtitle={translate('text_17488665089772619td0qmi9')}
+            subtitle={translate('text_1748867310812uxo0zoljxaj')}
           />
 
           <InfiniteScroll

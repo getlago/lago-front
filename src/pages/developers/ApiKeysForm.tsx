@@ -74,6 +74,7 @@ const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.Customer]: 'text_624efab67eb2570101d117a5',
   [ApiKeysPermissionsEnum.CustomerUsage]: 'text_1732894820485yff83t91qnm',
   [ApiKeysPermissionsEnum.Event]: 'text_6298bd525e359200d5ea001a',
+  [ApiKeysPermissionsEnum.Feature]: 'text_1752692673070k7z0mmf0494',
   [ApiKeysPermissionsEnum.Fee]: 'text_1732894820485lfkgva1ivc6',
   [ApiKeysPermissionsEnum.Invoice]: 'text_63ac86d797f728a87b2f9f85',
   [ApiKeysPermissionsEnum.InvoiceCustomSection]: 'text_1732553358445168zt8fopyf',

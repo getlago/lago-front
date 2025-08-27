@@ -64,7 +64,7 @@ export const CreditNoteDetailsActivityLogs = ({
   })
 
   return (
-    <div className="mt-8 flex flex-col gap-12">
+    <div className="mt-5 flex flex-col gap-12">
       <div>
         <PageSectionTitle
           title={translate('text_1747314141347qq6rasuxisl')}

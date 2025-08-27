@@ -700,7 +700,7 @@ const CustomerInvoiceDetails = () => {
           }),
         ],
         component: (
-          <div className="pt-8">
+          <div className="pt-5">
             <InvoiceActivityLogs invoiceId={invoiceId as string} />
           </div>
         ),

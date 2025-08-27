@@ -395,7 +395,7 @@ const AlertForm = () => {
     <>
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate(
                 isEdition ? 'text_1746623860224seuc6r7gdlc' : 'text_1746623860224049f02r3xcf',

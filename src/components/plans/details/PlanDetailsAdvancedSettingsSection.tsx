@@ -1,6 +1,7 @@
-import { Accordion, Typography } from '~/components/designSystem'
+import { Accordion, ChargeTable, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
+import { getEntitlementFormattedValue } from '~/components/plans/utils'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -19,8 +20,9 @@ export const PlanDetailsAdvancedSettingsSection = ({
   const hasMinimumCommitment =
     !!plan?.minimumCommitment?.amountCents && !isNaN(Number(plan?.minimumCommitment?.amountCents))
   const hasProgressiveBilling = !!plan?.usageThresholds?.length
+  const hasEntitlements = !!plan?.entitlements?.length
 
-  if (!hasMinimumCommitment && !hasProgressiveBilling) return null
+  if (!hasMinimumCommitment && !hasProgressiveBilling && !hasEntitlements) return null
 
   return (
     <section>
@@ -189,6 +191,85 @@ export const PlanDetailsAdvancedSettingsSection = ({
                 />
               </div>
             </Accordion>
+          </div>
+        )}
+
+        {hasEntitlements && (
+          <div className="flex flex-col gap-6">
+            <div>
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_63e26d8308d03687188221a6')}
+              </Typography>
+              <Typography
+                variant="caption"
+                color="grey600"
+                html={translate('text_1754570508182ng9t8r1iuz3')}
+              />
+            </div>
+
+            {plan?.entitlements?.map((entitlement) => (
+              <Accordion
+                key={`plan-details-entitlement-${entitlement.code}`}
+                summary={
+                  <div className="flex flex-col">
+                    <Typography variant="bodyHl" color="grey700">
+                      {entitlement.name || '-'}
+                    </Typography>
+                    <Typography variant="caption" color="grey600">
+                      {entitlement.code}
+                    </Typography>
+                  </div>
+                }
+              >
+                <div className="flex flex-col gap-4 overflow-x-auto">
+                  <Typography variant="captionHl" color="grey700">
+                    {translate('text_1754570508183nhpg3qqdpt8')}
+                  </Typography>
+
+                  {!entitlement.privileges.length && (
+                    <Typography variant="body" color="grey700">
+                      {translate('text_1754570508183hxl33n573yk')}
+                    </Typography>
+                  )}
+
+                  {!!entitlement.privileges.length && (
+                    <ChargeTable
+                      className="w-full"
+                      name={`feature-entitlement-${entitlement.code}-privilege-table`}
+                      data={entitlement.privileges || []}
+                      columns={[
+                        {
+                          size: 190,
+                          title: (
+                            <Typography variant="captionHl" className="px-4">
+                              {translate('text_175386422306019wldpp8h5q')}
+                            </Typography>
+                          ),
+                          content: (row) => (
+                            <Typography variant="body" color="grey700" className="px-4">
+                              {row.name || row.code}
+                            </Typography>
+                          ),
+                        },
+                        {
+                          size: 190,
+                          title: (
+                            <Typography variant="captionHl" className="px-4">
+                              {translate('text_63fcc3218d35b9377840f5ab')}
+                            </Typography>
+                          ),
+                          content: (row) => (
+                            <Typography variant="body" color="grey700" className="px-4">
+                              {getEntitlementFormattedValue(row.value, row.valueType, translate)}
+                            </Typography>
+                          ),
+                        },
+                      ]}
+                    />
+                  )}
+                </div>
+              </Accordion>
+            ))}
           </div>
         )}
       </div>

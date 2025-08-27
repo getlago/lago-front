@@ -7,6 +7,7 @@ import {
   ChargeModelEnum,
   CurrencyEnum,
   PlanInterval,
+  PrivilegeValueTypeEnum,
 } from '~/generated/graphql'
 
 const fullProperty = {
@@ -82,6 +83,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -97,6 +99,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -130,6 +133,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -181,6 +185,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -214,6 +219,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -267,6 +273,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -298,6 +305,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -338,6 +346,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -370,6 +379,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -410,6 +420,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -442,6 +453,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -482,6 +494,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
 
@@ -512,6 +525,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -548,6 +562,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
 
@@ -606,6 +621,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -681,6 +697,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -713,6 +730,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -764,6 +782,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -796,6 +815,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -837,6 +857,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
   })
@@ -869,6 +890,7 @@ describe('serializePlanInput()', () => {
           amountCents: '2',
           recurring: true,
         },
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -900,6 +922,7 @@ describe('serializePlanInput()', () => {
             thresholdDisplayName: null,
           },
         ],
+        entitlements: [],
       })
     })
   })
@@ -938,6 +961,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -977,6 +1001,7 @@ describe('serializePlanInput()', () => {
         trialPeriod: 1,
         taxCodes: [],
         usageThresholds: [],
+        entitlements: [],
       })
     })
 
@@ -1013,6 +1038,7 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         nonRecurringUsageThresholds: [],
         recurringUsageThreshold: undefined,
+        entitlements: [],
       })
 
       expect(plan).toStrictEqual({
@@ -1048,6 +1074,73 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
+        entitlements: [],
+      })
+    })
+  })
+
+  describe('a plan with entitlements', () => {
+    it('returns plan correctly serialized', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
+        entitlements: [
+          {
+            featureName: 'Feature 1',
+            featureCode: 'feature-1',
+            privileges: [
+              {
+                id: '4567',
+                privilegeCode: 'privilege-1',
+                privilegeName: 'Privilege 1',
+                valueType: PrivilegeValueTypeEnum.Boolean,
+                value: 'true',
+              },
+            ],
+          },
+        ],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [],
+        code: 'my-plan',
+        entitlements: [
+          {
+            featureId: undefined,
+            featureName: undefined,
+            featureCode: 'feature-1',
+            privileges: [
+              {
+                id: undefined,
+                config: undefined,
+                privilegeCode: 'privilege-1',
+                privilegeName: undefined,
+                value: 'true',
+                valueType: undefined,
+              },
+            ],
+          },
+        ],
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        taxCodes: [],
+        trialPeriod: 1,
         usageThresholds: [],
       })
     })

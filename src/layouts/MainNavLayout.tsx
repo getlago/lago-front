@@ -54,7 +54,6 @@ import {
   SUBSCRIPTIONS_ROUTE,
   TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -353,18 +352,14 @@ const MainNavLayout = () => {
                     match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
                     hidden: !hasPermissions(['plansView']),
                   },
-                  ...(isFeatureFlagActive(FeatureFlags.FTR_FEATURES)
-                    ? [
-                        {
-                          title: translate('text_1752692673070k7z0mmf0494'),
-                          icon: 'switch',
-                          link: FEATURES_ROUTE,
-                          canBeClickedOnActive: true,
-                          match: [FEATURES_ROUTE, FEATURE_DETAILS_ROUTE],
-                          hidden: !hasPermissions(['featuresView']),
-                        } as TabProps,
-                      ]
-                    : []),
+                  {
+                    title: translate('text_1752692673070k7z0mmf0494'),
+                    icon: 'switch',
+                    link: FEATURES_ROUTE,
+                    canBeClickedOnActive: true,
+                    match: [FEATURES_ROUTE, FEATURE_DETAILS_ROUTE],
+                    hidden: !hasPermissions(['featuresView']),
+                  },
                   {
                     title: translate('text_629728388c4d2300e2d3801a'),
                     icon: 'puzzle',

@@ -29,6 +29,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { findFirstPrivilegeIndexWithDuplicateCode } from '~/pages/features/utils'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+export type FeatureFormValues = Omit<FeatureObject, 'id' | 'createdAt' | 'subscriptionsCount'>
+
 const SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity]
 
 gql`
@@ -78,7 +80,7 @@ const FeatureForm = () => {
   })
   const existingFeature = featureData?.feature
 
-  const formikProps = useFormik<Omit<FeatureObject, 'id' | 'createdAt' | 'subscriptionsCount'>>({
+  const formikProps = useFormik<FeatureFormValues>({
     initialValues: {
       name: existingFeature?.name || '',
       code: existingFeature?.code || '',
@@ -230,7 +232,7 @@ const FeatureForm = () => {
     <>
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate(
                 isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj',
@@ -275,6 +277,8 @@ const FeatureForm = () => {
                   </div>
                   <div className="flex gap-6 *:flex-1">
                     <TextInput
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
                       name="name"
                       label={translate('text_1732286530467zstzwbegfiq')}
                       placeholder={translate('text_62876e85e32e0300e1803121')}
@@ -322,7 +326,8 @@ const FeatureForm = () => {
                     </div>
                   ) : (
                     <Button
-                      className="self-start"
+                      fitContent
+                      align="left"
                       startIcon="plus"
                       variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
@@ -350,22 +355,12 @@ const FeatureForm = () => {
                         isEdition={isEdition}
                         privilege={privilege}
                         privilegeIndex={privilegeIndex}
-                        privilegeErrors={formikProps.errors.privileges?.[privilegeIndex]}
-                        setFieldValue={(field: string, value: string | string[] | undefined) => {
-                          formikProps.setFieldValue(field, value)
-                        }}
-                        deletePrivilege={(privilegeIndexToDelete: number) => {
-                          formikProps.setFieldValue(
-                            'privileges',
-                            formikProps.values.privileges.filter(
-                              (_, index) => index !== privilegeIndexToDelete,
-                            ),
-                          )
-                        }}
+                        formikProps={formikProps}
                       />
                     ))}
 
                     <Button
+                      fitContent
                       align="left"
                       variant="inline"
                       startIcon="plus"
