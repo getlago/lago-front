@@ -65,7 +65,11 @@ export function useDeveloperTool(): DeveloperToolContextType {
     params.delete(DEVTOOL_TAB_PARAMS)
     const url = `${window.location.pathname}`
 
-    window.history.replaceState({}, '', url)
+    if (params?.toString()?.length > 0) {
+      window.history.replaceState({}, '', `${url}?${params.toString()}`)
+    } else {
+      window.history.replaceState({}, '', url)
+    }
   }
 
   useEffect(() => {
