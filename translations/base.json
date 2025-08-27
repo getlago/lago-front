@@ -3420,7 +3420,6 @@
   "text_1755599398258j905gj9xihx": "Unlock projected usage",
   "text_1755599398258ce1ilgc5swg": "Unlock projected usage so customers can see their expected usage at the end of each period and plan for upcoming costs.",
   "text_1755599398258mj61iwjhhfk": "Request access to projected usage",
-  "text_1755599398258w59pin31rfe": "Hello, I would like to access your projected usageadd-on. \n\nPlease let me know if you need more info!",
   "text_17538642230602p03937fj0f": "Control when customers gain or lose access to product features. Entitlements let you define which features are included in a plan or subscription.",
   "text_1753864223060kmmxk4a59aj": "Unlock Entitlements",
   "text_17538642230601w4ue2sz9iy": "Define the conditions under which customers receive or lose access to product features.",
@@ -3454,5 +3453,6 @@
   "text_17561254890574dcio8alli4": "Create entitlement",
   "text_17561254890579cfr8pj6afl": "By clicking 'Leave', the unsaved entitlement data will be lost forever. Are you sure you want to leave?",
   "text_1756217474408noiuzsd087w": "Edit feature",
+  "text_1755599398258w59pin31rfe": "Hello, I would like to access your projected usage add-on. \n\nPlease let me know if you need more info!",
   "text_1756225393560tonww8d3bgq": "We couldn’t generate a payment link for this invoice because the customer is not linked to a valid payment provider."
 }
