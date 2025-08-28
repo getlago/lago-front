@@ -218,6 +218,10 @@ export const ChargesSection = memo(
       return null
     }
 
+    const canApplyChargesMonthly = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
+      formikProps.values.interval,
+    )
+
     return (
       <>
         <Card className="gap-8">
@@ -282,7 +286,7 @@ export const ChargesSection = memo(
           </div>
 
           {/* METERED */}
-          {!!hasAnyCharge && formikProps.values.interval === PlanInterval.Yearly && (
+          {!!hasAnyCharge && canApplyChargesMonthly && (
             <SwitchField
               label={translate('text_62a30bc79dae432fb055330b')}
               subLabel={translate('text_64358e074a3b7500714f256c')}

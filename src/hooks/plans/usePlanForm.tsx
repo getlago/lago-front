@@ -450,6 +450,10 @@ export const usePlanForm: ({
     return undefined
   }, [createError, updateError])
 
+  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
+    formikProps.values.interval,
+  )
+
   // Clear duplicate plan var when leaving the page
   useEffect(() => {
     return () => {
@@ -480,9 +484,7 @@ export const usePlanForm: ({
 
   useEffect(() => {
     if (
-      (!formikProps.values.charges ||
-        !formikProps.values.charges.length ||
-        formikProps.values.interval !== PlanInterval.Yearly) &&
+      (!formikProps.values.charges || !formikProps.values.charges.length || !isAnnual) &&
       !!formikProps.values.billChargesMonthly
     ) {
       formikProps.setFieldValue('billChargesMonthly', false)
