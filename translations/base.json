@@ -3439,5 +3439,10 @@
   "text_17561254890579cfr8pj6afl": "By clicking 'Leave', the unsaved entitlement data will be lost forever. Are you sure you want to leave?",
   "text_1756217474408noiuzsd087w": "Edit feature",
   "text_1755599398258w59pin31rfe": "Hello, I would like to access your projected usage add-on. \n\nPlease let me know if you need more info!",
-  "text_1756225393560tonww8d3bgq": "We couldn’t generate a payment link for this invoice because the customer is not linked to a valid payment provider."
+  "text_1756225393560tonww8d3bgq": "We couldn’t generate a payment link for this invoice because the customer is not linked to a valid payment provider.",
+  "text_1756372772688xutwcgyvjhw": "Semiannual",
+  "text_1756372772688ov7fcui4x30": "per 6 months",
+  "text_1756374359049ylvettsjq4l": "and will recur every 6 months.",
+  "text_1756374810493e2wep7ld6yk": "and will recur every 6 months, if applicable; otherwise, it will occur at the end of that 6-month period."
 }
+
