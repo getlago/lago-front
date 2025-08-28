@@ -203,13 +203,9 @@ const SettingsNavLayout = () => {
                         size: 'small',
                       }}
                     >
-                      <div className="flex w-full flex-row items-center justify-between">
-                        <div className="flex items-baseline gap-2">
-                          <Typography variant="body" color="inherit" noWrap>
-                            {entity.name}
-                          </Typography>
-                        </div>
-                      </div>
+                      <Typography variant="caption" color="inherit" noWrap>
+                        {entity.name}
+                      </Typography>
                     </ButtonLink>
                   ))}
 
