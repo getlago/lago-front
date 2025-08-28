@@ -53,7 +53,11 @@ export const ButtonSelector = ({
           )}
         </div>
       )}
-      {!!description && <Typography variant="caption">{description}</Typography>}
+      {!!description && (
+        <Typography variant="caption" className="mb-4">
+          {description}
+        </Typography>
+      )}
       <div className="flex flex-row flex-wrap items-center gap-3">
         {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
           return (
