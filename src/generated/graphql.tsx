@@ -854,7 +854,7 @@ export enum CommitmentTypeEnum {
 export enum CountryCode {
   /** Andorra */
   Ad = 'AD',
-  /** United Arab Emirates */
+  /** United Arab Emirates (the) */
   Ae = 'AE',
   /** Afghanistan */
   Af = 'AF',
@@ -914,7 +914,7 @@ export enum CountryCode {
   Bq = 'BQ',
   /** Brazil */
   Br = 'BR',
-  /** Bahamas */
+  /** Bahamas (the) */
   Bs = 'BS',
   /** Bhutan */
   Bt = 'BT',
@@ -928,19 +928,19 @@ export enum CountryCode {
   Bz = 'BZ',
   /** Canada */
   Ca = 'CA',
-  /** Cocos (Keeling) Islands */
+  /** Cocos (Keeling) Islands (the) */
   Cc = 'CC',
-  /** Congo (Democratic Republic of the) */
+  /** Congo (the Democratic Republic of the) */
   Cd = 'CD',
-  /** Central African Republic */
+  /** Central African Republic (the) */
   Cf = 'CF',
-  /** Congo */
+  /** Congo (the) */
   Cg = 'CG',
   /** Switzerland */
   Ch = 'CH',
   /** Côte d'Ivoire */
   Ci = 'CI',
-  /** Cook Islands */
+  /** Cook Islands (the) */
   Ck = 'CK',
   /** Chile */
   Cl = 'CL',
@@ -972,7 +972,7 @@ export enum CountryCode {
   Dk = 'DK',
   /** Dominica */
   Dm = 'DM',
-  /** Dominican Republic */
+  /** Dominican Republic (the) */
   Do = 'DO',
   /** Algeria */
   Dz = 'DZ',
@@ -994,17 +994,17 @@ export enum CountryCode {
   Fi = 'FI',
   /** Fiji */
   Fj = 'FJ',
-  /** Falkland Islands (Malvinas) */
+  /** Falkland Islands (the) [Malvinas] */
   Fk = 'FK',
   /** Micronesia (Federated States of) */
   Fm = 'FM',
-  /** Faroe Islands */
+  /** Faroe Islands (the) */
   Fo = 'FO',
   /** France */
   Fr = 'FR',
   /** Gabon */
   Ga = 'GA',
-  /** United Kingdom of Great Britain and Northern Ireland */
+  /** United Kingdom of Great Britain and Northern Ireland (the) */
   Gb = 'GB',
   /** Grenada */
   Gd = 'GD',
@@ -1020,7 +1020,7 @@ export enum CountryCode {
   Gi = 'GI',
   /** Greenland */
   Gl = 'GL',
-  /** Gambia */
+  /** Gambia (the) */
   Gm = 'GM',
   /** Guinea */
   Gn = 'GN',
@@ -1062,7 +1062,7 @@ export enum CountryCode {
   Im = 'IM',
   /** India */
   In = 'IN',
-  /** British Indian Ocean Territory */
+  /** British Indian Ocean Territory (the) */
   Io = 'IO',
   /** Iraq */
   Iq = 'IQ',
@@ -1088,21 +1088,21 @@ export enum CountryCode {
   Kh = 'KH',
   /** Kiribati */
   Ki = 'KI',
-  /** Comoros */
+  /** Comoros (the) */
   Km = 'KM',
   /** Saint Kitts and Nevis */
   Kn = 'KN',
-  /** Korea (Democratic People's Republic of) */
+  /** Korea (the Democratic People's Republic of) */
   Kp = 'KP',
-  /** Korea (Republic of) */
+  /** Korea (the Republic of) */
   Kr = 'KR',
   /** Kuwait */
   Kw = 'KW',
-  /** Cayman Islands */
+  /** Cayman Islands (the) */
   Ky = 'KY',
   /** Kazakhstan */
   Kz = 'KZ',
-  /** Lao People's Democratic Republic */
+  /** Lao People's Democratic Republic (the) */
   La = 'LA',
   /** Lebanon */
   Lb = 'LB',
@@ -1128,7 +1128,7 @@ export enum CountryCode {
   Ma = 'MA',
   /** Monaco */
   Mc = 'MC',
-  /** Moldova (Republic of) */
+  /** Moldova (the Republic of) */
   Md = 'MD',
   /** Montenegro */
   Me = 'ME',
@@ -1136,7 +1136,7 @@ export enum CountryCode {
   Mf = 'MF',
   /** Madagascar */
   Mg = 'MG',
-  /** Marshall Islands */
+  /** Marshall Islands (the) */
   Mh = 'MH',
   /** North Macedonia */
   Mk = 'MK',
@@ -1148,7 +1148,7 @@ export enum CountryCode {
   Mn = 'MN',
   /** Macao */
   Mo = 'MO',
-  /** Northern Mariana Islands */
+  /** Northern Mariana Islands (the) */
   Mp = 'MP',
   /** Martinique */
   Mq = 'MQ',
@@ -1174,7 +1174,7 @@ export enum CountryCode {
   Na = 'NA',
   /** New Caledonia */
   Nc = 'NC',
-  /** Niger */
+  /** Niger (the) */
   Ne = 'NE',
   /** Norfolk Island */
   Nf = 'NF',
@@ -1182,7 +1182,7 @@ export enum CountryCode {
   Ng = 'NG',
   /** Nicaragua */
   Ni = 'NI',
-  /** Netherlands */
+  /** Netherlands (the) */
   Nl = 'NL',
   /** Norway */
   No = 'NO',
@@ -1204,7 +1204,7 @@ export enum CountryCode {
   Pf = 'PF',
   /** Papua New Guinea */
   Pg = 'PG',
-  /** Philippines */
+  /** Philippines (the) */
   Ph = 'PH',
   /** Pakistan */
   Pk = 'PK',
@@ -1232,7 +1232,7 @@ export enum CountryCode {
   Ro = 'RO',
   /** Serbia */
   Rs = 'RS',
-  /** Russian Federation */
+  /** Russian Federation (the) */
   Ru = 'RU',
   /** Rwanda */
   Rw = 'RW',
@@ -1242,7 +1242,7 @@ export enum CountryCode {
   Sb = 'SB',
   /** Seychelles */
   Sc = 'SC',
-  /** Sudan */
+  /** Sudan (the) */
   Sd = 'SD',
   /** Sweden */
   Se = 'SE',
@@ -1278,11 +1278,11 @@ export enum CountryCode {
   Sy = 'SY',
   /** Eswatini */
   Sz = 'SZ',
-  /** Turks and Caicos Islands */
+  /** Turks and Caicos Islands (the) */
   Tc = 'TC',
   /** Chad */
   Td = 'TD',
-  /** French Southern Territories */
+  /** French Southern Territories (the) */
   Tf = 'TF',
   /** Togo */
   Tg = 'TG',
@@ -1306,7 +1306,7 @@ export enum CountryCode {
   Tt = 'TT',
   /** Tuvalu */
   Tv = 'TV',
-  /** Taiwan, Province of China */
+  /** Taiwan (Province of China) */
   Tw = 'TW',
   /** Tanzania, United Republic of */
   Tz = 'TZ',
@@ -1314,15 +1314,15 @@ export enum CountryCode {
   Ua = 'UA',
   /** Uganda */
   Ug = 'UG',
-  /** United States Minor Outlying Islands */
+  /** United States Minor Outlying Islands (the) */
   Um = 'UM',
-  /** United States of America */
+  /** United States of America (the) */
   Us = 'US',
   /** Uruguay */
   Uy = 'UY',
   /** Uzbekistan */
   Uz = 'UZ',
-  /** Holy See */
+  /** Holy See (the) */
   Va = 'VA',
   /** Saint Vincent and the Grenadines */
   Vc = 'VC',
@@ -1340,6 +1340,8 @@ export enum CountryCode {
   Wf = 'WF',
   /** Samoa */
   Ws = 'WS',
+  /** Kosovo */
+  Xk = 'XK',
   /** Yemen */
   Ye = 'YE',
   /** Mayotte */

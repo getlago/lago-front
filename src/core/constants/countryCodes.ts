@@ -249,6 +249,7 @@ export const CountryCodes: countryCodesType = {
   VU: 'Vanuatu',
   WF: 'Wallis and Futuna',
   WS: 'Samoa',
+  XK: 'Kosovo',
   YE: 'Yemen',
   YT: 'Mayotte',
   ZA: 'South Africa',
