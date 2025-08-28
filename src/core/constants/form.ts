@@ -72,6 +72,7 @@ export const getIntervalTranslationKey = {
   [PlanInterval.Monthly]: 'text_624453d52e945301380e49aa',
   [PlanInterval.Quarterly]: 'text_64d6357b00dea100ad1cb9e9',
   [PlanInterval.Weekly]: 'text_62b32ec6b0434070791c2d4c',
+  [PlanInterval.Semiannual]: 'text_1756372772688xutwcgyvjhw',
   [PlanInterval.Yearly]: 'text_624453d52e945301380e49ac',
 }
 
