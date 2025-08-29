@@ -775,11 +775,11 @@
   "text_6657be42151661006d2f3b77": "a top-up of credits will recur to match the target balance.",
   "text_6657be42151661006d2f3b79": "and will recur every {{dayOfWeek}}.",
   "text_6657be42151661006d2f3b7b": "and will recur every month.",
-  "text_6657be42151661006d2f3b7d": "and will recur every month, if applicable; otherwise, it will occur at the end of the month.",
-  "text_6657be42151661006d2f3b7f": "and will recur every 15th on a quarterly basis.",
-  "text_6657be42151661006d2f3b81": "and will recur every 31st on a quarterly basis if applicable; otherwise, it will occur at the end of the month.",
+  "text_6657be42151661006d2f3b7d": "and will recur every month. If that date doesn't exist in a given month, the top-up will occur on the last day of that month.",
+  "text_6657be42151661006d2f3b7f": "and will recur every 3 months",
+  "text_6657be42151661006d2f3b81": "and will recur every 3 months. If that date doesn't exist in a given month, the top-up will occur on the last day of that month.",
   "text_6657be42151661006d2f3b83": "and will recur every year.",
-  "text_6657be42151661006d2f3b85": "and will recur every year, if applicable; otherwise, it will occur at the end of {{month}} on a yearly basis.",
+  "text_6657be42151661006d2f3b85": "and will recur every year. If that date doesn't exist in a given month, the top-up will occur on the last day of that month.",
   "text_6657c29c84ad4500ad764ed6": "Recurring top-up rule",
   "text_6657c29c84ad4500ad764ed7": "Top-up method",
   "text_6657c29c84ad4500ad764ed8": "Search and select a top-up method",
@@ -3441,8 +3441,7 @@
   "text_1755599398258w59pin31rfe": "Hello, I would like to access your projected usage add-on. \n\nPlease let me know if you need more info!",
   "text_1756225393560tonww8d3bgq": "We couldn’t generate a payment link for this invoice because the customer is not linked to a valid payment provider.",
   "text_1756372772688xutwcgyvjhw": "Semiannual",
-  "text_1756372772688ov7fcui4x30": "per 6 months",
+  "text_1756372772688ov7fcui4x30": "per semester",
   "text_1756374359049ylvettsjq4l": "and will recur every 6 months.",
-  "text_1756374810493e2wep7ld6yk": "and will recur every 6 months, if applicable; otherwise, it will occur at the end of that 6-month period."
+  "text_1756374810493e2wep7ld6yk": "and will recur every 6 months. If that date doesn't exist in a given month, the top-up will occur on the last day of that month."
 }
-
