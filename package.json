@@ -107,6 +107,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.11.4",
+    "@fragaria/address-formatter": "^6.6.1",
     "@mui/material": "5.14.18",
     "@mui/x-date-pickers": "6.20.0",
     "@nangohq/frontend": "^0.64.4",

@@ -15,6 +15,9 @@ importers:
       '@apollo/client':
         specifier: 3.11.4
         version: 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@fragaria/address-formatter':
+        specifier: ^6.6.1
+        version: 6.6.1
       '@mui/material':
         specifier: 5.14.18
         version: 5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -1738,6 +1741,10 @@ packages:
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
+
+  '@fragaria/address-formatter@6.6.1':
+    resolution: {integrity: sha512-cow1i8U2CspWf2skDBc6XgNX7uI14f+8CED97p9jc70VUgXjLc6dIcQNjawL1bkkxyRLS22b8I9dbj0nXex8ng==}
+    engines: {node: '>=20.0.0'}
 
   '@graphql-codegen/add@5.0.3':
     resolution: {integrity: sha512-SxXPmramkth8XtBlAHu4H4jYcYXM/o3p01+psU+0NADQowA8jtYkK6MW5rV6T+CxkEaNZItfSmZRPgIuypcqnA==}
@@ -5580,6 +5587,10 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
+  mustache@4.2.0:
+    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+    hasBin: true
+
   mute-stream@0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
 
@@ -9006,6 +9017,10 @@ snapshots:
       react-dom: 18.2.0(react@18.2.0)
 
   '@floating-ui/utils@0.2.9': {}
+
+  '@fragaria/address-formatter@6.6.1':
+    dependencies:
+      mustache: 4.2.0
 
   '@graphql-codegen/add@5.0.3(graphql@16.10.0)':
     dependencies:
@@ -13781,6 +13796,8 @@ snapshots:
   minipass@7.1.2: {}
 
   ms@2.1.3: {}
+
+  mustache@4.2.0: {}
 
   mute-stream@0.0.8: {}
 
