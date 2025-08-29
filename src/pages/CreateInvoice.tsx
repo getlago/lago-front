@@ -38,7 +38,6 @@ import {
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
   appliedTaxEnumedTaxCodeTranslationKey,
@@ -46,6 +45,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { formatAddress } from '~/core/formats/formatAddress'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
@@ -296,12 +296,27 @@ const CreateInvoice = () => {
   })
 
   const billingEntity = billingEntityData?.billingEntity
-
   const hasTaxProvider = !!customer?.anrokCustomer?.id || !!customer?.avalaraCustomer?.id
-
   const customerName = customer?.displayName
-
   const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
+
+  const formattedBillingAddress = formatAddress({
+    addressLine1: billingEntity?.addressLine1,
+    addressLine2: billingEntity?.addressLine2,
+    city: billingEntity?.city,
+    country: billingEntity?.country,
+    state: billingEntity?.state,
+    zipcode: billingEntity?.zipcode,
+  })
+
+  const formattedCustomerAddress = formatAddress({
+    addressLine1: customer?.addressLine1,
+    addressLine2: customer?.addressLine2,
+    city: customer?.city,
+    country: customer?.country,
+    state: customer?.state,
+    zipcode: customer?.zipcode,
+  })
 
   const customerApplicableTax = useMemo(() => {
     if (hasTaxProvider) return []
@@ -677,38 +692,10 @@ const CreateInvoice = () => {
                         {billingEntity?.legalNumber}
                       </Typography>
                     )}
-                    {!!(
-                      billingEntity?.addressLine1 ||
-                      billingEntity?.addressLine2 ||
-                      billingEntity?.state ||
-                      billingEntity?.country ||
-                      billingEntity?.city ||
-                      billingEntity?.zipcode
-                    ) && (
-                      <>
-                        {billingEntity?.addressLine1 && (
-                          <Typography variant="body" color="grey700">
-                            {billingEntity?.addressLine1}
-                          </Typography>
-                        )}
-                        {billingEntity?.addressLine2 && (
-                          <Typography variant="body" color="grey700">
-                            {billingEntity?.addressLine2}
-                          </Typography>
-                        )}
-                        {(billingEntity?.zipcode ||
-                          billingEntity?.city ||
-                          billingEntity?.state) && (
-                          <Typography variant="body" color="grey700">
-                            {billingEntity?.zipcode} {billingEntity?.city} {billingEntity?.state}
-                          </Typography>
-                        )}
-                        {billingEntity?.country && (
-                          <Typography variant="body" color="grey700">
-                            {CountryCodes[billingEntity?.country]}
-                          </Typography>
-                        )}
-                      </>
+                    {!!formattedBillingAddress && (
+                      <Typography variant="body" color="grey700">
+                        {formattedBillingAddress}
+                      </Typography>
                     )}
                     {billingEntity?.email && (
                       <Typography variant="body" color="grey700">
@@ -739,36 +726,10 @@ const CreateInvoice = () => {
                         {customer?.legalNumber}
                       </Typography>
                     )}
-                    {!!(
-                      customer?.addressLine1 ||
-                      customer?.addressLine2 ||
-                      customer?.state ||
-                      customer?.country ||
-                      customer?.city ||
-                      customer?.zipcode
-                    ) && (
-                      <>
-                        {customer?.addressLine1 && (
-                          <Typography variant="body" color="grey700">
-                            {customer?.addressLine1}
-                          </Typography>
-                        )}
-                        {customer?.addressLine2 && (
-                          <Typography variant="body" color="grey700">
-                            {customer?.addressLine2}
-                          </Typography>
-                        )}
-                        {(customer?.zipcode || customer?.city || customer?.state) && (
-                          <Typography variant="body" color="grey700">
-                            {customer?.zipcode} {customer?.city} {customer?.state}
-                          </Typography>
-                        )}
-                        {customer?.country && (
-                          <Typography variant="body" color="grey700">
-                            {CountryCodes[customer?.country]}
-                          </Typography>
-                        )}
-                      </>
+                    {!!formattedCustomerAddress && (
+                      <Typography variant="body" color="grey700">
+                        {formattedCustomerAddress}
+                      </Typography>
                     )}
                     {customer?.email && (
                       <Typography variant="body" color="grey700">
