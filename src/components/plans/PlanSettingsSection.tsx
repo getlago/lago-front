@@ -201,7 +201,7 @@ export const PlanSettingsSection = memo(
           disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
           name="interval"
           label={translate('text_6661fc17337de3591e29e3d1')}
-          infoText={translate('text_6661fc17337de3591e29e3d3')}
+          description={translate('text_6661fc17337de3591e29e3d3')}
           formikProps={formikProps}
           options={[
             {
@@ -215,6 +215,10 @@ export const PlanSettingsSection = memo(
             {
               label: translate(getIntervalTranslationKey[PlanInterval.Quarterly]),
               value: PlanInterval.Quarterly,
+            },
+            {
+              label: translate(getIntervalTranslationKey[PlanInterval.Semiannual]),
+              value: PlanInterval.Semiannual,
             },
             {
               label: translate(getIntervalTranslationKey[PlanInterval.Yearly]),

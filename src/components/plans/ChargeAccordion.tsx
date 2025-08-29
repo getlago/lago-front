@@ -149,6 +149,8 @@ export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: bool
     return getIntervalTranslationKey[PlanInterval.Monthly]
   } else if (interval === PlanInterval.Yearly) {
     return getIntervalTranslationKey[PlanInterval.Yearly]
+  } else if (interval === PlanInterval.Semiannual) {
+    return getIntervalTranslationKey[PlanInterval.Semiannual]
   } else if (interval === PlanInterval.Quarterly) {
     return getIntervalTranslationKey[PlanInterval.Quarterly]
   } else if (interval === PlanInterval.Weekly) {
@@ -414,6 +416,10 @@ export const ChargeAccordion = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currency])
 
+    const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
+      formikProps.values.interval,
+    )
+
     return (
       <Accordion
         noContentMargin
@@ -478,9 +484,7 @@ export const ChargeAccordion = memo(
                 label={translate(
                   mapChargeIntervalCopy(
                     formikProps.values.interval,
-                    (formikProps.values.interval === PlanInterval.Yearly &&
-                      !!formikProps.values.billChargesMonthly) ||
-                      false,
+                    (isAnnual && !!formikProps.values.billChargesMonthly) || false,
                   ),
                 )}
               />

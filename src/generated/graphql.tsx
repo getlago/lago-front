@@ -5663,6 +5663,7 @@ export type PlanEntitlementPrivilegeObject = {
 export enum PlanInterval {
   Monthly = 'monthly',
   Quarterly = 'quarterly',
+  Semiannual = 'semiannual',
   Weekly = 'weekly',
   Yearly = 'yearly'
 }
@@ -6810,6 +6811,7 @@ export type QueryWebhooksArgs = {
 export enum RecurringTransactionIntervalEnum {
   Monthly = 'monthly',
   Quarterly = 'quarterly',
+  Semiannual = 'semiannual',
   Weekly = 'weekly',
   Yearly = 'yearly'
 }
