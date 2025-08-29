@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 
-import { Locale, LocaleEnum } from '~/core/translations'
+import { Locale, LocaleBCPMapping, LocaleEnum } from '~/core/translations'
 import { useGetPortalLocaleQuery } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
@@ -45,7 +45,7 @@ const useCustomerPortalTranslate = () => {
 
   return {
     translate,
-    documentLocale: documentLocale as LocaleEnum,
+    documentLocale: LocaleBCPMapping[documentLocale] as LocaleEnum,
     error,
     loading,
   }

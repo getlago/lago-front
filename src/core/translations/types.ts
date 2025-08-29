@@ -16,4 +16,17 @@ export enum LocaleEnum {
   sv = 'sv', // Swedish
   pt_BR = 'pt_BR', // Brazilian Portuguese
 }
+
+// Available locales in BCP 47 language formats
+export const LocaleBCPMapping: Record<LocaleEnum, string> = {
+  [LocaleEnum.en]: 'en',
+  [LocaleEnum.fr]: 'fr',
+  [LocaleEnum.nb]: 'nb',
+  [LocaleEnum.de]: 'de',
+  [LocaleEnum.it]: 'it',
+  [LocaleEnum.es]: 'es',
+  [LocaleEnum.sv]: 'sv',
+  [LocaleEnum.pt_BR]: 'pt-BR',
+}
+
 export type Locale = keyof typeof LocaleEnum
