@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
+import { Button } from 'lago-design-system'
 
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
-import { Tooltip, Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone/utils'
@@ -18,6 +18,7 @@ import {
 gql`
   fragment CustomerPortalWalletInfo on CustomerPortalWallet {
     id
+    name
     currency
     balanceCents
     creditsBalance
@@ -38,17 +39,21 @@ gql`
     }
   }
 
-  query getPortalWallets {
-    customerPortalWallets {
+  query getPortalWallets($limit: Int, $page: Int, $status: WalletStatusEnum) {
+    customerPortalWallets(limit: $limit, page: $page, status: $status) {
       collection {
         ...CustomerPortalWalletInfo
+      }
+      metadata {
+        currentPage
+        totalPages
       }
     }
   }
 `
 
 type WalletSectionProps = {
-  viewWallet: () => void
+  viewWallet: (walletId: string) => void
 }
 
 const WalletSection = ({ viewWallet }: WalletSectionProps) => {
@@ -70,22 +75,17 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
     loading: customerWalletLoading,
     error: customerWalletError,
     refetch: customerWalletRefetch,
-  } = useGetPortalWalletsQuery()
+    fetchMore,
+  } = useGetPortalWalletsQuery({
+    variables: {
+      limit: 3,
+      status: WalletStatusEnum.Active,
+    },
+  })
 
-  const wallet = customerWalletData?.customerPortalWallets?.collection?.[0]
-  const isWalletActive = wallet?.status === WalletStatusEnum.Active
-
-  const [creditAmountUnit = '0', creditAmountCents = '00'] = String(wallet?.creditsBalance).split(
-    '.',
-  )
-  const [consumedCreditUnit = '0', consumedCreditCents = '00'] = String(
-    wallet?.creditsOngoingBalance,
-  ).split('.')
-
-  const [unit, cents, balance] = isPremium
-    ? [consumedCreditUnit, consumedCreditCents, wallet?.ongoingBalanceCents]
-    : [creditAmountUnit, creditAmountCents, wallet?.balanceCents]
-
+  const wallets = customerWalletData?.customerPortalWallets?.collection
+  const { currentPage = 0, totalPages = 0 } =
+    customerWalletData?.customerPortalWallets?.metadata || {}
   const isLoading = customerWalletLoading || customerPortalUserLoading
   const isError = !isLoading && (customerWalletError || customerPortalUserError)
 
@@ -104,7 +104,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
     )
   }
 
-  if (!isLoading && !isWalletActive) {
+  if (!isLoading && !wallets?.length) {
     return null
   }
 
@@ -113,108 +113,131 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
       <SectionTitle
         title={translate('text_1728377307159q3otzyv9tey')}
         className="justify-between"
-        action={{ title: translate('text_1728377307160cludx1c0cfb'), onClick: viewWallet }}
-        loading={isLoading}
+        loading={customerPortalUserLoading}
       />
 
-      {isLoading && <LoaderWalletSection />}
+      {isLoading && !wallets?.length && <LoaderWalletSection />}
 
-      {!isLoading && wallet && (
-        <div>
-          <div className="flex flex-col gap-1">
-            <Typography variant="body" color="grey600" className="flex h-6 items-center gap-2">
-              {translate('text_1728377307160cbszddumfkg')}
+      {!!wallets?.length &&
+        wallets.map((wallet, index) => {
+          const [creditAmountUnit = '0', creditAmountCents = '00'] = String(
+            wallet?.creditsBalance,
+          ).split('.')
+          const [consumedCreditUnit = '0', consumedCreditCents = '00'] = String(
+            wallet?.creditsOngoingBalance,
+          ).split('.')
 
-              {wallet?.lastBalanceSyncAt && (
-                <Tooltip
-                  placement="top-start"
-                  title={translate('text_1728470529877eb3qoinwqa5', {
-                    date: intlFormatDateTime(wallet?.lastBalanceSyncAt, {
-                      timezone: customerTimezone,
-                      locale: documentLocale,
-                    }).date,
-                  })}
-                >
-                  <Icon size="medium" name="info-circle" />
-                </Tooltip>
-              )}
-            </Typography>
+          const [unit, cents, balance] = isPremium
+            ? [consumedCreditUnit, consumedCreditCents, wallet?.ongoingBalanceCents]
+            : [creditAmountUnit, creditAmountCents, wallet?.balanceCents]
 
-            <div className="flex items-end gap-1">
-              <Typography variant="headline" color="grey700">
-                {unit}.{cents}
-              </Typography>
+          return (
+            <div
+              className="mt-6 flex flex-col gap-1 pb-4 shadow-b"
+              key={`customer-portal-wallet-${index}`}
+            >
+              <div className="flex items-center justify-between gap-6">
+                <Typography variant="captionHl" color="grey600">
+                  {!!wallet?.name && `${wallet?.name} - `}
+                  {translate('text_1728377307160cbszddumfkg')}
+                </Typography>
 
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_62da6ec24a8e24e44f81287a', undefined, Number(unit) || 0)}
-              </Typography>
-            </div>
+                <Button variant="inline" size="medium" onClick={() => viewWallet(wallet.id)}>
+                  {translate('text_1728377307160cludx1c0cfb')}
+                </Button>
+              </div>
 
-            <Typography variant="caption" color="grey600">
-              {translate('text_17283773071600j3nukyme6f', {
-                credits: intlFormatNumber(deserializeAmount(balance, wallet.currency), {
-                  currencyDisplay: 'narrowSymbol',
-                  currency: wallet.currency,
-                  locale: documentLocale,
-                }),
-              })}
-            </Typography>
-          </div>
+              <div className="flex items-center justify-between gap-8 [&>*]:flex-1">
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-1">
+                    <Typography variant="body" color="grey700">
+                      {unit}.{cents}
+                    </Typography>
 
-          <div className="mt-4 grid grid-cols-2 gap-8">
-            <div className="flex flex-col gap-1">
-              <Typography variant="body" color="grey600">
-                {translate('text_1728377307160dqj0b2q59f6')}
-              </Typography>
+                    <Typography variant="body" color="grey700">
+                      {translate('text_62da6ec24a8e24e44f81287a', undefined, Number(unit) || 0)}
+                    </Typography>
+                  </div>
 
-              {wallet?.expirationAt ? (
-                <>
-                  <Typography variant="subhead2" color="grey700">
-                    {
-                      intlFormatDateTime(wallet?.expirationAt, {
-                        timezone: customerTimezone,
-                        locale: documentLocale,
-                      }).date
-                    }
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <Typography variant="subhead2" color="grey700">
-                    {translate('text_62da6ec24a8e24e44f81288c')}
-                  </Typography>
-                </>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <Typography variant="body" color="grey600">
-                {translate('text_1728377307160sh06zbhqebt')}
-              </Typography>
-
-              <div className="flex items-center">
-                <Typography variant="body" color="grey700">
-                  {wallet?.consumedCredits}&nbsp;
-                  {translate(
-                    'text_62da6ec24a8e24e44f812884',
-                    undefined,
-                    Number(wallet?.consumedCredits) || 0,
-                  )}
-                  &nbsp; (
-                  {intlFormatNumber(
-                    deserializeAmount(wallet?.consumedAmountCents, wallet.currency),
-                    {
+                  <Typography variant="caption" color="grey600">
+                    {intlFormatNumber(deserializeAmount(balance, wallet.currency), {
                       currencyDisplay: 'narrowSymbol',
                       currency: wallet.currency,
                       locale: documentLocale,
-                    },
+                    })}
+                  </Typography>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_1728377307160sh06zbhqebt')}
+                  </Typography>
+
+                  <div className="flex items-center">
+                    <Typography variant="body" color="grey700">
+                      {wallet?.consumedCredits}&nbsp;
+                      {translate(
+                        'text_62da6ec24a8e24e44f812884',
+                        undefined,
+                        Number(wallet?.consumedCredits) || 0,
+                      )}
+                      &nbsp;(
+                      {intlFormatNumber(
+                        deserializeAmount(wallet?.consumedAmountCents, wallet.currency),
+                        {
+                          currencyDisplay: 'narrowSymbol',
+                          currency: wallet.currency,
+                          locale: documentLocale,
+                        },
+                      )}
+                      )
+                    </Typography>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_1728377307160dqj0b2q59f6')}
+                  </Typography>
+
+                  {wallet?.expirationAt ? (
+                    <>
+                      <Typography variant="body" color="grey700">
+                        {
+                          intlFormatDateTime(wallet?.expirationAt, {
+                            timezone: customerTimezone,
+                            locale: documentLocale,
+                          }).date
+                        }
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="body" color="grey700">
+                        {translate('text_62da6ec24a8e24e44f81288c')}
+                      </Typography>
+                    </>
                   )}
-                  )
-                </Typography>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          )
+        })}
+
+      {currentPage < totalPages && (
+        <Button
+          className="mt-2"
+          variant="inline"
+          size="medium"
+          startIcon="chevron-down"
+          onClick={() =>
+            fetchMore({
+              variables: { page: currentPage + 1 },
+            })
+          }
+        >
+          {translate('text_62da6ec24a8e24e44f8128aa')}
+        </Button>
       )}
     </div>
   )
