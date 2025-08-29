@@ -24,10 +24,11 @@ const useCustomerPortalNavigation = () => {
       }),
     )
 
-  const viewWallet = () =>
+  const viewWallet = (walletId: string) =>
     navigate(
       generatePath(CUSTOMER_PORTAL_WALLET_ROUTE, {
         token: token as string,
+        walletId,
       }),
     )
 
