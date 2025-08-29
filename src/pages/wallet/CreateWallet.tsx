@@ -52,7 +52,6 @@ gql`
     expirationAt
     name
     rateAmount
-    priority
     invoiceRequiresSuccessfulPayment
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents

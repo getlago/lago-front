@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Tooltip } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -19,6 +20,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
+const ACTIVE_WALLET_COUNT_LIMIT = 5
+
 gql`
   fragment CustomerWallet on Wallet {
     ...WalletForUpdate
@@ -31,6 +34,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        customerActiveWalletsCount
       }
       collection {
         ...CustomerWallet
@@ -55,9 +59,11 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
-    variables: { customerId, page: 0, limit: 20 },
+    variables: { customerId, page: 0, limit: 10 },
   })
   const walletsCollection = data?.wallets?.collection || []
+  const hasMoreThanActiveWalletsLimit =
+    (data?.wallets?.metadata?.customerActiveWalletsCount || 0) >= ACTIVE_WALLET_COUNT_LIMIT
 
   if (!loading && !!error) {
     return (
@@ -80,18 +86,26 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
         customAction={
           <>
             {hasPermissions(['walletsCreate']) && (
-              <Button
-                variant="inline"
-                onClick={() =>
-                  navigate(
-                    generatePath(CREATE_WALLET_ROUTE, {
-                      customerId: customerId as string,
-                    }),
-                  )
-                }
+              <Tooltip
+                title={translate('text_176071328361044kwwdb4re4', {
+                  count: ACTIVE_WALLET_COUNT_LIMIT,
+                })}
+                disableHoverListener={!hasMoreThanActiveWalletsLimit}
               >
-                {translate('text_62d175066d2dbf1d50bc9382')}
-              </Button>
+                <Button
+                  variant="inline"
+                  disabled={hasMoreThanActiveWalletsLimit || loading}
+                  onClick={() =>
+                    navigate(
+                      generatePath(CREATE_WALLET_ROUTE, {
+                        customerId: customerId as string,
+                      }),
+                    )
+                  }
+                >
+                  {translate('text_62d175066d2dbf1d50bc9382')}
+                </Button>
+              </Tooltip>
             )}
           </>
         }
