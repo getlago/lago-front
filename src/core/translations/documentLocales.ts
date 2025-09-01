@@ -1,7 +1,10 @@
+import { LocaleEnum } from '~/core/translations/types'
+
 type documentLocalesType = {
-  [key: string]: string
+  [key in LocaleEnum]: string
 }
 
+// NOTE: Using hyphen instead of underscore, for consistency with IANA locale names
 export const DocumentLocales: documentLocalesType = {
   fr: 'French',
   en: 'English',
@@ -10,5 +13,5 @@ export const DocumentLocales: documentLocalesType = {
   it: 'Italian',
   es: 'Spanish',
   sv: 'Swedish',
-  pt_BR: 'Portuguese (Brazil)',
+  'pt-BR': 'Portuguese (Brazil)',
 }
