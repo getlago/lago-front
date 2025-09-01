@@ -6,7 +6,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { DocumentLocales } from '~/core/translations/documentLocales'
+import { documentLocalesDataForComboBox } from '~/core/translations/documentLocales'
 import {
   LagoApiError,
   UpdateBillingEntityInput,
@@ -31,15 +31,6 @@ interface EditBillingEntityDocumentLocaleDialogProps {
   id: string
   documentLocale: string
 }
-
-const documentLocalesData: { value: string; label: string }[] = Object.keys(DocumentLocales).map(
-  (localeKey) => {
-    return {
-      value: localeKey,
-      label: DocumentLocales[localeKey],
-    }
-  },
-)
 
 export const EditBillingEntityDocumentLocaleDialog = forwardRef<
   DialogRef,
@@ -120,7 +111,7 @@ export const EditBillingEntityDocumentLocaleDialog = forwardRef<
             <Typography variant="caption" html={translate('text_63e51ef4985f0ebd75c21312')} />
           }
           formikProps={formikProps}
-          data={documentLocalesData}
+          data={documentLocalesDataForComboBox}
           PopperProps={{ displayInDialog: true }}
         />
       </div>
