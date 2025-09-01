@@ -6,7 +6,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { DocumentLocales } from '~/core/translations/documentLocales'
+import { documentLocalesDataForComboBox } from '~/core/translations/documentLocales'
 import {
   EditCustomerDocumentLocaleFragment,
   UpdateCustomerInput,
@@ -41,15 +41,6 @@ export type EditCustomerDocumentLocaleDialogRef = DialogRef
 interface EditCustomerDocumentLocaleDialogProps {
   customer: EditCustomerDocumentLocaleFragment
 }
-
-const documentLocalesData: { value: string; label: string }[] = Object.keys(DocumentLocales).map(
-  (localeKey) => {
-    return {
-      value: localeKey,
-      label: DocumentLocales[localeKey],
-    }
-  },
-)
 
 export const EditCustomerDocumentLocaleDialog = forwardRef<
   DialogRef,
@@ -146,7 +137,7 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
             <Typography variant="caption" html={translate('text_63e51ef4985f0ebd75c21312')} />
           }
           formikProps={formikProps}
-          data={documentLocalesData}
+          data={documentLocalesDataForComboBox}
           PopperProps={{ displayInDialog: true }}
         />
       </div>

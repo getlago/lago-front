@@ -15,3 +15,12 @@ export const DocumentLocales: documentLocalesType = {
   sv: 'Swedish',
   'pt-BR': 'Portuguese (Brazil)',
 }
+
+export const documentLocalesDataForComboBox: { value: LocaleEnum; label: string }[] = (
+  Object.keys(DocumentLocales) as Array<keyof typeof DocumentLocales>
+).map((localeKey) => {
+  return {
+    value: localeKey,
+    label: DocumentLocales[localeKey],
+  }
+})

@@ -253,7 +253,7 @@ const BillingEntityInvoiceSettings = () => {
           {translate('text_63e51ef4985f0ebd75c212fc')}
         </Button>
       ),
-      content: DocumentLocales[documentLocale],
+      content: DocumentLocales[documentLocale as keyof typeof DocumentLocales],
       dialog: (
         <EditBillingEntityDocumentLocaleDialog
           ref={editDocumentLanguageDialogRef}

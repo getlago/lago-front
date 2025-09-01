@@ -321,11 +321,15 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
                 <Typography variant="body" color="grey700">
                   {!!customer?.billingConfiguration?.documentLocale
-                    ? DocumentLocales[customer?.billingConfiguration?.documentLocale]
+                    ? DocumentLocales[
+                        customer?.billingConfiguration
+                          ?.documentLocale as keyof typeof DocumentLocales
+                      ]
                     : translate('text_1728374331992d2alok9y3kr', {
                         value:
                           DocumentLocales[
-                            billingEntity?.billingConfiguration?.documentLocale || 'en'
+                            (billingEntity?.billingConfiguration?.documentLocale ||
+                              'en') as keyof typeof DocumentLocales
                           ],
                       })}
                 </Typography>
