@@ -134,6 +134,28 @@ gql`
   ${FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc}
 `
 
+const getOneTimeFeeDisplayName = <
+  T extends { itemName: string; invoiceDisplayName?: string | null },
+>({
+  invoiceType,
+  fee,
+  translate,
+}: {
+  invoiceType: InvoiceTypeEnum
+  fee: T
+  translate: TranslateFunc
+}): string => {
+  if (invoiceType === InvoiceTypeEnum.AddOn) {
+    return translate('text_6388baa2e514213fed583611', { name: fee.itemName })
+  } else if (
+    invoiceType === InvoiceTypeEnum.OneOff ||
+    invoiceType === InvoiceTypeEnum.AdvanceCharges
+  ) {
+    return fee.invoiceDisplayName || fee.itemName
+  }
+  return translate('text_637ccf8133d2c9a7d11ce6e1')
+}
+
 interface InvoiceDetailsTableProps {
   customer: Customer
   invoice: InvoiceForDetailsTableFragment
@@ -290,32 +312,33 @@ export const InvoiceDetailsTable = memo(
               isDraftInvoice={isDraftInvoice}
             />
             <tbody>
-              {invoiceFees?.map((fee, i) => (
-                <InvoiceDetailsTableBodyLine
-                  key={`one-off-fee-${i}`}
-                  canHaveUnitPrice={canHaveUnitPrice}
-                  currency={currency}
-                  displayFeeBoundaries={true}
-                  displayName={
-                    invoice.invoiceType === InvoiceTypeEnum.AddOn
-                      ? translate('text_6388baa2e514213fed583611', { name: fee.itemName })
-                      : invoice.invoiceType === InvoiceTypeEnum.OneOff ||
-                          invoice.invoiceType === InvoiceTypeEnum.AdvanceCharges
-                        ? fee.invoiceDisplayName || fee.itemName
-                        : translate('text_637ccf8133d2c9a7d11ce6e1')
-                  }
-                  succeededDate={
-                    invoice.invoiceType === InvoiceTypeEnum.AdvanceCharges
-                      ? DateTime.fromISO(fee.succeededAt).toFormat('LLL. dd, yyyy')
-                      : undefined
-                  }
-                  editFeeDrawerRef={editFeeDrawerRef}
-                  deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
-                  isDraftInvoice={isDraftInvoice}
-                  fee={fee as TExtendedRemainingFee}
-                  hasTaxProviderError={hasTaxProviderError}
-                />
-              ))}
+              {invoiceFees?.map((fee, i) => {
+                const feeDisplayName = getOneTimeFeeDisplayName({
+                  invoiceType: invoice.invoiceType,
+                  fee,
+                  translate,
+                })
+
+                return (
+                  <InvoiceDetailsTableBodyLine
+                    key={`one-off-fee-${i}`}
+                    canHaveUnitPrice={canHaveUnitPrice}
+                    currency={currency}
+                    displayFeeBoundaries={true}
+                    displayName={feeDisplayName}
+                    succeededDate={
+                      invoice.invoiceType === InvoiceTypeEnum.AdvanceCharges
+                        ? DateTime.fromISO(fee.succeededAt).toFormat('LLL. dd, yyyy')
+                        : undefined
+                    }
+                    editFeeDrawerRef={editFeeDrawerRef}
+                    deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                    isDraftInvoice={isDraftInvoice}
+                    fee={fee as TExtendedRemainingFee}
+                    hasTaxProviderError={hasTaxProviderError}
+                  />
+                )
+              })}
             </tbody>
 
             <InvoiceDetailsTableFooter
