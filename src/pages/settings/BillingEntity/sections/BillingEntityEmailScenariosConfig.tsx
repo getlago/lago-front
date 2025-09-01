@@ -123,40 +123,40 @@ const BillingEntityEmailScenariosConfig = () => {
 
   return (
     <>
-      <div className="flex h-screen flex-col overflow-auto">
-        <BillingEntityHeader
-          billingEntity={billingEntity as BillingEntity}
-          customBackPath={BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE}
-          tab={BillingEntityTab.EMAIL_SCENARIOS_CONFIG}
-          customLabel={translate(translationsKey.title)}
-          action={
-            <>
-              {hasPermissions(['billingEntitiesEmailsUpdate']) && (
-                <div className="flex flex-row items-center gap-3">
-                  <Typography variant="caption">
-                    {translate('text_6408b5ae7f629d008bc8af7c')}
-                  </Typography>
-                  <Switch
-                    name={`switch-config-${type}`}
-                    checked={type && emailSettings?.includes(type)}
-                    onChange={async (value, e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
+      <BillingEntityHeader
+        billingEntity={billingEntity as BillingEntity}
+        customBackPath={BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE}
+        tab={BillingEntityTab.EMAIL_SCENARIOS_CONFIG}
+        customLabel={translate(translationsKey.title)}
+        action={
+          <>
+            {hasPermissions(['billingEntitiesEmailsUpdate']) && (
+              <div className="flex flex-row items-center gap-3">
+                <Typography variant="caption">
+                  {translate('text_6408b5ae7f629d008bc8af7c')}
+                </Typography>
+                <Switch
+                  name={`switch-config-${type}`}
+                  checked={type && emailSettings?.includes(type)}
+                  onChange={async (value, e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
 
-                      if (hasAccess) {
-                        await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
-                      } else {
-                        premiumWarningDialogRef.current?.openDialog()
-                      }
-                    }}
-                  />
-                  {!hasAccess && <Icon name="sparkles" />}
-                </div>
-              )}
-            </>
-          }
-        />
+                    if (hasAccess) {
+                      await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
+                    } else {
+                      premiumWarningDialogRef.current?.openDialog()
+                    }
+                  }}
+                />
+                {!hasAccess && <Icon name="sparkles" />}
+              </div>
+            )}
+          </>
+        }
+      />
 
+      <div className="min-height-minus-nav flex flex-col overflow-auto">
         <div className="flex flex-row items-center gap-4 px-4 py-8 md:px-12">
           {loading && (
             <>
