@@ -6,14 +6,13 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
 import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInputField, SwitchField, TextInput, TextInputField } from '~/components/form'
+import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
-import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
@@ -53,9 +52,11 @@ gql`
 
   fragment WalletForTopUp on Wallet {
     id
+    name
     currency
     rateAmount
     invoiceRequiresSuccessfulPayment
+    priority
   }
 `
 
@@ -245,30 +246,24 @@ const CreateWalletTopUp = () => {
                 </Typography>
               </div>
 
-              <div className="grid grid-cols-[48px_48px_1fr] items-end gap-3">
-                <TextInput
-                  value="1"
-                  label={translate('text_62e79671d23ae6ff149de92c')}
-                  disabled
-                  className="[&_input]:text-center"
-                />
-                <TextInput value="=" disabled className="[&_input]:text-center" />
-                <TextInput
-                  label={translate('text_62e79671d23ae6ff149de934')}
-                  placeholder={translate('text_62d18855b22699e5cf55f87f')}
-                  value={intlFormatNumber(wallet.rateAmount, {
-                    currency,
-                    style: 'decimal',
-                    minimumFractionDigits: getCurrencyPrecision(currency),
-                  })}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">{wallet.currency}</InputAdornment>
-                    ),
-                  }}
-                  disabled
-                />
-              </div>
+              <WalletSettingsInfosDisplay
+                infos={[
+                  { label: translate('text_6419c64eace749372fc72b0f'), value: wallet.name },
+                  {
+                    label: translate('text_1755695821678c8hkgkxkh73'),
+                    value: wallet.priority,
+                  },
+                  {
+                    label: translate('text_1750411499858su5b7bbp5t9'),
+                    value: translate('text_62da6ec24a8e24e44f812872', {
+                      rateAmount: intlFormatNumber(Number(wallet.rateAmount), {
+                        currencyDisplay: 'symbol',
+                        currency,
+                      }),
+                    }),
+                  },
+                ]}
+              />
             </section>
 
             <section className="flex flex-col gap-6 pb-12 shadow-b">
@@ -501,6 +496,32 @@ const CreateWalletTopUp = () => {
         onContinue={() => navigateToCustomerWalletTab()}
       />
     </>
+  )
+}
+
+const WalletSettingsInfosDisplay = ({
+  infos,
+}: {
+  infos?: {
+    label: string
+    value?: string | number | null
+  }[]
+}) => {
+  if (!infos?.length) return null
+
+  return (
+    <div className="flex flex-col gap-1">
+      {infos.map((info, infoIndex) => (
+        <div key={infoIndex} className="flex min-h-10 items-center">
+          <Typography variant="body" color="grey600" className="w-37 shrink-0">
+            {info.label}
+          </Typography>
+          <Typography variant="body" color="grey700" className="grow">
+            {info.value || '-'}
+          </Typography>
+        </div>
+      ))}
+    </div>
   )
 }
 
