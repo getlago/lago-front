@@ -102,7 +102,7 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                     <td
                       className={tw(
                         CELL_HEIGHT,
-                        'border-b border-r border-solid border-grey-300 p-0',
+                        'relative border-b border-r border-solid border-grey-300 p-0',
                       )}
                       style={sizeStyle}
                       key={`table-${name}-cell-${i}-${j}`}
