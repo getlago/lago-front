@@ -1,26 +1,23 @@
+import { gql } from '@apollo/client'
+import { codeBlockLookBack, findCompleteCodeBlock, findPartialCodeBlock } from '@llm-ui/code'
 import { markdownLookBack } from '@llm-ui/markdown'
 import { throttleBasic, useLLMOutput } from '@llm-ui/react'
-import { Icon, Typography } from 'lago-design-system'
-import { FC, ReactNode, useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 
+import { CodeBlock } from '~/components/aiAssistant/CodeBlock'
+import { ChatMessages } from '~/components/aiAssistant/components/ChatElements'
 import { MarkdownComponent } from '~/components/aiAssistant/Markdown'
 import { useOnConversationSubscription } from '~/generated/graphql'
 import { useAIAssistantTool } from '~/hooks/useAIAssistantTool'
 
-const SentMessage = ({ children }: { children: ReactNode }) => {
-  return (
-    <Typography
-      className="ml-7 rounded-md border border-grey-300 bg-grey-100 px-3 py-2"
-      color="grey700"
-    >
-      {children}
-    </Typography>
-  )
-}
-
-const ReceivedMessage = ({ children }: { children: ReactNode }) => {
-  return <Typography color="grey700">{children}</Typography>
-}
+gql`
+  subscription onConversation($conversationId: ID!) {
+    aiConversationStreamed(conversationId: $conversationId) {
+      chunk
+      done
+    }
+  }
+`
 
 export const ChatConversation: FC = () => {
   const [output, setOutput] = useState('')
@@ -51,6 +48,14 @@ export const ChatConversation: FC = () => {
       component: MarkdownComponent,
       lookBack: markdownLookBack(),
     },
+    blocks: [
+      {
+        component: CodeBlock,
+        findCompleteMatch: findCompleteCodeBlock(),
+        findPartialMatch: findPartialCodeBlock(),
+        lookBack: codeBlockLookBack(),
+      },
+    ],
     isStreamFinished,
     throttle: throttleBasic({
       windowLookBackMs: 1000,
@@ -59,17 +64,20 @@ export const ChatConversation: FC = () => {
 
   return (
     <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto">
-      <SentMessage>{message}</SentMessage>
-      {subscription.loading ? (
-        <Icon size="large" name="sparkles-union" animation="spin" />
+      <ChatMessages.Sent>{message}</ChatMessages.Sent>
+
+      {subscription.loading && <ChatMessages.Loading />}
+
+      {subscription.error ? (
+        <ChatMessages.Error>{`There was an error generating a response.`}</ChatMessages.Error>
       ) : (
-        <ReceivedMessage>
+        <ChatMessages.Received>
           {blockMatches.map((blockMatch, index) => {
             const Component = blockMatch.block.component
 
             return <Component key={index} blockMatch={blockMatch} />
           })}
-        </ReceivedMessage>
+        </ChatMessages.Received>
       )}
     </div>
   )

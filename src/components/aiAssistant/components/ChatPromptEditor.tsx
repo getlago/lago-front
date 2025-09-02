@@ -20,6 +20,13 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
     },
   })
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      formikProps.handleSubmit()
+    }
+  }
+
   return (
     <form
       className="relative flex w-full shrink-0 flex-col gap-4"
@@ -28,21 +35,21 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
       <div className="h-24 w-full" />
       <div className="absolute inset-x-0 bottom-0">
         <TextInputField
+          onKeyDown={handleKeyDown}
           multiline
           rows={1.5}
           id="inputData"
           name="inputData"
           formikProps={formikProps}
-          className="w-full"
           placeholder="What's next?"
           inputProps={{
-            className: '!resize-none',
+            className: '!resize-none w-full !pr-9',
           }}
         />
 
         <button
           type="submit"
-          className="absolute right-4 top-3 size-6"
+          className="absolute right-4 top-3 flex size-6 items-center justify-center"
           disabled={!formikProps.values.inputData}
         >
           <Icon

@@ -28,9 +28,15 @@ export function AIAssistantProvider({ children }: { children: ReactNode }) {
   const [conversationId, setConversationId] = useState<string | undefined>(undefined)
   const [message, setMessage] = useState('')
 
+  const resetState = () => {
+    setConversationId(undefined)
+    setMessage('')
+  }
+
   const openPanel = (panel: AIPanelEnum) => {
     if (panelRef.current) {
       panelRef.current.resize(PANEL_OPEN)
+      resetState()
       setCurrentPanel(panel)
     }
   }
@@ -38,6 +44,7 @@ export function AIAssistantProvider({ children }: { children: ReactNode }) {
   const closePanel = () => {
     if (panelRef.current) {
       panelRef.current.resize(PANEL_CLOSED)
+      resetState()
       setCurrentPanel(undefined)
     }
   }
@@ -55,11 +62,6 @@ export function AIAssistantProvider({ children }: { children: ReactNode }) {
     setMessage(params.message)
   }
 
-  const resetConversation = () => {
-    setConversationId(undefined)
-    setMessage('')
-  }
-
   return (
     <AIAssistantContext.Provider
       value={{
@@ -71,7 +73,7 @@ export function AIAssistantProvider({ children }: { children: ReactNode }) {
         togglePanel,
         closePanel,
         startNewConversation,
-        resetConversation,
+        resetConversation: resetState,
       }}
     >
       {children}

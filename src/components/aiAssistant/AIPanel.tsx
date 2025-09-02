@@ -9,13 +9,6 @@ import { CreateAiConversationInput, useCreateAiConversationMutation } from '~/ge
 import { useAIAssistantTool } from '~/hooks/useAIAssistantTool'
 
 gql`
-  subscription onConversation($conversationId: ID!) {
-    aiConversationStreamed(conversationId: $conversationId) {
-      chunk
-      done
-    }
-  }
-
   mutation createAiConversation($input: CreateAiConversationInput!) {
     createAiConversation(input: $input) {
       conversationId
@@ -66,14 +59,6 @@ export const AIPanel = () => {
       )}
 
       {message && <ChatConversation />}
-
-      {error && (
-        <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto">
-          <Typography variant="body" color="grey500">
-            Error: {error.message}
-          </Typography>
-        </div>
-      )}
 
       <ChatPromptEditor onSubmit={handleSubmit} />
 
