@@ -3484,5 +3484,8 @@
   "text_17530144570400ri03obw5mv": "Lago developed its own model to forecast revenue and usage through Lago AI. For accurate predictions, new metrics or items need 4 to 6 months of historical data. If there isn’t enough data yet, we provide a proxy estimate.",
   "text_1753014457040p5ahdkllbpx": "Export to CSV",
   "text_1753014457040hhkl9fy58wy": "Usage forecast",
-  "text_17530144570404vslv3s1ki3": "AI"
+  "text_17530144570404vslv3s1ki3": "AI",
+  "text_17564701329935iz92g07zaj": "Optimistic (total)",
+  "text_1756470132993ziruszj5lu1": "Realistic (total)",
+  "text_1756470132993wnnhcrw15q9": "Pessimistic (total)"
 }
