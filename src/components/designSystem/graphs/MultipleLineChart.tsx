@@ -58,12 +58,14 @@ type MultipleLineChartLineVisibleOnGraph<T> = {
   tooltipLabel: string
   colorHex: string
   hideOnGraph?: never
+  strokeDasharray?: string
 }
 type MultipleLineChartLineHiddenFromGraph<T> = {
   dataKey: DotNestedKeys<T>
   tooltipLabel: string
   hideOnGraph: true
   colorHex?: never
+  strokeDasharray?: string
 }
 export type MultipleLineChartLine<T> =
   | MultipleLineChartLineVisibleOnGraph<T>
@@ -404,6 +406,7 @@ const MultipleLineChart = <T extends DataItem>({
                 dataKey={line.dataKey}
                 stroke={line.colorHex}
                 strokeWidth={2}
+                strokeDasharray={line.strokeDasharray || ''}
                 isAnimationActive={false}
                 dot={false}
               />
