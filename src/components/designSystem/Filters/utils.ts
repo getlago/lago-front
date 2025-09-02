@@ -17,6 +17,7 @@ import {
   API_LOGS_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
+  FORECASTS_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
@@ -49,6 +50,7 @@ import {
   CreditNoteAvailableFilters,
   CustomerAvailableFilters,
   filterDataInlineSeparator,
+  ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
@@ -510,6 +512,22 @@ export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearch
       AvailableFiltersEnum.timeGranularity,
     ],
     filtersNamePrefix: ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForForecastsQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.country]: 'customerCountry',
+    [AvailableFiltersEnum.customerType]: 'customerType',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
+  }
+
+  return formatFiltersForQuery({
+    keyMap,
+    searchParams,
+    availableFilters: [...ForecastsAvailableFilters, AvailableFiltersEnum.timeGranularity],
+    filtersNamePrefix: FORECASTS_FILTER_PREFIX,
   })
 }
 
