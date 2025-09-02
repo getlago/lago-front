@@ -92,15 +92,43 @@ export const ChargeTable = <T extends Record<string, unknown>>({
               data-test={`row-${i}`}
             >
               <>
-                {columns.map(({ content, mapKey }, j) => {
+                {columns.map(({ content, mapKey, size = 124 }, j) => {
+                  const sizeStyle = {
+                    width: `${size}px`,
+                    minWidth: `${size}px`,
+                    maxWidth: `${size}px`,
+                  }
                   return (
                     <td
                       className={tw(
                         CELL_HEIGHT,
-                        'w-full border-b border-r border-solid border-grey-300 p-0',
+                        'relative border-b border-r border-solid border-grey-300 p-0',
                       )}
+                      style={sizeStyle}
                       key={`table-${name}-cell-${i}-${j}`}
                     >
+                      {onDeleteRow && !row.disabledDelete && j === 0 && (
+                        <td
+                          className={tw(
+                            'absolute hidden w-fit rounded-lg bg-white',
+                            'group-hover/row:left-0 group-hover/row:top-0 group-hover/row:flex group-hover/row:-translate-x-3 group-hover/row:translate-y-3',
+                          )}
+                        >
+                          <Tooltip
+                            title={
+                              deleteTooltipContent ?? translate('text_62793bbb599f1c01522e9239')
+                            }
+                            placement="top-start"
+                          >
+                            <Button
+                              variant="tertiary"
+                              size="small"
+                              icon="trash"
+                              onClick={() => onDeleteRow(row, i)}
+                            />
+                          </Tooltip>
+                        </td>
+                      )}
                       {mapKey ? (
                         <Typography variant="body">{_get(row, mapKey) as string}</Typography>
                       ) : typeof content === 'function' ? (
@@ -111,26 +139,6 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                     </td>
                   )
                 })}
-                {onDeleteRow && !row.disabledDelete && (
-                  <td
-                    className={tw(
-                      'absolute hidden w-fit rounded-lg bg-white',
-                      'group-hover/row:left-0 group-hover/row:top-0 group-hover/row:flex group-hover/row:-translate-x-3 group-hover/row:translate-y-3',
-                    )}
-                  >
-                    <Tooltip
-                      title={deleteTooltipContent ?? translate('text_62793bbb599f1c01522e9239')}
-                      placement="top-start"
-                    >
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        icon="trash"
-                        onClick={() => onDeleteRow(row, i)}
-                      />
-                    </Tooltip>
-                  </td>
-                )}
               </>
             </tr>
           )
