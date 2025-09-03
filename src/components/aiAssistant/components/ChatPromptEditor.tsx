@@ -12,7 +12,7 @@ interface ChatPromptEditorProps {
 export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSubmit }) => {
   const formikProps = useFormik<CreateAiConversationInput>({
     initialValues: {
-      inputData: '',
+      message: '',
     },
     onSubmit: (values, props) => {
       handleSubmit(values, props)
@@ -38,8 +38,8 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           onKeyDown={handleKeyDown}
           multiline
           rows={1.5}
-          id="inputData"
-          name="inputData"
+          id="message"
+          name="message"
           formikProps={formikProps}
           placeholder="What's next?"
           inputProps={{
@@ -50,11 +50,11 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
         <button
           type="submit"
           className="absolute right-4 top-3 flex size-6 items-center justify-center"
-          disabled={!formikProps.values.inputData}
+          disabled={!formikProps.values.message}
         >
           <Icon
             name="arrow-right"
-            className={tw(!formikProps.values.inputData ? 'text-grey-300' : 'text-grey-600')}
+            className={tw(!formikProps.values.message ? 'text-grey-300' : 'text-grey-600')}
           />
         </button>
       </div>

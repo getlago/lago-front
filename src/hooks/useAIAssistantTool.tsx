@@ -9,7 +9,7 @@ interface AIAssistantContextType {
   message: string
   togglePanel: (panel: AIPanelEnum) => void
   closePanel: () => void
-  startNewConversation: (params: { conversationId: string; message: string }) => void
+  startNewConversation: (params: { id: string; message: string }) => void
   resetConversation: () => void
 }
 

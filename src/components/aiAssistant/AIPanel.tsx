@@ -11,8 +11,8 @@ import { useAIAssistantTool } from '~/hooks/useAIAssistantTool'
 gql`
   mutation createAiConversation($input: CreateAiConversationInput!) {
     createAiConversation(input: $input) {
-      conversationId
-      inputData
+      id
+      name
     }
   }
 `
@@ -26,15 +26,15 @@ export const AIPanel = () => {
     await createAiConversation({
       variables: {
         input: {
-          inputData: values.inputData,
+          message: values.message,
         },
       },
 
       onCompleted: (data) => {
-        if (!!data.createAiConversation?.conversationId) {
+        if (!!data.createAiConversation?.id) {
           startNewConversation({
-            conversationId: data.createAiConversation.conversationId,
-            message: values.inputData,
+            conversationId: data.createAiConversation.id,
+            message: values.message,
           })
         }
       },

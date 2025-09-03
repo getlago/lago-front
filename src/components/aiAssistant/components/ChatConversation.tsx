@@ -11,8 +11,8 @@ import { useOnConversationSubscription } from '~/generated/graphql'
 import { useAIAssistantTool } from '~/hooks/useAIAssistantTool'
 
 gql`
-  subscription onConversation($conversationId: ID!) {
-    aiConversationStreamed(conversationId: $conversationId) {
+  subscription onConversation($id: ID!) {
+    aiConversationStreamed(id: $id) {
       chunk
       done
     }
@@ -26,7 +26,7 @@ export const ChatConversation: FC = () => {
 
   const subscription = useOnConversationSubscription({
     skip: !conversationId,
-    variables: { conversationId: conversationId ?? '' },
+    variables: { id: conversationId ?? '' },
     fetchPolicy: 'no-cache',
   })
 
