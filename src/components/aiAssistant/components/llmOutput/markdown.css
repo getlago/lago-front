@@ -1,0 +1,41 @@
+.markdown {
+  @apply text-sm leading-6 text-grey-700;
+}
+
+.markdown h1 {
+  @apply mb-2 text-2xl font-bold leading-normal;
+}
+
+.markdown h2 {
+  @apply mb-2 text-xl font-bold leading-normal;
+}
+
+.markdown h3 {
+  @apply mb-2 text-lg font-bold leading-normal;
+}
+
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  @apply text-base font-bold;
+}
+
+.markdown hr {
+  @apply my-4 border-grey-300;
+}
+
+.markdown ul {
+  @apply my-4 list-disc pl-4;
+}
+
+.markdown ol {
+  @apply my-4 list-decimal pl-4;
+}
+
+.markdown li {
+  @apply list-disc;
+}
+
+.markdown code {
+  @apply rounded-md bg-grey-100 px-1 py-0.5 font-code text-red-500;
+}
