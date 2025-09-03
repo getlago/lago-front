@@ -1,6 +1,6 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   SubscriptionUsageDetailDrawer,
@@ -207,7 +207,9 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerError?: ApolloError
   showExcludingTaxLabel?: boolean
 
-  refetchUsage: () => Promise<
+  refetchUsage: (
+    forceProjected?: boolean,
+  ) => Promise<
     ApolloQueryResult<
       | UsageForSubscriptionUsageQuery
       | ProjectedUsageForSubscriptionUsageQuery
@@ -220,6 +222,9 @@ type SubscriptionCurrentUsageTableComponentProps = {
 
   translate: TranslateFunc
   locale?: LocaleEnum
+
+  activeTab: number
+  setActiveTab: (t: number) => void
 }
 
 export const getPricingUnitAmountCents = (
@@ -258,10 +263,11 @@ export const SubscriptionCurrentUsageTableComponent = ({
   noUsageOverride,
   translate,
   locale,
+  activeTab,
+  setActiveTab,
 }: SubscriptionCurrentUsageTableComponentProps) => {
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const [activeTab, setActiveTab] = useState<number>(0)
 
   const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProjectedUsage,
@@ -500,8 +506,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
                                 onClick={() => {
                                   subscriptionUsageDetailDrawerRef.current?.openDrawer(
                                     row as ChargeUsage & ProjectedChargeUsage,
-                                    async () => {
-                                      const { data } = await refetchUsage()
+                                    async (forceProjected?: boolean) => {
+                                      const { data } = await refetchUsage(forceProjected)
 
                                       let filtered = undefined
 
@@ -627,6 +633,10 @@ export const SubscriptionCurrentUsageTable = ({
 }: SubscriptionCurrentUsageTableProps) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const [activeTab, setActiveTab] = useState<number>(0)
+  const [fetchedProjected, setFetchedProjected] = useState(false)
+
+  const showProjected = activeTab === 1
 
   const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProjectedUsage,
@@ -651,15 +661,36 @@ export const SubscriptionCurrentUsageTable = ({
 
   const subscription = subscriptionData?.subscription
 
-  const usageQuery = hasAccessToProjectedUsage
-    ? useProjectedUsageForSubscriptionUsageQuery
-    : useUsageForSubscriptionUsageQuery
+  const useProjectedQuery = hasAccessToProjectedUsage && showProjected
+
+  useEffect(() => {
+    if (useProjectedQuery) {
+      setFetchedProjected(true)
+    }
+  }, [useProjectedQuery])
+
+  const usageQuery =
+    useProjectedQuery || fetchedProjected
+      ? useProjectedUsageForSubscriptionUsageQuery
+      : useUsageForSubscriptionUsageQuery
+
+  const { data: projectedUsageData, refetch: refetchProjectedUsage } =
+    useProjectedUsageForSubscriptionUsageQuery({
+      context: {
+        silentErrorCodes: [LagoApiError.UnprocessableEntity],
+      },
+      variables: {
+        customerId: (customerId || subscription?.customer.id) as string,
+        subscriptionId: subscription?.id || '',
+      },
+      skip: true,
+    })
 
   const {
     data: usageData,
     loading: usageLoading,
     error: usageError,
-    refetch: refetchUsage,
+    refetch: refetchUsageQuery,
   } = usageQuery({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
@@ -669,19 +700,29 @@ export const SubscriptionCurrentUsageTable = ({
       subscriptionId: subscription?.id || '',
     },
     skip: !customerId || !subscription || subscription.status === StatusTypeEnum.Pending,
-    // No-cache policy to avoid caching the usage data
-    // IDs in the usage data are not stable and can change, hence having inconsistent data in the Drawer
-    fetchPolicy: 'no-cache',
-    nextFetchPolicy: 'no-cache',
     notifyOnNetworkStatusChange: true,
   })
 
-  const customerUsage = hasAccessToProjectedUsage
-    ? (usageData as ProjectedUsageForSubscriptionUsageQuery)?.customerProjectedUsage
-    : (usageData as UsageForSubscriptionUsageQuery)?.customerUsage
+  const refetchUsage = (forceProjected?: boolean) => {
+    if (forceProjected) {
+      setFetchedProjected(true)
+
+      return refetchProjectedUsage()
+    }
+
+    return refetchUsageQuery()
+  }
+
+  const customerUsage =
+    useProjectedQuery || fetchedProjected
+      ? (projectedUsageData || (usageData as ProjectedUsageForSubscriptionUsageQuery))
+          ?.customerProjectedUsage
+      : (usageData as UsageForSubscriptionUsageQuery)?.customerUsage
 
   return (
     <SubscriptionCurrentUsageTableComponent
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
       customerData={customerData?.customer}
       customerLoading={customerLoading}
       customerError={customerError}
@@ -694,7 +735,7 @@ export const SubscriptionCurrentUsageTable = ({
       }
       usageLoading={usageLoading}
       usageError={usageError}
-      refetchUsage={() => refetchUsage()}
+      refetchUsage={(forceProjected?: boolean) => refetchUsage(forceProjected)}
       translate={translate}
     />
   )

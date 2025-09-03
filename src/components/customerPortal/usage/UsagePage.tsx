@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
@@ -88,6 +89,10 @@ const UsagePage = () => {
   const { translate, documentLocale } = useCustomerPortalTranslate()
   const customerId = 'cdef1dac-c55f-4d25-985b-cb25c2c8edc1'
   const { itemId } = useParams()
+  const [activeTab, setActiveTab] = useState<number>(0)
+  const [fetchedProjected, setFetchedProjected] = useState(false)
+
+  const showProjected = activeTab === 1
 
   const subscriptionId = itemId
 
@@ -98,6 +103,8 @@ const UsagePage = () => {
   const hasAccessToProjectedUsage = customerPortalOrganization?.premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProjectedUsage,
   )
+
+  const useProjectedQuery = hasAccessToProjectedUsage && showProjected
 
   const {
     data: customerPortalSubscriptionData,
@@ -111,9 +118,16 @@ const UsagePage = () => {
     skip: !itemId,
   })
 
-  const usageQuery = hasAccessToProjectedUsage
-    ? useGetCustomerProjectedUsageForPortalQuery
-    : useGetCustomerUsageForPortalQuery
+  useEffect(() => {
+    if (useProjectedQuery) {
+      setFetchedProjected(true)
+    }
+  }, [useProjectedQuery])
+
+  const usageQuery =
+    useProjectedQuery || fetchedProjected
+      ? useGetCustomerProjectedUsageForPortalQuery
+      : useGetCustomerUsageForPortalQuery
 
   const {
     data: usageData,
@@ -125,15 +139,33 @@ const UsagePage = () => {
       subscriptionId: itemId as string,
     },
     skip: !itemId,
-    fetchPolicy: 'no-cache',
-    nextFetchPolicy: 'no-cache',
   })
+
+  const { data: projectedUsageData, refetch: refetchProjectedUsage } =
+    useGetCustomerProjectedUsageForPortalQuery({
+      variables: {
+        subscriptionId: itemId as string,
+      },
+      skip: true,
+    })
 
   const customerPortalSubscription = customerPortalSubscriptionData?.customerPortalSubscription
 
-  const customerUsage = hasAccessToProjectedUsage
-    ? (usageData as GetCustomerProjectedUsageForPortalQuery)?.customerPortalCustomerProjectedUsage
-    : (usageData as GetCustomerUsageForPortalQuery)?.customerPortalCustomerUsage
+  const refetchUsage = (forceProjected?: boolean) => {
+    if (forceProjected) {
+      setFetchedProjected(true)
+
+      return refetchProjectedUsage()
+    }
+
+    return usageRefetch()
+  }
+
+  const customerUsage =
+    useProjectedQuery || fetchedProjected
+      ? (projectedUsageData || (usageData as GetCustomerProjectedUsageForPortalQuery))
+          ?.customerPortalCustomerProjectedUsage
+      : (usageData as GetCustomerUsageForPortalQuery)?.customerPortalCustomerUsage
 
   return (
     <div>
@@ -167,6 +199,8 @@ const UsagePage = () => {
       {customerId && subscriptionId && (
         <div className="mt-12">
           <SubscriptionCurrentUsageTableComponent
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
             showExcludingTaxLabel
             usageData={
               customerUsage as GetCustomerUsageForPortalQuery['customerPortalCustomerUsage'] &
@@ -180,7 +214,7 @@ const UsagePage = () => {
             customerData={customerPortalSubscription?.customer}
             customerLoading={customerPortalSubscriptionLoading}
             customerError={customerPortalSubscriptionError}
-            refetchUsage={() => usageRefetch()}
+            refetchUsage={(forceProjected?: boolean) => refetchUsage(forceProjected)}
             noUsageOverride={
               <div className="mt-6 flex flex-col gap-3">
                 <Typography variant="subhead1" color="grey700">
