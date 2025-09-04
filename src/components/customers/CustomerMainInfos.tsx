@@ -7,7 +7,6 @@ import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Skeleton, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   buildAnrokCustomerUrl,
   buildAvalaraCustomerUrl,
@@ -18,6 +17,7 @@ import {
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
 import { getTargetedObjectTranslationKey } from '~/core/constants/form'
+import { formatAddress } from '~/core/formats/formatAddress'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AnrokIntegration,
@@ -373,6 +373,24 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     billingEntity,
   } = customer
 
+  const formattedAddress = formatAddress({
+    addressLine1,
+    addressLine2,
+    city,
+    country,
+    state,
+    zipcode,
+  })
+
+  const formattedShippingAddress = formatAddress({
+    addressLine1: shippingAddress?.addressLine1,
+    addressLine2: shippingAddress?.addressLine2,
+    city: shippingAddress?.city,
+    country: shippingAddress?.country,
+    state: shippingAddress?.state,
+    zipcode: shippingAddress?.zipcode,
+  })
+
   const hasExternalIntegration =
     connectedSalesforceIntegration ||
     connectedHubspotIntegration ||
@@ -398,13 +416,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     !!country ||
     !!city ||
     !!zipcode ||
-    (shippingAddress &&
-      (shippingAddress.addressLine1 ||
-        shippingAddress.addressLine2 ||
-        shippingAddress.state ||
-        shippingAddress.country ||
-        shippingAddress.city ||
-        shippingAddress.zipcode))
+    !!formattedShippingAddress
 
   return (
     <div>
@@ -545,49 +557,27 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                 <Typography color="textSecondary">{phone}</Typography>
               </InfoBlock>
             )}
-            {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
+            {!!formattedAddress && (
               <InfoBlock>
                 <Typography variant="caption">
                   {translate('text_626c0c301a16a600ea06148d')}
                 </Typography>
                 <div className="flex flex-col">
-                  <Typography color="textSecondary">{addressLine1}</Typography>
-                  <Typography color="textSecondary">{addressLine2}</Typography>
-                  <Typography color="textSecondary">
-                    {zipcode} {city} {state}
-                  </Typography>
-                  {country && (
-                    <Typography color="textSecondary">{CountryCodes[country]}</Typography>
-                  )}
+                  <Typography color="textSecondary">{formattedAddress}</Typography>
                 </div>
               </InfoBlock>
             )}
-            {shippingAddress &&
-              (shippingAddress.addressLine1 ||
-                shippingAddress.addressLine2 ||
-                shippingAddress.state ||
-                shippingAddress.country ||
-                shippingAddress.city ||
-                shippingAddress.zipcode) && (
-                <InfoBlock>
-                  <Typography variant="caption">
-                    {translate('text_667d708c1359b49f5a5a822a')}
-                  </Typography>
+            {!!formattedShippingAddress && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_667d708c1359b49f5a5a822a')}
+                </Typography>
 
-                  <div className="flex flex-col">
-                    <Typography color="textSecondary">{shippingAddress.addressLine1}</Typography>
-                    <Typography color="textSecondary">{shippingAddress.addressLine2}</Typography>
-                    <Typography color="textSecondary">
-                      {shippingAddress.zipcode} {shippingAddress.city} {shippingAddress.state}
-                    </Typography>
-                    {shippingAddress.country && (
-                      <Typography color="textSecondary">
-                        {CountryCodes[shippingAddress.country]}
-                      </Typography>
-                    )}
-                  </div>
-                </InfoBlock>
-              )}
+                <div className="flex flex-col">
+                  <Typography color="textSecondary">{formattedShippingAddress}</Typography>
+                </div>
+              </InfoBlock>
+            )}
           </InfoSection>
         )}
 
