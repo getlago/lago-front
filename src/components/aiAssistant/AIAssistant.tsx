@@ -3,12 +3,7 @@ import { Panel, PanelResizeHandle } from 'react-resizable-panels'
 
 import { AINavSection } from '~/components/aiAssistant/AINavSection'
 import { AIPanel } from '~/components/aiAssistant/AIPanel'
-import {
-  AIPanelEnum,
-  PANEL_CLOSED,
-  PANEL_OPEN,
-  useAIAssistantTool,
-} from '~/hooks/useAIAssistantTool'
+import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgentTool } from '~/hooks/aiAgent/useAiAgent'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 const AIWrapper = ({
@@ -22,16 +17,16 @@ const AIWrapper = ({
   isBeta: boolean
   onBackButton?: () => void
 }) => {
-  const { closePanel } = useAIAssistantTool()
+  const { closePanel } = useAiAgentTool()
 
   return (
     <div>
       <div className="flex flex-row justify-between gap-4 px-6 py-5 shadow-b">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-1 items-center gap-2 truncate">
           {!!onBackButton && (
             <Button size="small" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
           )}
-          <Typography variant="bodyHl" noWrap color="grey700">
+          <Typography variant="bodyHl" className="!truncate" color="grey700">
             {title}
           </Typography>
           {isBeta && (
@@ -53,7 +48,7 @@ const AIWrapper = ({
 }
 
 export const AIAssistant = () => {
-  const { panelRef, panelOpened, isOpen, message, resetConversation } = useAIAssistantTool()
+  const { panelRef, panelOpened, isOpen, message, resetConversation } = useAiAgentTool()
 
   const { currentUser } = useCurrentUser()
 
@@ -82,7 +77,7 @@ export const AIAssistant = () => {
       >
         {panelOpened === AIPanelEnum.ai && (
           <AIWrapper
-            title={message ? 'Test' : 'AI Assistant'}
+            title={message ?? 'AI Assistant'}
             isBeta={!message}
             onBackButton={() => {
               resetConversation()

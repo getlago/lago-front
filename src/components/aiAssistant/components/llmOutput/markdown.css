@@ -24,18 +24,55 @@
   @apply my-4 border-grey-300;
 }
 
-.markdown ul {
-  @apply my-4 list-disc pl-4;
-}
-
+.markdown ul,
 .markdown ol {
-  @apply my-4 list-decimal pl-4;
+  @apply mb-2 list-disc pl-4;
 }
 
 .markdown li {
+  @apply list-[inherit];
+}
+
+.markdown ul {
   @apply list-disc;
+}
+
+.markdown ul > li > ul {
+  @apply list-[circle];
+}
+
+.markdown ul > li > ul > li > ul {
+  @apply list-[revert];
+}
+
+.markdown ol {
+  @apply list-decimal;
+}
+
+.markdown ol > li > ol {
+  @apply list-[lower-alpha];
+}
+
+.markdown ol > li > ol > li > ol {
+  @apply list-[lower-roman];
 }
 
 .markdown code {
   @apply rounded-md bg-grey-100 px-1 py-0.5 font-code text-red-500;
+}
+
+.markdown blockquote {
+  @apply my-2 border-l-4 border-grey-300 pl-4 text-grey-600;
+}
+
+.markdown table {
+  @apply w-full;
+}
+
+.markdown table th {
+  @apply border border-grey-300 bg-grey-100 px-2 py-1;
+}
+
+.markdown table td {
+  @apply border border-grey-300 px-2 py-1;
 }

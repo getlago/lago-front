@@ -4,7 +4,7 @@ import { FC, useEffect, useState } from 'react'
 import { ChatMessages } from '~/components/aiAssistant/components/ChatElements'
 import { useCustomLLMOutput } from '~/components/aiAssistant/components/llmOutput'
 import { useOnConversationSubscription } from '~/generated/graphql'
-import { useAIAssistantTool } from '~/hooks/useAIAssistantTool'
+import { useAiAgentTool } from '~/hooks/aiAgent/useAiAgent'
 
 gql`
   subscription onConversation($id: ID!) {
@@ -18,7 +18,7 @@ gql`
 export const ChatConversation: FC = () => {
   const [output, setOutput] = useState('')
   const [isStreamFinished, setIsStreamFinished] = useState(false)
-  const { conversationId, message } = useAIAssistantTool()
+  const { conversationId, message } = useAiAgentTool()
 
   const blockMatches = useCustomLLMOutput(output, isStreamFinished)
 

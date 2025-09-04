@@ -6,7 +6,7 @@ import { ChatHistory } from '~/components/aiAssistant/components/ChatHistory'
 import { ChatPromptEditor } from '~/components/aiAssistant/components/ChatPromptEditor'
 import { ChatShortcut } from '~/components/aiAssistant/components/ChatShortcut'
 import { CreateAiConversationInput, useCreateAiConversationMutation } from '~/generated/graphql'
-import { useAIAssistantTool } from '~/hooks/useAIAssistantTool'
+import { useAiAgentTool } from '~/hooks/aiAgent/useAiAgent'
 
 gql`
   mutation createAiConversation($input: CreateAiConversationInput!) {
@@ -18,7 +18,7 @@ gql`
 `
 
 export const AIPanel = () => {
-  const { message, startNewConversation } = useAIAssistantTool()
+  const { message, startNewConversation, conversationId } = useAiAgentTool()
 
   const [createAiConversation, { loading, error }] = useCreateAiConversationMutation()
 
@@ -27,13 +27,14 @@ export const AIPanel = () => {
       variables: {
         input: {
           message: values.message,
+          conversationId: conversationId,
         },
       },
 
       onCompleted: (data) => {
         if (!!data.createAiConversation?.id) {
           startNewConversation({
-            conversationId: data.createAiConversation.id,
+            id: data.createAiConversation.id,
             message: values.message,
           })
         }

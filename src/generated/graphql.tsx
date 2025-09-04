@@ -1462,6 +1462,7 @@ export type CreateAdjustedFeeInput = {
 export type CreateAiConversationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  conversationId?: InputMaybe<Scalars['ID']['input']>;
   message: Scalars['String']['input'];
 };
 

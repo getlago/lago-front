@@ -1,9 +1,9 @@
 import { Button } from 'lago-design-system'
 
-import { AIPanelEnum, useAIAssistantTool } from '~/hooks/useAIAssistantTool'
+import { AIPanelEnum, useAiAgentTool } from '~/hooks/aiAgent/useAiAgent'
 
 export const AINavSection = () => {
-  const { togglePanel, panelOpened } = useAIAssistantTool()
+  const { togglePanel, panelOpened } = useAiAgentTool()
 
   return (
     <div className="flex flex-row gap-2 p-2">
