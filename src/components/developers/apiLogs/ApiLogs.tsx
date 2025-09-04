@@ -104,9 +104,9 @@ export const ApiLogs = () => {
     if (!logId) {
       navigateToFirstLog(data?.apiLogs?.collection, searchParams)
     } else {
-      const existingLog = data?.apiLogs?.collection.find((log) => log.requestId === logId)
+      const existingFoundLog = data?.apiLogs?.collection.find((log) => log.requestId === logId)
 
-      if (!existingLog) {
+      if (!existingFoundLog) {
         navigateToFirstLog(data?.apiLogs?.collection, searchParams)
       }
     }
