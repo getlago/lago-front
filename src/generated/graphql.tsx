@@ -3530,6 +3530,15 @@ export type FixedChargeInput = {
   units?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type FixedChargeOverridesInput = {
+  addOnId: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  properties?: InputMaybe<FixedChargePropertiesInput>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  units: Scalars['String']['input'];
+};
+
 export type FixedChargeProperties = {
   __typename?: 'FixedChargeProperties';
   amount?: Maybe<Scalars['String']['output']>;
@@ -5611,6 +5620,8 @@ export type Plan = {
   draftInvoicesCount: Scalars['Int']['output'];
   entitlements?: Maybe<Array<PlanEntitlement>>;
   fixedCharges?: Maybe<Array<FixedCharge>>;
+  /** Number of fixed charges attached to a plan */
+  fixedChargesCount: Scalars['Int']['output'];
   hasActiveSubscriptions: Scalars['Boolean']['output'];
   hasCharges: Scalars['Boolean']['output'];
   hasCustomers: Scalars['Boolean']['output'];
@@ -5672,6 +5683,7 @@ export type PlanOverridesInput = {
   amountCurrency?: InputMaybe<CurrencyEnum>;
   charges?: InputMaybe<Array<ChargeOverridesInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
+  fixedCharges?: InputMaybe<Array<FixedChargeOverridesInput>>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -8540,7 +8552,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare?: number | null }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, grossRevenueAmountCents: any, grossRevenueShare?: number | null }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any, contraRevenueAmountCents?: any | null, creditNotesCreditsAmountCents?: any | null, freeCreditsAmountCents?: any | null, prepaidCreditsAmountCents?: any | null, progressiveBillingCreditAmountCents?: any | null };
 
@@ -16947,8 +16959,8 @@ export const GetRevenueStreamsCustomerBreakdownDocument = gql`
       customerDeletedAt
       customerName
       externalCustomerId
-      netRevenueAmountCents
-      netRevenueShare
+      grossRevenueAmountCents
+      grossRevenueShare
     }
     metadata {
       currentPage

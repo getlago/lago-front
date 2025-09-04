@@ -28,8 +28,8 @@ gql`
         customerDeletedAt
         customerName
         externalCustomerId
-        netRevenueAmountCents
-        netRevenueShare
+        grossRevenueAmountCents
+        grossRevenueShare
       }
       metadata {
         currentPage
@@ -175,16 +175,16 @@ export const RevenueStreamsCustomerBreakdownSection = ({
               },
             },
             {
-              key: 'netRevenueShare',
+              key: 'grossRevenueShare',
               title: translate('text_17422232171950c2u9u3vuq7'),
               textAlign: 'right',
               minWidth: 134,
-              content({ netRevenueShare, netRevenueAmountCents, amountCurrency }) {
+              content({ grossRevenueShare, grossRevenueAmountCents, amountCurrency }) {
                 return (
                   <div className="flex items-center gap-2">
                     <Typography variant="body" color="grey700">
                       {intlFormatNumber(
-                        deserializeAmount(netRevenueAmountCents || 0, amountCurrency),
+                        deserializeAmount(grossRevenueAmountCents || 0, amountCurrency),
                         {
                           style: 'currency',
                           currency: amountCurrency,
@@ -192,7 +192,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
                       )}
                     </Typography>
                     <Typography className="w-16 text-right" variant="body" color="grey600">
-                      {intlFormatNumber(netRevenueShare || 0, { style: 'percent' })}
+                      {intlFormatNumber(grossRevenueShare || 0, { style: 'percent' })}
                     </Typography>
                   </div>
                 )
