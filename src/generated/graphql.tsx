@@ -2836,6 +2836,30 @@ export type DataApiUsageCollection = {
   metadata: CollectionMetadata;
 };
 
+export type DataApiUsageForecasted = {
+  __typename?: 'DataApiUsageForecasted';
+  amountCents: Scalars['BigInt']['output'];
+  amountCentsForecast10thPercentile: Scalars['BigInt']['output'];
+  amountCentsForecast50thPercentile: Scalars['BigInt']['output'];
+  amountCentsForecast90thPercentile: Scalars['BigInt']['output'];
+  amountCurrency: CurrencyEnum;
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  units: Scalars['Float']['output'];
+  unitsForecast10thPercentile: Scalars['Float']['output'];
+  unitsForecast50thPercentile: Scalars['Float']['output'];
+  unitsForecast90thPercentile: Scalars['Float']['output'];
+};
+
+/** DataApiUsageForecastedCollection type */
+export type DataApiUsageForecastedCollection = {
+  __typename?: 'DataApiUsageForecastedCollection';
+  /** A collection of paginated DataApiUsageForecastedCollection */
+  collection: Array<DataApiUsageForecasted>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataApiUsageInvoiced = {
   __typename?: 'DataApiUsageInvoiced';
   amountCents: Scalars['BigInt']['output'];
@@ -3528,15 +3552,6 @@ export type FixedChargeInput = {
   units?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type FixedChargeOverridesInput = {
-  addOnId: Scalars['ID']['input'];
-  id?: InputMaybe<Scalars['ID']['input']>;
-  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
-  properties?: InputMaybe<FixedChargePropertiesInput>;
-  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
-  units: Scalars['String']['input'];
-};
-
 export type FixedChargeProperties = {
   __typename?: 'FixedChargeProperties';
   amount?: Maybe<Scalars['String']['output']>;
@@ -3772,6 +3787,7 @@ export enum IntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -5618,8 +5634,6 @@ export type Plan = {
   draftInvoicesCount: Scalars['Int']['output'];
   entitlements?: Maybe<Array<PlanEntitlement>>;
   fixedCharges?: Maybe<Array<FixedCharge>>;
-  /** Number of fixed charges attached to a plan */
-  fixedChargesCount: Scalars['Int']['output'];
   hasActiveSubscriptions: Scalars['Boolean']['output'];
   hasCharges: Scalars['Boolean']['output'];
   hasCustomers: Scalars['Boolean']['output'];
@@ -5672,7 +5686,6 @@ export type PlanEntitlementPrivilegeObject = {
 export enum PlanInterval {
   Monthly = 'monthly',
   Quarterly = 'quarterly',
-  Semiannual = 'semiannual',
   Weekly = 'weekly',
   Yearly = 'yearly'
 }
@@ -5682,7 +5695,6 @@ export type PlanOverridesInput = {
   amountCurrency?: InputMaybe<CurrencyEnum>;
   charges?: InputMaybe<Array<ChargeOverridesInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
-  fixedCharges?: InputMaybe<Array<FixedChargeOverridesInput>>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -5697,6 +5709,7 @@ export enum PremiumIntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -6000,6 +6013,8 @@ export type Query = {
   dataApiUsages: DataApiUsageCollection;
   /** Query usages of an organization */
   dataApiUsagesAggregatedAmounts: DataApiUsageAggregatedAmountCollection;
+  /** Query forecasted usages of an organization */
+  dataApiUsagesForecasted: DataApiUsageForecastedCollection;
   /** Query invoiced usages of an organization */
   dataApiUsagesInvoiced: DataApiUsageInvoicedCollection;
   /** Query a single dunning campaign of an organization */
@@ -6444,6 +6459,21 @@ export type QueryDataApiUsagesAggregatedAmountsArgs = {
 };
 
 
+export type QueryDataApiUsagesForecastedArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
 export type QueryDataApiUsagesInvoicedArgs = {
   billableMetricCode?: InputMaybe<Scalars['String']['input']>;
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
@@ -6821,7 +6851,6 @@ export type QueryWebhooksArgs = {
 export enum RecurringTransactionIntervalEnum {
   Monthly = 'monthly',
   Quarterly = 'quarterly',
-  Semiannual = 'semiannual',
   Weekly = 'weekly',
   Yearly = 'yearly'
 }
@@ -11961,21 +11990,21 @@ export type GetFeaturesListQueryVariables = Exact<{
 export type GetFeaturesListQuery = { __typename?: 'Query', features: { __typename?: 'FeatureObjectCollection', collection: Array<{ __typename?: 'FeatureObject', id: string, name?: string | null, code: string, createdAt: any, subscriptionsCount: number }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
 
 export type GetForecastsQueryVariables = Exact<{
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
-  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
-  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
-  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
 }>;
 
 
-export type GetForecastsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', startOfPeriodDt: any, endOfPeriodDt: any }> } };
+export type GetForecastsQuery = { __typename?: 'Query', dataApiUsagesForecasted: { __typename?: 'DataApiUsageForecastedCollection', collection: Array<{ __typename?: 'DataApiUsageForecasted', startOfPeriodDt: any, endOfPeriodDt: any }> } };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -33252,19 +33281,19 @@ export type GetFeaturesListLazyQueryHookResult = ReturnType<typeof useGetFeature
 export type GetFeaturesListSuspenseQueryHookResult = ReturnType<typeof useGetFeaturesListSuspenseQuery>;
 export type GetFeaturesListQueryResult = Apollo.QueryResult<GetFeaturesListQuery, GetFeaturesListQueryVariables>;
 export const GetForecastsDocument = gql`
-    query getForecasts($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $isCustomerTinEmpty: Boolean, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date, $billingEntityCode: String) {
-  dataApiRevenueStreams(
+    query getForecasts($billingEntityCode: String, $currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $isCustomerTinEmpty: Boolean, $externalSubscriptionId: String, $planCode: String, $fromDate: ISO8601Date, $toDate: ISO8601Date, $timeGranularity: TimeGranularityEnum) {
+  dataApiUsagesForecasted(
+    billingEntityCode: $billingEntityCode
     currency: $currency
     customerCountry: $customerCountry
     customerType: $customerType
     externalCustomerId: $externalCustomerId
-    externalSubscriptionId: $externalSubscriptionId
-    fromDate: $fromDate
-    planCode: $planCode
-    timeGranularity: $timeGranularity
-    toDate: $toDate
-    billingEntityCode: $billingEntityCode
     isCustomerTinEmpty: $isCustomerTinEmpty
+    externalSubscriptionId: $externalSubscriptionId
+    planCode: $planCode
+    fromDate: $fromDate
+    toDate: $toDate
+    timeGranularity: $timeGranularity
   ) {
     collection {
       startOfPeriodDt
@@ -33286,17 +33315,17 @@ export const GetForecastsDocument = gql`
  * @example
  * const { data, loading, error } = useGetForecastsQuery({
  *   variables: {
+ *      billingEntityCode: // value for 'billingEntityCode'
  *      currency: // value for 'currency'
  *      customerCountry: // value for 'customerCountry'
  *      customerType: // value for 'customerType'
- *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
  *      externalCustomerId: // value for 'externalCustomerId'
+ *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
  *      externalSubscriptionId: // value for 'externalSubscriptionId'
- *      fromDate: // value for 'fromDate'
  *      planCode: // value for 'planCode'
- *      timeGranularity: // value for 'timeGranularity'
+ *      fromDate: // value for 'fromDate'
  *      toDate: // value for 'toDate'
- *      billingEntityCode: // value for 'billingEntityCode'
+ *      timeGranularity: // value for 'timeGranularity'
  *   },
  * });
  */
