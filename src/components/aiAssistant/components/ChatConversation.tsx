@@ -14,11 +14,13 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
   const { lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgentTool()
 
   useEffect(() => {
-    if (lastAssistantMessage && subscription.data?.aiConversationStreamed.chunk) {
-      streamChunk({
-        messageId: lastAssistantMessage.id,
-        chunk: subscription.data.aiConversationStreamed.chunk,
-      })
+    if (subscription.data?.aiConversationStreamed.chunk) {
+      if (lastAssistantMessage) {
+        streamChunk({
+          messageId: lastAssistantMessage.id,
+          chunk: subscription.data.aiConversationStreamed.chunk,
+        })
+      }
     }
   }, [subscription.data?.aiConversationStreamed.chunk])
 
@@ -28,8 +30,10 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
     }
   }, [subscription.data?.aiConversationStreamed.done])
 
+  console.log(state.isLoading)
+
   return (
-    <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto">
+    <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto p-4">
       {state.messages.map((message) => {
         if (message.role === ChatRole.user) {
           return (

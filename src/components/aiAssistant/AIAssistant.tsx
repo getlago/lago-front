@@ -39,7 +39,7 @@ const AIWrapper = ({
           <Button size="small" variant="quaternary" icon="close" onClick={() => closePanel()} />
         </div>
       </div>
-      <div className="height-minus-nav flex flex-col justify-between overflow-y-auto p-4">
+      <div className="height-minus-nav flex flex-col justify-between overflow-y-auto">
         {children}
       </div>
     </div>

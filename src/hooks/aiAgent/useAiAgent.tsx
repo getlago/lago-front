@@ -22,6 +22,7 @@ interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   streamChunk: ({ messageId, chunk }: { messageId?: string; chunk: string }) => void
   setChatDone: (messageId: string) => void
   addNewMessage: (message: string) => void
+  addNewOutput: () => void
   resetConversation: () => void
 }
 
@@ -61,6 +62,10 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  const addNewOutput = () => {
+    dispatch({ type: ChatActionType.ADD_OUTPUT })
+  }
+
   const streamChunk = ({ messageId, chunk }: { messageId?: string; chunk: string }) => {
     dispatch({
       type: ChatActionType.STREAMING,
@@ -89,6 +94,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
         streamChunk,
         setChatDone,
         resetConversation: resetState,
+        addNewOutput,
         addNewMessage,
       }}
     >

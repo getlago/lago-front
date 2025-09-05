@@ -2,7 +2,7 @@ import { Typography } from 'lago-design-system'
 
 export const ChatHistory = () => {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 p-4">
       <Typography variant="captionHl" color="grey700">
         Recent conversations
       </Typography>

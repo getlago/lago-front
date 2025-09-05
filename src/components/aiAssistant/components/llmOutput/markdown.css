@@ -3,25 +3,25 @@
 }
 
 .markdown h1 {
-  @apply mb-2 text-2xl font-bold leading-normal;
+  @apply my-3 text-2xl font-bold leading-normal;
 }
 
 .markdown h2 {
-  @apply mb-2 text-xl font-bold leading-normal;
+  @apply my-3 text-xl font-bold leading-normal;
 }
 
 .markdown h3 {
-  @apply mb-2 text-lg font-bold leading-normal;
+  @apply my-3 text-lg font-bold leading-normal;
 }
 
 .markdown h4,
 .markdown h5,
 .markdown h6 {
-  @apply text-base font-bold;
+  @apply my-2 text-base font-bold;
 }
 
 .markdown hr {
-  @apply my-4 border-grey-300;
+  @apply my-6 border-grey-300;
 }
 
 .markdown ul,
@@ -30,7 +30,7 @@
 }
 
 .markdown li {
-  @apply list-[inherit];
+  @apply mb-1 list-[inherit];
 }
 
 .markdown ul {

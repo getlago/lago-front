@@ -35,7 +35,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
 
   return (
     <form
-      className="relative flex w-full shrink-0 flex-col gap-4"
+      className="relative m-4 flex w-[calc(100%-16px*2)] shrink-0 flex-col gap-4"
       onSubmit={formikProps.handleSubmit}
     >
       <div className="h-24 w-full" />

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { type LLMOutputComponent } from '@llm-ui/react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'

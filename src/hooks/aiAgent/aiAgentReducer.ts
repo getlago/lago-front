@@ -66,7 +66,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         id: crypto.randomUUID(),
         role: ChatRole.assistant,
         message: '',
-        status: ChatStatus.streaming,
+        status: ChatStatus.pending,
       }
 
       return {
@@ -115,9 +115,16 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         status: ChatStatus.pending,
       }
 
+      const assistantMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: ChatRole.assistant,
+        message: '',
+        status: ChatStatus.pending,
+      }
+
       return {
         ...state,
-        messages: [...state.messages, userMsg],
+        messages: [...state.messages, userMsg, assistantMsg],
         isLoading: false,
       }
     }

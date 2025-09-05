@@ -1,21 +1,24 @@
+/* eslint-disable react/prop-types */
 import type { CodeToHtmlOptions } from '@llm-ui/code'
 import { loadHighlighter, useCodeBlockToHtml } from '@llm-ui/code'
 import { type LLMOutputComponent } from '@llm-ui/react'
 import parseHtml from 'html-react-parser'
-import { createHighlighter } from 'shiki'
+import { bundledLanguages, createHighlighter } from 'shiki/bundle/web'
+import catppuccinLatte from 'shiki/themes/catppuccin-latte.mjs'
+
+import './codeBlock.css'
 
 const highlighter = loadHighlighter(
   createHighlighter({
-    langs: ['html', 'css', 'js'],
-    themes: ['none'],
+    langs: Object.keys(bundledLanguages),
+    themes: [catppuccinLatte],
   }),
 )
 
 const codeToHtmlOptions: CodeToHtmlOptions = {
-  theme: 'none',
+  theme: 'catppuccin-latte',
 }
 
-// Customize this component with your own styling
 export const CodeBlock: LLMOutputComponent = ({ blockMatch }) => {
   const { html, code } = useCodeBlockToHtml({
     markdownCodeBlock: blockMatch.output,

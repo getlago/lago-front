@@ -29,12 +29,15 @@ gql`
 `
 
 export const AIPanel = () => {
-  const { conversationId, state, startNewConversation, addNewMessage } = useAiAgentTool()
+  const { conversationId, state, startNewConversation, addNewMessage, addNewOutput } =
+    useAiAgentTool()
   const [createAiConversation, { loading, error }] = useCreateAiConversationMutation()
 
   const subscription = useOnConversationSubscription({
     skip: !conversationId,
-    variables: { id: conversationId ?? '' },
+    variables: {
+      id: conversationId ?? '',
+    },
     fetchPolicy: 'no-cache',
   })
 
@@ -53,10 +56,11 @@ export const AIPanel = () => {
           subscription.restart()
         } else {
           if (!!data.createAiConversation?.id) {
-            return startNewConversation({
+            startNewConversation({
               convId: data.createAiConversation.id,
               message: values.message,
             })
+            addNewOutput()
           }
         }
       },
@@ -66,7 +70,7 @@ export const AIPanel = () => {
   const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col">
       {shouldDisplayWelcomeMessage && (
         <div className="mb-8 mt-auto flex flex-col gap-4 px-4">
           <Typography variant="headline" color="grey700">
