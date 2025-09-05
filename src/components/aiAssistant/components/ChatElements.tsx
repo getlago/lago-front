@@ -34,7 +34,7 @@ const formatDuration = (seconds: number): string => {
 const SentMessage = ({ children }: { children: ReactNode }) => {
   return (
     <Typography
-      className="ml-7 rounded-md border border-grey-300 bg-grey-100 px-3 py-2"
+      className="ml-7 whitespace-normal rounded-md border border-grey-300 bg-grey-100 px-3 py-2"
       variant="captionHl"
       color="grey700"
     >
@@ -44,7 +44,11 @@ const SentMessage = ({ children }: { children: ReactNode }) => {
 }
 
 const ReceivedMessage = ({ children }: { children: ReactNode }) => {
-  return <Typography color="grey700">{children}</Typography>
+  return (
+    <Typography className="whitespace-normal" color="grey700">
+      {children}
+    </Typography>
+  )
 }
 
 const LoadingMessage = () => {

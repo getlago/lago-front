@@ -1,5 +1,12 @@
-import { createContext, ReactNode, useContext, useState } from 'react'
+import { createContext, ReactNode, useContext, useMemo, useReducer, useState } from 'react'
 
+import {
+  ChatActionType,
+  ChatMessage,
+  chatReducer,
+  ChatRole,
+  ChatState,
+} from '~/hooks/aiAgent/aiAgentReducer'
 import { usePanel, UsePanelReturn } from '~/hooks/ui/usePanel'
 
 export enum AIPanelEnum {
@@ -8,9 +15,13 @@ export enum AIPanelEnum {
 
 interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   isOpen: boolean
-  conversationId: string | undefined
-  message: string
-  startNewConversation: (params: { id: string; message: string }) => void
+  state: ChatState
+  conversationId?: string
+  lastAssistantMessage?: ChatMessage
+  startNewConversation: ({ convId, message }: { convId: string; message: string }) => void
+  streamChunk: ({ messageId, chunk }: { messageId?: string; chunk: string }) => void
+  setChatDone: (messageId: string) => void
+  addNewMessage: (message: string) => void
   resetConversation: () => void
 }
 
@@ -28,16 +39,42 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   })
 
   const [conversationId, setConversationId] = useState('')
-  const [message, setMessage] = useState('')
+  const [state, dispatch] = useReducer(chatReducer, {
+    messages: [],
+    isLoading: false,
+  })
+
+  const lastAssistantMessage = useMemo(() => {
+    return state.messages.filter((message) => message.role === ChatRole.assistant).pop()
+  }, [state.messages])
 
   const resetState = () => {
     setConversationId('')
-    setMessage('')
+    dispatch({ type: ChatActionType.RESET_CONVERSATION })
   }
 
-  const startNewConversation = (params: { id: string; message: string }) => {
-    setConversationId(params.id)
-    setMessage(params.message)
+  const startNewConversation = ({ convId, message }: { convId: string; message: string }) => {
+    setConversationId(convId)
+    dispatch({
+      type: ChatActionType.START_CONVERSATION,
+      message: message,
+    })
+  }
+
+  const streamChunk = ({ messageId, chunk }: { messageId?: string; chunk: string }) => {
+    dispatch({
+      type: ChatActionType.STREAMING,
+      messageId,
+      chunk,
+    })
+  }
+
+  const setChatDone = (messageId: string) => {
+    dispatch({ type: ChatActionType.DONE, messageId })
+  }
+
+  const addNewMessage = (message: string) => {
+    dispatch({ type: ChatActionType.ADD_INPUT, message })
   }
 
   return (
@@ -46,9 +83,13 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
         ...panel,
         isOpen: !!panel.panelOpened,
         conversationId,
-        message,
+        lastAssistantMessage,
+        state,
         startNewConversation,
+        streamChunk,
+        setChatDone,
         resetConversation: resetState,
+        addNewMessage,
       }}
     >
       {children}

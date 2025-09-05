@@ -5,7 +5,11 @@ import { ChatConversation } from '~/components/aiAssistant/components/ChatConver
 import { ChatHistory } from '~/components/aiAssistant/components/ChatHistory'
 import { ChatPromptEditor } from '~/components/aiAssistant/components/ChatPromptEditor'
 import { ChatShortcut } from '~/components/aiAssistant/components/ChatShortcut'
-import { CreateAiConversationInput, useCreateAiConversationMutation } from '~/generated/graphql'
+import {
+  CreateAiConversationInput,
+  useCreateAiConversationMutation,
+  useOnConversationSubscription,
+} from '~/generated/graphql'
 import { useAiAgentTool } from '~/hooks/aiAgent/useAiAgent'
 
 gql`
@@ -15,12 +19,24 @@ gql`
       name
     }
   }
+
+  subscription onConversation($id: ID!) {
+    aiConversationStreamed(id: $id) {
+      chunk
+      done
+    }
+  }
 `
 
 export const AIPanel = () => {
-  const { message, startNewConversation, conversationId } = useAiAgentTool()
-
+  const { conversationId, state, startNewConversation, addNewMessage } = useAiAgentTool()
   const [createAiConversation, { loading, error }] = useCreateAiConversationMutation()
+
+  const subscription = useOnConversationSubscription({
+    skip: !conversationId,
+    variables: { id: conversationId ?? '' },
+    fetchPolicy: 'no-cache',
+  })
 
   const handleSubmit = async (values: CreateAiConversationInput) => {
     await createAiConversation({
@@ -32,17 +48,22 @@ export const AIPanel = () => {
       },
 
       onCompleted: (data) => {
-        if (!!data.createAiConversation?.id) {
-          startNewConversation({
-            id: data.createAiConversation.id,
-            message: values.message,
-          })
+        if (conversationId) {
+          addNewMessage(values.message)
+          subscription.restart()
+        } else {
+          if (!!data.createAiConversation?.id) {
+            return startNewConversation({
+              convId: data.createAiConversation.id,
+              message: values.message,
+            })
+          }
         }
       },
     })
   }
 
-  const shouldDisplayWelcomeMessage = !message && !loading && !error
+  const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -59,11 +80,11 @@ export const AIPanel = () => {
         </div>
       )}
 
-      {message && <ChatConversation />}
+      {!!state.messages.length && <ChatConversation subscription={subscription} />}
 
       <ChatPromptEditor onSubmit={handleSubmit} />
 
-      {!message && <ChatHistory />}
+      {!state.messages.length && <ChatHistory />}
     </div>
   )
 }

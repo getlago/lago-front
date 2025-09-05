@@ -1,59 +1,55 @@
-import { gql } from '@apollo/client'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect } from 'react'
 
 import { ChatMessages } from '~/components/aiAssistant/components/ChatElements'
-import { useCustomLLMOutput } from '~/components/aiAssistant/components/llmOutput'
-import { useOnConversationSubscription } from '~/generated/graphql'
+import { Message } from '~/components/aiAssistant/components/llmOutput/Message'
+import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
+import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgentTool } from '~/hooks/aiAgent/useAiAgent'
 
-gql`
-  subscription onConversation($id: ID!) {
-    aiConversationStreamed(id: $id) {
-      chunk
-      done
-    }
-  }
-`
+interface ChatConversationProps {
+  subscription: OnConversationSubscriptionHookResult
+}
 
-export const ChatConversation: FC = () => {
-  const [output, setOutput] = useState('')
-  const [isStreamFinished, setIsStreamFinished] = useState(false)
-  const { conversationId, message } = useAiAgentTool()
-
-  const blockMatches = useCustomLLMOutput(output, isStreamFinished)
-
-  const subscription = useOnConversationSubscription({
-    skip: !conversationId,
-    variables: { id: conversationId ?? '' },
-    fetchPolicy: 'no-cache',
-  })
+export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
+  const { lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgentTool()
 
   useEffect(() => {
-    if (subscription.data?.aiConversationStreamed.chunk) {
-      setOutput((prev) => prev + subscription.data?.aiConversationStreamed.chunk)
+    if (lastAssistantMessage && subscription.data?.aiConversationStreamed.chunk) {
+      streamChunk({
+        messageId: lastAssistantMessage.id,
+        chunk: subscription.data.aiConversationStreamed.chunk,
+      })
     }
   }, [subscription.data?.aiConversationStreamed.chunk])
 
   useEffect(() => {
-    if (subscription.data?.aiConversationStreamed.done) {
-      setIsStreamFinished(true)
+    if (lastAssistantMessage && subscription.data?.aiConversationStreamed.done) {
+      setChatDone(lastAssistantMessage.id)
     }
   }, [subscription.data?.aiConversationStreamed.done])
 
   return (
     <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto">
-      <ChatMessages.Sent>{message}</ChatMessages.Sent>
+      {state.messages.map((message) => {
+        if (message.role === ChatRole.user) {
+          return (
+            <ChatMessages.Sent key={message.id}>
+              <Message message={message} />
+            </ChatMessages.Sent>
+          )
+        }
+
+        return (
+          <ChatMessages.Received key={message.id}>
+            <Message message={message} />
+          </ChatMessages.Received>
+        )
+      })}
 
       {subscription.loading && <ChatMessages.Loading />}
 
-      {subscription.error ? (
+      {subscription.error && (
         <ChatMessages.Error>{`There was an error generating a response.`}</ChatMessages.Error>
-      ) : (
-        blockMatches.map((blockMatch, index) => {
-          const Component = blockMatch.block.component
-
-          return <Component key={index} blockMatch={blockMatch} />
-        })
       )}
     </div>
   )
