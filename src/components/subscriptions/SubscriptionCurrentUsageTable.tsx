@@ -190,10 +190,13 @@ interface SubscriptionCurrentUsageTableProps {
   subscriptionId: string
 }
 
+export type UsageData = UsageForSubscriptionUsageQuery['customerUsage'] &
+  ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage'] &
+  GetCustomerUsageForPortalQuery['customerPortalCustomerUsage'] &
+  GetCustomerProjectedUsageForPortalQuery['customerPortalCustomerProjectedUsage']
+
 type SubscriptionCurrentUsageTableComponentProps = {
-  usageData?: UsageForSubscriptionUsageQuery['customerUsage'] &
-    ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage'] &
-    GetCustomerUsageForPortalQuery['customerPortalCustomerUsage']
+  usageData?: UsageData
   usageLoading: boolean
   usageError?: ApolloError
 
@@ -207,7 +210,9 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerError?: ApolloError
   showExcludingTaxLabel?: boolean
 
-  refetchUsage: () => Promise<
+  refetchUsage: (
+    forceProjected?: boolean,
+  ) => Promise<
     ApolloQueryResult<
       | UsageForSubscriptionUsageQuery
       | ProjectedUsageForSubscriptionUsageQuery
@@ -220,6 +225,11 @@ type SubscriptionCurrentUsageTableComponentProps = {
 
   translate: TranslateFunc
   locale?: LocaleEnum
+
+  activeTab: number
+  setActiveTab: (t: number) => void
+
+  hasAccessToProjectedUsage?: boolean
 }
 
 export const getPricingUnitAmountCents = (
@@ -258,14 +268,11 @@ export const SubscriptionCurrentUsageTableComponent = ({
   noUsageOverride,
   translate,
   locale,
+  activeTab,
+  setActiveTab,
+  hasAccessToProjectedUsage,
 }: SubscriptionCurrentUsageTableComponentProps) => {
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const [activeTab, setActiveTab] = useState<number>(0)
-
-  const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
-    PremiumIntegrationTypeEnum.ProjectedUsage,
-  )
 
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
@@ -500,8 +507,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
                                 onClick={() => {
                                   subscriptionUsageDetailDrawerRef.current?.openDrawer(
                                     row as ChargeUsage & ProjectedChargeUsage,
-                                    async () => {
-                                      const { data } = await refetchUsage()
+                                    async (forceProjected?: boolean) => {
+                                      const { data } = await refetchUsage(forceProjected)
 
                                       let filtered = undefined
 
@@ -627,6 +634,9 @@ export const SubscriptionCurrentUsageTable = ({
 }: SubscriptionCurrentUsageTableProps) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const [activeTab, setActiveTab] = useState<number>(0)
+
+  const showProjected = activeTab === 1
 
   const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProjectedUsage,
@@ -651,16 +661,9 @@ export const SubscriptionCurrentUsageTable = ({
 
   const subscription = subscriptionData?.subscription
 
-  const usageQuery = hasAccessToProjectedUsage
-    ? useProjectedUsageForSubscriptionUsageQuery
-    : useUsageForSubscriptionUsageQuery
+  const fetchProjected = hasAccessToProjectedUsage && showProjected
 
-  const {
-    data: usageData,
-    loading: usageLoading,
-    error: usageError,
-    refetch: refetchUsage,
-  } = usageQuery({
+  const queryParams = {
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
@@ -669,19 +672,36 @@ export const SubscriptionCurrentUsageTable = ({
       subscriptionId: subscription?.id || '',
     },
     skip: !customerId || !subscription || subscription.status === StatusTypeEnum.Pending,
-    // No-cache policy to avoid caching the usage data
-    // IDs in the usage data are not stable and can change, hence having inconsistent data in the Drawer
-    fetchPolicy: 'no-cache',
-    nextFetchPolicy: 'no-cache',
     notifyOnNetworkStatusChange: true,
+  }
+
+  const {
+    data: usageData,
+    loading: usageLoading,
+    error: usageError,
+    refetch: refetchUsageQuery,
+  } = useUsageForSubscriptionUsageQuery({
+    ...queryParams,
+    skip: queryParams.skip || fetchProjected,
   })
 
-  const customerUsage = hasAccessToProjectedUsage
-    ? (usageData as ProjectedUsageForSubscriptionUsageQuery)?.customerProjectedUsage
-    : (usageData as UsageForSubscriptionUsageQuery)?.customerUsage
+  const {
+    data: usageDataProjected,
+    loading: usageLoadingProjected,
+    error: usageErrorProjected,
+    refetch: refetchUsageQueryProjected,
+  } = useProjectedUsageForSubscriptionUsageQuery({
+    ...queryParams,
+    skip: queryParams.skip || !fetchProjected,
+  })
+
+  const refetchUsage = (forceProjected?: boolean) =>
+    fetchProjected || forceProjected ? refetchUsageQueryProjected() : refetchUsageQuery()
 
   return (
     <SubscriptionCurrentUsageTableComponent
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
       customerData={customerData?.customer}
       customerLoading={customerLoading}
       customerError={customerError}
@@ -689,13 +709,13 @@ export const SubscriptionCurrentUsageTable = ({
       subscriptionLoading={subscriptionLoading}
       subscriptionError={subscriptionError}
       usageData={
-        customerUsage as UsageForSubscriptionUsageQuery['customerUsage'] &
-          ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage']
+        (usageDataProjected?.customerProjectedUsage || usageData?.customerUsage) as UsageData
       }
-      usageLoading={usageLoading}
-      usageError={usageError}
-      refetchUsage={() => refetchUsage()}
+      usageLoading={usageLoadingProjected || usageLoading}
+      usageError={usageErrorProjected || usageError}
+      refetchUsage={refetchUsage}
       translate={translate}
+      hasAccessToProjectedUsage={hasAccessToProjectedUsage}
     />
   )
 }
