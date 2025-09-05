@@ -115,7 +115,7 @@ const MainNavLayout = () => {
   } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const { data, loading, error } = useSideNavInfosQuery()
-  const { open: openInspector } = useDeveloperTool()
+  const { openPanel: openInspector } = useDeveloperTool()
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)

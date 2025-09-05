@@ -32,7 +32,7 @@ const Login = () => {
   const { translate } = useInternationalization()
   const { isRunningInSalesForceIframe } = useSalesForceConfig()
   const navigate = useNavigate()
-  const { close: closeDevTool } = useDeveloperTool()
+  const { closePanel: closeDevTool } = useDeveloperTool()
   const client = useApolloClient()
   const [authMethodError, setAuthMethodError] = useState<AuthenticationMethodsEnum>()
   const [searchParams] = useSearchParams()

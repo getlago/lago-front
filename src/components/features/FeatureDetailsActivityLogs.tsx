@@ -46,7 +46,7 @@ interface FeatureDetailsActivityLogsProps {
 
 export const FeatureDetailsActivityLogs = ({ featureId }: FeatureDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
-  const { open, setUrl } = useDeveloperTool()
+  const { openPanel: open, setUrl } = useDeveloperTool()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 

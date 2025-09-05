@@ -46,7 +46,7 @@ interface PlanDetailsActivityLogsProps {
 
 export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
-  const { open, setUrl } = useDeveloperTool()
+  const { openPanel: open, setUrl } = useDeveloperTool()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
