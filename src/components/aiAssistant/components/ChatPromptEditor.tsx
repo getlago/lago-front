@@ -4,17 +4,21 @@ import { FC } from 'react'
 
 import { TextInputField } from '~/components/form'
 import { CreateAiConversationInput } from '~/generated/graphql'
+import { useAiAgentTool } from '~/hooks/aiAgent/useAiAgent'
 
 interface ChatPromptEditorProps {
   onSubmit: FormikConfig<CreateAiConversationInput>['onSubmit']
 }
 
 export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSubmit }) => {
+  const { state } = useAiAgentTool()
   const formikProps = useFormik<CreateAiConversationInput>({
     initialValues: {
       message: '',
     },
     onSubmit: (values, props) => {
+      if (state.isLoading) return
+
       handleSubmit(values, props)
       formikProps.resetForm()
     },
@@ -26,6 +30,8 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
       formikProps.handleSubmit()
     }
   }
+
+  const canSubmit = !!formikProps.values.message && !state.isLoading
 
   return (
     <form
@@ -45,17 +51,15 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           inputProps={{
             className: '!resize-none w-full !pr-9',
           }}
+          disabled={state.isLoading}
         />
 
         <button
           type="submit"
           className="absolute right-4 top-3 flex size-6 items-center justify-center"
-          disabled={!formikProps.values.message}
+          disabled={!canSubmit}
         >
-          <Icon
-            name="arrow-right"
-            className={tw(!formikProps.values.message ? 'text-grey-300' : 'text-grey-600')}
-          />
+          <Icon name="arrow-right" className={tw(!canSubmit ? 'text-grey-300' : 'text-grey-600')} />
         </button>
       </div>
     </form>

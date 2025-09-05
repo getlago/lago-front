@@ -36,7 +36,6 @@ const AIWrapper = ({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button size="small" variant="quaternary" icon="resize-expand" />
           <Button size="small" variant="quaternary" icon="close" onClick={() => closePanel()} />
         </div>
       </div>
@@ -48,7 +47,7 @@ const AIWrapper = ({
 }
 
 export const AIAssistant = () => {
-  const { panelRef, panelOpened, isOpen, message, resetConversation } = useAiAgentTool()
+  const { panelRef, panelOpened, isOpen, state, resetConversation } = useAiAgentTool()
 
   const { currentUser } = useCurrentUser()
 
@@ -77,8 +76,8 @@ export const AIAssistant = () => {
       >
         {panelOpened === AIPanelEnum.ai && (
           <AIWrapper
-            title={message ?? 'AI Assistant'}
-            isBeta={!message}
+            title={state.messages[0]?.message ?? 'AI Assistant'}
+            isBeta={!state.messages[0]}
             onBackButton={() => {
               resetConversation()
             }}
