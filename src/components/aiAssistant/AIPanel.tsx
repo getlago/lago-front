@@ -43,7 +43,7 @@ export const AIPanel = () => {
       variables: {
         input: {
           message: values.message,
-          conversationId: conversationId,
+          conversationId: conversationId || undefined,
         },
       },
 
