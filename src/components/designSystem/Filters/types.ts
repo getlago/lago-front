@@ -227,7 +227,9 @@ export const UsageBillableMetricAvailableFilters = [
 ]
 
 export const ForecastsAvailableFilters = [
+  AvailableFiltersEnum.billingEntityCode,
   AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.customerAccountType,
   AvailableFiltersEnum.isCustomerTinEmpty,
