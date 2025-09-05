@@ -1,6 +1,6 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import {
   SubscriptionUsageDetailDrawer,
@@ -190,10 +190,13 @@ interface SubscriptionCurrentUsageTableProps {
   subscriptionId: string
 }
 
+export type UsageData = UsageForSubscriptionUsageQuery['customerUsage'] &
+  ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage'] &
+  GetCustomerUsageForPortalQuery['customerPortalCustomerUsage'] &
+  GetCustomerProjectedUsageForPortalQuery['customerPortalCustomerProjectedUsage']
+
 type SubscriptionCurrentUsageTableComponentProps = {
-  usageData?: UsageForSubscriptionUsageQuery['customerUsage'] &
-    ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage'] &
-    GetCustomerUsageForPortalQuery['customerPortalCustomerUsage']
+  usageData?: UsageData
   usageLoading: boolean
   usageError?: ApolloError
 
@@ -225,6 +228,8 @@ type SubscriptionCurrentUsageTableComponentProps = {
 
   activeTab: number
   setActiveTab: (t: number) => void
+
+  hasAccessToProjectedUsage?: boolean
 }
 
 export const getPricingUnitAmountCents = (
@@ -265,13 +270,9 @@ export const SubscriptionCurrentUsageTableComponent = ({
   locale,
   activeTab,
   setActiveTab,
+  hasAccessToProjectedUsage,
 }: SubscriptionCurrentUsageTableComponentProps) => {
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-
-  const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
-    PremiumIntegrationTypeEnum.ProjectedUsage,
-  )
 
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
@@ -634,7 +635,6 @@ export const SubscriptionCurrentUsageTable = ({
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const [activeTab, setActiveTab] = useState<number>(0)
-  const [fetchedProjected, setFetchedProjected] = useState(false)
 
   const showProjected = activeTab === 1
 
@@ -661,37 +661,9 @@ export const SubscriptionCurrentUsageTable = ({
 
   const subscription = subscriptionData?.subscription
 
-  const useProjectedQuery = hasAccessToProjectedUsage && showProjected
+  const fetchProjected = hasAccessToProjectedUsage && showProjected
 
-  useEffect(() => {
-    if (useProjectedQuery) {
-      setFetchedProjected(true)
-    }
-  }, [useProjectedQuery])
-
-  const usageQuery =
-    useProjectedQuery || fetchedProjected
-      ? useProjectedUsageForSubscriptionUsageQuery
-      : useUsageForSubscriptionUsageQuery
-
-  const { data: projectedUsageData, refetch: refetchProjectedUsage } =
-    useProjectedUsageForSubscriptionUsageQuery({
-      context: {
-        silentErrorCodes: [LagoApiError.UnprocessableEntity],
-      },
-      variables: {
-        customerId: (customerId || subscription?.customer.id) as string,
-        subscriptionId: subscription?.id || '',
-      },
-      skip: true,
-    })
-
-  const {
-    data: usageData,
-    loading: usageLoading,
-    error: usageError,
-    refetch: refetchUsageQuery,
-  } = usageQuery({
+  const queryParams = {
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
@@ -701,23 +673,30 @@ export const SubscriptionCurrentUsageTable = ({
     },
     skip: !customerId || !subscription || subscription.status === StatusTypeEnum.Pending,
     notifyOnNetworkStatusChange: true,
-  })
-
-  const refetchUsage = (forceProjected?: boolean) => {
-    if (forceProjected) {
-      setFetchedProjected(true)
-
-      return refetchProjectedUsage()
-    }
-
-    return refetchUsageQuery()
   }
 
-  const customerUsage =
-    useProjectedQuery || fetchedProjected
-      ? (projectedUsageData || (usageData as ProjectedUsageForSubscriptionUsageQuery))
-          ?.customerProjectedUsage
-      : (usageData as UsageForSubscriptionUsageQuery)?.customerUsage
+  const {
+    data: usageData,
+    loading: usageLoading,
+    error: usageError,
+    refetch: refetchUsageQuery,
+  } = useUsageForSubscriptionUsageQuery({
+    ...queryParams,
+    skip: queryParams.skip || fetchProjected,
+  })
+
+  const {
+    data: usageDataProjected,
+    loading: usageLoadingProjected,
+    error: usageErrorProjected,
+    refetch: refetchUsageQueryProjected,
+  } = useProjectedUsageForSubscriptionUsageQuery({
+    ...queryParams,
+    skip: queryParams.skip || !fetchProjected,
+  })
+
+  const refetchUsage = (forceProjected?: boolean) =>
+    fetchProjected || forceProjected ? refetchUsageQueryProjected() : refetchUsageQuery()
 
   return (
     <SubscriptionCurrentUsageTableComponent
@@ -730,13 +709,13 @@ export const SubscriptionCurrentUsageTable = ({
       subscriptionLoading={subscriptionLoading}
       subscriptionError={subscriptionError}
       usageData={
-        customerUsage as UsageForSubscriptionUsageQuery['customerUsage'] &
-          ProjectedUsageForSubscriptionUsageQuery['customerProjectedUsage']
+        (usageDataProjected?.customerProjectedUsage || usageData?.customerUsage) as UsageData
       }
-      usageLoading={usageLoading}
-      usageError={usageError}
-      refetchUsage={(forceProjected?: boolean) => refetchUsage(forceProjected)}
+      usageLoading={usageLoadingProjected || usageLoading}
+      usageError={usageErrorProjected || usageError}
+      refetchUsage={refetchUsage}
       translate={translate}
+      hasAccessToProjectedUsage={hasAccessToProjectedUsage}
     />
   )
 }
