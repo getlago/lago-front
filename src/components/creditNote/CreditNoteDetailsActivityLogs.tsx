@@ -48,7 +48,7 @@ export const CreditNoteDetailsActivityLogs = ({
   creditNoteId,
 }: CreditNoteDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
-  const { open, setUrl } = useDeveloperTool()
+  const { openPanel: open, setUrl } = useDeveloperTool()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 

@@ -127,7 +127,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const { setUrl, open } = useDeveloperTool()
+  const { setUrl, openPanel: open } = useDeveloperTool()
 
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
   const voidWalletDialogRef = useRef<VoidWalletDialogRef>(null)

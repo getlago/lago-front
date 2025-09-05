@@ -74,7 +74,7 @@ export const ActivityLogs = () => {
   const navigate = useNavigate()
   const { logId } = useParams<{ logId: string }>()
   const [searchParams] = useSearchParams()
-  const { size } = useDeveloperTool()
+  const { panelSize: size } = useDeveloperTool()
   const logListRef = useRef<ListSectionRef>(null)
 
   const filtersForActivityLogsQuery = useMemo(() => {

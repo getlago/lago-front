@@ -46,7 +46,7 @@ interface CouponDetailsActivityLogsProps {
 
 export const CouponDetailsActivityLogs = ({ couponId }: CouponDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
-  const { open, setUrl } = useDeveloperTool()
+  const { openPanel: open, setUrl } = useDeveloperTool()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
