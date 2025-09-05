@@ -854,7 +854,7 @@ export enum CommitmentTypeEnum {
 export enum CountryCode {
   /** Andorra */
   Ad = 'AD',
-  /** United Arab Emirates (the) */
+  /** United Arab Emirates */
   Ae = 'AE',
   /** Afghanistan */
   Af = 'AF',
@@ -914,7 +914,7 @@ export enum CountryCode {
   Bq = 'BQ',
   /** Brazil */
   Br = 'BR',
-  /** Bahamas (the) */
+  /** Bahamas */
   Bs = 'BS',
   /** Bhutan */
   Bt = 'BT',
@@ -928,19 +928,19 @@ export enum CountryCode {
   Bz = 'BZ',
   /** Canada */
   Ca = 'CA',
-  /** Cocos (Keeling) Islands (the) */
+  /** Cocos (Keeling) Islands */
   Cc = 'CC',
-  /** Congo (the Democratic Republic of the) */
+  /** Congo (Democratic Republic of the) */
   Cd = 'CD',
-  /** Central African Republic (the) */
+  /** Central African Republic */
   Cf = 'CF',
-  /** Congo (the) */
+  /** Congo */
   Cg = 'CG',
   /** Switzerland */
   Ch = 'CH',
   /** Côte d'Ivoire */
   Ci = 'CI',
-  /** Cook Islands (the) */
+  /** Cook Islands */
   Ck = 'CK',
   /** Chile */
   Cl = 'CL',
@@ -972,7 +972,7 @@ export enum CountryCode {
   Dk = 'DK',
   /** Dominica */
   Dm = 'DM',
-  /** Dominican Republic (the) */
+  /** Dominican Republic */
   Do = 'DO',
   /** Algeria */
   Dz = 'DZ',
@@ -994,17 +994,17 @@ export enum CountryCode {
   Fi = 'FI',
   /** Fiji */
   Fj = 'FJ',
-  /** Falkland Islands (the) [Malvinas] */
+  /** Falkland Islands (Malvinas) */
   Fk = 'FK',
   /** Micronesia (Federated States of) */
   Fm = 'FM',
-  /** Faroe Islands (the) */
+  /** Faroe Islands */
   Fo = 'FO',
   /** France */
   Fr = 'FR',
   /** Gabon */
   Ga = 'GA',
-  /** United Kingdom of Great Britain and Northern Ireland (the) */
+  /** United Kingdom of Great Britain and Northern Ireland */
   Gb = 'GB',
   /** Grenada */
   Gd = 'GD',
@@ -1020,7 +1020,7 @@ export enum CountryCode {
   Gi = 'GI',
   /** Greenland */
   Gl = 'GL',
-  /** Gambia (the) */
+  /** Gambia */
   Gm = 'GM',
   /** Guinea */
   Gn = 'GN',
@@ -1062,7 +1062,7 @@ export enum CountryCode {
   Im = 'IM',
   /** India */
   In = 'IN',
-  /** British Indian Ocean Territory (the) */
+  /** British Indian Ocean Territory */
   Io = 'IO',
   /** Iraq */
   Iq = 'IQ',
@@ -1088,21 +1088,21 @@ export enum CountryCode {
   Kh = 'KH',
   /** Kiribati */
   Ki = 'KI',
-  /** Comoros (the) */
+  /** Comoros */
   Km = 'KM',
   /** Saint Kitts and Nevis */
   Kn = 'KN',
-  /** Korea (the Democratic People's Republic of) */
+  /** Korea (Democratic People's Republic of) */
   Kp = 'KP',
-  /** Korea (the Republic of) */
+  /** Korea (Republic of) */
   Kr = 'KR',
   /** Kuwait */
   Kw = 'KW',
-  /** Cayman Islands (the) */
+  /** Cayman Islands */
   Ky = 'KY',
   /** Kazakhstan */
   Kz = 'KZ',
-  /** Lao People's Democratic Republic (the) */
+  /** Lao People's Democratic Republic */
   La = 'LA',
   /** Lebanon */
   Lb = 'LB',
@@ -1128,7 +1128,7 @@ export enum CountryCode {
   Ma = 'MA',
   /** Monaco */
   Mc = 'MC',
-  /** Moldova (the Republic of) */
+  /** Moldova (Republic of) */
   Md = 'MD',
   /** Montenegro */
   Me = 'ME',
@@ -1136,7 +1136,7 @@ export enum CountryCode {
   Mf = 'MF',
   /** Madagascar */
   Mg = 'MG',
-  /** Marshall Islands (the) */
+  /** Marshall Islands */
   Mh = 'MH',
   /** North Macedonia */
   Mk = 'MK',
@@ -1148,7 +1148,7 @@ export enum CountryCode {
   Mn = 'MN',
   /** Macao */
   Mo = 'MO',
-  /** Northern Mariana Islands (the) */
+  /** Northern Mariana Islands */
   Mp = 'MP',
   /** Martinique */
   Mq = 'MQ',
@@ -1174,7 +1174,7 @@ export enum CountryCode {
   Na = 'NA',
   /** New Caledonia */
   Nc = 'NC',
-  /** Niger (the) */
+  /** Niger */
   Ne = 'NE',
   /** Norfolk Island */
   Nf = 'NF',
@@ -1182,7 +1182,7 @@ export enum CountryCode {
   Ng = 'NG',
   /** Nicaragua */
   Ni = 'NI',
-  /** Netherlands (the) */
+  /** Netherlands */
   Nl = 'NL',
   /** Norway */
   No = 'NO',
@@ -1204,7 +1204,7 @@ export enum CountryCode {
   Pf = 'PF',
   /** Papua New Guinea */
   Pg = 'PG',
-  /** Philippines (the) */
+  /** Philippines */
   Ph = 'PH',
   /** Pakistan */
   Pk = 'PK',
@@ -1232,7 +1232,7 @@ export enum CountryCode {
   Ro = 'RO',
   /** Serbia */
   Rs = 'RS',
-  /** Russian Federation (the) */
+  /** Russian Federation */
   Ru = 'RU',
   /** Rwanda */
   Rw = 'RW',
@@ -1242,7 +1242,7 @@ export enum CountryCode {
   Sb = 'SB',
   /** Seychelles */
   Sc = 'SC',
-  /** Sudan (the) */
+  /** Sudan */
   Sd = 'SD',
   /** Sweden */
   Se = 'SE',
@@ -1278,11 +1278,11 @@ export enum CountryCode {
   Sy = 'SY',
   /** Eswatini */
   Sz = 'SZ',
-  /** Turks and Caicos Islands (the) */
+  /** Turks and Caicos Islands */
   Tc = 'TC',
   /** Chad */
   Td = 'TD',
-  /** French Southern Territories (the) */
+  /** French Southern Territories */
   Tf = 'TF',
   /** Togo */
   Tg = 'TG',
@@ -1306,7 +1306,7 @@ export enum CountryCode {
   Tt = 'TT',
   /** Tuvalu */
   Tv = 'TV',
-  /** Taiwan (Province of China) */
+  /** Taiwan, Province of China */
   Tw = 'TW',
   /** Tanzania, United Republic of */
   Tz = 'TZ',
@@ -1314,15 +1314,15 @@ export enum CountryCode {
   Ua = 'UA',
   /** Uganda */
   Ug = 'UG',
-  /** United States Minor Outlying Islands (the) */
+  /** United States Minor Outlying Islands */
   Um = 'UM',
-  /** United States of America (the) */
+  /** United States of America */
   Us = 'US',
   /** Uruguay */
   Uy = 'UY',
   /** Uzbekistan */
   Uz = 'UZ',
-  /** Holy See (the) */
+  /** Holy See */
   Va = 'VA',
   /** Saint Vincent and the Grenadines */
   Vc = 'VC',
@@ -1340,8 +1340,6 @@ export enum CountryCode {
   Wf = 'WF',
   /** Samoa */
   Ws = 'WS',
-  /** Kosovo */
-  Xk = 'XK',
   /** Yemen */
   Ye = 'YE',
   /** Mayotte */
@@ -2838,6 +2836,30 @@ export type DataApiUsageCollection = {
   metadata: CollectionMetadata;
 };
 
+export type DataApiUsageForecasted = {
+  __typename?: 'DataApiUsageForecasted';
+  amountCents: Scalars['BigInt']['output'];
+  amountCentsForecast10thPercentile: Scalars['BigInt']['output'];
+  amountCentsForecast50thPercentile: Scalars['BigInt']['output'];
+  amountCentsForecast90thPercentile: Scalars['BigInt']['output'];
+  amountCurrency: CurrencyEnum;
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  units: Scalars['Float']['output'];
+  unitsForecast10thPercentile: Scalars['Float']['output'];
+  unitsForecast50thPercentile: Scalars['Float']['output'];
+  unitsForecast90thPercentile: Scalars['Float']['output'];
+};
+
+/** DataApiUsageForecastedCollection type */
+export type DataApiUsageForecastedCollection = {
+  __typename?: 'DataApiUsageForecastedCollection';
+  /** A collection of paginated DataApiUsageForecastedCollection */
+  collection: Array<DataApiUsageForecasted>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataApiUsageInvoiced = {
   __typename?: 'DataApiUsageInvoiced';
   amountCents: Scalars['BigInt']['output'];
@@ -3530,15 +3552,6 @@ export type FixedChargeInput = {
   units?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type FixedChargeOverridesInput = {
-  addOnId: Scalars['ID']['input'];
-  id?: InputMaybe<Scalars['ID']['input']>;
-  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
-  properties?: InputMaybe<FixedChargePropertiesInput>;
-  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
-  units: Scalars['String']['input'];
-};
-
 export type FixedChargeProperties = {
   __typename?: 'FixedChargeProperties';
   amount?: Maybe<Scalars['String']['output']>;
@@ -3774,6 +3787,7 @@ export enum IntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -5620,8 +5634,6 @@ export type Plan = {
   draftInvoicesCount: Scalars['Int']['output'];
   entitlements?: Maybe<Array<PlanEntitlement>>;
   fixedCharges?: Maybe<Array<FixedCharge>>;
-  /** Number of fixed charges attached to a plan */
-  fixedChargesCount: Scalars['Int']['output'];
   hasActiveSubscriptions: Scalars['Boolean']['output'];
   hasCharges: Scalars['Boolean']['output'];
   hasCustomers: Scalars['Boolean']['output'];
@@ -5683,7 +5695,6 @@ export type PlanOverridesInput = {
   amountCurrency?: InputMaybe<CurrencyEnum>;
   charges?: InputMaybe<Array<ChargeOverridesInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
-  fixedCharges?: InputMaybe<Array<FixedChargeOverridesInput>>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -5698,6 +5709,7 @@ export enum PremiumIntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -6001,6 +6013,8 @@ export type Query = {
   dataApiUsages: DataApiUsageCollection;
   /** Query usages of an organization */
   dataApiUsagesAggregatedAmounts: DataApiUsageAggregatedAmountCollection;
+  /** Query forecasted usages of an organization */
+  dataApiUsagesForecasted: DataApiUsageForecastedCollection;
   /** Query invoiced usages of an organization */
   dataApiUsagesInvoiced: DataApiUsageInvoicedCollection;
   /** Query a single dunning campaign of an organization */
@@ -6438,6 +6452,21 @@ export type QueryDataApiUsagesAggregatedAmountsArgs = {
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
+export type QueryDataApiUsagesForecastedArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
@@ -11959,6 +11988,23 @@ export type GetFeaturesListQueryVariables = Exact<{
 
 
 export type GetFeaturesListQuery = { __typename?: 'Query', features: { __typename?: 'FeatureObjectCollection', collection: Array<{ __typename?: 'FeatureObject', id: string, name?: string | null, code: string, createdAt: any, subscriptionsCount: number }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+
+export type GetForecastsQueryVariables = Exact<{
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+}>;
+
+
+export type GetForecastsQuery = { __typename?: 'Query', dataApiUsagesForecasted: { __typename?: 'DataApiUsageForecastedCollection', collection: Array<{ __typename?: 'DataApiUsageForecasted', startOfPeriodDt: any, endOfPeriodDt: any }> } };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -33234,6 +33280,71 @@ export type GetFeaturesListQueryHookResult = ReturnType<typeof useGetFeaturesLis
 export type GetFeaturesListLazyQueryHookResult = ReturnType<typeof useGetFeaturesListLazyQuery>;
 export type GetFeaturesListSuspenseQueryHookResult = ReturnType<typeof useGetFeaturesListSuspenseQuery>;
 export type GetFeaturesListQueryResult = Apollo.QueryResult<GetFeaturesListQuery, GetFeaturesListQueryVariables>;
+export const GetForecastsDocument = gql`
+    query getForecasts($billingEntityCode: String, $currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $isCustomerTinEmpty: Boolean, $externalSubscriptionId: String, $planCode: String, $fromDate: ISO8601Date, $toDate: ISO8601Date, $timeGranularity: TimeGranularityEnum) {
+  dataApiUsagesForecasted(
+    billingEntityCode: $billingEntityCode
+    currency: $currency
+    customerCountry: $customerCountry
+    customerType: $customerType
+    externalCustomerId: $externalCustomerId
+    isCustomerTinEmpty: $isCustomerTinEmpty
+    externalSubscriptionId: $externalSubscriptionId
+    planCode: $planCode
+    fromDate: $fromDate
+    toDate: $toDate
+    timeGranularity: $timeGranularity
+  ) {
+    collection {
+      startOfPeriodDt
+      endOfPeriodDt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetForecastsQuery__
+ *
+ * To run a query within a React component, call `useGetForecastsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetForecastsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetForecastsQuery({
+ *   variables: {
+ *      billingEntityCode: // value for 'billingEntityCode'
+ *      currency: // value for 'currency'
+ *      customerCountry: // value for 'customerCountry'
+ *      customerType: // value for 'customerType'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      planCode: // value for 'planCode'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *      timeGranularity: // value for 'timeGranularity'
+ *   },
+ * });
+ */
+export function useGetForecastsQuery(baseOptions?: Apollo.QueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
+      }
+export function useGetForecastsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
+        }
+export function useGetForecastsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
+        }
+export type GetForecastsQueryHookResult = ReturnType<typeof useGetForecastsQuery>;
+export type GetForecastsLazyQueryHookResult = ReturnType<typeof useGetForecastsLazyQuery>;
+export type GetForecastsSuspenseQueryHookResult = ReturnType<typeof useGetForecastsSuspenseQuery>;
+export type GetForecastsQueryResult = Apollo.QueryResult<GetForecastsQuery, GetForecastsQueryVariables>;
 export const GetAdyenIntegrationsDetailsDocument = gql`
     query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
