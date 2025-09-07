@@ -66,13 +66,13 @@ export const AIAssistant = () => {
       </div>
 
       <PanelResizeHandle />
-
       <Panel
+        id="ai-panel"
         ref={panelRef}
         defaultSize={PANEL_CLOSED}
         minSize={PANEL_CLOSED}
         maxSize={PANEL_OPEN}
-        className={tw(isOpen ? 'min-w-[420px]' : 'min-w-[0px]', 'shadow-l')}
+        className={tw(isOpen ? 'min-w-[360px]' : 'min-w-[0px]', 'shadow-l')}
       >
         {panelOpened === AIPanelEnum.ai && (
           <AIWrapper

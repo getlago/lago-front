@@ -52,25 +52,26 @@ const App = () => {
           <DesignSystemProvider>
             <ErrorBoundary>
               <DeveloperToolProvider>
-                <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                  <Panel>
-                    <PanelGroup direction="horizontal">
-                      <Panel id="app-panel" order={1}>
-                        <div className="h-full overflow-auto">
-                          <BrowserRouter basename="/">
-                            <RouteWrapper />
-                          </BrowserRouter>
-                        </div>
-                      </Panel>
-                      <AiAgentProvider>
+                <AiAgentProvider>
+                  <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                    <Panel>
+                      <PanelGroup direction="horizontal">
+                        <Panel id="app-panel">
+                          <div className="h-full overflow-auto">
+                            <BrowserRouter basename="/">
+                              <RouteWrapper />
+                            </BrowserRouter>
+                          </div>
+                        </Panel>
+
                         <AIAssistant />
-                      </AiAgentProvider>
-                    </PanelGroup>
-                  </Panel>
-                  <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
-                    <DevtoolsView />
-                  </MemoryRouter>
-                </PanelGroup>
+                      </PanelGroup>
+                    </Panel>
+                    <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                      <DevtoolsView />
+                    </MemoryRouter>
+                  </PanelGroup>
+                </AiAgentProvider>
               </DeveloperToolProvider>
             </ErrorBoundary>
             <UserIdentifier />

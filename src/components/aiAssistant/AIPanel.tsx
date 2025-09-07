@@ -29,8 +29,7 @@ gql`
 `
 
 export const AIPanel = () => {
-  const { conversationId, state, startNewConversation, addNewMessage, addNewOutput } =
-    useAiAgentTool()
+  const { conversationId, state, startNewConversation, addNewMessage } = useAiAgentTool()
   const [createAiConversation, { loading, error }] = useCreateAiConversationMutation()
 
   const subscription = useOnConversationSubscription({
@@ -60,7 +59,6 @@ export const AIPanel = () => {
               convId: data.createAiConversation.id,
               message: values.message,
             })
-            addNewOutput()
           }
         }
       },

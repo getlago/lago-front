@@ -30,8 +30,6 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
     }
   }, [subscription.data?.aiConversationStreamed.done])
 
-  console.log(state.isLoading)
-
   return (
     <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto p-4">
       {state.messages.map((message) => {
