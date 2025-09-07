@@ -41,11 +41,8 @@ export const initializeApolloClient = async () => {
     uploadLink,
   )
 
-  const links = ApolloLink.from([
-    initialLink.concat(timeoutLink),
-    errorLink(globalApolloClient),
-    splitLink,
-  ])
+  // Create links without errorLink first
+  const baseLinks = ApolloLink.from([initialLink, timeoutLink, splitLink])
 
   await persistCache({
     cache,
@@ -55,7 +52,7 @@ export const initializeApolloClient = async () => {
 
   const client = new ApolloClient({
     cache,
-    link: links,
+    link: baseLinks,
     name: 'lago-app',
     version: appVersion,
     typeDefs,
@@ -74,6 +71,18 @@ export const initializeApolloClient = async () => {
   })
 
   globalApolloClient = client
+
+  // Now create the final links with errorLink that has access to the client
+  // Error link should be placed after network operations to catch their errors
+  const finalLinks = ApolloLink.from([
+    initialLink,
+    timeoutLink,
+    errorLink(globalApolloClient),
+    splitLink,
+  ])
+
+  // Update the client's link with the error handling
+  client.setLink(finalLinks)
 
   return client
 }

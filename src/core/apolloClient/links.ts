@@ -51,12 +51,13 @@ export const initialLink = new ApolloLink((operation, forward) => {
 })
 
 export const errorLink = (globalApolloClient: ApolloClient<NormalizedCacheObject> | null) =>
-  onError(({ graphQLErrors, operation }) => {
+  onError(({ graphQLErrors, networkError, operation }) => {
     const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
     // Silent auth and permissions related errors by default
     silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
 
+    // Handle GraphQL errors
     if (graphQLErrors) {
       graphQLErrors.forEach((value) => {
         const { message, path, locations, extensions } = value as LagoGQLError
@@ -102,6 +103,50 @@ export const errorLink = (globalApolloClient: ApolloClient<NormalizedCacheObject
           )}`,
         )
       })
+    }
+
+    // Handle network errors
+    if (networkError) {
+      // eslint-disable-next-line no-console
+      console.error('[Network error]:', networkError)
+
+      // Check if it's an authentication error (401, 403)
+      if ('statusCode' in networkError) {
+        const statusCode = (networkError as { statusCode: number }).statusCode
+
+        if (statusCode === 401 || statusCode === 403) {
+          if (globalApolloClient) {
+            logOut(globalApolloClient)
+          }
+          return
+        }
+      }
+
+      // Handle connection errors
+      if ('message' in networkError) {
+        const message = (networkError as { message: string }).message
+
+        if (message.includes('Network request failed') || message.includes('fetch')) {
+          // Capture network errors in Sentry
+          if (!silentError) {
+            captureException(networkError, {
+              tags: {
+                errorType: 'NetworkError',
+                operationName: operation.operationName,
+              },
+              extra: {
+                variables: operation.variables,
+                context: operation.getContext(),
+              },
+            })
+
+            addToast({
+              severity: 'danger',
+              translateKey: 'text_622f7a3dc32ce100c46a5154',
+            })
+          }
+        }
+      }
     }
   })
 
