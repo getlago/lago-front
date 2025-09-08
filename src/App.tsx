@@ -15,6 +15,7 @@ import { UserIdentifier } from '~/components/UserIdentifier'
 import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { initializeYup } from '~/formValidation/initializeYup'
+import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
 import { theme } from '~/styles'
 
@@ -49,18 +50,20 @@ const App = () => {
           <DesignSystemProvider>
             <ErrorBoundary>
               <DeveloperToolProvider>
-                <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                  <Panel id="app-panel" order={1}>
-                    <div className="h-full overflow-auto">
-                      <BrowserRouter basename="/">
-                        <RouteWrapper />
-                      </BrowserRouter>
-                    </div>
-                  </Panel>
-                  <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
-                    <DevtoolsView />
-                  </MemoryRouter>
-                </PanelGroup>
+                <AiAgentProvider>
+                  <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                    <Panel id="app-panel" order={1}>
+                      <div className="h-full overflow-auto">
+                        <BrowserRouter basename="/">
+                          <RouteWrapper />
+                        </BrowserRouter>
+                      </div>
+                    </Panel>
+                    <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                      <DevtoolsView />
+                    </MemoryRouter>
+                  </PanelGroup>
+                </AiAgentProvider>
               </DeveloperToolProvider>
             </ErrorBoundary>
             <UserIdentifier />
