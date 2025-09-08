@@ -115,7 +115,6 @@ export const DevtoolsView: FC = () => {
                 variant="quaternary"
                 onClick={() => {
                   closePanel()
-                  close()
                 }}
               />
             </Tooltip>

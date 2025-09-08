@@ -54,7 +54,7 @@ export const usePanel = <T,>({ size }: UsePanelProps) => {
   }
 
   const togglePanel = (panel?: T) => {
-    if (currentPanelOpened === panel) {
+    if (panelOpen && currentPanelOpened === panel) {
       closePanel()
     } else {
       openPanel(panel)
@@ -70,25 +70,23 @@ export const usePanel = <T,>({ size }: UsePanelProps) => {
       height = size.open
     } else {
       isLocalFullscreen = true
-      height = size.fullscreen
+      height = size.fullscreen ?? size.open
     }
 
     setIsFullscreen(isLocalFullscreen)
 
     requestAnimationFrame(() => {
-      panelRef.current?.resize(height ?? 0)
+      panelRef.current?.resize(height)
     })
   }
 
   const resizePanel = (value: number) => {
     setPanelSize(value)
 
-    if (value === size.fullscreen) {
+    if (size.fullscreen && value === size.fullscreen) {
       setIsFullscreen(true)
-    } else {
-      if (size.fullscreen && value < size.fullscreen) {
-        setIsFullscreen(false)
-      }
+    } else if (size.fullscreen && value < size.fullscreen) {
+      setIsFullscreen(false)
     }
   }
 
