@@ -147,8 +147,8 @@ const ApiKeysForm = () => {
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
   useEffect(() => {
-    if (devtool.isOpen) {
-      devtool.close()
+    if (devtool.panelOpen) {
+      devtool.closePanel()
     }
   }, [devtool])
 
@@ -167,7 +167,7 @@ const ApiKeysForm = () => {
 
   const onClose = (state?: NavigateOptions['state']) => {
     goBack(HOME_ROUTE, { state })
-    devtool.open()
+    devtool.openPanel()
   }
 
   const [createApiKey] = useCreateApiKeyMutation({

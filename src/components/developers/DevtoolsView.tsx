@@ -1,6 +1,6 @@
 import { Button, Tooltip } from 'lago-design-system'
-import { FC, useEffect, useRef, useState } from 'react'
-import { ImperativePanelHandle, Panel, PanelResizeHandle } from 'react-resizable-panels'
+import { FC, useEffect } from 'react'
+import { Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { NavigationTab, TabManagedBy } from '~/components/designSystem'
@@ -9,46 +9,27 @@ import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
+import {
+  DEFAULT_RESIZABLE_HEIGHT,
+  DEVTOOL_TAB_PARAMS,
+  FULLSCREEN,
+  MAX_RESIZABLE_HEIGHT,
+  MIN_RESIZABLE_HEIGHT,
+  useDeveloperTool,
+} from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
 
-const MAX_RESIZABLE_HEIGHT = 88
-const MIN_RESIZABLE_HEIGHT = 20
-const DEFAULT_RESIZABLE_HEIGHT = 40
-const FULLSCREEN = 100
-
 export const DevtoolsView: FC = () => {
-  const { isOpen, close, setSize, url, setUrl } = useDeveloperTool()
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const { panelRef, panelOpen, isFullscreen, expandPanel, resizePanel, closePanel, url, setUrl } =
+    useDeveloperTool()
+
   const { translate } = useInternationalization()
   const { pathname } = useLocation()
-  const panel = useRef<ImperativePanelHandle>(null)
+
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
 
   const navigate = useNavigate()
-
-  const expandPanel = () => {
-    let isLocalFullscreen = false
-    let height
-
-    if (isFullscreen) {
-      isLocalFullscreen = false
-      height = DEFAULT_RESIZABLE_HEIGHT
-    } else {
-      isLocalFullscreen = true
-      height = FULLSCREEN
-    }
-    setIsFullscreen(isLocalFullscreen)
-    requestAnimationFrame(() => {
-      panel.current?.resize(height)
-    })
-  }
-
-  const closePanel = () => {
-    setIsFullscreen(false)
-    close()
-  }
 
   const copyInspectorLink = () => {
     const windowUrl = new URL(window.location.href)
@@ -74,7 +55,7 @@ export const DevtoolsView: FC = () => {
     }
   }, [url, navigate, setUrl])
 
-  if (!isOpen) return null
+  if (!panelOpen) return null
 
   return (
     <>
@@ -90,19 +71,13 @@ export const DevtoolsView: FC = () => {
       <Panel
         id="devtools-panel"
         order={2}
-        ref={panel}
+        ref={panelRef}
         defaultSize={DEFAULT_RESIZABLE_HEIGHT}
         minSize={MIN_RESIZABLE_HEIGHT}
         maxSize={isFullscreen ? FULLSCREEN : MAX_RESIZABLE_HEIGHT}
         className="z-console min-h-50 bg-white shadow-[0_-6px_8px_0px_#19212E1F]"
         onResize={(size) => {
-          setSize(size)
-
-          if (size === FULLSCREEN) {
-            setIsFullscreen(true)
-          } else if (size < FULLSCREEN) {
-            setIsFullscreen(false)
-          }
+          resizePanel(size)
         }}
       >
         <div className="relative size-full overflow-auto">
@@ -134,7 +109,14 @@ export const DevtoolsView: FC = () => {
               />
             </Tooltip>
             <Tooltip title={translate('text_62f50d26c989ab03196884ae')} placement="top">
-              <Button size="small" icon="close" variant="quaternary" onClick={closePanel} />
+              <Button
+                size="small"
+                icon="close"
+                variant="quaternary"
+                onClick={() => {
+                  closePanel()
+                }}
+              />
             </Tooltip>
           </NavigationTab>
           <DevtoolsRouter />

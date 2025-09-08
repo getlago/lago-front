@@ -48,7 +48,7 @@ export const BillableMetricDetailsActivityLogs = ({
   billableMetricId,
 }: BillableMetricDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
-  const { open, setUrl } = useDeveloperTool()
+  const { openPanel: open, setUrl } = useDeveloperTool()
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
 

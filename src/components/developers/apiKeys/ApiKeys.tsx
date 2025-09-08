@@ -92,7 +92,7 @@ export const ApiKeys = () => {
   const { state } = useLocation()
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
-  const { close } = useDeveloperTool()
+  const { closePanel: close } = useDeveloperTool()
 
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
   const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)

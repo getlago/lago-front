@@ -38,7 +38,7 @@ export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
   externalSubscriptionId,
 }) => {
   const { translate } = useInternationalization()
-  const { open, setUrl } = useDeveloperTool()
+  const { openPanel: open, setUrl } = useDeveloperTool()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 

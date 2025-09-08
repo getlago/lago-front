@@ -37,7 +37,7 @@ export const Events = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { eventId } = useParams<{ eventId: string }>()
-  const { size } = useDeveloperTool()
+  const { panelSize: size } = useDeveloperTool()
   const logListRef = useRef<ListSectionRef>(null)
 
   const getEventsResult = useEventsQuery({

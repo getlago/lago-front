@@ -78,7 +78,7 @@ export const WebhookLogs = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { size } = useDeveloperTool()
+  const { panelSize: size } = useDeveloperTool()
 
   const logListRef = useRef<ListSectionRef>(null)
 
