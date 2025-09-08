@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import {
   Button,
@@ -229,10 +229,27 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     const drawerRef = useRef<DrawerRef>(null)
     const [usage, setUsage] = useState<ChargeUsage | ProjectedChargeUsage>()
     const [refreshFunction, setRefreshFunction] =
-      useState<() => Promise<ChargeUsage | ProjectedChargeUsage | undefined>>()
+      useState<
+        (forceProjected?: boolean) => Promise<ChargeUsage | ProjectedChargeUsage | undefined>
+      >()
     const [activeTab, setActiveTab] = useState<number>(0)
+    const [fetchedProjected, setFetchedProjected] = useState(false)
 
     const showProjected = activeTab === 1
+
+    useEffect(() => {
+      const f = async () => {
+        if (showProjected && !fetchedProjected) {
+          const res = await refreshFunction?.(true)
+
+          setUsage(res)
+
+          setFetchedProjected(true)
+        }
+      }
+
+      f()
+    }, [fetchedProjected, refreshFunction, showProjected])
 
     const TRANSLATION_MAP = showProjected
       ? {
@@ -258,6 +275,8 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
         setUsage(data)
         setRefreshFunction(() => refreshData)
         setActiveTab(defaultTab || 0)
+        setFetchedProjected(defaultTab === 1)
+
         drawerRef.current?.openDrawer()
       },
       closeDialog: () => drawerRef.current?.closeDrawer(),

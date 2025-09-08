@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
@@ -7,13 +8,14 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
 import { Typography } from '~/components/designSystem'
-import { SubscriptionCurrentUsageTableComponent } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
+import {
+  SubscriptionCurrentUsageTableComponent,
+  UsageData,
+} from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import { SubscriptionUsageLifetimeGraphComponent } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import {
   CustomerProjectedUsageForUsageDetailsFragmentDoc,
   CustomerUsageForUsageDetailsFragmentDoc,
-  GetCustomerProjectedUsageForPortalQuery,
-  GetCustomerUsageForPortalQuery,
   PremiumIntegrationTypeEnum,
   SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmentDoc,
   SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc,
@@ -88,6 +90,9 @@ const UsagePage = () => {
   const { translate, documentLocale } = useCustomerPortalTranslate()
   const customerId = 'cdef1dac-c55f-4d25-985b-cb25c2c8edc1'
   const { itemId } = useParams()
+  const [activeTab, setActiveTab] = useState<number>(0)
+
+  const showProjected = activeTab === 1
 
   const subscriptionId = itemId
 
@@ -99,41 +104,46 @@ const UsagePage = () => {
     PremiumIntegrationTypeEnum.ProjectedUsage,
   )
 
+  const fetchProjected = hasAccessToProjectedUsage && showProjected
+
+  const queryParams = {
+    variables: {
+      subscriptionId: itemId as string,
+    },
+    skip: !itemId,
+  }
+
   const {
     data: customerPortalSubscriptionData,
     loading: customerPortalSubscriptionLoading,
     error: customerPortalSubscriptionError,
     refetch: customerPortalSubscriptionRefetch,
-  } = useGetSubscriptionForPortalQuery({
-    variables: {
-      subscriptionId: itemId as string,
-    },
-    skip: !itemId,
-  })
-
-  const usageQuery = hasAccessToProjectedUsage
-    ? useGetCustomerProjectedUsageForPortalQuery
-    : useGetCustomerUsageForPortalQuery
+  } = useGetSubscriptionForPortalQuery(queryParams)
 
   const {
     data: usageData,
     loading: usageLoading,
     error: usageError,
     refetch: usageRefetch,
-  } = usageQuery({
-    variables: {
-      subscriptionId: itemId as string,
-    },
-    skip: !itemId,
-    fetchPolicy: 'no-cache',
-    nextFetchPolicy: 'no-cache',
+  } = useGetCustomerUsageForPortalQuery({
+    ...queryParams,
+    skip: queryParams.skip || fetchProjected,
   })
 
-  const customerPortalSubscription = customerPortalSubscriptionData?.customerPortalSubscription
+  const {
+    data: usageDataProjected,
+    loading: usageLoadingProjected,
+    error: usageErrorProjected,
+    refetch: usageRefetchProjected,
+  } = useGetCustomerProjectedUsageForPortalQuery({
+    ...queryParams,
+    skip: queryParams.skip || !fetchProjected,
+  })
 
-  const customerUsage = hasAccessToProjectedUsage
-    ? (usageData as GetCustomerProjectedUsageForPortalQuery)?.customerPortalCustomerProjectedUsage
-    : (usageData as GetCustomerUsageForPortalQuery)?.customerPortalCustomerUsage
+  const refetchUsage = (forceProjected?: boolean) =>
+    fetchProjected || forceProjected ? usageRefetchProjected() : usageRefetch()
+
+  const customerPortalSubscription = customerPortalSubscriptionData?.customerPortalSubscription
 
   return (
     <div>
@@ -167,20 +177,22 @@ const UsagePage = () => {
       {customerId && subscriptionId && (
         <div className="mt-12">
           <SubscriptionCurrentUsageTableComponent
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
             showExcludingTaxLabel
             usageData={
-              customerUsage as GetCustomerUsageForPortalQuery['customerPortalCustomerUsage'] &
-                GetCustomerProjectedUsageForPortalQuery['customerPortalCustomerProjectedUsage']
+              (usageDataProjected?.customerPortalCustomerProjectedUsage ||
+                usageData?.customerPortalCustomerUsage) as UsageData
             }
-            usageLoading={usageLoading}
-            usageError={usageError}
+            usageLoading={usageLoadingProjected || usageLoading}
+            usageError={usageErrorProjected || usageError}
             subscription={customerPortalSubscription}
             subscriptionLoading={customerPortalSubscriptionLoading}
             subscriptionError={customerPortalSubscriptionError}
             customerData={customerPortalSubscription?.customer}
             customerLoading={customerPortalSubscriptionLoading}
             customerError={customerPortalSubscriptionError}
-            refetchUsage={() => usageRefetch()}
+            refetchUsage={refetchUsage}
             noUsageOverride={
               <div className="mt-6 flex flex-col gap-3">
                 <Typography variant="subhead1" color="grey700">
@@ -194,6 +206,7 @@ const UsagePage = () => {
             }
             translate={translate}
             locale={documentLocale}
+            hasAccessToProjectedUsage={hasAccessToProjectedUsage}
           />
         </div>
       )}
