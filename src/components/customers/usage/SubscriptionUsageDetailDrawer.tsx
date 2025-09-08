@@ -275,10 +275,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
         setUsage(data)
         setRefreshFunction(() => refreshData)
         setActiveTab(defaultTab || 0)
-
-        if (defaultTab === 1) {
-          setFetchedProjected(true)
-        }
+        setFetchedProjected(defaultTab === 1)
 
         drawerRef.current?.openDrawer()
       },
