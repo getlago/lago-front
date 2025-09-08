@@ -35,6 +35,7 @@ export const FiltersItemLoggedDate = ({ value = ',', setFilterValue }: FiltersIt
         </div>
       </Typography>
       <DatePicker
+        disableFuture
         showErrorInTooltip
         className="flex-1"
         defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}

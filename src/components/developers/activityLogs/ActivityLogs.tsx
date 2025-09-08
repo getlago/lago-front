@@ -154,7 +154,10 @@ export const ActivityLogs = () => {
           startIcon="reload"
           loading={loading}
           onClick={async () => {
-            const result = await refetch()
+            const result = await refetch({
+              ...formatFiltersForActivityLogsQuery(searchParams),
+              page: 1,
+            })
 
             navigateToFirstLog(result.data?.activityLogs?.collection, searchParams)
           }}

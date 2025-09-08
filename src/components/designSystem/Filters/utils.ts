@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 import { formatActivityType } from '~/components/activityLogs/utils'
 import { IsCustomerTinEmptyEnum } from '~/components/designSystem/Filters/filtersElements/FiltersItemIsCustomerTinEmpty'
 import {
@@ -59,9 +61,10 @@ import {
   UsageBreakdownMeteredAvailableFilters,
   UsageBreakdownRecurringAvailableFilters,
   UsageOverviewAvailableFilters,
+  WebhookLogsAvailableFilters,
 } from './types'
 
-const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
+export const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
 
 export const parseFromToValue = (value: string, keys: { from: string; to: string }) => {
   const [interval, from, to] = value.split(',')
@@ -99,6 +102,12 @@ export const parseFromToValue = (value: string, keys: { from: string; to: string
       }
   }
 }
+
+export const FiltersItemDates = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.issuingDate,
+  AvailableFiltersEnum.loggedDate,
+]
 
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activityIds]: (value: string) => value.split(',').map((v) => v.trim()),
@@ -139,8 +148,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   },
   [AvailableFiltersEnum.loggedDate]: (value: string) => {
     return {
-      fromDate: (value as string).split(',')[0],
-      toDate: (value as string).split(',')[1],
+      fromDate: (value as string).split(',')[0] || undefined,
+      toDate: (value as string).split(',')[1] || undefined,
     }
   },
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
@@ -163,11 +172,44 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
 }
 
-export const FiltersItemDates = [
-  AvailableFiltersEnum.date,
-  AvailableFiltersEnum.issuingDate,
-  AvailableFiltersEnum.loggedDate,
-]
+// NOTE: this is fixing list fetching issue when new item are added to the DB and user scrolls to the bottom of the list
+// In that case, we fetch new elements and display between older ones
+// This is due to the pagination system, using pages instead of cursors
+// This workaround is to set the default toDate value to the current time, hence enforcing a fake cursor
+// The toDate is the minimum date between the fromDate and the current time
+export const defineDefaultToDateValue = (
+  searchParams: URLSearchParams,
+  filtersNamePrefix: string,
+): URLSearchParams => {
+  const now = DateTime.now()
+  const searchParamsCopy = new URLSearchParams(searchParams)
+
+  const searchParamsLoggedDateEntryKey = keyWithPrefix(
+    AvailableFiltersEnum.loggedDate,
+    filtersNamePrefix,
+  )
+  const searchParamsLoggedDateEntryValue: string | undefined = Object.fromEntries(
+    searchParamsCopy.entries(),
+  )[searchParamsLoggedDateEntryKey]
+
+  if (!searchParamsLoggedDateEntryValue) {
+    searchParamsCopy.set(searchParamsLoggedDateEntryKey, `,${now.toISO()}`)
+    return searchParamsCopy
+  }
+
+  const [fromDate, toDate = now.toISO()] = searchParamsLoggedDateEntryValue.split(',')
+  const dateToEndOfDay = DateTime.fromISO(toDate).endOf('day')
+
+  const earliestToDateVsNow = dateToEndOfDay < now ? dateToEndOfDay.toISO() : now.toISO()
+
+  searchParamsCopy.set(searchParamsLoggedDateEntryKey, `${fromDate},${earliestToDateVsNow}`)
+
+  return searchParamsCopy
+}
+
+type TformatFiltersForQueryReturn = {
+  [key: string]: string | string[] | boolean
+}
 
 export const formatFiltersForQuery = ({
   searchParams,
@@ -179,40 +221,37 @@ export const formatFiltersForQuery = ({
   keyMap?: Record<string, string>
   availableFilters: AvailableFiltersEnum[]
   filtersNamePrefix: string
-}) => {
+}): TformatFiltersForQueryReturn => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
 
-  return Object.entries(filtersSetInUrl).reduce(
-    (acc, cur) => {
-      const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
-      const _key = current[0]
+  return Object.entries(filtersSetInUrl).reduce((acc, cur) => {
+    const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
+    const _key = current[0]
 
-      const key = (
-        filtersNamePrefix ? _key.replace(`${filtersNamePrefix}_`, '') : _key
-      ) as AvailableFiltersEnum
+    const key = (
+      filtersNamePrefix ? _key.replace(`${filtersNamePrefix}_`, '') : _key
+    ) as AvailableFiltersEnum
 
-      if (!availableFilters.includes(key)) {
-        return acc
-      }
+    if (!availableFilters.includes(key)) {
+      return acc
+    }
 
-      const filterFunction = FILTER_VALUE_MAP[key]
+    const filterFunction = FILTER_VALUE_MAP[key]
 
-      const value = filterFunction ? filterFunction(current[1]) : current[1]
+    const value = filterFunction ? filterFunction(current[1]) : current[1]
 
-      if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-        return {
-          ...acc,
-          ...value,
-        }
-      }
-
+    if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
       return {
         ...acc,
-        [keyMap?.[key] || key]: value,
+        ...value,
       }
-    },
-    {} as Record<string, string | string[] | boolean>,
-  )
+    }
+
+    return {
+      ...acc,
+      [keyMap?.[key] || key]: value,
+    }
+  }, {} as TformatFiltersForQueryReturn)
 }
 
 export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) => {
@@ -361,7 +400,7 @@ export const formatFiltersForAnalyticsInvoicesQuery = (searchParams: URLSearchPa
 export const formatFiltersForWebhookLogsQuery = (searchParams: URLSearchParams) => {
   const filters = formatFiltersForQuery({
     searchParams,
-    availableFilters: [AvailableFiltersEnum.webhookStatus],
+    availableFilters: WebhookLogsAvailableFilters,
     filtersNamePrefix: WEBHOOK_LOGS_FILTER_PREFIX,
   })
 
@@ -440,7 +479,7 @@ export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearch
 
 export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams) => {
   const formatted = formatFiltersForQuery({
-    searchParams,
+    searchParams: defineDefaultToDateValue(searchParams, ACTIVITY_LOG_FILTER_PREFIX),
     availableFilters: ActivityLogsAvailableFilters,
     filtersNamePrefix: ACTIVITY_LOG_FILTER_PREFIX,
   })
@@ -459,7 +498,7 @@ export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams)
 
 export const formatFiltersForApiLogsQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
-    searchParams,
+    searchParams: defineDefaultToDateValue(searchParams, API_LOGS_FILTER_PREFIX),
     availableFilters: ApiLogsAvailableFilters,
     filtersNamePrefix: API_LOGS_FILTER_PREFIX,
   })
