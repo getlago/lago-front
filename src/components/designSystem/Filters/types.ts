@@ -158,6 +158,8 @@ export const AnalyticsInvoicesAvailableFilters = [
   AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 
+export const WebhookLogsAvailableFilters = [AvailableFiltersEnum.webhookStatus]
+
 export const UsageOverviewAvailableFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,

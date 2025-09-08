@@ -1,11 +1,15 @@
+import { DateTime } from 'luxon'
+
 import { AvailableFiltersEnum, filterDataInlineSeparator } from '../types'
 import {
+  defineDefaultToDateValue,
   formatActiveFilterValueDisplay,
   formatFiltersForInvoiceQuery,
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
   formatFiltersForRevenueStreamsQuery,
   getFilterValue,
+  keyWithPrefix,
   parseFromToValue,
 } from '../utils'
 
@@ -573,6 +577,152 @@ describe('Filters utils', () => {
         customerCountry: 'FR',
         customerCurrency: 'EUR',
       })
+    })
+  })
+
+  describe('defineDefaultToDateValue', () => {
+    const filtersNamePrefix = 'test'
+    const loggedDateKey = keyWithPrefix(AvailableFiltersEnum.loggedDate, filtersNamePrefix)
+
+    const currentTimeString = '2023-06-15T10:30:00.000Z'
+    const mockCurrentTime = DateTime.fromISO(currentTimeString).setZone('utc') as DateTime<true>
+    const fromDate = mockCurrentTime.minus({ days: 1 }).toISO()
+
+    let mockNow: jest.SpyInstance
+
+    beforeEach(() => {
+      // Mock DateTime.now() to return a consistent date for testing
+      mockNow = jest.spyOn(DateTime, 'now').mockImplementation(() => mockCurrentTime)
+    })
+
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    it('should set default loggedDate when no existing value is present', () => {
+      const searchParams = new URLSearchParams()
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      expect(result.get(loggedDateKey)).toBe(`,${currentTimeString}`)
+    })
+
+    it('should set default loggedDate with empty prefix when no existing value is present', () => {
+      const searchParams = new URLSearchParams()
+
+      const result = defineDefaultToDateValue(searchParams, '')
+
+      expect(result.get(keyWithPrefix(AvailableFiltersEnum.loggedDate, ''))).toBe(
+        `,${currentTimeString}`,
+      )
+    })
+
+    it('should preserve existing searchParams when setting default loggedDate', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('existingParam', 'existingValue')
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      expect(result.get('existingParam')).toBe('existingValue')
+      expect(result.get(loggedDateKey)).toBe(`,${currentTimeString}`)
+    })
+
+    it('should use current time as toDate when existing toDate is in the future', () => {
+      const searchParams = new URLSearchParams()
+      const futureDate = mockCurrentTime.plus({ days: 1 }).toISO()
+
+      searchParams.set(loggedDateKey, `${fromDate},${futureDate}`)
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      expect(result.get(loggedDateKey)).toBe(`${fromDate},${currentTimeString}`)
+    })
+
+    it('should preserve existing toDate when it is in the past', () => {
+      const searchParams = new URLSearchParams()
+      const pastDate = mockCurrentTime.minus({ days: 1 }).toISO()
+
+      searchParams.set(loggedDateKey, `${fromDate},${pastDate}`)
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      // Should use the end of day for the past date
+      const expectedEndOfDay = DateTime.fromISO(pastDate).endOf('day').toISO()
+
+      expect(result.get(loggedDateKey)).toBe(`${fromDate},${expectedEndOfDay}`)
+    })
+
+    it('should use current time when existing toDate end of day is greater than now', () => {
+      const searchParams = new URLSearchParams()
+      const currentDate = mockCurrentTime.minus({ hours: 2 }).toISO()
+
+      searchParams.set(loggedDateKey, `${fromDate},${currentDate}`)
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      // Should use current time because end of day for currentDate would be greater than now
+      expect(result.get(loggedDateKey)).toBe(`${fromDate},${currentTimeString}`)
+    })
+
+    it('should handle existing loggedDate with only fromDate', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(loggedDateKey, `${fromDate},`)
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      expect(result.get(loggedDateKey)).toBe(`${fromDate},${currentTimeString}`)
+    })
+
+    it('should handle existing loggedDate with only toDate', () => {
+      const searchParams = new URLSearchParams()
+      const pastDate = mockCurrentTime.minus({ days: 1 }).toISO()
+
+      searchParams.set(loggedDateKey, `,${pastDate}`)
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      const expectedEndOfDay = DateTime.fromISO(pastDate).endOf('day').toISO()
+
+      expect(result.get(loggedDateKey)).toBe(`,${expectedEndOfDay}`)
+    })
+
+    it('should return a new URLSearchParams instance without modifying the original', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('existingParam', 'existingValue')
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      // Original should remain unchanged
+      expect(searchParams.get(loggedDateKey)).toBeNull()
+      expect(searchParams.get('existingParam')).toBe('existingValue')
+
+      // Result should have the new value
+      expect(result.get(loggedDateKey)).toBe(`,${currentTimeString}`)
+      expect(result.get('existingParam')).toBe('existingValue')
+
+      // Should be different instances
+      expect(result).not.toBe(searchParams)
+    })
+
+    it('should handle edge case where toDate is exactly at end of current day', () => {
+      // Mock current time to be at start of day
+      const startOfDayTimeString = mockCurrentTime.startOf('day').toISO()
+
+      mockNow.mockImplementation(() => DateTime.fromISO(startOfDayTimeString).setZone('utc'))
+
+      const searchParams = new URLSearchParams()
+      const endOfCurrentDay = mockCurrentTime.endOf('day').toISO()
+
+      searchParams.set(loggedDateKey, `${fromDate},${endOfCurrentDay}`)
+
+      const result = defineDefaultToDateValue(searchParams, filtersNamePrefix)
+
+      // Since endOfCurrentDay.endOf('day') would be greater than current time (start of day),
+      // it should use the current time instead
+      expect(result.get(loggedDateKey)).toBe(`${fromDate},${startOfDayTimeString}`)
     })
   })
 })
