@@ -4,6 +4,7 @@ import { TimeGranularityEnum } from '~/generated/graphql'
 
 import { useFilterContext } from './context'
 import { AvailableFiltersEnum, AvailableQuickFilters, FiltersFormValues } from './types'
+import { keyWithPrefix } from './utils'
 
 export const useFilters = () => {
   const context = useFilterContext()
@@ -15,7 +16,7 @@ export const useFilters = () => {
   const prefix = context.filtersNamePrefix
 
   const keyWithoutPrefix = (key: string) => (prefix ? key.replace(`${prefix}_`, '') : key)
-  const keyWithPrefix = (key: string) => (prefix ? `${prefix}_${key}` : key)
+  const localKeyWithPrefix = (key: string) => keyWithPrefix(key, prefix)
 
   const removeExistingFilters = () => {
     // Only remove the filters from the URL that are currently applied and are removable (availableFilters)
@@ -46,7 +47,7 @@ export const useFilters = () => {
         return
       }
 
-      const withPrefix = keyWithPrefix(filter.filterType) as AvailableFiltersEnum
+      const withPrefix = localKeyWithPrefix(filter.filterType) as AvailableFiltersEnum
       const withoutPrefix = keyWithoutPrefix(filter.filterType) as AvailableFiltersEnum
 
       if (
@@ -101,11 +102,11 @@ export const useFilters = () => {
 
   const buildQuickFilterUrlParams = (filters: { [key: string]: unknown }) => {
     const staticFilters = Object.entries(context.staticFilters ?? {})
-      .map(([key, value]) => `${keyWithPrefix(key)}=${value}`)
+      .map(([key, value]) => `${localKeyWithPrefix(key)}=${value}`)
       .join('&')
 
     let newFilters = Object.entries(filters).map(([_key, value]) => {
-      const key = keyWithPrefix(_key)
+      const key = localKeyWithPrefix(_key)
 
       if (Array.isArray(value)) {
         return `${key}=${value.join(',')}`
@@ -129,14 +130,14 @@ export const useFilters = () => {
   const selectTimeGranularity = (timeGranularity: TimeGranularityEnum): string => {
     const newSearchParams = new URLSearchParams(searchParams)
 
-    newSearchParams.set(keyWithPrefix(AvailableQuickFilters.timeGranularity), timeGranularity)
+    newSearchParams.set(localKeyWithPrefix(AvailableQuickFilters.timeGranularity), timeGranularity)
 
     return newSearchParams.toString()
   }
 
   const isQuickFilterActive = (filters: { [key: string]: unknown }) => {
     for (const [_key, value] of Object.entries(filters)) {
-      const key = keyWithPrefix(_key)
+      const key = localKeyWithPrefix(_key)
 
       if (Array.isArray(value)) {
         if (searchParamsObject[key] !== value.join(',')) {
@@ -161,7 +162,7 @@ export const useFilters = () => {
     buildQuickFilterUrlParams,
     isQuickFilterActive,
     keyWithoutPrefix,
-    keyWithPrefix,
+    localKeyWithPrefix,
     resetFilters,
     selectTimeGranularity,
   }

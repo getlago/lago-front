@@ -61,7 +61,7 @@ import {
   UsageOverviewAvailableFilters,
 } from './types'
 
-const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
+export const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
 
 export const parseFromToValue = (value: string, keys: { from: string; to: string }) => {
   const [interval, from, to] = value.split(',')
