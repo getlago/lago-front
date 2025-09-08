@@ -26,7 +26,7 @@
 
 .markdown ul,
 .markdown ol {
-  @apply mb-2 list-disc pl-4;
+  @apply mb-2 pl-4;
 }
 
 .markdown li {

@@ -1,4 +1,5 @@
 import { Button, Icon, Typography } from 'lago-design-system'
+import { Duration } from 'luxon'
 import { ReactNode } from 'react'
 
 /**
@@ -6,29 +7,14 @@ import { ReactNode } from 'react'
  * @param seconds - The duration in seconds
  * @returns A human-readable duration string (e.g., "2m 30s", "1h 15m", "45s")
  */
-const formatDuration = (seconds: number): string => {
-  if (seconds < 0) return '0s'
-  if (seconds === 0) return '0s'
+export const formatDuration = (seconds: number): string => {
+  const duration = Duration.fromObject({ seconds }).reconfigure({ locale: 'en-US' })
+  const shifted = duration.shiftTo('minutes', 'seconds').toObject()
 
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const remainingSeconds = Math.floor(seconds % 60)
+  const minutes = shifted.minutes ? `${shifted.minutes}m` : ''
+  const secondsStr = shifted.seconds !== undefined ? `${shifted.seconds}s` : ''
 
-  const parts: string[] = []
-
-  if (hours > 0) {
-    parts.push(`${hours}h`)
-  }
-
-  if (minutes > 0) {
-    parts.push(`${minutes}m`)
-  }
-
-  if (remainingSeconds > 0 || parts.length === 0) {
-    parts.push(`${remainingSeconds}s`)
-  }
-
-  return parts.join(' ')
+  return [minutes, secondsStr].filter(Boolean).join(' ')
 }
 
 const SentMessage = ({ children }: { children: ReactNode }) => {
@@ -63,7 +49,15 @@ const ChipWrapper = ({ children }: { children: ReactNode }) => {
   )
 }
 
-const ErrorMessage = ({ children, onAction }: { children: ReactNode; onAction?: () => void }) => {
+const ErrorMessage = ({
+  children,
+  onAction,
+  actionLabel,
+}: {
+  children: ReactNode
+  onAction?: () => void
+  actionLabel?: string
+}) => {
   return (
     <ChipWrapper>
       <div className="flex items-center gap-2">
@@ -74,7 +68,7 @@ const ErrorMessage = ({ children, onAction }: { children: ReactNode; onAction?: 
       </div>
       {!!onAction && (
         <Button size="small" variant="inline" onClick={onAction}>
-          Retry
+          {actionLabel}
         </Button>
       )}
     </ChipWrapper>

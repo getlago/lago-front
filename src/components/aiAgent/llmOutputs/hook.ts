@@ -8,14 +8,12 @@ import { Markdown } from './Markdown'
 export const useCustomLLMOutput = (output: string, isStreamFinished: boolean) => {
   const { blockMatches } = useLLMOutput({
     llmOutput: output,
-    // Default fallback to markdown component
     fallbackBlock: {
       component: Markdown,
       lookBack: markdownLookBack(),
     },
     blocks: [
       {
-        // If the code block is found, use the codeblock component
         component: Codeblock,
         findCompleteMatch: findCompleteCodeBlock(),
         findPartialMatch: findPartialCodeBlock(),
