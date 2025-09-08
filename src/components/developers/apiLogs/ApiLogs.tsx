@@ -147,7 +147,10 @@ export const ApiLogs = () => {
           startIcon="reload"
           loading={loading}
           onClick={async () => {
-            const result = await refetch()
+            const result = await refetch({
+              ...formatFiltersForApiLogsQuery(searchParams),
+              page: 1,
+            })
 
             navigateToFirstLog(result.data?.apiLogs?.collection, searchParams)
           }}
