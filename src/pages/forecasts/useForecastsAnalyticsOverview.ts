@@ -49,8 +49,12 @@ gql`
       timeGranularity: $timeGranularity
     ) {
       collection {
-        startOfPeriodDt
+        amountCentsForecast10thPercentile
+        amountCentsForecast50thPercentile
+        amountCentsForecast90thPercentile
+        amountCurrency
         endOfPeriodDt
+        startOfPeriodDt
       }
     }
   }

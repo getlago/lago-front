@@ -12004,7 +12004,7 @@ export type GetForecastsQueryVariables = Exact<{
 }>;
 
 
-export type GetForecastsQuery = { __typename?: 'Query', dataApiUsagesForecasted: { __typename?: 'DataApiUsageForecastedCollection', collection: Array<{ __typename?: 'DataApiUsageForecasted', startOfPeriodDt: any, endOfPeriodDt: any }> } };
+export type GetForecastsQuery = { __typename?: 'Query', dataApiUsagesForecasted: { __typename?: 'DataApiUsageForecastedCollection', collection: Array<{ __typename?: 'DataApiUsageForecasted', amountCentsForecast10thPercentile: any, amountCentsForecast50thPercentile: any, amountCentsForecast90thPercentile: any, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any }> } };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -33296,8 +33296,12 @@ export const GetForecastsDocument = gql`
     timeGranularity: $timeGranularity
   ) {
     collection {
-      startOfPeriodDt
+      amountCentsForecast10thPercentile
+      amountCentsForecast50thPercentile
+      amountCentsForecast90thPercentile
+      amountCurrency
       endOfPeriodDt
+      startOfPeriodDt
     }
   }
 }

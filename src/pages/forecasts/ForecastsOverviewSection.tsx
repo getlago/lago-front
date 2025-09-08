@@ -152,20 +152,20 @@ export const ForecastsOverviewSection = ({
             timeGranularity={timeGranularity}
             lines={[
               {
-                dataKey: 'optimistic',
-                colorHex: FORECASTS_GRAPH_COLORS.optimistic,
+                dataKey: 'amountCentsForecast90thPercentile',
+                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecast90thPercentile,
                 tooltipLabel: translate('text_17564701329935iz92g07zaj'),
                 strokeDasharray: '3 3',
               },
               {
-                dataKey: 'realistic',
-                colorHex: FORECASTS_GRAPH_COLORS.realistic,
+                dataKey: 'amountCentsForecast50thPercentile',
+                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecast50thPercentile,
                 tooltipLabel: translate('text_1756470132993ziruszj5lu1'),
                 strokeDasharray: '3 3',
               },
               {
-                dataKey: 'pessimistic',
-                colorHex: FORECASTS_GRAPH_COLORS.pessimistic,
+                dataKey: 'amountCentsForecast10thPercentile',
+                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecast10thPercentile,
                 tooltipLabel: translate('text_1756470132993wnnhcrw15q9'),
                 strokeDasharray: '3 3',
               },
@@ -191,16 +191,16 @@ export const ForecastsOverviewSection = ({
                 },
               },
               {
-                key: 'optimistic',
+                key: 'amountCentsForecast90thPercentile',
                 type: 'data',
                 label: (
                   <ForecastsRowLabel
                     label={translate('text_17564701329935iz92g07zaj')}
-                    color={FORECASTS_GRAPH_COLORS.optimistic}
+                    color={FORECASTS_GRAPH_COLORS.amountCentsForecast90thPercentile}
                   />
                 ),
                 content: (item) => {
-                  const amountCents = Number(item.optimistic) || 0
+                  const amountCents = Number(item.amountCentsForecast90thPercentile) || 0
 
                   return (
                     <AmountCell
@@ -215,16 +215,16 @@ export const ForecastsOverviewSection = ({
                 },
               },
               {
-                key: 'realistic',
+                key: 'amountCentsForecast50thPercentile',
                 type: 'data',
                 label: (
                   <ForecastsRowLabel
                     label={translate('text_1756470132993ziruszj5lu1')}
-                    color={FORECASTS_GRAPH_COLORS.realistic}
+                    color={FORECASTS_GRAPH_COLORS.amountCentsForecast50thPercentile}
                   />
                 ),
                 content: (item) => {
-                  const amountCents = Number(item.realistic) || 0
+                  const amountCents = Number(item.amountCentsForecast50thPercentile) || 0
 
                   return (
                     <AmountCell
@@ -239,16 +239,16 @@ export const ForecastsOverviewSection = ({
                 },
               },
               {
-                key: 'pessimistic',
+                key: 'amountCentsForecast10thPercentile',
                 type: 'data',
                 label: (
                   <ForecastsRowLabel
                     label={translate('text_1756470132993wnnhcrw15q9')}
-                    color={FORECASTS_GRAPH_COLORS.pessimistic}
+                    color={FORECASTS_GRAPH_COLORS.amountCentsForecast10thPercentile}
                   />
                 ),
                 content: (item) => {
-                  const amountCents = Number(item.pessimistic) || 0
+                  const amountCents = Number(item.amountCentsForecast10thPercentile) || 0
 
                   return (
                     <AmountCell

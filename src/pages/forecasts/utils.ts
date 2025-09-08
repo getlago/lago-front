@@ -2,12 +2,12 @@ import { DateTime, DateTimeUnit, Duration, DurationUnit, Interval } from 'luxon'
 
 import { AvailableFiltersEnum, getFilterValue } from '~/components/designSystem/Filters'
 import { FORECASTS_FILTER_PREFIX } from '~/core/constants/filters'
-import { TimeGranularityEnum } from '~/generated/graphql'
+import { CurrencyEnum, DataApiUsageForecasted, TimeGranularityEnum } from '~/generated/graphql'
 
 export const FORECASTS_GRAPH_COLORS = {
-  optimistic: '#66DD93',
-  realistic: '#5195FF',
-  pessimistic: '#FF9351',
+  amountCentsForecast10thPercentile: '#FF9351',
+  amountCentsForecast50thPercentile: '#5195FF',
+  amountCentsForecast90thPercentile: '#66DD93',
 }
 
 const DIFF_CURSOR: Record<TimeGranularityEnum, DurationUnit> = {
@@ -22,11 +22,11 @@ export const formatForecastsData = ({
   defaultStaticDatePeriod,
   defaultStaticTimeGranularity,
 }: {
-  data: any[] | undefined
+  data: DataApiUsageForecasted[] | undefined
   searchParams: URLSearchParams
   defaultStaticDatePeriod: string
   defaultStaticTimeGranularity: string
-}): any[] => {
+}): DataApiUsageForecasted[] => {
   const datePeriod =
     getFilterValue({
       key: AvailableFiltersEnum.date,
@@ -65,12 +65,18 @@ export const formatForecastsData = ({
       return foundDataWithSamePeriod
     }
 
-    const emptyData: any = {
+    const emptyData: DataApiUsageForecasted = {
       startOfPeriodDt: start,
       endOfPeriodDt: readableEnd,
-      optimistic: 0,
-      realistic: 0,
-      pessimistic: 0,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: 0,
+      amountCentsForecast10thPercentile: 0,
+      amountCentsForecast50thPercentile: 0,
+      amountCentsForecast90thPercentile: 0,
+      units: 0,
+      unitsForecast10thPercentile: 0,
+      unitsForecast50thPercentile: 0,
+      unitsForecast90thPercentile: 0,
     }
 
     return emptyData
