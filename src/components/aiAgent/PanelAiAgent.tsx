@@ -11,6 +11,7 @@ import {
   useOnConversationSubscription,
 } from '~/generated/graphql'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   mutation createAiConversation($input: CreateAiConversationInput!) {
@@ -30,6 +31,7 @@ gql`
 export const PanelAiAgent = () => {
   const { conversationId, state, startNewConversation, addNewMessage } = useAiAgent()
   const [createAiConversation, { loading, error }] = useCreateAiConversationMutation()
+  const { translate } = useInternationalization()
 
   const subscription = useOnConversationSubscription({
     skip: !conversationId,
@@ -71,10 +73,10 @@ export const PanelAiAgent = () => {
       {shouldDisplayWelcomeMessage && (
         <div className="mb-8 mt-auto flex flex-col gap-4 px-4">
           <Typography variant="headline" color="grey700">
-            Need insights or actions on your billing data?
+            {translate('text_1757417225851l83ffyzwk4g')}
           </Typography>
           <Typography variant="body" color="grey500">
-            I’m here to help you move faster
+            {translate('text_1757417225851ylz6l7fwrg9')}
           </Typography>
 
           <ChatShortcuts />

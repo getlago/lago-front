@@ -6,11 +6,14 @@ import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
 import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 export const AiAgent = () => {
   const { panelRef, currentPanelOpened, panelOpen, state, resetConversation } = useAiAgent()
   const { currentUser } = useCurrentUser()
+  const { translate } = useInternationalization()
+
   const hasAccessToAiAgent = isFeatureFlagActive(FeatureFlags.AI_AGENT)
 
   if (!currentUser || !hasAccessToAiAgent) {
@@ -38,7 +41,7 @@ export const AiAgent = () => {
       >
         {currentPanelOpened === AIPanelEnum.ai && (
           <PanelWrapper
-            title={state.messages[0]?.message ?? 'AI Assistant'}
+            title={state.messages[0]?.message ?? translate('text_175741722585199myqwj6vyw')}
             isBeta={!state.messages[0]}
             onBackButton={() => {
               resetConversation()

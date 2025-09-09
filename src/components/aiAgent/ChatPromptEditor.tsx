@@ -5,6 +5,7 @@ import { FC } from 'react'
 import { TextInputField } from '~/components/form'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface ChatPromptEditorProps {
   onSubmit: FormikConfig<CreateAiConversationInput>['onSubmit']
@@ -12,6 +13,8 @@ interface ChatPromptEditorProps {
 
 export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSubmit }) => {
   const { state } = useAiAgent()
+  const { translate } = useInternationalization()
+
   const formikProps = useFormik({
     initialValues: {
       message: '',
@@ -47,7 +50,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           id="message"
           name="message"
           formikProps={formikProps}
-          placeholder="What's next?"
+          placeholder={translate('text_1757417225851xkstj2u16q5')}
           inputProps={{
             className: '!resize-none w-full !pr-9',
           }}

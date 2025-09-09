@@ -5,6 +5,7 @@ import { Message } from '~/components/aiAgent/llmOutputs'
 import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface ChatConversationProps {
   subscription: OnConversationSubscriptionHookResult
@@ -12,6 +13,7 @@ interface ChatConversationProps {
 
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
   const { lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
+  const { translate } = useInternationalization()
 
   useEffect(() => {
     if (subscription.data?.aiConversationStreamed.chunk) {
@@ -51,7 +53,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
       {subscription.loading && <ChatMessages.Loading />}
 
       {subscription.error && (
-        <ChatMessages.Error>{`There was an error generating a response.`}</ChatMessages.Error>
+        <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
       )}
     </div>
   )

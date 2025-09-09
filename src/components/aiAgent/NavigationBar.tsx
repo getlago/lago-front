@@ -1,9 +1,11 @@
 import { AiBadge, Button, Icon } from 'lago-design-system'
 
 import { AIPanelEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const NavigationBar = () => {
   const { togglePanel, currentPanelOpened } = useAiAgent()
+  const { translate } = useInternationalization()
 
   const getCurrentPanelVariant = (panel: AIPanelEnum) =>
     currentPanelOpened === panel ? 'secondary' : 'quaternary'
@@ -21,7 +23,7 @@ export const NavigationBar = () => {
           ) : (
             <AiBadge />
           )}
-          <div>AI Assistant</div>
+          <div>{translate('text_175741722585199myqwj6vyw')}</div>
         </div>
       </Button>
     </div>

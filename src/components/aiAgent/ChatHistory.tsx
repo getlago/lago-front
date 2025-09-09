@@ -1,10 +1,14 @@
 import { Typography } from 'lago-design-system'
 
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
 export const ChatHistory = () => {
+  const { translate } = useInternationalization()
+
   return (
     <div className="flex flex-col gap-1 p-4">
       <Typography variant="captionHl" color="grey700">
-        Recent conversations
+        {translate('text_17574172258513wv8yozezoz')}
       </Typography>
 
       <div className="flex flex-col gap-1">
