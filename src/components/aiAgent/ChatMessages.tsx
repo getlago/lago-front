@@ -25,6 +25,7 @@ export const formatDuration = (seconds: number): string => {
 const SentMessage = ({ children }: { children: ReactNode }) => {
   return (
     <Typography
+      data-id="sent-message"
       className="ml-7 whitespace-normal rounded-md border border-grey-300 bg-grey-100 px-3 py-2"
       variant="captionHl"
       color="grey700"
@@ -36,14 +37,18 @@ const SentMessage = ({ children }: { children: ReactNode }) => {
 
 const ReceivedMessage = ({ children }: { children: ReactNode }) => {
   return (
-    <Typography className="whitespace-normal" color="grey700">
+    <Typography data-id="received-message" className="whitespace-normal" color="grey700">
       {children}
     </Typography>
   )
 }
 
 const LoadingMessage = () => {
-  return <Icon name="sparkles-base" size="large" color="black" animation="spin" />
+  return (
+    <div>
+      <div className="h-5 w-2 animate-pulse-speed rounded-sm bg-black" />
+    </div>
+  )
 }
 
 const ChipWrapper = ({ children }: { children: ReactNode }) => {
