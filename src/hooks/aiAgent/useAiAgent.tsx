@@ -18,6 +18,13 @@ interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   conversationId?: string
   lastAssistantMessage?: ChatMessage
   startNewConversation: ({ convId, message }: { convId: string; message: string }) => void
+  setPreviousChatMessages: ({
+    convId,
+    messages,
+  }: {
+    convId: string
+    messages: ChatMessage[]
+  }) => void
   streamChunk: ({ messageId, chunk }: { messageId: string; chunk: string }) => void
   setChatDone: (messageId: string) => void
   addNewMessage: (message: string) => void
@@ -38,6 +45,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   })
 
   const [conversationId, setConversationId] = useState('')
+
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
     isLoading: false,
@@ -47,8 +55,20 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     return state.messages.filter((message) => message.role === ChatRole.assistant).pop()
   }, [state.messages])
 
+  const setPreviousChatMessages = ({
+    convId,
+    messages,
+  }: {
+    convId: string
+    messages: ChatMessage[]
+  }) => {
+    setConversationId(convId)
+    dispatch({ type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages })
+  }
+
   const startNewConversation = ({ convId, message }: { convId: string; message: string }) => {
     setConversationId(convId)
+
     dispatch({
       type: ChatActionType.START_CONVERSATION,
       message: message,
@@ -84,6 +104,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
         conversationId,
         lastAssistantMessage,
         startNewConversation,
+        setPreviousChatMessages,
         resetConversation,
         streamChunk,
         setChatDone,

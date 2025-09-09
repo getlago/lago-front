@@ -8943,6 +8943,20 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
 
+export type GetAiConversationQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversation', id: string, name: string, messages?: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }> | null } | null };
+
+export type ListAiConversationsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ListAiConversationsQuery = { __typename?: 'Query', aiConversations?: { __typename?: 'AiConversationCollection', collection: Array<{ __typename?: 'AiConversation', id: string, name: string, updatedAt: any }> } | null };
+
 export type CreateAiConversationMutationVariables = Exact<{
   input: CreateAiConversationInput;
 }>;
@@ -18104,6 +18118,95 @@ export function useDeleteAddOnMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMutation>;
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
+export const GetAiConversationDocument = gql`
+    query getAiConversation($id: ID!) {
+  aiConversation(id: $id) {
+    id
+    messages {
+      content
+      type
+    }
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetAiConversationQuery__
+ *
+ * To run a query within a React component, call `useGetAiConversationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAiConversationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAiConversationQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAiConversationQuery(baseOptions: Apollo.QueryHookOptions<GetAiConversationQuery, GetAiConversationQueryVariables> & ({ variables: GetAiConversationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAiConversationQuery, GetAiConversationQueryVariables>(GetAiConversationDocument, options);
+      }
+export function useGetAiConversationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAiConversationQuery, GetAiConversationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAiConversationQuery, GetAiConversationQueryVariables>(GetAiConversationDocument, options);
+        }
+export function useGetAiConversationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAiConversationQuery, GetAiConversationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAiConversationQuery, GetAiConversationQueryVariables>(GetAiConversationDocument, options);
+        }
+export type GetAiConversationQueryHookResult = ReturnType<typeof useGetAiConversationQuery>;
+export type GetAiConversationLazyQueryHookResult = ReturnType<typeof useGetAiConversationLazyQuery>;
+export type GetAiConversationSuspenseQueryHookResult = ReturnType<typeof useGetAiConversationSuspenseQuery>;
+export type GetAiConversationQueryResult = Apollo.QueryResult<GetAiConversationQuery, GetAiConversationQueryVariables>;
+export const ListAiConversationsDocument = gql`
+    query listAiConversations($limit: Int) {
+  aiConversations(limit: $limit) {
+    collection {
+      id
+      name
+      updatedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useListAiConversationsQuery__
+ *
+ * To run a query within a React component, call `useListAiConversationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAiConversationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAiConversationsQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useListAiConversationsQuery(baseOptions?: Apollo.QueryHookOptions<ListAiConversationsQuery, ListAiConversationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAiConversationsQuery, ListAiConversationsQueryVariables>(ListAiConversationsDocument, options);
+      }
+export function useListAiConversationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAiConversationsQuery, ListAiConversationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAiConversationsQuery, ListAiConversationsQueryVariables>(ListAiConversationsDocument, options);
+        }
+export function useListAiConversationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAiConversationsQuery, ListAiConversationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAiConversationsQuery, ListAiConversationsQueryVariables>(ListAiConversationsDocument, options);
+        }
+export type ListAiConversationsQueryHookResult = ReturnType<typeof useListAiConversationsQuery>;
+export type ListAiConversationsLazyQueryHookResult = ReturnType<typeof useListAiConversationsLazyQuery>;
+export type ListAiConversationsSuspenseQueryHookResult = ReturnType<typeof useListAiConversationsSuspenseQuery>;
+export type ListAiConversationsQueryResult = Apollo.QueryResult<ListAiConversationsQuery, ListAiConversationsQueryVariables>;
 export const CreateAiConversationDocument = gql`
     mutation createAiConversation($input: CreateAiConversationInput!) {
   createAiConversation(input: $input) {
