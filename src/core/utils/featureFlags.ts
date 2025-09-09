@@ -2,6 +2,7 @@
 export enum FeatureFlags {
   FTR_ENABLED = 'ftr_enabled',
   ANALYTICS_USAGE = 'analyticsUsage',
+  AI_AGENT = 'aiAgent',
 }
 
 const FF_KEY = 'featureFlags'
