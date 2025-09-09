@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
+import { AiAgent } from '~/components/aiAgent/AiAgent'
 import { ToastContainer } from '~/components/designSystem/Toasts'
 import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
@@ -52,12 +53,18 @@ const App = () => {
               <DeveloperToolProvider>
                 <AiAgentProvider>
                   <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                    <Panel id="app-panel" order={1}>
-                      <div className="h-full overflow-auto">
-                        <BrowserRouter basename="/">
-                          <RouteWrapper />
-                        </BrowserRouter>
-                      </div>
+                    <Panel>
+                      <PanelGroup direction="horizontal">
+                        <Panel id="app-panel">
+                          <div className="h-full overflow-auto">
+                            <BrowserRouter basename="/">
+                              <RouteWrapper />
+                            </BrowserRouter>
+                          </div>
+                        </Panel>
+
+                        <AiAgent />
+                      </PanelGroup>
                     </Panel>
                     <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
                       <DevtoolsView />
