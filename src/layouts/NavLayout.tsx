@@ -2,7 +2,7 @@ import { Button, tw } from 'lago-design-system'
 import { forwardRef, PropsWithChildren } from 'react'
 
 const NavWrapper = ({ children }: PropsWithChildren) => {
-  return <div className="flex h-screen w-screen">{children}</div>
+  return <div className="flex h-screen w-full">{children}</div>
 }
 
 // Need to accept ref cause it's used within a ClickAwayListener
