@@ -303,6 +303,7 @@ export type AiConversation = {
   __typename?: 'AiConversation';
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
+  messages?: Maybe<Array<AiConversationMessage>>;
   mistralConversationId?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   organization: Organization;
@@ -6265,7 +6266,11 @@ export type Query = {
   /** Query add-ons of an organization */
   addOns: AddOnCollection;
   /** Query a single ai conversation of an organization */
+<<<<<<< HEAD
   aiConversation?: Maybe<AiConversationWithMessages>;
+=======
+  aiConversation?: Maybe<AiConversation>;
+>>>>>>> de7382f3 (feat: create ai panel)
   /** Query the latest AI conversations of current organization */
   aiConversations?: Maybe<AiConversationCollection>;
   /** Query a single alert */
@@ -8937,6 +8942,20 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
+
+export type CreateAiConversationMutationVariables = Exact<{
+  input: CreateAiConversationInput;
+}>;
+
+
+export type CreateAiConversationMutation = { __typename?: 'Mutation', createAiConversation?: { __typename?: 'AiConversation', id: string, name: string } | null };
+
+export type OnConversationSubscriptionVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type OnConversationSubscription = { __typename?: 'GraphqlSubscription', aiConversationStreamed: { __typename?: 'AiConversationStream', chunk?: string | null, done: boolean } };
 
 export type GetMrrPlanBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -18085,6 +18104,71 @@ export function useDeleteAddOnMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMutation>;
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
+export const CreateAiConversationDocument = gql`
+    mutation createAiConversation($input: CreateAiConversationInput!) {
+  createAiConversation(input: $input) {
+    id
+    name
+  }
+}
+    `;
+export type CreateAiConversationMutationFn = Apollo.MutationFunction<CreateAiConversationMutation, CreateAiConversationMutationVariables>;
+
+/**
+ * __useCreateAiConversationMutation__
+ *
+ * To run a mutation, you first call `useCreateAiConversationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAiConversationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAiConversationMutation, { data, loading, error }] = useCreateAiConversationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAiConversationMutation(baseOptions?: Apollo.MutationHookOptions<CreateAiConversationMutation, CreateAiConversationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAiConversationMutation, CreateAiConversationMutationVariables>(CreateAiConversationDocument, options);
+      }
+export type CreateAiConversationMutationHookResult = ReturnType<typeof useCreateAiConversationMutation>;
+export type CreateAiConversationMutationResult = Apollo.MutationResult<CreateAiConversationMutation>;
+export type CreateAiConversationMutationOptions = Apollo.BaseMutationOptions<CreateAiConversationMutation, CreateAiConversationMutationVariables>;
+export const OnConversationDocument = gql`
+    subscription onConversation($id: ID!) {
+  aiConversationStreamed(id: $id) {
+    chunk
+    done
+  }
+}
+    `;
+
+/**
+ * __useOnConversationSubscription__
+ *
+ * To run a query within a React component, call `useOnConversationSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnConversationSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnConversationSubscription({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useOnConversationSubscription(baseOptions: Apollo.SubscriptionHookOptions<OnConversationSubscription, OnConversationSubscriptionVariables> & ({ variables: OnConversationSubscriptionVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<OnConversationSubscription, OnConversationSubscriptionVariables>(OnConversationDocument, options);
+      }
+export type OnConversationSubscriptionHookResult = ReturnType<typeof useOnConversationSubscription>;
+export type OnConversationSubscriptionResult = Apollo.SubscriptionResult<OnConversationSubscription>;
 export const GetMrrPlanBreakdownDocument = gql`
     query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
   dataApiMrrsPlans(currency: $currency, limit: $limit, page: $page) {
