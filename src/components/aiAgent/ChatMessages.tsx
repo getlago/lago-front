@@ -7,14 +7,17 @@ import { ReactNode } from 'react'
  * @param seconds - The duration in seconds
  * @returns A human-readable duration string (e.g., "2m 30s", "1h 15m", "45s")
  */
+
 export const formatDuration = (seconds: number): string => {
-  const duration = Duration.fromObject({ seconds }).reconfigure({ locale: 'en-US' })
-  const shifted = duration.shiftTo('minutes', 'seconds').toObject()
+  const locale = 'en-US'
+  const durationObject = Duration.fromObject({ minutes: 0, seconds })
+    .reconfigure({ locale })
+    .normalize()
+    .toObject()
 
-  const minutes = shifted.minutes ? `${shifted.minutes}m` : ''
-  const secondsStr = shifted.seconds !== undefined ? `${shifted.seconds}s` : ''
-
-  return [minutes, secondsStr].filter(Boolean).join(' ')
+  // @ts-expect-error Intl.DurationFormat is not typed
+  // https://github.com/microsoft/TypeScript/issues/60608
+  return new Intl.DurationFormat(locale, { style: 'narrow' }).format(durationObject)
 }
 
 const SentMessage = ({ children }: { children: ReactNode }) => {
