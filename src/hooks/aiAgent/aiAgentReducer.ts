@@ -31,6 +31,10 @@ export enum ChatActionType {
    * Reset the conversation
    */
   RESET_CONVERSATION = 'RESET_CONVERSATION',
+  /**
+   * Set the previous chat messages
+   */
+  SET_PREVIOUS_CHAT_MESSAGES = 'SET_PREVIOUS_CHAT_MESSAGES',
 }
 
 export type ChatMessage = {
@@ -51,6 +55,7 @@ type ChatAction =
   | { type: ChatActionType.DONE; messageId: string }
   | { type: ChatActionType.ADD_INPUT; message: string }
   | { type: ChatActionType.RESET_CONVERSATION }
+  | { type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES; messages: ChatMessage[] }
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
   switch (action.type) {
@@ -133,6 +138,14 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
       return {
         ...state,
         messages: [],
+        isLoading: false,
+      }
+    }
+
+    case ChatActionType.SET_PREVIOUS_CHAT_MESSAGES: {
+      return {
+        ...state,
+        messages: action.messages,
         isLoading: false,
       }
     }
