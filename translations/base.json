@@ -3449,5 +3449,11 @@
   "text_17580145853389xkffv9cs1d": "Transaction name (optional)",
   "text_17580145853390n3v83gao69": "Type a wallet transaction name",
   "text_1758014585339r3kd52x7r58": "This value will appear on invoices when relevant.",
-  "text_1758014585339ly8tof8ub3r": "This value appears on invoices when relevant. To separate purchased from granted credits, create two top-ups."
+  "text_1758014585339ly8tof8ub3r": "This value appears on invoices when relevant. To separate purchased from granted credits, create two top-ups.",
+  "text_1757417225851l83ffyzwk4g": "Need insights or actions on your billing data?",
+  "text_1757417225851ylz6l7fwrg9": "I’m here to help you move faster",
+  "text_175741722585199myqwj6vyw": "AI Assistant",
+  "text_17574172258513wv8yozezoz": "Recent conversations",
+  "text_1757417225851jw88w0yfa0n": "There was an error generating a response.",
+  "text_1757417225851xkstj2u16q5": "What's next?"
 }
