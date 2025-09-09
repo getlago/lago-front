@@ -1,8 +1,9 @@
 import { Button, Typography } from 'lago-design-system'
 
+import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const AIWrapper = ({
+export const PanelWrapper = ({
   children,
   title,
   isBeta,
@@ -13,6 +14,7 @@ export const AIWrapper = ({
   isBeta: boolean
   onBackButton?: () => void
 }) => {
+  const { closePanel } = useAiAgent()
   const { translate } = useInternationalization()
 
   return (
@@ -30,6 +32,9 @@ export const AIWrapper = ({
               {translate('text_65d8d71a640c5400917f8a13')}
             </Typography>
           )}
+        </div>
+        <div className="flex flex-row gap-2">
+          <Button size="small" variant="quaternary" icon="close" onClick={closePanel} />
         </div>
       </div>
       <div className="height-minus-nav flex flex-col justify-between overflow-y-auto">
