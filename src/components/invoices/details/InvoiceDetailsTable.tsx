@@ -105,6 +105,7 @@ gql`
           amountCents
           amountCurrency
           invoiceDisplayName
+          billChargesMonthly
         }
       }
       fees {
