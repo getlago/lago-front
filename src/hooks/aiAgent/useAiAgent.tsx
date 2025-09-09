@@ -49,6 +49,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
     isLoading: false,
+    isStreaming: false,
   })
 
   const lastAssistantMessage = useMemo(() => {
@@ -94,6 +95,17 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
 
   const addNewMessage = (message: string) => {
     dispatch({ type: ChatActionType.ADD_INPUT, message })
+
+    // Scroll to the bottom of the conversation container
+    setTimeout(() => {
+      const containerElement = document.querySelector(
+        '[data-id="conversation-container"]',
+      ) as HTMLElement
+
+      if (containerElement) {
+        containerElement.scrollTo({ top: containerElement.scrollHeight })
+      }
+    }, 0)
   }
 
   return (
