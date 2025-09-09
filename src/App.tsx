@@ -114,7 +114,7 @@ const App = () => {
               <DeveloperToolProvider>
                 <AiAgentProvider>
                   <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                    <Panel>
+                    <Panel id="app-panel-group">
                       <PanelGroup direction="horizontal">
                         <Panel id="app-panel">
                           <div className="h-full overflow-auto">

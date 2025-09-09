@@ -24,16 +24,21 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
         })
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscription.data?.aiConversationStreamed.chunk])
 
   useEffect(() => {
     if (lastAssistantMessage && subscription.data?.aiConversationStreamed.done) {
       setChatDone(lastAssistantMessage.id)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscription.data?.aiConversationStreamed.done])
 
   return (
-    <div className="flex h-full flex-1 flex-col gap-4 overflow-y-auto p-4">
+    <div
+      data-id="conversation-container"
+      className="flex h-full flex-1 flex-col gap-4 overflow-y-auto p-4"
+    >
       {state.messages.map((message) => {
         if (message.role === ChatRole.user) {
           return (
@@ -50,7 +55,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
         )
       })}
 
-      {subscription.loading && <ChatMessages.Loading />}
+      {state.isLoading && <ChatMessages.Loading />}
 
       {subscription.error && (
         <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>

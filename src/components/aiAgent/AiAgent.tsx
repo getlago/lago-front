@@ -20,6 +20,8 @@ export const AiAgent = () => {
     return null
   }
 
+  const shouldDisplayWelcomeMessage = !state.messages.length
+
   return (
     <>
       <div className="relative">
@@ -42,10 +44,14 @@ export const AiAgent = () => {
         {currentPanelOpened === AIPanelEnum.ai && (
           <PanelWrapper
             title={state.messages[0]?.message ?? translate('text_175741722585199myqwj6vyw')}
-            isBeta={!state.messages[0]}
-            onBackButton={() => {
-              resetConversation()
-            }}
+            isBeta={shouldDisplayWelcomeMessage}
+            onBackButton={
+              shouldDisplayWelcomeMessage
+                ? undefined
+                : () => {
+                    resetConversation()
+                  }
+            }
           >
             <PanelAiAgent />
           </PanelWrapper>
