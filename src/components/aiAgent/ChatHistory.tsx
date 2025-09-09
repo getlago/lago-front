@@ -3,7 +3,7 @@ import { Skeleton, Typography } from 'lago-design-system'
 import { DateTime } from 'luxon'
 
 import { useGetAiConversationLazyQuery, useListAiConversationsQuery } from '~/generated/graphql'
-import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
+import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -49,13 +49,16 @@ export const ChatHistory = () => {
     })
 
     if (singleConversationData?.aiConversation?.id) {
-      const formattedMessages = singleConversationData?.aiConversation?.messages?.map(
-        (message) => ({
-          id: crypto.randomUUID(),
+      const formattedMessages = singleConversationData?.aiConversation?.messages?.map((message) => {
+        const randomKey = Math.round(Math.random() * 100000)
+
+        return {
+          id: `${message.type}-${randomKey}`,
           role: message.type === 'message.input' ? ChatRole.user : ChatRole.assistant,
           message: message.content,
-        }),
-      )
+          status: ChatStatus.done,
+        }
+      })
 
       setPreviousChatMessages({
         convId: singleConversationData?.aiConversation.id,
@@ -70,9 +73,11 @@ export const ChatHistory = () => {
 
   return (
     <div className="flex flex-col gap-1 p-4 pt-0">
-      <Typography variant="captionHl" color="grey700">
-        {translate('text_17574172258513wv8yozezoz')}
-      </Typography>
+      {!!data?.aiConversations?.collection.length && (
+        <Typography variant="captionHl" color="grey700">
+          {translate('text_17574172258513wv8yozezoz')}
+        </Typography>
+      )}
 
       <div className="flex flex-col gap-1">
         {loading &&
@@ -86,16 +91,20 @@ export const ChatHistory = () => {
         {!loading &&
           data?.aiConversations?.collection.map((conversation) => (
             <div key={conversation.id} className="flex items-center justify-between gap-2">
-              <button onClick={() => handleGetAiConversation(conversation.id)}>
-                <Typography variant="caption" color="grey600">
+              <button
+                onClick={() => handleGetAiConversation(conversation.id)}
+                className="text-left"
+              >
+                <Typography variant="caption" className="justify-start" color="grey600">
                   {conversation.name}
                 </Typography>
               </button>
 
               <Typography
+                noWrap
                 variant="caption"
                 color="grey600"
-                className="inline-block h-7 rounded-lg border border-grey-400 px-2"
+                className="inline-block min-h-7 shrink-0 rounded-lg border border-grey-400 px-2"
               >
                 {DateTime.fromISO(conversation.updatedAt).toRelative({
                   locale: 'en-US',

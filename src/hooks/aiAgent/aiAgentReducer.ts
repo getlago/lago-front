@@ -47,6 +47,7 @@ export type ChatMessage = {
 export type ChatState = {
   messages: ChatMessage[]
   isLoading: boolean
+  isStreaming: boolean
 }
 
 type ChatAction =
@@ -77,6 +78,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
       return {
         ...state,
         messages: [userMsg, assistantMsg],
+        isStreaming: false,
         isLoading: true,
       }
     }
@@ -93,7 +95,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
               }
             : message,
         ),
-        isLoading: true,
+        isStreaming: true,
+        isLoading: false,
       }
     }
 
@@ -108,6 +111,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
               }
             : message,
         ),
+        isStreaming: false,
         isLoading: false,
       }
     }
@@ -131,6 +135,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         ...state,
         messages: [...state.messages, userMsg, assistantMsg],
         isLoading: true,
+        isStreaming: false,
       }
     }
 
@@ -139,6 +144,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         ...state,
         messages: [],
         isLoading: false,
+        isStreaming: false,
       }
     }
 
@@ -147,6 +153,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         ...state,
         messages: action.messages,
         isLoading: false,
+        isStreaming: false,
       }
     }
 

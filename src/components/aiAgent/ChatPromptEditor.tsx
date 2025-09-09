@@ -20,7 +20,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
       message: '',
     },
     onSubmit: (values, props) => {
-      if (state.isLoading) return
+      if (state.isLoading || state.isStreaming) return
 
       handleSubmit(values, props)
       formikProps.resetForm()
@@ -34,16 +34,21 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
     }
   }
 
-  const canSubmit = !!formikProps.values.message && !state.isLoading
+  const canSubmit = !!formikProps.values.message && !state.isLoading && !state.isStreaming
 
   return (
     <form
-      className="relative m-4 flex w-[calc(100%-16px*2)] shrink-0 flex-col gap-4"
+      className="relative m-4 mt-0 flex w-[calc(100%-16px*2)] shrink-0 flex-col gap-4"
       onSubmit={formikProps.handleSubmit}
     >
+      {state.messages.length > 0 && (
+        <div className="absolute -inset-x-0.5 bottom-full h-8 w-[calc(100%+16px)] bg-gradient-to-b from-[transparent] to-white pt-1" />
+      )}
       <div className="h-24 w-full" />
       <div className="absolute inset-x-0 bottom-0">
         <TextInputField
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
           onKeyDown={handleKeyDown}
           multiline
           rows={1.5}
@@ -54,7 +59,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           inputProps={{
             className: '!resize-none w-full !pr-9',
           }}
-          disabled={state.isLoading}
+          disabled={state.isLoading || state.isStreaming}
         />
 
         <button

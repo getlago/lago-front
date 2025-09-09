@@ -22,7 +22,7 @@ export const useCustomLLMOutput = (output: string, isStreamFinished: boolean) =>
     ],
     isStreamFinished,
     throttle: throttleBasic({
-      windowLookBackMs: 1000,
+      windowLookBackMs: 2000,
     }),
   })
 
