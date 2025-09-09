@@ -84,6 +84,10 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
       return true
     })
 
+    const showSubscriptionTimestamps =
+      subscription?.metadata?.differentBoundariesForSubscriptionAndCharges &&
+      !subscription?.metadata?.isMonthlyBilled
+
     return (
       <>
         {(subscription.feesInAdvance.length > 0 || subscription.feesInAdvanceZero.length > 0) && (
@@ -93,14 +97,14 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
               isDraftInvoice={isDraftInvoice}
               period={translate('text_6499a4e4db5730004703f36b', {
                 from: intlFormatDateTime(
-                  subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
+                  showSubscriptionTimestamps
                     ? subscription?.metadata.fromDatetime
                     : subscription?.metadata?.inAdvanceChargesFromDatetime ||
                         subscription?.metadata?.chargesFromDatetime,
                   { timezone: customer?.applicableTimezone },
                 ).date,
                 to: intlFormatDateTime(
-                  subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
+                  showSubscriptionTimestamps
                     ? subscription?.metadata.toDatetime
                     : subscription?.metadata?.inAdvanceChargesToDatetime ||
                         subscription?.metadata?.chargesToDatetime,

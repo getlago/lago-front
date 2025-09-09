@@ -86,6 +86,7 @@ export type TSubscriptionDataForDisplay = {
       invoiceId: string
       subscriptionDisplayName: string
       toDatetime: string
+      isMonthlyBilled: boolean
     }
   }
 }
@@ -193,6 +194,7 @@ export const groupAndFormatFees = ({
             subscriptionDisplayName:
               invoiceSub.subscription.name || invoiceSub.subscription.plan.name,
             toDatetime: invoiceSub?.toDatetime,
+            isMonthlyBilled: !!invoiceSub?.subscription?.plan?.billChargesMonthly,
           },
         }
       }
