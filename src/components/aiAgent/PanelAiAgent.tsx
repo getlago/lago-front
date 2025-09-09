@@ -71,7 +71,7 @@ export const PanelAiAgent = () => {
   return (
     <div className="flex h-full flex-col">
       {shouldDisplayWelcomeMessage && (
-        <div className="mb-8 mt-auto flex flex-col gap-4 px-4">
+        <div className="mb-4 mt-auto flex flex-col gap-4 px-4">
           <Typography variant="headline" color="grey700">
             {translate('text_1757417225851l83ffyzwk4g')}
           </Typography>
@@ -79,7 +79,7 @@ export const PanelAiAgent = () => {
             {translate('text_1757417225851ylz6l7fwrg9')}
           </Typography>
 
-          <ChatShortcuts />
+          <ChatShortcuts onSubmit={handleSubmit} />
         </div>
       )}
 
