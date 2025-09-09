@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
+import { AiAgent } from '~/components/aiAgent/AiAgent'
 import { ToastContainer } from '~/components/designSystem/Toasts'
 import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
