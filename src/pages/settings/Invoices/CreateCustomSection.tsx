@@ -1,15 +1,11 @@
 import { useFormik } from 'formik'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { boolean, object, string } from 'yup'
+import { object, string } from 'yup'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import {
-  DefaultCustomSectionDialog,
-  DefaultCustomSectionDialogRef,
-} from '~/components/settings/invoices/DefaultCustomSectionDialog'
 import {
   PreviewCustomSectionDrawer,
   PreviewCustomSectionDrawerRef,
@@ -28,7 +24,6 @@ const CreateInvoiceCustomSection = () => {
   const navigate = useNavigate()
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
-  const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
   const previewCustomSectionDrawerRef = useRef<PreviewCustomSectionDrawerRef>(null)
 
   const { loading, isEdition, invoiceCustomSection, onSave, errorCode } =
@@ -41,7 +36,6 @@ const CreateInvoiceCustomSection = () => {
       description: invoiceCustomSection?.description || '',
       displayName: invoiceCustomSection?.displayName || '',
       details: invoiceCustomSection?.details || '',
-      selected: invoiceCustomSection?.selected || false,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -52,7 +46,6 @@ const CreateInvoiceCustomSection = () => {
         then: (schema) => schema.required(''),
         otherwise: (schema) => schema.notRequired(),
       }),
-      selected: boolean().required(''),
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -64,18 +57,6 @@ const CreateInvoiceCustomSection = () => {
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
     !!formikProps.initialValues.description,
   )
-
-  const onSubmit = () => {
-    if (!!formikProps.values.selected) {
-      defaultCustomSectionDialogRef.current?.openDialog({
-        type: 'setDefault',
-        onConfirm: formikProps.submitForm,
-        onCancel: () => formikProps.setFieldValue('selected', false),
-      })
-    } else {
-      formikProps.submitForm()
-    }
-  }
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -245,7 +226,7 @@ const CreateInvoiceCustomSection = () => {
             variant="primary"
             size="large"
             disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={onSubmit}
+            onClick={formikProps.submitForm}
           >
             {isEdition
               ? translate('text_17295436903260tlyb1gp1i7')
@@ -261,7 +242,6 @@ const CreateInvoiceCustomSection = () => {
         continueText={translate('text_6244277fe0975300fe3fb94c')}
         onContinue={() => navigate(INVOICE_SETTINGS_ROUTE)}
       />
-      <DefaultCustomSectionDialog ref={defaultCustomSectionDialogRef} />
       <PreviewCustomSectionDrawer ref={previewCustomSectionDrawerRef} />
     </>
   )

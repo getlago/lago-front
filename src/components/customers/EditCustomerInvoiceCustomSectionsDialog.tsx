@@ -21,7 +21,6 @@ gql`
     externalId
     configurableInvoiceCustomSections {
       id
-      selected
     }
     hasOverwrittenInvoiceCustomSectionsSelection
     skipInvoiceCustomSections
@@ -33,7 +32,6 @@ gql`
         id
         name
         code
-        selected
       }
     }
   } 

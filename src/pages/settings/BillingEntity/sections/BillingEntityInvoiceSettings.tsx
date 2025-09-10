@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon } from 'lago-design-system'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
-import { Button, Chip, ShowMoreText, Table, Tooltip, Typography } from '~/components/designSystem'
+import { Button, ShowMoreText, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   SettingsListItem,
@@ -14,22 +13,6 @@ import {
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  AddBillingEntityVatRateDialog,
-  AddBillingEntityVatRateDialogRef,
-} from '~/components/settings/invoices/AddBillingEntityVatRateDialog'
-import {
-  DefaultCustomSectionDialog,
-  DefaultCustomSectionDialogRef,
-} from '~/components/settings/invoices/DefaultCustomSectionDialog'
-import {
-  DeleteBillingEntityVatRateDialog,
-  DeleteBillingEntityVatRateDialogRef,
-} from '~/components/settings/invoices/DeleteBillingEntityVatRateDialog'
-import {
-  DeleteCustomSectionDialog,
-  DeleteCustomSectionDialogRef,
-} from '~/components/settings/invoices/DeleteCustomSectionDialog'
 import {
   EditBillingEntityDocumentLocaleDialog,
   EditBillingEntityDocumentLocaleDialogRef,
@@ -58,22 +41,17 @@ import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/invoices/EditNetPaymentTermDialog'
-import { addToast } from '~/core/apolloClient'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION } from '~/core/router'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import { getBillingEntityNumberPreview } from '~/core/utils/billingEntityNumberPreview'
 import {
   BillingEntity,
   BillingEntityDocumentNumberingEnum,
-  DeleteBillingEntityVatRateFragmentDoc,
   DeleteCustomSectionFragmentDoc,
   EditBillingEntityDefaultCurrencyForDialogFragmentDoc,
   EditBillingEntityInvoiceNumberingDialogFragmentDoc,
   EditBillingEntityInvoiceTemplateDialogFragmentDoc,
   EditBillingEntityNetPaymentTermForDialogFragmentDoc,
   useGetBillingEntitySettingsQuery,
-  useUpdateInvoiceCustomSectionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -81,7 +59,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
 import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { tw } from '~/styles/utils'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -119,8 +96,6 @@ gql`
         name
         code
         rate
-
-        ...DeleteBillingEntityVatRate
       }
     }
 
@@ -129,21 +104,12 @@ gql`
         id
         name
         code
-        selected
 
         ...DeleteCustomSection
       }
     }
   }
 
-  mutation updateInvoiceCustomSectionSelection($input: UpdateInvoiceCustomSectionInput!) {
-    updateInvoiceCustomSection(input: $input) {
-      id
-      selected
-    }
-  }
-
-  ${DeleteBillingEntityVatRateFragmentDoc}
   ${DeleteCustomSectionFragmentDoc}
   ${EditBillingEntityInvoiceTemplateDialogFragmentDoc}
   ${EditBillingEntityNetPaymentTermForDialogFragmentDoc}
@@ -153,13 +119,10 @@ gql`
 
 const BillingEntityInvoiceSettings = () => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
   const { billingEntityCode } = useParams()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
-  const editVATDialogRef = useRef<AddBillingEntityVatRateDialogRef>(null)
-  const deleteVATDialogRef = useRef<DeleteBillingEntityVatRateDialogRef>(null)
   const editInvoiceTemplateDialogRef = useRef<EditBillingEntityInvoiceTemplateDialogRef>(null)
   const editInvoiceNumberingDialogRef = useRef<EditBillingEntityInvoiceNumberingDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
@@ -169,8 +132,6 @@ const BillingEntityInvoiceSettings = () => {
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
-  const deleteCustomSectionDialogRef = useRef<DeleteCustomSectionDialogRef>(null)
 
   const { data, error, loading } = useGetBillingEntitySettingsQuery({
     variables: {
@@ -181,34 +142,10 @@ const BillingEntityInvoiceSettings = () => {
 
   const billingEntity = data?.billingEntity
 
-  const appliedTaxRates = data?.taxes?.collection || undefined
   const invoiceFooter = billingEntity?.billingConfiguration?.invoiceFooter || ''
   const invoiceGracePeriod = billingEntity?.billingConfiguration?.invoiceGracePeriod || 0
   const documentLocale = billingEntity?.billingConfiguration?.documentLocale || 'en'
   const canEditInvoiceSettings = hasPermissions(['billingEntitiesInvoicesUpdate'])
-
-  const hasCustomSections = !!data?.invoiceCustomSections?.collection?.length
-
-  const [updateCustomSection] = useUpdateInvoiceCustomSectionMutation({
-    refetchQueries: ['getBillingEntitySettings'],
-    onCompleted: ({ updateInvoiceCustomSection }) => {
-      if (!updateInvoiceCustomSection) {
-        return
-      }
-
-      if (updateInvoiceCustomSection.selected) {
-        addToast({
-          severity: 'success',
-          message: translate('text_1733849149914btq7cvs7ljb'),
-        })
-      } else {
-        addToast({
-          severity: 'success',
-          message: translate('text_17338491499140e4tci0yhhe'),
-        })
-      }
-    },
-  })
 
   if (!!error && !loading) {
     return (
@@ -319,110 +256,6 @@ const BillingEntityInvoiceSettings = () => {
       ),
     },
     {
-      id: 'invoice-settings-custom-sections',
-      label: translate('text_1732553358445168zt8fopyf'),
-      sublabel: translate('text_1732553358445p7rg0i0dzws'),
-      className: tw({ 'shadow-inherit': hasCustomSections }),
-      visible: false,
-      action: (
-        <Button
-          variant="inline"
-          disabled={!canEditInvoiceSettings}
-          onClick={() => navigate(CREATE_INVOICE_CUSTOM_SECTION)}
-        >
-          {translate('text_645bb193927b375079d28ad2')}
-        </Button>
-      ),
-      content: (
-        <>
-          {hasCustomSections && (
-            <Table
-              name="invoice-custom-section"
-              containerSize={{ default: 0 }}
-              data={data.invoiceCustomSections?.collection || []}
-              columns={[
-                {
-                  key: 'name',
-                  title: translate('text_6419c64eace749372fc72b0f'),
-                  content: (section) => (
-                    <Typography variant="body" color="textSecondary">
-                      {section.name}
-                    </Typography>
-                  ),
-                  maxSpace: true,
-                },
-                {
-                  key: 'selected',
-                  title: translate('text_63ac86d797f728a87b2f9fa7'),
-                  content: (section) =>
-                    section.selected && <Chip label={translate('text_65281f686a80b400c8e2f6d1')} />,
-                  minWidth: 96,
-                },
-              ]}
-              actionColumnTooltip={() => translate('text_17326382475765mx3dfl4v6t')}
-              actionColumn={(section) => [
-                {
-                  startIcon: 'pen',
-                  title: translate('text_1732638001460kne05vskb7e'),
-                  onAction: () =>
-                    navigate(generatePath(EDIT_INVOICE_CUSTOM_SECTION, { sectionId: section.id })),
-                },
-                section.selected
-                  ? {
-                      startIcon: 'star-outlined-hidden',
-                      title: translate('text_1728574726495j7n9zqj7o71'),
-                      onAction: () =>
-                        defaultCustomSectionDialogRef.current?.openDialog({
-                          type: 'removeDefault',
-                          onConfirm: () =>
-                            updateCustomSection({
-                              variables: {
-                                input: {
-                                  id: section.id,
-                                  selected: false,
-                                },
-                              },
-                            }),
-                        }),
-                    }
-                  : {
-                      startIcon: 'star-filled',
-                      title: translate('text_1728574726495n9jdse2hnrf'),
-                      onAction: () =>
-                        defaultCustomSectionDialogRef.current?.openDialog({
-                          type: 'setDefault',
-                          onConfirm: () =>
-                            updateCustomSection({
-                              variables: {
-                                input: {
-                                  id: section.id,
-                                  selected: true,
-                                },
-                              },
-                            }),
-                        }),
-                    },
-                {
-                  startIcon: 'trash',
-                  title: translate('text_1732638001460kdzkctjfegi'),
-                  onAction: () =>
-                    deleteCustomSectionDialogRef.current?.openDialog({
-                      id: section.id,
-                    }),
-                },
-              ]}
-            />
-          )}
-        </>
-      ),
-      dialog: (
-        <>
-          <DefaultCustomSectionDialog ref={defaultCustomSectionDialogRef} />
-          <DeleteCustomSectionDialog ref={deleteCustomSectionDialogRef} />
-        </>
-      ),
-    },
-    {
       id: 'invoice-settings-default-footer',
       label: translate('text_637f819eff19cd55a56d55f6'),
       sublabel: translate('text_1728031300577nwh7oc3hawr'),
@@ -525,99 +358,6 @@ const BillingEntityInvoiceSettings = () => {
         />
       ),
     },
-    {
-      id: 'invoice-settings-taxes',
-      permissions: hasPermissions(['billingEntitiesTaxesView']),
-      label: translate('text_637f819eff19cd55a56d55e6'),
-      sublabel: translate('text_1728031300577obxo6934yo7'),
-      visible: false,
-      action: (
-        <>
-          {hasPermissions(['billingEntitiesTaxesUpdate']) && (
-            <Button
-              variant="inline"
-              disabled={!canEditInvoiceSettings}
-              onClick={editVATDialogRef?.current?.openDialog}
-              data-test="add-tax-button"
-            >
-              {translate('text_645bb193927b375079d28ad2')}
-            </Button>
-          )}
-        </>
-      ),
-      content: (
-        <>
-          {!!appliedTaxRates?.length && (
-            <Table
-              name="invoice-settings-taxes"
-              containerSize={{ default: 0 }}
-              rowSize={72}
-              data={appliedTaxRates}
-              columns={[
-                {
-                  key: 'name',
-                  title: translate('text_17280312664187sb64qzmyhy'),
-                  maxSpace: true,
-                  content: ({ name, code }) => (
-                    <div
-                      className="flex flex-1 items-center gap-3"
-                      data-test={`applied-tax-${code}`}
-                    >
-                      <Avatar size="big" variant="connector">
-                        <Icon size="medium" name="percentage" color="dark" />
-                      </Avatar>
-                      <div>
-                        <Typography color="textSecondary" variant="bodyHl" noWrap>
-                          {name}
-                        </Typography>
-                        <Typography variant="caption" noWrap>
-                          {code}
-                        </Typography>
-                      </div>
-                    </div>
-                  ),
-                },
-                {
-                  key: 'rate',
-                  textAlign: 'right',
-                  title: translate('text_64de472463e2da6b31737de0'),
-                  content: ({ rate }) => (
-                    <Typography variant="body" color="grey700">
-                      {intlFormatNumber((rate || 0) / 100, {
-                        style: 'percent',
-                      })}
-                    </Typography>
-                  ),
-                },
-              ]}
-              actionColumn={(row) => {
-                return (
-                  <Tooltip placement="top-end" title={translate('text_645bb193927b375079d28b82')}>
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      disabled={loading}
-                      onClick={() => {
-                        deleteVATDialogRef.current?.openDialog(row)
-                      }}
-                    />
-                  </Tooltip>
-                )
-              }}
-            />
-          )}
-        </>
-      ),
-      dialog: (
-        <>
-          <DeleteBillingEntityVatRateDialog ref={deleteVATDialogRef} />
-          <AddBillingEntityVatRateDialog
-            ref={editVATDialogRef}
-            appliedTaxRatesTaxesIds={appliedTaxRates?.map((t) => t.id)}
-          />
-        </>
-      ),
-    },
   ]
 
   return (
@@ -638,22 +378,19 @@ const BillingEntityInvoiceSettings = () => {
           {!!loading && <SettingsListItemLoadingSkeleton count={6} />}
 
           {!loading &&
-            items
-              .filter((item) => (item.permissions ? item.permissions : true))
-              .filter((item) => item.visible !== false)
-              .map((item) => (
-                <SettingsListItem key={item.id} className={item.className}>
-                  <SettingsListItemHeader
-                    label={item.label}
-                    sublabel={item.sublabel}
-                    action={item.action}
-                  />
+            items.map((item) => (
+              <SettingsListItem key={item.id}>
+                <SettingsListItemHeader
+                  label={item.label}
+                  sublabel={item.sublabel}
+                  action={item.action}
+                />
 
-                  <Typography variant="body" color="grey700">
-                    {item.content}
-                  </Typography>
-                </SettingsListItem>
-              ))}
+                <Typography variant="body" color="grey700">
+                  {item.content}
+                </Typography>
+              </SettingsListItem>
+            ))}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 

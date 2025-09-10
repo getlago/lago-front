@@ -122,10 +122,8 @@ gql`
     configurableInvoiceCustomSections {
       id
       name
-      selected
     }
     skipInvoiceCustomSections
-    hasOverwrittenInvoiceCustomSectionsSelection
   }
 
   query getCustomerSettings($id: ID!) {
@@ -627,18 +625,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                           </Typography>
                         ),
                       },
-                      ...(!customer.hasOverwrittenInvoiceCustomSectionsSelection
-                        ? [
-                            {
-                              key: 'selected',
-                              title: translate('text_63ac86d797f728a87b2f9fa7'),
-                              content: ({ selected }) =>
-                                selected && (
-                                  <Chip label={translate('text_1729542098338prhjz7s29kt')} />
-                                ),
-                            } as TableColumn<{ selected: boolean }>,
-                          ]
-                        : []),
                     ]}
                   />
                 ) : (
