@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
+import { useParams } from 'react-router-dom'
 import { number, object } from 'yup'
 
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
@@ -13,11 +14,20 @@ import { AmountInputField } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CurrencyEnum,
-  useGetPortalWalletsQuery,
+  useCustomerPortalWalletQuery,
   useTopUpPortalWalletMutation,
 } from '~/generated/graphql'
 
 gql`
+  query customerPortalWallet($id: ID!) {
+    customerPortalWallet(id: $id) {
+      id
+      currency
+      name
+      rateAmount
+    }
+  }
+
   mutation TopUpPortalWallet($input: CreateCustomerPortalWalletTransactionInput!) {
     createCustomerPortalWalletTransaction(input: $input) {
       collection {
@@ -28,6 +38,7 @@ gql`
 `
 
 const WalletPage = () => {
+  const { walletId = '' } = useParams()
   const { goHome } = useCustomerPortalNavigation()
   const { translate, documentLocale } = useCustomerPortalTranslate()
 
@@ -36,7 +47,11 @@ const WalletPage = () => {
     loading: customerWalletLoading,
     error: customerWalletError,
     refetch: customerWalletRefetch,
-  } = useGetPortalWalletsQuery()
+  } = useCustomerPortalWalletQuery({
+    variables: {
+      id: walletId,
+    },
+  })
 
   const [topUpPortalWallet, { loading: loadingTopUpPortalWallet, error: errorTopUpPortalWallet }] =
     useTopUpPortalWalletMutation({
@@ -49,7 +64,7 @@ const WalletPage = () => {
       },
     })
 
-  const wallet = customerWalletData?.customerPortalWallets?.collection?.[0]
+  const wallet = customerWalletData?.customerPortalWallet
 
   const formikProps = useFormik({
     initialValues: {
@@ -75,8 +90,7 @@ const WalletPage = () => {
   const submitButtonDisabled =
     !formikProps?.values?.amount || loadingTopUpPortalWallet || formikProps?.values?.amount <= 0
 
-  const isLoading = customerWalletLoading
-  const isError = !isLoading && customerWalletError
+  const isError = !customerWalletLoading && customerWalletError
 
   if (isError) {
     return (
@@ -92,9 +106,9 @@ const WalletPage = () => {
     <div>
       <PageTitle title={translate('text_1728498418253nyv3qmz9k5k')} goHome={goHome} />
 
-      {isLoading && <LoaderWalletPage />}
+      {customerWalletLoading && <LoaderWalletPage />}
 
-      {!isLoading && (
+      {!customerWalletLoading && (
         <div>
           <AmountInputField
             name="amount"
