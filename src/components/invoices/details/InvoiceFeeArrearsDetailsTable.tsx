@@ -89,7 +89,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
 
     const showChargeTimestamps =
       subscription?.metadata?.differentBoundariesForSubscriptionAndCharges ||
-      subscription?.metadata?.isMonthlyBilled
+      !subscription?.metadata?.isMonthlyBilled
 
     return (
       <>
