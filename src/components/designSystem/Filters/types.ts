@@ -212,6 +212,17 @@ export const UsageBillableMetricAvailableFilters = [
   AvailableFiltersEnum.subscriptionExternalId,
 ]
 
+export const ForecastsAvailableFilters = [
+  AvailableFiltersEnum.billingEntityCode,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.isCustomerTinEmpty,
+  AvailableFiltersEnum.planCode,
+  AvailableFiltersEnum.subscriptionExternalId,
+]
+
 export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.loggedDate,
   AvailableFiltersEnum.apiKeyIds,
