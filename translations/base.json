@@ -3443,5 +3443,8 @@
   "text_1756372772688xutwcgyvjhw": "Semiannual",
   "text_1756372772688ov7fcui4x30": "per semester",
   "text_1756374359049ylvettsjq4l": "and will recur every 6 months.",
-  "text_1756374810493e2wep7ld6yk": "and will recur every 6 months. If that date doesn't exist in a given month, the top-up will occur on the last day of that month."
+  "text_1756374810493e2wep7ld6yk": "and will recur every 6 months. If that date doesn't exist in a given month, the top-up will occur on the last day of that month.",
+  "text_1757502242292q05inkc09vq": "The subscription will be billed every semester. The first invoice will be billed prorated until the beginning of the next semester.",
+  "text_1757504174992y39ailqcch0": "Subscription will be billed every 6 months starting on {{date}}."
 }
+
