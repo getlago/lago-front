@@ -46,7 +46,6 @@ import { getBillingEntityNumberPreview } from '~/core/utils/billingEntityNumberP
 import {
   BillingEntity,
   BillingEntityDocumentNumberingEnum,
-  DeleteBillingEntityVatRateFragmentDoc,
   DeleteCustomSectionFragmentDoc,
   EditBillingEntityDefaultCurrencyForDialogFragmentDoc,
   EditBillingEntityInvoiceNumberingDialogFragmentDoc,
@@ -97,8 +96,6 @@ gql`
         name
         code
         rate
-
-        ...DeleteBillingEntityVatRate
       }
     }
 
@@ -107,14 +104,12 @@ gql`
         id
         name
         code
-        selected
 
         ...DeleteCustomSection
       }
     }
   }
 
-  ${DeleteBillingEntityVatRateFragmentDoc}
   ${DeleteCustomSectionFragmentDoc}
   ${EditBillingEntityInvoiceTemplateDialogFragmentDoc}
   ${EditBillingEntityNetPaymentTermForDialogFragmentDoc}
