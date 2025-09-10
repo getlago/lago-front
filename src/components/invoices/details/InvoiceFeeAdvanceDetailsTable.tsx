@@ -85,8 +85,8 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
     })
 
     const showSubscriptionTimestamps =
-      subscription?.metadata?.differentBoundariesForSubscriptionAndCharges &&
-      !subscription?.metadata?.isMonthlyBilled
+      subscription?.metadata?.differentBoundariesForSubscriptionAndCharges ||
+      subscription?.metadata?.isMonthlyBilled
 
     return (
       <>
