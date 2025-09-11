@@ -95,6 +95,11 @@ gql`
       inAdvanceChargesFromDatetime
       inAdvanceChargesToDatetime
       acceptNewChargeFees
+      subscriptionAmountCents
+      invoice {
+        chargeAmountCents
+        progressiveBillingCreditAmountCents
+      }
       subscription {
         id
         name
@@ -105,6 +110,7 @@ gql`
           amountCents
           amountCurrency
           invoiceDisplayName
+          billChargesMonthly
         }
       }
       fees {

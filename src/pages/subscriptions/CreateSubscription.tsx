@@ -427,6 +427,11 @@ const CreateSubscription = () => {
             ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
             : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
 
+      case PlanInterval.Semiannual:
+        return billingTime === BillingTimeEnum.Calendar
+          ? translate('text_1757502242292q05inkc09vq')
+          : translate('text_1757504174992y39ailqcch0', { date: currentDate.toFormat('LLL. dd') })
+
       case PlanInterval.Quarterly:
         if (billingTime === BillingTimeEnum.Calendar)
           return translate('text_64d6357b00dea100ad1cba34')
