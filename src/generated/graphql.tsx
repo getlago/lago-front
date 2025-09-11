@@ -6125,11 +6125,13 @@ export type QueryActivityLogsArgs = {
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   resourceIds?: InputMaybe<Array<Scalars['String']['input']>>;
   resourceTypes?: InputMaybe<Array<ResourceTypeEnum>>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   userEmails?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -6176,14 +6178,14 @@ export type QueryApiLogArgs = {
 
 export type QueryApiLogsArgs = {
   apiKeyIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   httpMethods?: InputMaybe<Array<HttpMethodEnum>>;
   httpStatuses?: InputMaybe<Array<Scalars['HttpStatus']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   requestIds?: InputMaybe<Array<Scalars['String']['input']>>;
   requestPaths?: InputMaybe<Array<Scalars['String']['input']>>;
-  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
 
 
@@ -9306,10 +9308,10 @@ export type ActivityLogsQueryVariables = Exact<{
   apiKeyIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
-  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   userEmails?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
 }>;
 
@@ -9371,8 +9373,8 @@ export type GetApiLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   requestIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
-  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   apiKeyIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   httpMethods?: InputMaybe<Array<HttpMethodEnum> | HttpMethodEnum>;
   httpStatuses?: InputMaybe<Array<Scalars['HttpStatus']['input']> | Scalars['HttpStatus']['input']>;
@@ -20902,7 +20904,7 @@ export type GetSubscriptionIdForActivityLogDetailsLazyQueryHookResult = ReturnTy
 export type GetSubscriptionIdForActivityLogDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionIdForActivityLogDetailsSuspenseQuery>;
 export type GetSubscriptionIdForActivityLogDetailsQueryResult = Apollo.QueryResult<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>;
 export const ActivityLogsDocument = gql`
-    query activityLogs($page: Int, $limit: Int, $activityIds: [String!], $activitySources: [ActivitySourceEnum!], $activityTypes: [ActivityTypeEnum!], $apiKeyIds: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $resourceIds: [String!], $resourceTypes: [ResourceTypeEnum!], $toDate: ISO8601Date, $userEmails: [String!]) {
+    query activityLogs($page: Int, $limit: Int, $activityIds: [String!], $activitySources: [ActivitySourceEnum!], $activityTypes: [ActivityTypeEnum!], $apiKeyIds: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601DateTime, $resourceIds: [String!], $resourceTypes: [ResourceTypeEnum!], $toDate: ISO8601DateTime, $userEmails: [String!]) {
   activityLogs(
     page: $page
     limit: $limit
@@ -20912,10 +20914,10 @@ export const ActivityLogsDocument = gql`
     apiKeyIds: $apiKeyIds
     externalCustomerId: $externalCustomerId
     externalSubscriptionId: $externalSubscriptionId
-    fromDate: $fromDate
+    fromDatetime: $fromDate
     resourceIds: $resourceIds
     resourceTypes: $resourceTypes
-    toDate: $toDate
+    toDatetime: $toDate
     userEmails: $userEmails
   ) {
     collection {
@@ -21219,12 +21221,12 @@ export type GetApiLogDetailsLazyQueryHookResult = ReturnType<typeof useGetApiLog
 export type GetApiLogDetailsSuspenseQueryHookResult = ReturnType<typeof useGetApiLogDetailsSuspenseQuery>;
 export type GetApiLogDetailsQueryResult = Apollo.QueryResult<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>;
 export const GetApiLogsDocument = gql`
-    query getApiLogs($page: Int, $limit: Int, $requestIds: [String!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $apiKeyIds: [String!], $httpMethods: [HttpMethodEnum!], $httpStatuses: [HttpStatus!], $requestPaths: [String!]) {
+    query getApiLogs($page: Int, $limit: Int, $requestIds: [String!], $fromDate: ISO8601DateTime, $toDate: ISO8601DateTime, $apiKeyIds: [String!], $httpMethods: [HttpMethodEnum!], $httpStatuses: [HttpStatus!], $requestPaths: [String!]) {
   apiLogs(
     page: $page
     limit: $limit
-    fromDate: $fromDate
-    toDate: $toDate
+    fromDatetime: $fromDate
+    toDatetime: $toDate
     apiKeyIds: $apiKeyIds
     httpMethods: $httpMethods
     httpStatuses: $httpStatuses

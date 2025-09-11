@@ -31,8 +31,8 @@ gql`
     $page: Int
     $limit: Int
     $requestIds: [String!]
-    $fromDate: ISO8601Date
-    $toDate: ISO8601Date
+    $fromDate: ISO8601DateTime
+    $toDate: ISO8601DateTime
     $apiKeyIds: [String!]
     $httpMethods: [HttpMethodEnum!]
     $httpStatuses: [HttpStatus!]
@@ -41,8 +41,8 @@ gql`
     apiLogs(
       page: $page
       limit: $limit
-      fromDate: $fromDate
-      toDate: $toDate
+      fromDatetime: $fromDate
+      toDatetime: $toDate
       apiKeyIds: $apiKeyIds
       httpMethods: $httpMethods
       httpStatuses: $httpStatuses
