@@ -158,8 +158,11 @@ const TIMEOUT = 300000 // 5 minutes timeout
 
 export const timeoutLink = new ApolloLinkTimeout(TIMEOUT)
 
+const websocketUrl = apiUrl.replace('https://', 'wss://')
+const cableUrl = `${websocketUrl}/cable`
+
 export const subscriptionLink = new ActionCableLink({
-  cable: ActionCable.createConsumer('wss://api.lago.dev/cable'),
+  cable: ActionCable.createConsumer(cableUrl),
   channelName: 'GraphqlChannel',
   actionName: 'execute',
 })
