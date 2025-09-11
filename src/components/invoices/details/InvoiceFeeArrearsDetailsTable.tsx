@@ -4,6 +4,7 @@ import { Collapse } from '@mui/material'
 import { memo, RefObject, useState } from 'react'
 
 import { Button } from '~/components/designSystem'
+import { subscriptionTimestamps } from '~/components/invoices/details/utils'
 import {
   TExtendedRemainingFee,
   TSubscriptionDataForDisplay,
@@ -87,9 +88,11 @@ export const InvoiceFeeArrearsDetailsTable = memo(
       return true
     })
 
-    const showChargeTimestamps =
-      subscription?.metadata?.differentBoundariesForSubscriptionAndCharges ||
-      !subscription?.metadata?.isMonthlyBilled
+    const { from, to } = subscriptionTimestamps({
+      advance: false,
+      arrears: true,
+      subscription,
+    })
 
     return (
       <>
@@ -99,21 +102,10 @@ export const InvoiceFeeArrearsDetailsTable = memo(
               canHaveUnitPrice={canHaveUnitPrice}
               isDraftInvoice={isDraftInvoice}
               period={translate('text_6499a4e4db5730004703f36b', {
-                from: intlFormatDateTime(
-                  showChargeTimestamps
-                    ? subscription?.metadata?.chargesFromDatetime
-                    : subscription?.metadata?.fromDatetime,
-                  { timezone: customer?.applicableTimezone },
-                ).date,
-                to: intlFormatDateTime(
-                  showChargeTimestamps
-                    ? subscription?.metadata?.chargesToDatetime
-                    : subscription?.metadata?.toDatetime,
-                  { timezone: customer?.applicableTimezone },
-                ).date,
+                from: intlFormatDateTime(from, { timezone: customer?.applicableTimezone }).date,
+                to: intlFormatDateTime(to, { timezone: customer?.applicableTimezone }).date,
               })}
             />
-
             {(feesInArreras as TExtendedRemainingFee[]).map((feeInArrear) => {
               return (
                 <InvoiceDetailsTableBodyLine
