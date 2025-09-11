@@ -6,6 +6,7 @@ import {
   FeeTypesEnum,
   InvoiceForDetailsTableFragment,
   InvoiceStatusTypeEnum,
+  InvoiceSubscription,
 } from '~/generated/graphql'
 
 gql`
@@ -56,6 +57,8 @@ gql`
     invoice {
       id
       status
+      chargeAmountCents
+      progressiveBillingCreditAmountCents
     }
   }
 `
@@ -87,6 +90,7 @@ export type TSubscriptionDataForDisplay = {
       subscriptionDisplayName: string
       toDatetime: string
       isMonthlyBilled: boolean
+      shouldDisplaySubscriptionFee: boolean
     }
   }
 }
@@ -153,6 +157,18 @@ export const getSubscriptionFeeDisplayName = (fee: TExtendedRemainingFee) => {
   return `${capitalizedPlanInterval} subscription fee - ${plan?.name}`
 }
 
+const shouldDisplaySubscriptionFee = (sub: InvoiceSubscription) => {
+  if (sub?.invoice?.progressiveBillingCreditAmountCents > 0) {
+    return false
+  }
+
+  if (sub?.invoice?.chargeAmountCents === 0) {
+    return true
+  }
+
+  return sub?.subscriptionAmountCents > 0
+}
+
 export const groupAndFormatFees = ({
   invoiceSubscriptions,
   hasOldZeroFeeManagement,
@@ -195,6 +211,9 @@ export const groupAndFormatFees = ({
               invoiceSub.subscription.name || invoiceSub.subscription.plan.name,
             toDatetime: invoiceSub?.toDatetime,
             isMonthlyBilled: !!invoiceSub?.subscription?.plan?.billChargesMonthly,
+            shouldDisplaySubscriptionFee: shouldDisplaySubscriptionFee(
+              invoiceSub as InvoiceSubscription,
+            ),
           },
         }
       }
