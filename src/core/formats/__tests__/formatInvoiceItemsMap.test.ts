@@ -73,7 +73,10 @@ describe('formatInvoiceItemsMap', () => {
 
         expect(result).toEqual({
           subscriptions: {},
-          metadata: { hasAnyFeeParsed: false, hasAnyPositiveFeeParsed: false },
+          metadata: {
+            hasAnyFeeParsed: false,
+            hasAnyPositiveFeeParsed: false,
+          },
         })
       })
       it('should return default values if there are no fees', () => {
