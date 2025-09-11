@@ -132,7 +132,6 @@ export const subscriptionTimestamps = ({
     chargesToDatetime,
     inAdvanceChargesFromDatetime,
     inAdvanceChargesToDatetime,
-    shouldDisplaySubscriptionFee,
   } = subscription.metadata
 
   if (advance) {
@@ -143,7 +142,14 @@ export const subscriptionTimestamps = ({
       }
     }
 
-    if (isMonthlyBilled && !shouldDisplaySubscriptionFee) {
+    if (differentBoundaries) {
+      return {
+        from: subFromDatetime,
+        to: subToDatetime,
+      }
+    }
+
+    if (isMonthlyBilled) {
       return {
         from: chargesFromDatetime,
         to: chargesToDatetime,
@@ -152,7 +158,7 @@ export const subscriptionTimestamps = ({
   }
 
   if (arrears) {
-    if (shouldDisplaySubscriptionFee && isMonthlyBilled) {
+    if (chargesFromDatetime === chargesToDatetime) {
       return {
         from: subFromDatetime,
         to: subToDatetime,
