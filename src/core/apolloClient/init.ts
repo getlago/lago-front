@@ -32,17 +32,19 @@ const hasSubscriptionOperation = ({ query }: Operation) => {
   return hasSub
 }
 
-export const initializeApolloClient = async () => {
-  if (globalApolloClient) return globalApolloClient
-
+const createLinkChain = (client: ApolloClient<NormalizedCacheObject>) => {
   const splitLink = split(
     hasSubscriptionOperation,
     subscriptionLink as unknown as ApolloLink,
     uploadLink,
   )
 
-  // Create links without errorLink first
-  const baseLinks = ApolloLink.from([initialLink, timeoutLink, splitLink])
+  // Error link should be placed after network operations to catch their errors
+  return ApolloLink.from([initialLink, timeoutLink, errorLink(client), splitLink])
+}
+
+export const initializeApolloClient = async () => {
+  if (globalApolloClient) return globalApolloClient
 
   await persistCache({
     cache,
@@ -52,7 +54,7 @@ export const initializeApolloClient = async () => {
 
   const client = new ApolloClient({
     cache,
-    link: baseLinks,
+    link: ApolloLink.empty(), // Temporary empty link
     name: 'lago-app',
     version: appVersion,
     typeDefs,
@@ -72,17 +74,7 @@ export const initializeApolloClient = async () => {
 
   globalApolloClient = client
 
-  // Now create the final links with errorLink that has access to the client
-  // Error link should be placed after network operations to catch their errors
-  const finalLinks = ApolloLink.from([
-    initialLink,
-    timeoutLink,
-    errorLink(globalApolloClient),
-    splitLink,
-  ])
-
-  // Update the client's link with the error handling
-  client.setLink(finalLinks)
+  client.setLink(createLinkChain(client))
 
   return client
 }
