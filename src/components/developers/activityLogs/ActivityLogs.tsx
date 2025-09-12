@@ -37,10 +37,10 @@ gql`
     $apiKeyIds: [String!]
     $externalCustomerId: String
     $externalSubscriptionId: String
-    $fromDate: ISO8601Date
+    $fromDate: ISO8601DateTime
     $resourceIds: [String!]
     $resourceTypes: [ResourceTypeEnum!]
-    $toDate: ISO8601Date
+    $toDate: ISO8601DateTime
     $userEmails: [String!]
   ) {
     activityLogs(
@@ -52,10 +52,10 @@ gql`
       apiKeyIds: $apiKeyIds
       externalCustomerId: $externalCustomerId
       externalSubscriptionId: $externalSubscriptionId
-      fromDate: $fromDate
+      fromDatetime: $fromDate
       resourceIds: $resourceIds
       resourceTypes: $resourceTypes
-      toDate: $toDate
+      toDatetime: $toDate
       userEmails: $userEmails
     ) {
       collection {
