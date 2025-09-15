@@ -10,7 +10,10 @@ import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEsti
 import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
 import { CreditNoteItemsForm } from '~/components/creditNote/CreditNoteItemsForm'
 import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
-import { creditNoteFormCalculationCalculation } from '~/components/creditNote/utils'
+import {
+  creditNoteFormCalculationCalculation,
+  creditNoteFormHasAtLeastOneFeeChecked,
+} from '~/components/creditNote/utils'
 import {
   Alert,
   Button,
@@ -124,6 +127,8 @@ const CreateCreditNote = () => {
   const [payBackValidation, setPayBackValidation] = useState<Schema>(array())
 
   const formikProps = useFormik<Partial<CreditNoteForm>>({
+    validateOnMount: true,
+    enableReinitialize: true,
     initialValues: {
       description: undefined,
       reason: undefined,
@@ -146,8 +151,6 @@ const CreateCreditNote = () => {
       creditFee: creditFeeValidation,
       payBack: payBackValidation,
     }),
-    validateOnMount: true,
-    enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
       const answer = await onCreate(values as CreditNoteForm)
 
@@ -194,6 +197,10 @@ const CreateCreditNote = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPrepaidCreditsInvoice, creditFeeValue])
+
+  const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
+    return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
+  }, [formikProps.values])
 
   return (
     <div>
@@ -406,7 +413,7 @@ const CreateCreditNote = () => {
                 </Card>
                 <div className="mb-20 px-8">
                   <Button
-                    disabled={!formikProps.isValid}
+                    disabled={!formikProps.isValid || !formHasAtLeastOneFeeChecked}
                     fullWidth
                     size="large"
                     onClick={formikProps.submitForm}
