@@ -21,7 +21,6 @@ gql`
     description
     details
     displayName
-    selected
   }
 
   query getSingleInvoiceCustomSection($id: ID!) {
