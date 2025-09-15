@@ -37,6 +37,7 @@ gql`
         terminatedAt
         plan {
           id
+          isOverridden
           amountCurrency
           name
           interval
@@ -147,6 +148,17 @@ export const CustomerSubscriptionsList = () => {
                       {isScheduled && <Status type={StatusType.default} label="scheduled" />}
                     </div>
                   </>
+                ),
+              },
+              {
+                key: 'isOverriden',
+                title: translate('text_65281f686a80b400c8e2f6c4'),
+                content: ({ isOverriden }) => (
+                  <Typography>
+                    {isOverriden
+                      ? translate('text_65281f686a80b400c8e2f6dd')
+                      : translate('text_65281f686a80b400c8e2f6d1')}
+                  </Typography>
                 ),
               },
               {
