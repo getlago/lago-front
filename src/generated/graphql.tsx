@@ -1618,6 +1618,7 @@ export type CreateCustomerWalletInput = {
   customerId: Scalars['ID']['input'];
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   grantedCredits: Scalars['String']['input'];
+  ignorePaidTopUpLimitsOnCreation?: InputMaybe<Scalars['Boolean']['input']>;
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   paidCredits: Scalars['String']['input'];
@@ -1632,6 +1633,7 @@ export type CreateCustomerWalletTransactionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   grantedCredits?: InputMaybe<Scalars['String']['input']>;
+  ignorePaidTopUpLimits?: InputMaybe<Scalars['Boolean']['input']>;
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   metadata?: InputMaybe<Array<WalletTransactionMetadataInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -1742,6 +1744,7 @@ export type CreateInvoiceCustomSectionInput = {
   details?: InputMaybe<Scalars['String']['input']>;
   displayName?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  selected?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Create Invoice input arguments */
@@ -3938,6 +3941,7 @@ export type InvoiceCustomSection = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
+  selected: Scalars['Boolean']['output'];
 };
 
 /** InvoiceCustomSectionCollection type */
@@ -6181,6 +6185,7 @@ export type QueryApiLogArgs = {
 
 export type QueryApiLogsArgs = {
   apiKeyIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   httpMethods?: InputMaybe<Array<HttpMethodEnum>>;
   httpStatuses?: InputMaybe<Array<Scalars['HttpStatus']['input']>>;
@@ -6188,6 +6193,7 @@ export type QueryApiLogsArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   requestIds?: InputMaybe<Array<Scalars['String']['input']>>;
   requestPaths?: InputMaybe<Array<Scalars['String']['input']>>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
 
@@ -7995,6 +8001,7 @@ export type UpdateInvoiceCustomSectionInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  selected?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Update Invoice input arguments */
@@ -8302,7 +8309,9 @@ export type Wallet = {
   ongoingBalanceCents: Scalars['BigInt']['output'];
   ongoingUsageBalanceCents: Scalars['BigInt']['output'];
   paidTopUpMaxAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  paidTopUpMaxCredits?: Maybe<Scalars['BigInt']['output']>;
   paidTopUpMinAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  paidTopUpMinCredits?: Maybe<Scalars['BigInt']['output']>;
   rateAmount: Scalars['Float']['output'];
   recurringTransactionRules?: Maybe<Array<RecurringTransactionRule>>;
   status: WalletStatusEnum;
@@ -9223,7 +9232,7 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
 
 export type TerminateCustomerSubscriptionMutationVariables = Exact<{
   input: TerminateSubscriptionInput;
@@ -12434,7 +12443,7 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
+export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, name: string, code: string, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
 
 export type GetSubscriptionDataForEntitlementFormQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -20363,6 +20372,7 @@ export const GetCustomerSubscriptionForListDocument = gql`
       terminatedAt
       plan {
         id
+        isOverridden
         amountCurrency
         name
         interval
@@ -35610,6 +35620,7 @@ export const GetSubscriptionForDetailsDocument = gql`
     externalId
     plan {
       id
+      isOverridden
       name
       code
       payInAdvance
