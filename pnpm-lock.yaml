@@ -305,7 +305,7 @@ importers:
         specifier: ^8.39.0
         version: 8.39.0(eslint@9.32.0(jiti@2.4.2))(typescript@5.8.3)
       vite:
-        specifier: ^6.2.7
+        specifier: ^6.3.6
         version: 6.3.6(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.7.0)
       vite-bundle-visualizer:
         specifier: ^1.2.1
@@ -444,7 +444,7 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
       vite:
-        specifier: ^6.2.7
+        specifier: ^6.3.6
         version: 6.3.6(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.7.0)
       vite-plugin-svgr:
         specifier: ^4.3.0
@@ -10877,7 +10877,7 @@ snapshots:
 
   '@types/estree-jsx@1.0.5':
     dependencies:
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.8
 
   '@types/estree@1.0.7': {}
 
