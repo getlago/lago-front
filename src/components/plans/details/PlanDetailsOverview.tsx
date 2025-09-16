@@ -25,7 +25,13 @@ gql`
   ${EditPlanFragmentDoc}
 `
 
-export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
+export const PlanDetailsOverview = ({
+  planId,
+  showEntitlementSection = true,
+}: {
+  planId?: string
+  showEntitlementSection?: boolean
+}) => {
   const { translate } = useInternationalization()
   const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsOverviewSectionQuery({
     variables: { plan: planId as string },
@@ -102,6 +108,7 @@ export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
       <PlanDetailsAdvancedSettingsSection
         plan={plan}
         currency={plan?.amountCurrency || CurrencyEnum.Usd}
+        showEntitlementSection={showEntitlementSection}
       />
     </section>
   )

@@ -12,15 +12,17 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 export const PlanDetailsAdvancedSettingsSection = ({
   currency,
   plan,
+  showEntitlementSection = true,
 }: {
   currency: CurrencyEnum
   plan?: EditPlanFragment | null
+  showEntitlementSection?: boolean
 }) => {
   const { translate } = useInternationalization()
   const hasMinimumCommitment =
     !!plan?.minimumCommitment?.amountCents && !isNaN(Number(plan?.minimumCommitment?.amountCents))
   const hasProgressiveBilling = !!plan?.usageThresholds?.length
-  const hasEntitlements = !!plan?.entitlements?.length
+  const hasEntitlements = showEntitlementSection && !!plan?.entitlements?.length
 
   if (!hasMinimumCommitment && !hasProgressiveBilling && !hasEntitlements) return null
 
