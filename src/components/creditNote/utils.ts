@@ -8,7 +8,7 @@ import {
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
-import { FeesPerInvoice, FromFee, GroupedFee } from './types'
+import { CreditNoteForm, FeesPerInvoice, FromFee, GroupedFee } from './types'
 
 export type CreditNoteFormCalculationCalculationProps = {
   currency: CurrencyEnum
@@ -159,4 +159,39 @@ export const createCreditNoteForInvoiceButtonProps = ({
     disabledIssueCreditNoteButton,
     disabledIssueCreditNoteButtonLabel,
   }
+}
+
+export const creditNoteFormHasAtLeastOneFeeChecked = (
+  formValues: Partial<CreditNoteForm>,
+): boolean => {
+  const { fees, addOnFee, creditFee } = formValues
+  const groupedFeesValues = Object.values(fees || {})
+
+  if (addOnFee?.length) {
+    return addOnFee?.some((aof) => {
+      return aof?.checked
+    })
+  } else if (creditFee?.length) {
+    return creditFee?.some((cf) => {
+      return cf?.checked
+    })
+  } else if (groupedFeesValues.length) {
+    return groupedFeesValues.some((fee) => {
+      const feesToInspect = Object.values(fee?.fees || {})
+
+      return feesToInspect.some((f) => {
+        // Fees of type GroupedFee
+        if ('grouped' in f) {
+          const feesGroupedValues = Object.values(f?.grouped || {})
+
+          return feesGroupedValues.some((g) => g?.checked)
+        }
+
+        // Fees of type FromFee
+        return f?.checked
+      })
+    })
+  }
+
+  return false
 }
