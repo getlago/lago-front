@@ -16,15 +16,16 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 gql`
   fragment WalletTransactionForTransactionListItem on WalletTransaction {
     id
+    amount
+    createdAt
+    creditAmount
+    failedAt
+    name
+    settledAt
+    source
     status
     transactionStatus
     transactionType
-    amount
-    creditAmount
-    settledAt
-    failedAt
-    createdAt
-    source
     wallet {
       id
       currency
@@ -64,12 +65,13 @@ export const WalletTransactionListItem = ({
     amount,
     createdAt,
     creditAmount,
-    settledAt,
     failedAt,
-    status,
-    transactionType,
-    transactionStatus,
+    name,
+    settledAt,
     source,
+    status,
+    transactionStatus,
+    transactionType,
   } = transaction
   const isPending = status === WalletTransactionStatusEnum.Pending
   const isFailed = status === WalletTransactionStatusEnum.Failed
@@ -104,6 +106,7 @@ export const WalletTransactionListItem = ({
         labelColor="grey600"
         label={translate('text_65ae9a58ed65be00a35a0d72')}
         creditsColor="grey600"
+        name={name}
         credits={transactionAmountTranslationKey}
         amount={formattedCurrencyAmount}
         hasAction={false}
@@ -143,6 +146,7 @@ export const WalletTransactionListItem = ({
         timezone={customerTimezone}
         labelColor="grey700"
         label={getLabelForInboundTransaction()}
+        name={name}
         date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="success600"
         credits={`${Number(creditAmount) === 0 ? '' : '+ '} ${transactionAmountTranslationKey}`}
@@ -166,6 +170,7 @@ export const WalletTransactionListItem = ({
             ? translate('text_662fc05d2cfe3a0596b29d98', undefined, Number(creditAmount) || 0)
             : translate('text_62da6ec24a8e24e44f812892', undefined, Number(creditAmount) || 0)
         }
+        name={name}
         date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="grey700"
         credits={`${Number(creditAmount) === 0 ? '' : '- '} ${transactionAmountTranslationKey}`}

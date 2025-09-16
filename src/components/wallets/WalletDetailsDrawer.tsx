@@ -50,6 +50,7 @@ import { tw } from '~/styles/utils'
 gql`
   fragment WalletTransactionDetails on WalletTransaction {
     id
+    name
     amount
     createdAt
     transactionType
@@ -138,16 +139,17 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
 
     const {
       id,
-      transactionType,
-      status,
       createdAt,
-      settledAt,
       failedAt,
-      metadata,
-      transactionStatus,
-      invoiceRequiresSuccessfulPayment,
       invoice,
+      invoiceRequiresSuccessfulPayment,
+      metadata,
+      name,
+      settledAt,
       source,
+      status,
+      transactionStatus,
+      transactionType,
     } = data?.walletTransaction || {}
 
     const formatted = useMemo(() => {
@@ -337,6 +339,9 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                   {translate('text_1741943835752ac5uwdgkvfj')}
                 </Typography>
                 <div className={tw(GRID)}>
+                  {!!name && (
+                    <DetailRow label={translate('text_6419c64eace749372fc72b0f')} value={name} />
+                  )}
                   <DetailRow
                     label={translate('text_1741943835752ttg2ano3kju')}
                     value={formatted.credit}

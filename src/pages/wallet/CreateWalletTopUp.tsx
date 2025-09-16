@@ -115,6 +115,7 @@ const CreateWalletTopUp = () => {
       grantedCredits: '',
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment,
       paidCredits: '',
+      name: undefined,
       metadata: undefined,
     },
     validationSchema: object().shape({
@@ -281,9 +282,17 @@ const CreateWalletTopUp = () => {
                 </Typography>
               </div>
 
-              <AmountInputField
+              <TextInputField
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
+                name="name"
+                formikProps={formikProps}
+                label={translate('text_17580145853389xkffv9cs1d')}
+                placeholder={translate('text_17580145853390n3v83gao69')}
+                helperText={translate('text_1758014585339ly8tof8ub3r')}
+              />
+
+              <AmountInputField
                 name="paidCredits"
                 currency={wallet.currency}
                 beforeChangeFormatter={['positiveNumber']}

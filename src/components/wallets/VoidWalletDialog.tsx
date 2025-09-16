@@ -2,10 +2,10 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import { number, object } from 'yup'
+import { number, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { AmountInputField } from '~/components/form'
+import { AmountInputField, TextInputField } from '~/components/form'
 import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -55,9 +55,11 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
 
     const formikProps = useFormik({
       initialValues: {
+        name: undefined,
         voidCredits: undefined,
       },
       validationSchema: object().shape({
+        name: string(),
         voidCredits: number()
           .required('')
           .max(
@@ -68,12 +70,13 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
       enableReinitialize: true,
       validateOnMount: true,
       isInitialValid: false,
-      onSubmit: async ({ voidCredits }) => {
+      onSubmit: async ({ voidCredits, name }) => {
         await createVoidTransaction({
           variables: {
             input: {
               walletId: wallet.id,
               voidedCredits: String(voidCredits),
+              name: name || undefined,
             },
           },
           refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
@@ -106,10 +109,17 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
           </>
         )}
       >
-        <div className="mb-8">
-          <AmountInputField
+        <div className="mb-8 flex flex-col gap-6">
+          <TextInputField
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
+            name="name"
+            formikProps={formikProps}
+            label={translate('text_17580145853389xkffv9cs1d')}
+            placeholder={translate('text_17580145853390n3v83gao69')}
+          />
+
+          <AmountInputField
             name="voidCredits"
             currency={wallet.currency}
             beforeChangeFormatter={['positiveNumber']}

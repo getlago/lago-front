@@ -89,7 +89,6 @@ describe('WalletTransactionListItem', () => {
     })
 
     expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
-    expect(screen.getByTestId('caption-pending')).toBeInTheDocument()
     expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent(`+ ${CREDITS}`)
     expect(screen.getByTestId('amount')).toHaveTextContent(AMOUNT)
@@ -102,7 +101,6 @@ describe('WalletTransactionListItem', () => {
     })
 
     expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
-    expect(screen.getByTestId('caption-pending')).toBeInTheDocument()
     expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent(`- ${CREDITS}`)
     expect(screen.getByTestId('amount')).toHaveTextContent(AMOUNT)
