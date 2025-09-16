@@ -45,7 +45,7 @@ export const SubscriptionDetailsOverview = () => {
   return (
     <div className="flex flex-col gap-12">
       <SubscriptionInformations subscription={subscription} />
-      <PlanDetailsOverview planId={subscription?.plan.id} />
+      <PlanDetailsOverview planId={subscription?.plan.id} showEntitlementSection={false} />
     </div>
   )
 }
