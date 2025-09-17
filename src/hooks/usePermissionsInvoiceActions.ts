@@ -115,7 +115,7 @@ export const usePermissionsInvoiceActions = () => {
   const canDispute = (invoice: Pick<Invoice, 'status' | 'paymentDisputeLostAt'>): boolean => {
     return (
       invoice.status === InvoiceStatusTypeEnum.Finalized &&
-      invoice.paymentDisputeLostAt &&
+      !invoice.paymentDisputeLostAt &&
       hasPermissions(['invoicesUpdate'])
     )
   }
