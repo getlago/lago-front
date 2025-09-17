@@ -34,17 +34,12 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   CUSTOMERS_LIST_ROUTE,
-  EMAILS_SETTINGS_ROUTE,
   FEATURE_DETAILS_ROUTE,
   FEATURES_ROUTE,
   HOME_ROUTE,
-  INTEGRATIONS_ROUTE,
-  INVOICE_SETTINGS_ROUTE,
   INVOICES_ROUTE,
-  MEMBERS_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
-  ORGANIZATION_INFORMATIONS_ROUTE,
   PAYMENT_DETAILS_ROUTE,
   PAYMENTS_ROUTE,
   PLAN_DETAILS_ROUTE,
@@ -52,7 +47,6 @@ import {
   PLANS_ROUTE,
   SETTINGS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
-  TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -496,15 +490,6 @@ const MainNavLayout = () => {
                   title: translate('text_62728ff857d47b013204c726'),
                   icon: 'settings',
                   link: SETTINGS_ROUTE,
-                  canBeClickedOnActive: true,
-                  match: [
-                    EMAILS_SETTINGS_ROUTE,
-                    INTEGRATIONS_ROUTE,
-                    INVOICE_SETTINGS_ROUTE,
-                    MEMBERS_ROUTE,
-                    ORGANIZATION_INFORMATIONS_ROUTE,
-                    TAXES_SETTINGS_ROUTE,
-                  ],
                   hidden: !hasPermissions(['organizationView']),
                 },
                 {

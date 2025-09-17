@@ -48,15 +48,18 @@ export const EditBillingEntityTimezoneDialog = forwardRef<
       timezone,
     },
     validationSchema: object().shape({
-      timezone: string().required(''),
+      timezone: string().nullable(),
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: async (values) => {
+    onSubmit: async ({ timezone: tzFromFormik, ...values }) => {
+      const selectedTimezone = tzFromFormik || TimezoneEnum.TzUtc
+
       await update({
         variables: {
           input: {
             id: id as string,
+            timezone: selectedTimezone,
             ...values,
           },
         },
