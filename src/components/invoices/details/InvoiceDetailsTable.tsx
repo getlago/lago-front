@@ -12,7 +12,7 @@ import { InvoiceDetailsTableHeader } from '~/components/invoices/details/Invoice
 import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
 import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/InvoiceFeeAdvanceDetailsTable'
 import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
-import { InvoiceFeesForDisplay } from '~/components/invoices/types'
+import { InvoiceFeesForDisplay, InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import {
   _newDeepFormatFees,
   groupAndFormatFees,
@@ -28,7 +28,6 @@ import {
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
-  Invoice,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForDetailsTableFragment,
   InvoiceStatusTypeEnum,
@@ -72,6 +71,49 @@ gql`
     ...FeeForInvoiceFeeAdvanceDetailsTable
   }
 
+  fragment InvoiceSubscriptionForInvoiceDetailsTable on InvoiceSubscription {
+    fromDatetime
+    toDatetime
+    chargesFromDatetime
+    chargesToDatetime
+    inAdvanceChargesFromDatetime
+    inAdvanceChargesToDatetime
+    acceptNewChargeFees
+    subscriptionAmountCents
+    invoice {
+      chargeAmountCents
+      progressiveBillingCreditAmountCents
+    }
+    subscription {
+      id
+      name
+      plan {
+        id
+        name
+        interval
+        amountCents
+        amountCurrency
+        invoiceDisplayName
+        billChargesMonthly
+      }
+    }
+    fees {
+      id
+      subscription {
+        id
+        name
+        plan {
+          id
+          name
+          invoiceDisplayName
+        }
+      }
+      ...FeeForInvoiceDetailsTable
+    }
+
+    ...InvoiceSubscriptionFormating
+  }
+
   fragment InvoiceForDetailsTable on Invoice {
     id
     invoiceType
@@ -85,48 +127,6 @@ gql`
     errorDetails {
       errorCode
       errorDetails
-    }
-    invoiceSubscriptions {
-      fromDatetime
-      toDatetime
-      chargesFromDatetime
-      chargesToDatetime
-      inAdvanceChargesFromDatetime
-      inAdvanceChargesToDatetime
-      acceptNewChargeFees
-      subscriptionAmountCents
-      invoice {
-        chargeAmountCents
-        progressiveBillingCreditAmountCents
-      }
-      subscription {
-        id
-        name
-        plan {
-          id
-          name
-          interval
-          amountCents
-          amountCurrency
-          invoiceDisplayName
-          billChargesMonthly
-        }
-      }
-      fees {
-        id
-        subscription {
-          id
-          name
-          plan {
-            id
-            name
-            invoiceDisplayName
-          }
-        }
-        ...FeeForInvoiceDetailsTable
-      }
-
-      ...InvoiceSubscriptionFormating
     }
 
     ...InvoiceForDetailsTableFooter
@@ -169,6 +169,7 @@ interface InvoiceDetailsTableProps {
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
   fees: InvoiceFeesForDisplay
+  invoiceSubscriptions: InvoiceSubscriptionsForDisplay
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
 }
@@ -275,6 +276,7 @@ export const InvoiceDetailsTable = memo(
     invoice,
     isDraftOverride,
     fees,
+    invoiceSubscriptions,
     onAdd,
     onDelete,
   }: InvoiceDetailsTableProps) => {
@@ -358,8 +360,7 @@ export const InvoiceDetailsTable = memo(
     }
 
     const newFormattedInvoiceItemsMap = groupAndFormatFees({
-      invoiceSubscriptions:
-        invoice?.invoiceSubscriptions as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
+      invoiceSubscriptions,
       hasOldZeroFeeManagement,
     })
 

@@ -75,6 +75,7 @@ import {
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoiceStatusTypeEnum,
+  InvoiceSubscriptionForInvoiceDetailsTableFragmentDoc,
   InvoiceTaxStatusTypeEnum,
   LagoApiError,
   NetsuiteIntegration,
@@ -86,6 +87,7 @@ import {
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
   useGetInvoiceFeesQuery,
+  useGetInvoiceSubscriptionsQuery,
   useIntegrationsListForCustomerInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
   useRetryInvoiceMutation,
@@ -133,6 +135,7 @@ gql`
     customer {
       id
     }
+
     ...InvoiceDetailsForInvoiceOverview
     ...InvoiceForCreditNotesTable
     ...InvoiceForDetailsTable
@@ -180,6 +183,15 @@ gql`
       id
       fees {
         ...FeeForInvoiceDetailsTable
+      }
+    }
+  }
+
+  query getInvoiceSubscriptions($id: ID!) {
+    invoice(id: $id) {
+      id
+      invoiceSubscriptions {
+        ...InvoiceSubscriptionForInvoiceDetailsTable
       }
     }
   }
@@ -292,6 +304,7 @@ gql`
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${CustomerForInvoiceOverviewFragmentDoc}
+  ${InvoiceSubscriptionForInvoiceDetailsTableFragmentDoc}
 `
 
 const getErrorMessageFromErrorDetails = (
@@ -368,8 +381,18 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
+  const {
+    data: invoiceSubscriptionData,
+    loading: invoiceSubscriptionLoading,
+    error: invoiceSubscriptionError,
+  } = useGetInvoiceSubscriptionsQuery({
+    variables: { id: invoiceId as string },
+    skip: !invoiceId,
+    notifyOnNetworkStatusChange: true,
+  })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees
+  const invoiceSubscriptions = invoiceSubscriptionData?.invoice?.invoiceSubscriptions
 
   const { data: customerData, loading: customerLoading } = useGetInvoiceCustomerQuery({
     variables: { id: invoice?.customer?.id as string },
@@ -579,8 +602,9 @@ const CustomerInvoiceDetails = () => {
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
-  const isLoading = loading || customerLoading || feesLoading
-  const hasError = (!!error || !!feesError || !data?.invoice) && !isLoading
+  const isLoading = loading || customerLoading || feesLoading || invoiceSubscriptionLoading
+  const hasError =
+    (!!error || !!feesError || !!invoiceSubscriptionError || !data?.invoice) && !isLoading
   const hasTaxProviderError = errorDetails?.find(
     ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
   )
@@ -639,6 +663,7 @@ const CustomerInvoiceDetails = () => {
             loading={isLoading}
             customer={customer}
             fees={invoiceFees}
+            invoiceSubscriptions={invoiceSubscriptions}
             loadingInvoiceDownload={loadingInvoiceDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
             loadingRetryInvoice={loadingRetryInvoice}
@@ -742,10 +767,10 @@ const CustomerInvoiceDetails = () => {
     hasError,
     hasTaxProviderError,
     data?.invoice,
-    loading,
-    customerLoading,
+    isLoading,
     customer,
     invoiceFees,
+    invoiceSubscriptions,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
