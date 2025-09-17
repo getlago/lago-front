@@ -19,6 +19,7 @@ import { LagoApiError } from '~/generated/graphql'
 
 import { getItemFromLS, logOut, omitDeep } from './cacheUtils'
 import { LagoGQLError } from './errorUtils'
+import { buildWebSocketUrl } from './websocketUrl'
 
 const AUTH_ERRORS = [
   LagoApiError.ExpiredJwtToken,
@@ -113,13 +114,7 @@ const TIMEOUT = 300000 // 5 minutes timeout
 
 export const timeoutLink = new ApolloLinkTimeout(TIMEOUT)
 
-// Robustly construct websocket URL from apiUrl
-const apiUrlObj = new URL(apiUrl)
-const wsProtocol = apiUrlObj.protocol === 'https:' ? 'wss:' : 'ws:'
-apiUrlObj.protocol = wsProtocol
-apiUrlObj.pathname = apiUrlObj.pathname.replace(/\/$/, '') // Remove trailing slash if present
-const websocketUrl = apiUrlObj.toString().replace(/\/$/, '') // Remove trailing slash if present
-const cableUrl = `${websocketUrl}/cable`
+const { cableUrl } = buildWebSocketUrl(apiUrl)
 
 export const subscriptionLink = new ActionCableLink({
   cable: ActionCable.createConsumer(cableUrl),
