@@ -80,7 +80,6 @@ const CreatePricingUnit = lazyLoad(() => import('~/pages/settings/Invoices/Creat
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
-export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup`
 export const FULL_INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab`
