@@ -1,10 +1,11 @@
 import { FormikProps } from 'formik'
 import { FC, useMemo } from 'react'
+import { generatePath } from 'react-router-dom'
 
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem'
 import { ComboBoxField, TextInputField } from '~/components/form'
-import { ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
+import { BILLING_ENTITY_GENERAL_ROUTE } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddCustomerDrawerFragment,
@@ -129,7 +130,9 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
                 zone: timezoneConfig.name,
                 offset: timezoneConfig.offset,
               }),
-              link: ORGANIZATION_INFORMATIONS_ROUTE,
+              link: generatePath(BILLING_ENTITY_GENERAL_ROUTE, {
+                billingEntityCode: customer?.billingEntity?.code || '',
+              }),
             })}
           />
         }
