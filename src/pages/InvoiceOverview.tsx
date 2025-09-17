@@ -22,6 +22,7 @@ import {
 import { InvoiceCreditNotesTable } from '~/components/invoices/InvoiceCreditNotesTable'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { Metadatas } from '~/components/invoices/Metadatas'
+import { InvoiceFeesForDisplay } from '~/components/invoices/types'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokInvoiceUrl,
@@ -189,6 +190,7 @@ interface InvoiceOverviewProps {
   syncSalesforceIntegrationInvoice: SyncSalesforceInvoiceMutationFn
   loadingSyncHubspotIntegrationInvoice: boolean
   loadingSyncSalesforceIntegrationInvoice: boolean
+  fees: InvoiceFeesForDisplay
 }
 
 const InlineLink = ({ children, ...props }: LinkProps) => {
@@ -337,6 +339,7 @@ const InvoiceOverview = memo(
     loadingSyncHubspotIntegrationInvoice,
     loadingSyncSalesforceIntegrationInvoice,
     customer,
+    fees,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
@@ -562,6 +565,7 @@ const InvoiceOverview = memo(
                 invoice={invoice as Invoice}
                 editFeeDrawerRef={editFeeDrawerRef}
                 deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                fees={fees}
               />
               {!!formattedCreditNotes?.length &&
                 invoice?.status !== InvoiceStatusTypeEnum.Draft &&

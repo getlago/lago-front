@@ -85,6 +85,7 @@ import {
   useGeneratePaymentUrlMutation,
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
+  useGetInvoiceFeesQuery,
   useIntegrationsListForCustomerInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
   useRetryInvoiceMutation,
@@ -171,6 +172,15 @@ gql`
     invoice(id: $id) {
       id
       ...AllInvoiceDetailsForCustomerInvoiceDetails
+    }
+  }
+
+  query getInvoiceFees($id: ID!) {
+    invoice(id: $id) {
+      id
+      fees {
+        ...FeeForInvoiceDetailsTable
+      }
     }
   }
 
@@ -350,7 +360,16 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
+  const {
+    data: feesData,
+    loading: feesLoading,
+    error: feesError,
+  } = useGetInvoiceFeesQuery({
+    variables: { id: invoiceId as string },
+    skip: !invoiceId,
+  })
   const invoice = data?.invoice
+  const invoiceFees = feesData?.invoice?.fees
 
   const { data: customerData, loading: customerLoading } = useGetInvoiceCustomerQuery({
     variables: { id: invoice?.customer?.id as string },
@@ -560,7 +579,8 @@ const CustomerInvoiceDetails = () => {
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
-  const hasError = (!!error || !data?.invoice) && !loading
+  const isLoading = loading || customerLoading || feesLoading
+  const hasError = (!!error || !!feesError || !data?.invoice) && !isLoading
   const hasTaxProviderError = errorDetails?.find(
     ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
   )
@@ -616,8 +636,9 @@ const CustomerInvoiceDetails = () => {
             hasError={hasError}
             hasTaxProviderError={!!hasTaxProviderError}
             invoice={data?.invoice as Invoice}
-            loading={loading || customerLoading}
+            loading={isLoading}
             customer={customer}
+            fees={invoiceFees}
             loadingInvoiceDownload={loadingInvoiceDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
             loadingRetryInvoice={loadingRetryInvoice}
@@ -724,6 +745,7 @@ const CustomerInvoiceDetails = () => {
     loading,
     customerLoading,
     customer,
+    invoiceFees,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,

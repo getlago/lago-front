@@ -42,6 +42,14 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
+  fragment FeeForCustomerInvoiceRegenerate on Fee {
+    id
+    appliedTaxes {
+      id
+      taxCode
+    }
+  }
+
   mutation regenerateInvoice($input: RegenerateInvoiceInput!) {
     regenerateFromVoided(input: $input) {
       id

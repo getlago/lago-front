@@ -12,6 +12,7 @@ import { InvoiceDetailsTableHeader } from '~/components/invoices/details/Invoice
 import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
 import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/InvoiceFeeAdvanceDetailsTable'
 import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
+import { InvoiceFeesForDisplay } from '~/components/invoices/types'
 import {
   _newDeepFormatFees,
   groupAndFormatFees,
@@ -23,6 +24,7 @@ import {
   Customer,
   ErrorCodesEnum,
   Fee,
+  FeeForCustomerInvoiceRegenerateFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
@@ -64,6 +66,7 @@ gql`
       values
     }
 
+    ...FeeForCustomerInvoiceRegenerate
     ...FeeForInvoiceDetailsTableBodyLine
     ...FeeForInvoiceFeeArrearsDetailsTable
     ...FeeForInvoiceFeeAdvanceDetailsTable
@@ -82,10 +85,6 @@ gql`
     errorDetails {
       errorCode
       errorDetails
-    }
-    fees {
-      id
-      ...FeeForInvoiceDetailsTable
     }
     invoiceSubscriptions {
       fromDatetime
@@ -138,6 +137,7 @@ gql`
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
   ${FeeForInvoiceFeeArrearsDetailsTableFragmentDoc}
   ${FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc}
+  ${FeeForCustomerInvoiceRegenerateFragmentDoc}
 `
 
 const getOneTimeFeeDisplayName = <
@@ -168,7 +168,7 @@ interface InvoiceDetailsTableProps {
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
-  fees?: Invoice['fees']
+  fees: InvoiceFeesForDisplay
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
 }
@@ -286,7 +286,7 @@ export const InvoiceDetailsTable = memo(
     const hasOldZeroFeeManagement = !!premiumIntegrations?.includes(
       PremiumIntegrationTypeEnum.ZeroAmountFees,
     )
-    const invoiceFees = fees || invoice?.fees
+    const invoiceFees = fees
 
     const hasTaxProviderError = !!invoice.errorDetails?.find(
       ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
