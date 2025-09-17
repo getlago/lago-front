@@ -28,3 +28,5 @@ CODE_OF_CONDUCT.md
 # Logs
 *.log
 
+Dockerfile
+Dockerfile.dev

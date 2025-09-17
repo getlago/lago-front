@@ -2,12 +2,12 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
-COPY . .
+RUN apk add python3 build-base && corepack enable && corepack prepare pnpm@latest --activate
 
-RUN apk add python3 build-base && \
-    corepack enable && corepack prepare pnpm@latest --activate && \
-    rm -rf /app/node_modules && \
-    pnpm install && pnpm build
+COPY package.json pnpm-lock.yaml pnpmfile.docker.cjs ./
+RUN pnpm install --pnpmfile=./pnpmfile.docker.cjs
+COPY . .
+RUN pnpm install && pnpm build
 
 FROM nginx:1.27-alpine
 
