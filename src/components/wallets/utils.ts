@@ -70,6 +70,9 @@ export const getNextRecurringDate = ({
     case RecurringTransactionIntervalEnum.Quarterly:
       nextRecurringDate = dateRef.plus({ months: 3 })
       break
+    case RecurringTransactionIntervalEnum.Semiannual:
+      nextRecurringDate = dateRef.plus({ months: 6 })
+      break
     case RecurringTransactionIntervalEnum.Yearly:
       nextRecurringDate = dateRef.plus({ years: 1 })
       break
@@ -155,6 +158,11 @@ const setEndOfSentence = ({
         text = isDayPotentiallyNotReachableOnEntirePeriod
           ? translate('text_6657be42151661006d2f3b81')
           : translate('text_6657be42151661006d2f3b7f')
+        break
+      case RecurringTransactionIntervalEnum.Semiannual:
+        text = isDayPotentiallyNotReachableOnEntirePeriod
+          ? translate('text_1756374810493e2wep7ld6yk')
+          : translate('text_1756374359049ylvettsjq4l')
         break
       case RecurringTransactionIntervalEnum.Yearly:
         text = isDayPotentiallyNotReachableOnEntirePeriod

@@ -428,6 +428,12 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                         },
                         {
                           label: translate(
+                            getIntervalTranslationKey[RecurringTransactionIntervalEnum.Semiannual],
+                          ),
+                          value: RecurringTransactionIntervalEnum.Semiannual,
+                        },
+                        {
+                          label: translate(
                             getIntervalTranslationKey[RecurringTransactionIntervalEnum.Yearly],
                           ),
                           value: RecurringTransactionIntervalEnum.Yearly,

@@ -38,6 +38,9 @@ export const PlanDetailsChargesSection = ({
       },
     ) ?? {}
 
+  const isAnnual =
+    plan?.interval && [PlanInterval.Semiannual, PlanInterval.Yearly].includes(plan?.interval)
+
   return (
     <section className="flex flex-col gap-12">
       {!!meteredCharges?.length && (
@@ -104,9 +107,7 @@ export const PlanDetailsChargesSection = ({
                         value: translate(
                           mapChargeIntervalCopy(
                             plan?.interval as PlanInterval,
-                            (plan?.interval === PlanInterval.Yearly &&
-                              !!plan?.billChargesMonthly) ||
-                              false,
+                            (isAnnual && !!plan?.billChargesMonthly) || false,
                           ),
                         ),
                       },

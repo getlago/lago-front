@@ -17,6 +17,7 @@ const TRANSLATIONS_MAP_PLAN_INTERVAL = {
   [PlanInterval.Weekly]: 'text_1728457056992jfgxzscd70q',
   [PlanInterval.Monthly]: 'text_1728457056992oc086nxmsdc',
   [PlanInterval.Quarterly]: 'text_1728457056992k9xfbdt0bgq',
+  [PlanInterval.Semiannual]: 'text_1756372772688ov7fcui4x30',
   [PlanInterval.Yearly]: 'text_17284570569928g0b297xuqf',
 }
 

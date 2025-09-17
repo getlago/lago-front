@@ -4,6 +4,7 @@ import { Collapse } from '@mui/material'
 import { memo, RefObject, useState } from 'react'
 
 import { Button } from '~/components/designSystem'
+import { subscriptionTimestamps } from '~/components/invoices/details/utils'
 import { TSubscriptionDataForDisplay } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
@@ -84,6 +85,12 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
       return true
     })
 
+    const { from, to } = subscriptionTimestamps({
+      advance: true,
+      arrears: false,
+      subscription,
+    })
+
     return (
       <>
         {(subscription.feesInAdvance.length > 0 || subscription.feesInAdvanceZero.length > 0) && (
@@ -92,20 +99,8 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
               canHaveUnitPrice={canHaveUnitPrice}
               isDraftInvoice={isDraftInvoice}
               period={translate('text_6499a4e4db5730004703f36b', {
-                from: intlFormatDateTime(
-                  subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
-                    ? subscription?.metadata.fromDatetime
-                    : subscription?.metadata?.inAdvanceChargesFromDatetime ||
-                        subscription?.metadata?.chargesFromDatetime,
-                  { timezone: customer?.applicableTimezone },
-                ).date,
-                to: intlFormatDateTime(
-                  subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
-                    ? subscription?.metadata.toDatetime
-                    : subscription?.metadata?.inAdvanceChargesToDatetime ||
-                        subscription?.metadata?.chargesToDatetime,
-                  { timezone: customer?.applicableTimezone },
-                ).date,
+                from: intlFormatDateTime(from, { timezone: customer?.applicableTimezone }).date,
+                to: intlFormatDateTime(to, { timezone: customer?.applicableTimezone }).date,
               })}
             />
             {feesInAdvance.map((feeInAdvance) => {

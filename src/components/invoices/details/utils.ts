@@ -1,6 +1,9 @@
 import { ComboBoxProps } from '~/components/form'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
-import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
+import {
+  composeChargeFilterDisplayName,
+  TSubscriptionDataForDisplay,
+} from '~/core/formats/formatInvoiceItemsMap'
 import { InvoiceSubscriptionForCreateFeeDrawerFragment } from '~/generated/graphql'
 
 export const getChargesComboboxDataFromInvoiceSubscription = ({
@@ -105,4 +108,73 @@ export const getChargesFiltersComboboxDataFromInvoiceSubscription = ({
   }
 
   return comboboxData
+}
+
+export const subscriptionTimestamps = ({
+  advance,
+  arrears,
+  subscription,
+}: {
+  advance: boolean
+  arrears: boolean
+  subscription: TSubscriptionDataForDisplay['subscription']
+}) => {
+  if (!subscription?.metadata) {
+    return { from: '', to: '' }
+  }
+
+  const {
+    differentBoundariesForSubscriptionAndCharges: differentBoundaries,
+    isMonthlyBilled,
+    fromDatetime: subFromDatetime,
+    toDatetime: subToDatetime,
+    chargesFromDatetime,
+    chargesToDatetime,
+    inAdvanceChargesFromDatetime,
+    inAdvanceChargesToDatetime,
+  } = subscription.metadata
+
+  if (advance) {
+    if (inAdvanceChargesFromDatetime && inAdvanceChargesToDatetime) {
+      return {
+        from: inAdvanceChargesFromDatetime,
+        to: inAdvanceChargesToDatetime,
+      }
+    }
+
+    if (differentBoundaries) {
+      return {
+        from: subFromDatetime,
+        to: subToDatetime,
+      }
+    }
+
+    if (isMonthlyBilled) {
+      return {
+        from: chargesFromDatetime,
+        to: chargesToDatetime,
+      }
+    }
+  }
+
+  if (arrears) {
+    if (chargesFromDatetime === chargesToDatetime) {
+      return {
+        from: subFromDatetime,
+        to: subToDatetime,
+      }
+    }
+
+    if (differentBoundaries || isMonthlyBilled) {
+      return {
+        from: chargesFromDatetime,
+        to: chargesToDatetime,
+      }
+    }
+  }
+
+  return {
+    from: subFromDatetime,
+    to: subToDatetime,
+  }
 }
