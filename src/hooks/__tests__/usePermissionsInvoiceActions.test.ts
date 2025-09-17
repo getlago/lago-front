@@ -32,6 +32,7 @@ jest.mock('~/core/apolloClient', () => ({
 const DEFAULT_PERMISSIONS = {
   invoicesView: true,
   invoicesUpdate: true,
+  draftInvoicesUpdate: true,
   invoicesSend: true,
   invoicesVoid: true,
   creditNotesCreate: true,
@@ -257,6 +258,39 @@ describe('usePermissionsInvoiceActions', () => {
       const { result } = await prepare({ invoicesUpdate: false })
 
       expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
+    })
+
+    it('should return false when user does not have draftInvoicesUpdate permission', async () => {
+      const { result } = await prepare({ draftInvoicesUpdate: false })
+
+      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
+    })
+
+    it('should return false when user has invoicesUpdate but not draftInvoicesUpdate', async () => {
+      const { result } = await prepare({
+        invoicesUpdate: true,
+        draftInvoicesUpdate: false,
+      })
+
+      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
+    })
+
+    it('should return false when user has draftInvoicesUpdate but not invoicesUpdate', async () => {
+      const { result } = await prepare({
+        invoicesUpdate: false,
+        draftInvoicesUpdate: true,
+      })
+
+      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
+    })
+
+    it('should return true when user has both invoicesUpdate and draftInvoicesUpdate permissions', async () => {
+      const { result } = await prepare({
+        invoicesUpdate: true,
+        draftInvoicesUpdate: true,
+      })
+
+      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(true)
     })
 
     it('should return true for voided invoice', async () => {

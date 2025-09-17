@@ -33,7 +33,7 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -66,10 +66,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
-
-const { disablePdfGeneration } = envGlobalVar()
 
 type TInvoiceListProps = {
   error: ApolloError | undefined
@@ -89,7 +86,6 @@ const InvoicesList = ({
   variables,
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -201,31 +197,12 @@ const InvoicesList = ({
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 
-            // TODO: Compare this with src/hooks/usePermissionsInvoiceActions.ts:
-            // We don't check the taxStatus here, is it an oversight?
-            const canDownload =
-              ![
-                InvoiceStatusTypeEnum.Draft,
-                InvoiceStatusTypeEnum.Failed,
-                InvoiceStatusTypeEnum.Pending,
-              ].includes(invoice.status) &&
-              hasPermissions(['invoicesView']) &&
-              !disablePdfGeneration
-
-            const canUpdatePaymentStatus =
-              ![
-                InvoiceStatusTypeEnum.Draft,
-                InvoiceStatusTypeEnum.Voided,
-                InvoiceStatusTypeEnum.Failed,
-                InvoiceStatusTypeEnum.Pending,
-              ].includes(invoice.status) && hasPermissions(['invoicesUpdate'])
-
             const isPartiallyPaid =
               Number(invoice.totalPaidAmountCents) > 0 &&
               Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
 
             return [
-              canDownload
+              actions.canDownload(invoice)
                 ? {
                     startIcon: 'download',
                     title: translate('text_62b31e1f6a5b8b1b745ece42'),
@@ -305,7 +282,7 @@ const InvoicesList = ({
                   }
                 : null,
 
-              canUpdatePaymentStatus
+              actions.canUpdatePaymentStatus(invoice)
                 ? {
                     startIcon: 'coin-dollar',
                     title: translate('text_63eba8c65a6c8043feee2a01'),

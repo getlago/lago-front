@@ -32,7 +32,9 @@ export const usePermissionsInvoiceActions = () => {
         InvoiceStatusTypeEnum.Failed,
         InvoiceStatusTypeEnum.Pending,
         InvoiceStatusTypeEnum.Finalized,
-      ].includes(invoice.status) && hasPermissions(['invoicesUpdate'])
+      ].includes(invoice.status) &&
+      hasPermissions(['invoicesUpdate']) &&
+      hasPermissions(['draftInvoicesUpdate'])
     )
   }
 
