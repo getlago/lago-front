@@ -10,33 +10,49 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
 
+const concatInfosTextForDisplay = ({
+  name,
+  date,
+  timezone,
+}: {
+  name: string | null | undefined
+  date: string | null | undefined
+  timezone: TimezoneEnum | undefined
+}) => {
+  const formattedDate = date ? intlFormatDateTime(date, { timezone }).date : ''
+
+  return [formattedDate, name].filter(Boolean).join(' • ')
+}
+
 interface ListItemProps {
-  iconName: IconName
-  labelColor: TypographyColor
-  transactionId: string
-  label: string
-  status?: WalletTransactionStatusEnum
-  date?: string
-  timezone?: TimezoneEnum
-  creditsColor: TypographyColor
-  credits: string
   amount: string
-  isBlurry?: boolean
+  credits: string
+  creditsColor: TypographyColor
+  date?: string
   hasAction?: boolean
+  iconName: IconName
+  isBlurry?: boolean
+  label: string
+  labelColor: TypographyColor
+  name?: string | null
+  status?: WalletTransactionStatusEnum
+  timezone?: TimezoneEnum
+  transactionId: string
   onClick?: () => void
 }
 export const ListItem: FC<ListItemProps> = ({
-  iconName,
-  labelColor,
-  label,
-  date,
-  timezone,
-  creditsColor,
-  credits,
   amount,
-  isBlurry,
-  status,
+  credits,
+  creditsColor,
+  date,
   hasAction,
+  iconName,
+  isBlurry,
+  label,
+  labelColor,
+  name,
+  status,
+  timezone,
   transactionId,
   onClick,
   ...props
@@ -46,6 +62,7 @@ export const ListItem: FC<ListItemProps> = ({
   const isClickable = !!onClick
   const isPending = status === WalletTransactionStatusEnum.Pending
   const isFailed = status === WalletTransactionStatusEnum.Failed
+  const displayText = concatInfosTextForDisplay({ name, date, timezone })
 
   return (
     <li className={tw('relative shadow-b', isClickable && 'hover:bg-grey-100')}>
@@ -59,38 +76,29 @@ export const ListItem: FC<ListItemProps> = ({
           }
         }}
         className={tw(
-          'flex items-center justify-between px-4 py-3',
+          'flex items-center justify-between gap-2 px-4 py-3',
           isClickable && 'focus-visible:bg-grey-200 focus-visible:ring focus-visible:ring-inset',
         )}
         {...props}
       >
-        <div className="flex items-center">
+        <div className="flex min-w-0 items-center">
           <Avatar className="mr-3" size="big" variant="connector">
             <Icon name={iconName} color="dark" />
             {isPending && <AvatarBadge icon="sync" color="dark" />}
             {isFailed && <AvatarBadge icon="stop" color="warning" />}
           </Avatar>
-          <div className="flex flex-col justify-end">
+          <div className="flex flex-col overflow-hidden">
             <Typography
+              noWrap
               variant="bodyHl"
               color={isPending || isFailed ? 'grey500' : labelColor}
               data-test="transaction-label"
             >
               {label}
             </Typography>
-            {date && (
-              <Typography className="flex items-baseline *:mr-1" variant="caption" color="grey600">
-                {isPending && (
-                  <span data-test="caption-pending">{`${translate(
-                    'text_62da6db136909f52c2704c30',
-                  )} • `}</span>
-                )}
-                {isFailed && (
-                  <span data-test="caption-failed">{`${translate(
-                    'text_637656ef3d876b0269edc7a1',
-                  )} • `}</span>
-                )}
-                {intlFormatDateTime(date, { timezone }).date}
+            {!!displayText && (
+              <Typography noWrap variant="caption" color="grey600">
+                {displayText}
               </Typography>
             )}
           </div>

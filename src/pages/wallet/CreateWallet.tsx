@@ -49,17 +49,18 @@ gql`
       feeTypes
     }
     recurringTransactionRules {
+      expirationAt
+      grantedCredits
+      interval
+      invoiceRequiresSuccessfulPayment
       lagoId
       method
-      trigger
-      interval
-      targetOngoingBalance
       paidCredits
-      grantedCredits
-      thresholdCredits
       startedAt
-      invoiceRequiresSuccessfulPayment
-      expirationAt
+      targetOngoingBalance
+      thresholdCredits
+      transactionName
+      trigger
       transactionMetadata {
         key
         value
@@ -199,6 +200,7 @@ const CreateWallet = () => {
       expirationAt: wallet?.expirationAt || undefined,
       grantedCredits: '',
       name: wallet?.name || '',
+      transactionName: undefined,
       appliesTo: wallet?.appliesTo || undefined,
       paidCredits: '',
       rateAmount: intlFormatNumber(wallet?.rateAmount ?? 1, {

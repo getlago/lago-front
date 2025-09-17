@@ -133,6 +133,14 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
 
         {formType === FORM_TYPE_ENUM.creation && (
           <>
+            <TextInputField
+              name="transactionName"
+              formikProps={formikProps}
+              label={translate('text_17580145853389xkffv9cs1d')}
+              placeholder={translate('text_17580145853390n3v83gao69')}
+              helperText={translate('text_1758014585339ly8tof8ub3r')}
+            />
+
             <AmountInputField
               name="paidCredits"
               currency={formikProps.values.currency}
@@ -261,6 +269,14 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
 
                   formikProps.setFieldValue('recurringTransactionRules.0.method', value)
                 }}
+              />
+
+              <TextInputField
+                name="recurringTransactionRules.0.transactionName"
+                formikProps={formikProps}
+                label={translate('text_17580145853389xkffv9cs1d')}
+                placeholder={translate('text_17580145853390n3v83gao69')}
+                helperText={translate('text_1758014585339r3kd52x7r58')}
               />
 
               {recurringTransactionRules?.method === RecurringTransactionMethodEnum.Fixed && (
