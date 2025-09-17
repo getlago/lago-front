@@ -1633,6 +1633,7 @@ export type CreateCustomerWalletTransactionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   grantedCredits?: InputMaybe<Scalars['String']['input']>;
+  ignorePaidTopUpLimits?: InputMaybe<Scalars['Boolean']['input']>;
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   metadata?: InputMaybe<Array<WalletTransactionMetadataInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -1743,7 +1744,6 @@ export type CreateInvoiceCustomSectionInput = {
   details?: InputMaybe<Scalars['String']['input']>;
   displayName?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  selected?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Create Invoice input arguments */
@@ -3940,7 +3940,6 @@ export type InvoiceCustomSection = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
-  selected: Scalars['Boolean']['output'];
 };
 
 /** InvoiceCustomSectionCollection type */
@@ -6132,11 +6131,13 @@ export type QueryActivityLogsArgs = {
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   resourceIds?: InputMaybe<Array<Scalars['String']['input']>>;
   resourceTypes?: InputMaybe<Array<ResourceTypeEnum>>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   userEmails?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -6184,6 +6185,7 @@ export type QueryApiLogArgs = {
 export type QueryApiLogsArgs = {
   apiKeyIds?: InputMaybe<Array<Scalars['String']['input']>>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   httpMethods?: InputMaybe<Array<HttpMethodEnum>>;
   httpStatuses?: InputMaybe<Array<Scalars['HttpStatus']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -6191,6 +6193,7 @@ export type QueryApiLogsArgs = {
   requestIds?: InputMaybe<Array<Scalars['String']['input']>>;
   requestPaths?: InputMaybe<Array<Scalars['String']['input']>>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
 
 
@@ -7998,7 +8001,6 @@ export type UpdateInvoiceCustomSectionInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  selected?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Update Invoice input arguments */
@@ -8306,7 +8308,9 @@ export type Wallet = {
   ongoingBalanceCents: Scalars['BigInt']['output'];
   ongoingUsageBalanceCents: Scalars['BigInt']['output'];
   paidTopUpMaxAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  paidTopUpMaxCredits?: Maybe<Scalars['BigInt']['output']>;
   paidTopUpMinAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  paidTopUpMinCredits?: Maybe<Scalars['BigInt']['output']>;
   rateAmount: Scalars['Float']['output'];
   recurringTransactionRules?: Maybe<Array<RecurringTransactionRule>>;
   status: WalletStatusEnum;
@@ -9008,14 +9012,14 @@ export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Custome
 
 export type CustomerAppliedDunningCampaignForSettingsFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null };
 
-export type CustomerAppliedInvoiceCustomSectionsFragment = { __typename?: 'Customer', skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null };
+export type CustomerAppliedInvoiceCustomSectionsFragment = { __typename?: 'Customer', skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null };
 
 export type GetCustomerSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, netPaymentTerm: number, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null };
+export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, name?: string | null, displayName: string, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, netPaymentTerm: number, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null } | null };
 
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string };
 
@@ -9098,19 +9102,19 @@ export type EditCustomerDunningCampaignMutationVariables = Exact<{
 
 export type EditCustomerDunningCampaignMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string } | null } | null };
 
-export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, selected: boolean }> | null };
+export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string }> | null };
 
 export type GetInvoiceCustomSectionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetInvoiceCustomSectionsQuery = { __typename?: 'Query', invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, selected: boolean }> } | null };
+export type GetInvoiceCustomSectionsQuery = { __typename?: 'Query', invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> } | null };
 
 export type EditCustomerInvoiceCustomSectionMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type EditCustomerInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null };
+export type EditCustomerInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null } | null };
 
 export type EditCustomerInvoiceGracePeriodFragment = { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null };
 
@@ -9227,7 +9231,7 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
 
 export type TerminateCustomerSubscriptionMutationVariables = Exact<{
   input: TerminateSubscriptionInput;
@@ -9322,10 +9326,10 @@ export type ActivityLogsQueryVariables = Exact<{
   apiKeyIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
-  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   userEmails?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
 }>;
 
@@ -9387,8 +9391,8 @@ export type GetApiLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   requestIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
-  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   apiKeyIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   httpMethods?: InputMaybe<Array<HttpMethodEnum> | HttpMethodEnum>;
   httpStatuses?: InputMaybe<Array<Scalars['HttpStatus']['input']> | Scalars['HttpStatus']['input']>;
@@ -10665,31 +10669,6 @@ export type GetXeroIntegrationsSettingsQueryVariables = Exact<{
 
 export type GetXeroIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
 
-export type GetTaxRatesForEditBillingEntityQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetTaxRatesForEditBillingEntityQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, rate: number }> } };
-
-export type AssignTaxRateToBillingEntityMutationVariables = Exact<{
-  input: TaxUpdateInput;
-}>;
-
-
-export type AssignTaxRateToBillingEntityMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string } | null };
-
-export type DeleteBillingEntityVatRateFragment = { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean };
-
-export type UnassignTaxRateToBillingEntityMutationVariables = Exact<{
-  input: TaxUpdateInput;
-}>;
-
-
-export type UnassignTaxRateToBillingEntityMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean } | null };
-
 export type DeleteCustomSectionFragment = { __typename?: 'InvoiceCustomSection', id: string };
 
 export type DeleteCustomSectionMutationVariables = Exact<{
@@ -11209,28 +11188,28 @@ export type UpdateDunningCampaignMutationVariables = Exact<{
 
 export type UpdateDunningCampaignMutation = { __typename?: 'Mutation', updateDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, bccEmails?: Array<string> | null, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> } | null };
 
-export type InvoiceCustomSectionFormFragment = { __typename?: 'InvoiceCustomSection', name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean };
+export type InvoiceCustomSectionFormFragment = { __typename?: 'InvoiceCustomSection', name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null };
 
 export type GetSingleInvoiceCustomSectionQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleInvoiceCustomSectionQuery = { __typename?: 'Query', invoiceCustomSection: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean } };
+export type GetSingleInvoiceCustomSectionQuery = { __typename?: 'Query', invoiceCustomSection: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null } };
 
 export type CreateInvoiceCustomSectionMutationVariables = Exact<{
   input: CreateInvoiceCustomSectionInput;
 }>;
 
 
-export type CreateInvoiceCustomSectionMutation = { __typename?: 'Mutation', createInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean } | null };
+export type CreateInvoiceCustomSectionMutation = { __typename?: 'Mutation', createInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null } | null };
 
 export type UpdateInvoiceCustomSectionMutationVariables = Exact<{
   input: UpdateInvoiceCustomSectionInput;
 }>;
 
 
-export type UpdateInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean } | null };
+export type UpdateInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null } | null };
 
 export type TaxFormFragment = { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number };
 
@@ -12068,14 +12047,7 @@ export type GetBillingEntitySettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetBillingEntitySettingsQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number, defaultCurrency: CurrencyEnum, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, appliedToOrganization: boolean }> }, invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, selected: boolean }> } | null };
-
-export type UpdateInvoiceCustomSectionSelectionMutationVariables = Exact<{
-  input: UpdateInvoiceCustomSectionInput;
-}>;
-
-
-export type UpdateInvoiceCustomSectionSelectionMutation = { __typename?: 'Mutation', updateInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, selected: boolean } | null };
+export type GetBillingEntitySettingsQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number, defaultCurrency: CurrencyEnum, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> }, invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> } | null };
 
 export type ApplyBillingEntityDunningCampaignMutationVariables = Exact<{
   input: BillingEntityUpdateAppliedDunningCampaignInput;
@@ -12990,10 +12962,8 @@ export const CustomerAppliedInvoiceCustomSectionsFragmentDoc = gql`
   configurableInvoiceCustomSections {
     id
     name
-    selected
   }
   skipInvoiceCustomSections
-  hasOverwrittenInvoiceCustomSectionsSelection
 }
     `;
 export const DeleteCustomerDialogFragmentDoc = gql`
@@ -13082,7 +13052,6 @@ export const EditCustomerInvoiceCustomSectionFragmentDoc = gql`
   externalId
   configurableInvoiceCustomSections {
     id
-    selected
   }
   hasOverwrittenInvoiceCustomSectionsSelection
   skipInvoiceCustomSections
@@ -14107,13 +14076,6 @@ export const XeroIntegrationSettingsFragmentDoc = gql`
   syncPayments
 }
     `;
-export const DeleteBillingEntityVatRateFragmentDoc = gql`
-    fragment DeleteBillingEntityVatRate on Tax {
-  id
-  name
-  appliedToOrganization
-}
-    `;
 export const DeleteCustomSectionFragmentDoc = gql`
     fragment DeleteCustomSection on InvoiceCustomSection {
   id
@@ -14724,7 +14686,6 @@ export const InvoiceCustomSectionFormFragmentDoc = gql`
   description
   details
   displayName
-  selected
 }
     `;
 export const TaxFormFragmentDoc = gql`
@@ -19712,7 +19673,6 @@ export const GetInvoiceCustomSectionsDocument = gql`
       id
       name
       code
-      selected
     }
   }
 }
@@ -20419,6 +20379,7 @@ export const GetCustomerSubscriptionForListDocument = gql`
       terminatedAt
       plan {
         id
+        isOverridden
         amountCurrency
         name
         interval
@@ -20926,7 +20887,7 @@ export type GetSubscriptionIdForActivityLogDetailsLazyQueryHookResult = ReturnTy
 export type GetSubscriptionIdForActivityLogDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionIdForActivityLogDetailsSuspenseQuery>;
 export type GetSubscriptionIdForActivityLogDetailsQueryResult = Apollo.QueryResult<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>;
 export const ActivityLogsDocument = gql`
-    query activityLogs($page: Int, $limit: Int, $activityIds: [String!], $activitySources: [ActivitySourceEnum!], $activityTypes: [ActivityTypeEnum!], $apiKeyIds: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $resourceIds: [String!], $resourceTypes: [ResourceTypeEnum!], $toDate: ISO8601Date, $userEmails: [String!]) {
+    query activityLogs($page: Int, $limit: Int, $activityIds: [String!], $activitySources: [ActivitySourceEnum!], $activityTypes: [ActivityTypeEnum!], $apiKeyIds: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601DateTime, $resourceIds: [String!], $resourceTypes: [ResourceTypeEnum!], $toDate: ISO8601DateTime, $userEmails: [String!]) {
   activityLogs(
     page: $page
     limit: $limit
@@ -20936,10 +20897,10 @@ export const ActivityLogsDocument = gql`
     apiKeyIds: $apiKeyIds
     externalCustomerId: $externalCustomerId
     externalSubscriptionId: $externalSubscriptionId
-    fromDate: $fromDate
+    fromDatetime: $fromDate
     resourceIds: $resourceIds
     resourceTypes: $resourceTypes
-    toDate: $toDate
+    toDatetime: $toDate
     userEmails: $userEmails
   ) {
     collection {
@@ -21243,12 +21204,12 @@ export type GetApiLogDetailsLazyQueryHookResult = ReturnType<typeof useGetApiLog
 export type GetApiLogDetailsSuspenseQueryHookResult = ReturnType<typeof useGetApiLogDetailsSuspenseQuery>;
 export type GetApiLogDetailsQueryResult = Apollo.QueryResult<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>;
 export const GetApiLogsDocument = gql`
-    query getApiLogs($page: Int, $limit: Int, $requestIds: [String!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $apiKeyIds: [String!], $httpMethods: [HttpMethodEnum!], $httpStatuses: [HttpStatus!], $requestPaths: [String!]) {
+    query getApiLogs($page: Int, $limit: Int, $requestIds: [String!], $fromDate: ISO8601DateTime, $toDate: ISO8601DateTime, $apiKeyIds: [String!], $httpMethods: [HttpMethodEnum!], $httpStatuses: [HttpStatus!], $requestPaths: [String!]) {
   apiLogs(
     page: $page
     limit: $limit
-    fromDate: $fromDate
-    toDate: $toDate
+    fromDatetime: $fromDate
+    toDatetime: $toDate
     apiKeyIds: $apiKeyIds
     httpMethods: $httpMethods
     httpStatuses: $httpStatuses
@@ -26776,123 +26737,6 @@ export type GetXeroIntegrationsSettingsQueryHookResult = ReturnType<typeof useGe
 export type GetXeroIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetXeroIntegrationsSettingsLazyQuery>;
 export type GetXeroIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationsSettingsSuspenseQuery>;
 export type GetXeroIntegrationsSettingsQueryResult = Apollo.QueryResult<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>;
-export const GetTaxRatesForEditBillingEntityDocument = gql`
-    query getTaxRatesForEditBillingEntity($limit: Int, $page: Int, $searchTerm: String) {
-  taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
-    metadata {
-      currentPage
-      totalPages
-    }
-    collection {
-      id
-      name
-      rate
-    }
-  }
-}
-    `;
-
-/**
- * __useGetTaxRatesForEditBillingEntityQuery__
- *
- * To run a query within a React component, call `useGetTaxRatesForEditBillingEntityQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetTaxRatesForEditBillingEntityQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetTaxRatesForEditBillingEntityQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetTaxRatesForEditBillingEntityQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxRatesForEditBillingEntityQuery, GetTaxRatesForEditBillingEntityQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetTaxRatesForEditBillingEntityQuery, GetTaxRatesForEditBillingEntityQueryVariables>(GetTaxRatesForEditBillingEntityDocument, options);
-      }
-export function useGetTaxRatesForEditBillingEntityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxRatesForEditBillingEntityQuery, GetTaxRatesForEditBillingEntityQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetTaxRatesForEditBillingEntityQuery, GetTaxRatesForEditBillingEntityQueryVariables>(GetTaxRatesForEditBillingEntityDocument, options);
-        }
-export function useGetTaxRatesForEditBillingEntitySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditBillingEntityQuery, GetTaxRatesForEditBillingEntityQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetTaxRatesForEditBillingEntityQuery, GetTaxRatesForEditBillingEntityQueryVariables>(GetTaxRatesForEditBillingEntityDocument, options);
-        }
-export type GetTaxRatesForEditBillingEntityQueryHookResult = ReturnType<typeof useGetTaxRatesForEditBillingEntityQuery>;
-export type GetTaxRatesForEditBillingEntityLazyQueryHookResult = ReturnType<typeof useGetTaxRatesForEditBillingEntityLazyQuery>;
-export type GetTaxRatesForEditBillingEntitySuspenseQueryHookResult = ReturnType<typeof useGetTaxRatesForEditBillingEntitySuspenseQuery>;
-export type GetTaxRatesForEditBillingEntityQueryResult = Apollo.QueryResult<GetTaxRatesForEditBillingEntityQuery, GetTaxRatesForEditBillingEntityQueryVariables>;
-export const AssignTaxRateToBillingEntityDocument = gql`
-    mutation assignTaxRateToBillingEntity($input: TaxUpdateInput!) {
-  updateTax(input: $input) {
-    id
-  }
-}
-    `;
-export type AssignTaxRateToBillingEntityMutationFn = Apollo.MutationFunction<AssignTaxRateToBillingEntityMutation, AssignTaxRateToBillingEntityMutationVariables>;
-
-/**
- * __useAssignTaxRateToBillingEntityMutation__
- *
- * To run a mutation, you first call `useAssignTaxRateToBillingEntityMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAssignTaxRateToBillingEntityMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [assignTaxRateToBillingEntityMutation, { data, loading, error }] = useAssignTaxRateToBillingEntityMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useAssignTaxRateToBillingEntityMutation(baseOptions?: Apollo.MutationHookOptions<AssignTaxRateToBillingEntityMutation, AssignTaxRateToBillingEntityMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AssignTaxRateToBillingEntityMutation, AssignTaxRateToBillingEntityMutationVariables>(AssignTaxRateToBillingEntityDocument, options);
-      }
-export type AssignTaxRateToBillingEntityMutationHookResult = ReturnType<typeof useAssignTaxRateToBillingEntityMutation>;
-export type AssignTaxRateToBillingEntityMutationResult = Apollo.MutationResult<AssignTaxRateToBillingEntityMutation>;
-export type AssignTaxRateToBillingEntityMutationOptions = Apollo.BaseMutationOptions<AssignTaxRateToBillingEntityMutation, AssignTaxRateToBillingEntityMutationVariables>;
-export const UnassignTaxRateToBillingEntityDocument = gql`
-    mutation unassignTaxRateToBillingEntity($input: TaxUpdateInput!) {
-  updateTax(input: $input) {
-    id
-    ...DeleteBillingEntityVatRate
-  }
-}
-    ${DeleteBillingEntityVatRateFragmentDoc}`;
-export type UnassignTaxRateToBillingEntityMutationFn = Apollo.MutationFunction<UnassignTaxRateToBillingEntityMutation, UnassignTaxRateToBillingEntityMutationVariables>;
-
-/**
- * __useUnassignTaxRateToBillingEntityMutation__
- *
- * To run a mutation, you first call `useUnassignTaxRateToBillingEntityMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUnassignTaxRateToBillingEntityMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [unassignTaxRateToBillingEntityMutation, { data, loading, error }] = useUnassignTaxRateToBillingEntityMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUnassignTaxRateToBillingEntityMutation(baseOptions?: Apollo.MutationHookOptions<UnassignTaxRateToBillingEntityMutation, UnassignTaxRateToBillingEntityMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UnassignTaxRateToBillingEntityMutation, UnassignTaxRateToBillingEntityMutationVariables>(UnassignTaxRateToBillingEntityDocument, options);
-      }
-export type UnassignTaxRateToBillingEntityMutationHookResult = ReturnType<typeof useUnassignTaxRateToBillingEntityMutation>;
-export type UnassignTaxRateToBillingEntityMutationResult = Apollo.MutationResult<UnassignTaxRateToBillingEntityMutation>;
-export type UnassignTaxRateToBillingEntityMutationOptions = Apollo.BaseMutationOptions<UnassignTaxRateToBillingEntityMutation, UnassignTaxRateToBillingEntityMutationVariables>;
 export const DeleteCustomSectionDocument = gql`
     mutation deleteCustomSection($input: DestroyInvoiceCustomSectionInput!) {
   destroyInvoiceCustomSection(input: $input) {
@@ -33725,7 +33569,6 @@ export const GetBillingEntitySettingsDocument = gql`
       name
       code
       rate
-      ...DeleteBillingEntityVatRate
     }
   }
   invoiceCustomSections {
@@ -33733,7 +33576,6 @@ export const GetBillingEntitySettingsDocument = gql`
       id
       name
       code
-      selected
       ...DeleteCustomSection
     }
   }
@@ -33742,7 +33584,6 @@ export const GetBillingEntitySettingsDocument = gql`
 ${EditBillingEntityNetPaymentTermForDialogFragmentDoc}
 ${EditBillingEntityDefaultCurrencyForDialogFragmentDoc}
 ${EditBillingEntityInvoiceNumberingDialogFragmentDoc}
-${DeleteBillingEntityVatRateFragmentDoc}
 ${DeleteCustomSectionFragmentDoc}`;
 
 /**
@@ -33778,40 +33619,6 @@ export type GetBillingEntitySettingsQueryHookResult = ReturnType<typeof useGetBi
 export type GetBillingEntitySettingsLazyQueryHookResult = ReturnType<typeof useGetBillingEntitySettingsLazyQuery>;
 export type GetBillingEntitySettingsSuspenseQueryHookResult = ReturnType<typeof useGetBillingEntitySettingsSuspenseQuery>;
 export type GetBillingEntitySettingsQueryResult = Apollo.QueryResult<GetBillingEntitySettingsQuery, GetBillingEntitySettingsQueryVariables>;
-export const UpdateInvoiceCustomSectionSelectionDocument = gql`
-    mutation updateInvoiceCustomSectionSelection($input: UpdateInvoiceCustomSectionInput!) {
-  updateInvoiceCustomSection(input: $input) {
-    id
-    selected
-  }
-}
-    `;
-export type UpdateInvoiceCustomSectionSelectionMutationFn = Apollo.MutationFunction<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>;
-
-/**
- * __useUpdateInvoiceCustomSectionSelectionMutation__
- *
- * To run a mutation, you first call `useUpdateInvoiceCustomSectionSelectionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateInvoiceCustomSectionSelectionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateInvoiceCustomSectionSelectionMutation, { data, loading, error }] = useUpdateInvoiceCustomSectionSelectionMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateInvoiceCustomSectionSelectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>(UpdateInvoiceCustomSectionSelectionDocument, options);
-      }
-export type UpdateInvoiceCustomSectionSelectionMutationHookResult = ReturnType<typeof useUpdateInvoiceCustomSectionSelectionMutation>;
-export type UpdateInvoiceCustomSectionSelectionMutationResult = Apollo.MutationResult<UpdateInvoiceCustomSectionSelectionMutation>;
-export type UpdateInvoiceCustomSectionSelectionMutationOptions = Apollo.BaseMutationOptions<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>;
 export const ApplyBillingEntityDunningCampaignDocument = gql`
     mutation applyBillingEntityDunningCampaign($input: BillingEntityUpdateAppliedDunningCampaignInput!) {
   billingEntityUpdateAppliedDunningCampaign(input: $input) {
