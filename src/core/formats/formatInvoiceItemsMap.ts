@@ -1,13 +1,8 @@
 import { gql } from '@apollo/client'
 
+import { InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
-import {
-  Fee,
-  FeeTypesEnum,
-  InvoiceForDetailsTableFragment,
-  InvoiceStatusTypeEnum,
-  InvoiceSubscription,
-} from '~/generated/graphql'
+import { Fee, FeeTypesEnum, InvoiceStatusTypeEnum, InvoiceSubscription } from '~/generated/graphql'
 
 gql`
   fragment InvoiceSubscriptionFormating on InvoiceSubscription {
@@ -173,7 +168,7 @@ export const groupAndFormatFees = ({
   invoiceSubscriptions,
   hasOldZeroFeeManagement,
 }: {
-  invoiceSubscriptions: InvoiceForDetailsTableFragment['invoiceSubscriptions'] | null | undefined
+  invoiceSubscriptions: InvoiceSubscriptionsForDisplay
   hasOldZeroFeeManagement: boolean
 }): TFormatedInvoiceSubscriptionDataForDisplay => {
   let hasAnyFeeParsed = false

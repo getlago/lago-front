@@ -156,7 +156,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         formikProps.validateForm()
       }
     },
-    refetchQueries: ['getInvoiceDetails'],
+    refetchQueries: ['getInvoiceSubscriptions'],
   })
 
   const formikProps = useFormik<

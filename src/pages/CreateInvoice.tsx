@@ -65,7 +65,7 @@ import {
   useGetAddonListForInfoiceLazyQuery,
   useGetBillingEntityQuery,
   useGetInfosForCreateInvoiceQuery,
-  useGetInvoiceFeesQuery,
+  useGetInvoiceFeesForCreateInvoiceQuery,
   useVoidInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -84,7 +84,7 @@ gql`
     rate
   }
 
-  query getInvoiceFees($id: ID!) {
+  query getInvoiceFeesForCreateInvoice($id: ID!) {
     invoice(id: $id) {
       id
       status
@@ -273,7 +273,7 @@ const CreateInvoice = () => {
   })
   const { customer, taxes } = data || {}
 
-  const { data: prefillData } = useGetInvoiceFeesQuery({
+  const { data: prefillData } = useGetInvoiceFeesForCreateInvoiceQuery({
     variables: { id: voidedInvoiceId as string },
     skip: !voidedInvoiceId,
   })

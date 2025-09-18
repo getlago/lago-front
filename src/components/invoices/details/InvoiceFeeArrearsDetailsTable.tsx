@@ -5,6 +5,7 @@ import { memo, RefObject, useState } from 'react'
 
 import { Button } from '~/components/designSystem'
 import { subscriptionTimestamps } from '~/components/invoices/details/utils'
+import { InvoiceFeesForDisplay } from '~/components/invoices/types'
 import {
   TExtendedRemainingFee,
   TSubscriptionDataForDisplay,
@@ -13,11 +14,9 @@ import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
-  Fee,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
-  Invoice,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
@@ -52,7 +51,7 @@ interface InvoiceFeeArrearsDetailsTableProps {
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
-  fees?: Invoice['fees']
+  fees: InvoiceFeesForDisplay
 }
 
 export const InvoiceFeeArrearsDetailsTable = memo(
@@ -73,7 +72,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
     const [areZeroFeesVisible, setAreZeroFeesVisible] = useState<boolean>(false)
 
     const feesInArreras = subscription?.feesInArrears?.filter((fee) => {
-      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
+      if (onAdd && fees?.find((f) => f.id === fee.id)?.adjustedFee) {
         return false
       }
 
@@ -81,7 +80,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
     })
 
     const feesInArrerasZero = subscription?.feesInArrearsZero?.filter((fee) => {
-      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
+      if (onAdd && fees?.find((f) => f.id === fee.id)?.adjustedFee) {
         return false
       }
 

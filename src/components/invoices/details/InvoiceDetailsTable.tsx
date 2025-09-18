@@ -12,6 +12,7 @@ import { InvoiceDetailsTableHeader } from '~/components/invoices/details/Invoice
 import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
 import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/InvoiceFeeAdvanceDetailsTable'
 import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
+import { InvoiceFeesForDisplay, InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import {
   _newDeepFormatFees,
   groupAndFormatFees,
@@ -23,10 +24,10 @@ import {
   Customer,
   ErrorCodesEnum,
   Fee,
+  FeeForCustomerInvoiceRegenerateFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
-  Invoice,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForDetailsTableFragment,
   InvoiceStatusTypeEnum,
@@ -64,9 +65,53 @@ gql`
       values
     }
 
+    ...FeeForCustomerInvoiceRegenerate
     ...FeeForInvoiceDetailsTableBodyLine
     ...FeeForInvoiceFeeArrearsDetailsTable
     ...FeeForInvoiceFeeAdvanceDetailsTable
+  }
+
+  fragment InvoiceSubscriptionForInvoiceDetailsTable on InvoiceSubscription {
+    fromDatetime
+    toDatetime
+    chargesFromDatetime
+    chargesToDatetime
+    inAdvanceChargesFromDatetime
+    inAdvanceChargesToDatetime
+    acceptNewChargeFees
+    subscriptionAmountCents
+    invoice {
+      chargeAmountCents
+      progressiveBillingCreditAmountCents
+    }
+    subscription {
+      id
+      name
+      plan {
+        id
+        name
+        interval
+        amountCents
+        amountCurrency
+        invoiceDisplayName
+        billChargesMonthly
+      }
+    }
+    fees {
+      id
+      subscription {
+        id
+        name
+        plan {
+          id
+          name
+          invoiceDisplayName
+        }
+      }
+      ...FeeForInvoiceDetailsTable
+    }
+
+    ...InvoiceSubscriptionFormating
   }
 
   fragment InvoiceForDetailsTable on Invoice {
@@ -83,52 +128,6 @@ gql`
       errorCode
       errorDetails
     }
-    fees {
-      id
-      ...FeeForInvoiceDetailsTable
-    }
-    invoiceSubscriptions {
-      fromDatetime
-      toDatetime
-      chargesFromDatetime
-      chargesToDatetime
-      inAdvanceChargesFromDatetime
-      inAdvanceChargesToDatetime
-      acceptNewChargeFees
-      subscriptionAmountCents
-      invoice {
-        chargeAmountCents
-        progressiveBillingCreditAmountCents
-      }
-      subscription {
-        id
-        name
-        plan {
-          id
-          name
-          interval
-          amountCents
-          amountCurrency
-          invoiceDisplayName
-          billChargesMonthly
-        }
-      }
-      fees {
-        id
-        subscription {
-          id
-          name
-          plan {
-            id
-            name
-            invoiceDisplayName
-          }
-        }
-        ...FeeForInvoiceDetailsTable
-      }
-
-      ...InvoiceSubscriptionFormating
-    }
 
     ...InvoiceForDetailsTableFooter
   }
@@ -138,6 +137,7 @@ gql`
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
   ${FeeForInvoiceFeeArrearsDetailsTableFragmentDoc}
   ${FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc}
+  ${FeeForCustomerInvoiceRegenerateFragmentDoc}
 `
 
 const getOneTimeFeeDisplayName = <
@@ -168,7 +168,8 @@ interface InvoiceDetailsTableProps {
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
-  fees?: Invoice['fees']
+  fees: InvoiceFeesForDisplay
+  invoiceSubscriptions: InvoiceSubscriptionsForDisplay
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
 }
@@ -275,6 +276,7 @@ export const InvoiceDetailsTable = memo(
     invoice,
     isDraftOverride,
     fees,
+    invoiceSubscriptions,
     onAdd,
     onDelete,
   }: InvoiceDetailsTableProps) => {
@@ -286,7 +288,7 @@ export const InvoiceDetailsTable = memo(
     const hasOldZeroFeeManagement = !!premiumIntegrations?.includes(
       PremiumIntegrationTypeEnum.ZeroAmountFees,
     )
-    const invoiceFees = fees || invoice?.fees
+    const invoiceFees = fees
 
     const hasTaxProviderError = !!invoice.errorDetails?.find(
       ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
@@ -358,8 +360,7 @@ export const InvoiceDetailsTable = memo(
     }
 
     const newFormattedInvoiceItemsMap = groupAndFormatFees({
-      invoiceSubscriptions:
-        invoice?.invoiceSubscriptions as InvoiceForDetailsTableFragment['invoiceSubscriptions'],
+      invoiceSubscriptions,
       hasOldZeroFeeManagement,
     })
 

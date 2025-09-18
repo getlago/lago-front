@@ -30,6 +30,7 @@ import {
   useGetCustomerQuery,
   useGetInvoiceDetailsQuery,
   useGetInvoiceFeesQuery,
+  useGetInvoiceSubscriptionsQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -42,6 +43,14 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
+  fragment FeeForCustomerInvoiceRegenerate on Fee {
+    id
+    appliedTaxes {
+      id
+      taxCode
+    }
+  }
+
   mutation regenerateInvoice($input: RegenerateInvoiceInput!) {
     regenerateFromVoided(input: $input) {
       id
@@ -178,7 +187,13 @@ const CustomerInvoiceRegenerate = () => {
     skip: !invoiceId,
   })
 
+  const { data: fullInvoiceSubscriptionsRaw } = useGetInvoiceSubscriptionsQuery({
+    variables: { id: invoiceId as string },
+    skip: !invoiceId,
+  })
+
   const fullFees = fullFeesInvoice?.invoice?.fees
+  const fullInvoiceSubscriptions = fullInvoiceSubscriptionsRaw?.invoice?.invoiceSubscriptions
 
   const invoice = invoiceFeesToNonAdjusted(data?.invoice as Invoice)
   const customer = invoice?.customer
@@ -422,6 +437,7 @@ const CustomerInvoiceRegenerate = () => {
               onAdd={onAdd}
               onDelete={onDelete}
               fees={fees}
+              invoiceSubscriptions={fullInvoiceSubscriptions}
             />
           </div>
         </>
