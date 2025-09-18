@@ -11,9 +11,9 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { PlanDetailsSubscriptionFeeAccordion } from './PlanDetailsAdvancedFeeAccordion'
 import { PlanDetailsAdvancedSettingsSection } from './PlanDetailsAdvancedSettingsSection'
 import { PlanDetailsChargesSection } from './PlanDetailsChargesSection'
-import { PlanDetailsFixedFeeAccordion } from './PlanDetailsFixedFeeAccordion'
 
 gql`
   query getPlanForDetailsOverviewSection($plan: ID!) {
@@ -91,7 +91,7 @@ export const PlanDetailsOverview = ({
         <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_642d5eb2783a2ad10d670332')}
         </DetailsPage.SectionTitle>
-        <PlanDetailsFixedFeeAccordion plan={plan} />
+        <PlanDetailsSubscriptionFeeAccordion plan={plan} />
       </section>
       {!!plan?.charges?.length && (
         <section>

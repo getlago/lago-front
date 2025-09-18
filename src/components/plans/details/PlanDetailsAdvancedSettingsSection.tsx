@@ -176,7 +176,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
                       value: !!plan?.minimumCommitment?.taxes?.length
                         ? plan?.minimumCommitment?.taxes?.map((tax, i) => (
                             <Typography
-                              key={`plan-details-fixed-fee-taxe-${i}`}
+                              key={`plan-details-advanced-settings-fee-taxe-${i}`}
                               variant="body"
                               color="grey700"
                             >

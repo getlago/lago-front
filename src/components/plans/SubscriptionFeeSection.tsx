@@ -15,7 +15,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormInput } from './types'
 
 gql`
-  fragment PlanForFixedFeeSection on Plan {
+  fragment PlanForSubscriptionFeeSection on Plan {
     id
     amountCents
     payInAdvance
@@ -24,7 +24,7 @@ gql`
   }
 `
 
-interface FixedFeeSectionProps {
+interface SubscriptionFeeSectionProps {
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
@@ -34,7 +34,7 @@ interface FixedFeeSectionProps {
   isInitiallyOpen?: boolean
 }
 
-export const FixedFeeSection = memo(
+export const SubscriptionFeeSection = memo(
   ({
     canBeEdited,
     isInSubscriptionForm,
@@ -43,7 +43,7 @@ export const FixedFeeSection = memo(
     formikProps,
     isEdition,
     isInitiallyOpen,
-  }: FixedFeeSectionProps) => {
+  }: SubscriptionFeeSectionProps) => {
     const { translate } = useInternationalization()
     const [shouldDisplayTrialPeriod, setShouldDisplayTrialPeriod] = useState(false)
     const hasErrorInSection =
@@ -120,7 +120,7 @@ export const FixedFeeSection = memo(
               </div>
             </div>
           }
-          data-test="fixed-fee-section-accordion"
+          data-test="subscription-fee-section-accordion"
         >
           <div className="flex flex-col gap-6 p-6">
             <AmountInputField
@@ -229,4 +229,4 @@ export const FixedFeeSection = memo(
   },
 )
 
-FixedFeeSection.displayName = 'FixedFeeSection'
+SubscriptionFeeSection.displayName = 'SubscriptionFeeSection'
