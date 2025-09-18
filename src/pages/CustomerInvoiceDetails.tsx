@@ -34,7 +34,7 @@ import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteLi
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, envGlobalVar, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
@@ -102,8 +102,6 @@ import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActio
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
-
-const { disablePdfGeneration } = envGlobalVar()
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -749,16 +747,6 @@ const CustomerInvoiceDetails = () => {
     canRecordPayment,
   ])
 
-  // TODO: Compare this with src/hooks/usePermissionsInvoiceActions.ts:
-  // We don't check the same permissions here, but we could refactor this to use the same logic
-  const canFinalizeInvoice =
-    status === InvoiceStatusTypeEnum.Draft &&
-    taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
-    hasPermissions(['draftInvoicesUpdate'])
-  const canDownloadInvoice =
-    (status !== InvoiceStatusTypeEnum.Pending || taxStatus !== InvoiceTaxStatusTypeEnum.Pending) &&
-    !disablePdfGeneration
-
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -795,7 +783,7 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
-                  ) : canFinalizeInvoice ? (
+                  ) : actions.canFinalize({ status }) ? (
                     <>
                       <Button
                         variant="quaternary"
@@ -821,7 +809,7 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : canDownloadInvoice ? (
+                  ) : actions.canDownload({ status, taxStatus }) ? (
                     <Button
                       variant="quaternary"
                       align="left"
