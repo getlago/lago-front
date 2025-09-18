@@ -32,6 +32,16 @@ const hasSubscriptionOperation = ({ query }: Operation) => {
   return hasSub
 }
 
+const createLinkChain = (client: ApolloClient<NormalizedCacheObject> | null) => {
+  const splitLink = split(
+    hasSubscriptionOperation,
+    subscriptionLink as unknown as ApolloLink,
+    uploadLink,
+  )
+
+  return ApolloLink.from([initialLink, timeoutLink, errorLink(client), splitLink])
+}
+
 export const initializeApolloClient = async () => {
   if (globalApolloClient) return globalApolloClient
 
@@ -41,15 +51,9 @@ export const initializeApolloClient = async () => {
     key: `apollo-cache-persist-lago-${appVersion}`,
   })
 
-  const splitLink = split(
-    hasSubscriptionOperation,
-    subscriptionLink as unknown as ApolloLink,
-    uploadLink,
-  )
-
   const client = new ApolloClient({
     cache,
-    link: ApolloLink.from([initialLink, timeoutLink, errorLink(globalApolloClient), splitLink]),
+    link: createLinkChain(globalApolloClient),
     name: 'lago-app',
     version: appVersion,
     typeDefs,
@@ -68,6 +72,8 @@ export const initializeApolloClient = async () => {
   })
 
   globalApolloClient = client
+
+  client.setLink(createLinkChain(client))
 
   return client
 }
