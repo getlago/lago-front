@@ -37,9 +37,9 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
-import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
+import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -854,7 +854,7 @@ const CreateSubscription = () => {
                           </div>
 
                           <div className="flex flex-col gap-4">
-                            <FixedFeeSection
+                            <SubscriptionFeeSection
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
                               formikProps={planFormikProps}

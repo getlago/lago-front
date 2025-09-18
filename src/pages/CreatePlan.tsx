@@ -11,7 +11,6 @@ import {
 import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
-import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import {
   ImpactOverridenSubscriptionsDialog,
   ImpactOverridenSubscriptionsDialogRef,
@@ -19,6 +18,7 @@ import {
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
+import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -39,8 +39,8 @@ import {
   ChargeAccordionFragmentDoc,
   FeatureEntitlementForPlanFragmentDoc,
   PlanForChargeAccordionFragmentDoc,
-  PlanForFixedFeeSectionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
+  PlanForSubscriptionFeeSectionFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
@@ -127,14 +127,14 @@ gql`
 
     ...PlanForChargeAccordion
     ...PlanForSettingsSection
-    ...PlanForFixedFeeSection
+    ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
   }
 
   ${ChargeAccordionFragmentDoc}
   ${PlanForChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
-  ${PlanForFixedFeeSectionFragmentDoc}
+  ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
 `
 
@@ -250,7 +250,7 @@ const CreatePlan = () => {
                   </SectionTitle>
 
                   <Section>
-                    <FixedFeeSection
+                    <SubscriptionFeeSection
                       isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
                       canBeEdited={canBeEdited}
                       formikProps={formikProps}

@@ -5,7 +5,11 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
+export const PlanDetailsSubscriptionFeeAccordion = ({
+  plan,
+}: {
+  plan?: EditPlanFragment | null
+}) => {
   const { translate } = useInternationalization()
 
   return (
@@ -18,7 +22,7 @@ export const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment
     >
       <div className="flex flex-col gap-6">
         <DetailsPage.TableDisplay
-          name="fixed-fee"
+          name="subscription-fee"
           header={[translate('text_624453d52e945301380e49b6')]}
           body={[
             [
@@ -45,7 +49,7 @@ export const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment
               label: translate('text_645bb193927b375079d28a8f'),
               value: !!plan?.taxes?.length
                 ? plan?.taxes?.map((tax, i) => (
-                    <div key={`plan-details-fixed-fee-taxe-${i}`}>
+                    <div key={`plan-details-subscription-fee-taxe-${i}`}>
                       <Typography variant="body" color="grey700">
                         {tax.name} (
                         {intlFormatNumber(Number(tax.rate) / 100 || 0, {
