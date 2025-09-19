@@ -26,6 +26,7 @@ import {
   Fee,
   FeeForCustomerInvoiceRegenerateFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
+  FeeForInvoiceDetailsTableFragment,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
   InvoiceForDetailsTableFooterFragmentDoc,
@@ -63,6 +64,15 @@ gql`
     chargeFilter {
       invoiceDisplayName
       values
+    }
+
+    walletTransaction {
+      id
+      name
+      wallet {
+        id
+        name
+      }
     }
 
     ...FeeForCustomerInvoiceRegenerate
@@ -140,15 +150,13 @@ gql`
   ${FeeForCustomerInvoiceRegenerateFragmentDoc}
 `
 
-const getOneTimeFeeDisplayName = <
-  T extends { itemName: string; invoiceDisplayName?: string | null },
->({
+const getOneTimeFeeDisplayName = ({
   invoiceType,
   fee,
   translate,
 }: {
   invoiceType: InvoiceTypeEnum
-  fee: T
+  fee: FeeForInvoiceDetailsTableFragment
   translate: TranslateFunc
 }): string => {
   if (invoiceType === InvoiceTypeEnum.AddOn) {
@@ -158,7 +166,14 @@ const getOneTimeFeeDisplayName = <
     invoiceType === InvoiceTypeEnum.AdvanceCharges
   ) {
     return fee.invoiceDisplayName || fee.itemName
+  } else if (invoiceType === InvoiceTypeEnum.Credit) {
+    if (fee.walletTransaction?.wallet?.name) {
+      return fee.walletTransaction?.wallet?.name
+    } else if (fee.walletTransaction?.name) {
+      return `${translate('text_637ccf8133d2c9a7d11ce6e1')} - ${fee.walletTransaction?.name}`
+    }
   }
+
   return translate('text_637ccf8133d2c9a7d11ce6e1')
 }
 
