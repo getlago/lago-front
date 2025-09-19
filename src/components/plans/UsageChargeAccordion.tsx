@@ -5,9 +5,10 @@ import { tw } from 'lago-design-system'
 import { memo, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Accordion, Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
 import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
 import { RemoveChargeButton } from '~/components/plans/chargeAccordion/RemoveChargeButton'
@@ -21,7 +22,6 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
-  getChargeModelHelpTextTranslationKey,
   getIntervalTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -424,24 +424,14 @@ export const UsageChargeAccordion = memo(
             handleUpdate={handleUpdate}
           />
 
-          {/* Charge main infos */}
-          <div className="p-4 pb-0" data-test="charge-model-wrapper">
-            {!!shouldDisplayAlreadyUsedChargeAlert && (
-              <Alert type="warning" className="mb-4">
-                {translate('text_6435895831d323008a47911f')}
-              </Alert>
-            )}
-            <ComboBox
-              disableClearable
-              name="chargeModel"
-              disabled={isInSubscriptionForm || disabled}
-              label={translate('text_65201b8216455901fe273dd5')}
-              data={chargeModelComboboxData}
-              value={localCharge.chargeModel}
-              helperText={translate(getChargeModelHelpTextTranslationKey[localCharge.chargeModel])}
-              onChange={(value) => handleUpdate('chargeModel', value)}
-            />
-          </div>
+          <ChargeModelSelector
+            shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+            isInSubscriptionForm={isInSubscriptionForm}
+            disabled={disabled}
+            localCharge={localCharge}
+            chargeModelComboboxData={chargeModelComboboxData}
+            handleUpdate={handleUpdate}
+          />
 
           {(!!localCharge.properties || !!localCharge?.filters?.length) && (
             <>
