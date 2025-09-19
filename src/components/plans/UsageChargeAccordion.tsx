@@ -1,17 +1,17 @@
 import { gql } from '@apollo/client'
-import { InputAdornment } from '@mui/material'
 import { FormikErrors, FormikProps } from 'formik'
 import { tw } from 'lago-design-system'
 import { memo, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInput, ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
+import { ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
 import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
 import { RemoveChargeButton } from '~/components/plans/chargeAccordion/RemoveChargeButton'
+import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import {
   handleUpdateCharges,
   HandleUpdateChargesProps,
@@ -27,7 +27,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
@@ -246,20 +246,11 @@ export const UsageChargeAccordion = memo(
       isPremium,
     ])
 
-    const [showSpendingMinimum, setShowSpendingMinimum] = useState(
-      !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
-    )
     const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
     const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForChargesLazyQuery({
       variables: { limit: 500 },
     })
     const { collection: taxesCollection } = taxesData?.taxes || {}
-
-    useEffect(() => {
-      setShowSpendingMinimum(
-        !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
-      )
-    }, [initialLocalCharge?.minAmountCents])
 
     const handleUpdate = useCallback(
       (name: HandleUpdateChargesProps['name'], value: HandleUpdateChargesProps['value']) => {
@@ -754,58 +745,22 @@ export const UsageChargeAccordion = memo(
                     })}
                   </Typography>
                 </div>
-                {!showSpendingMinimum ? (
-                  <Button
-                    fitContent
-                    variant="inline"
-                    startIcon="plus"
-                    disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
-                    endIcon={isPremium ? undefined : 'sparkles'}
-                    onClick={() => {
-                      if (isPremium) {
-                        setShowSpendingMinimum(true)
-                        setTimeout(() => {
-                          document.getElementById(`spending-minimum-input-${index}`)?.focus()
-                        }, 0)
-                      } else {
-                        premiumWarningDialogRef?.current?.openDialog()
-                      }
-                    }}
-                  >
-                    {translate('text_643e592657fc1ba5ce110b9e')}
-                  </Button>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <AmountInput
-                      className="flex-1"
-                      id={`spending-minimum-input-${index}`}
-                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                      currency={currency}
-                      placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                      disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
-                      value={localCharge?.minAmountCents || ''}
-                      onChange={(value) => handleUpdate('minAmountCents', value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                      <Button
-                        icon="trash"
-                        variant="quaternary"
-                        disabled={disabled}
-                        onClick={() => {
-                          formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
-                          setShowSpendingMinimum(false)
-                        }}
-                      />
-                    </Tooltip>
-                  </div>
-                )}
+
+                <SpendingMinimumOptionSection
+                  initialLocalCharge={initialLocalCharge}
+                  subscriptionFormType={subscriptionFormType}
+                  disabled={disabled}
+                  localCharge={localCharge}
+                  chargePricingUnitShortName={chargePricingUnitShortName}
+                  currency={currency}
+                  isPremium={isPremium}
+                  premiumWarningDialogRef={premiumWarningDialogRef}
+                  chargeIndex={index}
+                  handleUpdate={handleUpdate}
+                  handleRemoveSpendingMinimum={() => {
+                    formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
+                  }}
+                />
               </div>
             )}
 
