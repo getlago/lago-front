@@ -890,6 +890,7 @@ const CreateInvoice = () => {
                             />
                           </Tooltip>
                           <AmountInput
+                            beforeChangeFormatter={['positiveNumber']}
                             value={formikProps.values.fees[i].unitAmountCents || 0}
                             currency={currency}
                             InputProps={{
