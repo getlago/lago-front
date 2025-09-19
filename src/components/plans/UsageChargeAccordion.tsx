@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikErrors, FormikProps } from 'formik'
-import { Icon, tw } from 'lago-design-system'
+import { tw } from 'lago-design-system'
 import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
@@ -20,6 +20,7 @@ import {
   handleUpdateCharges,
   HandleUpdateChargesProps,
 } from '~/components/plans/chargeAccordion/utils'
+import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
 import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
@@ -211,7 +212,6 @@ export const UsageChargeAccordion = memo(
     const {
       chargeModelComboboxData,
       hasDefaultPropertiesErrors,
-      hasErrorInCharges,
       initialLocalCharge,
       isPayInAdvanceOptionDisabled,
       isProratedOptionDisabled,
@@ -241,7 +241,6 @@ export const UsageChargeAccordion = memo(
           typeof chargeErrors === 'object' &&
           typeof chargeErrors[index] === 'object' &&
           typeof chargeErrors[index].properties === 'object',
-        hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
         initialLocalCharge: formikProps.initialValues.charges[index],
         isPayInAdvanceOptionDisabled: localIsPayInAdvanceOptionDisabled,
         isProratedOptionDisabled: localIsProratedOptionDisabled,
@@ -431,20 +430,7 @@ export const UsageChargeAccordion = memo(
               </Typography>
             </div>
             <div className="flex items-center gap-3 p-1 pl-0">
-              <Tooltip
-                placement="top-end"
-                title={
-                  hasErrorInCharges
-                    ? translate('text_635b975ecea4296eb76924b7')
-                    : translate('text_635b975ecea4296eb76924b1')
-                }
-              >
-                <Icon
-                  name="validate-filled"
-                  className="flex items-center"
-                  color={hasErrorInCharges ? 'disabled' : 'success'}
-                />
-              </Tooltip>
+              <ValidationIcon hasError={Boolean(formikProps?.errors?.charges?.[index])} />
 
               {!!taxValueForBadgeDisplay && (
                 <Chip
@@ -618,20 +604,7 @@ export const UsageChargeAccordion = memo(
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 p-1 pl-0">
-                                <Tooltip
-                                  placement="top-end"
-                                  title={
-                                    hasDefaultPropertiesErrors
-                                      ? translate('text_635b975ecea4296eb76924b7')
-                                      : translate('text_635b975ecea4296eb76924b1')
-                                  }
-                                >
-                                  <Icon
-                                    name="validate-filled"
-                                    className="flex items-center"
-                                    color={hasDefaultPropertiesErrors ? 'disabled' : 'success'}
-                                  />
-                                </Tooltip>
+                                <ValidationIcon hasError={hasDefaultPropertiesErrors} />
                                 <Tooltip
                                   placement="top-end"
                                   title={
@@ -720,20 +693,7 @@ export const UsageChargeAccordion = memo(
                               />
                             </div>
                             <div className="flex items-center gap-3 p-1 pl-0">
-                              <Tooltip
-                                placement="top-end"
-                                title={
-                                  hasFilterErrors
-                                    ? translate('text_635b975ecea4296eb76924b7')
-                                    : translate('text_635b975ecea4296eb76924b1')
-                                }
-                              >
-                                <Icon
-                                  name="validate-filled"
-                                  className="flex items-center"
-                                  color={hasFilterErrors ? 'disabled' : 'success'}
-                                />
-                              </Tooltip>
+                              <ValidationIcon hasError={hasFilterErrors} />
                               <Tooltip
                                 placement="top-end"
                                 title={translate('text_63aa085d28b8510cd46443ff')}
