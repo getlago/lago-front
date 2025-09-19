@@ -15,6 +15,7 @@ import {
   TextInput,
 } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
 import {
   handleUpdateCharges,
   HandleUpdateChargesProps,
@@ -414,26 +415,16 @@ export const UsageChargeAccordion = memo(
                 <Typography variant="bodyHl" color="textSecondary" noWrap>
                   {localCharge.invoiceDisplayName || localCharge?.billableMetric?.name}
                 </Typography>
-                <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
-                  <Button
-                    icon="pen"
-                    variant="quaternary"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation()
-
-                      editInvoiceDisplayNameRef.current?.openDialog({
-                        invoiceDisplayName: localCharge.invoiceDisplayName,
-                        callback: (invoiceDisplayName: string) => {
-                          formikProps.setFieldValue(
-                            `charges.${index}.invoiceDisplayName`,
-                            invoiceDisplayName,
-                          )
-                        },
-                      })
-                    }}
-                  />
-                </Tooltip>
+                <EditInvoiceDisplayNameButton
+                  editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                  currentInvoiceDisplayName={localCharge.invoiceDisplayName}
+                  onEdit={(invoiceDisplayName: string) => {
+                    formikProps.setFieldValue(
+                      `charges.${index}.invoiceDisplayName`,
+                      invoiceDisplayName,
+                    )
+                  }}
+                />
               </div>
               <Typography variant="caption" noWrap>
                 {localCharge?.billableMetric?.code}
@@ -717,29 +708,16 @@ export const UsageChargeAccordion = memo(
                                   translate('text_65f847a944603a01034f5831')}
                               </Typography>
 
-                              <Tooltip
-                                title={translate('text_65018c8e5c6b626f030bcf8d')}
-                                placement="top-end"
-                              >
-                                <Button
-                                  icon="pen"
-                                  variant="quaternary"
-                                  size="small"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-
-                                    editInvoiceDisplayNameDialogRef.current?.openDialog({
-                                      invoiceDisplayName: filter.invoiceDisplayName,
-                                      callback: (invoiceDisplayName: string) => {
-                                        formikProps.setFieldValue(
-                                          `charges.${index}.filters.${filterIndex}.invoiceDisplayName`,
-                                          invoiceDisplayName,
-                                        )
-                                      },
-                                    })
-                                  }}
-                                />
-                              </Tooltip>
+                              <EditInvoiceDisplayNameButton
+                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                                currentInvoiceDisplayName={filter.invoiceDisplayName}
+                                onEdit={(invoiceDisplayName: string) => {
+                                  formikProps.setFieldValue(
+                                    `charges.${index}.filters.${filterIndex}.invoiceDisplayName`,
+                                    invoiceDisplayName,
+                                  )
+                                }}
+                              />
                             </div>
                             <div className="flex items-center gap-3 p-1 pl-0">
                               <Tooltip
