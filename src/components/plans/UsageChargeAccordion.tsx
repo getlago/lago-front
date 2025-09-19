@@ -14,7 +14,7 @@ import {
   Switch,
   TextInput,
 } from '~/components/form'
-import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
+import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import {
   handleUpdateCharges,
   HandleUpdateChargesProps,
@@ -174,7 +174,7 @@ interface UsageChargeAccordionProps {
   index: number
   isUsedInSubscription?: boolean
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
-  editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   shouldDisplayAlreadyUsedChargeAlert: boolean
@@ -187,7 +187,7 @@ export const UsageChargeAccordion = memo(
     shouldDisplayAlreadyUsedChargeAlert,
     removeChargeWarningDialogRef,
     premiumWarningDialogRef,
-    editInvoiceDisplayNameRef,
+    editInvoiceDisplayNameDialogRef,
     isUsedInSubscription,
     isInitiallyOpen,
     isInSubscriptionForm,
@@ -728,7 +728,7 @@ export const UsageChargeAccordion = memo(
                                   onClick={(e) => {
                                     e.stopPropagation()
 
-                                    editInvoiceDisplayNameRef.current?.openDialog({
+                                    editInvoiceDisplayNameDialogRef.current?.openDialog({
                                       invoiceDisplayName: filter.invoiceDisplayName,
                                       callback: (invoiceDisplayName: string) => {
                                         formikProps.setFieldValue(
