@@ -9,7 +9,6 @@ import {
   timeoutLink,
   uploadLink,
 } from '~/core/apolloClient/links'
-// IMPORTANT: Keep reactiveVars import before cacheUtils
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars'
 
 import { cache } from './cache'
@@ -72,8 +71,6 @@ export const initializeApolloClient = async () => {
   })
 
   globalApolloClient = client
-
-  client.setLink(createLinkChain(client))
 
   return client
 }
