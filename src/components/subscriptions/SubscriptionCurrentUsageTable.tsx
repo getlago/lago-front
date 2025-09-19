@@ -683,6 +683,9 @@ export const SubscriptionCurrentUsageTable = ({
   } = useUsageForSubscriptionUsageQuery({
     ...queryParams,
     skip: queryParams.skip || fetchProjected,
+    // Removing the no-cache policies will break the rendered data
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   const {
@@ -693,6 +696,9 @@ export const SubscriptionCurrentUsageTable = ({
   } = useProjectedUsageForSubscriptionUsageQuery({
     ...queryParams,
     skip: queryParams.skip || !fetchProjected,
+    // Removing the no-cache policies will break the rendered data
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   const refetchUsage = (forceProjected?: boolean) =>
