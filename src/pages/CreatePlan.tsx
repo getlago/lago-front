@@ -8,7 +8,6 @@ import {
   EditInvoiceDisplayName,
   EditInvoiceDisplayNameRef,
 } from '~/components/invoices/EditInvoiceDisplayName'
-import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import {
@@ -20,6 +19,7 @@ import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalChargeInput } from '~/components/plans/types'
+import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -36,11 +36,11 @@ import {
   PLANS_ROUTE,
 } from '~/core/router'
 import {
-  ChargeAccordionFragmentDoc,
   FeatureEntitlementForPlanFragmentDoc,
-  PlanForChargeAccordionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
   PlanForSubscriptionFeeSectionFragmentDoc,
+  PlanForUsageChargeAccordionFragmentDoc,
+  UsageChargeAccordionFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
@@ -115,7 +115,7 @@ gql`
         code
         ...BillableMetricForPlan
       }
-      ...ChargeAccordion
+      ...UsageChargeAccordion
       chargeModel
     }
     usageThresholds {
@@ -125,14 +125,14 @@ gql`
       thresholdDisplayName
     }
 
-    ...PlanForChargeAccordion
+    ...PlanForUsageChargeAccordion
     ...PlanForSettingsSection
     ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
   }
 
-  ${ChargeAccordionFragmentDoc}
-  ${PlanForChargeAccordionFragmentDoc}
+  ${UsageChargeAccordionFragmentDoc}
+  ${PlanForUsageChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
@@ -258,7 +258,7 @@ const CreatePlan = () => {
                       editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                     />
 
-                    <ChargesSection
+                    <UsageChargesSection
                       canBeEdited={canBeEdited}
                       isEdition={isEdition}
                       formikProps={formikProps}

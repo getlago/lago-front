@@ -1,7 +1,7 @@
 import { Accordion, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
 import { PlanDetailsChargesSectionAccordion } from '~/components/plans/details/PlanDetailsChargesSectionAccordion'
+import { mapChargeIntervalCopy } from '~/components/plans/UsageChargeAccordion'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'

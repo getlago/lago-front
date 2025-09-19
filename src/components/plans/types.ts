@@ -10,8 +10,8 @@ import {
   PrivilegeValueTypeEnum,
   PropertiesInput,
   TaxForPlanAndChargesInPlanFormFragment,
-  TaxForPlanChargeAccordionFragment,
   TaxForPlanSettingsSectionFragment,
+  TaxForPlanUsageChargeAccordionFragment,
   UsageThresholdInput,
 } from '~/generated/graphql'
 
@@ -45,7 +45,7 @@ export type LocalChargeInput = Omit<
   properties?: PropertiesInput
   filters?: LocalChargeFilterInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
-  taxes?: TaxForPlanChargeAccordionFragment[] | null
+  taxes?: TaxForPlanUsageChargeAccordionFragment[] | null
 }
 
 export type LocalUsageThresholdInput = UsageThresholdInput

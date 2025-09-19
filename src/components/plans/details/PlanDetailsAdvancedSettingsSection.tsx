@@ -1,6 +1,6 @@
 import { Accordion, ChargeTable, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
+import { mapChargeIntervalCopy } from '~/components/plans/UsageChargeAccordion'
 import { getEntitlementFormattedValue } from '~/components/plans/utils'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getIntervalTranslationKey } from '~/core/constants/form'

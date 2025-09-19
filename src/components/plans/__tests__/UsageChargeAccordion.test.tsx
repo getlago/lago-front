@@ -4,8 +4,8 @@ import { FormikProps, useFormik } from 'formik'
 import { object } from 'yup'
 
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
-import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { UsageChargeAccordion } from '~/components/plans/UsageChargeAccordion'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
@@ -19,7 +19,7 @@ type PrepareProps = {
 }
 
 async function prepare({ filters, properties }: PrepareProps = {}) {
-  const ChargeAccordionMock = () => {
+  const UsageChargeAccordionMock = () => {
     const formikProps = useFormik<Pick<PlanFormInput, 'charges'>>({
       initialValues: {
         charges: [
@@ -55,7 +55,7 @@ async function prepare({ filters, properties }: PrepareProps = {}) {
     })
 
     return (
-      <ChargeAccordion
+      <UsageChargeAccordion
         id="0"
         index={0}
         currency={CurrencyEnum.Usd}
@@ -67,10 +67,10 @@ async function prepare({ filters, properties }: PrepareProps = {}) {
   }
 
   await act(() => {
-    render(<ChargeAccordionMock />)
+    render(<UsageChargeAccordionMock />)
   })
 }
-describe('ChargeAccordion', () => {
+describe('UsageChargeAccordion', () => {
   afterEach(cleanup)
 
   describe('basic rendering with dom element assessment', () => {

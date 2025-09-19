@@ -35,12 +35,12 @@ import {
   EditInvoiceDisplayName,
   EditInvoiceDisplayNameRef,
 } from '~/components/invoices/EditInvoiceDisplayName'
-import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalChargeInput } from '~/components/plans/types'
+import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -861,7 +861,7 @@ const CreateSubscription = () => {
                               editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                             />
 
-                            <ChargesSection
+                            <UsageChargesSection
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
                               formikProps={planFormikProps}

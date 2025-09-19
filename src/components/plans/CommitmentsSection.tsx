@@ -22,8 +22,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
-import { mapChargeIntervalCopy } from './ChargeAccordion'
 import { PlanFormInput } from './types'
+import { mapChargeIntervalCopy } from './UsageChargeAccordion'
 
 gql`
   query getTaxesForCommitments($limit: Int, $page: Int) {
@@ -34,7 +34,7 @@ gql`
       }
       collection {
         id
-        ...TaxForPlanChargeAccordion
+        ...TaxForPlanUsageChargeAccordion
       }
     }
   }
