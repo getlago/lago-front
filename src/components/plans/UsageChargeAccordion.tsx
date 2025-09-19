@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikErrors, FormikProps } from 'formik'
 import { tw } from 'lago-design-system'
-import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
@@ -16,6 +16,7 @@ import {
 } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
+import { RemoveChargeButton } from '~/components/plans/chargeAccordion/RemoveChargeButton'
 import {
   handleUpdateCharges,
   HandleUpdateChargesProps,
@@ -23,7 +24,6 @@ import {
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
 import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
@@ -200,7 +200,6 @@ export const UsageChargeAccordion = memo(
   }: UsageChargeAccordionProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
-    const { type: actionType } = useDuplicatePlanVar()
     const { hasAnyPricingUnitConfigured, pricingUnits } = useCustomPricingUnits()
     const {
       getChargeModelComboboxData,
@@ -447,33 +446,15 @@ export const UsageChargeAccordion = memo(
                   ),
                 )}
               />
-              {!isInSubscriptionForm && (
-                <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
-                  <Button
-                    variant="quaternary"
-                    size="small"
-                    icon="trash"
-                    data-test="remove-charge"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      e.preventDefault()
 
-                      const deleteCharge = () => {
-                        const charges = [...formikProps.values.charges]
-
-                        charges.splice(index, 1)
-                        formikProps.setFieldValue('charges', charges)
-                      }
-
-                      if (actionType !== 'duplicate' && isUsedInSubscription) {
-                        removeChargeWarningDialogRef?.current?.openDialog(index)
-                      } else {
-                        deleteCharge()
-                      }
-                    }}
-                  />
-                </Tooltip>
-              )}
+              <RemoveChargeButton
+                isInSubscriptionForm={isInSubscriptionForm}
+                isUsedInSubscription={isUsedInSubscription}
+                removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                existingCharges={formikProps.values.charges}
+                chargeToRemoveIndex={index}
+                onDeleteCharge={(charges) => formikProps.setFieldValue('charges', charges)}
+              />
             </div>
           </div>
         }
