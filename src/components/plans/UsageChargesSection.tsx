@@ -25,21 +25,21 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { MenuPopper } from '~/styles'
 
-import { ChargeAccordion } from './ChargeAccordion'
 import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
+import { UsageChargeAccordion } from './UsageChargeAccordion'
 
 const RESULT_LIMIT = 50
 
 gql`
-  fragment PlanForChargeAccordion on Plan {
+  fragment PlanForUsageChargeAccordion on Plan {
     billChargesMonthly
   }
 
-  fragment BillableMetricForChargeSection on BillableMetric {
+  fragment BillableMetricForUsageChargeSection on BillableMetric {
     id
     name
     code
@@ -56,7 +56,7 @@ gql`
     billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: false) {
       collection {
         id
-        ...BillableMetricForChargeSection
+        ...BillableMetricForUsageChargeSection
       }
     }
   }
@@ -65,13 +65,13 @@ gql`
     billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: true) {
       collection {
         id
-        ...BillableMetricForChargeSection
+        ...BillableMetricForUsageChargeSection
       }
     }
   }
 `
 
-interface ChargesSectionProps {
+interface UsageProps {
   alreadyExistingCharges?: LocalChargeInput[] | null
   editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
@@ -85,7 +85,7 @@ interface ChargesSectionProps {
 
 const getNewChargeId = (id: string, index: number) => `plan-charge-${id}-${index}`
 
-export const ChargesSection = memo(
+export const UsageChargesSection = memo(
   ({
     alreadyExistingCharges,
     editInvoiceDisplayNameRef,
@@ -96,7 +96,7 @@ export const ChargesSection = memo(
     isEdition,
     premiumWarningDialogRef,
     subscriptionFormType,
-  }: ChargesSectionProps) => {
+  }: UsageProps) => {
     const { translate } = useInternationalization()
     const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
     const hasAnyCharge = !!formikProps.values.charges.length
@@ -321,7 +321,7 @@ export const ChargesSection = memo(
                       (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
 
                     return (
-                      <ChargeAccordion
+                      <UsageChargeAccordion
                         id={id}
                         key={id}
                         isInitiallyOpen={isInitiallyOpen}
@@ -447,7 +447,7 @@ export const ChargesSection = memo(
                       (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
 
                     return (
-                      <ChargeAccordion
+                      <UsageChargeAccordion
                         id={id}
                         key={id}
                         isInitiallyOpen={isInitiallyOpen}
@@ -565,4 +565,4 @@ export const ChargesSection = memo(
   },
 )
 
-ChargesSection.displayName = 'ChargesSection'
+UsageChargesSection.displayName = 'UsageChargesSection'

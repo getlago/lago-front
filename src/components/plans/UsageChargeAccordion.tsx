@@ -43,7 +43,7 @@ import {
   PercentageChargeFragmentDoc,
   PlanInterval,
   StandardChargeFragmentDoc,
-  TaxForPlanChargeAccordionFragment,
+  TaxForPlanUsageChargeAccordionFragment,
   useGetTaxesForChargesLazyQuery,
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
@@ -64,14 +64,14 @@ const buildChargeDefaultPropertyId = (chargeIndex: number) =>
   `charge-${chargeIndex}-default-property-accordion`
 
 gql`
-  fragment TaxForPlanChargeAccordion on Tax {
+  fragment TaxForPlanUsageChargeAccordion on Tax {
     id
     code
     name
     rate
   }
 
-  fragment ChargeAccordion on Charge {
+  fragment UsageChargeAccordion on Charge {
     id
     chargeModel
     invoiceable
@@ -115,7 +115,7 @@ gql`
       }
     }
     taxes {
-      ...TaxForPlanChargeAccordion
+      ...TaxForPlanUsageChargeAccordion
     }
     ...ChargeForChargeOptionsAccordion
   }
@@ -128,7 +128,7 @@ gql`
       }
       collection {
         id
-        ...TaxForPlanChargeAccordion
+        ...TaxForPlanUsageChargeAccordion
       }
     }
   }
@@ -160,7 +160,7 @@ export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: bool
   return ''
 }
 
-interface ChargeAccordionProps {
+interface UsageChargeAccordionProps {
   currency: CurrencyEnum
   disabled?: boolean
   isInitiallyOpen?: boolean
@@ -176,7 +176,7 @@ interface ChargeAccordionProps {
   shouldDisplayAlreadyUsedChargeAlert: boolean
 }
 
-export const ChargeAccordion = memo(
+export const UsageChargeAccordion = memo(
   ({
     currency,
     disabled,
@@ -191,7 +191,7 @@ export const ChargeAccordion = memo(
     id,
     index,
     subscriptionFormType,
-  }: ChargeAccordionProps) => {
+  }: UsageChargeAccordionProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const { type: actionType } = useDuplicatePlanVar()
@@ -1086,7 +1086,7 @@ export const ChargeAccordion = memo(
                       const previousTaxes = [...(localCharge?.taxes || [])]
                       const newTaxObject = taxesData?.taxes.collection.find(
                         (t) => t.id === newTaxId,
-                      ) as TaxForPlanChargeAccordionFragment
+                      ) as TaxForPlanUsageChargeAccordionFragment
 
                       handleUpdate('taxes', [...previousTaxes, newTaxObject])
                       setShouldDisplayTaxesInput(false)
@@ -1112,4 +1112,4 @@ export const ChargeAccordion = memo(
   },
 )
 
-ChargeAccordion.displayName = 'ChargeAccordion'
+UsageChargeAccordion.displayName = 'UsageChargeAccordion'
