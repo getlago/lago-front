@@ -6,7 +6,7 @@ import { RefObject, useEffect, useMemo, useState } from 'react'
 
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboboxItem } from '~/components/form'
-import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
+import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -41,13 +41,13 @@ gql`
 `
 
 type CommitmentsSectionProps = {
-  editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
 export const CommitmentsSection = ({
-  editInvoiceDisplayNameRef,
+  editInvoiceDisplayNameDialogRef,
   formikProps,
   premiumWarningDialogRef,
 }: CommitmentsSectionProps) => {
@@ -143,7 +143,7 @@ export const CommitmentsSection = ({
                     onClick={(e) => {
                       e.stopPropagation()
 
-                      editInvoiceDisplayNameRef.current?.openDialog({
+                      editInvoiceDisplayNameDialogRef.current?.openDialog({
                         invoiceDisplayName:
                           formikProps.values.minimumCommitment?.invoiceDisplayName,
                         callback: (invoiceDisplayName: string) => {

@@ -6,7 +6,7 @@ import { memo, RefObject, useEffect, useState } from 'react'
 
 import { Accordion, Button, Card, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
-import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
+import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -28,7 +28,7 @@ interface SubscriptionFeeSectionProps {
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
   isEdition?: boolean
   isInitiallyOpen?: boolean
@@ -39,7 +39,7 @@ export const SubscriptionFeeSection = memo(
     canBeEdited,
     isInSubscriptionForm,
     subscriptionFormType,
-    editInvoiceDisplayNameRef,
+    editInvoiceDisplayNameDialogRef,
     formikProps,
     isEdition,
     isInitiallyOpen,
@@ -84,7 +84,7 @@ export const SubscriptionFeeSection = memo(
                     onClick={(e) => {
                       e.stopPropagation()
 
-                      editInvoiceDisplayNameRef.current?.openDialog({
+                      editInvoiceDisplayNameDialogRef.current?.openDialog({
                         invoiceDisplayName: formikProps.values.invoiceDisplayName,
                         callback: (invoiceDisplayName: string) => {
                           formikProps.setFieldValue('invoiceDisplayName', invoiceDisplayName)

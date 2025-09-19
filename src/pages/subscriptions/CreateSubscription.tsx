@@ -32,9 +32,9 @@ import {
   TextInputField,
 } from '~/components/form'
 import {
-  EditInvoiceDisplayName,
-  EditInvoiceDisplayNameRef,
-} from '~/components/invoices/EditInvoiceDisplayName'
+  EditInvoiceDisplayNameDialog,
+  EditInvoiceDisplayNameDialogRef,
+} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
@@ -220,7 +220,7 @@ const CreateSubscription = () => {
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe } = useSalesForceConfig()
 
-  const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
+  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
@@ -858,7 +858,7 @@ const CreateSubscription = () => {
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
                               formikProps={planFormikProps}
-                              editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
 
                             <UsageChargesSection
@@ -867,7 +867,7 @@ const CreateSubscription = () => {
                               formikProps={planFormikProps}
                               premiumWarningDialogRef={premiumWarningDialogRef}
                               alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
-                              editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
                           </div>
                         </div>
@@ -888,7 +888,7 @@ const CreateSubscription = () => {
                             <CommitmentsSection
                               formikProps={planFormikProps}
                               premiumWarningDialogRef={premiumWarningDialogRef}
-                              editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
                           </Card>
                         </div>
@@ -917,7 +917,7 @@ const CreateSubscription = () => {
         }}
       />
 
-      <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
+      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
