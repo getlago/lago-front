@@ -5,9 +5,9 @@ import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button, Card, Skeleton, Typography } from '~/components/designSystem'
 import {
-  EditInvoiceDisplayName,
-  EditInvoiceDisplayNameRef,
-} from '~/components/invoices/EditInvoiceDisplayName'
+  EditInvoiceDisplayNameDialog,
+  EditInvoiceDisplayNameDialogRef,
+} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import {
@@ -147,7 +147,7 @@ const CreatePlan = () => {
   const { errorCode, formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
-  const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
+  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
 
   const canBeEdited = !plan?.subscriptionsCount
 
@@ -255,7 +255,7 @@ const CreatePlan = () => {
                       canBeEdited={canBeEdited}
                       formikProps={formikProps}
                       isEdition={isEdition}
-                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
 
                     <UsageChargesSection
@@ -264,7 +264,7 @@ const CreatePlan = () => {
                       formikProps={formikProps}
                       premiumWarningDialogRef={premiumWarningDialogRef}
                       alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
-                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
                   </Section>
                 </SectionWrapper>
@@ -283,7 +283,7 @@ const CreatePlan = () => {
                     <CommitmentsSection
                       formikProps={formikProps}
                       premiumWarningDialogRef={premiumWarningDialogRef}
-                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
 
                     <FeatureEntitlementSection
@@ -341,7 +341,7 @@ const CreatePlan = () => {
         onContinue={() => planCloseRedirection()}
       />
       <ImpactOverridenSubscriptionsDialog ref={impactOverridenSubscriptionsDialogRef} />
-      <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
+      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )

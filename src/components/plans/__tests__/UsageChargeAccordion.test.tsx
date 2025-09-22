@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { FormikProps, useFormik } from 'formik'
 import { object } from 'yup'
 
-import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
+import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
 import { UsageChargeAccordion } from '~/components/plans/UsageChargeAccordion'
 import { transformFilterObjectToString } from '~/components/plans/utils'
@@ -61,7 +61,7 @@ async function prepare({ filters, properties }: PrepareProps = {}) {
         currency={CurrencyEnum.Usd}
         shouldDisplayAlreadyUsedChargeAlert={false}
         formikProps={formikProps as unknown as FormikProps<PlanFormInput>}
-        editInvoiceDisplayNameRef={{} as React.RefObject<EditInvoiceDisplayNameRef>}
+        editInvoiceDisplayNameDialogRef={{} as React.RefObject<EditInvoiceDisplayNameDialogRef>}
       />
     )
   }

@@ -24,9 +24,9 @@ import {
   EditFeeBillingPeriodRef,
 } from '~/components/invoices/EditFeeBillingPeriod'
 import {
-  EditInvoiceDisplayName,
-  EditInvoiceDisplayNameRef,
-} from '~/components/invoices/EditInvoiceDisplayName'
+  EditInvoiceDisplayNameDialog,
+  EditInvoiceDisplayNameDialogRef,
+} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import {
   EditInvoiceItemDescriptionDialog,
   EditInvoiceItemDescriptionDialogRef,
@@ -259,7 +259,7 @@ const CreateInvoice = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
   const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
-  const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
+  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const editFeeBillingPeriodDialogRef = useRef<EditFeeBillingPeriodRef>(null)
 
   const handleClosePage = useCallback(() => {
@@ -850,7 +850,7 @@ const CreateInvoice = () => {
                                   onClick={(e) => {
                                     e.stopPropagation()
 
-                                    editInvoiceDisplayNameRef.current?.openDialog({
+                                    editInvoiceDisplayNameDialogRef.current?.openDialog({
                                       invoiceDisplayName: fee.invoiceDisplayName,
                                       callback: (invoiceDisplayName: string) => {
                                         formikProps.setFieldValue(
@@ -1427,7 +1427,7 @@ const CreateInvoice = () => {
       />
       <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
       <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
-      <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
+      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <EditFeeBillingPeriod ref={editFeeBillingPeriodDialogRef} />
     </>
   )

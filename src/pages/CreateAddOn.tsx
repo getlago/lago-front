@@ -1,60 +1,24 @@
-import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { number, object, string } from 'yup'
 
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
 import { AddOnFormInput } from '~/components/addOns/types'
-import { Button, Card, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import {
-  AmountInputField,
-  ComboBox,
-  ComboBoxField,
-  ComboboxItem,
-  TextInput,
-  TextInputField,
-} from '~/components/form'
+import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
+import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import {
-  FORM_ERRORS_ENUM,
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME,
-} from '~/core/constants/form'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { FORM_ERRORS_ENUM, SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME } from '~/core/constants/form'
 import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
-import {
-  CurrencyEnum,
-  TaxOnAddOnEditCreateFragmentDoc,
-  useGetTaxesForAddOnFormLazyQuery,
-} from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
 import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
-
-gql`
-  query getTaxesForAddOnForm($limit: Int, $page: Int, $searchTerm: String) {
-    taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
-      metadata {
-        currentPage
-        totalPages
-      }
-      collection {
-        id
-        name
-        rate
-        ...TaxOnAddOnEditCreate
-      }
-    }
-  }
-
-  ${TaxOnAddOnEditCreateFragmentDoc}
-`
 
 const CreateAddOn = () => {
   const { translate } = useInternationalization()
@@ -63,10 +27,6 @@ const CreateAddOn = () => {
   const { addOnId } = useParams()
   const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForAddOnFormLazyQuery({
-    variables: { limit: 20 },
-  })
-  const { collection: taxesCollection } = taxesData?.taxes || {}
 
   const formikProps = useFormik<AddOnFormInput>({
     initialValues: {
@@ -95,35 +55,6 @@ const CreateAddOn = () => {
     onSubmit: onSave,
   })
 
-  const taxesDataForCombobox = useMemo(() => {
-    if (!taxesCollection) return []
-
-    const addOnTaxesIds = formikProps?.values?.taxes?.map((tax) => tax.id) || []
-
-    return taxesCollection.map(({ id, name, rate }) => {
-      const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
-        style: 'percent',
-      })
-
-      return {
-        label: `${name} (${formatedRate})`,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {name}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {formatedRate}
-            </Typography>
-          </ComboboxItem>
-        ),
-        value: id,
-        disabled: addOnTaxesIds.includes(id),
-      }
-    })
-  }, [formikProps?.values?.taxes, taxesCollection])
-
-  const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
     !!formikProps.initialValues.description,
   )
@@ -288,7 +219,26 @@ const CreateAddOn = () => {
                     />
                   </div>
 
-                  {!!formikProps?.values?.taxes?.length && (
+                  <div className="flex flex-col gap-1">
+                    {!!formikProps?.values?.taxes?.length && (
+                      <Typography variant="captionHl" color="grey700">
+                        {translate('text_6661fc17337de3591e29e3e1')}
+                      </Typography>
+                    )}
+
+                    <TaxesSelectorSection
+                      taxes={formikProps?.values?.taxes || []}
+                      comboboxSelector={SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME}
+                      onUpdate={(newTaxArray) => {
+                        formikProps.setFieldValue('taxes', newTaxArray)
+                      }}
+                      onDelete={(newTaxArray) => {
+                        formikProps.setFieldValue('taxes', newTaxArray)
+                      }}
+                    />
+                  </div>
+
+                  {/* {!!formikProps?.values?.taxes?.length && (
                     <div>
                       <Typography className="mb-1" variant="captionHl" color="grey700">
                         {translate('text_64be910fba8ef9208686a8e3')}
@@ -375,7 +325,7 @@ const CreateAddOn = () => {
                     >
                       {translate('text_64be910fba8ef9208686a8c9')}
                     </Button>
-                  )}
+                  )} */}
                 </Card>
 
                 <div className="px-6 pb-20">

@@ -12,6 +12,7 @@ import {
   CreateAddOnInput,
   EditAddOnFragment,
   LagoApiError,
+  TaxForTaxesSelectorSectionFragmentDoc,
   UpdateAddOnInput,
   useCreateAddOnMutation,
   useGetSingleAddOnQuery,
@@ -19,13 +20,6 @@ import {
 } from '~/generated/graphql'
 
 gql`
-  fragment TaxOnAddOnEditCreate on Tax {
-    id
-    name
-    code
-    rate
-  }
-
   fragment EditAddOn on AddOn {
     id
     name
@@ -35,7 +29,7 @@ gql`
     amountCurrency
     taxes {
       id
-      ...TaxOnAddOnEditCreate
+      ...TaxForTaxesSelectorSection
     }
   }
 
@@ -58,6 +52,7 @@ gql`
   }
 
   ${AddOnItemFragmentDoc}
+  ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
 type UseCreateEditAddOnReturn = {

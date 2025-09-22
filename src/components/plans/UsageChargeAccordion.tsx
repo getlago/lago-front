@@ -1,33 +1,33 @@
 import { gql } from '@apollo/client'
-import { InputAdornment } from '@mui/material'
 import { FormikErrors, FormikProps } from 'formik'
-import { Icon, tw } from 'lago-design-system'
-import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
+import { tw } from 'lago-design-system'
+import { memo, RefObject, useCallback, useEffect, useMemo } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Accordion, Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { RadioGroupField, Switch } from '~/components/form'
+import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { ChargeBillingRadioGroup } from '~/components/plans/chargeAccordion/ChargeBillingRadioGroup'
+import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
+import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
+import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
+import { RemoveChargeButton } from '~/components/plans/chargeAccordion/RemoveChargeButton'
+import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import {
-  AmountInput,
-  ComboBox,
-  ComboboxItem,
-  RadioGroupField,
-  Switch,
-  TextInput,
-} from '~/components/form'
-import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
-import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
+  handleUpdateCharges,
+  HandleUpdateChargesProps,
+} from '~/components/plans/chargeAccordion/utils'
+import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { useDuplicatePlanVar } from '~/core/apolloClient'
+import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
-  getChargeModelHelpTextTranslationKey,
   getIntervalTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
@@ -43,34 +43,23 @@ import {
   PercentageChargeFragmentDoc,
   PlanInterval,
   StandardChargeFragmentDoc,
-  TaxForPlanUsageChargeAccordionFragment,
-  useGetTaxesForChargesLazyQuery,
+  TaxForTaxesSelectorSectionFragmentDoc,
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
-import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
-import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './ChargeFilter'
-import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
-import { ChargeWrapperSwitch } from './ChargeWrapperSwitch'
+import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './chargeAccordion/ChargeFilter'
+import { ChargeOptionsAccordion } from './chargeAccordion/ChargeOptionsAccordion'
+import { ChargeWrapperSwitch } from './chargeAccordion/ChargeWrapperSwitch'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
-
-const CUSTOM_PRICING_UNIT_SEPARATOR = '::-::'
 
 const buildChargeDefaultPropertyId = (chargeIndex: number) =>
   `charge-${chargeIndex}-default-property-accordion`
 
 gql`
-  fragment TaxForPlanUsageChargeAccordion on Tax {
-    id
-    code
-    name
-    rate
-  }
-
   fragment UsageChargeAccordion on Charge {
     id
     chargeModel
@@ -115,22 +104,9 @@ gql`
       }
     }
     taxes {
-      ...TaxForPlanUsageChargeAccordion
+      ...TaxForTaxesSelectorSection
     }
     ...ChargeForChargeOptionsAccordion
-  }
-
-  query getTaxesForCharges($limit: Int, $page: Int) {
-    taxes(limit: $limit, page: $page) {
-      metadata {
-        currentPage
-        totalPages
-      }
-      collection {
-        id
-        ...TaxForPlanUsageChargeAccordion
-      }
-    }
   }
 
   ${GraduatedChargeFragmentDoc}
@@ -142,6 +118,7 @@ gql`
   ${CustomChargeFragmentDoc}
   ${ChargeForChargeOptionsAccordionFragmentDoc}
   ${DynamicChargeFragmentDoc}
+  ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
 export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
@@ -170,7 +147,7 @@ interface UsageChargeAccordionProps {
   index: number
   isUsedInSubscription?: boolean
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
-  editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
+  editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   shouldDisplayAlreadyUsedChargeAlert: boolean
@@ -183,7 +160,7 @@ export const UsageChargeAccordion = memo(
     shouldDisplayAlreadyUsedChargeAlert,
     removeChargeWarningDialogRef,
     premiumWarningDialogRef,
-    editInvoiceDisplayNameRef,
+    editInvoiceDisplayNameDialogRef,
     isUsedInSubscription,
     isInitiallyOpen,
     isInSubscriptionForm,
@@ -194,8 +171,6 @@ export const UsageChargeAccordion = memo(
   }: UsageChargeAccordionProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
-    const { type: actionType } = useDuplicatePlanVar()
-    const { hasAnyPricingUnitConfigured, pricingUnits } = useCustomPricingUnits()
     const {
       getChargeModelComboboxData,
       getIsPayInAdvanceOptionDisabled,
@@ -206,7 +181,6 @@ export const UsageChargeAccordion = memo(
     const {
       chargeModelComboboxData,
       hasDefaultPropertiesErrors,
-      hasErrorInCharges,
       initialLocalCharge,
       isPayInAdvanceOptionDisabled,
       isProratedOptionDisabled,
@@ -236,7 +210,6 @@ export const UsageChargeAccordion = memo(
           typeof chargeErrors === 'object' &&
           typeof chargeErrors[index] === 'object' &&
           typeof chargeErrors[index].properties === 'object',
-        hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
         initialLocalCharge: formikProps.initialValues.charges[index],
         isPayInAdvanceOptionDisabled: localIsPayInAdvanceOptionDisabled,
         isProratedOptionDisabled: localIsProratedOptionDisabled,
@@ -253,54 +226,17 @@ export const UsageChargeAccordion = memo(
       isPremium,
     ])
 
-    const [showSpendingMinimum, setShowSpendingMinimum] = useState(
-      !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
-    )
-    const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
-    const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForChargesLazyQuery({
-      variables: { limit: 500 },
-    })
-    const { collection: taxesCollection } = taxesData?.taxes || {}
-
-    useEffect(() => {
-      setShowSpendingMinimum(
-        !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
-      )
-    }, [initialLocalCharge?.minAmountCents])
-
     const handleUpdate = useCallback(
-      (name: string, value: unknown) => {
-        // IMPORTANT: This check should stay first in this function
-        // If user is not premium and try to switch to graduated percentage pricing
-        // We should show the premium modal and prevent any formik value change
-        if (name === 'chargeModel' && !isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-          premiumWarningDialogRef?.current?.openDialog()
-          return
-        }
-
-        // NOTE: We prevent going further if the change is about the charge model and the value remain the same
-        // It prevents fixing the properties to be wrongly reset to default on 2nd select.
-        if (name === 'chargeModel' && value === localCharge.chargeModel) return
-
-        let currentChargeValues: LocalChargeInput = {
-          ...localCharge,
-          [name]: value,
-        }
-
-        if (name === 'chargeModel') {
-          // Reset charge data to default when switching charge model
-          currentChargeValues = {
-            ...currentChargeValues,
-            payInAdvance: false,
-            prorated: false,
-            invoiceable: true,
-            properties: getPropertyShape({}),
-            filters: [],
-            taxes: [],
-          }
-        }
-
-        formikProps.setFieldValue(`charges.${index}`, currentChargeValues)
+      (name: HandleUpdateChargesProps['name'], value: HandleUpdateChargesProps['value']) => {
+        handleUpdateCharges({
+          formikProps,
+          index,
+          isPremium,
+          localCharge,
+          name,
+          premiumWarningDialogRef,
+          value,
+        })
       },
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -316,34 +252,6 @@ export const UsageChargeAccordion = memo(
       return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
     }, [formikProps?.values?.taxes, localCharge.taxes])
 
-    const taxesDataForCombobox = useMemo(() => {
-      if (!taxesCollection) return []
-
-      const chargeTaxesIds = localCharge.taxes?.map((tax) => tax.id) || []
-
-      return taxesCollection.map(({ id: taxId, name, rate }) => {
-        const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
-          style: 'percent',
-        })
-
-        return {
-          label: `${name} (${formatedRate})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {formatedRate}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: taxId,
-          disabled: chargeTaxesIds.includes(taxId),
-        }
-      })
-    }, [localCharge.taxes, taxesCollection])
-
     const chargePayInAdvanceDescription = useMemo(() => {
       if (localCharge.chargeModel === ChargeModelEnum.Volume) {
         return translate('text_6669b493fae79a0095e639bc')
@@ -355,41 +263,6 @@ export const UsageChargeAccordion = memo(
 
       return translate('text_6661fc17337de3591e29e435')
     }, [localCharge.chargeModel, localCharge.billableMetric.aggregationType, translate])
-
-    const pricingUnitDataForCombobox = useMemo(() => {
-      const formatedPricingUnits = pricingUnits.map((pricingUnit) => ({
-        label: pricingUnit.name,
-        value: `${pricingUnit.code}${CUSTOM_PRICING_UNIT_SEPARATOR}${pricingUnit.shortName}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Custom}`,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {pricingUnit.name}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {pricingUnit.code}
-            </Typography>
-          </ComboboxItem>
-        ),
-      }))
-
-      return [
-        {
-          label: currency,
-          value: `${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Fiat}`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {currency}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {translate('text_1750411499858a87tkuylqms')}
-              </Typography>
-            </ComboboxItem>
-          ),
-        },
-        ...formatedPricingUnits,
-      ]
-    }, [currency, pricingUnits, translate])
 
     const chargePricingUnitShortName = useMemo(
       () =>
@@ -432,46 +305,23 @@ export const UsageChargeAccordion = memo(
                 <Typography variant="bodyHl" color="textSecondary" noWrap>
                   {localCharge.invoiceDisplayName || localCharge?.billableMetric?.name}
                 </Typography>
-                <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
-                  <Button
-                    icon="pen"
-                    variant="quaternary"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation()
-
-                      editInvoiceDisplayNameRef.current?.openDialog({
-                        invoiceDisplayName: localCharge.invoiceDisplayName,
-                        callback: (invoiceDisplayName: string) => {
-                          formikProps.setFieldValue(
-                            `charges.${index}.invoiceDisplayName`,
-                            invoiceDisplayName,
-                          )
-                        },
-                      })
-                    }}
-                  />
-                </Tooltip>
+                <EditInvoiceDisplayNameButton
+                  editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                  currentInvoiceDisplayName={localCharge.invoiceDisplayName}
+                  onEdit={(invoiceDisplayName: string) => {
+                    formikProps.setFieldValue(
+                      `charges.${index}.invoiceDisplayName`,
+                      invoiceDisplayName,
+                    )
+                  }}
+                />
               </div>
               <Typography variant="caption" noWrap>
                 {localCharge?.billableMetric?.code}
               </Typography>
             </div>
             <div className="flex items-center gap-3 p-1 pl-0">
-              <Tooltip
-                placement="top-end"
-                title={
-                  hasErrorInCharges
-                    ? translate('text_635b975ecea4296eb76924b7')
-                    : translate('text_635b975ecea4296eb76924b1')
-                }
-              >
-                <Icon
-                  name="validate-filled"
-                  className="flex items-center"
-                  color={hasErrorInCharges ? 'disabled' : 'success'}
-                />
-              </Tooltip>
+              <ValidationIcon hasError={Boolean(formikProps?.errors?.charges?.[index])} />
 
               {!!taxValueForBadgeDisplay && (
                 <Chip
@@ -488,127 +338,37 @@ export const UsageChargeAccordion = memo(
                   ),
                 )}
               />
-              {!isInSubscriptionForm && (
-                <Tooltip placement="top-end" title={translate('text_624aa732d6af4e0103d40e65')}>
-                  <Button
-                    variant="quaternary"
-                    size="small"
-                    icon="trash"
-                    data-test="remove-charge"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation()
-                      e.preventDefault()
 
-                      const deleteCharge = () => {
-                        const charges = [...formikProps.values.charges]
-
-                        charges.splice(index, 1)
-                        formikProps.setFieldValue('charges', charges)
-                      }
-
-                      if (actionType !== 'duplicate' && isUsedInSubscription) {
-                        removeChargeWarningDialogRef?.current?.openDialog(index)
-                      } else {
-                        deleteCharge()
-                      }
-                    }}
-                  />
-                </Tooltip>
-              )}
+              <RemoveChargeButton
+                isInSubscriptionForm={isInSubscriptionForm}
+                isUsedInSubscription={isUsedInSubscription}
+                removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                existingCharges={formikProps.values.charges}
+                chargeToRemoveIndex={index}
+                onDeleteCharge={(charges) => formikProps.setFieldValue('charges', charges)}
+              />
             </div>
           </div>
         }
         data-test={`charge-accordion-${index}`}
       >
         <>
-          {/* Pricing unit configuration */}
-          {!!hasAnyPricingUnitConfigured && (
-            <div className="flex flex-col gap-3 p-4 shadow-b">
-              <ComboBox
-                disableClearable
-                disabled={isInSubscriptionForm || disabled}
-                name="pricingUnit"
-                label={translate('text_1750411499858etvdxpxm4vd')}
-                sortValues={false}
-                data={pricingUnitDataForCombobox}
-                value={localCharge.appliedPricingUnit?.code}
-                onChange={(value) => {
-                  const [code, shortName, type] = value.split(CUSTOM_PRICING_UNIT_SEPARATOR)
+          <CustomPricingUnitSelector
+            currency={currency}
+            isInSubscriptionForm={isInSubscriptionForm}
+            disabled={disabled}
+            localCharge={localCharge}
+            handleUpdate={handleUpdate}
+          />
 
-                  return handleUpdate('appliedPricingUnit', {
-                    code,
-                    shortName,
-                    type,
-                    conversionRate:
-                      type === LocalPricingUnitType.Custom
-                        ? localCharge.appliedPricingUnit?.conversionRate
-                        : undefined,
-                  })
-                }}
-              />
-
-              {localCharge.appliedPricingUnit?.type === LocalPricingUnitType.Custom && (
-                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-                  <Typography variant="captionHl" color="textSecondary">
-                    {translate('text_1750411499858qxgqjoqtr3e')}
-                  </Typography>
-
-                  <Typography variant="captionHl" color="textSecondary">
-                    {translate('text_1750411499858su5b7bbp5t9')}
-                  </Typography>
-
-                  <div className="flex items-center gap-4">
-                    <div className="flex size-12 items-center justify-center rounded-xl border border-grey-300 bg-grey-100">
-                      1
-                    </div>
-
-                    <div className="flex size-12 items-center justify-center rounded-xl border border-grey-300 bg-grey-100">
-                      =
-                    </div>
-                  </div>
-
-                  <TextInput
-                    name="conversionRate"
-                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                    value={localCharge.appliedPricingUnit?.conversionRate}
-                    placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                    onChange={(value) => {
-                      handleUpdate('appliedPricingUnit', {
-                        ...localCharge.appliedPricingUnit,
-                        conversionRate: value,
-                      })
-                    }}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Charge main infos */}
-          <div className="p-4 pb-0" data-test="charge-model-wrapper">
-            {!!shouldDisplayAlreadyUsedChargeAlert && (
-              <Alert type="warning" className="mb-4">
-                {translate('text_6435895831d323008a47911f')}
-              </Alert>
-            )}
-            <ComboBox
-              disableClearable
-              name="chargeModel"
-              disabled={isInSubscriptionForm || disabled}
-              label={translate('text_65201b8216455901fe273dd5')}
-              data={chargeModelComboboxData}
-              value={localCharge.chargeModel}
-              helperText={translate(getChargeModelHelpTextTranslationKey[localCharge.chargeModel])}
-              onChange={(value) => handleUpdate('chargeModel', value)}
-            />
-          </div>
+          <ChargeModelSelector
+            shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+            isInSubscriptionForm={isInSubscriptionForm}
+            disabled={disabled}
+            localCharge={localCharge}
+            chargeModelComboboxData={chargeModelComboboxData}
+            handleUpdate={handleUpdate}
+          />
 
           {(!!localCharge.properties || !!localCharge?.filters?.length) && (
             <>
@@ -645,20 +405,7 @@ export const UsageChargeAccordion = memo(
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 p-1 pl-0">
-                                <Tooltip
-                                  placement="top-end"
-                                  title={
-                                    hasDefaultPropertiesErrors
-                                      ? translate('text_635b975ecea4296eb76924b7')
-                                      : translate('text_635b975ecea4296eb76924b1')
-                                  }
-                                >
-                                  <Icon
-                                    name="validate-filled"
-                                    className="flex items-center"
-                                    color={hasDefaultPropertiesErrors ? 'disabled' : 'success'}
-                                  />
-                                </Tooltip>
+                                <ValidationIcon hasError={hasDefaultPropertiesErrors} />
                                 <Tooltip
                                   placement="top-end"
                                   title={
@@ -735,45 +482,19 @@ export const UsageChargeAccordion = memo(
                                   translate('text_65f847a944603a01034f5831')}
                               </Typography>
 
-                              <Tooltip
-                                title={translate('text_65018c8e5c6b626f030bcf8d')}
-                                placement="top-end"
-                              >
-                                <Button
-                                  icon="pen"
-                                  variant="quaternary"
-                                  size="small"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-
-                                    editInvoiceDisplayNameRef.current?.openDialog({
-                                      invoiceDisplayName: filter.invoiceDisplayName,
-                                      callback: (invoiceDisplayName: string) => {
-                                        formikProps.setFieldValue(
-                                          `charges.${index}.filters.${filterIndex}.invoiceDisplayName`,
-                                          invoiceDisplayName,
-                                        )
-                                      },
-                                    })
-                                  }}
-                                />
-                              </Tooltip>
+                              <EditInvoiceDisplayNameButton
+                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                                currentInvoiceDisplayName={filter.invoiceDisplayName}
+                                onEdit={(invoiceDisplayName: string) => {
+                                  formikProps.setFieldValue(
+                                    `charges.${index}.filters.${filterIndex}.invoiceDisplayName`,
+                                    invoiceDisplayName,
+                                  )
+                                }}
+                              />
                             </div>
                             <div className="flex items-center gap-3 p-1 pl-0">
-                              <Tooltip
-                                placement="top-end"
-                                title={
-                                  hasFilterErrors
-                                    ? translate('text_635b975ecea4296eb76924b7')
-                                    : translate('text_635b975ecea4296eb76924b1')
-                                }
-                              >
-                                <Icon
-                                  name="validate-filled"
-                                  className="flex items-center"
-                                  color={hasFilterErrors ? 'disabled' : 'success'}
-                                />
-                              </Tooltip>
+                              <ValidationIcon hasError={hasFilterErrors} />
                               <Tooltip
                                 placement="top-end"
                                 title={translate('text_63aa085d28b8510cd46443ff')}
@@ -970,141 +691,44 @@ export const UsageChargeAccordion = memo(
                     })}
                   </Typography>
                 </div>
-                {!showSpendingMinimum ? (
-                  <Button
-                    fitContent
-                    variant="inline"
-                    startIcon="plus"
-                    disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
-                    endIcon={isPremium ? undefined : 'sparkles'}
-                    onClick={() => {
-                      if (isPremium) {
-                        setShowSpendingMinimum(true)
-                        setTimeout(() => {
-                          document.getElementById(`spending-minimum-input-${index}`)?.focus()
-                        }, 0)
-                      } else {
-                        premiumWarningDialogRef?.current?.openDialog()
-                      }
-                    }}
-                  >
-                    {translate('text_643e592657fc1ba5ce110b9e')}
-                  </Button>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <AmountInput
-                      className="flex-1"
-                      id={`spending-minimum-input-${index}`}
-                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                      currency={currency}
-                      placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                      disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
-                      value={localCharge?.minAmountCents || ''}
-                      onChange={(value) => handleUpdate('minAmountCents', value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                      <Button
-                        icon="trash"
-                        variant="quaternary"
-                        disabled={disabled}
-                        onClick={() => {
-                          formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
-                          setShowSpendingMinimum(false)
-                        }}
-                      />
-                    </Tooltip>
-                  </div>
-                )}
+
+                <SpendingMinimumOptionSection
+                  initialLocalCharge={initialLocalCharge}
+                  subscriptionFormType={subscriptionFormType}
+                  disabled={disabled}
+                  localCharge={localCharge}
+                  chargePricingUnitShortName={chargePricingUnitShortName}
+                  currency={currency}
+                  isPremium={isPremium}
+                  premiumWarningDialogRef={premiumWarningDialogRef}
+                  chargeIndex={index}
+                  handleUpdate={handleUpdate}
+                  handleRemoveSpendingMinimum={() => {
+                    formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
+                  }}
+                />
               </div>
             )}
 
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <Typography variant="captionHl" color="textSecondary">
-                  {translate('text_6661fc17337de3591e29e3e1')}
-                </Typography>
-                <Typography variant="caption">
-                  {translate('text_6662c316125d2400f7995ff6')}
-                </Typography>
-              </div>
-              {!!localCharge?.taxes?.length && (
-                <div className="flex flex-wrap items-center gap-3">
-                  {localCharge.taxes.map(({ id: localTaxId, name, rate }) => (
-                    <Chip
-                      key={localTaxId}
-                      label={`${name} (${rate}%)`}
-                      type="secondary"
-                      size="medium"
-                      deleteIcon="trash"
-                      icon="percentage"
-                      deleteIconLabel={translate('text_63aa085d28b8510cd46443ff')}
-                      onDelete={() => {
-                        const newTaxedArray =
-                          localCharge.taxes?.filter((tax) => tax.id !== localTaxId) || []
-
-                        formikProps.setFieldValue(`charges.${index}.taxes`, newTaxedArray)
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {!shouldDisplayTaxesInput ? (
-                <Button
-                  fitContent
-                  startIcon="plus"
-                  variant="inline"
-                  onClick={() => {
-                    setShouldDisplayTaxesInput(true)
-
-                    scrollToAndClickElement({
-                      selector: `.${SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                    })
-                  }}
-                  data-test="show-add-taxes"
-                >
-                  {translate('text_64be910fba8ef9208686a8c9')}
-                </Button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <ComboBox
-                    containerClassName="flex-1"
-                    className={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
-                    data={taxesDataForCombobox}
-                    searchQuery={getTaxes}
-                    loading={taxesLoading}
-                    placeholder={translate('text_64be910fba8ef9208686a8e7')}
-                    emptyText={translate('text_64be91fd0678965126e5657b')}
-                    onChange={(newTaxId) => {
-                      const previousTaxes = [...(localCharge?.taxes || [])]
-                      const newTaxObject = taxesData?.taxes.collection.find(
-                        (t) => t.id === newTaxId,
-                      ) as TaxForPlanUsageChargeAccordionFragment
-
-                      handleUpdate('taxes', [...previousTaxes, newTaxObject])
-                      setShouldDisplayTaxesInput(false)
-                    }}
-                  />
-
-                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      onClick={() => {
-                        setShouldDisplayTaxesInput(false)
-                      }}
-                    />
-                  </Tooltip>
-                </div>
-              )}
+            <div className="flex flex-col gap-1">
+              <Typography variant="captionHl" color="textSecondary">
+                {translate('text_6661fc17337de3591e29e3e1')}
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_6662c316125d2400f7995ff6')}
+              </Typography>
             </div>
+
+            <TaxesSelectorSection
+              taxes={localCharge?.taxes || []}
+              comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
+              onUpdate={(newTaxArray) => {
+                handleUpdate('taxes', newTaxArray)
+              }}
+              onDelete={(newTaxArray) => {
+                handleUpdate('taxes', newTaxArray)
+              }}
+            />
           </ChargeOptionsAccordion>
         </>
       </Accordion>

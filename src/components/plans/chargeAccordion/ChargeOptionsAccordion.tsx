@@ -9,7 +9,7 @@ import { CurrencyEnum, RegroupPaidFeesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 
-import { LocalChargeInput } from './types'
+import { LocalChargeInput } from '../types'
 
 gql`
   fragment ChargeForChargeOptionsAccordion on Charge {
