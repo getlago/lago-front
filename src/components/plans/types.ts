@@ -11,7 +11,7 @@ import {
   PropertiesInput,
   TaxForPlanAndChargesInPlanFormFragment,
   TaxForPlanSettingsSectionFragment,
-  TaxForPlanUsageChargeAccordionFragment,
+  TaxForTaxesSelectorSectionFragment,
   UsageThresholdInput,
 } from '~/generated/graphql'
 
@@ -45,7 +45,7 @@ export type LocalChargeInput = Omit<
   properties?: PropertiesInput
   filters?: LocalChargeFilterInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
-  taxes?: TaxForPlanUsageChargeAccordionFragment[] | null
+  taxes?: TaxForTaxesSelectorSectionFragment[] | null
 }
 
 export type LocalUsageThresholdInput = UsageThresholdInput

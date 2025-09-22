@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { FormikErrors, FormikProps } from 'formik'
 import { tw } from 'lago-design-system'
-import { memo, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, RefObject, useCallback, useEffect, useMemo } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
+import { RadioGroupField, Switch } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { ChargeBillingRadioGroup } from '~/components/plans/chargeAccordion/ChargeBillingRadioGroup'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
@@ -19,12 +19,12 @@ import {
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
   getIntervalTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -43,8 +43,7 @@ import {
   PercentageChargeFragmentDoc,
   PlanInterval,
   StandardChargeFragmentDoc,
-  TaxForPlanUsageChargeAccordionFragment,
-  useGetTaxesForChargesLazyQuery,
+  TaxForTaxesSelectorSectionFragmentDoc,
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -61,13 +60,6 @@ const buildChargeDefaultPropertyId = (chargeIndex: number) =>
   `charge-${chargeIndex}-default-property-accordion`
 
 gql`
-  fragment TaxForPlanUsageChargeAccordion on Tax {
-    id
-    code
-    name
-    rate
-  }
-
   fragment UsageChargeAccordion on Charge {
     id
     chargeModel
@@ -112,22 +104,9 @@ gql`
       }
     }
     taxes {
-      ...TaxForPlanUsageChargeAccordion
+      ...TaxForTaxesSelectorSection
     }
     ...ChargeForChargeOptionsAccordion
-  }
-
-  query getTaxesForCharges($limit: Int, $page: Int) {
-    taxes(limit: $limit, page: $page) {
-      metadata {
-        currentPage
-        totalPages
-      }
-      collection {
-        id
-        ...TaxForPlanUsageChargeAccordion
-      }
-    }
   }
 
   ${GraduatedChargeFragmentDoc}
@@ -139,6 +118,7 @@ gql`
   ${CustomChargeFragmentDoc}
   ${ChargeForChargeOptionsAccordionFragmentDoc}
   ${DynamicChargeFragmentDoc}
+  ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
 export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
@@ -246,12 +226,6 @@ export const UsageChargeAccordion = memo(
       isPremium,
     ])
 
-    const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
-    const [getTaxes, { data: taxesData, loading: taxesLoading }] = useGetTaxesForChargesLazyQuery({
-      variables: { limit: 500 },
-    })
-    const { collection: taxesCollection } = taxesData?.taxes || {}
-
     const handleUpdate = useCallback(
       (name: HandleUpdateChargesProps['name'], value: HandleUpdateChargesProps['value']) => {
         handleUpdateCharges({
@@ -277,34 +251,6 @@ export const UsageChargeAccordion = memo(
 
       return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
     }, [formikProps?.values?.taxes, localCharge.taxes])
-
-    const taxesDataForCombobox = useMemo(() => {
-      if (!taxesCollection) return []
-
-      const chargeTaxesIds = localCharge.taxes?.map((tax) => tax.id) || []
-
-      return taxesCollection.map(({ id: taxId, name, rate }) => {
-        const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
-          style: 'percent',
-        })
-
-        return {
-          label: `${name} (${formatedRate})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {formatedRate}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: taxId,
-          disabled: chargeTaxesIds.includes(taxId),
-        }
-      })
-    }, [localCharge.taxes, taxesCollection])
 
     const chargePayInAdvanceDescription = useMemo(() => {
       if (localCharge.chargeModel === ChargeModelEnum.Volume) {
@@ -764,86 +710,25 @@ export const UsageChargeAccordion = memo(
               </div>
             )}
 
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <Typography variant="captionHl" color="textSecondary">
-                  {translate('text_6661fc17337de3591e29e3e1')}
-                </Typography>
-                <Typography variant="caption">
-                  {translate('text_6662c316125d2400f7995ff6')}
-                </Typography>
-              </div>
-              {!!localCharge?.taxes?.length && (
-                <div className="flex flex-wrap items-center gap-3">
-                  {localCharge.taxes.map(({ id: localTaxId, name, rate }) => (
-                    <Chip
-                      key={localTaxId}
-                      label={`${name} (${rate}%)`}
-                      type="secondary"
-                      size="medium"
-                      deleteIcon="trash"
-                      icon="percentage"
-                      deleteIconLabel={translate('text_63aa085d28b8510cd46443ff')}
-                      onDelete={() => {
-                        const newTaxedArray =
-                          localCharge.taxes?.filter((tax) => tax.id !== localTaxId) || []
-
-                        formikProps.setFieldValue(`charges.${index}.taxes`, newTaxedArray)
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {!shouldDisplayTaxesInput ? (
-                <Button
-                  fitContent
-                  startIcon="plus"
-                  variant="inline"
-                  onClick={() => {
-                    setShouldDisplayTaxesInput(true)
-
-                    scrollToAndClickElement({
-                      selector: `.${SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                    })
-                  }}
-                  data-test="show-add-taxes"
-                >
-                  {translate('text_64be910fba8ef9208686a8c9')}
-                </Button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <ComboBox
-                    containerClassName="flex-1"
-                    className={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
-                    data={taxesDataForCombobox}
-                    searchQuery={getTaxes}
-                    loading={taxesLoading}
-                    placeholder={translate('text_64be910fba8ef9208686a8e7')}
-                    emptyText={translate('text_64be91fd0678965126e5657b')}
-                    onChange={(newTaxId) => {
-                      const previousTaxes = [...(localCharge?.taxes || [])]
-                      const newTaxObject = taxesData?.taxes.collection.find(
-                        (t) => t.id === newTaxId,
-                      ) as TaxForPlanUsageChargeAccordionFragment
-
-                      handleUpdate('taxes', [...previousTaxes, newTaxObject])
-                      setShouldDisplayTaxesInput(false)
-                    }}
-                  />
-
-                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      onClick={() => {
-                        setShouldDisplayTaxesInput(false)
-                      }}
-                    />
-                  </Tooltip>
-                </div>
-              )}
+            <div className="flex flex-col gap-1">
+              <Typography variant="captionHl" color="textSecondary">
+                {translate('text_6661fc17337de3591e29e3e1')}
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_6662c316125d2400f7995ff6')}
+              </Typography>
             </div>
+
+            <TaxesSelectorSection
+              taxes={localCharge?.taxes || []}
+              comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
+              onUpdate={(newTaxArray) => {
+                handleUpdate('taxes', newTaxArray)
+              }}
+              onDelete={(newTaxArray) => {
+                handleUpdate('taxes', newTaxArray)
+              }}
+            />
           </ChargeOptionsAccordion>
         </>
       </Accordion>
