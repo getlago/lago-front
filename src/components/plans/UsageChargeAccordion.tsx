@@ -7,6 +7,7 @@ import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { ChargeBillingRadioGroup } from '~/components/plans/chargeAccordion/ChargeBillingRadioGroup'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
 import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
@@ -17,7 +18,6 @@ import {
   HandleUpdateChargesProps,
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
-import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   ALL_FILTER_VALUES,
@@ -51,9 +51,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
-import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './ChargeFilter'
-import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
-import { ChargeWrapperSwitch } from './ChargeWrapperSwitch'
+import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './chargeAccordion/ChargeFilter'
+import { ChargeOptionsAccordion } from './chargeAccordion/ChargeOptionsAccordion'
+import { ChargeWrapperSwitch } from './chargeAccordion/ChargeWrapperSwitch'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
 

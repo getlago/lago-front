@@ -11,8 +11,8 @@ import {
 import { BillableMetricFilter } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { LocalChargeFilterInput } from './types'
-import { transformFilterObjectToString } from './utils'
+import { LocalChargeFilterInput } from '../types'
+import { transformFilterObjectToString } from '../utils'
 
 export const buildChargeFilterAddFilterButtonId = (chargeIndex: number, filterIndex: number) =>
   `charge-${chargeIndex}-add-filter-${filterIndex}`
