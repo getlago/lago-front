@@ -34,7 +34,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { walletFormErrorCodes } from '~/pages/wallet/form'
+import { topUpAmountError, walletFormErrorCodes } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 
 const AccordionSummary: FC<{ label: string; isValid: boolean; onDelete: VoidFunction }> = ({
@@ -123,6 +123,26 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
     return formikProps?.errors?.recurringTransactionRules?.length
   }, [formikProps?.errors?.recurringTransactionRules])
 
+  const paidCreditsError = topUpAmountError({
+    rateAmount: formikProps?.values?.rateAmount,
+    paidCredits: formikProps?.values?.paidCredits,
+    paidTopUpMinAmountCents: formikProps?.values?.paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents: formikProps?.values?.paidTopUpMaxAmountCents,
+    currency: formikProps?.values?.currency,
+    skip: !!formikProps?.values?.ignorePaidTopUpLimitsOnCreation,
+    translate,
+  })
+
+  const recurringPaidCreditsError = topUpAmountError({
+    rateAmount: formikProps?.values?.rateAmount,
+    paidCredits: formikProps?.values?.recurringTransactionRules?.[0]?.paidCredits || '',
+    paidTopUpMinAmountCents: formikProps?.values?.paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents: formikProps?.values?.paidTopUpMaxAmountCents,
+    currency: formikProps?.values?.currency,
+    skip: !!formikProps?.values?.recurringTransactionRules?.[0]?.ignorePaidTopUpLimits,
+    translate,
+  })
+
   return (
     <>
       <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
@@ -140,7 +160,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
               placeholder={translate('text_17580145853390n3v83gao69')}
               helperText={translate('text_1758014585339ly8tof8ub3r')}
             />
-
             <AmountInputField
               name="paidCredits"
               currency={formikProps.values.currency}
@@ -148,6 +167,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
               label={translate('text_62d18855b22699e5cf55f885')}
               formikProps={formikProps}
               silentError={true}
+              error={paidCreditsError?.label}
               helperText={translate('text_62d18855b22699e5cf55f88b', {
                 paidCredits: formatCreditsToCurrency(
                   formikProps.values.rateAmount,
@@ -159,14 +179,22 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
             />
 
             {formikProps.values.paidCredits && (
-              <SwitchField
-                name="invoiceRequiresSuccessfulPayment"
-                formikProps={formikProps}
-                label={translate('text_66a8aed1c3e07b277ec3990d')}
-                subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-              />
-            )}
+              <>
+                <SwitchField
+                  name={'ignorePaidTopUpLimitsOnCreation'}
+                  formikProps={formikProps}
+                  label={translate('text_1758285686646ty4gyil56oi')}
+                  subLabel={translate('text_1758285686647hxpjldry342')}
+                />
 
+                <SwitchField
+                  name="invoiceRequiresSuccessfulPayment"
+                  formikProps={formikProps}
+                  label={translate('text_66a8aed1c3e07b277ec3990d')}
+                  subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                />
+              </>
+            )}
             <AmountInputField
               name="grantedCredits"
               currency={formikProps.values.currency}
@@ -200,7 +228,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
           <Typography variant="subhead1">{translate('text_1741101674268ag60i0cc55m')}</Typography>
           <Typography variant="caption">{translate('text_6657be42151661006d2f3b95')}</Typography>
         </div>
-
         {!isRecurringTopUpEnabled ? (
           <Box>
             <Button
@@ -288,6 +315,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                     label={translate('text_62e79671d23ae6ff149de944')}
                     formikProps={formikProps}
                     silentError={true}
+                    error={recurringPaidCreditsError?.label}
                     helperText={translate('text_62d18855b22699e5cf55f88b', {
                       paidCredits: formatCreditsToCurrency(
                         formikProps.values.rateAmount,
@@ -299,22 +327,40 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   />
 
                   {formikProps.values.recurringTransactionRules?.[0].paidCredits && (
-                    <Switch
-                      name="recurringTransactionRules.0.invoiceRequiresSuccessfulPayment"
-                      onChange={(value) => {
-                        formikProps.setFieldValue(
-                          'recurringTransactionRules.0.invoiceRequiresSuccessfulPayment',
-                          value,
-                        )
-                      }}
-                      checked={
-                        formikProps.values.recurringTransactionRules?.[0]
-                          .invoiceRequiresSuccessfulPayment ??
-                        (DEFAULT_RULES.invoiceRequiresSuccessfulPayment as boolean)
-                      }
-                      label={translate('text_66a8aed1c3e07b277ec3990d')}
-                      subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-                    />
+                    <>
+                      <Switch
+                        name="recurringTransactionRules.0.ignorePaidTopUpLimits"
+                        onChange={(value) => {
+                          formikProps.setFieldValue(
+                            'recurringTransactionRules.0.ignorePaidTopUpLimits',
+                            value,
+                          )
+                        }}
+                        checked={
+                          formikProps.values.recurringTransactionRules?.[0].ignorePaidTopUpLimits ||
+                          false
+                        }
+                        label={translate('text_1758285686646ty4gyil56oi')}
+                        subLabel={translate('text_1758285686647hxpjldry342')}
+                      />
+
+                      <Switch
+                        name="recurringTransactionRules.0.invoiceRequiresSuccessfulPayment"
+                        onChange={(value) => {
+                          formikProps.setFieldValue(
+                            'recurringTransactionRules.0.invoiceRequiresSuccessfulPayment',
+                            value,
+                          )
+                        }}
+                        checked={
+                          formikProps.values.recurringTransactionRules?.[0]
+                            .invoiceRequiresSuccessfulPayment ??
+                          (DEFAULT_RULES.invoiceRequiresSuccessfulPayment as boolean)
+                        }
+                        label={translate('text_66a8aed1c3e07b277ec3990d')}
+                        subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                      />
+                    </>
                   )}
 
                   <AmountInputField
