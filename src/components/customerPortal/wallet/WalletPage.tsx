@@ -16,6 +16,7 @@ import {
   useGetPortalWalletsQuery,
   useTopUpPortalWalletMutation,
 } from '~/generated/graphql'
+import { topUpAmountError } from '~/pages/wallet/form'
 
 gql`
   mutation TopUpPortalWallet($input: CreateCustomerPortalWalletTransactionInput!) {
@@ -72,11 +73,23 @@ const WalletPage = () => {
     },
   })
 
-  const submitButtonDisabled =
-    !formikProps?.values?.amount || loadingTopUpPortalWallet || formikProps?.values?.amount <= 0
-
   const isLoading = customerWalletLoading
   const isError = !isLoading && customerWalletError
+
+  const paidCreditsError = topUpAmountError({
+    rateAmount: wallet?.rateAmount?.toString(),
+    paidCredits: formikProps?.values?.amount,
+    paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents,
+    currency: wallet?.currency,
+    translate,
+  })
+
+  const submitButtonDisabled =
+    !formikProps?.values?.amount ||
+    loadingTopUpPortalWallet ||
+    formikProps?.values?.amount <= 0 ||
+    paidCreditsError?.error
 
   if (isError) {
     return (
@@ -124,6 +137,7 @@ const WalletPage = () => {
                 </InputAdornment>
               ),
             }}
+            error={paidCreditsError?.label}
           />
 
           {errorTopUpPortalWallet && (
