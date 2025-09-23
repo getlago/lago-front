@@ -3448,5 +3448,18 @@
   "text_17580145853389xkffv9cs1d": "Transaction name (optional)",
   "text_17580145853390n3v83gao69": "Type a wallet transaction name",
   "text_1758014585339r3kd52x7r58": "This value will appear on invoices when relevant.",
-  "text_1758014585339ly8tof8ub3r": "This value appears on invoices when relevant. To separate purchased from granted credits, create two top-ups."
+  "text_1758014585339ly8tof8ub3r": "This value appears on invoices when relevant. To separate purchased from granted credits, create two top-ups.",
+  "text_1758285686646sieyihhzwak": "Transaction top-up limits",
+  "text_1758285686646xkeaxyajfp7": "Specify the minimum and maximum amounts for each credit top-up.",
+  "text_17582856866461p9g3nsnrgc": "Add min/max per transaction",
+  "text_1758285686646ty4gyil56oi": "Skip top-up limits for this rule",
+  "text_1758285686647hxpjldry342": "If off, automatic transactions made by this rule will follow the top-up limits set above.",
+  "text_1758285686647tnf634qa99c": "The credit top-up is below the minimum allowed for this wallet: {{minCredits}} credits ({{minAmount}}).",
+  "text_175828568664787kip4pzn8l": "The credit top-up exceeds the maximum allowed for this wallet: {{maxCredits}} credits ({{maxAmount}}).",
+  "text_1758285686647a868tiok58q": "The credit top-up amount must be between {{minCredits}} credits ({{minAmount}}) and {{maxCredits}} credits ({{maxAmount}}) for this wallet. Please top up within this range.",
+  "text_1758285847805xn6hdyurz3e": "Minimum credits amount",
+  "text_1758285847805k1uohu4vrov": "Maximum credits amount",
+  "text_1758286730208kztcznofxvr": "Minimum credits amount per purchase",
+  "text_1758286730208ey87jz8nzuz": "Maximum credits amount per purchase"
 }
+
