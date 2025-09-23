@@ -39,15 +39,9 @@ importers:
       '@tanstack/react-virtual':
         specifier: 3.11.2
         version: 3.11.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@types/actioncable':
-        specifier: ^5.2.11
-        version: 5.2.11
       ace-builds:
         specifier: ^1.37.3
         version: 1.37.3
-      actioncable:
-        specifier: 5.2.8-1
-        version: 5.2.8-1
       apollo-link-timeout:
         specifier: 4.0.0
         version: 4.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
@@ -66,9 +60,6 @@ importers:
       graphql:
         specifier: ^16.6.0
         version: 16.10.0
-      graphql-ruby-client:
-        specifier: ^1.14.8
-        version: 1.14.8(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0)
       html-react-parser:
         specifier: ^5.2.6
         version: 5.2.6(@types/react@18.2.38)(react@18.2.0)
@@ -2883,9 +2874,6 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
-  '@types/actioncable@5.2.11':
-    resolution: {integrity: sha512-aGzv5JS3razLvv4ZJW+wlDuNS5y1IFFVlm1EkZq3ZHs6txju7/2iee1e6sdK6DE4zsz8cIREs1K4BtfF5RMESQ==}
-
   '@types/apollo-upload-client@17.0.5':
     resolution: {integrity: sha512-rPKHaE4QNd06LNtBgz6hfntVO+pOQMS2yTcynrzBPg9+a/nbtJ2gus5KgzRp2rqfzmnKEc/sRGjLen/9Ot0Z2A==}
 
@@ -3204,9 +3192,6 @@ packages:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
-
-  actioncable@5.2.8-1:
-    resolution: {integrity: sha512-p/a9jeFs3KB3SWZ9w/T5HLyztooYSufOG++Uhau9YzprdBNyjFfsqrtN1roVVEzNDBGZJVr/2SSWwofvavPL1w==}
 
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
@@ -4763,14 +4748,6 @@ packages:
     resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
     peerDependencies:
       graphql: 14 - 16
-
-  graphql-ruby-client@1.14.8:
-    resolution: {integrity: sha512-lmLBDPWUute5QTli2ogRTXLFR9QSLRx5XKDOgYsY0xWpzy2k4Xbqs5jPBsm+aLOtXcDWWHcNLDeTQLhbJwY3Og==}
-    engines: {node: '>=10'}
-    hasBin: true
-    peerDependencies:
-      '@apollo/client': '>=3.3.6'
-      graphql: '>=14.3.1'
 
   graphql-tag@2.12.6:
     resolution: {integrity: sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==}
@@ -10842,8 +10819,6 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@types/actioncable@5.2.11': {}
-
   '@types/apollo-upload-client@17.0.5(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -11224,8 +11199,6 @@ snapshots:
   acorn@8.14.0: {}
 
   acorn@8.15.0: {}
-
-  actioncable@5.2.8-1: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -13204,13 +13177,6 @@ snapshots:
       graphql: 16.10.0
     transitivePeerDependencies:
       - encoding
-
-  graphql-ruby-client@1.14.8(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(graphql@16.10.0):
-    dependencies:
-      '@apollo/client': 3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      glob: 10.4.5
-      graphql: 16.10.0
-      minimist: 1.2.8
 
   graphql-tag@2.12.6(graphql@16.10.0):
     dependencies:
