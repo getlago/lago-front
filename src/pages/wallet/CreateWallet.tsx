@@ -45,6 +45,8 @@ gql`
     name
     rateAmount
     invoiceRequiresSuccessfulPayment
+    paidTopUpMinAmountCents
+    paidTopUpMaxAmountCents
     appliesTo {
       feeTypes
     }
@@ -61,6 +63,7 @@ gql`
       thresholdCredits
       transactionName
       trigger
+      ignorePaidTopUpLimits
       transactionMetadata {
         key
         value
@@ -141,6 +144,8 @@ const CreateWallet = () => {
   const [isRecurringTopUpEnabled, setIsRecurringTopUpEnabled] = useState(
     hasWalletRecurringTopUpEnabled(wallet),
   )
+  const [showMinTopUp, setShowMinTopUp] = useState(!!wallet?.paidTopUpMinAmountCents)
+  const [showMaxTopUp, setShowMaxTopUp] = useState(!!wallet?.paidTopUpMaxAmountCents)
 
   useEffect(() => {
     if (wallet) {
@@ -210,6 +215,9 @@ const CreateWallet = () => {
       }),
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
+      paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents || undefined,
+      paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents || undefined,
+      ignorePaidTopUpLimitsOnCreation: false,
     },
     validationSchema: walletFormSchema(formType),
     validateOnMount: true,
@@ -238,6 +246,7 @@ const CreateWallet = () => {
                   paidCredits: rulePaidCredit,
                   grantedCredits: ruleGrantedCredit,
                   expirationAt,
+                  ignorePaidTopUpLimits,
                   ...rest
                 } = rule
 
@@ -271,6 +280,7 @@ const CreateWallet = () => {
                   grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
                   targetOngoingBalance: targetedBalance,
                   invoiceRequiresSuccessfulPayment,
+                  ignorePaidTopUpLimits,
                   expirationAt: expirationAt === '' ? null : expirationAt,
                 }
               },
@@ -363,6 +373,10 @@ const CreateWallet = () => {
               customerData={customerData}
               showExpirationDate={showExpirationDate}
               setShowExpirationDate={setShowExpirationDate}
+              showMinTopUp={showMinTopUp}
+              setShowMinTopUp={setShowMinTopUp}
+              showMaxTopUp={showMaxTopUp}
+              setShowMaxTopUp={setShowMaxTopUp}
             />
 
             <ScopeSection formikProps={formikProps} />

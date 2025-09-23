@@ -33,6 +33,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { topUpAmountError } from '~/pages/wallet/form'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
@@ -56,6 +57,8 @@ gql`
     currency
     rateAmount
     invoiceRequiresSuccessfulPayment
+    paidTopUpMinAmountCents
+    paidTopUpMaxAmountCents
   }
 `
 
@@ -117,11 +120,25 @@ const CreateWalletTopUp = () => {
       paidCredits: '',
       name: undefined,
       metadata: undefined,
+      ignorePaidTopUpLimits: undefined,
     },
     validationSchema: object().shape({
       paidCredits: string().test({
         test: function (paidCredits) {
-          const { grantedCredits } = this?.parent || {}
+          const { ignorePaidTopUpLimits, grantedCredits } = this?.parent || {}
+
+          const error = topUpAmountError({
+            skip: ignorePaidTopUpLimits,
+            paidCredits,
+            rateAmount: wallet?.rateAmount?.toString(),
+            paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents,
+            paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents,
+            currency: wallet?.currency,
+          })
+
+          if (error?.error) {
+            return false
+          }
 
           return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
         },
@@ -141,6 +158,7 @@ const CreateWalletTopUp = () => {
       grantedCredits,
       paidCredits,
       invoiceRequiresSuccessfulPayment,
+      ignorePaidTopUpLimits,
       ...rest
     }) => {
       if (!wallet) return
@@ -172,6 +190,7 @@ const CreateWalletTopUp = () => {
             grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
             paidCredits: paidCredits === '' ? '0' : String(paidCredits),
             invoiceRequiresSuccessfulPayment,
+            ignorePaidTopUpLimits,
           },
         },
         refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
@@ -207,6 +226,16 @@ const CreateWalletTopUp = () => {
   const onAbort = useCallback(() => {
     formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateBack()
   }, [formikProps.dirty, navigateBack])
+
+  const paidCreditsError = topUpAmountError({
+    rateAmount: wallet?.rateAmount?.toString(),
+    paidCredits: formikProps?.values?.paidCredits?.toString(),
+    paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents,
+    currency: wallet?.currency,
+    skip: !!formikProps?.values?.ignorePaidTopUpLimits,
+    translate,
+  })
 
   return (
     <>
@@ -299,6 +328,7 @@ const CreateWalletTopUp = () => {
                 label={translate('text_62e79671d23ae6ff149de944')}
                 formikProps={formikProps}
                 silentError={true}
+                error={paidCreditsError?.label}
                 helperText={translate('text_62d18855b22699e5cf55f88b', {
                   paidCredits: intlFormatNumber(
                     isNaN(Number(formikProps.values.paidCredits))
@@ -321,12 +351,21 @@ const CreateWalletTopUp = () => {
               />
 
               {formikProps.values.paidCredits && (
-                <SwitchField
-                  name="invoiceRequiresSuccessfulPayment"
-                  formikProps={formikProps}
-                  label={translate('text_66a8aed1c3e07b277ec3990d')}
-                  subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-                />
+                <>
+                  <SwitchField
+                    name={'ignorePaidTopUpLimits'}
+                    formikProps={formikProps}
+                    label={translate('text_1758285686646ty4gyil56oi')}
+                    subLabel={translate('text_1758285686647hxpjldry342')}
+                  />
+
+                  <SwitchField
+                    name="invoiceRequiresSuccessfulPayment"
+                    formikProps={formikProps}
+                    label={translate('text_66a8aed1c3e07b277ec3990d')}
+                    subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                  />
+                </>
               )}
 
               <AmountInputField
