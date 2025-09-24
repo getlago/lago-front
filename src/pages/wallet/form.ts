@@ -182,6 +182,28 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
       },
     }),
     rateAmount: string().required(''),
+    paidTopUpMinAmountCents: string().test({
+      test: function (paidTopUpMinAmountCents) {
+        const { paidTopUpMaxAmountCents } = this?.parent || {}
+
+        if (isNaN(Number(paidTopUpMinAmountCents)) || isNaN(Number(paidTopUpMaxAmountCents))) {
+          return true
+        }
+
+        return Number(paidTopUpMinAmountCents) < Number(paidTopUpMaxAmountCents)
+      },
+    }),
+    paidTopUpMaxAmountCents: string().test({
+      test: function (paidTopUpMaxAmountCents) {
+        const { paidTopUpMinAmountCents } = this?.parent || {}
+
+        if (isNaN(Number(paidTopUpMaxAmountCents)) || isNaN(Number(paidTopUpMinAmountCents))) {
+          return true
+        }
+
+        return Number(paidTopUpMaxAmountCents) > Number(paidTopUpMinAmountCents)
+      },
+    }),
     recurringTransactionRules: array()
       .of(
         object().shape({
