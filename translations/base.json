@@ -3461,6 +3461,8 @@
   "text_1758285847805k1uohu4vrov": "Maximum amount",
   "text_1758286730208kztcznofxvr": "Minimum amount per purchase",
   "text_1758286730208ey87jz8nzuz": "Maximum amount per purchase",
-  "text_17587075291282to3nmogezj": "Skip top-up limits for this transaction"
+  "text_17587075291282to3nmogezj": "Skip top-up limits for this transaction",
+  "text_175872290080132j1em37b08": "Minimum value must be less than the maximum value",
+  "text_1758722900801nbox9c5bgnn": "Maximum value must be greater than the minimum value"
 }
 
