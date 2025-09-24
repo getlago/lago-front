@@ -13,7 +13,7 @@ import { addToast } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
-import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
+import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
@@ -113,6 +113,14 @@ const CreateWalletTopUp = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation({})
 
+  const paidTopUpMinAmountCents = wallet?.paidTopUpMinAmountCents
+    ? deserializeAmount(wallet?.paidTopUpMinAmountCents, currency)?.toString()
+    : undefined
+
+  const paidTopUpMaxAmountCents = wallet?.paidTopUpMaxAmountCents
+    ? deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency)?.toString()
+    : undefined
+
   const formikProps = useFormik<Omit<CreateCustomerWalletTransactionInput, 'walletId'>>({
     initialValues: {
       grantedCredits: '',
@@ -131,8 +139,8 @@ const CreateWalletTopUp = () => {
             skip: ignorePaidTopUpLimits,
             paidCredits,
             rateAmount: wallet?.rateAmount?.toString(),
-            paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents,
-            paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents,
+            paidTopUpMinAmountCents,
+            paidTopUpMaxAmountCents,
             currency: wallet?.currency,
           })
 
@@ -227,11 +235,15 @@ const CreateWalletTopUp = () => {
     formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateBack()
   }, [formikProps.dirty, navigateBack])
 
+  const hasMinMax =
+    typeof wallet?.paidTopUpMinAmountCents !== 'undefined' ||
+    typeof wallet?.paidTopUpMaxAmountCents !== 'undefined'
+
   const paidCreditsError = topUpAmountError({
     rateAmount: wallet?.rateAmount?.toString(),
     paidCredits: formikProps?.values?.paidCredits?.toString(),
-    paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents,
-    paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents,
+    paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents,
     currency: wallet?.currency,
     skip: !!formikProps?.values?.ignorePaidTopUpLimits,
     translate,
@@ -352,12 +364,13 @@ const CreateWalletTopUp = () => {
 
               {formikProps.values.paidCredits && (
                 <>
-                  <SwitchField
-                    name={'ignorePaidTopUpLimits'}
-                    formikProps={formikProps}
-                    label={translate('text_1758285686646ty4gyil56oi')}
-                    subLabel={translate('text_1758285686647hxpjldry342')}
-                  />
+                  {hasMinMax && (
+                    <SwitchField
+                      name={'ignorePaidTopUpLimits'}
+                      formikProps={formikProps}
+                      label={translate('text_17587075291282to3nmogezj')}
+                    />
+                  )}
 
                   <SwitchField
                     name="invoiceRequiresSuccessfulPayment"

@@ -47,7 +47,8 @@ export const topUpAmountError = ({
   | null
   | undefined => {
   if (skip) return
-  if (!rateAmount || typeof paidCredits === 'undefined') return
+  if (!rateAmount || typeof paidCredits === 'undefined' || paidCredits === '') return
+  if (Number(paidCredits) === 0) return
 
   const paidCreditsAmount = Number(rateAmount) * Number(paidCredits)
   const minCredits = Number(paidTopUpMinAmountCents) / Number(rateAmount)

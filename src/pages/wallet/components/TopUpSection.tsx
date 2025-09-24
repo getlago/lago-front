@@ -123,11 +123,14 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
     return formikProps?.errors?.recurringTransactionRules?.length
   }, [formikProps?.errors?.recurringTransactionRules])
 
+  const paidTopUpMinAmountCents = formikProps?.values?.paidTopUpMinAmountCents
+  const paidTopUpMaxAmountCents = formikProps?.values?.paidTopUpMaxAmountCents
+
   const paidCreditsError = topUpAmountError({
     rateAmount: formikProps?.values?.rateAmount,
     paidCredits: formikProps?.values?.paidCredits,
-    paidTopUpMinAmountCents: formikProps?.values?.paidTopUpMinAmountCents,
-    paidTopUpMaxAmountCents: formikProps?.values?.paidTopUpMaxAmountCents,
+    paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents,
     currency: formikProps?.values?.currency,
     skip: !!formikProps?.values?.ignorePaidTopUpLimitsOnCreation,
     translate,
@@ -136,12 +139,16 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   const recurringPaidCreditsError = topUpAmountError({
     rateAmount: formikProps?.values?.rateAmount,
     paidCredits: formikProps?.values?.recurringTransactionRules?.[0]?.paidCredits || '',
-    paidTopUpMinAmountCents: formikProps?.values?.paidTopUpMinAmountCents,
-    paidTopUpMaxAmountCents: formikProps?.values?.paidTopUpMaxAmountCents,
+    paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents,
     currency: formikProps?.values?.currency,
     skip: !!formikProps?.values?.recurringTransactionRules?.[0]?.ignorePaidTopUpLimits,
     translate,
   })
+
+  const hasMinMax =
+    typeof formikProps?.values?.paidTopUpMinAmountCents !== 'undefined' ||
+    typeof formikProps?.values?.paidTopUpMaxAmountCents !== 'undefined'
 
   return (
     <>
@@ -180,12 +187,13 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
 
             {formikProps.values.paidCredits && (
               <>
-                <SwitchField
-                  name={'ignorePaidTopUpLimitsOnCreation'}
-                  formikProps={formikProps}
-                  label={translate('text_1758285686646ty4gyil56oi')}
-                  subLabel={translate('text_1758285686647hxpjldry342')}
-                />
+                {hasMinMax && (
+                  <SwitchField
+                    name={'ignorePaidTopUpLimitsOnCreation'}
+                    formikProps={formikProps}
+                    label={translate('text_17587075291282to3nmogezj')}
+                  />
+                )}
 
                 <SwitchField
                   name="invoiceRequiresSuccessfulPayment"
