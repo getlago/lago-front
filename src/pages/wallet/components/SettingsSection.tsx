@@ -1,5 +1,5 @@
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikErrors, FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
 
@@ -168,6 +168,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             onDelete: () => {
               setShowMinTopUp(false)
             },
+            errorLabel: translate('text_175872290080132j1em37b08'),
           },
           {
             enabled: showMaxTopUp,
@@ -176,6 +177,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             onDelete: () => {
               setShowMaxTopUp(false)
             },
+            errorLabel: translate('text_1758722900801nbox9c5bgnn'),
           },
         ]
           .filter((input) => !!input.enabled)
@@ -191,6 +193,11 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
                 beforeChangeFormatter={['positiveNumber']}
                 label={input.label}
                 formikProps={formikProps}
+                error={
+                  formikProps?.errors?.[input.name as keyof FormikErrors<TWalletDataForm>]
+                    ? input.errorLabel
+                    : undefined
+                }
                 InputProps={{
                   endAdornment: !!customerData?.customer?.currency && (
                     <InputAdornment position="end">
@@ -201,7 +208,9 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
               />
 
               <Tooltip
-                className="mt-6"
+                className={tw({
+                  'mt-6': !formikProps?.errors?.[input.name as keyof FormikErrors<TWalletDataForm>],
+                })}
                 placement="top-end"
                 title={translate('text_63aa085d28b8510cd46443ff')}
               >
