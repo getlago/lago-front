@@ -12,7 +12,13 @@ import { DevtoolsView } from '~/components/developers/DevtoolsView'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import { UserIdentifier } from '~/components/UserIdentifier'
-import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
+import {
+  envGlobalVar,
+  initializeApolloClient,
+  initializeTranslations,
+  logOut,
+  setAuthErrorHandler,
+} from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
@@ -26,6 +32,11 @@ const App = () => {
   useEffect(() => {
     async function initApolloClient() {
       const apolloClient = await initializeApolloClient()
+
+      // Set up auth error handler to handle logout with the client instance
+      setAuthErrorHandler(() => {
+        logOut(apolloClient)
+      })
 
       setClient(apolloClient)
     }
