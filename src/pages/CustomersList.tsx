@@ -177,17 +177,19 @@ const CustomersList = () => {
                 maxWidth: 600,
                 content: (customer) => {
                   const customerInitials = computeCustomerInitials(customer)
+                  const customerName =
+                    customer.displayName || translate('text_62f272a7a60b4d7fadad911a')
 
                   return (
                     <div className="flex items-center gap-3">
                       <Avatar
                         variant="user"
                         size="medium"
-                        identifier={customer.displayName as string}
+                        identifier={customerName}
                         initials={customerInitials}
                       />
                       <Typography variant="bodyHl" color="textSecondary" noWrap>
-                        {customer.displayName || '-'}
+                        {customerName}
                       </Typography>
                     </div>
                   )

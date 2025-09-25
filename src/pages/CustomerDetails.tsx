@@ -124,7 +124,7 @@ const CustomerDetails = () => {
     applicableTimezone,
   } = data?.customer || {}
 
-  const customerName = data?.customer?.displayName
+  const customerName = data?.customer?.displayName || translate('text_62f272a7a60b4d7fadad911a')
   const customerInitials = computeCustomerInitials(data?.customer)
   const isPartner = data?.customer?.accountType === CustomerAccountTypeEnum.Partner
 
@@ -332,7 +332,7 @@ const CustomerDetails = () => {
                     <Avatar
                       size="large"
                       variant="user"
-                      identifier={customerName || ''}
+                      identifier={customerName}
                       initials={customerInitials}
                     />
                     <div>
@@ -342,7 +342,7 @@ const CustomerDetails = () => {
                         variant="headline"
                         forceBreak
                       >
-                        {customerName || translate('text_62f272a7a60b4d7fadad911a')}
+                        {customerName}
                       </Typography>
                       <Typography>{externalId}</Typography>
                     </div>
