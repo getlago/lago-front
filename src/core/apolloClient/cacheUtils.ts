@@ -37,7 +37,11 @@ export const getItemFromLS = (key: string) => {
   const data = typeof window !== 'undefined' ? localStorage.getItem(key) : ''
 
   try {
-    return data === 'undefined' ? undefined : !!data ? JSON.parse(data) : data
+    if (data === 'undefined') {
+      return undefined
+    }
+
+    return !!data ? JSON.parse(data) : data
   } catch {
     return data
   }
