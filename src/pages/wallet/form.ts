@@ -190,7 +190,11 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
           return true
         }
 
-        return Number(paidTopUpMinAmountCents) < Number(paidTopUpMaxAmountCents)
+        if (Number(paidTopUpMinAmountCents) <= Number(paidTopUpMaxAmountCents)) {
+          return true
+        }
+
+        return false
       },
     }),
     paidTopUpMaxAmountCents: string().test({
@@ -201,7 +205,11 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
           return true
         }
 
-        return Number(paidTopUpMaxAmountCents) > Number(paidTopUpMinAmountCents)
+        if (Number(paidTopUpMaxAmountCents) >= Number(paidTopUpMinAmountCents)) {
+          return true
+        }
+
+        return false
       },
     }),
     recurringTransactionRules: array()
