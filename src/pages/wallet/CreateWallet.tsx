@@ -15,12 +15,14 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
+  CreateCustomerWalletInput,
   CreateRecurringTransactionRuleInput,
   CurrencyEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
+  UpdateCustomerWalletInput,
   UpdateRecurringTransactionRuleInput,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
@@ -47,6 +49,9 @@ gql`
     invoiceRequiresSuccessfulPayment
     appliesTo {
       feeTypes
+      billableMetrics {
+        id
+      }
     }
     recurringTransactionRules {
       expirationAt
@@ -201,7 +206,10 @@ const CreateWallet = () => {
       grantedCredits: '',
       name: wallet?.name || '',
       transactionName: undefined,
-      appliesTo: wallet?.appliesTo || undefined,
+      appliesTo: wallet?.appliesTo || {
+        feeTypes: [],
+        billableMetrics: [],
+      },
       paidCredits: '',
       rateAmount: intlFormatNumber(wallet?.rateAmount ?? 1, {
         currency,
@@ -277,13 +285,10 @@ const CreateWallet = () => {
             )
           : []
 
-      const formattedAppliesTo =
-        appliesTo?.feeTypes?.length || appliesTo?.billableMetrics?.length
-          ? {
-              feeTypes: appliesTo?.feeTypes || [],
-              billableMetricIds: appliesTo?.billableMetrics?.map((bm) => bm.id) || [],
-            }
-          : undefined
+      const formattedAppliesTo = {
+        feeTypes: appliesTo?.feeTypes || [],
+        billableMetricIds: appliesTo?.billableMetrics?.map((bm) => bm.id) || [],
+      }
 
       if (formType === FORM_TYPE_ENUM.edition) {
         const input = {
@@ -291,7 +296,7 @@ const CreateWallet = () => {
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
           appliesTo: formattedAppliesTo,
-        }
+        } satisfies UpdateCustomerWalletInput
 
         const { errors } = await updateWallet({ variables: { input } })
 
@@ -306,7 +311,7 @@ const CreateWallet = () => {
           paidCredits: paidCredits === '' ? '0' : String(paidCredits),
           recurringTransactionRules: recurringTransactionRulesFormatted,
           appliesTo: formattedAppliesTo,
-        }
+        } satisfies CreateCustomerWalletInput
 
         const { errors } = await createWallet({ variables: { input } })
 
