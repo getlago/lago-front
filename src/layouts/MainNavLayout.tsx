@@ -114,6 +114,7 @@ const MainNavLayout = () => {
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
   const organizationList = currentUser?.memberships.map((membership) => membership.organization)
+  const isLoading = currentOrganizationLoading || currentUserLoading || loading
 
   useEffect(() => {
     // Avoid weird scroll behavior on navigation
@@ -145,9 +146,9 @@ const MainNavLayout = () => {
                   data-test="side-nav-name"
                   variant="quaternary"
                   size="small"
-                  disabled={currentOrganizationLoading}
+                  disabled={isLoading}
                 >
-                  {currentOrganizationLoading ? (
+                  {isLoading ? (
                     <div className="flex flex-row items-center gap-2">
                       <Skeleton variant="circular" size="small" />
                       <Skeleton variant="text" className="w-30" />
@@ -184,7 +185,10 @@ const MainNavLayout = () => {
                       className="flex flex-col gap-1 overflow-auto p-2"
                       style={{ maxHeight: 'calc(100vh - 80px)' }}
                     >
-                      <VerticalMenuSectionTitle title={currentUser?.email || ''} />
+                      <VerticalMenuSectionTitle
+                        title={currentUser?.email || ''}
+                        loading={isLoading}
+                      />
 
                       {organizationList
                         .sort((a, b) => {
@@ -268,13 +272,12 @@ const MainNavLayout = () => {
                     >
                       {translate('text_623b497ad05b960101be3444')}
                     </Button>
-                    {loading && !error && (
+                    {isLoading && !error && (
                       <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
-                        <Skeleton variant="text" className="w-12" />
                         <Skeleton variant="text" className="w-30" />
                       </div>
                     )}
-                    {data && !error && (
+                    {data && !error && !isLoading && (
                       <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
                         <a
                           className="flex items-center gap-2 text-blue visited:text-blue"
@@ -300,10 +303,10 @@ const MainNavLayout = () => {
               <NavLayout.NavSection>
                 <VerticalMenuSectionTitle
                   title={translate('text_1750864025932bnohjbzci3f')}
-                  loading={currentUserLoading}
+                  loading={isLoading}
                 />
                 <VerticalMenu
-                  loading={currentUserLoading}
+                  loading={isLoading}
                   loadingComponent={<VerticalMenuSkeleton numberOfElements={1} />}
                   onClick={() => setOpen(false)}
                   tabs={[
@@ -323,10 +326,10 @@ const MainNavLayout = () => {
             <NavLayout.NavSection>
               <VerticalMenuSectionTitle
                 title={translate('text_1750864088654kxz304zdo2z')}
-                loading={currentUserLoading}
+                loading={isLoading}
               />
               <VerticalMenu
-                loading={currentUserLoading}
+                loading={isLoading}
                 loadingComponent={<VerticalMenuSkeleton numberOfElements={5} />}
                 onClick={() => setOpen(false)}
                 tabs={[
@@ -378,10 +381,10 @@ const MainNavLayout = () => {
             <NavLayout.NavSection>
               <VerticalMenuSectionTitle
                 title={translate('text_1750864088654s9qo2h9fvp7')}
-                loading={currentUserLoading}
+                loading={isLoading}
               />
               <VerticalMenu
-                loading={currentUserLoading}
+                loading={isLoading}
                 loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
                 onClick={() => setOpen(false)}
                 tabs={[
@@ -445,7 +448,7 @@ const MainNavLayout = () => {
           {/* Bottom menu entries */}
           <NavLayout.NavSection className="sticky bottom-0 bg-white p-4 animate-shadow-top">
             <VerticalMenu
-              loading={currentUserLoading}
+              loading={isLoading}
               loadingComponent={
                 <Stack flex={1} gap={4}>
                   {[1, 2, 3, 4, 5].map((i) => (
