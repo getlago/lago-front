@@ -11,11 +11,13 @@ import useCustomerPortalTranslate from '~/components/customerPortal/common/useCu
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   useGetPortalWalletsQuery,
   useTopUpPortalWalletMutation,
 } from '~/generated/graphql'
+import { topUpAmountError } from '~/pages/wallet/form'
 
 gql`
   mutation TopUpPortalWallet($input: CreateCustomerPortalWalletTransactionInput!) {
@@ -72,11 +74,31 @@ const WalletPage = () => {
     },
   })
 
-  const submitButtonDisabled =
-    !formikProps?.values?.amount || loadingTopUpPortalWallet || formikProps?.values?.amount <= 0
-
   const isLoading = customerWalletLoading
   const isError = !isLoading && customerWalletError
+
+  const paidTopUpMinAmountCents = wallet?.paidTopUpMinAmountCents
+    ? deserializeAmount(wallet?.paidTopUpMinAmountCents, wallet?.currency)?.toString()
+    : undefined
+
+  const paidTopUpMaxAmountCents = wallet?.paidTopUpMaxAmountCents
+    ? deserializeAmount(wallet?.paidTopUpMaxAmountCents, wallet?.currency)?.toString()
+    : undefined
+
+  const paidCreditsError = topUpAmountError({
+    rateAmount: wallet?.rateAmount?.toString(),
+    paidCredits: formikProps?.values?.amount,
+    paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents,
+    currency: wallet?.currency,
+    translate,
+  })
+
+  const submitButtonDisabled =
+    !formikProps?.values?.amount ||
+    loadingTopUpPortalWallet ||
+    formikProps?.values?.amount <= 0 ||
+    paidCreditsError?.error
 
   if (isError) {
     return (
@@ -124,6 +146,7 @@ const WalletPage = () => {
                 </InputAdornment>
               ),
             }}
+            error={paidCreditsError?.label}
           />
 
           {errorTopUpPortalWallet && (

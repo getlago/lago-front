@@ -29,6 +29,8 @@ gql`
     ongoingBalanceCents
     rateAmount
     lastBalanceSyncAt
+    paidTopUpMinAmountCents
+    paidTopUpMaxAmountCents
   }
 
   query getPortalCustomerData {
