@@ -1,3 +1,4 @@
+import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -35,7 +36,7 @@ const SettingsHomePage = () => {
     )
   }, [billingEntitiesData, navigate])
 
-  return null
+  return <Spinner />
 }
 
 export default SettingsHomePage

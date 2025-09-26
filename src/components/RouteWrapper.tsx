@@ -1,4 +1,4 @@
-import { Icon } from 'lago-design-system'
+import { Spinner } from 'lago-design-system'
 import { ReactNode, Suspense, useEffect } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { useLocation, useRoutes } from 'react-router-dom'
@@ -50,15 +50,7 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
     const routeConfig = {
       element: (
         <PageWrapper routeConfig={route}>
-          <Suspense
-            fallback={
-              <div className="m-auto flex size-full items-center justify-center">
-                <Icon name="processing" color="info" size="large" animation="spin" />
-              </div>
-            }
-          >
-            {route.element}
-          </Suspense>
+          <Suspense fallback={<Spinner />}>{route.element}</Suspense>
         </PageWrapper>
       ),
       ...(route?.children ? { children: routesFormatter(route.children, loggedIn) } : {}),
