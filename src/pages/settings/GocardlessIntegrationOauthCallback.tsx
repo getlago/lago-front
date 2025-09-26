@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
+import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -113,9 +113,7 @@ const GocardlessIntegrationOauthCallback = () => {
       />
 
       {loading || !error ? (
-        <div className="m-auto flex size-full items-center justify-center">
-          <Icon name="processing" color="info" size="large" animation="spin" />
-        </div>
+        <Spinner />
       ) : (
         <GenericPlaceholder
           image={<ErrorImage width="136" height="104" />}
