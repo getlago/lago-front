@@ -226,7 +226,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
           ))}
 
         <Popper
-          PopperProps={{ placement: 'bottom-end' }}
+          PopperProps={{ placement: 'bottom-start' }}
           opener={
             <Button
               className="self-start"
@@ -239,6 +239,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
               {translate('text_17582856866461p9g3nsnrgc')}
             </Button>
           }
+          minWidth={0}
         >
           {({ closePopper }) => (
             <MenuPopper>
