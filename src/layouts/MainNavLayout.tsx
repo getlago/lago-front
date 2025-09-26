@@ -1,6 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
-import { Avatar, ConditionalWrapper, Icon, IconName, Tooltip } from 'lago-design-system'
+import { Avatar, ConditionalWrapper, Icon, IconName, Spinner, Tooltip } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -505,7 +505,8 @@ const MainNavLayout = () => {
         </NavLayout.Nav>
       </ClickAwayListener>
       <NavLayout.ContentWrapper ref={contentRef}>
-        <Outlet />
+        {isLoading && <Spinner />}
+        {!isLoading && <Outlet />}
       </NavLayout.ContentWrapper>
     </NavLayout.NavWrapper>
   )

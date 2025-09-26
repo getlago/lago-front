@@ -1,4 +1,4 @@
-import { Icon } from 'lago-design-system'
+import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -63,11 +63,7 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUserLoading, currentMembership])
 
-  return (
-    <div className="flex size-full items-center justify-center">
-      <Icon name="processing" color="info" size="large" animation="spin" />
-    </div>
-  )
+  return <Spinner />
 }
 
 export default Home
