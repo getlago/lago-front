@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useMemo } from 'react'
 
 import { getItemFromLS } from '~/core/apolloClient'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
@@ -59,11 +60,15 @@ export const useCurrentUser: UseCurrentUser = () => {
     skip: !isAuthenticated,
   })
 
-  return {
-    currentUser: data?.currentUser,
-    currentMembership: data?.currentUser?.memberships?.find(
+  const currentMembership = useMemo(() => {
+    return data?.currentUser?.memberships?.find(
       (membership) => membership.organization.id === currentOrganizationId,
-    ),
+    )
+  }, [data?.currentUser?.memberships, currentOrganizationId])
+
+  return {
+    currentMembership,
+    currentUser: data?.currentUser,
     isPremium: data?.currentUser.premium || false,
     loading: loading,
     refetchCurrentUserInfos,
