@@ -100,7 +100,7 @@ const MainNavLayout = () => {
   const navigate = useNavigate()
   const client = useApolloClient()
   const [open, setOpen] = useState(false)
-  const { currentUser, loading: currentUserLoading } = useCurrentUser()
+  const { currentUser, loading: currentUserLoading, refetchCurrentUserInfos } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const {
     organization,
@@ -235,8 +235,11 @@ const MainNavLayout = () => {
                               endIcon={accessibleByCurrentSession ? undefined : 'lock'}
                               onClick={async () => {
                                 await switchCurrentOrganization(client, id)
-                                await refetchOrganizationInfos()
                                 navigate(HOME_ROUTE)
+                                await Promise.all([
+                                  refetchOrganizationInfos(),
+                                  refetchCurrentUserInfos(),
+                                ])
                                 closePopper()
                               }}
                             >
@@ -272,12 +275,7 @@ const MainNavLayout = () => {
                     >
                       {translate('text_623b497ad05b960101be3444')}
                     </Button>
-                    {isLoading && !error && (
-                      <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
-                        <Skeleton variant="text" className="w-30" />
-                      </div>
-                    )}
-                    {data && !error && !isLoading && (
+                    {data && !error && !loading ? (
                       <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
                         <a
                           className="flex items-center gap-2 text-blue visited:text-blue"
@@ -288,6 +286,10 @@ const MainNavLayout = () => {
                           {data?.currentVersion?.number}
                           <Icon className="hover:cursor-pointer" name="outside" size="small" />
                         </a>
+                      </div>
+                    ) : (
+                      <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
+                        <Skeleton variant="text" className="w-30" />
                       </div>
                     )}
                   </div>
