@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { getItemFromLS } from '~/core/apolloClient'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
@@ -65,6 +65,15 @@ export const useCurrentUser: UseCurrentUser = () => {
       (membership) => membership.organization.id === currentOrganizationId,
     )
   }, [data?.currentUser?.memberships, currentOrganizationId])
+
+  // Make sure we refetch the current user infos on some specific cases
+  // - When the current organization changes but the user is still pointing to the old organization
+  // - When the user is authenticated but the current membership is not set yet
+  useEffect(() => {
+    if (currentOrganizationId && isAuthenticated && !currentMembership) {
+      refetchCurrentUserInfos()
+    }
+  }, [currentOrganizationId, isAuthenticated, currentMembership, refetchCurrentUserInfos])
 
   return {
     currentMembership,
