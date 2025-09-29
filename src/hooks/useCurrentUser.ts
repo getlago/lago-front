@@ -41,15 +41,21 @@ type UseCurrentUser = () => {
   loading: boolean
   currentUser?: CurrentUserInfosFragment
   currentMembership?: CurrentUserInfosFragment['memberships'][0]
+  refetchCurrentUserInfos: () => void
 }
 
 export const useCurrentUser: UseCurrentUser = () => {
   const { isAuthenticated } = useIsAuthenticated()
   const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
 
-  const { data, loading } = useGetCurrentUserInfosQuery({
-    canonizeResults: true,
+  const {
+    data,
+    loading,
+    refetch: refetchCurrentUserInfos,
+  } = useGetCurrentUserInfosQuery({
     fetchPolicy: 'cache-first',
+    nextFetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: true,
     skip: !isAuthenticated,
   })
 
@@ -60,5 +66,6 @@ export const useCurrentUser: UseCurrentUser = () => {
     ),
     isPremium: data?.currentUser.premium || false,
     loading: loading,
+    refetchCurrentUserInfos,
   }
 }
