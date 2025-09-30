@@ -170,7 +170,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
             <AmountInputField
               name="paidCredits"
               currency={formikProps.values.currency}
-              beforeChangeFormatter={['positiveNumber']}
               label={translate('text_62d18855b22699e5cf55f885')}
               formikProps={formikProps}
               silentError={true}
@@ -206,7 +205,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
             <AmountInputField
               name="grantedCredits"
               currency={formikProps.values.currency}
-              beforeChangeFormatter={['positiveNumber']}
               label={translate('text_62d18855b22699e5cf55f88d')}
               formikProps={formikProps}
               silentError={true}

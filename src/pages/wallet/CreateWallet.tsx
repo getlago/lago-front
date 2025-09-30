@@ -449,7 +449,7 @@ const CreateWallet = () => {
           <Button
             size="large"
             variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
+            disabled={!formikProps.isValid}
             onClick={formikProps.submitForm}
             data-test="submit-wallet"
           >

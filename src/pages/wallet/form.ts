@@ -146,7 +146,6 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
     paidCredits: string().test({
       test: function (paidCredits) {
         const {
-          grantedCredits,
           paidTopUpMinAmountCents,
           paidTopUpMaxAmountCents,
           rateAmount,
@@ -167,18 +166,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
           return false
         }
 
-        if (formType === FORM_TYPE_ENUM.edition) return true
-
-        return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
-      },
-    }),
-    grantedCredits: string().test({
-      test: function (grantedCredits) {
-        if (formType === FORM_TYPE_ENUM.edition) return true
-
-        const { paidCredits } = this?.parent || {}
-
-        return !isNaN(Number(grantedCredits)) || !isNaN(Number(paidCredits))
+        return true
       },
     }),
     rateAmount: string().required(''),
