@@ -161,7 +161,7 @@ gql`
       ...CustomerAppliedTaxRatesForSettings
       ...CustomerAppliedDunningCampaignForSettings
       ...CustomerAppliedInvoiceCustomSections
-
+      ...EditCustomerInvoiceCustomSection
       ...EditCustomerVatRate
       ...EditCustomerDocumentLocale
       ...EditCustomerDunningCampaign
