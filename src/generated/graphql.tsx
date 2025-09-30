@@ -2560,6 +2560,11 @@ export type CustomerMetadata = {
   value: Scalars['String']['output'];
 };
 
+export type CustomerMetadataFilter = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
 export type CustomerMetadataInput = {
   displayInInvoice: Scalars['Boolean']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -6392,10 +6397,18 @@ export type QueryCustomersArgs = {
   activeSubscriptionsCountFrom?: InputMaybe<Scalars['Int']['input']>;
   activeSubscriptionsCountTo?: InputMaybe<Scalars['Int']['input']>;
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  countries?: InputMaybe<Array<CountryCode>>;
+  currencies?: InputMaybe<Array<CurrencyEnum>>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  hasCustomerType?: InputMaybe<Scalars['Boolean']['input']>;
+  hasTaxIdentificationNumber?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  metadata?: InputMaybe<Array<CustomerMetadataFilter>>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  states?: InputMaybe<Array<Scalars['String']['input']>>;
   withDeleted?: InputMaybe<Scalars['Boolean']['input']>;
+  zipcodes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
