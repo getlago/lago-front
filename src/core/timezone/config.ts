@@ -6,14 +6,15 @@ const currentDate = DateTime.now().toISO()
 
 const getOffsetInMinute = (zone: string) => DateTime.fromISO(currentDate as string, { zone }).offset
 
-const getOffset = (zone: string) => {
-  const offsetInMinute = getOffsetInMinute(zone)
+export const getOffset = (zone: string, forDate?: string) => {
+  const dateToUse = forDate || currentDate
+  const offsetInMinute = DateTime.fromISO(dateToUse as string, { zone }).offset
   const sign = Math.sign(offsetInMinute)
 
   return isNaN(offsetInMinute)
     ? 'NaN'
     : Duration.fromObject({
-        minutes: Math.abs(DateTime.fromISO(currentDate as string, { zone }).offset),
+        minutes: Math.abs(offsetInMinute),
       }).toFormat(`${sign === -1 ? '-' : offsetInMinute === 0 ? '±' : '+'}h:mm`)
 }
 

@@ -2,7 +2,7 @@ import { captureMessage } from '@sentry/react'
 import { DateTime, DateTimeFormatOptions } from 'luxon'
 
 import { envGlobalVar } from '~/core/apolloClient'
-import { TimeZonesConfig } from '~/core/timezone/config'
+import { getOffset, TimeZonesConfig } from '~/core/timezone/config'
 import { LocaleEnum } from '~/core/translations'
 import { TimezoneEnum } from '~/generated/graphql'
 
@@ -125,7 +125,11 @@ const getTimezoneString = (dateTime: DateTime, timezone: TimezoneEnum, format: T
         })
         .find((part) => part.type === 'timeZoneName')?.value || ''
   } else {
-    timezoneString = `UTC${getTimezoneConfig(timezone).offset}`
+    // Use centralized offset calculation that handles DST properly
+    const zoneName = getTimezoneConfig(timezone).name
+    const offset = getOffset(zoneName, dateTime.toISO() || undefined)
+
+    timezoneString = `UTC${offset}`
   }
   return timezoneString
 }
