@@ -234,7 +234,7 @@ const InfoSection = ({ title, children }: { title: string; children: React.React
   </div>
 )
 
-const InfoBlock = ({ children }: { children: React.ReactNode }) => (
+export const InfoBlock = ({ children }: { children: React.ReactNode }) => (
   <div className="mb-2 flex gap-4 first-child:w-50 first-child:shrink-0">{children}</div>
 )
 

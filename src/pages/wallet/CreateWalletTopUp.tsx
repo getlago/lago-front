@@ -5,8 +5,9 @@ import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
+import { InfoBlock } from '~/components/customers/CustomerMainInfos'
 import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInputField, SwitchField, TextInput, TextInputField } from '~/components/form'
+import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -54,6 +55,7 @@ gql`
 
   fragment WalletForTopUp on Wallet {
     id
+    name
     currency
     rateAmount
     invoiceRequiresSuccessfulPayment
@@ -287,29 +289,43 @@ const CreateWalletTopUp = () => {
                 </Typography>
               </div>
 
-              <div className="grid grid-cols-[48px_48px_1fr] items-end gap-3">
-                <TextInput
-                  value="1"
-                  label={translate('text_62e79671d23ae6ff149de92c')}
-                  disabled
-                  className="[&_input]:text-center"
-                />
-                <TextInput value="=" disabled className="[&_input]:text-center" />
-                <TextInput
-                  label={translate('text_62e79671d23ae6ff149de934')}
-                  placeholder={translate('text_62d18855b22699e5cf55f87f')}
-                  value={intlFormatNumber(wallet.rateAmount, {
-                    currency,
-                    style: 'decimal',
-                    minimumFractionDigits: getCurrencyPrecision(currency),
-                  })}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">{wallet.currency}</InputAdornment>
-                    ),
-                  }}
-                  disabled
-                />
+              <div>
+                {[
+                  [translate('text_623b42ff8ee4e000ba87d0be'), wallet?.name || '-'],
+                  [
+                    translate('text_1750411499858su5b7bbp5t9'),
+                    translate('text_62da6ec24a8e24e44f812872', {
+                      rateAmount: intlFormatNumber(wallet.rateAmount, {
+                        currency,
+                        minimumFractionDigits: getCurrencyPrecision(currency),
+                        currencyDisplay: 'symbol',
+                      }),
+                    }),
+                  ],
+                  [
+                    translate('text_1759387047166vuoep9t72ny'),
+                    intlFormatNumber(deserializeAmount(wallet?.paidTopUpMinAmountCents, currency), {
+                      currency,
+                    }),
+                    !!wallet?.paidTopUpMinAmountCents,
+                  ],
+                  [
+                    translate('text_1759387047167hwbqm5hx7ye'),
+                    intlFormatNumber(deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency), {
+                      currency,
+                    }),
+                    !!wallet?.paidTopUpMaxAmountCents,
+                  ],
+                ]
+                  .filter(([, , enabled]) => enabled !== false)
+                  .map(([label, content], index) => (
+                    <InfoBlock key={`create-wallet-topup-information-${index}`}>
+                      <Typography variant="caption">{label}</Typography>
+                      <Typography color="textSecondary" forceBreak>
+                        {content}
+                      </Typography>
+                    </InfoBlock>
+                  ))}
               </div>
             </section>
 
