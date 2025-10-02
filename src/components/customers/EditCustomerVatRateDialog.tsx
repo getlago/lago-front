@@ -70,7 +70,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
     const { hasPermissions } = usePermissions()
     const [localTax, setLocalTax] = useState<string>('')
     const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
-      variables: { limit: 20 },
+      variables: { limit: 500 },
     })
     const customerName = customer?.displayName
     const [createCustomerAppliedTax] = useCreateCustomerAppliedTaxMutation({
