@@ -8,6 +8,7 @@ import {
   TimezoneEnum,
   useGetOrganizationInfosQuery,
 } from '~/generated/graphql'
+import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 
 gql`
   fragment MainOrganizationInfos on CurrentOrganization {
@@ -47,10 +48,12 @@ type UseOrganizationInfos = () => {
 }
 
 export const useOrganizationInfos: UseOrganizationInfos = () => {
+  const { isAuthenticated } = useIsAuthenticated()
   const { data, loading, refetch } = useGetOrganizationInfosQuery({
     fetchPolicy: 'cache-first',
     nextFetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: true,
+    skip: !isAuthenticated,
   })
 
   const orgaTimezone = data?.organization?.timezone || TimezoneEnum.TzUtc
