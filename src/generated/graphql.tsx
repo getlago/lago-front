@@ -2560,6 +2560,11 @@ export type CustomerMetadata = {
   value: Scalars['String']['output'];
 };
 
+export type CustomerMetadataFilter = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
 export type CustomerMetadataInput = {
   displayInInvoice: Scalars['Boolean']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -2671,6 +2676,27 @@ export type CustomerProjectedUsage = {
   taxesAmountCents: Scalars['BigInt']['output'];
   toDatetime: Scalars['ISO8601DateTime']['output'];
   totalAmountCents: Scalars['BigInt']['output'];
+};
+
+export type CustomerSnapshot = {
+  __typename?: 'CustomerSnapshot';
+  addressLine1?: Maybe<Scalars['String']['output']>;
+  addressLine2?: Maybe<Scalars['String']['output']>;
+  applicableTimezone?: Maybe<Scalars['String']['output']>;
+  city?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  firstname?: Maybe<Scalars['String']['output']>;
+  lastname?: Maybe<Scalars['String']['output']>;
+  legalName?: Maybe<Scalars['String']['output']>;
+  legalNumber?: Maybe<Scalars['String']['output']>;
+  phone?: Maybe<Scalars['String']['output']>;
+  shippingAddress?: Maybe<CustomerAddress>;
+  state?: Maybe<Scalars['String']['output']>;
+  taxIdentificationNumber?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+  zipcode?: Maybe<Scalars['String']['output']>;
 };
 
 export enum CustomerTypeEnum {
@@ -3885,6 +3911,7 @@ export type Invoice = {
   creditableAmountCents: Scalars['BigInt']['output'];
   currency?: Maybe<CurrencyEnum>;
   customer: Customer;
+  customerSnapshot?: Maybe<CustomerSnapshot>;
   errorDetails?: Maybe<Array<ErrorDetail>>;
   externalHubspotIntegrationId?: Maybe<Scalars['String']['output']>;
   externalIntegrationId?: Maybe<Scalars['String']['output']>;
@@ -4180,15 +4207,6 @@ export type Mapping = {
   integrationId: Scalars['ID']['output'];
   mappableId: Scalars['ID']['output'];
   mappableType: MappableTypeEnum;
-};
-
-/** MappingCollection type */
-export type MappingCollection = {
-  __typename?: 'MappingCollection';
-  /** A collection of paginated MappingCollection */
-  collection: Array<Mapping>;
-  /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
 };
 
 export enum MappingTypeEnum {
@@ -6082,10 +6100,6 @@ export type Query = {
   integrationCollectionMappings?: Maybe<CollectionMappingCollection>;
   /** Query integration items of an integration */
   integrationItems: IntegrationItemCollection;
-  /** Query a single integration mapping */
-  integrationMapping?: Maybe<Mapping>;
-  /** Query netsuite integration mappings */
-  integrationMappings?: Maybe<MappingCollection>;
   /** Query integration subsidiaries */
   integrationSubsidiaries?: Maybe<SubsidiaryCollection>;
   /** Query organization's integrations */
@@ -6396,10 +6410,18 @@ export type QueryCustomersArgs = {
   activeSubscriptionsCountFrom?: InputMaybe<Scalars['Int']['input']>;
   activeSubscriptionsCountTo?: InputMaybe<Scalars['Int']['input']>;
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  countries?: InputMaybe<Array<CountryCode>>;
+  currencies?: InputMaybe<Array<CurrencyEnum>>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  hasCustomerType?: InputMaybe<Scalars['Boolean']['input']>;
+  hasTaxIdentificationNumber?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  metadata?: InputMaybe<Array<CustomerMetadataFilter>>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  states?: InputMaybe<Array<Scalars['String']['input']>>;
   withDeleted?: InputMaybe<Scalars['Boolean']['input']>;
+  zipcodes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -6594,19 +6616,6 @@ export type QueryIntegrationItemsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryIntegrationMappingArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryIntegrationMappingsArgs = {
-  integrationId?: InputMaybe<Scalars['ID']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  mappableType?: InputMaybe<MappableTypeEnum>;
-  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
