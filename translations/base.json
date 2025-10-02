@@ -2785,7 +2785,7 @@
   "text_1741014096283pwl7a5oa69a": "Type a value",
   "text_1741101674268ag60i0cc55m": "Wallet recurring top-up rule",
   "text_1741101676181hja4m79j7qz": "Define the wallet information to easily identify it.",
-  "text_17411038928332xzx1hb4wjx": "Define the wallet information and settings.",
+  "text_17411038928332xzx1hb4wjx": "Defined wallet information and settings.",
   "text_1741103892833plsi99wvuop": "Define credits to purchase and to grant.",
   "text_1741103892833sy9e4va0pvb": "Credits for purchases generate an invoice, while credits for grants do not generate invoices",
   "text_17411038928333ksu96fbmam": "The customer will receive a total of {{totalCreditCount}} credits.",
@@ -3463,6 +3463,8 @@
   "text_1758286730208ey87jz8nzuz": "Maximum amount per purchase",
   "text_17587075291282to3nmogezj": "Skip top-up limits for this transaction",
   "text_175872290080132j1em37b08": "Minimum value must be less than the maximum value",
-  "text_1758722900801nbox9c5bgnn": "Maximum value must be greater than the minimum value"
+  "text_1758722900801nbox9c5bgnn": "Maximum value must be greater than the minimum value",
+  "text_1759387047166vuoep9t72ny": "Min amount per purchase",
+  "text_1759387047167hwbqm5hx7ye": "Max amount per purchase"
 }
 
