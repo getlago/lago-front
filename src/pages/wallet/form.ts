@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { array, object, string } from 'yup'
 
-import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
+import { dateErrorCodes } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
@@ -105,7 +105,7 @@ export const topUpAmountError = ({
   return null
 }
 
-export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
+export const walletFormSchema = () => {
   return object().shape({
     name: string(),
     appliesTo: object()

@@ -237,7 +237,7 @@ const CreateWallet = () => {
         : undefined,
       ignorePaidTopUpLimitsOnCreation: false,
     },
-    validationSchema: walletFormSchema(formType),
+    validationSchema: walletFormSchema(),
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async ({
