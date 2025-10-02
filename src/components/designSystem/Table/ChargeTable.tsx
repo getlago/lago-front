@@ -98,6 +98,7 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                     minWidth: `${size}px`,
                     maxWidth: `${size}px`,
                   }
+
                   return (
                     <td
                       className={tw(
@@ -108,9 +109,9 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                       key={`table-${name}-cell-${i}-${j}`}
                     >
                       {onDeleteRow && !row.disabledDelete && j === 0 && (
-                        <td
+                        <div
                           className={tw(
-                            'absolute hidden w-fit rounded-lg bg-white',
+                            'absolute z-10 hidden w-fit rounded-lg bg-white',
                             'group-hover/row:left-0 group-hover/row:top-0 group-hover/row:flex group-hover/row:-translate-x-3 group-hover/row:translate-y-3',
                           )}
                         >
@@ -127,7 +128,7 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                               onClick={() => onDeleteRow(row, i)}
                             />
                           </Tooltip>
-                        </td>
+                        </div>
                       )}
                       {mapKey ? (
                         <Typography variant="body">{_get(row, mapKey) as string}</Typography>
