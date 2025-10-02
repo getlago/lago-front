@@ -13,7 +13,11 @@ import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
-import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
+import {
+  deserializeAmount,
+  getCurrencyPrecision,
+  serializeAmount,
+} from '~/core/serializers/serializeAmount'
 import {
   CreateCustomerWalletInput,
   CreateRecurringTransactionRuleInput,
@@ -47,6 +51,8 @@ gql`
     name
     rateAmount
     invoiceRequiresSuccessfulPayment
+    paidTopUpMinAmountCents
+    paidTopUpMaxAmountCents
     appliesTo {
       feeTypes
       billableMetrics {
@@ -66,6 +72,7 @@ gql`
       thresholdCredits
       transactionName
       trigger
+      ignorePaidTopUpLimits
       transactionMetadata {
         key
         value
@@ -146,10 +153,14 @@ const CreateWallet = () => {
   const [isRecurringTopUpEnabled, setIsRecurringTopUpEnabled] = useState(
     hasWalletRecurringTopUpEnabled(wallet),
   )
+  const [showMinTopUp, setShowMinTopUp] = useState(!!wallet?.paidTopUpMinAmountCents)
+  const [showMaxTopUp, setShowMaxTopUp] = useState(!!wallet?.paidTopUpMaxAmountCents)
 
   useEffect(() => {
     if (wallet) {
       setIsRecurringTopUpEnabled(hasWalletRecurringTopUpEnabled(wallet))
+      setShowMinTopUp(!!wallet?.paidTopUpMinAmountCents)
+      setShowMaxTopUp(!!wallet?.paidTopUpMaxAmountCents)
     }
 
     if (!!wallet?.expirationAt) {
@@ -218,8 +229,15 @@ const CreateWallet = () => {
       }),
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
+      paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents
+        ? deserializeAmount(wallet.paidTopUpMinAmountCents, currency)
+        : undefined,
+      paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents
+        ? deserializeAmount(wallet.paidTopUpMaxAmountCents, currency)
+        : undefined,
+      ignorePaidTopUpLimitsOnCreation: false,
     },
-    validationSchema: walletFormSchema(formType),
+    validationSchema: walletFormSchema(),
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async ({
@@ -246,6 +264,7 @@ const CreateWallet = () => {
                   paidCredits: rulePaidCredit,
                   grantedCredits: ruleGrantedCredit,
                   expirationAt,
+                  ignorePaidTopUpLimits,
                   ...rest
                 } = rule
 
@@ -279,6 +298,7 @@ const CreateWallet = () => {
                   grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
                   targetOngoingBalance: targetedBalance,
                   invoiceRequiresSuccessfulPayment,
+                  ignorePaidTopUpLimits,
                   expirationAt: expirationAt === '' ? null : expirationAt,
                 }
               },
@@ -296,9 +316,28 @@ const CreateWallet = () => {
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
           appliesTo: formattedAppliesTo,
+          ...(values.paidTopUpMinAmountCents
+            ? {
+                paidTopUpMinAmountCents: serializeAmount(
+                  values.paidTopUpMinAmountCents,
+                  valuesCurrency,
+                ),
+              }
+            : {}),
+          ...(values.paidTopUpMaxAmountCents
+            ? {
+                paidTopUpMaxAmountCents: serializeAmount(
+                  values.paidTopUpMaxAmountCents,
+                  valuesCurrency,
+                ),
+              }
+            : {}),
         } satisfies UpdateCustomerWalletInput
 
-        const { errors } = await updateWallet({ variables: { input } })
+        // eslint-disable-next-line
+        const { ignorePaidTopUpLimitsOnCreation, ...ignoreMutationInput } = input
+
+        const { errors } = await updateWallet({ variables: { input: ignoreMutationInput } })
 
         if (!!errors?.length) return
       } else {
@@ -311,6 +350,22 @@ const CreateWallet = () => {
           paidCredits: paidCredits === '' ? '0' : String(paidCredits),
           recurringTransactionRules: recurringTransactionRulesFormatted,
           appliesTo: formattedAppliesTo,
+          ...(values.paidTopUpMinAmountCents
+            ? {
+                paidTopUpMinAmountCents: serializeAmount(
+                  values.paidTopUpMinAmountCents,
+                  valuesCurrency,
+                ),
+              }
+            : {}),
+          ...(values.paidTopUpMaxAmountCents
+            ? {
+                paidTopUpMaxAmountCents: serializeAmount(
+                  values.paidTopUpMaxAmountCents,
+                  valuesCurrency,
+                ),
+              }
+            : {}),
         } satisfies CreateCustomerWalletInput
 
         const { errors } = await createWallet({ variables: { input } })
@@ -368,6 +423,10 @@ const CreateWallet = () => {
               customerData={customerData}
               showExpirationDate={showExpirationDate}
               setShowExpirationDate={setShowExpirationDate}
+              showMinTopUp={showMinTopUp}
+              setShowMinTopUp={setShowMinTopUp}
+              showMaxTopUp={showMaxTopUp}
+              setShowMaxTopUp={setShowMaxTopUp}
             />
 
             <ScopeSection formikProps={formikProps} />
@@ -390,7 +449,7 @@ const CreateWallet = () => {
           <Button
             size="large"
             variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
+            disabled={!formikProps.isValid}
             onClick={formikProps.submitForm}
             data-test="submit-wallet"
           >

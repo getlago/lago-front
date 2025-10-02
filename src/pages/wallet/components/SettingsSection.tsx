@@ -1,9 +1,9 @@
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikErrors, FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   ComboBoxField,
@@ -16,6 +16,7 @@ import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { TWalletDataForm } from '~/pages/wallet/types'
+import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
 
 interface SettingsSectionProps {
@@ -24,6 +25,10 @@ interface SettingsSectionProps {
   showExpirationDate: boolean
   setShowExpirationDate: (value: boolean) => void
   formType: keyof typeof FORM_TYPE_ENUM
+  showMinTopUp: boolean
+  setShowMinTopUp: (value: boolean) => void
+  showMaxTopUp: boolean
+  setShowMaxTopUp: (value: boolean) => void
 }
 
 export const SettingsSection: FC<SettingsSectionProps> = ({
@@ -32,6 +37,10 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
   customerData,
   showExpirationDate,
   setShowExpirationDate,
+  showMinTopUp,
+  setShowMinTopUp,
+  showMaxTopUp,
+  setShowMaxTopUp,
 }) => {
   const { translate } = useInternationalization()
 
@@ -139,6 +148,126 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             {translate('text_6560809c38fb9de88d8a517e')}
           </Button>
         )}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <Typography variant="captionHl" color="grey700">
+            {translate('text_1758285686646sieyihhzwak')}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_1758285686646xkeaxyajfp7')}
+          </Typography>
+        </div>
+
+        {[
+          {
+            enabled: showMinTopUp,
+            name: 'paidTopUpMinAmountCents',
+            label: translate('text_1758286730208kztcznofxvr'),
+            onDelete: () => {
+              setShowMinTopUp(false)
+            },
+            errorLabel: translate('text_175872290080132j1em37b08'),
+          },
+          {
+            enabled: showMaxTopUp,
+            name: 'paidTopUpMaxAmountCents',
+            label: translate('text_1758286730208ey87jz8nzuz'),
+            onDelete: () => {
+              setShowMaxTopUp(false)
+            },
+            errorLabel: translate('text_1758722900801nbox9c5bgnn'),
+          },
+        ]
+          .filter((input) => !!input.enabled)
+          .map((input) => (
+            <div
+              className="flex items-center gap-4"
+              key={`wallet-settings-min-max-input-${input.name}`}
+            >
+              <AmountInputField
+                className="grow"
+                name={input.name}
+                currency={formikProps.values.currency}
+                beforeChangeFormatter={['positiveNumber']}
+                label={input.label}
+                formikProps={formikProps}
+                error={
+                  formikProps?.errors?.[input.name as keyof FormikErrors<TWalletDataForm>]
+                    ? input.errorLabel
+                    : undefined
+                }
+                InputProps={{
+                  endAdornment: !!customerData?.customer?.currency && (
+                    <InputAdornment position="end">
+                      {getCurrencySymbol(customerData?.customer?.currency)}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <Tooltip
+                className={tw({
+                  'mt-6': !formikProps?.errors?.[input.name as keyof FormikErrors<TWalletDataForm>],
+                })}
+                placement="top-end"
+                title={translate('text_63aa085d28b8510cd46443ff')}
+              >
+                <Button
+                  icon="trash"
+                  variant="quaternary"
+                  onClick={() => {
+                    input.onDelete()
+                  }}
+                />
+              </Tooltip>
+            </div>
+          ))}
+
+        <Popper
+          PopperProps={{ placement: 'bottom-start' }}
+          opener={
+            <Button
+              className="self-start"
+              startIcon="plus"
+              endIcon="chevron-down-filled"
+              variant="inline"
+              data-test="add-min-max-amount"
+              disabled={showMinTopUp && showMaxTopUp}
+            >
+              {translate('text_17582856866461p9g3nsnrgc')}
+            </Button>
+          }
+          minWidth={0}
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <div className="flex flex-col">
+                <Button
+                  variant="quaternary"
+                  onClick={() => {
+                    setShowMinTopUp(true)
+                    closePopper()
+                  }}
+                  disabled={showMinTopUp}
+                >
+                  {translate('text_1758285847805xn6hdyurz3e')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  onClick={() => {
+                    setShowMaxTopUp(true)
+                    closePopper()
+                  }}
+                  disabled={showMaxTopUp}
+                >
+                  {translate('text_1758285847805k1uohu4vrov')}
+                </Button>
+              </div>
+            </MenuPopper>
+          )}
+        </Popper>
       </div>
     </section>
   )

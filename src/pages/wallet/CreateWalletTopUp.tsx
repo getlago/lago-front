@@ -5,15 +5,16 @@ import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
+import { InfoBlock } from '~/components/customers/CustomerMainInfos'
 import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInputField, SwitchField, TextInput, TextInputField } from '~/components/form'
+import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
-import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
+import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
@@ -33,6 +34,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { topUpAmountError } from '~/pages/wallet/form'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
@@ -53,9 +55,12 @@ gql`
 
   fragment WalletForTopUp on Wallet {
     id
+    name
     currency
     rateAmount
     invoiceRequiresSuccessfulPayment
+    paidTopUpMinAmountCents
+    paidTopUpMaxAmountCents
   }
 `
 
@@ -110,6 +115,14 @@ const CreateWalletTopUp = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation({})
 
+  const paidTopUpMinAmountCents = wallet?.paidTopUpMinAmountCents
+    ? deserializeAmount(wallet?.paidTopUpMinAmountCents, currency)?.toString()
+    : undefined
+
+  const paidTopUpMaxAmountCents = wallet?.paidTopUpMaxAmountCents
+    ? deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency)?.toString()
+    : undefined
+
   const formikProps = useFormik<Omit<CreateCustomerWalletTransactionInput, 'walletId'>>({
     initialValues: {
       grantedCredits: '',
@@ -117,11 +130,25 @@ const CreateWalletTopUp = () => {
       paidCredits: '',
       name: undefined,
       metadata: undefined,
+      ignorePaidTopUpLimits: undefined,
     },
     validationSchema: object().shape({
       paidCredits: string().test({
         test: function (paidCredits) {
-          const { grantedCredits } = this?.parent || {}
+          const { ignorePaidTopUpLimits, grantedCredits } = this?.parent || {}
+
+          const error = topUpAmountError({
+            skip: ignorePaidTopUpLimits,
+            paidCredits,
+            rateAmount: wallet?.rateAmount?.toString(),
+            paidTopUpMinAmountCents,
+            paidTopUpMaxAmountCents,
+            currency: wallet?.currency,
+          })
+
+          if (error?.error) {
+            return false
+          }
 
           return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
         },
@@ -141,6 +168,7 @@ const CreateWalletTopUp = () => {
       grantedCredits,
       paidCredits,
       invoiceRequiresSuccessfulPayment,
+      ignorePaidTopUpLimits,
       ...rest
     }) => {
       if (!wallet) return
@@ -172,6 +200,7 @@ const CreateWalletTopUp = () => {
             grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
             paidCredits: paidCredits === '' ? '0' : String(paidCredits),
             invoiceRequiresSuccessfulPayment,
+            ignorePaidTopUpLimits,
           },
         },
         refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
@@ -207,6 +236,20 @@ const CreateWalletTopUp = () => {
   const onAbort = useCallback(() => {
     formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateBack()
   }, [formikProps.dirty, navigateBack])
+
+  const hasMinMax =
+    typeof wallet?.paidTopUpMinAmountCents !== 'undefined' ||
+    typeof wallet?.paidTopUpMaxAmountCents !== 'undefined'
+
+  const paidCreditsError = topUpAmountError({
+    rateAmount: wallet?.rateAmount?.toString(),
+    paidCredits: formikProps?.values?.paidCredits?.toString(),
+    paidTopUpMinAmountCents,
+    paidTopUpMaxAmountCents,
+    currency: wallet?.currency,
+    skip: !!formikProps?.values?.ignorePaidTopUpLimits,
+    translate,
+  })
 
   return (
     <>
@@ -246,29 +289,43 @@ const CreateWalletTopUp = () => {
                 </Typography>
               </div>
 
-              <div className="grid grid-cols-[48px_48px_1fr] items-end gap-3">
-                <TextInput
-                  value="1"
-                  label={translate('text_62e79671d23ae6ff149de92c')}
-                  disabled
-                  className="[&_input]:text-center"
-                />
-                <TextInput value="=" disabled className="[&_input]:text-center" />
-                <TextInput
-                  label={translate('text_62e79671d23ae6ff149de934')}
-                  placeholder={translate('text_62d18855b22699e5cf55f87f')}
-                  value={intlFormatNumber(wallet.rateAmount, {
-                    currency,
-                    style: 'decimal',
-                    minimumFractionDigits: getCurrencyPrecision(currency),
-                  })}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">{wallet.currency}</InputAdornment>
-                    ),
-                  }}
-                  disabled
-                />
+              <div>
+                {[
+                  [translate('text_623b42ff8ee4e000ba87d0be'), wallet?.name || '-'],
+                  [
+                    translate('text_1750411499858su5b7bbp5t9'),
+                    translate('text_62da6ec24a8e24e44f812872', {
+                      rateAmount: intlFormatNumber(wallet.rateAmount, {
+                        currency,
+                        minimumFractionDigits: getCurrencyPrecision(currency),
+                        currencyDisplay: 'symbol',
+                      }),
+                    }),
+                  ],
+                  [
+                    translate('text_1759387047166vuoep9t72ny'),
+                    intlFormatNumber(deserializeAmount(wallet?.paidTopUpMinAmountCents, currency), {
+                      currency,
+                    }),
+                    !!wallet?.paidTopUpMinAmountCents,
+                  ],
+                  [
+                    translate('text_1759387047167hwbqm5hx7ye'),
+                    intlFormatNumber(deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency), {
+                      currency,
+                    }),
+                    !!wallet?.paidTopUpMaxAmountCents,
+                  ],
+                ]
+                  .filter(([, , enabled]) => enabled !== false)
+                  .map(([label, content], index) => (
+                    <InfoBlock key={`create-wallet-topup-information-${index}`}>
+                      <Typography variant="caption">{label}</Typography>
+                      <Typography color="textSecondary" forceBreak>
+                        {content}
+                      </Typography>
+                    </InfoBlock>
+                  ))}
               </div>
             </section>
 
@@ -299,6 +356,7 @@ const CreateWalletTopUp = () => {
                 label={translate('text_62e79671d23ae6ff149de944')}
                 formikProps={formikProps}
                 silentError={true}
+                error={paidCreditsError?.label}
                 helperText={translate('text_62d18855b22699e5cf55f88b', {
                   paidCredits: intlFormatNumber(
                     isNaN(Number(formikProps.values.paidCredits))
@@ -321,12 +379,22 @@ const CreateWalletTopUp = () => {
               />
 
               {formikProps.values.paidCredits && (
-                <SwitchField
-                  name="invoiceRequiresSuccessfulPayment"
-                  formikProps={formikProps}
-                  label={translate('text_66a8aed1c3e07b277ec3990d')}
-                  subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-                />
+                <>
+                  {hasMinMax && (
+                    <SwitchField
+                      name={'ignorePaidTopUpLimits'}
+                      formikProps={formikProps}
+                      label={translate('text_17587075291282to3nmogezj')}
+                    />
+                  )}
+
+                  <SwitchField
+                    name="invoiceRequiresSuccessfulPayment"
+                    formikProps={formikProps}
+                    label={translate('text_66a8aed1c3e07b277ec3990d')}
+                    subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                  />
+                </>
               )}
 
               <AmountInputField

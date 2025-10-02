@@ -1,12 +1,15 @@
 import { DateTime } from 'luxon'
 import { array, object, string } from 'yup'
 
-import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
+import { dateErrorCodes } from '~/core/constants/form'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
+  CurrencyEnum,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
 } from '~/generated/graphql'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 export const walletFormErrorCodes = {
   targetOngoingBalanceShouldBeGreaterThanThreshold:
@@ -14,7 +17,95 @@ export const walletFormErrorCodes = {
   thresholdShouldBeLessThanTargetOngoingBalance: 'thresholdShouldBeLessThanTargetOngoingBalance',
 } as const
 
-export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
+enum TopUpAmountError {
+  BelowMin = 'top-up-below-min',
+  AboveMax = 'top-up-above-max',
+  NotBetween = 'top-up-not-between',
+}
+
+export const topUpAmountError = ({
+  rateAmount,
+  paidCredits,
+  paidTopUpMinAmountCents,
+  paidTopUpMaxAmountCents,
+  currency,
+  translate,
+  skip,
+}: {
+  rateAmount?: string
+  paidCredits?: string
+  paidTopUpMinAmountCents?: string
+  paidTopUpMaxAmountCents?: string
+  currency?: CurrencyEnum
+  translate?: TranslateFunc
+  skip?: boolean
+}):
+  | {
+      error: TopUpAmountError
+      label: string
+    }
+  | null
+  | undefined => {
+  if (skip) return
+  if (!rateAmount || typeof paidCredits === 'undefined' || paidCredits === '') return
+  if (Number(paidCredits) === 0) return
+
+  const paidCreditsAmount = Number(rateAmount) * Number(paidCredits)
+  const minCredits = Number(paidTopUpMinAmountCents) / Number(rateAmount)
+  const maxCredits = Number(paidTopUpMaxAmountCents) / Number(rateAmount)
+  const minAmount = intlFormatNumber(Number(paidTopUpMinAmountCents), {
+    currency,
+  })
+  const maxAmount = intlFormatNumber(Number(paidTopUpMaxAmountCents), {
+    currency,
+  })
+  const hasMin = typeof paidTopUpMinAmountCents !== 'undefined' && paidTopUpMinAmountCents !== null
+  const hasMax = typeof paidTopUpMaxAmountCents !== 'undefined' && paidTopUpMaxAmountCents !== null
+  const isBelow = paidCreditsAmount < Number(paidTopUpMinAmountCents)
+  const isAbove = paidCreditsAmount > Number(paidTopUpMaxAmountCents)
+
+  if (hasMin && hasMax && (isBelow || isAbove)) {
+    return {
+      error: TopUpAmountError.NotBetween,
+      label: translate
+        ? translate('text_1758285686647a868tiok58q', {
+            minCredits,
+            maxCredits,
+            minAmount,
+            maxAmount,
+          })
+        : '',
+    }
+  }
+
+  if (hasMin && isBelow) {
+    return {
+      error: TopUpAmountError.BelowMin,
+      label: translate
+        ? translate('text_1758285686647tnf634qa99c', {
+            minCredits,
+            minAmount,
+          })
+        : '',
+    }
+  }
+
+  if (hasMax && isAbove) {
+    return {
+      error: TopUpAmountError.AboveMax,
+      label: translate
+        ? translate('text_175828568664787kip4pzn8l', {
+            maxCredits,
+            maxAmount,
+          })
+        : '',
+    }
+  }
+
+  return null
+}
+
+export const walletFormSchema = () => {
   return object().shape({
     name: string(),
     appliesTo: object()
@@ -54,23 +145,61 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
       .nullable(),
     paidCredits: string().test({
       test: function (paidCredits) {
-        if (formType === FORM_TYPE_ENUM.edition) return true
+        const {
+          paidTopUpMinAmountCents,
+          paidTopUpMaxAmountCents,
+          rateAmount,
+          currency,
+          ignorePaidTopUpLimitsOnCreation,
+        } = this?.parent || {}
 
-        const { grantedCredits } = this?.parent || {}
+        const error = topUpAmountError({
+          skip: ignorePaidTopUpLimitsOnCreation,
+          paidCredits,
+          rateAmount,
+          paidTopUpMinAmountCents,
+          paidTopUpMaxAmountCents,
+          currency,
+        })
 
-        return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
-      },
-    }),
-    grantedCredits: string().test({
-      test: function (grantedCredits) {
-        if (formType === FORM_TYPE_ENUM.edition) return true
+        if (error?.error) {
+          return false
+        }
 
-        const { paidCredits } = this?.parent || {}
-
-        return !isNaN(Number(grantedCredits)) || !isNaN(Number(paidCredits))
+        return true
       },
     }),
     rateAmount: string().required(''),
+    paidTopUpMinAmountCents: string().test({
+      test: function (paidTopUpMinAmountCents) {
+        const { paidTopUpMaxAmountCents } = this?.parent || {}
+
+        if (isNaN(Number(paidTopUpMinAmountCents)) || isNaN(Number(paidTopUpMaxAmountCents))) {
+          return true
+        }
+
+        if (Number(paidTopUpMinAmountCents) <= Number(paidTopUpMaxAmountCents)) {
+          return true
+        }
+
+        return false
+      },
+    }),
+    paidTopUpMaxAmountCents: string().test({
+      test: function (paidTopUpMaxAmountCents) {
+        const { paidTopUpMinAmountCents } = this?.parent || {}
+
+        if (isNaN(Number(paidTopUpMaxAmountCents)) || isNaN(Number(paidTopUpMinAmountCents))) {
+          return true
+        }
+
+        if (Number(paidTopUpMaxAmountCents) >= Number(paidTopUpMinAmountCents)) {
+          return true
+        }
+
+        return false
+      },
+    }),
     recurringTransactionRules: array()
       .of(
         object().shape({
@@ -116,7 +245,27 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
             .nullable(),
           paidCredits: string().test({
             test: function (paidCredits) {
-              const { grantedCredits: ruleGrantedCredit, method } = this?.parent || {}
+              const { paidTopUpMinAmountCents, paidTopUpMaxAmountCents, rateAmount, currency } =
+                this?.options?.context || {}
+
+              const {
+                grantedCredits: ruleGrantedCredit,
+                method,
+                ignorePaidTopUpLimits,
+              } = this?.parent || {}
+
+              const error = topUpAmountError({
+                skip: ignorePaidTopUpLimits,
+                paidCredits,
+                rateAmount,
+                paidTopUpMinAmountCents,
+                paidTopUpMaxAmountCents,
+                currency,
+              })
+
+              if (error?.error) {
+                return false
+              }
 
               if (!!method && method !== RecurringTransactionMethodEnum.Fixed) {
                 return true
