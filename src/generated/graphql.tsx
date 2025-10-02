@@ -12560,9 +12560,9 @@ export type GetWalletForTopUpQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletForTopUpQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null } | null };
+export type GetWalletForTopUpQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, name?: string | null, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null } | null };
 
-export type WalletForTopUpFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null };
+export type WalletForTopUpFragment = { __typename?: 'Wallet', id: string, name?: string | null, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null };
 
 export type BillableMetricForWalletScopeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
 
@@ -16745,6 +16745,7 @@ export const AddSubscriptionPlanFragmentDoc = gql`
 export const WalletForTopUpFragmentDoc = gql`
     fragment WalletForTopUp on Wallet {
   id
+  name
   currency
   rateAmount
   invoiceRequiresSuccessfulPayment
