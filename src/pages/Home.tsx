@@ -1,4 +1,4 @@
-import { Icon } from 'lago-design-system'
+import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -18,14 +18,14 @@ const Home = () => {
   const navigate = useNavigate()
   const { loading: isUserLoading, currentMembership } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasOrganizationPremiumAddon, loading: isOrganizationLoading } = useOrganizationInfos()
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
 
   useEffect(() => {
     // Make sure user permissions are loaded before performing redirection
-    if (!isUserLoading && !!currentMembership) {
+    if (!isUserLoading && !isOrganizationLoading && !!currentMembership) {
       const lastPrivateVisitedRouteWhileNotConnected:
         | { location: Location; organizationId: string }
         | undefined = getItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
@@ -59,15 +59,16 @@ const Home = () => {
         navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
       }
     }
+  }, [
+    isUserLoading,
+    currentMembership,
+    isOrganizationLoading,
+    hasPermissions,
+    hasAccessToAnalyticsDashboardsFeature,
+    navigate,
+  ])
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUserLoading, currentMembership])
-
-  return (
-    <div className="flex size-full items-center justify-center">
-      <Icon name="processing" color="info" size="large" animation="spin" />
-    </div>
-  )
+  return <Spinner />
 }
 
 export default Home

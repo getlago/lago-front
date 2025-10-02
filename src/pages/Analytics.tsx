@@ -1,4 +1,4 @@
-import { Icon } from 'lago-design-system'
+import { Spinner } from 'lago-design-system'
 
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -17,11 +17,7 @@ const Analytics = () => {
   )
 
   if (organizationDataLoading || !organization?.id) {
-    return (
-      <div className="m-auto flex size-full items-center justify-center">
-        <Icon name="processing" color="info" size="large" animation="spin" />
-      </div>
-    )
+    return <Spinner />
   }
 
   if (hasAccessToAnalyticsDashboardsFeature) {

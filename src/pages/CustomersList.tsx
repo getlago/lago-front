@@ -168,6 +168,7 @@ const CustomersList = () => {
               default: 16,
               md: 48,
             }}
+            rowSize={72}
             onRowActionLink={({ id }) => generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: id })}
             columns={[
               {
@@ -186,9 +187,14 @@ const CustomersList = () => {
                         identifier={customer.displayName as string}
                         initials={customerInitials}
                       />
-                      <Typography variant="bodyHl" color="textSecondary" noWrap>
-                        {customer.displayName || '-'}
-                      </Typography>
+                      <div className="flex flex-col">
+                        <Typography variant="bodyHl" color="textSecondary" noWrap>
+                          {customer.displayName || '-'}
+                        </Typography>
+                        <Typography variant="caption" color="grey600" noWrap>
+                          {customer.externalId || '-'}
+                        </Typography>
+                      </div>
                     </div>
                   )
                 },

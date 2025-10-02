@@ -1,9 +1,11 @@
-import { ApolloClient, ApolloLink, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, ApolloLink, Operation, split } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { captureException } from '@sentry/react'
+import ActionCable from 'actioncable'
 import { LocalForageWrapper, persistCache } from 'apollo3-cache-persist'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
+import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
 import localForage from 'localforage'
 
 // IMPORTANT: Keep reactiveVars import before cacheUtils
@@ -14,12 +16,12 @@ import {
   envGlobalVar,
   TMP_AUTH_TOKEN_LS_KEY,
 } from '~/core/apolloClient/reactiveVars'
+import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
-import { getItemFromLS, logOut, omitDeep } from './cacheUtils'
-import { LagoGQLError } from './errorUtils'
+import { getItemFromLS, omitDeep } from './cacheUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
 const AUTH_ERRORS = [
@@ -28,24 +30,42 @@ const AUTH_ERRORS = [
   LagoApiError.Unauthorized,
 ]
 
-let globalApolloClient: ApolloClient<NormalizedCacheObject> | null = null
-
 const TIMEOUT = 300000 // 5 minutes timeout
-const timeoutLink = new ApolloLinkTimeout(TIMEOUT)
 const { apiUrl, appVersion } = envGlobalVar()
 
-export const initializeApolloClient = async () => {
-  if (globalApolloClient) return globalApolloClient
+const { cableUrl } = buildWebSocketUrl(apiUrl)
+const subscriptionLink = new ActionCableLink({
+  cable: ActionCable.createConsumer(cableUrl),
+  channelName: 'GraphqlChannel',
+  actionName: 'execute',
+})
 
-  const initialLink = new ApolloLink((operation, forward) => {
+const hasSubscriptionOperation = ({ query }: Operation) => {
+  const definitions = query.definitions
+
+  const hasSub = definitions.some(
+    (definition) =>
+      definition.kind === 'OperationDefinition' &&
+      'operation' in definition &&
+      definition.operation === 'subscription',
+  )
+
+  return hasSub
+}
+
+// Callback for handling auth errors - will be set by the App component
+let onAuthError: (() => void) | null = null
+
+export const setAuthErrorHandler = (handler: () => void) => {
+  onAuthError = handler
+}
+
+export const initializeApolloClient = async () => {
+  const authLink = new ApolloLink((operation, forward) => {
     const { headers } = operation.getContext()
     const token = getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY)
     const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
     const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
-
-    if (operation.variables && !operation.variables.file) {
-      operation.variables = omitDeep(operation.variables, '__typename')
-    }
 
     operation.setContext({
       headers: {
@@ -59,66 +79,74 @@ export const initializeApolloClient = async () => {
     return forward(operation)
   })
 
-  const links = [
-    initialLink.concat(timeoutLink),
-    onError(({ graphQLErrors, operation }) => {
-      const { silentError = false, silentErrorCodes = [] } = operation.getContext()
+  const cleanupLink = new ApolloLink((operation, forward) => {
+    if (operation.variables && !operation.variables.file) {
+      operation.variables = omitDeep(operation.variables, '__typename')
+    }
+    return forward(operation)
+  })
 
-      // Silent auth and permissions related errors by default
-      silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
+  const timeoutLink = new ApolloLinkTimeout(TIMEOUT)
 
-      if (graphQLErrors) {
-        graphQLErrors.forEach((value) => {
-          const { message, path, locations, extensions } = value as LagoGQLError
+  const errorLink = onError(({ graphQLErrors, operation }) => {
+    const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
-          const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code)
+    // Silent auth and permissions related errors by default
+    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
 
-          if (isUnauthorized && globalApolloClient) {
-            logOut(globalApolloClient)
-          }
+    if (graphQLErrors) {
+      graphQLErrors.forEach((value) => {
+        const { message, path, locations, extensions } = value
 
-          // Capture non-silent GraphQL errors with Sentry
-          if (
-            !silentError &&
-            !silentErrorCodes.includes(extensions?.code) &&
-            !isUnauthorized &&
-            message !== 'PersistedQueryNotFound'
-          ) {
-            // Capture in Sentry with operation details
-            captureException(message, {
-              tags: {
-                errorType: 'GraphQLError',
-                operationName: operation.operationName,
-              },
-              extra: {
-                path,
-                locations,
-                extensions,
-                value,
-                variables: operation.variables,
-              },
-            })
+        const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code as LagoApiError)
 
-            addToast({
-              severity: 'danger',
-              translateKey: 'text_622f7a3dc32ce100c46a5154',
-            })
-          }
+        if (isUnauthorized && onAuthError) {
+          onAuthError()
+        }
 
-          // eslint-disable-next-line no-console
-          console.warn(
-            `[GraphQL error]: Message: ${message}, Path: ${path}, Location: ${JSON.stringify(
+        // Capture non-silent GraphQL errors with Sentry
+        if (
+          !silentError &&
+          !silentErrorCodes.includes(extensions?.code) &&
+          !isUnauthorized &&
+          message !== 'PersistedQueryNotFound'
+        ) {
+          // Capture in Sentry with operation details
+          captureException(message, {
+            tags: {
+              errorType: 'GraphQLError',
+              operationName: operation.operationName,
+            },
+            extra: {
+              path,
               locations,
-            )}`,
-          )
-        })
-      }
-    }),
+              extensions,
+              value,
+              variables: operation.variables,
+            },
+          })
 
-    createUploadLink({
-      uri: `${apiUrl}/graphql`,
-    }) as unknown as ApolloLink,
-  ]
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_622f7a3dc32ce100c46a5154',
+          })
+        }
+
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[GraphQL error]: Message: ${message}, Path: ${path}, Location: ${JSON.stringify(
+            locations,
+          )}`,
+        )
+      })
+    }
+  })
+
+  const httpLink = createUploadLink({
+    uri: `${apiUrl}/graphql`,
+  })
+
+  const splitLink = split(hasSubscriptionOperation, subscriptionLink, httpLink)
 
   await persistCache({
     cache,
@@ -126,13 +154,18 @@ export const initializeApolloClient = async () => {
     key: `apollo-cache-persist-lago-${appVersion}`,
   })
 
+  const link = ApolloLink.from([authLink, cleanupLink, timeoutLink, errorLink, splitLink])
+
   const client = new ApolloClient({
     cache,
-    link: ApolloLink.from(links),
+    link,
     name: 'lago-app',
     version: appVersion,
     typeDefs,
     resolvers,
+    devtools: {
+      enabled: true,
+    },
     defaultOptions: {
       watchQuery: {
         fetchPolicy: 'cache-and-network',
@@ -144,8 +177,6 @@ export const initializeApolloClient = async () => {
       },
     },
   })
-
-  globalApolloClient = client
 
   return client
 }
