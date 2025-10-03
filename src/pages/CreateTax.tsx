@@ -9,6 +9,7 @@ import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditTax } from '~/hooks/useCreateEditTax'
@@ -50,10 +51,7 @@ const CreateTaxRate = () => {
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
       formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
-
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
+      scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])

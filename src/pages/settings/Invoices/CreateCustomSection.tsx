@@ -13,6 +13,7 @@ import {
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CreateInvoiceCustomSectionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -61,10 +62,7 @@ const CreateInvoiceCustomSection = () => {
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
       formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
-
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
+      scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
