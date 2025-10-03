@@ -48,3 +48,17 @@ export const scrollToAndClickElement = ({
     callback?.()
   }, delay)
 }
+
+/**
+ * Scrolls to the top of the element, defaulting to app wrapper
+ * @param selector - The selector of the element to scroll to (default: '[data-app-wrapper]')
+ */
+export const scrollToTop = (selector?: string) => {
+  const element = document.querySelector(selector || '[data-app-wrapper]')
+
+  if (!element) return
+
+  setTimeout(() => {
+    element.scrollTo({ top: 0, behavior: 'smooth' })
+  }, 0)
+}

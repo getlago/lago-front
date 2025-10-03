@@ -53,7 +53,7 @@ const App = () => {
                 <AiAgentProvider>
                   <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
                     <Panel id="app-panel" order={1}>
-                      <div className="h-full overflow-auto">
+                      <div className="h-full overflow-auto" data-app-wrapper>
                         <BrowserRouter basename="/">
                           <RouteWrapper />
                         </BrowserRouter>

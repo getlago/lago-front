@@ -1,22 +1,26 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import '@testing-library/jest-dom'
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Button } from 'lago-design-system'
 import React from 'react'
 
 import { Accordion } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 
-import { scrollToAndClickElement, scrollToAndExpandAccordion } from '../domUtils'
+import { scrollToAndClickElement, scrollToAndExpandAccordion, scrollToTop } from '../domUtils'
 
 // Mock setTimeout to control timing in tests
 jest.useFakeTimers()
 
-// Mock scrollIntoView since it's not available in jsdom
+// Mock scrollIntoView and scrollTo since they're not available in jsdom
 const mockScrollIntoView = jest.fn()
+const mockScrollTo = jest.fn()
 const mockClick = jest.fn()
 
 Element.prototype.scrollIntoView = mockScrollIntoView
+Element.prototype.scrollTo = mockScrollTo
 HTMLElement.prototype.click = mockClick
 
 const TestAccordionComponent = ({
@@ -37,6 +41,16 @@ const TestAccordionComponent = ({
 
 const TestComboboxElement = ({ elementClass }: { elementClass: string }) => {
   return <ComboBox className={elementClass} data={[]} onChange={() => {}} />
+}
+
+const TestAppWrapper = ({ children, id }: { children: React.ReactNode; id?: string }) => {
+  return (
+    <div className="h-[99999px] overflow-hidden" data-app-wrapper id={id}>
+      <div className="flex-1 overflow-y-auto" data-scrollable-content>
+        {children}
+      </div>
+    </div>
+  )
 }
 
 describe('DomUtils', () => {
@@ -379,6 +393,83 @@ describe('DomUtils', () => {
       expect(mockScrollIntoView).not.toHaveBeenCalled()
       expect(mockClick).not.toHaveBeenCalled()
       expect(mockCallback).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('scrollToTop', () => {
+    it('should scroll to the top of the page', async () => {
+      render(
+        <TestAppWrapper>
+          <Button
+            onClick={() => {
+              scrollToTop()
+            }}
+            data-testid="scroll-test-button"
+          >
+            Scroll test button
+          </Button>
+        </TestAppWrapper>,
+      )
+
+      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+
+      act(() => {
+        jest.advanceTimersByTime(0)
+      })
+
+      expect(mockScrollTo).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        top: 0,
+      })
+    })
+
+    it('should scroll to the top of the page with a custom selector', async () => {
+      render(
+        <TestAppWrapper id="scroll-test-button">
+          <Button
+            onClick={() => {
+              scrollToTop('#scroll-test-button')
+            }}
+            data-testid="scroll-test-button"
+          >
+            Scroll test button
+          </Button>
+        </TestAppWrapper>,
+      )
+
+      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+
+      act(() => {
+        jest.advanceTimersByTime(0)
+      })
+
+      expect(mockScrollTo).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        top: 0,
+      })
+    })
+
+    it('should not scroll if the selector does not exist', async () => {
+      render(
+        <TestAppWrapper>
+          <Button
+            onClick={() => {
+              scrollToTop('.this-does-not-exist')
+            }}
+            data-testid="scroll-test-button"
+          >
+            Scroll test button
+          </Button>
+        </TestAppWrapper>,
+      )
+
+      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+
+      act(() => {
+        jest.advanceTimersByTime(0)
+      })
+
+      expect(mockScrollTo).not.toHaveBeenCalled()
     })
   })
 })

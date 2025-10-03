@@ -144,7 +144,7 @@ const CreatePlan = () => {
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const { errorCode, formikProps, isEdition, loading, plan, type } = usePlanForm({})
+  const { formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
@@ -234,7 +234,6 @@ const CreatePlan = () => {
 
                   <PlanSettingsSection
                     canBeEdited={canBeEdited}
-                    errorCode={errorCode}
                     formikProps={formikProps}
                     isEdition={isEdition}
                   />

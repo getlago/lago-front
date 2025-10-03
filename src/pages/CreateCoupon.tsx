@@ -31,6 +31,7 @@ import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
+import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   BillableMetricsForCouponsFragment,
@@ -179,10 +180,7 @@ const CreateCoupon = () => {
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
       formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
-
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
+      scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])

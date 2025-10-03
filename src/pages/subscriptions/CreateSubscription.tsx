@@ -320,11 +320,7 @@ const CreateSubscription = () => {
       }
     },
   })
-  const {
-    errorCode: planErrorCode,
-    formikProps: planFormikProps,
-    plan,
-  } = usePlanForm({
+  const { formikProps: planFormikProps, plan } = usePlanForm({
     planIdToFetch: subscriptionFormikProps.values.planId,
     isUsedInSubscriptionForm: true,
   })
@@ -839,7 +835,6 @@ const CreateSubscription = () => {
                           <PlanSettingsSection
                             isInSubscriptionForm={isInSubscriptionForm}
                             subscriptionFormType={formType}
-                            errorCode={planErrorCode}
                             formikProps={planFormikProps}
                           />
                         </div>
