@@ -480,11 +480,13 @@ const CustomerInvoiceVoid = () => {
                 </Alert>
               )}
 
-              <Alert type="info">
-                <Typography className="text-grey-700">
-                  {translate('text_1747908642632nja67p9ig0e')}
-                </Typography>
-              </Alert>
+              {isPremium && (
+                <Alert type="info">
+                  <Typography className="text-grey-700">
+                    {translate('text_1747908642632nja67p9ig0e')}
+                  </Typography>
+                </Alert>
+              )}
             </div>
           </div>
         </CenteredPage.Container>
