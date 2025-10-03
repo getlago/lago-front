@@ -6,12 +6,10 @@ import { Button, Card, Tooltip, Typography } from '~/components/designSystem'
 import { ButtonSelectorField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
-  FORM_ERRORS_ENUM,
   FORM_TYPE_ENUM,
   getIntervalTranslationKey,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
-import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -56,7 +54,6 @@ type PlanSettingsSectionProps = {
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  errorCode: string | undefined
   formikProps: FormikProps<PlanFormInput>
   isEdition?: boolean
 }
@@ -66,7 +63,6 @@ export const PlanSettingsSection = memo(
     canBeEdited,
     isInSubscriptionForm,
     subscriptionFormType,
-    errorCode,
     formikProps,
     isEdition,
   }: PlanSettingsSectionProps) => {
@@ -79,14 +75,6 @@ export const PlanSettingsSection = memo(
     useEffect(() => {
       setShouldDisplayDescription(!!formikProps.initialValues.description)
     }, [formikProps.initialValues.description])
-
-    useEffect(() => {
-      if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-        formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-        scrollToTop()
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [errorCode])
 
     return (
       <Card>

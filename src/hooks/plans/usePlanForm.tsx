@@ -75,7 +75,6 @@ gql`
 `
 
 interface UsePlanFormReturn {
-  errorCode?: string
   formikProps: FormikProps<PlanFormInput>
   isEdition: boolean
   loading: boolean
@@ -496,13 +495,12 @@ export const usePlanForm: ({
 
   return useMemo(
     () => ({
-      errorCode,
       formikProps,
       isEdition,
       loading,
       type,
       plan,
     }),
-    [errorCode, formikProps, isEdition, loading, type, plan],
+    [formikProps, isEdition, loading, type, plan],
   )
 }
