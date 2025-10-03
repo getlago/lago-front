@@ -8,6 +8,7 @@ import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
 import { Status, Table } from '~/components/designSystem'
 import { AmountInputField, RadioField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import PremiumFeature from '~/components/premium/PremiumFeature'
 import { addToast } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -33,6 +34,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
@@ -56,6 +58,7 @@ const CustomerInvoiceVoid = () => {
   const { customerId, invoiceId } = useParams()
   const { timezone } = useOrganizationInfos()
   const navigate = useNavigate()
+  const { isPremium } = useCurrentUser()
 
   const { data, loading, error } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -116,7 +119,7 @@ const CustomerInvoiceVoid = () => {
   const maxCreditable = deserializeAmount(invoice?.creditableAmountCents, currency)
   const maxTotal = maxCreditable
 
-  const canGenerateCreditNote = maxRefundable > 0 || maxCreditable > 0
+  const canGenerateCreditNote = isPremium && (maxRefundable > 0 || maxCreditable > 0)
 
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {
@@ -386,6 +389,15 @@ const CustomerInvoiceVoid = () => {
                   label={translate('text_1747902518582u0fpqsnmest')}
                   formikProps={formikProps}
                 />
+
+                {!isPremium && (
+                  <PremiumFeature
+                    className="mt-2"
+                    title={translate('text_1759493418045q76j19qe39v')}
+                    description={translate('text_17594934180453sfrfaftk7g')}
+                    feature={translate('text_17594937101500zg231jc8bf')}
+                  />
+                )}
 
                 {formikProps.values.handle === HandleEnum.GenerateCreditNote && (
                   <div className="flex flex-col gap-4">

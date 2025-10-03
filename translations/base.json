@@ -3462,5 +3462,11 @@
   "text_175872290080132j1em37b08": "Minimum value must be less than the maximum value",
   "text_1758722900801nbox9c5bgnn": "Maximum value must be greater than the minimum value",
   "text_1759387047166vuoep9t72ny": "Min amount per purchase",
-  "text_1759387047167hwbqm5hx7ye": "Max amount per purchase"
+  "text_1759387047167hwbqm5hx7ye": "Max amount per purchase",
+  "text_1759493418045q76j19qe39v": "Unlock credit note generation",
+  "text_17594934180453sfrfaftk7g": "Credit or refund customers based on the generated invoice.",
+  "text_17594937101500zg231jc8bf": "credit note generation",
+  "text_1759493418045b173t4qhktb": "Request access to {{feature}}",
+  "text_1759493745332hiuejhksn15": "Hello, I would like to access your {{feature}} add-on. \nPlease let me know if you need more info!"
 }
+
