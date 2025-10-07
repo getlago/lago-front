@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
+import { Typography } from '~/components/designSystem'
 import { useFilters } from '~/components/designSystem/Filters/useFilters'
-import { ComboBox } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { useGetCustomersForFilterItemCustomerLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -48,6 +49,18 @@ export const FiltersItemCustomer = ({ value, setFilterValue }: FiltersItemCustom
 
       return {
         label: `${customerName || externalId || ''}${customer.deletedAt ? ` (${translate('text_1743158702704o1juwxmr4ab')})` : ''}`,
+        labelNode: (
+          <ComboboxItem>
+            <Typography variant="body" color="grey700" noWrap>
+              {customerName || externalId || ''}
+            </Typography>
+            {customer.deletedAt && (
+              <Typography variant="caption" color="grey600" noWrap>
+                {` (${translate('text_1743158702704o1juwxmr4ab')})`}
+              </Typography>
+            )}
+          </ComboboxItem>
+        ),
         value: `${externalId}${filterDataInlineSeparator}${customerName}`,
       }
     })
