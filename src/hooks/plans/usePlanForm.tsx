@@ -28,6 +28,7 @@ import {
 import { serializePlanInput } from '~/core/serializers'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { scrollToTop } from '~/core/utils/domUtils'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import {
   CurrencyEnum,
@@ -74,7 +75,6 @@ gql`
 `
 
 interface UsePlanFormReturn {
-  errorCode?: string
   formikProps: FormikProps<PlanFormInput>
   isEdition: boolean
   loading: boolean
@@ -474,10 +474,7 @@ export const usePlanForm: ({
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
       formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
-
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
+      scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
@@ -498,13 +495,12 @@ export const usePlanForm: ({
 
   return useMemo(
     () => ({
-      errorCode,
       formikProps,
       isEdition,
       loading,
       type,
       plan,
     }),
-    [errorCode, formikProps, isEdition, loading, type, plan],
+    [formikProps, isEdition, loading, type, plan],
   )
 }
