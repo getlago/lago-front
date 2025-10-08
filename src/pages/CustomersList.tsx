@@ -54,6 +54,13 @@ gql`
     $billingEntityIds: [ID!]
     $activeSubscriptionsCountFrom: Int
     $activeSubscriptionsCountTo: Int
+    $countries: [CountryCode!]
+    $zipcodes: [String!]
+    $states: [String!]
+    $currencies: [CurrencyEnum!]
+    $customerType: CustomerTypeEnum
+    $hasTaxIdentificationNumber: Boolean
+    $hasCustomerType: Boolean
   ) {
     customers(
       page: $page
@@ -63,6 +70,13 @@ gql`
       billingEntityIds: $billingEntityIds
       activeSubscriptionsCountFrom: $activeSubscriptionsCountFrom
       activeSubscriptionsCountTo: $activeSubscriptionsCountTo
+      countries: $countries
+      zipcodes: $zipcodes
+      states: $states
+      currencies: $currencies
+      customerType: $customerType
+      hasTaxIdentificationNumber: $hasTaxIdentificationNumber
+      hasCustomerType: $hasCustomerType
     ) {
       metadata {
         currentPage

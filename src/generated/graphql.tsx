@@ -6094,8 +6094,6 @@ export type Query = {
   grossRevenues: GrossRevenueCollection;
   /** Query a single integration */
   integration?: Maybe<Integration>;
-  /** Query a single integration collection mapping */
-  integrationCollectionMapping?: Maybe<CollectionMapping>;
   /** Query integration collection mappings */
   integrationCollectionMappings?: Maybe<CollectionMappingCollection>;
   /** Query integration items of an integration */
@@ -6594,11 +6592,6 @@ export type QueryGrossRevenuesArgs = {
 
 export type QueryIntegrationArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
-};
-
-
-export type QueryIntegrationCollectionMappingArgs = {
-  id: Scalars['ID']['input'];
 };
 
 
@@ -11738,6 +11731,13 @@ export type CustomersQueryVariables = Exact<{
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   activeSubscriptionsCountFrom?: InputMaybe<Scalars['Int']['input']>;
   activeSubscriptionsCountTo?: InputMaybe<Scalars['Int']['input']>;
+  countries?: InputMaybe<Array<CountryCode> | CountryCode>;
+  zipcodes?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  states?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  currencies?: InputMaybe<Array<CurrencyEnum> | CurrencyEnum>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  hasTaxIdentificationNumber?: InputMaybe<Scalars['Boolean']['input']>;
+  hasCustomerType?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -31829,7 +31829,7 @@ export type CreatePaymentRequestMutationHookResult = ReturnType<typeof useCreate
 export type CreatePaymentRequestMutationResult = Apollo.MutationResult<CreatePaymentRequestMutation>;
 export type CreatePaymentRequestMutationOptions = Apollo.BaseMutationOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
 export const CustomersDocument = gql`
-    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!], $activeSubscriptionsCountFrom: Int, $activeSubscriptionsCountTo: Int) {
+    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!], $activeSubscriptionsCountFrom: Int, $activeSubscriptionsCountTo: Int, $countries: [CountryCode!], $zipcodes: [String!], $states: [String!], $currencies: [CurrencyEnum!], $customerType: CustomerTypeEnum, $hasTaxIdentificationNumber: Boolean, $hasCustomerType: Boolean) {
   customers(
     page: $page
     limit: $limit
@@ -31838,6 +31838,13 @@ export const CustomersDocument = gql`
     billingEntityIds: $billingEntityIds
     activeSubscriptionsCountFrom: $activeSubscriptionsCountFrom
     activeSubscriptionsCountTo: $activeSubscriptionsCountTo
+    countries: $countries
+    zipcodes: $zipcodes
+    states: $states
+    currencies: $currencies
+    customerType: $customerType
+    hasTaxIdentificationNumber: $hasTaxIdentificationNumber
+    hasCustomerType: $hasCustomerType
   ) {
     metadata {
       currentPage
@@ -31869,6 +31876,13 @@ export const CustomersDocument = gql`
  *      billingEntityIds: // value for 'billingEntityIds'
  *      activeSubscriptionsCountFrom: // value for 'activeSubscriptionsCountFrom'
  *      activeSubscriptionsCountTo: // value for 'activeSubscriptionsCountTo'
+ *      countries: // value for 'countries'
+ *      zipcodes: // value for 'zipcodes'
+ *      states: // value for 'states'
+ *      currencies: // value for 'currencies'
+ *      customerType: // value for 'customerType'
+ *      hasTaxIdentificationNumber: // value for 'hasTaxIdentificationNumber'
+ *      hasCustomerType: // value for 'hasCustomerType'
  *   },
  * });
  */

@@ -123,10 +123,14 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
   [AvailableFiltersEnum.country]: (value: string) => value,
+  [AvailableFiltersEnum.countries]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.currency]: (value: string) => value,
+  [AvailableFiltersEnum.currencies]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.customerType]: (value: string) => value,
   [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
   [AvailableFiltersEnum.customerExternalId]: (value: string) =>
@@ -136,6 +140,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.date]: (value: string) => {
     return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
   },
+  [AvailableFiltersEnum.hasTaxIdentificationNumber]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.hasCustomerType]: (value: string) => value === 'true',
   [AvailableFiltersEnum.httpMethods]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.httpStatuses]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.invoiceNumber]: (value: string) => value,
@@ -162,6 +168,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.resourceIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.states]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
@@ -170,6 +178,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.zipcodes]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
 }
 
 // NOTE: this is fixing list fetching issue when new item are added to the DB and user scrolls to the bottom of the list
