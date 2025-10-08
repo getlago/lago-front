@@ -59,10 +59,10 @@ export const removeItemFromLS = (key: string) => {
 
 // --------------------- Auth utils ---------------------
 export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
-  // Prevent active queries re-fetch
+  // Cancels active operations
+  client.stop()
+  // Removes cached data and prevents active queries re-fetch
   await client.clearStore()
-  // Clear store
-  await client.cache.reset()
   updateAuthTokenVar()
 
   resetLocationHistory && resetLocationHistoryVar()
@@ -163,10 +163,8 @@ export const switchCurrentOrganization = async (
   client: ApolloClient<object>,
   organizationId: string,
 ) => {
-  // Stop the client to prevent active queries re-fetch
+  // Removes cached data and prevents active queries re-fetch
   await client.clearStore()
-  // Clear store
-  await client.cache.reset()
 
   // We should not be redirected to any route on orga switch, but rather bring to home (prevent )
   removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
