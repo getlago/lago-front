@@ -140,7 +140,6 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.date]: (value: string) => {
     return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
   },
-  [AvailableFiltersEnum.hasTaxIdentificationNumber]: (value: string) => value === 'true',
   [AvailableFiltersEnum.hasCustomerType]: (value: string) => value === 'true',
   [AvailableFiltersEnum.httpMethods]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.httpStatuses]: (value: string) => (value as string).split(','),
@@ -305,6 +304,12 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
   if (formatted.activeSubscriptionsTo !== undefined && formatted.activeSubscriptionsTo !== null) {
     formatted.activeSubscriptionsCountTo = formatted.activeSubscriptionsTo
     delete formatted.activeSubscriptionsTo
+  }
+
+  // isCustomerTinEmpty is used in analytics filter but is basically the opposite of hasTaxIdentificationNumber used in customer list query
+  if (formatted.isCustomerTinEmpty !== undefined) {
+    formatted.hasTaxIdentificationNumber = !formatted.isCustomerTinEmpty
+    delete formatted.isCustomerTinEmpty
   }
 
   return formatted

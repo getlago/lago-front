@@ -19,7 +19,6 @@ import { FiltersItemCustomerAccountType } from '~/components/designSystem/Filter
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
 import { FiltersItemHasCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemHasCustomerType'
-import { FiltersItemHasTaxIdentificationNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemHasTaxIdentificationNumber'
 import { FiltersItemHttpMethods } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpMethods'
 import { FiltersItemHttpStatuses } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpStatuses'
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
@@ -87,9 +86,6 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.timeGranularity]: null, // Used in quick filters only
     [AvailableFiltersEnum.customerExternalId]: <FiltersItemCustomer {...props} />,
     [AvailableFiltersEnum.date]: <FiltersItemDate {...props} />,
-    [AvailableFiltersEnum.hasTaxIdentificationNumber]: (
-      <FiltersItemHasTaxIdentificationNumber {...props} />
-    ),
     [AvailableFiltersEnum.hasCustomerType]: <FiltersItemHasCustomerType {...props} />,
     [AvailableFiltersEnum.httpMethods]: <FiltersItemHttpMethods {...props} />,
     [AvailableFiltersEnum.httpStatuses]: <FiltersItemHttpStatuses {...props} />,

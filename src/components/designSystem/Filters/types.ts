@@ -60,7 +60,6 @@ export enum AvailableFiltersEnum {
   customerExternalId = 'customerExternalId',
   isCustomerTinEmpty = 'isCustomerTinEmpty',
   date = 'date',
-  hasTaxIdentificationNumber = 'hasTaxIdentificationNumber',
   hasCustomerType = 'hasCustomerType',
   httpMethods = 'httpMethods',
   httpStatuses = 'httpStatuses',
@@ -138,7 +137,7 @@ export const CustomerAvailableFilters = [
   AvailableFiltersEnum.currencies,
   AvailableFiltersEnum.states,
   AvailableFiltersEnum.zipcodes,
-  AvailableFiltersEnum.hasTaxIdentificationNumber,
+  AvailableFiltersEnum.isCustomerTinEmpty,
   AvailableFiltersEnum.hasCustomerType,
 ]
 
@@ -274,7 +273,6 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
   [AvailableFiltersEnum.isCustomerTinEmpty]: 'text_1751629285990kftdtjbv2dc',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',
-  [AvailableFiltersEnum.hasTaxIdentificationNumber]: 'text_1759909828496yhv2mkjyxjm',
   [AvailableFiltersEnum.hasCustomerType]: 'text_1759932717174x6ajk3qawwl',
   [AvailableFiltersEnum.httpMethods]: 'text_1749819999031vobdu7h2c7c',
   [AvailableFiltersEnum.httpStatuses]: 'text_63ac86d797f728a87b2f9fa7',
