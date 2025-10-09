@@ -14,6 +14,7 @@ export const FiltersItemCurrencies = ({ value, setFilterValue }: FiltersItemCurr
 
   return (
     <MultipleComboBox
+      forcePopupIcon
       disableClearable
       placeholder={translate('text_1759933204078d8saqn06pdf')}
       data={Object.values(CurrencyEnum).map((currency) => ({

@@ -15,6 +15,7 @@ export const FiltersItemCountries = ({ value, setFilterValue }: FiltersItemCount
 
   return (
     <MultipleComboBox
+      forcePopupIcon
       disableClearable
       placeholder={translate('text_1759933141735g1r551m8os0')}
       data={Object.values(CountryCode).map((countryCode) => ({
