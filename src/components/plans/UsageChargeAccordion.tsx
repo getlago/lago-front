@@ -5,12 +5,13 @@ import { memo, RefObject, useCallback, useEffect, useMemo } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { RadioGroupField, Switch } from '~/components/form'
+import { Switch } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
 import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
+import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { RemoveChargeButton } from '~/components/plans/chargeAccordion/RemoveChargeButton'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import {
@@ -31,9 +32,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
-  AggregationTypeEnum,
   ChargeForChargeOptionsAccordionFragmentDoc,
-  ChargeModelEnum,
   CurrencyEnum,
   CustomChargeFragmentDoc,
   DynamicChargeFragmentDoc,
@@ -251,18 +250,6 @@ export const UsageChargeAccordion = memo(
 
       return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
     }, [formikProps?.values?.taxes, localCharge.taxes])
-
-    const chargePayInAdvanceDescription = useMemo(() => {
-      if (localCharge.chargeModel === ChargeModelEnum.Volume) {
-        return translate('text_6669b493fae79a0095e639bc')
-      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg) {
-        return translate('text_6669b493fae79a0095e63986')
-      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg) {
-        return translate('text_6669b493fae79a0095e639a1')
-      }
-
-      return translate('text_6661fc17337de3591e29e435')
-    }, [localCharge.chargeModel, localCharge.billableMetric.aggregationType, translate])
 
     const chargePricingUnitShortName = useMemo(
       () =>
@@ -623,24 +610,22 @@ export const UsageChargeAccordion = memo(
             currency={currency}
             chargePricingUnitShortName={chargePricingUnitShortName}
           >
-            <RadioGroupField
-              name={`charges.${index}.payInAdvance`}
-              label={translate('text_6682c52081acea90520743a8')}
-              description={chargePayInAdvanceDescription}
-              formikProps={formikProps}
+            <ChargePayInAdvanceOption
+              billableMetricAggregationType={localCharge.billableMetric.aggregationType}
+              chargeModel={localCharge.chargeModel}
               disabled={isInSubscriptionForm || disabled}
-              optionLabelVariant="body"
-              options={[
-                {
-                  label: translate('text_6682c52081acea90520743ac'),
-                  value: false,
-                },
-                {
-                  label: translate('text_6682c52081acea90520744c8'),
-                  value: true,
-                  disabled: isPayInAdvanceOptionDisabled,
-                },
-              ]}
+              isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
+              payInAdvance={localCharge.payInAdvance || false}
+              handleUpdate={({ invoiceable, payInAdvance, regroupPaidFees }) => {
+                const objectToUpdate = {
+                  ...localCharge,
+                  ...(invoiceable ? { invoiceable } : {}),
+                  ...(regroupPaidFees === null ? { regroupPaidFees: null } : {}),
+                  payInAdvance,
+                }
+
+                formikProps.setFieldValue(`charges.${index}`, objectToUpdate)
+              }}
             />
 
             {localCharge.payInAdvance && (
