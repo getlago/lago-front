@@ -7,10 +7,10 @@ import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { RadioGroupField, Switch } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
-import { ChargeBillingRadioGroup } from '~/components/plans/chargeAccordion/ChargeBillingRadioGroup'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
 import { EditInvoiceDisplayNameButton } from '~/components/plans/chargeAccordion/EditInvoiceDisplayNameButton'
+import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { RemoveChargeButton } from '~/components/plans/chargeAccordion/RemoveChargeButton'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import {
@@ -51,8 +51,8 @@ import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './chargeAccordion/ChargeFilter'
-import { ChargeOptionsAccordion } from './chargeAccordion/ChargeOptionsAccordion'
 import { ChargeWrapperSwitch } from './chargeAccordion/ChargeWrapperSwitch'
+import { ChargeOptionsAccordion } from './chargeAccordion/options/ChargeOptionsAccordion'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
 
@@ -644,7 +644,7 @@ export const UsageChargeAccordion = memo(
             />
 
             {localCharge.payInAdvance && (
-              <ChargeBillingRadioGroup
+              <ChargeInvoicingStrategyOption
                 localCharge={localCharge}
                 disabled={isInSubscriptionForm || disabled}
                 openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
