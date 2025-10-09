@@ -34,7 +34,7 @@
     "translations:inspect": "node scripts/translations/inspect",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
     "codemod": "node scripts/codemod.js",
-    "bundle-analyzer": "vite-bundle-visualizer --sourcemap"
+    "bundle-analyzer": "pnpx vite-bundle-analyzer"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.26.9",
@@ -99,7 +99,6 @@
     "typescript": "5.8.3",
     "typescript-eslint": "^8.39.0",
     "vite": "^6.3.6",
-    "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-svgr": "^4.3.0",
     "vite-plugin-top-level-await": "^1.4.4",
