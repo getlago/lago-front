@@ -146,6 +146,14 @@
   "engines": {
     "node": ">=20"
   },
+  "browserslist": [
+    "> 1%",
+    "last 3 versions",
+    "Firefox ESR",
+    "not dead",
+    "not ie 11",
+    "not op_mini all"
+  ],
   "pnpm": {
     "overrides": {
       "@babel/helpers": "7.26.10",
