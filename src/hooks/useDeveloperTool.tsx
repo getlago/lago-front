@@ -80,6 +80,8 @@ export function useDeveloperTool(): DeveloperToolContextType {
   useEffect(() => {
     // On mounted, check the params from the URL
     checkParamsFromUrl()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Throw an error if the hook is used outside of the provider

@@ -109,7 +109,11 @@ const MainNavLayout = () => {
   } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const { data, loading, error } = useSideNavInfosQuery()
-  const { openPanel: openInspector } = useDeveloperTool()
+  const {
+    openPanel: openInspector,
+    closePanel: closeInspector,
+    panelOpen: isInspectorOpen,
+  } = useDeveloperTool()
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
@@ -235,6 +239,7 @@ const MainNavLayout = () => {
                               endIcon={accessibleByCurrentSession ? undefined : 'lock'}
                               onClick={async () => {
                                 await switchCurrentOrganization(client, id)
+                                isInspectorOpen && closeInspector()
                                 navigate(HOME_ROUTE)
                                 await Promise.all([
                                   refetchOrganizationInfos(),
