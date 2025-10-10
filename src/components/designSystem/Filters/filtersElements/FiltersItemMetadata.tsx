@@ -90,7 +90,7 @@ export const FiltersItemMetadata = ({ value = '', setFilterValue }: FiltersItemM
             },
           ])
         }
-        data-test="add-fixed-fee"
+        data-test="add-metadata-button"
       >
         {translate('text_63fcc3218d35b9377840f5bb')}
       </Button>
