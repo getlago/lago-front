@@ -52,6 +52,7 @@ gql`
       name
       code
     }
+    einvoicing
   }
 
   query getBillingEntities {
