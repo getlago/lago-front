@@ -61,6 +61,7 @@ gql`
     $customerType: CustomerTypeEnum
     $hasTaxIdentificationNumber: Boolean
     $hasCustomerType: Boolean
+    $metadata: [CustomerMetadataFilter!]
   ) {
     customers(
       page: $page
@@ -77,6 +78,7 @@ gql`
       customerType: $customerType
       hasTaxIdentificationNumber: $hasTaxIdentificationNumber
       hasCustomerType: $hasCustomerType
+      metadata: $metadata
     ) {
       metadata {
         currentPage

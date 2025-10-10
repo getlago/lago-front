@@ -67,6 +67,7 @@ export enum AvailableFiltersEnum {
   invoiceType = 'invoiceType',
   issuingDate = 'issuingDate',
   loggedDate = 'loggedDate',
+  metadata = 'metadata',
   overriden = 'overriden',
   partiallyPaid = 'partiallyPaid',
   paymentDisputeLost = 'paymentDisputeLost',
@@ -139,6 +140,7 @@ export const CustomerAvailableFilters = [
   AvailableFiltersEnum.zipcodes,
   AvailableFiltersEnum.isCustomerTinEmpty,
   AvailableFiltersEnum.hasCustomerType,
+  AvailableFiltersEnum.metadata,
 ]
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]
@@ -280,6 +282,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.invoiceType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.issuingDate]: 'text_6419c64eace749372fc72b39',
   [AvailableFiltersEnum.loggedDate]: 'text_1747666154074cdsfaq5c4bz',
+  [AvailableFiltersEnum.metadata]: 'text_63fcc3218d35b9377840f59b',
   [AvailableFiltersEnum.overriden]: 'text_65281f686a80b400c8e2f6dd',
   [AvailableFiltersEnum.partiallyPaid]: 'text_1738071221799vib0l2z1bxe',
   [AvailableFiltersEnum.paymentDisputeLost]: 'text_66141e30699a0631f0b2ed32',

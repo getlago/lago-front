@@ -26,6 +26,7 @@ import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filter
 import { FiltersItemIsCustomerTinEmpty } from '~/components/designSystem/Filters/filtersElements/FiltersItemIsCustomerTinEmpty'
 import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
 import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
+import { FiltersItemMetadata } from '~/components/designSystem/Filters/filtersElements/FiltersItemMetadata'
 import { FiltersItemOverridden } from '~/components/designSystem/Filters/filtersElements/FiltersItemOverridden'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
 import { FiltersItemPaymentDisputeLost } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentDisputeLost'
@@ -93,6 +94,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
     [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,
     [AvailableFiltersEnum.loggedDate]: <FiltersItemLoggedDate {...props} />,
+    [AvailableFiltersEnum.metadata]: <FiltersItemMetadata {...props} />,
     [AvailableFiltersEnum.overriden]: <FiltersItemOverridden {...props} />,
     [AvailableFiltersEnum.partiallyPaid]: <FiltersItemPartiallyPaid {...props} />,
     [AvailableFiltersEnum.paymentDisputeLost]: <FiltersItemPaymentDisputeLost {...props} />,
@@ -121,9 +123,15 @@ export const FiltersPanelItemTypeSwitch = ({
           {translate('text_66ab42d4ece7e6b7078993e2')}
         </Typography>
       ) : (
-        <Typography variant="body" color="grey700">
-          {translate('text_66ab42d4ece7e6b7078993d0')}
-        </Typography>
+        /**
+         * Filter metadata is more complex with multiple key/value pairs, so we don't show this text
+         * for that specific filter type
+         */
+        filterType !== 'metadata' && (
+          <Typography variant="body" color="grey700">
+            {translate('text_66ab42d4ece7e6b7078993d0')}
+          </Typography>
+        )
       )}
 
       {filterTypeMap[filterType]}

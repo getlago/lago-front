@@ -11738,6 +11738,7 @@ export type CustomersQueryVariables = Exact<{
   customerType?: InputMaybe<CustomerTypeEnum>;
   hasTaxIdentificationNumber?: InputMaybe<Scalars['Boolean']['input']>;
   hasCustomerType?: InputMaybe<Scalars['Boolean']['input']>;
+  metadata?: InputMaybe<Array<CustomerMetadataFilter> | CustomerMetadataFilter>;
 }>;
 
 
@@ -31829,7 +31830,7 @@ export type CreatePaymentRequestMutationHookResult = ReturnType<typeof useCreate
 export type CreatePaymentRequestMutationResult = Apollo.MutationResult<CreatePaymentRequestMutation>;
 export type CreatePaymentRequestMutationOptions = Apollo.BaseMutationOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
 export const CustomersDocument = gql`
-    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!], $activeSubscriptionsCountFrom: Int, $activeSubscriptionsCountTo: Int, $countries: [CountryCode!], $zipcodes: [String!], $states: [String!], $currencies: [CurrencyEnum!], $customerType: CustomerTypeEnum, $hasTaxIdentificationNumber: Boolean, $hasCustomerType: Boolean) {
+    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!], $activeSubscriptionsCountFrom: Int, $activeSubscriptionsCountTo: Int, $countries: [CountryCode!], $zipcodes: [String!], $states: [String!], $currencies: [CurrencyEnum!], $customerType: CustomerTypeEnum, $hasTaxIdentificationNumber: Boolean, $hasCustomerType: Boolean, $metadata: [CustomerMetadataFilter!]) {
   customers(
     page: $page
     limit: $limit
@@ -31845,6 +31846,7 @@ export const CustomersDocument = gql`
     customerType: $customerType
     hasTaxIdentificationNumber: $hasTaxIdentificationNumber
     hasCustomerType: $hasCustomerType
+    metadata: $metadata
   ) {
     metadata {
       currentPage
@@ -31883,6 +31885,7 @@ export const CustomersDocument = gql`
  *      customerType: // value for 'customerType'
  *      hasTaxIdentificationNumber: // value for 'hasTaxIdentificationNumber'
  *      hasCustomerType: // value for 'hasCustomerType'
+ *      metadata: // value for 'metadata'
  *   },
  * });
  */

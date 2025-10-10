@@ -103,6 +103,22 @@ export const parseFromToValue = (value: string, keys: { from: string; to: string
   }
 }
 
+export const METADATA_SPLITTER = '&'
+
+export const parseMetadataFilter = (value: string) => {
+  return value.split(METADATA_SPLITTER).map((metadata) => {
+    const [key, val] = metadata.split('=')
+
+    return { key, value: val || undefined }
+  })
+}
+
+export const formatMetadataFilter = (metadata: { key: string; value?: string }[]) => {
+  return metadata
+    .map((item) => (item.value ? `${item.key}=${item.value}` : `${item.key}=`))
+    .join(METADATA_SPLITTER)
+}
+
 export const FiltersItemDates = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.issuingDate,
@@ -157,6 +173,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       toDate: (value as string).split(',')[1] || undefined,
     }
   },
+  [AvailableFiltersEnum.metadata]: (value: string) => parseMetadataFilter(value),
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
