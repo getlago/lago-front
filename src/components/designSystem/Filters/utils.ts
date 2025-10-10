@@ -106,6 +106,10 @@ export const parseFromToValue = (value: string, keys: { from: string; to: string
 export const METADATA_SPLITTER = '&'
 
 export const parseMetadataFilter = (value: string) => {
+  if (!value) {
+    return []
+  }
+
   return value.split(METADATA_SPLITTER).map((metadata) => {
     const [key, val] = metadata.split('=')
 
