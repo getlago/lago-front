@@ -149,6 +149,9 @@ export const MultipleComboBox = ({
         }
 
         return tagValues.map((option, index) => {
+          // Happens when `freeSolo` is true and user types a value that is not in the list and press enter
+          const optionToDisplay =
+            typeof option === 'string' ? { value: option, label: option } : option
           const tagOptions = getTagProps({ index })
 
           return (
@@ -156,7 +159,7 @@ export const MultipleComboBox = ({
               {...tagOptions}
               className="my-2 ml-2 mr-0"
               key={tagOptions.key}
-              label={option.label ?? option.value}
+              label={optionToDisplay.label ?? optionToDisplay.value}
             />
           )
         })
