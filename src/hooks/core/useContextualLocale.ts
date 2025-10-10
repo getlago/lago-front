@@ -11,21 +11,28 @@ import {
 
 const { appEnv } = envGlobalVar()
 
+// Simple module-level cache for contextual translations
+const contextualTranslationCache = new Map<Locale, Translation>()
+
 type UseContextualLocale = (locale: Locale) => {
   translateWithContextualLocal: (key: string, data?: TranslateData, plural?: number) => string
 }
 
 export const useContextualLocale: UseContextualLocale = (locale) => {
-  const [translations, setTranslations] = useState<Translation>()
+  const [translations, setTranslations] = useState<Translation | undefined>(() =>
+    contextualTranslationCache.get(locale),
+  )
 
   useEffect(() => {
-    const updateTranslations = async () => {
-      const contextualTranslations = await getTranslations(locale)
-
-      setTranslations(contextualTranslations)
+    if (contextualTranslationCache.has(locale)) {
+      setTranslations(contextualTranslationCache.get(locale))
+      return
     }
 
-    updateTranslations()
+    getTranslations(locale).then((loadedTranslations) => {
+      contextualTranslationCache.set(locale, loadedTranslations)
+      setTranslations(loadedTranslations)
+    })
   }, [locale])
 
   return {
