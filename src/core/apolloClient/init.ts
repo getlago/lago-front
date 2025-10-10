@@ -1,9 +1,12 @@
-import { ApolloClient, ApolloLink } from '@apollo/client'
+import { ApolloClient, ApolloLink, Operation, split } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
+import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException } from '@sentry/react'
+import ActionCable from 'actioncable'
 import { LocalForageWrapper, persistCache } from 'apollo3-cache-persist'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
+import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
 import localForage from 'localforage'
 
 // IMPORTANT: Keep reactiveVars import before cacheUtils
@@ -15,12 +18,12 @@ import {
   TMP_AUTH_TOKEN_LS_KEY,
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
+import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
 import { getItemFromLS, omitDeep } from './cacheUtils'
-import { LagoGQLError } from './errorUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
 const AUTH_ERRORS = [
@@ -31,6 +34,19 @@ const AUTH_ERRORS = [
 
 const TIMEOUT = 300000 // 5 minutes timeout
 const { apiUrl, appVersion } = envGlobalVar()
+
+const { cableUrl } = buildWebSocketUrl(apiUrl)
+const subscriptionLink = new ActionCableLink({
+  cable: ActionCable.createConsumer(cableUrl),
+  channelName: 'GraphqlChannel',
+  actionName: 'execute',
+})
+
+const hasSubscriptionOperation = ({ query }: Operation) => {
+  const definition = getMainDefinition(query)
+
+  return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
+}
 
 // Callback for handling auth errors - will be set by the App component
 let onAuthError: (() => void) | null = null
@@ -96,9 +112,9 @@ export const initializeApolloClient = async () => {
 
     if (graphQLErrors) {
       graphQLErrors.forEach((value) => {
-        const { message, path, locations, extensions } = value as LagoGQLError
+        const { message, path, locations, extensions } = value
 
-        const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code)
+        const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code as LagoApiError)
 
         if (isUnauthorized && onAuthError) {
           onAuthError()
@@ -144,7 +160,9 @@ export const initializeApolloClient = async () => {
 
   const httpLink = createUploadLink({
     uri: `${apiUrl}/graphql`,
-  }) as unknown as ApolloLink
+  })
+
+  const splitLink = split(hasSubscriptionOperation, subscriptionLink, httpLink)
 
   await persistCache({
     cache,
@@ -158,7 +176,7 @@ export const initializeApolloClient = async () => {
     cleanupLink,
     timeoutLink,
     errorLink,
-    httpLink,
+    splitLink,
   ])
 
   const client = new ApolloClient({
