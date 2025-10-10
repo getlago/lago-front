@@ -144,6 +144,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             minAmountCents: 10003,
+            payInAdvance: false,
             chargeModel: 'graduated',
             appliedPricingUnit: undefined,
             filters: [],
@@ -230,6 +231,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             minAmountCents: 10003,
+            payInAdvance: false,
             chargeModel: 'graduated_percentage',
             appliedPricingUnit: undefined,
             filters: [],
@@ -319,6 +321,7 @@ describe('serializePlanInput()', () => {
             appliedPricingUnit: undefined,
             filters: [],
             minAmountCents: undefined,
+            payInAdvance: false,
             properties: {
               amount: '1',
               fixedAmount: '2',
@@ -392,6 +395,7 @@ describe('serializePlanInput()', () => {
             chargeModel: 'percentage',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
+            payInAdvance: false,
             filters: [],
             properties: {
               amount: undefined,
@@ -466,6 +470,7 @@ describe('serializePlanInput()', () => {
             chargeModel: 'standard',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
+            payInAdvance: false,
             filters: [],
             properties: {
               amount: '1',
@@ -538,6 +543,7 @@ describe('serializePlanInput()', () => {
             chargeModel: 'standard',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
+            payInAdvance: false,
             filters: [],
             properties: {
               amount: undefined,
@@ -634,6 +640,7 @@ describe('serializePlanInput()', () => {
             chargeModel: 'standard',
             minAmountCents: undefined,
             appliedPricingUnit: undefined,
+            payInAdvance: false,
             properties: {
               amount: undefined,
               freeUnits: undefined,
@@ -743,6 +750,7 @@ describe('serializePlanInput()', () => {
             chargeModel: 'volume',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
+            payInAdvance: false,
             filters: [],
             properties: {
               amount: '1',
@@ -828,6 +836,7 @@ describe('serializePlanInput()', () => {
             chargeModel: 'custom',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
+            payInAdvance: false,
             filters: [],
             properties: {
               amount: '1',
@@ -973,6 +982,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'standard',
             minAmountCents: undefined,
+            payInAdvance: false,
             filters: [],
             properties: {
               amount: undefined,
@@ -1051,6 +1061,7 @@ describe('serializePlanInput()', () => {
             chargeModel: 'standard',
             minAmountCents: undefined,
             appliedPricingUnit: undefined,
+            payInAdvance: false,
             filters: [],
             properties: {
               amount: undefined,
@@ -1142,6 +1153,150 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         trialPeriod: 1,
         usageThresholds: [],
+      })
+    })
+  })
+
+  describe('a plan with minimum commitment', () => {
+    it('contains minAmountCents if defined on a charge in arrears', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            minAmountCents: 100,
+            payInAdvance: false,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            properties: {},
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
+        entitlements: [],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'standard',
+            minAmountCents: 10000,
+            appliedPricingUnit: undefined,
+            payInAdvance: false,
+            filters: [],
+            properties: {
+              amount: undefined,
+              freeUnits: undefined,
+              graduatedRanges: undefined,
+              pricingGroupKeys: undefined,
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              volumeRanges: undefined,
+              customProperties: undefined,
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        usageThresholds: [],
+        entitlements: [],
+      })
+    })
+
+    it('does not contain minAmountCents if defined on a charge in advance', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            minAmountCents: 100,
+            payInAdvance: true,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            properties: {},
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
+        entitlements: [],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'standard',
+            minAmountCents: undefined,
+            appliedPricingUnit: undefined,
+            payInAdvance: true,
+            filters: [],
+            properties: {
+              amount: undefined,
+              freeUnits: undefined,
+              graduatedRanges: undefined,
+              pricingGroupKeys: undefined,
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              volumeRanges: undefined,
+              customProperties: undefined,
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        usageThresholds: [],
+        entitlements: [],
       })
     })
   })

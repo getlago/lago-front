@@ -196,6 +196,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
         taxes: chargeTaxes,
         filters,
         appliedPricingUnit,
+        payInAdvance,
         ...charge
       }) => {
         return {
@@ -208,9 +209,11 @@ export const serializePlanInput = (values: PlanFormInput) => {
                   code: appliedPricingUnit?.code,
                   conversionRate: Number(appliedPricingUnit?.conversionRate),
                 },
-          minAmountCents: !!minAmountCents
-            ? Number(serializeAmount(minAmountCents, values.amountCurrency) || 0)
-            : undefined,
+          minAmountCents:
+            !!minAmountCents && !payInAdvance
+              ? Number(serializeAmount(minAmountCents, values.amountCurrency) || 0)
+              : undefined,
+          payInAdvance: payInAdvance || false,
           taxCodes: chargeTaxes?.map(({ code }) => code) || [],
           filters: serializeFilters(filters, chargeModel),
           properties: properties

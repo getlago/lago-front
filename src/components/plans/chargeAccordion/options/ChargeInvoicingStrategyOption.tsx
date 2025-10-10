@@ -8,7 +8,7 @@ import { RegroupPaidFeesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
-interface ChargeBillingRadioGroupProps {
+interface ChargeInvoicingStrategyOptionProps {
   localCharge: LocalChargeInput
   disabled?: boolean
   openPremiumDialog: VoidFunction
@@ -23,7 +23,7 @@ interface ChargeBillingRadioGroupProps {
 
 type ChargeBillingRadioValue = 'invoiceable' | 'regroupPaidFees' | 'none'
 
-export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
+export const ChargeInvoicingStrategyOption: FC<ChargeInvoicingStrategyOptionProps> = ({
   localCharge,
   disabled,
   openPremiumDialog,
