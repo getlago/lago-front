@@ -141,7 +141,7 @@
     "remark-gfm": "^4.0.1",
     "sanitize-html": "2.12.1",
     "shiki": "^3.12.2",
-    "yup": "1.2.0"
+    "yup": "1.7.1"
   },
   "engines": {
     "node": ">=20"
