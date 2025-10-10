@@ -13,6 +13,7 @@ import {
   CUSTOMER_PORTAL_TOKEN_LS_KEY,
   envGlobalVar,
   TMP_AUTH_TOKEN_LS_KEY,
+  updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { LagoApiError } from '~/generated/graphql'
@@ -55,6 +56,27 @@ export const initializeApolloClient = async () => {
     })
 
     return forward(operation)
+  })
+
+  // Response interceptor to catch new tokens from backend if a new one is given
+  const tokenRefreshLink = new ApolloLink((operation, forward) => {
+    return forward(operation).map((response) => {
+      const { response: httpResponse } = operation.getContext()
+
+      if (!!httpResponse?.headers) {
+        const newToken = httpResponse.headers.get('X-Lago-Token')
+
+        if (newToken) {
+          const currentToken = getItemFromLS(AUTH_TOKEN_LS_KEY)
+
+          if (newToken && newToken !== currentToken) {
+            updateAuthTokenVar(newToken)
+          }
+        }
+      }
+
+      return response
+    })
   })
 
   const cleanupLink = new ApolloLink((operation, forward) => {
@@ -130,7 +152,14 @@ export const initializeApolloClient = async () => {
     key: `apollo-cache-persist-lago-${appVersion}`,
   })
 
-  const link = ApolloLink.from([authLink, cleanupLink, timeoutLink, errorLink, httpLink])
+  const link = ApolloLink.from([
+    authLink,
+    tokenRefreshLink,
+    cleanupLink,
+    timeoutLink,
+    errorLink,
+    httpLink,
+  ])
 
   const client = new ApolloClient({
     cache,
