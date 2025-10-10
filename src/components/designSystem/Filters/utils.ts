@@ -113,11 +113,11 @@ export const parseMetadataFilter = (value: string) => {
   return value.split(METADATA_SPLITTER).map((metadata) => {
     const [key, val] = metadata.split('=')
 
-    return { key, value: val || undefined }
+    return { key, value: val || '' }
   })
 }
 
-export const formatMetadataFilter = (metadata: { key: string; value?: string }[]) => {
+export const formatMetadataFilter = (metadata: { key: string; value: string }[]) => {
   return metadata
     .map((item) => (item.value ? `${item.key}=${item.value}` : `${item.key}=`))
     .join(METADATA_SPLITTER)
@@ -328,7 +328,7 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
   }
 
   // isCustomerTinEmpty is used in analytics filter but is basically the opposite of hasTaxIdentificationNumber used in customer list query
-  if (formatted.isCustomerTinEmpty !== undefined) {
+  if (typeof formatted.isCustomerTinEmpty === 'boolean') {
     formatted.hasTaxIdentificationNumber = !formatted.isCustomerTinEmpty
     delete formatted.isCustomerTinEmpty
   }

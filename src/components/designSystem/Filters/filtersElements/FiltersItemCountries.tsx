@@ -3,7 +3,7 @@ import { CountryCodes } from '~/core/constants/countryCodes'
 import { CountryCode } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemCountriesProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -29,7 +29,7 @@ export const FiltersItemCountries = ({ value, setFilterValue }: FiltersItemCount
         ?.split(',')
         .filter((v) => !!v)
         .map((v) => ({
-          label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          label: v,
           value: v,
         }))}
     />

@@ -1,6 +1,7 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
+import { tw } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { array, lazy, object, string } from 'yup'
 
@@ -48,12 +49,33 @@ export const FiltersPanelPopper = () => {
         return array().of(
           object().shape({
             filterType: string().required(''),
-            value: string().when('filterType', {
-              is: (filterType: AvailableFiltersEnum) =>
-                !!filterType && FiltersItemDates.includes(filterType),
-              then: (schema) => schema.matches(/\w+,\w+/, '').required(''),
-              otherwise: (schema) => schema.required(''),
-            }),
+            value: string()
+              .when('filterType', {
+                is: (filterType: AvailableFiltersEnum) =>
+                  !!filterType &&
+                  FiltersItemDates.includes(filterType) &&
+                  filterType !== AvailableFiltersEnum.metadata,
+                then: (schema) => schema.matches(/\w+,\w+/, '').required(''),
+                otherwise: (schema) => schema.required(''),
+              })
+              .when('filterType', {
+                is: (filterType: AvailableFiltersEnum) =>
+                  filterType === AvailableFiltersEnum.metadata,
+                then: (schema) =>
+                  schema.test({
+                    name: 'metadata-format',
+                    message: '',
+                    test: (v) => {
+                      if (!v) {
+                        return false
+                      }
+
+                      const [a, b] = v.split('=')
+
+                      return !!a && !!b
+                    },
+                  }),
+              }),
           }),
         )
       }),
@@ -146,7 +168,13 @@ export const FiltersPanelPopper = () => {
                   // Metadata behaves differently, needs more space and is designed as a whole block on its own
                 }
                 <div
-                  className={`flex flex-col justify-start gap-2 lg:flex-1 lg:flex-row lg:gap-3 lg:[&>div:first-child]:w-[200px] lg:[&>div:last-child]:flex-1 ${filter.filterType === 'metadata' ? 'rounded-xl border border-grey-300 p-3' : 'lg:items-center'}`}
+                  className={tw(
+                    'flex flex-col justify-start gap-2 lg:flex-1 lg:flex-row lg:gap-3 lg:[&>div:first-child]:w-[200px] lg:[&>div:last-child]:flex-1',
+                    {
+                      'rounded-xl border border-grey-300 p-3': filter.filterType === 'metadata',
+                      'lg:items-center': filter.filterType !== 'metadata',
+                    },
+                  )}
                 >
                   <ComboBox
                     PopperProps={{

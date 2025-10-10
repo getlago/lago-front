@@ -763,7 +763,7 @@ describe('Filters utils', () => {
       const expected = [
         {
           key: 'metadata',
-          value: undefined,
+          value: '',
         },
       ]
 
@@ -818,7 +818,7 @@ describe('Filters utils', () => {
       const value = [
         {
           key: 'metadata',
-          value: undefined,
+          value: '',
         },
       ]
 

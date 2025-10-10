@@ -1,7 +1,7 @@
 import { MultipleComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemStatesProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -22,11 +22,8 @@ export const FiltersItemStates = ({ value, setFilterValue }: FiltersItemStatesPr
       value={value
         ?.split(',')
         .filter((v) => !!v)
-        .map((v) => ({
-          label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
-          value: v,
-        }))}
-      freeSolo={true}
+        .map((v) => ({ value: v, label: v }))}
+      freeSolo
     />
   )
 }

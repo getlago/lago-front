@@ -67,6 +67,7 @@ export const FiltersItemMetadata = ({ value = '', setFilterValue }: FiltersItemM
             icon="trash"
             variant="quaternary"
             size="small"
+            disabled={i === 0 && formikProps.values.metadata.length === 1}
             onClick={() =>
               formikProps.setFieldValue(
                 'metadata',
