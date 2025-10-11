@@ -137,7 +137,7 @@
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.9",
     "react-router-dom": "6.15.0",
-    "recharts": "^2.15.1",
+    "recharts": "^2.15.2",
     "remark-gfm": "^4.0.1",
     "sanitize-html": "2.12.1",
     "shiki": "^3.12.2",
