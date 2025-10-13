@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { Icon } from 'lago-design-system'
+import { Icon, Popper } from 'lago-design-system'
 import { memo, useRef } from 'react'
 import { generatePath, Link, LinkProps, useParams } from 'react-router-dom'
 
@@ -63,6 +63,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { SectionHeader } from '~/styles/customer'
+import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import { tw } from '~/styles/utils'
 
 const { disablePdfGeneration, appEnv } = envGlobalVar()
@@ -81,6 +82,7 @@ gql`
     externalHubspotIntegrationId
     integrationSalesforceSyncable
     externalSalesforceIntegrationId
+    xmlUrl
     fees {
       id
       addOn {
@@ -116,6 +118,7 @@ gql`
     billingEntity {
       name
       code
+      einvoicing
     }
   }
 
@@ -425,6 +428,22 @@ const InvoiceOverview = memo(
 
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
 
+    const downloadXmlFile = async (id?: string, xmlUrl?: string | null) => {
+      if (!xmlUrl) return
+
+      const response = await fetch(xmlUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+
+      link.href = url
+      link.setAttribute('download', `invoice_${id}.xml`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    }
+
     return (
       <>
         <SectionHeader variant="subhead1">
@@ -468,9 +487,50 @@ const InvoiceOverview = memo(
               !hasTaxProviderError &&
               !hasError &&
               !loading &&
-              !disablePdfGeneration && (
+              !disablePdfGeneration &&
+              (invoice.billingEntity.einvoicing && invoice.xmlUrl ? (
+                <Popper
+                  PopperProps={{ placement: 'bottom-end' }}
+                  opener={
+                    <Button
+                      variant="inline"
+                      endIcon="chevron-down"
+                      data-test="coupon-details-actions"
+                    >
+                      {translate('text_634687079be251fdb43833b9')}
+                    </Button>
+                  }
+                >
+                  {({ closePopper }) => (
+                    <MenuPopper>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        onClick={async () => {
+                          await downloadInvoice({
+                            variables: { input: { id: invoiceId || '' } },
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1760358170490a3z3ocq0hyj')}
+                      </Button>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        onClick={async () => {
+                          await downloadXmlFile(invoice?.id, invoice?.xmlUrl)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_17603581704907ndpljkjzhg')}
+                      </Button>
+                    </MenuPopper>
+                  )}
+                </Popper>
+              ) : (
                 <Button
-                  variant="quaternary"
+                  variant="inline"
                   disabled={loadingInvoiceDownload || isTaxStatusPending}
                   onClick={async () => {
                     await downloadInvoice({
@@ -480,7 +540,7 @@ const InvoiceOverview = memo(
                 >
                   {translate('text_634687079be251fdb43833b9')}
                 </Button>
-              )}
+              ))}
           </div>
         </SectionHeader>
         <>
