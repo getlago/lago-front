@@ -32,7 +32,6 @@
     "test:e2e": "cypress open --config-file cypress/cypress.config.js",
     "translations:add": "node scripts/translations/add",
     "translations:inspect": "node scripts/translations/inspect",
-    "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
     "codemod": "node scripts/codemod.js",
     "bundle-analyzer": "vite-bundle-visualizer --sourcemap"
   },
@@ -69,7 +68,6 @@
     "@types/react-router-dom": "5.3.3",
     "@types/sanitize-html": "2.9.5",
     "@vitejs/plugin-react-swc": "^3.7.2",
-    "auto-changelog": "2.4.0",
     "autoprefixer": "^10.4.19",
     "babel-jest": "^29.7.0",
     "class-variance-authority": "^0.7.0",
