@@ -303,7 +303,6 @@ export type AiConversation = {
   __typename?: 'AiConversation';
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
-  messages?: Maybe<Array<AiConversationMessage>>;
   mistralConversationId?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   organization: Organization;
@@ -324,6 +323,15 @@ export type AiConversationMessage = {
   content: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   type: Scalars['String']['output'];
+};
+
+/** AiConversationMessageCollection type */
+export type AiConversationMessageCollection = {
+  __typename?: 'AiConversationMessageCollection';
+  /** A collection of paginated AiConversationMessageCollection */
+  collection: Array<AiConversationMessage>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
 };
 
 export type AiConversationStream = {
@@ -6266,11 +6274,7 @@ export type Query = {
   /** Query add-ons of an organization */
   addOns: AddOnCollection;
   /** Query a single ai conversation of an organization */
-<<<<<<< HEAD
   aiConversation?: Maybe<AiConversationWithMessages>;
-=======
-  aiConversation?: Maybe<AiConversation>;
->>>>>>> de7382f3 (feat: create ai panel)
   /** Query the latest AI conversations of current organization */
   aiConversations?: Maybe<AiConversationCollection>;
   /** Query a single alert */
@@ -8948,7 +8952,7 @@ export type GetAiConversationQueryVariables = Exact<{
 }>;
 
 
-export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversation', id: string, name: string, messages?: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }> | null } | null };
+export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, messages: { __typename?: 'AiConversationMessageCollection', collection: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }> } } | null };
 
 export type ListAiConversationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -18122,11 +18126,13 @@ export const GetAiConversationDocument = gql`
     query getAiConversation($id: ID!) {
   aiConversation(id: $id) {
     id
-    messages {
-      content
-      type
-    }
     name
+    messages {
+      collection {
+        content
+        type
+      }
+    }
   }
 }
     `;
