@@ -4,12 +4,11 @@ import { TransitionProps } from '@mui/material/transitions'
 import { ReactNode, useState } from 'react'
 
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { LocalChargeInput } from '~/components/plans/types'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, RegroupPaidFeesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
-
-import { LocalChargeInput } from '../types'
 
 gql`
   fragment ChargeForChargeOptionsAccordion on Charge {
