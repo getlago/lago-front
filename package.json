@@ -131,11 +131,11 @@
     "react": "18.2.0",
     "react-ace": "^11.0.1",
     "react-dom": "18.2.0",
-    "react-markdown": "^10.1.0",
+    "react-markdown": "10.1.0",
     "react-resizable-panels": "^2.1.9",
     "react-router-dom": "6.15.0",
     "recharts": "^2.15.2",
-    "remark-gfm": "^4.0.1",
+    "remark-gfm": "4.0.1",
     "sanitize-html": "2.12.1",
     "shiki": "^3.12.2",
     "yup": "1.7.1"
