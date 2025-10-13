@@ -1,11 +1,12 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
+import { tw } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { array, lazy, object, string } from 'yup'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
-import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
+import { FiltersItemDates, METADATA_SPLITTER } from '~/components/designSystem/Filters/utils'
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -48,12 +49,45 @@ export const FiltersPanelPopper = () => {
         return array().of(
           object().shape({
             filterType: string().required(''),
-            value: string().when('filterType', {
-              is: (filterType: AvailableFiltersEnum) =>
-                !!filterType && FiltersItemDates.includes(filterType),
-              then: (schema) => schema.matches(/\w+,\w+/, '').required(''),
-              otherwise: (schema) => schema.required(''),
-            }),
+            value: string()
+              .when('filterType', {
+                is: (filterType: AvailableFiltersEnum) =>
+                  !!filterType &&
+                  FiltersItemDates.includes(filterType) &&
+                  filterType !== AvailableFiltersEnum.metadata,
+                then: (schema) => schema.matches(/\w+,\w+/, '').required(''),
+                otherwise: (schema) => schema.required(''),
+              })
+              .when('filterType', {
+                is: (filterType: AvailableFiltersEnum) =>
+                  filterType === AvailableFiltersEnum.metadata,
+                then: (schema) =>
+                  schema.test({
+                    name: 'metadata-format',
+                    message: '',
+                    test: (v) => {
+                      if (!v) {
+                        return false
+                      }
+
+                      const metadatas = v.split(METADATA_SPLITTER)
+
+                      if (metadatas.length > 5) {
+                        return false
+                      }
+
+                      if (metadatas.some((m) => !m.includes('='))) {
+                        return false
+                      }
+
+                      return metadatas.every((m) => {
+                        const [a, b] = m.split('=')
+
+                        return !!a && !!b
+                      })
+                    },
+                  }),
+              }),
           }),
         )
       }),
@@ -119,9 +153,12 @@ export const FiltersPanelPopper = () => {
             {formikProps.values.filters.map((filter, filterIndex) => (
               <div
                 key={`filter-item-${filterIndex}`}
-                className="border-1 flex flex-col justify-start gap-4 rounded-xl border border-solid border-grey-300 p-4 lg:flex-1 lg:flex-row lg:items-center lg:border-none lg:p-0"
+                className="border-1 flex flex-col justify-start gap-4 rounded-xl border border-solid border-grey-300 p-4 lg:flex-1 lg:flex-row lg:border-none lg:p-0"
               >
-                <div className="lg:w-[49px]">
+                {
+                  // h = 48px to mimic the height of the ComboBox
+                }
+                <div className="flex lg:h-12 lg:w-[49px] lg:items-center">
                   <div className="block lg:hidden">
                     <Typography variant="bodyHl" color="grey700">
                       {`${translate('text_65e9c6d183491188fbbcf070')} ${filterIndex + 1}`}
@@ -139,7 +176,18 @@ export const FiltersPanelPopper = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col justify-start gap-2 lg:flex-1 lg:flex-row lg:items-center lg:gap-3 lg:[&>div:first-child]:w-[200px] lg:[&>div:last-child]:flex-1">
+                {
+                  // Metadata behaves differently, needs more space and is designed as a whole block on its own
+                }
+                <div
+                  className={tw(
+                    'flex flex-col justify-start gap-2 lg:flex-1 lg:flex-row lg:gap-3 lg:[&>div:first-child]:w-[200px] lg:[&>div:last-child]:flex-1',
+                    {
+                      'rounded-xl border border-grey-300 p-3': filter.filterType === 'metadata',
+                      'lg:items-center': filter.filterType !== 'metadata',
+                    },
+                  )}
+                >
                   <ComboBox
                     PopperProps={{
                       displayInDialog,

@@ -3468,5 +3468,14 @@
   "text_17594937101500zg231jc8bf": "credit note generation",
   "text_1759493418045b173t4qhktb": "Request access to {{feature}}",
   "text_1759493745332hiuejhksn15": "Hello, I would like to access your {{feature}} add-on. \nPlease let me know if you need more info!",
-  "text_175994876500346yy1p0qefd": "Contact Lago to delete this tax rate"
+  "text_175994876500346yy1p0qefd": "Contact Lago to delete this tax rate",
+  "text_17599097360429zjcfmkb9oi": "Countries",
+  "text_1759909828496nk6yvooqbb5": "States",
+  "text_1759909828496sof33smekse": "Zipcodes",
+  "text_1759909828496b1rzn43dtvt": "Currencies",
+  "text_1759932717174x6ajk3qawwl": "Customer has Type",
+  "text_1759933141735g1r551m8os0": "Search or select multiple countries",
+  "text_1759933204078u1tne7oow48": "Type one or multiple states",
+  "text_1759933204078h2854rr8kve": "Type one or multiple zipcodes",
+  "text_1759933204078d8saqn06pdf": "Search or select multiple currencies"
 }

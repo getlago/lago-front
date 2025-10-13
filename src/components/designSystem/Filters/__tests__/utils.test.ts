@@ -8,9 +8,11 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
   formatFiltersForRevenueStreamsQuery,
+  formatMetadataFilter,
   getFilterValue,
   keyWithPrefix,
   parseFromToValue,
+  parseMetadataFilter,
 } from '../utils'
 
 describe('Filters utils', () => {
@@ -723,6 +725,114 @@ describe('Filters utils', () => {
       // Since endOfCurrentDay.endOf('day') would be greater than current time (start of day),
       // it should use the current time instead
       expect(result.get(loggedDateKey)).toBe(`${fromDate},${startOfDayTimeString}`)
+    })
+  })
+
+  describe('parseMetadataFilter', () => {
+    it('should parse metadata filter correctly on a single pair', () => {
+      const expected = [
+        {
+          key: 'metadata',
+          value: 'value',
+        },
+      ]
+
+      const result = parseMetadataFilter('metadata=value')
+
+      expect(result).toEqual(expected)
+    })
+
+    it('should parse metadata filter correctly on a multi pair', () => {
+      const expected = [
+        {
+          key: 'metadata',
+          value: 'value',
+        },
+        {
+          key: 'anotherMetadata',
+          value: 'value',
+        },
+      ]
+
+      const result = parseMetadataFilter('metadata=value&anotherMetadata=value')
+
+      expect(result).toEqual(expected)
+    })
+
+    it('should parse metadata filter correctly even without value', () => {
+      const expected = [
+        {
+          key: 'metadata',
+          value: '',
+        },
+      ]
+
+      const result = parseMetadataFilter('metadata')
+
+      expect(result).toEqual(expected)
+    })
+
+    it('should parse metadata filter correctly on an empty string', () => {
+      const result = parseMetadataFilter('')
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('formatMetadataFilter', () => {
+    it('should format metadata filter correctly on a single pair', () => {
+      const value = [
+        {
+          key: 'metadata',
+          value: 'value',
+        },
+      ]
+
+      const expected = 'metadata=value'
+
+      const result = formatMetadataFilter(value)
+
+      expect(result).toEqual(expected)
+    })
+
+    it('should format metadata filter correctly on a multi pair', () => {
+      const value = [
+        {
+          key: 'metadata',
+          value: 'value',
+        },
+        {
+          key: 'anotherMetadata',
+          value: 'value',
+        },
+      ]
+
+      const expected = 'metadata=value&anotherMetadata=value'
+
+      const result = formatMetadataFilter(value)
+
+      expect(result).toEqual(expected)
+    })
+
+    it('should format metadata filter correctly even without value', () => {
+      const value = [
+        {
+          key: 'metadata',
+          value: '',
+        },
+      ]
+
+      const expected = 'metadata='
+
+      const result = formatMetadataFilter(value)
+
+      expect(result).toEqual(expected)
+    })
+
+    it('should format metadata filter correctly on an empty array', () => {
+      const result = formatMetadataFilter([])
+
+      expect(result).toEqual('')
     })
   })
 })

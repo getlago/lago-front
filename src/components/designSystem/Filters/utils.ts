@@ -103,6 +103,26 @@ export const parseFromToValue = (value: string, keys: { from: string; to: string
   }
 }
 
+export const METADATA_SPLITTER = '&'
+
+export const parseMetadataFilter = (value: string) => {
+  if (!value) {
+    return []
+  }
+
+  return value.split(METADATA_SPLITTER).map((metadata) => {
+    const [key, val] = metadata.split('=')
+
+    return { key, value: val || '' }
+  })
+}
+
+export const formatMetadataFilter = (metadata: { key: string; value: string }[]) => {
+  return metadata
+    .map((item) => (item.value ? `${item.key}=${item.value}` : `${item.key}=`))
+    .join(METADATA_SPLITTER)
+}
+
 export const FiltersItemDates = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.issuingDate,
@@ -123,10 +143,14 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
   [AvailableFiltersEnum.country]: (value: string) => value,
+  [AvailableFiltersEnum.countries]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.currency]: (value: string) => value,
+  [AvailableFiltersEnum.currencies]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.customerType]: (value: string) => value,
   [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
   [AvailableFiltersEnum.customerExternalId]: (value: string) =>
@@ -136,6 +160,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.date]: (value: string) => {
     return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
   },
+  [AvailableFiltersEnum.hasCustomerType]: (value: string) => value === 'true',
   [AvailableFiltersEnum.httpMethods]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.httpStatuses]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.invoiceNumber]: (value: string) => value,
@@ -152,6 +177,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       toDate: (value as string).split(',')[1] || undefined,
     }
   },
+  [AvailableFiltersEnum.metadata]: (value: string) => parseMetadataFilter(value),
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
@@ -162,6 +188,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.resourceIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.states]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
@@ -170,6 +198,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.zipcodes]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
 }
 
 // NOTE: this is fixing list fetching issue when new item are added to the DB and user scrolls to the bottom of the list
@@ -295,6 +325,12 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
   if (formatted.activeSubscriptionsTo !== undefined && formatted.activeSubscriptionsTo !== null) {
     formatted.activeSubscriptionsCountTo = formatted.activeSubscriptionsTo
     delete formatted.activeSubscriptionsTo
+  }
+
+  // isCustomerTinEmpty is used in analytics filter but is basically the opposite of hasTaxIdentificationNumber used in customer list query
+  if (typeof formatted.isCustomerTinEmpty === 'boolean') {
+    formatted.hasTaxIdentificationNumber = !formatted.isCustomerTinEmpty
+    delete formatted.isCustomerTinEmpty
   }
 
   return formatted
