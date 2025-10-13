@@ -11,11 +11,13 @@ gql`
   query getAiConversation($id: ID!) {
     aiConversation(id: $id) {
       id
-      messages {
-        content
-        type
-      }
       name
+      messages {
+        collection {
+          content
+          type
+        }
+      }
     }
   }
 
@@ -49,16 +51,18 @@ export const ChatHistory = () => {
     })
 
     if (singleConversationData?.aiConversation?.id) {
-      const formattedMessages = singleConversationData?.aiConversation?.messages?.map((message) => {
-        const randomKey = Math.round(Math.random() * 100000)
+      const formattedMessages = singleConversationData?.aiConversation?.messages?.collection?.map(
+        (message) => {
+          const randomKey = Math.round(Math.random() * 100000)
 
-        return {
-          id: `${message.type}-${randomKey}`,
-          role: message.type === 'message.input' ? ChatRole.user : ChatRole.assistant,
-          message: message.content,
-          status: ChatStatus.done,
-        }
-      })
+          return {
+            id: `${message.type}-${randomKey}`,
+            role: message.type === 'message.input' ? ChatRole.user : ChatRole.assistant,
+            message: message.content,
+            status: ChatStatus.done,
+          }
+        },
+      )
 
       setPreviousChatMessages({
         convId: singleConversationData?.aiConversation.id,

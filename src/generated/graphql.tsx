@@ -302,7 +302,6 @@ export type AiConversation = {
   __typename?: 'AiConversation';
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
-  messages?: Maybe<Array<AiConversationMessage>>;
   mistralConversationId?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   organization: Organization;
@@ -325,10 +324,31 @@ export type AiConversationMessage = {
   type: Scalars['String']['output'];
 };
 
+/** AiConversationMessageCollection type */
+export type AiConversationMessageCollection = {
+  __typename?: 'AiConversationMessageCollection';
+  /** A collection of paginated AiConversationMessageCollection */
+  collection: Array<AiConversationMessage>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type AiConversationStream = {
   __typename?: 'AiConversationStream';
   chunk?: Maybe<Scalars['String']['output']>;
   done: Scalars['Boolean']['output'];
+};
+
+export type AiConversationWithMessages = {
+  __typename?: 'AiConversationWithMessages';
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** Messages belonging to this conversation */
+  messages: AiConversationMessageCollection;
+  mistralConversationId?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  organization: Organization;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
 export type Alert = {
@@ -5502,6 +5522,27 @@ export type PaymentCollection = {
   metadata: CollectionMetadata;
 };
 
+export type PaymentMethod = {
+  __typename?: 'PaymentMethod';
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  customer: Customer;
+  id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
+  paymentProviderCode?: Maybe<Scalars['String']['output']>;
+  paymentProviderCustomerId?: Maybe<Scalars['ID']['output']>;
+  paymentProviderType?: Maybe<ProviderTypeEnum>;
+  updatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+};
+
+/** PaymentMethodCollection type */
+export type PaymentMethodCollection = {
+  __typename?: 'PaymentMethodCollection';
+  /** A collection of paginated PaymentMethodCollection */
+  collection: Array<PaymentMethod>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type PaymentProvider = AdyenProvider | CashfreeProvider | FlutterwaveProvider | GocardlessProvider | MoneyhashProvider | StripeProvider;
 
 /** PaymentProviderCollection type */
@@ -5648,6 +5689,8 @@ export type Permissions = {
   organizationTaxesView: Scalars['Boolean']['output'];
   organizationUpdate: Scalars['Boolean']['output'];
   organizationView: Scalars['Boolean']['output'];
+  paymentMethodsCreate: Scalars['Boolean']['output'];
+  paymentMethodsView: Scalars['Boolean']['output'];
   paymentRequestsCreate: Scalars['Boolean']['output'];
   paymentRequestsView: Scalars['Boolean']['output'];
   paymentsCreate: Scalars['Boolean']['output'];
@@ -5990,7 +6033,7 @@ export type Query = {
   /** Query add-ons of an organization */
   addOns: AddOnCollection;
   /** Query a single ai conversation of an organization */
-  aiConversation?: Maybe<AiConversation>;
+  aiConversation?: Maybe<AiConversationWithMessages>;
   /** Query the latest AI conversations of current organization */
   aiConversations?: Maybe<AiConversationCollection>;
   /** Query a single alert */
@@ -6133,6 +6176,8 @@ export type Query = {
   passwordReset: ResetPassword;
   /** Query a single Payment */
   payment?: Maybe<Payment>;
+  /** Query payment methods of a customer */
+  paymentMethods: PaymentMethodCollection;
   /** Query a single payment provider */
   paymentProvider?: Maybe<PaymentProvider>;
   /** Query organization's payment providers */
@@ -6734,6 +6779,13 @@ export type QueryPasswordResetArgs = {
 
 export type QueryPaymentArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPaymentMethodsArgs = {
+  externalCustomerId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -8585,7 +8637,7 @@ export type GetAiConversationQueryVariables = Exact<{
 }>;
 
 
-export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversation', id: string, name: string, messages?: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }> | null } | null };
+export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, messages: { __typename?: 'AiConversationMessageCollection', collection: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }> } } | null };
 
 export type ListAiConversationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -17401,11 +17453,13 @@ export const GetAiConversationDocument = gql`
     query getAiConversation($id: ID!) {
   aiConversation(id: $id) {
     id
-    messages {
-      content
-      type
-    }
     name
+    messages {
+      collection {
+        content
+        type
+      }
+    }
   }
 }
     `;
