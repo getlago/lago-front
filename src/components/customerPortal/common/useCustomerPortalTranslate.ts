@@ -31,7 +31,7 @@ const useCustomerPortalTranslate = () => {
   const { token } = useParams()
   const { isPortalAuthenticated } = useIsAuthenticated()
   const { data, error, loading } = useGetPortalLocaleQuery({
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-first',
     nextFetchPolicy: 'cache-first',
     skip: !isPortalAuthenticated || !token,
   })
