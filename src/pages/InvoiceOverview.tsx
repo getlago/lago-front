@@ -430,7 +430,7 @@ const InvoiceOverview = memo(
         <SectionHeader variant="subhead1">
           {translate('text_634687079be251fdb43833bf')}
           <div className="flex gap-3">
-            {invoice?.status === InvoiceStatusTypeEnum.Draft ? (
+            {invoice?.status === InvoiceStatusTypeEnum.Draft && (
               <>
                 <Button
                   variant="quaternary"
@@ -452,7 +452,8 @@ const InvoiceOverview = memo(
                   {translate('text_638f4d756d899445f18a4a10')}
                 </Button>
               </>
-            ) : hasTaxProviderError ? (
+            )}
+            {invoice?.status !== InvoiceStatusTypeEnum.Draft && hasTaxProviderError && (
               <Button
                 variant="quaternary"
                 disabled={loading || loadingRetryInvoice || isTaxStatusPending}
@@ -462,7 +463,9 @@ const InvoiceOverview = memo(
               >
                 {translate('text_1724164767403kyknbaw13mg')}
               </Button>
-            ) : (
+            )}
+            {invoice?.status !== InvoiceStatusTypeEnum.Draft &&
+              !hasTaxProviderError &&
               !hasError &&
               !loading &&
               !disablePdfGeneration && (
@@ -477,8 +480,7 @@ const InvoiceOverview = memo(
                 >
                   {translate('text_634687079be251fdb43833b9')}
                 </Button>
-              )
-            )}
+              )}
           </div>
         </SectionHeader>
         <>
