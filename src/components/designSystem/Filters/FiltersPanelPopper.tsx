@@ -6,7 +6,7 @@ import { useMemo, useRef } from 'react'
 import { array, lazy, object, string } from 'yup'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
-import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
+import { FiltersItemDates, METADATA_SPLITTER } from '~/components/designSystem/Filters/utils'
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -70,9 +70,21 @@ export const FiltersPanelPopper = () => {
                         return false
                       }
 
-                      const [a, b] = v.split('=')
+                      const metadatas = v.split(METADATA_SPLITTER)
 
-                      return !!a && !!b
+                      if (metadatas.length > 5) {
+                        return false
+                      }
+
+                      if (metadatas.some((m) => !m.includes('='))) {
+                        return false
+                      }
+
+                      return metadatas.every((m) => {
+                        const [a, b] = m.split('=')
+
+                        return !!a && !!b
+                      })
                     },
                   }),
               }),
