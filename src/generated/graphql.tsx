@@ -2678,27 +2678,6 @@ export type CustomerProjectedUsage = {
   totalAmountCents: Scalars['BigInt']['output'];
 };
 
-export type CustomerSnapshot = {
-  __typename?: 'CustomerSnapshot';
-  addressLine1?: Maybe<Scalars['String']['output']>;
-  addressLine2?: Maybe<Scalars['String']['output']>;
-  applicableTimezone?: Maybe<Scalars['String']['output']>;
-  city?: Maybe<Scalars['String']['output']>;
-  country?: Maybe<Scalars['String']['output']>;
-  displayName?: Maybe<Scalars['String']['output']>;
-  email?: Maybe<Scalars['String']['output']>;
-  firstname?: Maybe<Scalars['String']['output']>;
-  lastname?: Maybe<Scalars['String']['output']>;
-  legalName?: Maybe<Scalars['String']['output']>;
-  legalNumber?: Maybe<Scalars['String']['output']>;
-  phone?: Maybe<Scalars['String']['output']>;
-  shippingAddress?: Maybe<CustomerAddress>;
-  state?: Maybe<Scalars['String']['output']>;
-  taxIdentificationNumber?: Maybe<Scalars['String']['output']>;
-  url?: Maybe<Scalars['String']['output']>;
-  zipcode?: Maybe<Scalars['String']['output']>;
-};
-
 export enum CustomerTypeEnum {
   Company = 'company',
   Individual = 'individual'
@@ -3846,6 +3825,7 @@ export enum IntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
+  ClickhouseLiveAggregation = 'clickhouse_live_aggregation',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -3911,7 +3891,6 @@ export type Invoice = {
   creditableAmountCents: Scalars['BigInt']['output'];
   currency?: Maybe<CurrencyEnum>;
   customer: Customer;
-  customerSnapshot?: Maybe<CustomerSnapshot>;
   errorDetails?: Maybe<Array<ErrorDetail>>;
   externalHubspotIntegrationId?: Maybe<Scalars['String']['output']>;
   externalIntegrationId?: Maybe<Scalars['String']['output']>;
@@ -5771,6 +5750,7 @@ export enum PremiumIntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
+  ClickhouseLiveAggregation = 'clickhouse_live_aggregation',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -6596,10 +6576,7 @@ export type QueryIntegrationArgs = {
 
 
 export type QueryIntegrationCollectionMappingsArgs = {
-  integrationId?: InputMaybe<Scalars['ID']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  mappingType?: InputMaybe<MappingTypeEnum>;
-  page?: InputMaybe<Scalars['Int']['input']>;
+  integrationId: Scalars['ID']['input'];
 };
 
 
@@ -8833,7 +8810,15 @@ export type GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables = 
 }>;
 
 
-export type GetIntegrationsListForCreditNoteDetailsExternalSyncQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename: 'AnrokIntegration', id: string } | { __typename: 'AvalaraIntegration', id: string, accountId?: string | null, companyId?: string | null } | { __typename?: 'HubspotIntegration' } | { __typename: 'NetsuiteIntegration', id: string, accountId?: string | null, name: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename: 'XeroIntegration', id: string }> } | null };
+export type GetIntegrationsListForCreditNoteDetailsExternalSyncQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename: 'AnrokIntegration', id: string }
+      | { __typename: 'AvalaraIntegration', id: string, accountId?: string | null, companyId?: string | null }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename: 'NetsuiteIntegration', id: string, accountId?: string | null, name: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename: 'XeroIntegration', id: string }
+    > } | null };
 
 export type GetCreditNoteForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -9052,14 +9037,29 @@ export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
 }>;
 
 
-export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string } | { __typename?: 'CashfreeProvider', id: string, name: string, code: string } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string } | { __typename?: 'GocardlessProvider', id: string, name: string, code: string } | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string } | { __typename?: 'StripeProvider', id: string, name: string, code: string }> } | null };
+export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
+      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
+      | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
+      | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
+      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string }
+      | { __typename?: 'StripeProvider', id: string, name: string, code: string }
+    > } | null };
 
 export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename: 'AnrokIntegration', id: string, name: string, apiKey: any, externalAccountId?: string | null } | { __typename: 'AvalaraIntegration', id: string, name: string, accountId?: string | null } | { __typename: 'HubspotIntegration', id: string, name: string, portalId?: string | null } | { __typename: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null } | { __typename?: 'OktaIntegration' } | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string } | { __typename: 'XeroIntegration', id: string, name: string }> } | null };
+export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename: 'AnrokIntegration', id: string, name: string, apiKey: any, externalAccountId?: string | null }
+      | { __typename: 'AvalaraIntegration', id: string, name: string, accountId?: string | null }
+      | { __typename: 'HubspotIntegration', id: string, name: string, portalId?: string | null }
+      | { __typename: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string }
+      | { __typename: 'XeroIntegration', id: string, name: string }
+    > } | null };
 
 export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null };
 
@@ -9202,7 +9202,15 @@ export type GetAccountingIntegrationsForExternalAppsAccordionQueryVariables = Ex
 }>;
 
 
-export type GetAccountingIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename: 'XeroIntegration', id: string, code: string, name: string }> } | null };
+export type GetAccountingIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename: 'XeroIntegration', id: string, code: string, name: string }
+    > } | null };
 
 export type SubsidiariesListForExternalAppsAccordionQueryVariables = Exact<{
   integrationId?: InputMaybe<Scalars['ID']['input']>;
@@ -9217,14 +9225,29 @@ export type GetCrmIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
 }>;
 
 
-export type GetCrmIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename: 'SalesforceIntegration', id: string, code: string, name: string } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetCrmIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename: 'SalesforceIntegration', id: string, code: string, name: string }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename: 'AdyenProvider', id: string, name: string, code: string } | { __typename: 'CashfreeProvider', id: string, name: string, code: string } | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string } | { __typename: 'GocardlessProvider', id: string, name: string, code: string } | { __typename: 'MoneyhashProvider', id: string, name: string, code: string } | { __typename: 'StripeProvider', id: string, name: string, code: string }> } | null };
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename: 'AdyenProvider', id: string, name: string, code: string }
+      | { __typename: 'CashfreeProvider', id: string, name: string, code: string }
+      | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string }
+      | { __typename: 'GocardlessProvider', id: string, name: string, code: string }
+      | { __typename: 'MoneyhashProvider', id: string, name: string, code: string }
+      | { __typename: 'StripeProvider', id: string, name: string, code: string }
+    > } | null };
 
 export type GetTaxIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9232,7 +9255,15 @@ export type GetTaxIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
 }>;
 
 
-export type GetTaxIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename: 'AnrokIntegration', id: string, code: string, name: string } | { __typename: 'AvalaraIntegration', id: string, code: string, name: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetTaxIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename: 'AnrokIntegration', id: string, code: string, name: string }
+      | { __typename: 'AvalaraIntegration', id: string, code: string, name: string }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
 
@@ -9345,14 +9376,38 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'FeatureObject', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null };
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?:
+    | { __typename?: 'BillableMetric', id: string }
+    | { __typename?: 'BillingEntity', id: string, code: string }
+    | { __typename?: 'Coupon', id: string }
+    | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null }
+    | { __typename?: 'Customer', id: string }
+    | { __typename?: 'FeatureObject', id: string }
+    | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } }
+    | { __typename?: 'PaymentRequest', id: string }
+    | { __typename?: 'Plan', id: string }
+    | { __typename?: 'Subscription', id: string }
+    | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
+   | null };
 
 export type GetSingleActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'FeatureObject', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null } | null };
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?:
+      | { __typename?: 'BillableMetric', id: string }
+      | { __typename?: 'BillingEntity', id: string, code: string }
+      | { __typename?: 'Coupon', id: string }
+      | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null }
+      | { __typename?: 'Customer', id: string }
+      | { __typename?: 'FeatureObject', id: string }
+      | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } }
+      | { __typename?: 'PaymentRequest', id: string }
+      | { __typename?: 'Plan', id: string }
+      | { __typename?: 'Subscription', id: string }
+      | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
+     | null } | null };
 
 export type GetCustomerIdForActivityLogDetailsQueryVariables = Exact<{
   externalId?: InputMaybe<Scalars['ID']['input']>;
@@ -9709,7 +9764,10 @@ export type GetInvoiceMetadatasQueryVariables = Exact<{
 
 export type GetInvoiceMetadatasQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
 
-export type PaymentForPaymentsListFragment = { __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null };
+export type PaymentForPaymentsListFragment = { __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
+    | { __typename?: 'Invoice', id: string, number: string, payableType: string }
+    | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }
+  , customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null };
 
 export type InvoiceForVoidInvoiceDialogFragment = { __typename?: 'Invoice', id: string, number: string };
 
@@ -9949,7 +10007,14 @@ export type GetProviderByCodeForAdyenQueryVariables = Exact<{
 }>;
 
 
-export type GetProviderByCodeForAdyenQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+export type GetProviderByCodeForAdyenQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
 
 export type AddAdyenApiKeyMutationVariables = Exact<{
   input: AddAdyenPaymentProviderInput;
@@ -10004,7 +10069,14 @@ export type GetProviderByCodeForCashfreeQueryVariables = Exact<{
 }>;
 
 
-export type GetProviderByCodeForCashfreeQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+export type GetProviderByCodeForCashfreeQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
 
 export type AddCashfreeApiKeyMutationVariables = Exact<{
   input: AddCashfreePaymentProviderInput;
@@ -10081,7 +10153,14 @@ export type GetProviderByCodeForFlutterwaveQueryVariables = Exact<{
 }>;
 
 
-export type GetProviderByCodeForFlutterwaveQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+export type GetProviderByCodeForFlutterwaveQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
 
 export type AddFlutterwavePaymentProviderMutationVariables = Exact<{
   input: AddFlutterwavePaymentProviderInput;
@@ -10104,7 +10183,14 @@ export type GetProviderByCodeForGocardlessQueryVariables = Exact<{
 }>;
 
 
-export type GetProviderByCodeForGocardlessQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+export type GetProviderByCodeForGocardlessQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
 
 export type UpdateGocardlessApiKeyMutationVariables = Exact<{
   input: UpdateGocardlessPaymentProviderInput;
@@ -10136,7 +10222,14 @@ export type GetProviderByCodeForMoneyhashQueryVariables = Exact<{
 }>;
 
 
-export type GetProviderByCodeForMoneyhashQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+export type GetProviderByCodeForMoneyhashQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
 
 export type AddMoneyhashApiKeyMutationVariables = Exact<{
   input: AddMoneyhashPaymentProviderInput;
@@ -10191,7 +10284,14 @@ export type GetProviderByCodeForStripeQueryVariables = Exact<{
 }>;
 
 
-export type GetProviderByCodeForStripeQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+export type GetProviderByCodeForStripeQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
 
 export type AddStripeApiKeyMutationVariables = Exact<{
   input: AddStripePaymentProviderInput;
@@ -10314,7 +10414,23 @@ export type GetAnrokIntegrationsSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAnrokIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any, hasMappingsConfigured?: boolean | null, failedInvoicesCount?: number | null } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAnrokIntegrationsSettingsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any, hasMappingsConfigured?: boolean | null, failedInvoicesCount?: number | null }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration', id: string }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type RetryAllInvoicesMutationVariables = Exact<{
   input: RetryAllInvoicesInput;
@@ -10414,7 +10530,23 @@ export type GetAvalaraIntegrationSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAvalaraIntegrationSettingsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration', id: string }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type RetryAllAvalaraInvoicesMutationVariables = Exact<{
   input: RetryAllInvoicesInput;
@@ -10593,7 +10725,23 @@ export type GetNetsuiteIntegrationsSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetNetsuiteIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetNetsuiteIntegrationsSettingsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration', id: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type XeroIntegrationItemsFragment = { __typename?: 'XeroIntegration', id: string };
 
@@ -10712,7 +10860,23 @@ export type GetXeroIntegrationsSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetXeroIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
+export type GetXeroIntegrationsSettingsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration', id: string }
+    > } | null };
 
 export type DeleteCustomSectionFragment = { __typename?: 'InvoiceCustomSection', id: string };
 
@@ -11226,7 +11390,14 @@ export type GetSingleCampaignQuery = { __typename?: 'Query', dunningCampaign: { 
 export type CreateDunningCampaignPaymentProviderQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CreateDunningCampaignPaymentProviderQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename: 'AdyenProvider' } | { __typename: 'CashfreeProvider' } | { __typename: 'FlutterwaveProvider' } | { __typename: 'GocardlessProvider' } | { __typename: 'MoneyhashProvider' } | { __typename: 'StripeProvider' }> } | null };
+export type CreateDunningCampaignPaymentProviderQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename: 'AdyenProvider' }
+      | { __typename: 'CashfreeProvider' }
+      | { __typename: 'FlutterwaveProvider' }
+      | { __typename: 'GocardlessProvider' }
+      | { __typename: 'MoneyhashProvider' }
+      | { __typename: 'StripeProvider' }
+    > } | null };
 
 export type CreateDunningCampaignMutationVariables = Exact<{
   input: CreateDunningCampaignInput;
@@ -11310,7 +11481,15 @@ export type GetTaxProviderPresenceQueryVariables = Exact<{
 }>;
 
 
-export type GetTaxProviderPresenceQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetTaxProviderPresenceQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration', id: string }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
@@ -11634,7 +11813,15 @@ export type IntegrationsListForCustomerInvoiceDetailsQueryVariables = Exact<{
 }>;
 
 
-export type IntegrationsListForCustomerInvoiceDetailsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename: 'AvalaraIntegration', id: string, accountId?: string | null, companyId?: string | null } | { __typename: 'HubspotIntegration', id: string, portalId?: string | null, invoicesObjectTypeId?: string | null } | { __typename: 'NetsuiteIntegration', id: string, accountId?: string | null, name: string } | { __typename?: 'OktaIntegration' } | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string } | { __typename?: 'XeroIntegration' }> } | null };
+export type IntegrationsListForCustomerInvoiceDetailsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename: 'AvalaraIntegration', id: string, accountId?: string | null, companyId?: string | null }
+      | { __typename: 'HubspotIntegration', id: string, portalId?: string | null, invoicesObjectTypeId?: string | null }
+      | { __typename: 'NetsuiteIntegration', id: string, accountId?: string | null, name: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type DownloadInvoiceMutationVariables = Exact<{
   input: DownloadInvoiceInput;
@@ -11835,7 +12022,10 @@ export type GetPaymentDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetPaymentDetailsQuery = { __typename?: 'Query', payment?: { __typename?: 'Payment', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, updatedAt?: any | null, reference?: string | null, paymentType: PaymentTypeEnum, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null, providerPaymentId?: string | null, customer: { __typename?: 'Customer', deletedAt?: any | null, id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, payable: { __typename?: 'Invoice', id: string, payableType: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null } | { __typename?: 'PaymentRequest', id: string, payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null }> }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null } | null };
+export type GetPaymentDetailsQuery = { __typename?: 'Query', payment?: { __typename?: 'Payment', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, updatedAt?: any | null, reference?: string | null, paymentType: PaymentTypeEnum, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null, providerPaymentId?: string | null, customer: { __typename?: 'Customer', deletedAt?: any | null, id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, payable:
+      | { __typename?: 'Invoice', id: string, payableType: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null }
+      | { __typename?: 'PaymentRequest', id: string, payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null }> }
+    , paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null } | null };
 
 export type GetPaymentsListQueryVariables = Exact<{
   invoiceId?: InputMaybe<Scalars['ID']['input']>;
@@ -11846,7 +12036,10 @@ export type GetPaymentsListQueryVariables = Exact<{
 }>;
 
 
-export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
+export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
+        | { __typename?: 'Invoice', id: string, number: string, payableType: string }
+        | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }
+      , customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
 
 export type GetPlanForDetailsQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
@@ -12033,7 +12226,21 @@ export type GetAdyenIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string }
+    | { __typename?: 'CashfreeProvider' }
+    | { __typename?: 'FlutterwaveProvider' }
+    | { __typename?: 'GocardlessProvider' }
+    | { __typename?: 'MoneyhashProvider' }
+    | { __typename?: 'StripeProvider' }
+   | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider', id: string }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type AdyenIntegrationsFragment = { __typename?: 'AdyenProvider', id: string, name: string, code: string };
 
@@ -12043,7 +12250,14 @@ export type GetAdyenIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type AnrokIntegrationDetailsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any };
 
@@ -12054,7 +12268,23 @@ export type GetAnrokIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAnrokIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAnrokIntegrationsDetailsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration', id: string }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type AnrokIntegrationsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any };
 
@@ -12064,14 +12294,30 @@ export type GetAnrokIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAnrokIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAnrokIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type GetAuthIntegrationsQueryVariables = Exact<{
   limit: Scalars['Int']['input'];
 }>;
 
 
-export type GetAuthIntegrationsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: any | null, organizationName: string, name: string } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAuthIntegrationsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: any | null, organizationName: string, name: string }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type OktaIntegrationDetailsFragment = { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string };
 
@@ -12080,7 +12326,15 @@ export type GetOktaIntegrationQueryVariables = Exact<{
 }>;
 
 
-export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null };
+export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null };
 
 export type UpdateOrganizationAuthenticationMethodsMutationVariables = Exact<{
   input: UpdateOrganizationInput;
@@ -12098,7 +12352,23 @@ export type GetAvalaraIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAvalaraIntegrationsDetailsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration', id: string, name: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration', id: string }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type AvalaraIntegrationsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId?: string | null, companyCode: string, licenseKey: any };
 
@@ -12108,7 +12378,15 @@ export type GetAvalaraIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId?: string | null, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAvalaraIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId?: string | null, companyCode: string, licenseKey: any }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type GetBillingEntitySettingsQueryVariables = Exact<{
   code: Scalars['String']['input'];
@@ -12194,7 +12472,21 @@ export type GetCashfreeIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetCashfreeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type GetCashfreeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
+    | { __typename?: 'FlutterwaveProvider' }
+    | { __typename?: 'GocardlessProvider' }
+    | { __typename?: 'MoneyhashProvider' }
+    | { __typename?: 'StripeProvider' }
+   | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider', id: string }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type CashfreeIntegrationsFragment = { __typename?: 'CashfreeProvider', id: string, name: string, code: string };
 
@@ -12204,7 +12496,14 @@ export type GetCashfreeIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetCashfreeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type GetCashfreeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type DunningCampaignItemFragment = { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean };
 
@@ -12232,7 +12531,21 @@ export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
 }>;
 
 
-export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'CashfreeProvider' }
+    | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null }
+    | { __typename?: 'GocardlessProvider' }
+    | { __typename?: 'MoneyhashProvider' }
+    | { __typename?: 'StripeProvider' }
+   | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider', id: string }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type FlutterwaveIntegrationsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string };
 
@@ -12242,7 +12555,14 @@ export type GetFlutterwaveIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetFlutterwaveIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type GetFlutterwaveIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type GocardlessIntegrationDetailsFragment = { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null };
 
@@ -12253,7 +12573,21 @@ export type GetGocardlessIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetGocardlessIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type GetGocardlessIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'CashfreeProvider' }
+    | { __typename?: 'FlutterwaveProvider' }
+    | { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null }
+    | { __typename?: 'MoneyhashProvider' }
+    | { __typename?: 'StripeProvider' }
+   | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider', id: string }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type GocardlessIntegrationOauthCallbackFragment = { __typename?: 'GocardlessProvider', id: string, name: string, code: string };
 
@@ -12272,7 +12606,14 @@ export type GetGocardlessIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetGocardlessIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider', id: string, name: string, code: string } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type GetGocardlessIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type HubspotIntegrationDetailsFragment = { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null };
 
@@ -12283,7 +12624,23 @@ export type GetHubspotIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetHubspotIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration', id: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetHubspotIntegrationsDetailsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration', id: string }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type HubspotIntegrationsFragment = { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null };
 
@@ -12293,14 +12650,37 @@ export type GetHubspotIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetHubspotIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetHubspotIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type IntegrationsSettingQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration', id: string } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string } | { __typename?: 'XeroIntegration', id: string }> } | null };
+export type IntegrationsSettingQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider', id: string }
+      | { __typename?: 'CashfreeProvider', id: string }
+      | { __typename?: 'FlutterwaveProvider', id: string }
+      | { __typename?: 'GocardlessProvider', id: string }
+      | { __typename?: 'MoneyhashProvider', id: string }
+      | { __typename?: 'StripeProvider', id: string }
+    > } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration', id: string }
+      | { __typename?: 'AvalaraIntegration', id: string }
+      | { __typename?: 'HubspotIntegration', id: string }
+      | { __typename?: 'NetsuiteIntegration', id: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration', id: string }
+      | { __typename?: 'XeroIntegration', id: string }
+    > } | null };
 
 export type PricingUnitFragment = { __typename?: 'PricingUnit', id: string, name: string, code: string, description?: string | null, shortName: string };
 
@@ -12375,7 +12755,21 @@ export type GetMoneyhashIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider', id: string, apiKey?: string | null, code: string, flowId?: string | null, name: string, successRedirectUrl?: string | null } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider' }> } | null };
+export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'CashfreeProvider' }
+    | { __typename?: 'FlutterwaveProvider' }
+    | { __typename?: 'GocardlessProvider' }
+    | { __typename?: 'MoneyhashProvider', id: string, apiKey?: string | null, code: string, flowId?: string | null, name: string, successRedirectUrl?: string | null }
+    | { __typename?: 'StripeProvider' }
+   | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider', id: string }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type MoneyhashIntegrationsFragment = { __typename?: 'MoneyhashProvider', id: string, name: string, code: string };
 
@@ -12385,7 +12779,14 @@ export type GetMoneyhashIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetMoneyhashIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: string | null, flowId?: string | null } | { __typename?: 'StripeProvider' }> } | null };
+export type GetMoneyhashIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: string | null, flowId?: string | null }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
 
 export type NetsuiteIntegrationDetailsFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null };
 
@@ -12396,7 +12797,23 @@ export type GetNetsuiteIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetNetsuiteIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetNetsuiteIntegrationsDetailsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration', id: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type NetsuiteIntegrationsFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string, code: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null };
 
@@ -12406,7 +12823,15 @@ export type GetNetsuiteIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetNetsuiteIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, name: string, code: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetNetsuiteIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration', id: string, name: string, code: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type SalesforceIntegrationDetailsFragment = { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string };
 
@@ -12417,7 +12842,23 @@ export type GetSalesforceIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSalesforceIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetSalesforceIntegrationsDetailsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string }
+    | { __typename?: 'XeroIntegration' }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration', id: string }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type SalesforceIntegrationsFragment = { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string };
 
@@ -12427,7 +12868,15 @@ export type GetSalesforceIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetSalesforceIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetSalesforceIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type StripeIntegrationDetailsFragment = { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null };
 
@@ -12438,7 +12887,21 @@ export type GetStripeIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider', id: string }> } | null };
+export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'CashfreeProvider' }
+    | { __typename?: 'FlutterwaveProvider' }
+    | { __typename?: 'GocardlessProvider' }
+    | { __typename?: 'MoneyhashProvider' }
+    | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null }
+   | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider', id: string }
+    > } | null };
 
 export type StripeIntegrationsFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string };
 
@@ -12448,7 +12911,14 @@ export type GetStripeIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetStripeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null }> } | null };
+export type GetStripeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null }
+    > } | null };
 
 export type TaxItemForTaxSettingsFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number, autoGenerated: boolean, customersCount: number };
 
@@ -12469,7 +12939,23 @@ export type GetXeroIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetXeroIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string, name: string, connectionId: string, code: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
+export type GetXeroIntegrationsDetailsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration', id: string, name: string, connectionId: string, code: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
+   | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration', id: string }
+    > } | null };
 
 export type XeroIntegrationsFragment = { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -12479,7 +12965,15 @@ export type GetXeroIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }> } | null };
+export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
+    > } | null };
 
 export type AddSubscriptionPlanFragment = { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null };
 
