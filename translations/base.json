@@ -3516,5 +3516,7 @@
   "text_176010285376748i8jr0rwn2": "Entity’s country is unset or not in the list of supported jurisdictions — see the <a rel=\"external\" target=\"_blank\" href=\"{{href}}\">e-invoicing documentation</a> for details.",
   "text_1760103938878g88itu3cdah": "Issue compliant documents",
   "text_1760103938878069h2vcfis3": "If on, the document will be generated automatically.",
-  "text_1760346300860wjkllqkychx": "Not supported"
+  "text_1760346300860wjkllqkychx": "Not supported",
+  "text_1760358170490a3z3ocq0hyj": "Download PDF file",
+  "text_17603581704907ndpljkjzhg": "Download XML file"
 }

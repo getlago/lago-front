@@ -81,6 +81,7 @@ gql`
     externalHubspotIntegrationId
     integrationSalesforceSyncable
     externalSalesforceIntegrationId
+    xmlUrl
     fees {
       id
       addOn {
@@ -116,6 +117,7 @@ gql`
     billingEntity {
       name
       code
+      einvoicing
     }
   }
 
