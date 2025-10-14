@@ -105,6 +105,7 @@ import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActio
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
+import { downloadFileFromURL } from '~/utils/fileUtils'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -864,21 +865,56 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
-                  {!hasTaxProviderError && !canFinalize && canDownload && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={!!loadingInvoiceDownload}
-                      onClick={async () => {
-                        await downloadInvoice({
-                          variables: { input: { id: invoiceId || '' } },
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_634687079be251fdb4383395')}
-                    </Button>
-                  )}
+                  {!hasTaxProviderError &&
+                    !canFinalize &&
+                    canDownload &&
+                    (!invoice?.billingEntity.einvoicing || !invoice?.xmlUrl) && (
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        disabled={!!loadingInvoiceDownload}
+                        onClick={async () => {
+                          await downloadInvoice({
+                            variables: { input: { id: invoiceId || '' } },
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_634687079be251fdb4383395')}
+                      </Button>
+                    )}
+                  {!hasTaxProviderError &&
+                    !canFinalize &&
+                    canDownload &&
+                    invoice?.billingEntity.einvoicing &&
+                    invoice.xmlUrl && (
+                      <>
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          disabled={!!loadingInvoiceDownload}
+                          onClick={async () => {
+                            await downloadInvoice({
+                              variables: { input: { id: invoiceId || '' } },
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1760447853022ebd47gmqjmp')}
+                        </Button>
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          disabled={!!loadingInvoiceDownload}
+                          onClick={async () => {
+                            await downloadFileFromURL(`invoice_${invoiceId}.xml`, invoice.xmlUrl)
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1760447853022hb1hdiprvet')}
+                        </Button>
+                      </>
+                    )}
                   {actions.canIssueCreditNote({ status }) && (
                     <>
                       {isPremium ? (

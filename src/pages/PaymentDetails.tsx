@@ -307,7 +307,7 @@ const PaymentDetails = () => {
 
             {canDownloadPaymentReceipts && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 align="left"
                 disabled={!payment?.paymentReceipt?.id}
                 onClick={() => {
