@@ -65,6 +65,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { SectionHeader } from '~/styles/customer'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import { tw } from '~/styles/utils'
+import { downloadFileFromURL } from '~/utils/fileUtils'
 
 const { disablePdfGeneration, appEnv } = envGlobalVar()
 
@@ -428,22 +429,6 @@ const InvoiceOverview = memo(
 
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
 
-    const downloadXmlFile = async (id?: string, xmlUrl?: string | null) => {
-      if (!xmlUrl) return
-
-      const response = await fetch(xmlUrl)
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-
-      link.href = url
-      link.setAttribute('download', `invoice_${id}.xml`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      window.URL.revokeObjectURL(url)
-    }
-
     return (
       <>
         <SectionHeader variant="subhead1">
@@ -519,7 +504,7 @@ const InvoiceOverview = memo(
                         variant="quaternary"
                         align="left"
                         onClick={async () => {
-                          await downloadXmlFile(invoice?.id, invoice?.xmlUrl)
+                          await downloadFileFromURL(`invoice_${invoice?.id}.xml`, invoice?.xmlUrl)
                           closePopper()
                         }}
                       >
