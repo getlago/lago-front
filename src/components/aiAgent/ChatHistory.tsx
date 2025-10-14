@@ -13,10 +13,8 @@ gql`
       id
       name
       messages {
-        collection {
-          content
-          type
-        }
+        content
+        type
       }
     }
   }
@@ -51,7 +49,7 @@ export const ChatHistory = () => {
     })
 
     if (singleConversationData?.aiConversation?.id) {
-      const formattedMessages = singleConversationData?.aiConversation?.messages?.collection?.map(
+      const formattedMessages = singleConversationData?.aiConversation?.messages?.map(
         (message) => {
           const randomKey = Math.round(Math.random() * 100000)
 
