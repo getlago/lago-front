@@ -69,9 +69,15 @@ gql`
     invoiceDisplayName
     regroupPaidFees
     properties {
-      ...GraduatedCharge
-      ...GraduatedPercentageCharge
-      ...VolumeRanges
+      graduatedRanges {
+        ...GraduatedCharge
+      }
+      graduatedPercentageRanges {
+        ...GraduatedPercentageCharge
+      }
+      volumeRanges {
+        ...VolumeRanges
+      }
       ...PackageCharge
       ...StandardCharge
       ...PercentageCharge
@@ -82,9 +88,15 @@ gql`
       invoiceDisplayName
       values
       properties {
-        ...GraduatedCharge
-        ...GraduatedPercentageCharge
-        ...VolumeRanges
+        graduatedRanges {
+          ...GraduatedCharge
+        }
+        graduatedPercentageRanges {
+          ...GraduatedPercentageCharge
+        }
+        volumeRanges {
+          ...VolumeRanges
+        }
         ...PackageCharge
         ...StandardCharge
         ...PercentageCharge

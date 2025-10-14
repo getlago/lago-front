@@ -15,13 +15,11 @@ import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
-  fragment GraduatedCharge on Properties {
-    graduatedRanges {
-      flatAmount
-      fromValue
-      perUnitAmount
-      toValue
-    }
+  fragment GraduatedCharge on GraduatedRange {
+    flatAmount
+    fromValue
+    perUnitAmount
+    toValue
   }
 `
 
