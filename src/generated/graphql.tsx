@@ -324,15 +324,6 @@ export type AiConversationMessage = {
   type: Scalars['String']['output'];
 };
 
-/** AiConversationMessageCollection type */
-export type AiConversationMessageCollection = {
-  __typename?: 'AiConversationMessageCollection';
-  /** A collection of paginated AiConversationMessageCollection */
-  collection: Array<AiConversationMessage>;
-  /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
-};
-
 export type AiConversationStream = {
   __typename?: 'AiConversationStream';
   chunk?: Maybe<Scalars['String']['output']>;
@@ -8792,7 +8783,7 @@ export type GetAiConversationQueryVariables = Exact<{
 }>;
 
 
-export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, messages: { __typename?: 'AiConversationMessageCollection', collection: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }> } } | null };
+export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, messages: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }> } | null };
 
 export type ListAiConversationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -17764,10 +17755,8 @@ export const GetAiConversationDocument = gql`
     id
     name
     messages {
-      collection {
-        content
-        type
-      }
+      content
+      type
     }
   }
 }
