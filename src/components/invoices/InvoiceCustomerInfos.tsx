@@ -7,8 +7,8 @@ import { generatePath, Link } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status, StatusType, Typography } from '~/components/designSystem'
-import { CountryCodes } from '~/core/constants/countryCodes'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
 import {
@@ -72,6 +72,15 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
   const customerName = customer?.displayName
   const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
+  const formattedAddress = formatAddress({
+    addressLine1: customer?.addressLine1,
+    addressLine2: customer?.addressLine2,
+    city: customer?.city,
+    country: customer?.country,
+    state: customer?.state,
+    zipcode: customer?.zipcode,
+  })
+
   return (
     <section className="grid grid-cols-1 gap-0 py-6 shadow-b md:grid-cols-2">
       <div className="pr-8">
@@ -134,37 +143,15 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             </Typography>
           </InfoLine>
         )}
-        {(customer?.addressLine1 ||
-          customer?.addressLine2 ||
-          customer?.state ||
-          customer?.country ||
-          customer?.city ||
-          customer?.zipcode) && (
+        {!!formattedAddress && (
           <InfoLine>
             <Typography variant="caption" color="grey600" noWrap>
               {translate('text_634687079be251fdb43833ef')}
             </Typography>
             <div>
-              {customer?.addressLine1 && (
-                <Typography variant="body" color="grey700">
-                  {customer?.addressLine1}
-                </Typography>
-              )}
-              {customer?.addressLine2 && (
-                <Typography variant="body" color="grey700">
-                  {customer?.addressLine2}
-                </Typography>
-              )}
-              {(customer?.zipcode || customer?.city || customer?.state) && (
-                <Typography variant="body" color="grey700">
-                  {customer?.zipcode} {customer?.city} {customer?.state}
-                </Typography>
-              )}
-              {customer?.country && (
-                <Typography variant="body" color="grey700">
-                  {CountryCodes[customer?.country]}
-                </Typography>
-              )}
+              <Typography variant="body" color="grey700">
+                {formattedAddress}
+              </Typography>
             </div>
           </InfoLine>
         )}

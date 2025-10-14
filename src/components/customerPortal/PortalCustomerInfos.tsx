@@ -6,7 +6,7 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem'
-import { CountryCodes } from '~/core/constants/countryCodes'
+import { formatAddress } from '~/core/formats/formatAddress'
 import {
   CustomerAddressInput,
   CustomerPortalCustomer,
@@ -84,22 +84,24 @@ const AddressField = ({
 }: AddressFieldProps) => {
   const { translate } = useCustomerPortalTranslate()
 
+  const formattedAddress = formatAddress({
+    addressLine1,
+    addressLine2,
+    city,
+    country,
+    state,
+    zipcode,
+  })
+
   return (
     <div className="flex flex-col gap-1">
       <FieldTitle title={title} />
 
-      {!(addressLine1 || addressLine2 || state || country || city || zipcode) ? (
+      {!formattedAddress ? (
         <FieldContent content={translate('text_6419c64eace749372fc72b2b')} />
       ) : (
         <div>
-          {addressLine1 && <FieldContent content={addressLine1} />}
-          {addressLine2 && <FieldContent content={addressLine2} />}
-          {(zipcode || city || state) && (
-            <FieldContent>
-              {zipcode} {city} {state}
-            </FieldContent>
-          )}
-          {country && <FieldContent content={CountryCodes[country]} />}
+          <FieldContent content={formattedAddress} />
         </div>
       )}
     </div>
