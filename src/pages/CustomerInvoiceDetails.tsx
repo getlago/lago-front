@@ -794,6 +794,12 @@ const CustomerInvoiceDetails = () => {
     canRecordPayment,
   ])
 
+  const canFinalize = useMemo(() => actions.canFinalize({ status }), [actions, status])
+  const canDownload = useMemo(
+    () => actions.canDownload({ status, taxStatus }),
+    [actions, status, taxStatus],
+  )
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -817,7 +823,7 @@ const CustomerInvoiceDetails = () => {
             {({ closePopper }) => {
               return (
                 <MenuPopper>
-                  {hasTaxProviderError ? (
+                  {hasTaxProviderError && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -830,7 +836,8 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
-                  ) : actions.canFinalize({ status }) ? (
+                  )}
+                  {!hasTaxProviderError && canFinalize && (
                     <>
                       <Button
                         variant="quaternary"
@@ -856,7 +863,8 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : actions.canDownload({ status, taxStatus }) ? (
+                  )}
+                  {!hasTaxProviderError && !canFinalize && canDownload && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -870,7 +878,7 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
-                  ) : null}
+                  )}
                   {actions.canIssueCreditNote({ status }) && (
                     <>
                       {isPremium ? (
