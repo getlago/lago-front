@@ -73,7 +73,7 @@
     "babel-jest": "29.7.0",
     "class-variance-authority": "0.7.1",
     "cssnano": "7.0.6",
-    "cypress": "15.2.0",
+    "cypress": "15.3.0",
     "dotenv": "16.6.1",
     "eslint": "9.37.0",
     "eslint-plugin-import": "2.32.0",
