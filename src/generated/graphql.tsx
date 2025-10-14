@@ -11835,7 +11835,7 @@ export type GetCreditNoteForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetCreditNoteForDetailsQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, number: string, canBeVoided: boolean, totalAmountCents: any, currency: CurrencyEnum, integrationSyncable: boolean, taxProviderSyncable: boolean, externalIntegrationId?: string | null, taxProviderId?: string | null, customer: { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null } } | null };
+export type GetCreditNoteForDetailsQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, number: string, canBeVoided: boolean, totalAmountCents: any, currency: CurrencyEnum, integrationSyncable: boolean, taxProviderSyncable: boolean, externalIntegrationId?: string | null, taxProviderId?: string | null, xmlUrl?: string | null, billingEntity: { __typename?: 'BillingEntity', einvoicing: boolean }, customer: { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null } } | null };
 
 export type SyncIntegrationCreditNoteMutationVariables = Exact<{
   input: SyncIntegrationCreditNoteInput;
@@ -31341,6 +31341,10 @@ export const GetCreditNoteForDetailsDocument = gql`
     taxProviderSyncable
     externalIntegrationId
     taxProviderId
+    xmlUrl
+    billingEntity {
+      einvoicing
+    }
     customer {
       ...CustomerForCreditNoteDetailsExternalSync
     }
