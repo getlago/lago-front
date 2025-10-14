@@ -11,18 +11,23 @@
   "dependencyDashboardTitle": "👷‍♀️ Dependency Dashboard",
   "dependencyDashboardHeader": "[👮‍♂️ Do not close]. This issue provides visibility into Renovate updates and their statuses. [Learn more](https://docs.renovatebot.com/key-concepts/dashboard/)",
   "dependencyDashboardLabels": ["🙅 Don't close"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": "at any time"
+  },
   "packageRules": [
     {
-      "matchPackageNames": ["@types/react", "@types/react-dom"],
+      "matchDatasources": ["node-version"],
+      "matchPackageNames": ["node"],
+      "pinVersions": false
+    },
+    {
+      "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
       "groupName": "React types",
       "commitMessagePrefix": "chore(deps):"
     },
     {
-      "matchPackageNames": [
-        "@testing-library/react",
-        "@testing-library/jest-dom",
-        "@testing-library/user-event"
-      ],
+      "matchPackageNames": ["@testing-library/*", "cypress"],
       "groupName": "Testing library",
       "commitMessagePrefix": "chore(deps):"
     },
@@ -38,19 +43,16 @@
     },
     {
       "matchUpdateTypes": ["major"],
-      "automerge": false,
       "commitMessagePrefix": "chore(deps-major)"
     },
     {
       "matchUpdateTypes": ["minor"],
-      "automerge": false,
       "commitMessagePrefix": "chore(deps-minor)"
     },
     {
       "matchUpdateTypes": ["patch", "digest", "bump"],
       "commitMessagePrefix": "chore(deps)",
-      "reviewers": ["renovate-approve"],
-      "automerge": false
+      "reviewers": ["renovate-approve"]
     }
   ]
 }
