@@ -7,6 +7,7 @@ import { RefObject, useEffect, useMemo, useState } from 'react'
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME } from '~/core/constants/form'
@@ -20,7 +21,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { PlanFormInput } from './types'
-import { mapChargeIntervalCopy } from './UsageChargeAccordion'
 
 gql`
   query getTaxesForCommitments($limit: Int, $page: Int) {

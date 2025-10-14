@@ -19,12 +19,12 @@ import {
   HandleUpdateChargesProps,
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
+import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
-  getIntervalTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
@@ -131,22 +131,6 @@ gql`
   ${DynamicChargeFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
 `
-
-export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
-  if (forceMonthlyCharge || interval === PlanInterval.Monthly) {
-    return getIntervalTranslationKey[PlanInterval.Monthly]
-  } else if (interval === PlanInterval.Yearly) {
-    return getIntervalTranslationKey[PlanInterval.Yearly]
-  } else if (interval === PlanInterval.Semiannual) {
-    return getIntervalTranslationKey[PlanInterval.Semiannual]
-  } else if (interval === PlanInterval.Quarterly) {
-    return getIntervalTranslationKey[PlanInterval.Quarterly]
-  } else if (interval === PlanInterval.Weekly) {
-    return getIntervalTranslationKey[PlanInterval.Weekly]
-  }
-
-  return ''
-}
 
 interface UsageChargeAccordionProps {
   currency: CurrencyEnum
