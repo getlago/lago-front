@@ -473,7 +473,26 @@ const InvoiceOverview = memo(
               !hasError &&
               !loading &&
               !disablePdfGeneration &&
-              (invoice.billingEntity.einvoicing && invoice.xmlUrl ? (
+              (!billingEntity?.einvoicing || !invoice?.xmlUrl) && (
+                <Button
+                  variant="inline"
+                  disabled={loadingInvoiceDownload || isTaxStatusPending}
+                  onClick={async () => {
+                    await downloadInvoice({
+                      variables: { input: { id: invoiceId || '' } },
+                    })
+                  }}
+                >
+                  {translate('text_634687079be251fdb43833b9')}
+                </Button>
+              )}
+            {invoice?.status !== InvoiceStatusTypeEnum.Draft &&
+              !hasTaxProviderError &&
+              !hasError &&
+              !loading &&
+              !disablePdfGeneration &&
+              invoice.billingEntity.einvoicing &&
+              invoice.xmlUrl && (
                 <Popper
                   PopperProps={{ placement: 'bottom-end' }}
                   opener={
@@ -513,19 +532,7 @@ const InvoiceOverview = memo(
                     </MenuPopper>
                   )}
                 </Popper>
-              ) : (
-                <Button
-                  variant="inline"
-                  disabled={loadingInvoiceDownload || isTaxStatusPending}
-                  onClick={async () => {
-                    await downloadInvoice({
-                      variables: { input: { id: invoiceId || '' } },
-                    })
-                  }}
-                >
-                  {translate('text_634687079be251fdb43833b9')}
-                </Button>
-              ))}
+              )}
           </div>
         </SectionHeader>
         <>
