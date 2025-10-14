@@ -5,7 +5,11 @@ import { useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
-import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from '~/components/plans/types'
+import {
+  LocalPricingUnitType,
+  LocalUsageChargeInput,
+  PlanFormInput,
+} from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -209,7 +213,7 @@ export const usePlanForm: ({
                     ? undefined
                     : {
                         code: appliedPricingUnit?.pricingUnit?.code || initialCurrency,
-                        conversionRate: String(appliedPricingUnit?.conversionRate),
+                        conversionRate: String(appliedPricingUnit?.conversionRate || ''),
                         shortName: appliedPricingUnit?.pricingUnit?.shortName || initialCurrency,
                         type: !!appliedPricingUnit?.pricingUnit?.code
                           ? LocalPricingUnitType.Custom
@@ -253,8 +257,8 @@ export const usePlanForm: ({
                 ...charge,
               }
             },
-          ) as LocalChargeInput[])
-        : ([] as LocalChargeInput[]),
+          ) as LocalUsageChargeInput[])
+        : ([] as LocalUsageChargeInput[]),
       cascadeUpdates: undefined,
     },
     validationSchema: object().shape({
@@ -476,6 +480,7 @@ export const usePlanForm: ({
       formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
       scrollToTop()
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
 

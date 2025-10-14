@@ -15,7 +15,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { MenuPopper } from '~/styles'
 
-import { LocalChargeFilterInput, LocalChargeInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, LocalUsageChargeInput, PlanFormInput } from './types'
 
 gql`
   fragment PercentageCharge on Properties {
@@ -54,7 +54,7 @@ export const ChargePercentage = memo(
   }: ChargePercentageProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
-    const chargeErrors = formikProps?.errors?.charges as FormikErrors<LocalChargeInput>[]
+    const chargeErrors = formikProps?.errors?.charges as FormikErrors<LocalUsageChargeInput>[]
     const showFixedAmount = valuePointer?.fixedAmount !== undefined
     const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
     const showFreeUnitsPerTotalAggregation =

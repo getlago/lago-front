@@ -39,7 +39,7 @@ import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
-import { LocalChargeInput } from '~/components/plans/types'
+import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -861,7 +861,7 @@ const CreateSubscription = () => {
                               subscriptionFormType={formType}
                               formikProps={planFormikProps}
                               premiumWarningDialogRef={premiumWarningDialogRef}
-                              alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
+                              alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
                               editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
                           </div>

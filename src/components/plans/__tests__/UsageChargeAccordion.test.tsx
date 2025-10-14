@@ -4,7 +4,7 @@ import { FormikProps, useFormik } from 'formik'
 import { object } from 'yup'
 
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
-import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { LocalUsageChargeInput, PlanFormInput } from '~/components/plans/types'
 import { UsageChargeAccordion } from '~/components/plans/UsageChargeAccordion'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
@@ -14,8 +14,8 @@ import { AggregationTypeEnum, ChargeModelEnum, CurrencyEnum } from '~/generated/
 import { render } from '~/test-utils'
 
 type PrepareProps = {
-  properties?: LocalChargeInput['properties']
-  filters?: LocalChargeInput['filters']
+  properties?: LocalUsageChargeInput['properties']
+  filters?: LocalUsageChargeInput['filters']
 }
 
 async function prepare({ filters, properties }: PrepareProps = {}) {
@@ -81,18 +81,20 @@ describe('UsageChargeAccordion', () => {
       expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
       expect(screen.queryByTestId('charge-0-default-property-accordion')).not.toBeInTheDocument()
       expect(
-        screen.queryByTestId('default-charge-accordion-without-filters'),
+        screen.queryByTestId('default-usage-charge-accordion-without-filters'),
       ).not.toBeInTheDocument()
       expect(screen.queryByTestId('filter-charge-accordion-0')).not.toBeInTheDocument()
     })
 
     it('renders a charge with property but no filters', async () => {
-      await prepare({ properties: getPropertyShape({}) as LocalChargeInput['properties'] })
+      await prepare({ properties: getPropertyShape({}) as LocalUsageChargeInput['properties'] })
 
       expect(screen.queryByTestId('charge-accordion-0')).toBeInTheDocument()
       expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
       expect(screen.queryByTestId('charge-0-default-property-accordion')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('default-charge-accordion-without-filters')).toBeInTheDocument()
+      expect(
+        screen.queryByTestId('default-usage-charge-accordion-without-filters'),
+      ).toBeInTheDocument()
       expect(screen.queryByTestId('filter-charge-accordion-0')).not.toBeInTheDocument()
     })
 
@@ -114,7 +116,7 @@ describe('UsageChargeAccordion', () => {
       expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
       expect(screen.queryByTestId('charge-0-default-property-accordion')).not.toBeInTheDocument()
       expect(
-        screen.queryByTestId('default-charge-accordion-without-filters'),
+        screen.queryByTestId('default-usage-charge-accordion-without-filters'),
       ).not.toBeInTheDocument()
       expect(screen.queryByTestId('filter-charge-accordion-0')).toBeInTheDocument()
       expect(screen.queryByTestId('filter-charge-accordion-1')).not.toBeInTheDocument()
@@ -122,7 +124,7 @@ describe('UsageChargeAccordion', () => {
 
     it('renders a charge with property and filters', async () => {
       await prepare({
-        properties: getPropertyShape({}) as LocalChargeInput['properties'],
+        properties: getPropertyShape({}) as LocalUsageChargeInput['properties'],
         filters: [
           {
             invoiceDisplayName: undefined,
@@ -139,7 +141,7 @@ describe('UsageChargeAccordion', () => {
       expect(screen.queryByTestId('charge-model-wrapper')).toBeInTheDocument()
       expect(screen.queryByTestId('charge-0-default-property-accordion')).toBeInTheDocument()
       expect(
-        screen.queryByTestId('default-charge-accordion-without-filters'),
+        screen.queryByTestId('default-usage-charge-accordion-without-filters'),
       ).not.toBeInTheDocument()
       expect(screen.queryByTestId('filter-charge-accordion-0')).toBeInTheDocument()
       expect(screen.queryByTestId('filter-charge-accordion-1')).not.toBeInTheDocument()
@@ -147,7 +149,7 @@ describe('UsageChargeAccordion', () => {
 
     it('hides all sub components if the accordion is closed', async () => {
       await prepare({
-        properties: getPropertyShape({}) as LocalChargeInput['properties'],
+        properties: getPropertyShape({}) as LocalUsageChargeInput['properties'],
         filters: [
           {
             invoiceDisplayName: undefined,

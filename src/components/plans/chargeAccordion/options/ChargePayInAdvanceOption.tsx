@@ -1,13 +1,11 @@
-import { FC, useMemo } from 'react'
+import { FC } from 'react'
 
 import { Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
-import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface ChargePayInAdvanceOptionProps {
-  billableMetricAggregationType: AggregationTypeEnum
-  chargeModel: ChargeModelEnum
+  chargePayInAdvanceDescription: string | undefined
   disabled?: boolean
   isPayInAdvanceOptionDisabled: boolean
   payInAdvance: boolean
@@ -23,8 +21,7 @@ interface ChargePayInAdvanceOptionProps {
 }
 
 export const ChargePayInAdvanceOption: FC<ChargePayInAdvanceOptionProps> = ({
-  billableMetricAggregationType,
-  chargeModel,
+  chargePayInAdvanceDescription,
   disabled,
   isPayInAdvanceOptionDisabled,
   payInAdvance,
@@ -32,25 +29,15 @@ export const ChargePayInAdvanceOption: FC<ChargePayInAdvanceOptionProps> = ({
 }) => {
   const { translate } = useInternationalization()
 
-  const chargePayInAdvanceDescription = useMemo(() => {
-    if (chargeModel === ChargeModelEnum.Volume) {
-      return translate('text_6669b493fae79a0095e639bc')
-    } else if (billableMetricAggregationType === AggregationTypeEnum.MaxAgg) {
-      return translate('text_6669b493fae79a0095e63986')
-    } else if (billableMetricAggregationType === AggregationTypeEnum.LatestAgg) {
-      return translate('text_6669b493fae79a0095e639a1')
-    }
-
-    return translate('text_6661fc17337de3591e29e435')
-  }, [chargeModel, billableMetricAggregationType, translate])
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col">
         <Typography variant="captionHl" color="textSecondary" component="legend">
           {translate('text_6682c52081acea90520743a8')}
         </Typography>
-        <Typography variant="caption">{chargePayInAdvanceDescription}</Typography>
+        {!!chargePayInAdvanceDescription && (
+          <Typography variant="caption">{chargePayInAdvanceDescription}</Typography>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">

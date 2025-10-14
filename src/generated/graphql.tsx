@@ -9955,7 +9955,7 @@ export type GetRecurringBillableMetricsQuery = { __typename?: 'Query', billableM
 
 export type VolumeRangesFragment = { __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
 
-export type ChargeForChargeOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null };
+export type ChargeForUsageChargeOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null };
 
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -15954,8 +15954,8 @@ export const DynamicChargeFragmentDoc = gql`
   pricingGroupKeys
 }
     `;
-export const ChargeForChargeOptionsAccordionFragmentDoc = gql`
-    fragment ChargeForChargeOptionsAccordion on Charge {
+export const ChargeForUsageChargeOptionsAccordionFragmentDoc = gql`
+    fragment ChargeForUsageChargeOptionsAccordion on Charge {
   id
   invoiceable
   minAmountCents
@@ -16022,7 +16022,7 @@ export const UsageChargeAccordionFragmentDoc = gql`
   taxes {
     ...TaxForTaxesSelectorSection
   }
-  ...ChargeForChargeOptionsAccordion
+  ...ChargeForUsageChargeOptionsAccordion
 }
     ${GraduatedChargeFragmentDoc}
 ${GraduatedPercentageChargeFragmentDoc}
@@ -16033,7 +16033,7 @@ ${PercentageChargeFragmentDoc}
 ${CustomChargeFragmentDoc}
 ${DynamicChargeFragmentDoc}
 ${TaxForTaxesSelectorSectionFragmentDoc}
-${ChargeForChargeOptionsAccordionFragmentDoc}`;
+${ChargeForUsageChargeOptionsAccordionFragmentDoc}`;
 export const PlanForUsageChargeAccordionFragmentDoc = gql`
     fragment PlanForUsageChargeAccordion on Plan {
   billChargesMonthly

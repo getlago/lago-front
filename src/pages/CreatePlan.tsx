@@ -18,7 +18,7 @@ import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
-import { LocalChargeInput } from '~/components/plans/types'
+import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -40,7 +40,6 @@ import {
   PlanForSettingsSectionFragmentDoc,
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
-  UsageChargeAccordionFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
@@ -115,6 +114,7 @@ gql`
         code
         ...BillableMetricForPlan
       }
+
       ...UsageChargeAccordion
       chargeModel
     }
@@ -131,7 +131,6 @@ gql`
     ...FeatureEntitlementForPlan
   }
 
-  ${UsageChargeAccordionFragmentDoc}
   ${PlanForUsageChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForSubscriptionFeeSectionFragmentDoc}
@@ -262,7 +261,7 @@ const CreatePlan = () => {
                       isEdition={isEdition}
                       formikProps={formikProps}
                       premiumWarningDialogRef={premiumWarningDialogRef}
-                      alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
+                      alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
                   </Section>

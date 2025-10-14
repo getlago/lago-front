@@ -1,21 +1,22 @@
 import { FormikProps } from 'formik'
 import { RefObject } from 'react'
 
-import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { LocalUsageChargeInput, PlanFormInput } from '~/components/plans/types'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { ChargeModelEnum } from '~/generated/graphql'
 
-export type HandleUpdateChargesProps = {
+export type HandleUpdateUsageChargesProps = {
   formikProps: FormikProps<PlanFormInput>
   index: number
   isPremium: boolean
-  localCharge: LocalChargeInput
+  localCharge: LocalUsageChargeInput
   name: string
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef> | undefined
   value: unknown
 }
-export const handleUpdateCharges = ({
+
+export const handleUpdateUsageCharges = ({
   formikProps,
   index,
   isPremium,
@@ -23,7 +24,7 @@ export const handleUpdateCharges = ({
   name,
   premiumWarningDialogRef,
   value,
-}: HandleUpdateChargesProps) => {
+}: HandleUpdateUsageChargesProps) => {
   // IMPORTANT: This check should stay first in this function
   // If user is not premium and try to switch to graduated percentage pricing
   // We should show the premium modal and prevent any formik value change
@@ -36,7 +37,7 @@ export const handleUpdateCharges = ({
   // It prevents fixing the properties to be wrongly reset to default on 2nd select.
   if (name === 'chargeModel' && value === localCharge.chargeModel) return
 
-  let currentChargeValues: LocalChargeInput = {
+  let currentChargeValues: LocalUsageChargeInput = {
     ...localCharge,
     [name]: value,
   }
