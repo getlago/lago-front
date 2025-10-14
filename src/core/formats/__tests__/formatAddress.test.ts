@@ -42,7 +42,6 @@ describe('formatAddress', () => {
     expect(addressEmpty).toBeNull()
   })
 
-  //   TODO: does not work as expected
   it('should format as US address if no country is provided', () => {
     const address = formatAddress({
       addressLine1: '123 Main St',
