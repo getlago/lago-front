@@ -144,7 +144,7 @@
     "yup": "1.7.1"
   },
   "engines": {
-    "node": ">=22"
+    "node": "24.10.0"
   },
   "browserslist": [
     "> 1%",
