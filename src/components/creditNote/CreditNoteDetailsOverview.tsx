@@ -1,5 +1,5 @@
 import { gql, MutationFunction } from '@apollo/client'
-import { Button, ConditionalWrapper, Typography } from 'lago-design-system'
+import { Button, ConditionalWrapper, Popper, Typography } from 'lago-design-system'
 import { FC } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 
@@ -26,6 +26,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { SectionHeader } from '~/styles/customer'
+import { MenuPopper } from '~/styles/designSystem/PopperComponents'
+import { downloadFileFromURL } from '~/utils/fileUtils'
 
 const { disablePdfGeneration } = envGlobalVar()
 
@@ -40,9 +42,11 @@ gql`
       refundStatus
       refundedAt
       refundAmountCents
+      xmlUrl
       billingEntity {
         name
         code
+        einvoicing
       }
       customer {
         id
@@ -92,19 +96,68 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
     <div>
       <SectionHeader variant="subhead1">
         {translate('text_637655cb50f04bf1c8379cfa')}
-        {!hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration && (
-          <Button
-            variant="quaternary"
-            disabled={loadingCreditNoteDownload}
-            onClick={async () => {
-              await downloadCreditNote({
-                variables: { input: { id: creditNoteId || '' } },
-              })
-            }}
-          >
-            {translate('text_637655cb50f04bf1c8379cf8')}
-          </Button>
-        )}
+        {!hasError &&
+          !loading &&
+          hasPermissions(['creditNotesView']) &&
+          !disablePdfGeneration &&
+          (!creditNote?.billingEntity.einvoicing || !creditNote?.xmlUrl) && (
+            <Button
+              variant="quaternary"
+              disabled={loadingCreditNoteDownload}
+              onClick={async () => {
+                await downloadCreditNote({
+                  variables: { input: { id: creditNoteId || '' } },
+                })
+              }}
+            >
+              {translate('text_637655cb50f04bf1c8379cf8')}
+            </Button>
+          )}
+        {!hasError &&
+          !loading &&
+          hasPermissions(['creditNotesView']) &&
+          !disablePdfGeneration &&
+          creditNote?.billingEntity.einvoicing &&
+          creditNote.xmlUrl && (
+            <Popper
+              PopperProps={{ placement: 'bottom-end' }}
+              opener={
+                <Button variant="inline" endIcon="chevron-down" data-test="coupon-details-actions">
+                  {translate('text_637655cb50f04bf1c8379cf8')}
+                </Button>
+              }
+            >
+              {({ closePopper }) => (
+                <MenuPopper>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={async () => {
+                      await downloadCreditNote({
+                        variables: { input: { id: creditNoteId || '' } },
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_1760358170490a3z3ocq0hyj')}
+                  </Button>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={async () => {
+                      await downloadFileFromURL(
+                        `credit_notes_${creditNoteId}.xml`,
+                        creditNote?.xmlUrl,
+                      )
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_17603581704907ndpljkjzhg')}
+                  </Button>
+                </MenuPopper>
+              )}
+            </Popper>
+          )}
       </SectionHeader>
 
       {creditNote?.billingEntity && (
