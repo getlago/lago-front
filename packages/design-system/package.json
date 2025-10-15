@@ -37,7 +37,7 @@
   "dependencies": {
     "lodash": "4.17.21",
     "lodash-es": "4.17.21",
-    "sanitize-html": "2.12.1"
+    "sanitize-html": "2.17.0"
   },
   "devDependencies": {
     "@svgr/core": "8.1.0",
