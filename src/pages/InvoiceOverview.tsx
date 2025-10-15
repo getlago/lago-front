@@ -348,6 +348,7 @@ const InvoiceOverview = memo(
     const { formattedDateWithTimezone } = useFormatterDateHelper()
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
+
     const billingEntity = invoice?.billingEntity
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
