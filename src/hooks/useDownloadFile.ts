@@ -8,6 +8,7 @@ export const useDownloadFile = () => {
     })
   }
 
+  // Use this function to download a file from a given URL that has no CORS issues
   const downloadFileFromURL = async (fileName: string, url?: string | null) => {
     if (!url) {
       showDownloadError()
@@ -31,5 +32,29 @@ export const useDownloadFile = () => {
     }
   }
 
-  return { downloadFileFromURL }
+  const openNewTab = (url: string) => {
+    // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
+    // It could be seen as unexpected popup as not immediatly done on user action
+    // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
+    // Also, we need to use setTimeout to avoid Safari blocking the popup
+    setTimeout(() => {
+      const myWindow = window.open('', '_blank')
+
+      if (myWindow?.location?.href) {
+        myWindow.location.href = url
+        return myWindow?.focus()
+      }
+
+      myWindow?.close()
+      showDownloadError()
+    }, 0)
+  }
+
+  const handleDownloadFile = (fileUrl?: string | null) => {
+    if (!fileUrl) return showDownloadError()
+
+    openNewTab(fileUrl)
+  }
+
+  return { downloadFileFromURL, handleDownloadFile, openNewTab }
 }
