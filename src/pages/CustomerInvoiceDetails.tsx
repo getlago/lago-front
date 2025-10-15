@@ -100,12 +100,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
-import { downloadFileFromURL } from '~/utils/fileUtils'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -369,6 +369,8 @@ const CustomerInvoiceDetails = () => {
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+
+  const { downloadFileFromURL } = useDownloadFile()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -801,6 +803,10 @@ const CustomerInvoiceDetails = () => {
     [actions, status, taxStatus],
   )
 
+  const canDownloadXmlFile = useMemo(() => {
+    return invoice?.billingEntity.einvoicing && invoice.xmlUrl
+  }, [invoice])
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -865,29 +871,26 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
+                  {!hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!loadingInvoiceDownload}
+                      onClick={async () => {
+                        await downloadInvoice({
+                          variables: { input: { id: invoiceId || '' } },
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_634687079be251fdb4383395')}
+                    </Button>
+                  )}
                   {!hasTaxProviderError &&
                     !canFinalize &&
                     canDownload &&
-                    (!invoice?.billingEntity.einvoicing || !invoice?.xmlUrl) && (
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={!!loadingInvoiceDownload}
-                        onClick={async () => {
-                          await downloadInvoice({
-                            variables: { input: { id: invoiceId || '' } },
-                          })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_634687079be251fdb4383395')}
-                      </Button>
-                    )}
-                  {!hasTaxProviderError &&
-                    !canFinalize &&
-                    canDownload &&
-                    invoice?.billingEntity.einvoicing &&
-                    invoice.xmlUrl && (
+                    invoice &&
+                    canDownloadXmlFile && (
                       <>
                         <Button
                           variant="quaternary"

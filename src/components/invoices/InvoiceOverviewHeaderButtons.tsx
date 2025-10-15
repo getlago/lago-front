@@ -12,8 +12,8 @@ import {
   RetryInvoiceMutationFn,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { MenuPopper } from '~/styles'
-import { downloadFileFromURL } from '~/utils/fileUtils'
 
 const { disablePdfGeneration } = envGlobalVar()
 
@@ -49,6 +49,8 @@ export const InvoiceOverviewHeaderButtons = ({
   invoiceId,
 }: InvoiceOverviewHeaderButtonsProps) => {
   const { translate } = useInternationalization()
+  const { downloadFileFromURL } = useDownloadFile()
+
   const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
   const canDownloadInvoice = !hasError && !loading && !disablePdfGeneration
   const canDownloadXml = invoice.billingEntity?.einvoicing || invoice.xmlUrl
