@@ -50,11 +50,44 @@ export const useDownloadFile = () => {
     }, 0)
   }
 
+  const openAndCloseTab = (url: string) => {
+    // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
+    // It could be seen as unexpected popup as not immediatly done on user action
+    // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
+    // Also, we need to use setTimeout to avoid Safari blocking the popup
+    setTimeout(() => {
+      const myWindow = window.open('', '_blank')
+
+      if (myWindow?.location?.href) {
+        myWindow.location.href = url
+        myWindow?.focus()
+
+        // Timeout so we can close the tab after the download is launched
+        // 200ms should be enough, and we don't want to keep the tab opened for too long
+        setTimeout(() => {
+          myWindow?.close()
+        }, 200)
+        return
+      }
+
+      myWindow?.close()
+      showDownloadError()
+    }, 0)
+  }
+
   const handleDownloadFile = (fileUrl?: string | null) => {
     if (!fileUrl) return showDownloadError()
 
     openNewTab(fileUrl)
   }
 
-  return { downloadFileFromURL, handleDownloadFile, openNewTab }
+  // Use this function to download a file from a given URL that has CORS issues
+  // this will open the file in a new tab, let the browser download the file then close the tab
+  const handleDownloadFileWithCors = (fileUrl?: string | null) => {
+    if (!fileUrl) return showDownloadError()
+
+    openAndCloseTab(fileUrl)
+  }
+
+  return { downloadFileFromURL, handleDownloadFile, openNewTab, handleDownloadFileWithCors }
 }

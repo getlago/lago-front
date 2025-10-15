@@ -369,7 +369,7 @@ const CustomerInvoiceDetails = () => {
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
 
-  const { handleDownloadFile, openNewTab } = useDownloadFile()
+  const { handleDownloadFile, handleDownloadFileWithCors, openNewTab } = useDownloadFile()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -909,7 +909,7 @@ const CustomerInvoiceDetails = () => {
                           align="left"
                           disabled={!!loadingInvoiceDownload}
                           onClick={async () => {
-                            await handleDownloadFile(invoice.xmlUrl)
+                            await handleDownloadFileWithCors(invoice.xmlUrl)
                             closePopper()
                           }}
                         >
