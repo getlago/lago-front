@@ -803,7 +803,7 @@ const CustomerInvoiceDetails = () => {
   )
 
   const canDownloadXmlFile = useMemo(() => {
-    return invoice?.billingEntity.einvoicing && invoice.xmlUrl
+    return invoice?.billingEntity.einvoicing
   }, [invoice])
 
   return (
