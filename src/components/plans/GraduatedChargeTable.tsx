@@ -5,6 +5,7 @@ import { memo, useState } from 'react'
 
 import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -24,6 +25,7 @@ gql`
 `
 
 interface GraduatedChargeTableProps {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
@@ -54,6 +56,7 @@ const DisabledAmountCell = ({
 
 export const GraduatedChargeTable = memo(
   ({
+    chargeCursor,
     chargeIndex,
     chargePricingUnitShortName,
     currency,
@@ -66,6 +69,7 @@ export const GraduatedChargeTable = memo(
     const [errorIndex, setErrorIndex] = useState<number | undefined>()
     const { tableDatas, addRange, handleUpdate, deleteRange, infosCalculation } =
       useGraduatedChargeForm({
+        chargeCursor,
         chargeIndex,
         disabled,
         formikProps,
@@ -321,7 +325,7 @@ export const GraduatedChargeTable = memo(
           <PricingGroupKeys
             disabled={disabled}
             handleUpdate={(name, value) => {
-              formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+              formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
             }}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}

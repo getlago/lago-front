@@ -440,6 +440,7 @@ export const UsageChargeAccordion = memo(
                     }}
                   >
                     <ChargeWrapperSwitch
+                      chargeCursor="charges"
                       chargeIndex={index}
                       chargePricingUnitShortName={chargePricingUnitShortName}
                       currency={currency}
@@ -549,6 +550,7 @@ export const UsageChargeAccordion = memo(
                           />
 
                           <ChargeWrapperSwitch
+                            chargeCursor="charges"
                             chargeIndex={index}
                             chargePricingUnitShortName={chargePricingUnitShortName}
                             currency={currency}

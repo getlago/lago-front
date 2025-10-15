@@ -3,6 +3,7 @@ import { FormikProps } from 'formik'
 import { memo, useCallback } from 'react'
 
 import { Alert } from '~/components/designSystem'
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { PropertiesInput } from '~/generated/graphql'
@@ -15,6 +16,7 @@ gql`
 `
 
 type DynamicChargeProps = {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
@@ -23,15 +25,22 @@ type DynamicChargeProps = {
 }
 
 export const DynamicCharge = memo(
-  ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: DynamicChargeProps) => {
+  ({
+    chargeCursor,
+    chargeIndex,
+    disabled,
+    formikProps,
+    propertyCursor,
+    valuePointer,
+  }: DynamicChargeProps) => {
     const { translate } = useInternationalization()
 
     const handleUpdate = useCallback(
       (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+        formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex],
+      [chargeCursor, chargeIndex],
     )
 
     return (

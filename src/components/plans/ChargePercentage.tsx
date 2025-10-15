@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikErrors, FormikProps } from 'formik'
+import { FormikProps } from 'formik'
 import _get from 'lodash/get'
-import { memo, RefObject, useCallback } from 'react'
+import { memo, RefObject, useCallback, useMemo } from 'react'
 
 import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
@@ -15,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { MenuPopper } from '~/styles'
 
-import { LocalChargeFilterInput, LocalUsageChargeInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
   fragment PercentageCharge on Properties {
@@ -29,6 +30,7 @@ gql`
 `
 
 interface ChargePercentageProps {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
@@ -42,6 +44,7 @@ interface ChargePercentageProps {
 
 export const ChargePercentage = memo(
   ({
+    chargeCursor,
     chargeIndex,
     chargePricingUnitShortName,
     currency,
@@ -54,7 +57,7 @@ export const ChargePercentage = memo(
   }: ChargePercentageProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
-    const chargeErrors = formikProps?.errors?.charges as FormikErrors<LocalUsageChargeInput>[]
+    const chargeErrors = _get(formikProps?.errors, `${chargeCursor}.${chargeIndex}`)
     const showFixedAmount = valuePointer?.fixedAmount !== undefined
     const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
     const showFreeUnitsPerTotalAggregation =
@@ -70,21 +73,26 @@ export const ChargePercentage = memo(
       }),
     })
 
-    const hasMinAmountError =
-      typeof filterIndex === 'number'
-        ? // @ts-expect-error we're using props from chargeErrors which are not reccognized by the Formik component
-          chargeErrors?.[chargeIndex]?.filters?.[filterIndex]?.properties
-            ?.perTransactionMinAmount === MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
-        : // @ts-expect-error we're using props from chargeErrors which are not reccognized by the Formik component
-          chargeErrors?.[chargeIndex]?.properties?.perTransactionMinAmount ===
+    const hasMinAmountError = useMemo(() => {
+      if (typeof filterIndex === 'number') {
+        return (
+          _get(chargeErrors, `filters.${filterIndex}.properties.perTransactionMinAmount`) ===
           MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
+        )
+      }
+      return (
+        _get(chargeErrors, `properties.perTransactionMinAmount`) ===
+        MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
+      )
+    }, [chargeErrors, filterIndex])
 
     const handleUpdate = useCallback(
       (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+        formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
       },
+
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex],
+      [chargeCursor, chargeIndex],
     )
 
     if (!showFreeUnitsPerEvents && showFreeUnitsPerTotalAggregation) {
@@ -100,7 +108,6 @@ export const ChargePercentage = memo(
           name={`${propertyCursor}.rate`}
           label={translate('text_62a0b7107afa2700a65ef6f6')}
           beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-          error={_get(formikProps.errors, `charges.${chargeIndex}.${propertyCursor}.rate`)}
           disabled={disabled}
           placeholder={translate('text_62a0b7107afa2700a65ef700')}
           value={valuePointer?.rate as number | undefined}
@@ -145,7 +152,7 @@ export const ChargePercentage = memo(
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                  formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                     ...valuePointer,
                     fixedAmount: undefined,
                   })
@@ -187,7 +194,7 @@ export const ChargePercentage = memo(
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                  formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                     ...valuePointer,
                     freeUnitsPerEvents: undefined,
                   })
@@ -237,7 +244,7 @@ export const ChargePercentage = memo(
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                  formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                     ...valuePointer,
                     freeUnitsPerTotalAggregation: undefined,
                   })
@@ -294,7 +301,7 @@ export const ChargePercentage = memo(
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                  formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                     ...valuePointer,
                     perTransactionMinAmount: undefined,
                   })
@@ -338,7 +345,7 @@ export const ChargePercentage = memo(
                 disabled={disabled}
                 variant="quaternary"
                 onClick={() => {
-                  formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                  formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                     ...valuePointer,
                     perTransactionMaxAmount: undefined,
                   })
@@ -355,7 +362,7 @@ export const ChargePercentage = memo(
             variant="inline"
             disabled={disabled || valuePointer?.fixedAmount !== undefined}
             onClick={() =>
-              formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+              formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                 ...valuePointer,
                 fixedAmount: '',
               })
@@ -390,7 +397,7 @@ export const ChargePercentage = memo(
                   variant="quaternary"
                   disabled={disabled || valuePointer?.freeUnitsPerEvents !== undefined}
                   onClick={() => {
-                    formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                    formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                       ...valuePointer,
                       freeUnitsPerEvents: '',
                     })
@@ -405,7 +412,7 @@ export const ChargePercentage = memo(
                   variant="quaternary"
                   disabled={disabled || valuePointer?.freeUnitsPerTotalAggregation !== undefined}
                   onClick={() => {
-                    formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
+                    formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${propertyCursor}`, {
                       ...valuePointer,
                       freeUnitsPerTotalAggregation: '',
                     })
@@ -447,10 +454,13 @@ export const ChargePercentage = memo(
                   disabled={disabled || valuePointer?.perTransactionMinAmount !== undefined}
                   onClick={() => {
                     if (isPremium) {
-                      formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
-                        ...valuePointer,
-                        perTransactionMinAmount: '',
-                      })
+                      formikProps.setFieldValue(
+                        `${chargeCursor}.${chargeIndex}.${propertyCursor}`,
+                        {
+                          ...valuePointer,
+                          perTransactionMinAmount: '',
+                        },
+                      )
                     } else {
                       premiumWarningDialogRef?.current?.openDialog()
                     }
@@ -468,10 +478,13 @@ export const ChargePercentage = memo(
                   disabled={disabled || valuePointer?.perTransactionMaxAmount !== undefined}
                   onClick={() => {
                     if (isPremium) {
-                      formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
-                        ...valuePointer,
-                        perTransactionMaxAmount: '',
-                      })
+                      formikProps.setFieldValue(
+                        `${chargeCursor}.${chargeIndex}.${propertyCursor}`,
+                        {
+                          ...valuePointer,
+                          perTransactionMaxAmount: '',
+                        },
+                      )
                     } else {
                       premiumWarningDialogRef?.current?.openDialog()
                     }

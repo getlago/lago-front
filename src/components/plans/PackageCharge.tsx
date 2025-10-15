@@ -6,6 +6,7 @@ import { memo, useCallback } from 'react'
 
 import { Alert, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
@@ -22,6 +23,7 @@ gql`
 `
 
 interface PackageChargeProps {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
@@ -33,6 +35,7 @@ interface PackageChargeProps {
 
 export const PackageCharge = memo(
   ({
+    chargeCursor,
     chargeIndex,
     chargePricingUnitShortName,
     currency,
@@ -44,7 +47,7 @@ export const PackageCharge = memo(
     const { translate } = useInternationalization()
     const handleUpdate = useCallback(
       (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+        formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [chargeIndex],
@@ -74,7 +77,7 @@ export const PackageCharge = memo(
         <TextInput
           name={`${propertyCursor}.packageSize`}
           beforeChangeFormatter={['positiveNumber', 'int']}
-          error={_get(formikProps.errors, `charges.${chargeIndex}.properties.packageSize`)}
+          error={_get(formikProps.errors, `${chargeCursor}.${chargeIndex}.properties.packageSize`)}
           disabled={disabled}
           value={serializedPackageCharge}
           onChange={(value) => handleUpdate(`${propertyCursor}.packageSize`, value)}
