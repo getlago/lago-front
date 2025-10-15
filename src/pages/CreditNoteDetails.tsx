@@ -30,7 +30,6 @@ import {
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   CreditNote,
   CurrencyEnum,
@@ -43,6 +42,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -61,6 +61,10 @@ gql`
       taxProviderSyncable
       externalIntegrationId
       taxProviderId
+      xmlUrl
+      billingEntity {
+        einvoicing
+      }
       customer {
         ...CustomerForCreditNoteDetailsExternalSync
       }
@@ -96,6 +100,8 @@ const CreditNoteDetails = () => {
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { isPremium } = useCurrentUser()
+
+  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
 
   const { data, loading, error } = useGetCreditNoteForDetailsQuery({
     variables: { id: creditNoteId as string },
@@ -187,6 +193,10 @@ const CreditNoteDetails = () => {
     }
   }, [creditNote, hasPermissions])
 
+  const canDownloadXmlFile = useMemo(() => {
+    return creditNote?.billingEntity.einvoicing
+  }, [creditNote])
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -210,7 +220,7 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {actions.canDownload && (
+                {actions.canDownload && !canDownloadXmlFile && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -224,6 +234,34 @@ const CreditNoteDetails = () => {
                   >
                     {translate('text_637655cb50f04bf1c8379cea')}
                   </Button>
+                )}
+                {actions.canDownload && canDownloadXmlFile && (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!loadingCreditNoteDownload}
+                      onClick={async () => {
+                        await downloadCreditNote({
+                          variables: { input: { id: creditNote?.id || '' } },
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_17604478530211cbzl70dt83')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!loadingCreditNoteDownload}
+                      onClick={async () => {
+                        await handleDownloadFileWithCors(creditNote?.xmlUrl)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1760447853022mkp6gwgqukb')}
+                    </Button>
+                  </>
                 )}
                 {actions.canVoid && (
                   <Button

@@ -1,6 +1,6 @@
 import { gql, MutationFunction } from '@apollo/client'
-import { Button, ConditionalWrapper, Typography } from 'lago-design-system'
-import { FC } from 'react'
+import { Button, ConditionalWrapper, Popper, Typography } from 'lago-design-system'
+import { FC, useMemo } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 
 import { CreditNoteDetailsOverviewTable } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
@@ -24,8 +24,10 @@ import {
   useGetCreditNoteForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import { SectionHeader } from '~/styles/customer'
+import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 const { disablePdfGeneration } = envGlobalVar()
 
@@ -40,9 +42,11 @@ gql`
       refundStatus
       refundedAt
       refundAmountCents
+      xmlUrl
       billingEntity {
         name
         code
+        einvoicing
       }
       customer {
         id
@@ -74,6 +78,8 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
 
+  const { handleDownloadFileWithCors } = useDownloadFile()
+
   const { data, loading, error } = useGetCreditNoteForDetailsOverviewQuery({
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
@@ -88,13 +94,21 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
     ? creditNoteRefundStatusMapping(creditNote?.refundStatus)
     : creditNoteCreditStatusMapping(creditNote?.creditStatus)
 
+  const canDownloadCreditNote = useMemo(() => {
+    return !hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration
+  }, [hasError, loading, hasPermissions])
+
+  const canDownloadXmlFile = useMemo(() => {
+    return creditNote?.billingEntity.einvoicing
+  }, [creditNote])
+
   return (
     <div>
       <SectionHeader variant="subhead1">
         {translate('text_637655cb50f04bf1c8379cfa')}
-        {!hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration && (
+        {canDownloadCreditNote && !canDownloadXmlFile && (
           <Button
-            variant="quaternary"
+            variant="inline"
             disabled={loadingCreditNoteDownload}
             onClick={async () => {
               await downloadCreditNote({
@@ -104,6 +118,43 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
           >
             {translate('text_637655cb50f04bf1c8379cf8')}
           </Button>
+        )}
+        {canDownloadCreditNote && canDownloadXmlFile && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button variant="inline" endIcon="chevron-down">
+                {translate('text_637655cb50f04bf1c8379cf8')}
+              </Button>
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={async () => {
+                    await downloadCreditNote({
+                      variables: { input: { id: creditNoteId || '' } },
+                    })
+                    closePopper()
+                  }}
+                >
+                  {translate('text_1760358170490a3z3ocq0hyj')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={async () => {
+                    await handleDownloadFileWithCors(creditNote?.xmlUrl)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_17603581704907ndpljkjzhg')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
         )}
       </SectionHeader>
 

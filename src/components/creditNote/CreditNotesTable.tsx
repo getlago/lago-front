@@ -23,7 +23,6 @@ import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import { ResponsiveStyleValue } from '~/core/utils/responsiveProps'
 import {
   CreditNoteForVoidCreditNoteDialogFragmentDoc,
@@ -34,6 +33,7 @@ import {
   useDownloadCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { tw } from '~/styles/utils'
@@ -126,6 +126,8 @@ const CreditNotesTable = ({
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
+
+  const { handleDownloadFile } = useDownloadFile()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,

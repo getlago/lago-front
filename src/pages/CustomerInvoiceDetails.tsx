@@ -53,7 +53,6 @@ import {
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -100,6 +99,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import InvoiceOverview from '~/pages/InvoiceOverview'
@@ -368,6 +368,8 @@ const CustomerInvoiceDetails = () => {
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+
+  const { handleDownloadFile, handleDownloadFileWithCors, openNewTab } = useDownloadFile()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -794,6 +796,16 @@ const CustomerInvoiceDetails = () => {
     canRecordPayment,
   ])
 
+  const canFinalize = useMemo(() => actions.canFinalize({ status }), [actions, status])
+  const canDownload = useMemo(
+    () => actions.canDownload({ status, taxStatus }),
+    [actions, status, taxStatus],
+  )
+
+  const canDownloadXmlFile = useMemo(() => {
+    return invoice?.billingEntity.einvoicing
+  }, [invoice])
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -817,7 +829,7 @@ const CustomerInvoiceDetails = () => {
             {({ closePopper }) => {
               return (
                 <MenuPopper>
-                  {hasTaxProviderError ? (
+                  {hasTaxProviderError && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -830,7 +842,8 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
-                  ) : actions.canFinalize({ status }) ? (
+                  )}
+                  {!hasTaxProviderError && canFinalize && (
                     <>
                       <Button
                         variant="quaternary"
@@ -856,7 +869,8 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : actions.canDownload({ status, taxStatus }) ? (
+                  )}
+                  {!hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -870,7 +884,39 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
-                  ) : null}
+                  )}
+                  {!hasTaxProviderError &&
+                    !canFinalize &&
+                    canDownload &&
+                    invoice &&
+                    canDownloadXmlFile && (
+                      <>
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          disabled={!!loadingInvoiceDownload}
+                          onClick={async () => {
+                            await downloadInvoice({
+                              variables: { input: { id: invoiceId || '' } },
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1760447853022ebd47gmqjmp')}
+                        </Button>
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          disabled={!!loadingInvoiceDownload}
+                          onClick={async () => {
+                            await handleDownloadFileWithCors(invoice.xmlUrl)
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1760447853022hb1hdiprvet')}
+                        </Button>
+                      </>
+                    )}
                   {actions.canIssueCreditNote({ status }) && (
                     <>
                       {isPremium ? (
