@@ -434,7 +434,7 @@ const InvoiceOverview = memo(
     const canDownloadInvoice =
       !isDraft && !hasTaxProviderError && !hasError && !loading && !disablePdfGeneration
 
-    const canDownloadXmlFile = invoice?.billingEntity.einvoicing && invoice.xmlUrl
+    const canDownloadXmlFile = invoice?.billingEntity.einvoicing
 
     return (
       <>
