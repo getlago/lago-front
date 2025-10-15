@@ -492,11 +492,7 @@ const InvoiceOverview = memo(
               <Popper
                 PopperProps={{ placement: 'bottom-end' }}
                 opener={
-                  <Button
-                    variant="inline"
-                    endIcon="chevron-down"
-                    data-test="coupon-details-actions"
-                  >
+                  <Button variant="inline" endIcon="chevron-down">
                     {translate('text_634687079be251fdb43833b9')}
                   </Button>
                 }
