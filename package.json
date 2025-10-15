@@ -121,7 +121,7 @@
     "apollo3-cache-persist": "0.15.0",
     "decimal.js": "10.6.0",
     "formik": "2.4.6",
-    "graphql": "16.10.0",
+    "graphql": "16.11.0",
     "graphql-ruby-client": "1.14.8",
     "html-react-parser": "5.2.6",
     "lago-configs": "workspace:*",
