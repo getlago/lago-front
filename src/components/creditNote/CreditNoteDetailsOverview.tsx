@@ -123,7 +123,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={
-              <Button variant="inline" endIcon="chevron-down" data-test="coupon-details-actions">
+              <Button variant="inline" endIcon="chevron-down">
                 {translate('text_637655cb50f04bf1c8379cf8')}
               </Button>
             }
