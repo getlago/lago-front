@@ -43,10 +43,10 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
-import { downloadFileFromURL } from '~/utils/fileUtils'
 
 const { disablePdfGeneration } = envGlobalVar()
 
@@ -101,6 +101,8 @@ const CreditNoteDetails = () => {
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { isPremium } = useCurrentUser()
+
+  const { downloadFileFromURL } = useDownloadFile()
 
   const { data, loading, error } = useGetCreditNoteForDetailsQuery({
     variables: { id: creditNoteId as string },
@@ -192,6 +194,10 @@ const CreditNoteDetails = () => {
     }
   }, [creditNote, hasPermissions])
 
+  const canDownloadXmlFile = useMemo(() => {
+    return creditNote?.billingEntity.einvoicing && creditNote?.xmlUrl
+  }, [creditNote])
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -215,8 +221,23 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {actions.canDownload &&
-                  (!creditNote?.billingEntity.einvoicing || !creditNote?.xmlUrl) && (
+                {actions.canDownload && !canDownloadXmlFile && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={!!loadingCreditNoteDownload}
+                    onClick={async () => {
+                      await downloadCreditNote({
+                        variables: { input: { id: creditNote?.id || '' } },
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_637655cb50f04bf1c8379cea')}
+                  </Button>
+                )}
+                {actions.canDownload && canDownloadXmlFile && (
+                  <>
                     <Button
                       variant="quaternary"
                       align="left"
@@ -228,42 +249,24 @@ const CreditNoteDetails = () => {
                         closePopper()
                       }}
                     >
-                      {translate('text_637655cb50f04bf1c8379cea')}
+                      {translate('text_17604478530211cbzl70dt83')}
                     </Button>
-                  )}
-                {actions.canDownload &&
-                  creditNote?.billingEntity.einvoicing &&
-                  creditNote?.xmlUrl && (
-                    <>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={!!loadingCreditNoteDownload}
-                        onClick={async () => {
-                          await downloadCreditNote({
-                            variables: { input: { id: creditNote?.id || '' } },
-                          })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_17604478530211cbzl70dt83')}
-                      </Button>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={!!loadingCreditNoteDownload}
-                        onClick={async () => {
-                          await downloadFileFromURL(
-                            `credit_notes_${creditNote?.id}.xml`,
-                            creditNote?.xmlUrl,
-                          )
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_1760447853022mkp6gwgqukb')}
-                      </Button>
-                    </>
-                  )}
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!loadingCreditNoteDownload}
+                      onClick={async () => {
+                        await downloadFileFromURL(
+                          `credit_notes_${creditNote?.id}.xml`,
+                          creditNote?.xmlUrl,
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1760447853022mkp6gwgqukb')}
+                    </Button>
+                  </>
+                )}
                 {actions.canVoid && (
                   <Button
                     variant="quaternary"
