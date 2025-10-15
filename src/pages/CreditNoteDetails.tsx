@@ -194,7 +194,7 @@ const CreditNoteDetails = () => {
   }, [creditNote, hasPermissions])
 
   const canDownloadXmlFile = useMemo(() => {
-    return creditNote?.billingEntity.einvoicing && creditNote?.xmlUrl
+    return creditNote?.billingEntity.einvoicing
   }, [creditNote])
 
   return (
