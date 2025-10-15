@@ -43,7 +43,6 @@ import {
   CUSTOMERS_LIST_ROUTE,
   UPDATE_CUSTOMER_ROUTE,
 } from '~/core/router'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
@@ -53,6 +52,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -103,6 +103,7 @@ const CustomerDetails = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { customerId, tab } = useParams()
+  const { handleDownloadFile } = useDownloadFile()
 
   const { data, loading, error } = useGetCustomerQuery({
     variables: { id: customerId as string },
