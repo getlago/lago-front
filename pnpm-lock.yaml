@@ -32,7 +32,7 @@ importers:
         version: 5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/x-date-pickers':
         specifier: 6.20.0
-        version: 6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.4.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.7.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@nangohq/frontend':
         specifier: 0.67.8
         version: 0.67.8
@@ -91,8 +91,8 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
       luxon:
-        specifier: 3.4.4
-        version: 3.4.4
+        specifier: 3.7.2
+        version: 3.7.2
       prismjs:
         specifier: 1.30.0
         version: 1.30.0
@@ -206,8 +206,8 @@ importers:
         specifier: 4.17.20
         version: 4.17.20
       '@types/luxon':
-        specifier: 3.4.2
-        version: 3.4.2
+        specifier: 3.7.1
+        version: 3.7.1
       '@types/node':
         specifier: 22.18.8
         version: 22.18.8
@@ -384,7 +384,7 @@ importers:
         version: 5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@mui/x-date-pickers':
         specifier: 6.20.0
-        version: 6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.4.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.7.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -3257,8 +3257,8 @@ packages:
   '@types/lodash@4.17.20':
     resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
 
-  '@types/luxon@3.4.2':
-    resolution: {integrity: sha512-TifLZlFudklWlMBfhubvgqTXRzLDI5pCbGa4P8a3wPyUQSW+1xQ5eDsreP9DWHX3tjq1ke96uYG/nwundroWcA==}
+  '@types/luxon@3.7.1':
+    resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
 
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
@@ -5866,8 +5866,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  luxon@3.4.4:
-    resolution: {integrity: sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==}
+  luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
     engines: {node: '>=12'}
 
   lz-string@1.5.0:
@@ -10677,7 +10677,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.2.38
 
-  '@mui/x-date-pickers@6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.4.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@mui/x-date-pickers@6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.7.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/base': 5.0.0-beta.68(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -10694,7 +10694,7 @@ snapshots:
       '@emotion/react': 11.13.5(@types/react@18.2.38)(react@18.2.0)
       '@emotion/styled': 11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0)
       dayjs: 1.11.13
-      luxon: 3.4.4
+      luxon: 3.7.2
     transitivePeerDependencies:
       - '@types/react'
 
@@ -11293,7 +11293,7 @@ snapshots:
 
   '@types/lodash@4.17.20': {}
 
-  '@types/luxon@3.4.2': {}
+  '@types/luxon@3.7.1': {}
 
   '@types/mdast@4.0.4':
     dependencies:
@@ -14491,7 +14491,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  luxon@3.4.4: {}
+  luxon@3.7.2: {}
 
   lz-string@1.5.0: {}
 
