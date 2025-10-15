@@ -101,7 +101,7 @@ const CreditNoteDetails = () => {
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { isPremium } = useCurrentUser()
 
-  const { handleDownloadFile } = useDownloadFile()
+  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
 
   const { data, loading, error } = useGetCreditNoteForDetailsQuery({
     variables: { id: creditNoteId as string },
@@ -255,7 +255,7 @@ const CreditNoteDetails = () => {
                       align="left"
                       disabled={!!loadingCreditNoteDownload}
                       onClick={async () => {
-                        await handleDownloadFile(creditNote?.xmlUrl)
+                        await handleDownloadFileWithCors(creditNote?.xmlUrl)
                         closePopper()
                       }}
                     >

@@ -349,7 +349,7 @@ const InvoiceOverview = memo(
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
-    const { handleDownloadFile } = useDownloadFile()
+    const { handleDownloadFileWithCors } = useDownloadFile()
 
     const billingEntity = invoice?.billingEntity
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
@@ -515,7 +515,7 @@ const InvoiceOverview = memo(
                       variant="quaternary"
                       align="left"
                       onClick={async () => {
-                        await handleDownloadFile(invoice.xmlUrl)
+                        await handleDownloadFileWithCors(invoice.xmlUrl)
                         closePopper()
                       }}
                     >
