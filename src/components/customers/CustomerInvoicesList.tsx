@@ -35,7 +35,6 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import {
   CurrencyEnum,
   InvoiceForFinalizeInvoiceFragmentDoc,
@@ -51,6 +50,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 
 gql`
@@ -159,6 +159,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const { handleDownloadFile, openNewTab } = useDownloadFile()
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },

@@ -30,7 +30,6 @@ import {
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   CreditNote,
   CurrencyEnum,
@@ -102,7 +101,7 @@ const CreditNoteDetails = () => {
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { isPremium } = useCurrentUser()
 
-  const { downloadFileFromURL } = useDownloadFile()
+  const { handleDownloadFile } = useDownloadFile()
 
   const { data, loading, error } = useGetCreditNoteForDetailsQuery({
     variables: { id: creditNoteId as string },
@@ -256,10 +255,7 @@ const CreditNoteDetails = () => {
                       align="left"
                       disabled={!!loadingCreditNoteDownload}
                       onClick={async () => {
-                        await downloadFileFromURL(
-                          `credit_notes_${creditNote?.id}.xml`,
-                          creditNote?.xmlUrl,
-                        )
+                        await handleDownloadFile(creditNote?.xmlUrl)
                         closePopper()
                       }}
                     >

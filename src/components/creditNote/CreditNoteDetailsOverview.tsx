@@ -78,7 +78,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
 
-  const { downloadFileFromURL } = useDownloadFile()
+  const { handleDownloadFile } = useDownloadFile()
 
   const { data, loading, error } = useGetCreditNoteForDetailsOverviewQuery({
     variables: { id: creditNoteId as string },
@@ -146,10 +146,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                   variant="quaternary"
                   align="left"
                   onClick={async () => {
-                    await downloadFileFromURL(
-                      `credit_notes_${creditNoteId}.xml`,
-                      creditNote?.xmlUrl,
-                    )
+                    await handleDownloadFile(creditNote?.xmlUrl)
                     closePopper()
                   }}
                 >

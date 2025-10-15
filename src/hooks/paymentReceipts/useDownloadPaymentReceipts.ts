@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import { PremiumIntegrationTypeEnum, useDownloadPaymentReceiptMutation } from '~/generated/graphql'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -17,6 +17,7 @@ gql`
 const useDownloadPaymentReceipts = () => {
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
+  const { handleDownloadFile } = useDownloadFile()
 
   const canDownloadPaymentReceipts =
     hasPermissions(['invoicesView']) &&

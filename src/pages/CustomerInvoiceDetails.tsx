@@ -53,7 +53,6 @@ import {
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -370,7 +369,7 @@ const CustomerInvoiceDetails = () => {
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
 
-  const { downloadFileFromURL } = useDownloadFile()
+  const { handleDownloadFile, openNewTab } = useDownloadFile()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -910,7 +909,7 @@ const CustomerInvoiceDetails = () => {
                           align="left"
                           disabled={!!loadingInvoiceDownload}
                           onClick={async () => {
-                            await downloadFileFromURL(`invoice_${invoiceId}.xml`, invoice.xmlUrl)
+                            await handleDownloadFile(invoice.xmlUrl)
                             closePopper()
                           }}
                         >
