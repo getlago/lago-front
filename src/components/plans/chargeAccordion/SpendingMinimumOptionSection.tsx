@@ -3,8 +3,8 @@ import { Button, Tooltip } from 'lago-design-system'
 import { RefObject, useEffect, useState } from 'react'
 
 import { AmountInput } from '~/components/form'
-import { HandleUpdateChargesProps } from '~/components/plans/chargeAccordion/utils'
-import { LocalChargeInput } from '~/components/plans/types'
+import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
+import { LocalUsageChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
@@ -24,18 +24,18 @@ export const SpendingMinimumOptionSection = ({
   handleUpdate,
   handleRemoveSpendingMinimum,
 }: {
-  initialLocalCharge: LocalChargeInput
+  initialLocalCharge: LocalUsageChargeInput
   subscriptionFormType: (typeof FORM_TYPE_ENUM)[keyof typeof FORM_TYPE_ENUM] | undefined
   disabled: boolean | undefined
-  localCharge: LocalChargeInput
+  localCharge: LocalUsageChargeInput
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   isPremium: boolean
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef> | undefined
   chargeIndex: number
   handleUpdate: (
-    name: HandleUpdateChargesProps['name'],
-    value: HandleUpdateChargesProps['value'],
+    name: HandleUpdateUsageChargesProps['name'],
+    value: HandleUpdateUsageChargesProps['value'],
   ) => void
   handleRemoveSpendingMinimum: () => void
 }) => {

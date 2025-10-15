@@ -1,8 +1,8 @@
 import { Alert } from 'lago-design-system'
 
 import { BasicComboBoxData, ComboBox } from '~/components/form'
-import { HandleUpdateChargesProps } from '~/components/plans/chargeAccordion/utils'
-import { LocalChargeInput } from '~/components/plans/types'
+import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
+import { LocalUsageChargeInput } from '~/components/plans/types'
 import { getChargeModelHelpTextTranslationKey } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -17,11 +17,11 @@ export const ChargeModelSelector = ({
   shouldDisplayAlreadyUsedChargeAlert: boolean
   isInSubscriptionForm: boolean | undefined
   disabled: boolean | undefined
-  localCharge: LocalChargeInput
+  localCharge: LocalUsageChargeInput
   chargeModelComboboxData: BasicComboBoxData[]
   handleUpdate: (
-    name: HandleUpdateChargesProps['name'],
-    value: HandleUpdateChargesProps['value'],
+    name: HandleUpdateUsageChargesProps['name'],
+    value: HandleUpdateUsageChargesProps['value'],
   ) => void
 }) => {
   const { translate } = useInternationalization()

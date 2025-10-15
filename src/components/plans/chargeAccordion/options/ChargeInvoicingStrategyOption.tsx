@@ -3,13 +3,13 @@ import { FC, useState } from 'react'
 
 import { Button, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
-import { LocalChargeInput } from '~/components/plans/types'
+import { LocalUsageChargeInput } from '~/components/plans/types'
 import { RegroupPaidFeesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 interface ChargeInvoicingStrategyOptionProps {
-  localCharge: LocalChargeInput
+  localCharge: LocalUsageChargeInput
   disabled?: boolean
   openPremiumDialog: VoidFunction
   handleUpdate: ({

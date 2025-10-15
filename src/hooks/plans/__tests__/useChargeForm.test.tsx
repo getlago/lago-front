@@ -6,19 +6,19 @@ import {
   ProratedOptionDisabledTestMatrice,
 } from '~/hooks/plans/__tests__/fixture'
 import {
-  TGetChargeModelComboboxDataProps,
-  TGetIsPayInAdvanceOptionDisabledProps,
+  TGetIsPayInAdvanceOptionDisabledForUsageChargeProps,
+  TGetUsageChargeModelComboboxDataProps,
   useChargeForm,
 } from '~/hooks/plans/useChargeForm'
 
 const prepareComboboxTest = async ({
   aggregationType,
   isPremium = true,
-}: TGetChargeModelComboboxDataProps) => {
+}: TGetUsageChargeModelComboboxDataProps) => {
   const { result } = renderHook(useChargeForm)
 
   return {
-    getChargeModelComboboxData: result.current.getChargeModelComboboxData({
+    getUsageChargeModelComboboxData: result.current.getUsageChargeModelComboboxData({
       aggregationType,
       isPremium,
     }),
@@ -31,7 +31,7 @@ const preparePayinAdvanceOptionDisabledTest = async ({
   isPayInAdvance,
   isProrated,
   isRecurring,
-}: TGetIsPayInAdvanceOptionDisabledProps) => {
+}: TGetIsPayInAdvanceOptionDisabledForUsageChargeProps) => {
   const { result } = renderHook(useChargeForm)
 
   return {
@@ -46,18 +46,20 @@ const preparePayinAdvanceOptionDisabledTest = async ({
 }
 
 describe('useChargeForm()', () => {
-  describe('getChargeModelComboboxData()', () => {
+  describe('getUsageChargeModelComboboxData()', () => {
     test.each(Array.from(ComboboxTestMatrice))(
       'should return the correct charge models for $aggregationType',
       async (testSetup) => {
         const { aggregationType, expectedChargesModels } = testSetup
 
-        const { getChargeModelComboboxData } = await prepareComboboxTest({
+        const { getUsageChargeModelComboboxData } = await prepareComboboxTest({
           aggregationType,
           isPremium: true,
         })
 
-        expect(getChargeModelComboboxData.map(({ value }) => value)).toEqual(expectedChargesModels)
+        expect(getUsageChargeModelComboboxData.map(({ value }) => value)).toEqual(
+          expectedChargesModels,
+        )
       },
     )
   })

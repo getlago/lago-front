@@ -29,7 +29,7 @@ import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from './RemoveChargeWarningDialog'
-import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
+import { LocalPricingUnitType, LocalUsageChargeInput, PlanFormInput } from './types'
 import { UsageChargeAccordion } from './UsageChargeAccordion'
 
 const RESULT_LIMIT = 50
@@ -72,7 +72,7 @@ gql`
 `
 
 interface UsageProps {
-  alreadyExistingCharges?: LocalChargeInput[] | null
+  alreadyExistingCharges?: LocalUsageChargeInput[] | null
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
@@ -379,7 +379,7 @@ export const UsageChargesSection = memo(
                               shortName: formikProps.values.amountCurrency,
                               type: LocalPricingUnitType.Fiat,
                             },
-                      } as LocalChargeInput)
+                      } as LocalUsageChargeInput)
 
                       formikProps.setFieldValue('charges', previousCharges)
                       setShowAddMeteredCharge(false)

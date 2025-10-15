@@ -15,16 +15,16 @@ import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/opt
 import { RemoveChargeButton } from '~/components/plans/chargeAccordion/RemoveChargeButton'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import {
-  handleUpdateCharges,
-  HandleUpdateChargesProps,
+  handleUpdateUsageCharges,
+  HandleUpdateUsageChargesProps,
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
+import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
-  getIntervalTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
@@ -32,7 +32,9 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
-  ChargeForChargeOptionsAccordionFragmentDoc,
+  AggregationTypeEnum,
+  ChargeForUsageChargeOptionsAccordionFragmentDoc,
+  ChargeModelEnum,
   CurrencyEnum,
   CustomChargeFragmentDoc,
   DynamicChargeFragmentDoc,
@@ -51,9 +53,9 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './chargeAccordion/ChargeFilter'
 import { ChargeWrapperSwitch } from './chargeAccordion/ChargeWrapperSwitch'
-import { ChargeOptionsAccordion } from './chargeAccordion/options/ChargeOptionsAccordion'
+import { UsageChargeOptionsAccordion } from './chargeAccordion/options/UsageChargeOptionsAccordion'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
-import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
+import { LocalPricingUnitType, LocalUsageChargeInput, PlanFormInput } from './types'
 
 const buildChargeDefaultPropertyId = (chargeIndex: number) =>
   `charge-${chargeIndex}-default-property-accordion`
@@ -69,9 +71,15 @@ gql`
     invoiceDisplayName
     regroupPaidFees
     properties {
-      ...GraduatedCharge
-      ...GraduatedPercentageCharge
-      ...VolumeRanges
+      graduatedRanges {
+        ...GraduatedCharge
+      }
+      graduatedPercentageRanges {
+        ...GraduatedPercentageCharge
+      }
+      volumeRanges {
+        ...VolumeRanges
+      }
       ...PackageCharge
       ...StandardCharge
       ...PercentageCharge
@@ -82,9 +90,15 @@ gql`
       invoiceDisplayName
       values
       properties {
-        ...GraduatedCharge
-        ...GraduatedPercentageCharge
-        ...VolumeRanges
+        graduatedRanges {
+          ...GraduatedCharge
+        }
+        graduatedPercentageRanges {
+          ...GraduatedPercentageCharge
+        }
+        volumeRanges {
+          ...VolumeRanges
+        }
         ...PackageCharge
         ...StandardCharge
         ...PercentageCharge
@@ -105,7 +119,7 @@ gql`
     taxes {
       ...TaxForTaxesSelectorSection
     }
-    ...ChargeForChargeOptionsAccordion
+    ...ChargeForUsageChargeOptionsAccordion
   }
 
   ${GraduatedChargeFragmentDoc}
@@ -115,26 +129,10 @@ gql`
   ${StandardChargeFragmentDoc}
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
-  ${ChargeForChargeOptionsAccordionFragmentDoc}
+  ${ChargeForUsageChargeOptionsAccordionFragmentDoc}
   ${DynamicChargeFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
 `
-
-export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
-  if (forceMonthlyCharge || interval === PlanInterval.Monthly) {
-    return getIntervalTranslationKey[PlanInterval.Monthly]
-  } else if (interval === PlanInterval.Yearly) {
-    return getIntervalTranslationKey[PlanInterval.Yearly]
-  } else if (interval === PlanInterval.Semiannual) {
-    return getIntervalTranslationKey[PlanInterval.Semiannual]
-  } else if (interval === PlanInterval.Quarterly) {
-    return getIntervalTranslationKey[PlanInterval.Quarterly]
-  } else if (interval === PlanInterval.Weekly) {
-    return getIntervalTranslationKey[PlanInterval.Weekly]
-  }
-
-  return ''
-}
 
 interface UsageChargeAccordionProps {
   currency: CurrencyEnum
@@ -171,7 +169,7 @@ export const UsageChargeAccordion = memo(
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const {
-      getChargeModelComboboxData,
+      getUsageChargeModelComboboxData,
       getIsPayInAdvanceOptionDisabled,
       getIsProRatedOptionDisabled,
     } = useChargeForm()
@@ -186,7 +184,7 @@ export const UsageChargeAccordion = memo(
       localCharge,
     } = useMemo(() => {
       const formikCharge = formikProps.values.charges[index]
-      const localChargeModelComboboxData = getChargeModelComboboxData({
+      const localChargeModelComboboxData = getUsageChargeModelComboboxData({
         isPremium,
         aggregationType: formikCharge.billableMetric.aggregationType,
       })
@@ -218,7 +216,7 @@ export const UsageChargeAccordion = memo(
       chargeErrors,
       formikProps.initialValues.charges,
       formikProps.values.charges,
-      getChargeModelComboboxData,
+      getUsageChargeModelComboboxData,
       getIsPayInAdvanceOptionDisabled,
       getIsProRatedOptionDisabled,
       index,
@@ -226,8 +224,11 @@ export const UsageChargeAccordion = memo(
     ])
 
     const handleUpdate = useCallback(
-      (name: HandleUpdateChargesProps['name'], value: HandleUpdateChargesProps['value']) => {
-        handleUpdateCharges({
+      (
+        name: HandleUpdateUsageChargesProps['name'],
+        value: HandleUpdateUsageChargesProps['value'],
+      ) => {
+        handleUpdateUsageCharges({
           formikProps,
           index,
           isPremium,
@@ -258,6 +259,18 @@ export const UsageChargeAccordion = memo(
         undefined,
       [localCharge.appliedPricingUnit],
     )
+
+    const chargePayInAdvanceDescription = useMemo(() => {
+      if (localCharge.chargeModel === ChargeModelEnum.Volume) {
+        return translate('text_6669b493fae79a0095e639bc')
+      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.MaxAgg) {
+        return translate('text_6669b493fae79a0095e63986')
+      } else if (localCharge.billableMetric.aggregationType === AggregationTypeEnum.LatestAgg) {
+        return translate('text_6669b493fae79a0095e639a1')
+      }
+
+      return translate('text_6661fc17337de3591e29e435')
+    }, [localCharge.chargeModel, localCharge.billableMetric.aggregationType, translate])
 
     // When plan currency changes, make sure the pricing unit is set to the new currency if it's a Fiat one
     useEffect(() => {
@@ -370,7 +383,9 @@ export const UsageChargeAccordion = memo(
                   <ConditionalWrapper
                     condition={!!localCharge?.billableMetric?.filters?.length}
                     invalidWrapper={(children) => (
-                      <div data-test="default-charge-accordion-without-filters">{children}</div>
+                      <div data-test="default-usage-charge-accordion-without-filters">
+                        {children}
+                      </div>
                     )}
                     validWrapper={(children) => {
                       const cannotDeleteDefaultProperties = !!isInSubscriptionForm
@@ -440,7 +455,7 @@ export const UsageChargeAccordion = memo(
                 {!!localCharge?.filters?.length &&
                   localCharge?.filters.map((filter, filterIndex) => {
                     const hasFilterErrors = Boolean(
-                      (formikProps?.errors?.charges?.[index] as FormikErrors<LocalChargeInput>)
+                      (formikProps?.errors?.charges?.[index] as FormikErrors<LocalUsageChargeInput>)
                         ?.filters?.[filterIndex],
                     )
                     const accordionMappedDisplayValues: string = filter.values
@@ -605,14 +620,13 @@ export const UsageChargeAccordion = memo(
           )}
 
           {/* Charge options */}
-          <ChargeOptionsAccordion
+          <UsageChargeOptionsAccordion
             charge={localCharge}
             currency={currency}
             chargePricingUnitShortName={chargePricingUnitShortName}
           >
             <ChargePayInAdvanceOption
-              billableMetricAggregationType={localCharge.billableMetric.aggregationType}
-              chargeModel={localCharge.chargeModel}
+              chargePayInAdvanceDescription={chargePayInAdvanceDescription}
               disabled={isInSubscriptionForm || disabled}
               isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
               payInAdvance={localCharge.payInAdvance || false}
@@ -634,7 +648,7 @@ export const UsageChargeAccordion = memo(
                 disabled={isInSubscriptionForm || disabled}
                 openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
                 handleUpdate={({ regroupPaidFees, invoiceable }) => {
-                  const currentChargeValues: LocalChargeInput = {
+                  const currentChargeValues: LocalUsageChargeInput = {
                     ...localCharge,
                     regroupPaidFees,
                     invoiceable,
@@ -714,7 +728,7 @@ export const UsageChargeAccordion = memo(
                 handleUpdate('taxes', newTaxArray)
               }}
             />
-          </ChargeOptionsAccordion>
+          </UsageChargeOptionsAccordion>
         </>
       </Accordion>
     )

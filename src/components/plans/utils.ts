@@ -1,5 +1,5 @@
-import { ALL_FILTER_VALUES } from '~/core/constants/form'
-import { PrivilegeValueTypeEnum } from '~/generated/graphql'
+import { ALL_FILTER_VALUES, getIntervalTranslationKey } from '~/core/constants/form'
+import { PlanInterval, PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 const BooleanTranslationKey = {
@@ -24,4 +24,23 @@ export const getEntitlementFormattedValue = (
     default:
       return value
   }
+}
+
+export const mapChargeIntervalCopy = (
+  interval: PlanInterval,
+  forceMonthlyCharge: boolean,
+): string => {
+  if (forceMonthlyCharge || interval === PlanInterval.Monthly) {
+    return getIntervalTranslationKey[PlanInterval.Monthly]
+  } else if (interval === PlanInterval.Yearly) {
+    return getIntervalTranslationKey[PlanInterval.Yearly]
+  } else if (interval === PlanInterval.Semiannual) {
+    return getIntervalTranslationKey[PlanInterval.Semiannual]
+  } else if (interval === PlanInterval.Quarterly) {
+    return getIntervalTranslationKey[PlanInterval.Quarterly]
+  } else if (interval === PlanInterval.Weekly) {
+    return getIntervalTranslationKey[PlanInterval.Weekly]
+  }
+
+  return ''
 }

@@ -5485,6 +5485,27 @@ export type PaymentCollection = {
   metadata: CollectionMetadata;
 };
 
+export type PaymentMethod = {
+  __typename?: 'PaymentMethod';
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  customer: Customer;
+  id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
+  paymentProviderCode?: Maybe<Scalars['String']['output']>;
+  paymentProviderCustomerId?: Maybe<Scalars['ID']['output']>;
+  paymentProviderType?: Maybe<ProviderTypeEnum>;
+  updatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+};
+
+/** PaymentMethodCollection type */
+export type PaymentMethodCollection = {
+  __typename?: 'PaymentMethodCollection';
+  /** A collection of paginated PaymentMethodCollection */
+  collection: Array<PaymentMethod>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type PaymentProvider = AdyenProvider | CashfreeProvider | FlutterwaveProvider | GocardlessProvider | MoneyhashProvider | StripeProvider;
 
 /** PaymentProviderCollection type */
@@ -5631,6 +5652,8 @@ export type Permissions = {
   organizationTaxesView: Scalars['Boolean']['output'];
   organizationUpdate: Scalars['Boolean']['output'];
   organizationView: Scalars['Boolean']['output'];
+  paymentMethodsCreate: Scalars['Boolean']['output'];
+  paymentMethodsView: Scalars['Boolean']['output'];
   paymentRequestsCreate: Scalars['Boolean']['output'];
   paymentRequestsView: Scalars['Boolean']['output'];
   paymentsCreate: Scalars['Boolean']['output'];
@@ -6112,6 +6135,8 @@ export type Query = {
   passwordReset: ResetPassword;
   /** Query a single Payment */
   payment?: Maybe<Payment>;
+  /** Query payment methods of a customer */
+  paymentMethods: PaymentMethodCollection;
   /** Query a single payment provider */
   paymentProvider?: Maybe<PaymentProvider>;
   /** Query organization's payment providers */
@@ -6703,6 +6728,13 @@ export type QueryPasswordResetArgs = {
 
 export type QueryPaymentArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPaymentMethodsArgs = {
+  externalCustomerId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -9874,9 +9906,9 @@ export type GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables
 
 export type GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery = { __typename?: 'Query', feature: { __typename?: 'FeatureObject', id: string, code: string, name?: string | null, privileges: Array<{ __typename?: 'PrivilegeObject', id: string, name?: string | null, code: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> } };
 
-export type GraduatedChargeFragment = { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null };
+export type GraduatedChargeFragment = { __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
 
-export type GraduatedPercentageChargeFragment = { __typename?: 'Properties', graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null };
+export type GraduatedPercentageChargeFragment = { __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null };
 
 export type PackageChargeFragment = { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null };
 
@@ -9921,9 +9953,9 @@ export type GetRecurringBillableMetricsQueryVariables = Exact<{
 
 export type GetRecurringBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }> } };
 
-export type VolumeRangesFragment = { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null };
+export type VolumeRangesFragment = { __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
 
-export type ChargeForChargeOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null };
+export type ChargeForUsageChargeOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null };
 
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -15866,33 +15898,27 @@ export const BillableMetricForPlanFragmentDoc = gql`
 }
     `;
 export const GraduatedChargeFragmentDoc = gql`
-    fragment GraduatedCharge on Properties {
-  graduatedRanges {
-    flatAmount
-    fromValue
-    perUnitAmount
-    toValue
-  }
+    fragment GraduatedCharge on GraduatedRange {
+  flatAmount
+  fromValue
+  perUnitAmount
+  toValue
 }
     `;
 export const GraduatedPercentageChargeFragmentDoc = gql`
-    fragment GraduatedPercentageCharge on Properties {
-  graduatedPercentageRanges {
-    flatAmount
-    fromValue
-    rate
-    toValue
-  }
+    fragment GraduatedPercentageCharge on GraduatedPercentageRange {
+  flatAmount
+  fromValue
+  rate
+  toValue
 }
     `;
 export const VolumeRangesFragmentDoc = gql`
-    fragment VolumeRanges on Properties {
-  volumeRanges {
-    flatAmount
-    fromValue
-    perUnitAmount
-    toValue
-  }
+    fragment VolumeRanges on VolumeRange {
+  flatAmount
+  fromValue
+  perUnitAmount
+  toValue
 }
     `;
 export const PackageChargeFragmentDoc = gql`
@@ -15928,8 +15954,8 @@ export const DynamicChargeFragmentDoc = gql`
   pricingGroupKeys
 }
     `;
-export const ChargeForChargeOptionsAccordionFragmentDoc = gql`
-    fragment ChargeForChargeOptionsAccordion on Charge {
+export const ChargeForUsageChargeOptionsAccordionFragmentDoc = gql`
+    fragment ChargeForUsageChargeOptionsAccordion on Charge {
   id
   invoiceable
   minAmountCents
@@ -15948,9 +15974,15 @@ export const UsageChargeAccordionFragmentDoc = gql`
   invoiceDisplayName
   regroupPaidFees
   properties {
-    ...GraduatedCharge
-    ...GraduatedPercentageCharge
-    ...VolumeRanges
+    graduatedRanges {
+      ...GraduatedCharge
+    }
+    graduatedPercentageRanges {
+      ...GraduatedPercentageCharge
+    }
+    volumeRanges {
+      ...VolumeRanges
+    }
     ...PackageCharge
     ...StandardCharge
     ...PercentageCharge
@@ -15961,9 +15993,15 @@ export const UsageChargeAccordionFragmentDoc = gql`
     invoiceDisplayName
     values
     properties {
-      ...GraduatedCharge
-      ...GraduatedPercentageCharge
-      ...VolumeRanges
+      graduatedRanges {
+        ...GraduatedCharge
+      }
+      graduatedPercentageRanges {
+        ...GraduatedPercentageCharge
+      }
+      volumeRanges {
+        ...VolumeRanges
+      }
       ...PackageCharge
       ...StandardCharge
       ...PercentageCharge
@@ -15984,7 +16022,7 @@ export const UsageChargeAccordionFragmentDoc = gql`
   taxes {
     ...TaxForTaxesSelectorSection
   }
-  ...ChargeForChargeOptionsAccordion
+  ...ChargeForUsageChargeOptionsAccordion
 }
     ${GraduatedChargeFragmentDoc}
 ${GraduatedPercentageChargeFragmentDoc}
@@ -15995,7 +16033,7 @@ ${PercentageChargeFragmentDoc}
 ${CustomChargeFragmentDoc}
 ${DynamicChargeFragmentDoc}
 ${TaxForTaxesSelectorSectionFragmentDoc}
-${ChargeForChargeOptionsAccordionFragmentDoc}`;
+${ChargeForUsageChargeOptionsAccordionFragmentDoc}`;
 export const PlanForUsageChargeAccordionFragmentDoc = gql`
     fragment PlanForUsageChargeAccordion on Plan {
   billChargesMonthly

@@ -2,7 +2,7 @@ import { Button, Tooltip } from 'lago-design-system'
 import { RefObject } from 'react'
 
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
-import { LocalChargeInput } from '~/components/plans/types'
+import { LocalUsageChargeInput } from '~/components/plans/types'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -17,9 +17,9 @@ export const RemoveChargeButton = ({
   isInSubscriptionForm: boolean | undefined
   isUsedInSubscription: boolean | undefined
   removeChargeWarningDialogRef: RefObject<RemoveChargeWarningDialogRef> | undefined
-  existingCharges: LocalChargeInput[]
+  existingCharges: LocalUsageChargeInput[]
   chargeToRemoveIndex: number
-  onDeleteCharge: (charges: LocalChargeInput[]) => void
+  onDeleteCharge: (charges: LocalUsageChargeInput[]) => void
 }) => {
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()

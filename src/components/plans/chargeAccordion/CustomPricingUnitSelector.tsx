@@ -3,8 +3,8 @@ import { Typography } from 'lago-design-system'
 import { useMemo } from 'react'
 
 import { ComboBox, ComboboxItem, TextInput } from '~/components/form'
-import { HandleUpdateChargesProps } from '~/components/plans/chargeAccordion/utils'
-import { LocalChargeInput, LocalPricingUnitType } from '~/components/plans/types'
+import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
+import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/types'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,10 +22,10 @@ export const CustomPricingUnitSelector = ({
   currency: CurrencyEnum
   isInSubscriptionForm: boolean | undefined
   disabled: boolean | undefined
-  localCharge: LocalChargeInput
+  localCharge: LocalUsageChargeInput
   handleUpdate: (
-    name: HandleUpdateChargesProps['name'],
-    value: HandleUpdateChargesProps['value'],
+    name: HandleUpdateUsageChargesProps['name'],
+    value: HandleUpdateUsageChargesProps['value'],
   ) => void
 }) => {
   const { translate } = useInternationalization()

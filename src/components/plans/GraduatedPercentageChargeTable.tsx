@@ -15,13 +15,11 @@ import { useGraduatedPercentageChargeForm } from '~/hooks/plans/useGraduatedPerc
 import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
-  fragment GraduatedPercentageCharge on Properties {
-    graduatedPercentageRanges {
-      flatAmount
-      fromValue
-      rate
-      toValue
-    }
+  fragment GraduatedPercentageCharge on GraduatedPercentageRange {
+    flatAmount
+    fromValue
+    rate
+    toValue
   }
 `
 

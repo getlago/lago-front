@@ -5,12 +5,12 @@ import { BasicComboBoxData } from '~/components/form'
 import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export type TGetChargeModelComboboxDataProps = {
+export type TGetUsageChargeModelComboboxDataProps = {
   isPremium: boolean
   aggregationType: AggregationTypeEnum
 }
 
-export type TGetIsPayInAdvanceOptionDisabledProps = {
+export type TGetIsPayInAdvanceOptionDisabledForUsageChargeProps = {
   aggregationType: AggregationTypeEnum
   chargeModel: ChargeModelEnum
   isPayInAdvance: boolean
@@ -18,7 +18,7 @@ export type TGetIsPayInAdvanceOptionDisabledProps = {
   isRecurring: boolean
 }
 
-export type TGetIsProRatedOptionDisabledProps = {
+export type TGetIsProRatedOptionDisabledForUsageChargeProps = {
   aggregationType: AggregationTypeEnum
   chargeModel: ChargeModelEnum
   isPayInAdvance: boolean
@@ -31,18 +31,22 @@ export type TGetIsAbleToSwitchToProRatedProps = {
 }
 
 type TUseChargeFormReturn = {
-  getChargeModelComboboxData: (data: TGetChargeModelComboboxDataProps) => BasicComboBoxData[]
-  getIsPayInAdvanceOptionDisabled: (data: TGetIsPayInAdvanceOptionDisabledProps) => boolean
-  getIsProRatedOptionDisabled: (data: TGetIsProRatedOptionDisabledProps) => boolean
+  getUsageChargeModelComboboxData: (
+    data: TGetUsageChargeModelComboboxDataProps,
+  ) => BasicComboBoxData[]
+  getIsPayInAdvanceOptionDisabled: (
+    data: TGetIsPayInAdvanceOptionDisabledForUsageChargeProps,
+  ) => boolean
+  getIsProRatedOptionDisabled: (data: TGetIsProRatedOptionDisabledForUsageChargeProps) => boolean
 }
 
 export const useChargeForm: () => TUseChargeFormReturn = () => {
   const { translate } = useInternationalization()
 
-  const getChargeModelComboboxData = ({
+  const getUsageChargeModelComboboxData = ({
     isPremium,
     aggregationType,
-  }: TGetChargeModelComboboxDataProps): BasicComboBoxData[] => {
+  }: TGetUsageChargeModelComboboxDataProps): BasicComboBoxData[] => {
     const chargeModelComboboxData: BasicComboBoxData[] = [
       {
         label: translate('text_62793bbb599f1c01522e919f'),
@@ -104,7 +108,7 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     })
   }
 
-  const getIsPayInAdvanceOptionDisabled = ({
+  const getIsPayInAdvanceOptionDisabledForUsageCharge = ({
     aggregationType,
     chargeModel,
     // NOTE: keeping isPayInAdvance for future use
@@ -112,7 +116,7 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     isPayInAdvance,
     isProrated,
     isRecurring,
-  }: TGetIsPayInAdvanceOptionDisabledProps): boolean => {
+  }: TGetIsPayInAdvanceOptionDisabledForUsageChargeProps): boolean => {
     if (
       aggregationType === AggregationTypeEnum.CountAgg &&
       chargeModel === ChargeModelEnum.Volume
@@ -147,11 +151,11 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     return false
   }
 
-  const getIsProRatedOptionDisabled = ({
+  const getIsProRatedOptionDisabledForUsageCharge = ({
     aggregationType,
     chargeModel,
     isPayInAdvance,
-  }: TGetIsProRatedOptionDisabledProps): boolean => {
+  }: TGetIsProRatedOptionDisabledForUsageChargeProps): boolean => {
     if (aggregationType === AggregationTypeEnum.UniqueCountAgg) {
       if (
         chargeModel === ChargeModelEnum.GraduatedPercentage ||
@@ -202,8 +206,8 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
   }
 
   return {
-    getChargeModelComboboxData,
-    getIsPayInAdvanceOptionDisabled,
-    getIsProRatedOptionDisabled,
+    getUsageChargeModelComboboxData,
+    getIsPayInAdvanceOptionDisabled: getIsPayInAdvanceOptionDisabledForUsageCharge,
+    getIsProRatedOptionDisabled: getIsProRatedOptionDisabledForUsageCharge,
   }
 }

@@ -35,7 +35,7 @@ export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'val
   values: string[] // This value should be defined using transformFilterObjectToString method
 }
 
-export type LocalChargeInput = Omit<
+export type LocalUsageChargeInput = Omit<
   ChargeInput,
   'billableMetricId' | 'filters' | 'properties' | 'appliedPricingUnit'
 > & {
@@ -70,7 +70,7 @@ export type PlanFormInput = Omit<
   CreatePlanInput,
   'clientMutationId' | 'charges' | 'usageThresholds' | 'entitlements'
 > & {
-  charges: LocalChargeInput[]
+  charges: LocalUsageChargeInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanSettingsSectionFragment[]
   minimumCommitment?: LocalCommitmentInput

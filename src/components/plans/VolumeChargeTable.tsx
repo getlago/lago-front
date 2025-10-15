@@ -14,13 +14,11 @@ import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
-  fragment VolumeRanges on Properties {
-    volumeRanges {
-      flatAmount
-      fromValue
-      perUnitAmount
-      toValue
-    }
+  fragment VolumeRanges on VolumeRange {
+    flatAmount
+    fromValue
+    perUnitAmount
+    toValue
   }
 `
 
