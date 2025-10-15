@@ -61,11 +61,11 @@ import {
   useGetInvoiceNumberQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { SectionHeader } from '~/styles/customer'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import { tw } from '~/styles/utils'
-import { downloadFileFromURL } from '~/utils/fileUtils'
 
 const { disablePdfGeneration, appEnv } = envGlobalVar()
 
@@ -349,6 +349,8 @@ const InvoiceOverview = memo(
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
+    const { downloadFileFromURL } = useDownloadFile()
+
     const billingEntity = invoice?.billingEntity
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
@@ -429,12 +431,17 @@ const InvoiceOverview = memo(
 
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
 
+    const canDownloadInvoice =
+      !isDraft && !hasTaxProviderError && !hasError && !loading && !disablePdfGeneration
+
+    const canDownloadXmlFile = invoice?.billingEntity.einvoicing && invoice.xmlUrl
+
     return (
       <>
         <SectionHeader variant="subhead1">
           {translate('text_634687079be251fdb43833bf')}
           <div className="flex gap-3">
-            {invoice?.status === InvoiceStatusTypeEnum.Draft && (
+            {isDraft && (
               <>
                 <Button
                   variant="quaternary"
@@ -457,7 +464,7 @@ const InvoiceOverview = memo(
                 </Button>
               </>
             )}
-            {invoice?.status !== InvoiceStatusTypeEnum.Draft && hasTaxProviderError && (
+            {!isDraft && hasTaxProviderError && (
               <Button
                 variant="quaternary"
                 disabled={loading || loadingRetryInvoice || isTaxStatusPending}
@@ -468,71 +475,60 @@ const InvoiceOverview = memo(
                 {translate('text_1724164767403kyknbaw13mg')}
               </Button>
             )}
-            {invoice?.status !== InvoiceStatusTypeEnum.Draft &&
-              !hasTaxProviderError &&
-              !hasError &&
-              !loading &&
-              !disablePdfGeneration &&
-              (!billingEntity?.einvoicing || !invoice?.xmlUrl) && (
-                <Button
-                  variant="inline"
-                  disabled={loadingInvoiceDownload || isTaxStatusPending}
-                  onClick={async () => {
-                    await downloadInvoice({
-                      variables: { input: { id: invoiceId || '' } },
-                    })
-                  }}
-                >
-                  {translate('text_634687079be251fdb43833b9')}
-                </Button>
-              )}
-            {invoice?.status !== InvoiceStatusTypeEnum.Draft &&
-              !hasTaxProviderError &&
-              !hasError &&
-              !loading &&
-              !disablePdfGeneration &&
-              invoice.billingEntity.einvoicing &&
-              invoice.xmlUrl && (
-                <Popper
-                  PopperProps={{ placement: 'bottom-end' }}
-                  opener={
+            {canDownloadInvoice && !canDownloadXmlFile && (
+              <Button
+                variant="inline"
+                disabled={loadingInvoiceDownload || isTaxStatusPending}
+                onClick={async () => {
+                  await downloadInvoice({
+                    variables: { input: { id: invoiceId || '' } },
+                  })
+                }}
+              >
+                {translate('text_634687079be251fdb43833b9')}
+              </Button>
+            )}
+            {canDownloadInvoice && canDownloadXmlFile && (
+              <Popper
+                PopperProps={{ placement: 'bottom-end' }}
+                opener={
+                  <Button
+                    variant="inline"
+                    endIcon="chevron-down"
+                    data-test="coupon-details-actions"
+                  >
+                    {translate('text_634687079be251fdb43833b9')}
+                  </Button>
+                }
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
                     <Button
-                      variant="inline"
-                      endIcon="chevron-down"
-                      data-test="coupon-details-actions"
+                      variant="quaternary"
+                      align="left"
+                      onClick={async () => {
+                        await downloadInvoice({
+                          variables: { input: { id: invoiceId || '' } },
+                        })
+                        closePopper()
+                      }}
                     >
-                      {translate('text_634687079be251fdb43833b9')}
+                      {translate('text_1760358170490a3z3ocq0hyj')}
                     </Button>
-                  }
-                >
-                  {({ closePopper }) => (
-                    <MenuPopper>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        onClick={async () => {
-                          await downloadInvoice({
-                            variables: { input: { id: invoiceId || '' } },
-                          })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_1760358170490a3z3ocq0hyj')}
-                      </Button>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        onClick={async () => {
-                          await downloadFileFromURL(`invoice_${invoice?.id}.xml`, invoice?.xmlUrl)
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_17603581704907ndpljkjzhg')}
-                      </Button>
-                    </MenuPopper>
-                  )}
-                </Popper>
-              )}
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={async () => {
+                        await downloadFileFromURL(`invoice_${invoice.id}.xml`, invoice.xmlUrl)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_17603581704907ndpljkjzhg')}
+                    </Button>
+                  </MenuPopper>
+                )}
+              </Popper>
+            )}
           </div>
         </SectionHeader>
         <>
