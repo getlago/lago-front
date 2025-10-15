@@ -49,7 +49,7 @@ export const InvoiceOverviewHeaderButtons = ({
   invoiceId,
 }: InvoiceOverviewHeaderButtonsProps) => {
   const { translate } = useInternationalization()
-  const { downloadFileFromURL } = useDownloadFile()
+  const { handleDownloadFile } = useDownloadFile()
 
   const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
   const canDownloadInvoice = !hasError && !loading && !disablePdfGeneration
@@ -139,7 +139,7 @@ export const InvoiceOverviewHeaderButtons = ({
               variant="quaternary"
               align="left"
               onClick={async () => {
-                await downloadFileFromURL(`invoice_${invoice?.id}.xml`, invoice?.xmlUrl)
+                await handleDownloadFile(invoice?.xmlUrl)
                 closePopper()
               }}
             >
