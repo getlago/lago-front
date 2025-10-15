@@ -19,7 +19,7 @@
     {
       "matchDatasources": ["node-version"],
       "matchPackageNames": ["node"],
-      "pinVersions": false
+      "enabled": false
     },
     {
       "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
