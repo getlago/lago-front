@@ -441,12 +441,14 @@ export const UsageChargeAccordion = memo(
                   >
                     <ChargeWrapperSwitch
                       chargeCursor="charges"
+                      chargeErrors={formikProps.errors}
                       chargeIndex={index}
                       chargePricingUnitShortName={chargePricingUnitShortName}
                       currency={currency}
                       formikProps={formikProps}
                       premiumWarningDialogRef={premiumWarningDialogRef}
                       propertyCursor="properties"
+                      setFieldValue={formikProps.setFieldValue}
                       valuePointer={localCharge?.properties}
                     />
                   </ConditionalWrapper>
@@ -551,6 +553,7 @@ export const UsageChargeAccordion = memo(
 
                           <ChargeWrapperSwitch
                             chargeCursor="charges"
+                            chargeErrors={formikProps.errors}
                             chargeIndex={index}
                             chargePricingUnitShortName={chargePricingUnitShortName}
                             currency={currency}
@@ -558,6 +561,7 @@ export const UsageChargeAccordion = memo(
                             formikProps={formikProps}
                             premiumWarningDialogRef={premiumWarningDialogRef}
                             propertyCursor={`filters.${filterIndex}.properties`}
+                            setFieldValue={formikProps.setFieldValue}
                             valuePointer={filter.properties}
                           />
                         </div>

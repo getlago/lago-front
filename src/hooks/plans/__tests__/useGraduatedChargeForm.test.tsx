@@ -86,10 +86,10 @@ const prepare = async ({
 
     return useGraduatedChargeForm({
       chargeCursor,
-      formikProps,
       chargeIndex,
       disabled,
       propertyCursor,
+      setFieldValue: formikProps.setFieldValue,
       valuePointer,
     })
   })

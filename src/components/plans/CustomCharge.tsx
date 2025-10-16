@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
+import { FormikProps, FormikState } from 'formik'
 import _get from 'lodash/get'
 import { memo, useCallback, useRef } from 'react'
 
@@ -22,20 +22,22 @@ gql`
 
 interface CustomChargeProps {
   chargeCursor: ChargeCursor
+  chargeErrors: FormikState<PlanFormInput>['errors']
   chargeIndex: number
-  formikProps: FormikProps<PlanFormInput>
-  propertyCursor: string
-  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
+  propertyCursor: string
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const CustomCharge = memo(
   ({
     chargeCursor,
+    chargeErrors,
     chargeIndex,
     disabled,
-    formikProps,
     propertyCursor,
+    setFieldValue,
     valuePointer,
   }: CustomChargeProps) => {
     const { translate } = useInternationalization()
@@ -46,7 +48,7 @@ export const CustomCharge = memo(
 
     const handleUpdate = useCallback(
       (value: string) => {
-        formikProps.setFieldValue(inputId, value)
+        setFieldValue(inputId, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [inputId],
@@ -60,10 +62,10 @@ export const CustomCharge = memo(
             label={translate('text_663dea5702b60301d8d06502')}
             value={valuePointer?.customProperties}
             disabled={disabled}
-            error={_get(formikProps.errors, inputId)}
+            error={_get(chargeErrors, inputId)}
             onExpand={() =>
               drawerRef.current?.openDrawer({
-                customProperties: _get(formikProps.values, inputId),
+                customProperties: valuePointer?.customProperties,
               })
             }
           />
