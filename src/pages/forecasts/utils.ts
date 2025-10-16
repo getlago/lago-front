@@ -5,9 +5,9 @@ import { FORECASTS_FILTER_PREFIX } from '~/core/constants/filters'
 import { CurrencyEnum, DataApiUsageForecasted, TimeGranularityEnum } from '~/generated/graphql'
 
 export const FORECASTS_GRAPH_COLORS = {
-  amountCentsForecast10thPercentile: '#FF9351',
-  amountCentsForecast50thPercentile: '#5195FF',
-  amountCentsForecast90thPercentile: '#66DD93',
+  amountCentsForecastConservative: '#FF9351',
+  amountCentsForecastRealistic: '#5195FF',
+  amountCentsForecastOptimistic: '#66DD93',
 }
 
 const DIFF_CURSOR: Record<TimeGranularityEnum, DurationUnit> = {
@@ -70,13 +70,13 @@ export const formatForecastsData = ({
       endOfPeriodDt: readableEnd,
       amountCurrency: CurrencyEnum.Usd,
       amountCents: 0,
-      amountCentsForecast10thPercentile: 0,
-      amountCentsForecast50thPercentile: 0,
-      amountCentsForecast90thPercentile: 0,
+      amountCentsForecastConservative: 0,
+      amountCentsForecastRealistic: 0,
+      amountCentsForecastOptimistic: 0,
       units: 0,
-      unitsForecast10thPercentile: 0,
-      unitsForecast50thPercentile: 0,
-      unitsForecast90thPercentile: 0,
+      unitsForecastConservative: 0,
+      unitsForecastRealistic: 0,
+      unitsForecastOptimistic: 0,
     }
 
     return emptyData
