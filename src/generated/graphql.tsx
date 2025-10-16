@@ -308,10 +308,38 @@ export type AiConversation = {
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
+/** AiConversationCollection type */
+export type AiConversationCollection = {
+  __typename?: 'AiConversationCollection';
+  /** A collection of paginated AiConversationCollection */
+  collection: Array<AiConversation>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export type AiConversationMessage = {
+  __typename?: 'AiConversationMessage';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  type: Scalars['String']['output'];
+};
+
 export type AiConversationStream = {
   __typename?: 'AiConversationStream';
   chunk?: Maybe<Scalars['String']['output']>;
   done: Scalars['Boolean']['output'];
+};
+
+export type AiConversationWithMessages = {
+  __typename?: 'AiConversationWithMessages';
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** Messages belonging to this conversation */
+  messages: Array<AiConversationMessage>;
+  mistralConversationId?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  organization: Organization;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
 export type Alert = {
@@ -870,7 +898,7 @@ export enum CommitmentTypeEnum {
 export enum CountryCode {
   /** Andorra */
   Ad = 'AD',
-  /** United Arab Emirates */
+  /** United Arab Emirates (the) */
   Ae = 'AE',
   /** Afghanistan */
   Af = 'AF',
@@ -930,7 +958,7 @@ export enum CountryCode {
   Bq = 'BQ',
   /** Brazil */
   Br = 'BR',
-  /** Bahamas */
+  /** Bahamas (the) */
   Bs = 'BS',
   /** Bhutan */
   Bt = 'BT',
@@ -944,19 +972,19 @@ export enum CountryCode {
   Bz = 'BZ',
   /** Canada */
   Ca = 'CA',
-  /** Cocos (Keeling) Islands */
+  /** Cocos (Keeling) Islands (the) */
   Cc = 'CC',
-  /** Congo (Democratic Republic of the) */
+  /** Congo (the Democratic Republic of the) */
   Cd = 'CD',
-  /** Central African Republic */
+  /** Central African Republic (the) */
   Cf = 'CF',
-  /** Congo */
+  /** Congo (the) */
   Cg = 'CG',
   /** Switzerland */
   Ch = 'CH',
   /** Côte d'Ivoire */
   Ci = 'CI',
-  /** Cook Islands */
+  /** Cook Islands (the) */
   Ck = 'CK',
   /** Chile */
   Cl = 'CL',
@@ -988,7 +1016,7 @@ export enum CountryCode {
   Dk = 'DK',
   /** Dominica */
   Dm = 'DM',
-  /** Dominican Republic */
+  /** Dominican Republic (the) */
   Do = 'DO',
   /** Algeria */
   Dz = 'DZ',
@@ -1010,17 +1038,17 @@ export enum CountryCode {
   Fi = 'FI',
   /** Fiji */
   Fj = 'FJ',
-  /** Falkland Islands (Malvinas) */
+  /** Falkland Islands (the) [Malvinas] */
   Fk = 'FK',
   /** Micronesia (Federated States of) */
   Fm = 'FM',
-  /** Faroe Islands */
+  /** Faroe Islands (the) */
   Fo = 'FO',
   /** France */
   Fr = 'FR',
   /** Gabon */
   Ga = 'GA',
-  /** United Kingdom of Great Britain and Northern Ireland */
+  /** United Kingdom of Great Britain and Northern Ireland (the) */
   Gb = 'GB',
   /** Grenada */
   Gd = 'GD',
@@ -1036,7 +1064,7 @@ export enum CountryCode {
   Gi = 'GI',
   /** Greenland */
   Gl = 'GL',
-  /** Gambia */
+  /** Gambia (the) */
   Gm = 'GM',
   /** Guinea */
   Gn = 'GN',
@@ -1078,7 +1106,7 @@ export enum CountryCode {
   Im = 'IM',
   /** India */
   In = 'IN',
-  /** British Indian Ocean Territory */
+  /** British Indian Ocean Territory (the) */
   Io = 'IO',
   /** Iraq */
   Iq = 'IQ',
@@ -1104,21 +1132,21 @@ export enum CountryCode {
   Kh = 'KH',
   /** Kiribati */
   Ki = 'KI',
-  /** Comoros */
+  /** Comoros (the) */
   Km = 'KM',
   /** Saint Kitts and Nevis */
   Kn = 'KN',
-  /** Korea (Democratic People's Republic of) */
+  /** Korea (the Democratic People's Republic of) */
   Kp = 'KP',
-  /** Korea (Republic of) */
+  /** Korea (the Republic of) */
   Kr = 'KR',
   /** Kuwait */
   Kw = 'KW',
-  /** Cayman Islands */
+  /** Cayman Islands (the) */
   Ky = 'KY',
   /** Kazakhstan */
   Kz = 'KZ',
-  /** Lao People's Democratic Republic */
+  /** Lao People's Democratic Republic (the) */
   La = 'LA',
   /** Lebanon */
   Lb = 'LB',
@@ -1144,7 +1172,7 @@ export enum CountryCode {
   Ma = 'MA',
   /** Monaco */
   Mc = 'MC',
-  /** Moldova (Republic of) */
+  /** Moldova (the Republic of) */
   Md = 'MD',
   /** Montenegro */
   Me = 'ME',
@@ -1152,7 +1180,7 @@ export enum CountryCode {
   Mf = 'MF',
   /** Madagascar */
   Mg = 'MG',
-  /** Marshall Islands */
+  /** Marshall Islands (the) */
   Mh = 'MH',
   /** North Macedonia */
   Mk = 'MK',
@@ -1164,7 +1192,7 @@ export enum CountryCode {
   Mn = 'MN',
   /** Macao */
   Mo = 'MO',
-  /** Northern Mariana Islands */
+  /** Northern Mariana Islands (the) */
   Mp = 'MP',
   /** Martinique */
   Mq = 'MQ',
@@ -1190,7 +1218,7 @@ export enum CountryCode {
   Na = 'NA',
   /** New Caledonia */
   Nc = 'NC',
-  /** Niger */
+  /** Niger (the) */
   Ne = 'NE',
   /** Norfolk Island */
   Nf = 'NF',
@@ -1198,7 +1226,7 @@ export enum CountryCode {
   Ng = 'NG',
   /** Nicaragua */
   Ni = 'NI',
-  /** Netherlands */
+  /** Netherlands (the) */
   Nl = 'NL',
   /** Norway */
   No = 'NO',
@@ -1220,7 +1248,7 @@ export enum CountryCode {
   Pf = 'PF',
   /** Papua New Guinea */
   Pg = 'PG',
-  /** Philippines */
+  /** Philippines (the) */
   Ph = 'PH',
   /** Pakistan */
   Pk = 'PK',
@@ -1248,7 +1276,7 @@ export enum CountryCode {
   Ro = 'RO',
   /** Serbia */
   Rs = 'RS',
-  /** Russian Federation */
+  /** Russian Federation (the) */
   Ru = 'RU',
   /** Rwanda */
   Rw = 'RW',
@@ -1258,7 +1286,7 @@ export enum CountryCode {
   Sb = 'SB',
   /** Seychelles */
   Sc = 'SC',
-  /** Sudan */
+  /** Sudan (the) */
   Sd = 'SD',
   /** Sweden */
   Se = 'SE',
@@ -1294,11 +1322,11 @@ export enum CountryCode {
   Sy = 'SY',
   /** Eswatini */
   Sz = 'SZ',
-  /** Turks and Caicos Islands */
+  /** Turks and Caicos Islands (the) */
   Tc = 'TC',
   /** Chad */
   Td = 'TD',
-  /** French Southern Territories */
+  /** French Southern Territories (the) */
   Tf = 'TF',
   /** Togo */
   Tg = 'TG',
@@ -1322,7 +1350,7 @@ export enum CountryCode {
   Tt = 'TT',
   /** Tuvalu */
   Tv = 'TV',
-  /** Taiwan, Province of China */
+  /** Taiwan (Province of China) */
   Tw = 'TW',
   /** Tanzania, United Republic of */
   Tz = 'TZ',
@@ -1330,15 +1358,15 @@ export enum CountryCode {
   Ua = 'UA',
   /** Uganda */
   Ug = 'UG',
-  /** United States Minor Outlying Islands */
+  /** United States Minor Outlying Islands (the) */
   Um = 'UM',
-  /** United States of America */
+  /** United States of America (the) */
   Us = 'US',
   /** Uruguay */
   Uy = 'UY',
   /** Uzbekistan */
   Uz = 'UZ',
-  /** Holy See */
+  /** Holy See (the) */
   Va = 'VA',
   /** Saint Vincent and the Grenadines */
   Vc = 'VC',
@@ -1356,6 +1384,8 @@ export enum CountryCode {
   Wf = 'WF',
   /** Samoa */
   Ws = 'WS',
+  /** Kosovo */
+  Xk = 'XK',
   /** Yemen */
   Ye = 'YE',
   /** Mayotte */
@@ -1448,6 +1478,7 @@ export type CreateAdjustedFeeInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   feeId?: InputMaybe<Scalars['ID']['input']>;
+  fixedChargeId?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   invoiceId: Scalars['ID']['input'];
   invoiceSubscriptionId?: InputMaybe<Scalars['ID']['input']>;
@@ -2876,6 +2907,30 @@ export type DataApiUsageCollection = {
   metadata: CollectionMetadata;
 };
 
+export type DataApiUsageForecasted = {
+  __typename?: 'DataApiUsageForecasted';
+  amountCents: Scalars['BigInt']['output'];
+  amountCentsForecastConservative: Scalars['BigInt']['output'];
+  amountCentsForecastOptimistic: Scalars['BigInt']['output'];
+  amountCentsForecastRealistic: Scalars['BigInt']['output'];
+  amountCurrency: CurrencyEnum;
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  units: Scalars['Float']['output'];
+  unitsForecastConservative: Scalars['Float']['output'];
+  unitsForecastOptimistic: Scalars['Float']['output'];
+  unitsForecastRealistic: Scalars['Float']['output'];
+};
+
+/** DataApiUsageForecastedCollection type */
+export type DataApiUsageForecastedCollection = {
+  __typename?: 'DataApiUsageForecastedCollection';
+  /** A collection of paginated DataApiUsageForecastedCollection */
+  collection: Array<DataApiUsageForecasted>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataApiUsageInvoiced = {
   __typename?: 'DataApiUsageInvoiced';
   amountCents: Scalars['BigInt']['output'];
@@ -3128,6 +3183,21 @@ export type DestroyInvoiceCustomSectionPayload = {
   id?: Maybe<Scalars['ID']['output']>;
 };
 
+/** Autogenerated input type of DestroyPaymentMethod */
+export type DestroyPaymentMethodInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+/** Autogenerated return type of DestroyPaymentMethod. */
+export type DestroyPaymentMethodPayload = {
+  __typename?: 'DestroyPaymentMethodPayload';
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+};
+
 /** Autogenerated input type of DestroyPaymentProvider */
 export type DestroyPaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
@@ -3369,6 +3439,7 @@ export type Fee = InvoiceItem & {
   description?: Maybe<Scalars['String']['output']>;
   eventsCount?: Maybe<Scalars['BigInt']['output']>;
   feeType: FeeTypesEnum;
+  fixedCharge?: Maybe<FixedCharge>;
   groupedBy: Scalars['JSON']['output'];
   id: Scalars['ID']['output'];
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
@@ -3561,6 +3632,7 @@ export type FixedChargeInput = {
   addOnId: Scalars['ID']['input'];
   applyUnitsImmediately?: InputMaybe<Scalars['Boolean']['input']>;
   chargeModel: FixedChargeChargeModelEnum;
+  id?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   payInAdvance?: InputMaybe<Scalars['Boolean']['input']>;
   properties?: InputMaybe<FixedChargePropertiesInput>;
@@ -3570,12 +3642,13 @@ export type FixedChargeInput = {
 };
 
 export type FixedChargeOverridesInput = {
-  addOnId: Scalars['ID']['input'];
+  addOnId?: InputMaybe<Scalars['ID']['input']>;
+  applyUnitsImmediately?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   properties?: InputMaybe<FixedChargePropertiesInput>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
-  units: Scalars['String']['input'];
+  units?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type FixedChargeProperties = {
@@ -3824,6 +3897,7 @@ export enum IntegrationTypeEnum {
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
   ClickhouseLiveAggregation = 'clickhouse_live_aggregation',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -4394,6 +4468,8 @@ export type Mutation = {
   destroyIntegrationMapping?: Maybe<DestroyIntegrationMappingPayload>;
   /** Deletes an invoice_custom_section */
   destroyInvoiceCustomSection?: Maybe<DestroyInvoiceCustomSectionPayload>;
+  /** Deletes a payment method */
+  destroyPaymentMethod?: Maybe<DestroyPaymentMethodPayload>;
   /** Destroy a payment provider */
   destroyPaymentProvider?: Maybe<DestroyPaymentProviderPayload>;
   /** Deletes a Plan */
@@ -4472,6 +4548,8 @@ export type Mutation = {
   revokeMembership?: Maybe<Membership>;
   /** Create new ApiKey while expiring provided */
   rotateApiKey?: Maybe<ApiKey>;
+  /** Set payment method as default */
+  setPaymentMethodAsDefault?: Maybe<PaymentMethod>;
   /** Sync hubspot integration invoice */
   syncHubspotIntegrationInvoice?: Maybe<SyncHubspotInvoicePayload>;
   /** Sync integration credit note */
@@ -4879,6 +4957,11 @@ export type MutationDestroyInvoiceCustomSectionArgs = {
 };
 
 
+export type MutationDestroyPaymentMethodArgs = {
+  input: DestroyPaymentMethodInput;
+};
+
+
 export type MutationDestroyPaymentProviderArgs = {
   input: DestroyPaymentProviderInput;
 };
@@ -5076,6 +5159,11 @@ export type MutationRevokeMembershipArgs = {
 
 export type MutationRotateApiKeyArgs = {
   input: RotateApiKeyInput;
+};
+
+
+export type MutationSetPaymentMethodAsDefaultArgs = {
+  input: SetAsDefaultInput;
 };
 
 
@@ -5651,6 +5739,8 @@ export type Permissions = {
   organizationUpdate: Scalars['Boolean']['output'];
   organizationView: Scalars['Boolean']['output'];
   paymentMethodsCreate: Scalars['Boolean']['output'];
+  paymentMethodsDelete: Scalars['Boolean']['output'];
+  paymentMethodsUpdate: Scalars['Boolean']['output'];
   paymentMethodsView: Scalars['Boolean']['output'];
   paymentRequestsCreate: Scalars['Boolean']['output'];
   paymentRequestsView: Scalars['Boolean']['output'];
@@ -5772,6 +5862,7 @@ export enum PremiumIntegrationTypeEnum {
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
   ClickhouseLiveAggregation = 'clickhouse_live_aggregation',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -5799,6 +5890,7 @@ export type PreviewAdjustedFeeInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   feeId?: InputMaybe<Scalars['ID']['input']>;
+  fixedChargeId?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   invoiceId: Scalars['ID']['input'];
   invoiceSubscriptionId?: InputMaybe<Scalars['ID']['input']>;
@@ -5993,6 +6085,10 @@ export type Query = {
   addOn?: Maybe<AddOn>;
   /** Query add-ons of an organization */
   addOns: AddOnCollection;
+  /** Query a single ai conversation of an organization */
+  aiConversation?: Maybe<AiConversationWithMessages>;
+  /** Query the latest AI conversations of current organization */
+  aiConversations?: Maybe<AiConversationCollection>;
   /** Query a single alert */
   alert?: Maybe<Alert>;
   /** Query alerts of a subscription */
@@ -6075,6 +6171,8 @@ export type Query = {
   dataApiUsages: DataApiUsageCollection;
   /** Query usages of an organization */
   dataApiUsagesAggregatedAmounts: DataApiUsageAggregatedAmountCollection;
+  /** Query forecasted usages of an organization */
+  dataApiUsagesForecasted: DataApiUsageForecastedCollection;
   /** Query invoiced usages of an organization */
   dataApiUsagesInvoiced: DataApiUsageInvoicedCollection;
   /** Query a single dunning campaign of an organization */
@@ -6215,6 +6313,16 @@ export type QueryAddOnsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryAiConversationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryAiConversationsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -6520,6 +6628,24 @@ export type QueryDataApiUsagesAggregatedAmountsArgs = {
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
+export type QueryDataApiUsagesForecastedArgs = {
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  chargeFilterId?: InputMaybe<Scalars['String']['input']>;
+  chargeId?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
@@ -7147,6 +7273,13 @@ export type SanitizedApiKeyCollection = {
   collection: Array<SanitizedApiKey>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+/** Autogenerated input type of SetAsDefault */
+export type SetAsDefaultInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 export enum StatusTypeEnum {
@@ -12248,21 +12381,21 @@ export type GetFeaturesListQueryVariables = Exact<{
 export type GetFeaturesListQuery = { __typename?: 'Query', features: { __typename?: 'FeatureObjectCollection', collection: Array<{ __typename?: 'FeatureObject', id: string, name?: string | null, code: string, createdAt: any, subscriptionsCount: number }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
 
 export type GetForecastsQueryVariables = Exact<{
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
-  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
-  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
-  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
 }>;
 
 
-export type GetForecastsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', startOfPeriodDt: any, endOfPeriodDt: any }> } };
+export type GetForecastsQuery = { __typename?: 'Query', dataApiUsagesForecasted: { __typename?: 'DataApiUsageForecastedCollection', collection: Array<{ __typename?: 'DataApiUsageForecasted', amountCents: any, units: number, amountCentsForecastConservative: any, amountCentsForecastRealistic: any, amountCentsForecastOptimistic: any, unitsForecastConservative: number, unitsForecastRealistic: number, unitsForecastOptimistic: number, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any }> } };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -33795,23 +33928,32 @@ export type GetFeaturesListLazyQueryHookResult = ReturnType<typeof useGetFeature
 export type GetFeaturesListSuspenseQueryHookResult = ReturnType<typeof useGetFeaturesListSuspenseQuery>;
 export type GetFeaturesListQueryResult = Apollo.QueryResult<GetFeaturesListQuery, GetFeaturesListQueryVariables>;
 export const GetForecastsDocument = gql`
-    query getForecasts($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $isCustomerTinEmpty: Boolean, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date, $billingEntityCode: String) {
-  dataApiRevenueStreams(
+    query getForecasts($billingEntityCode: String, $currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $isCustomerTinEmpty: Boolean, $externalSubscriptionId: String, $planCode: String, $fromDate: ISO8601Date, $toDate: ISO8601Date, $timeGranularity: TimeGranularityEnum) {
+  dataApiUsagesForecasted(
+    billingEntityCode: $billingEntityCode
     currency: $currency
     customerCountry: $customerCountry
     customerType: $customerType
     externalCustomerId: $externalCustomerId
-    externalSubscriptionId: $externalSubscriptionId
-    fromDate: $fromDate
-    planCode: $planCode
-    timeGranularity: $timeGranularity
-    toDate: $toDate
-    billingEntityCode: $billingEntityCode
     isCustomerTinEmpty: $isCustomerTinEmpty
+    externalSubscriptionId: $externalSubscriptionId
+    planCode: $planCode
+    fromDate: $fromDate
+    toDate: $toDate
+    timeGranularity: $timeGranularity
   ) {
     collection {
-      startOfPeriodDt
+      amountCents
+      units
+      amountCentsForecastConservative
+      amountCentsForecastRealistic
+      amountCentsForecastOptimistic
+      unitsForecastConservative
+      unitsForecastRealistic
+      unitsForecastOptimistic
+      amountCurrency
       endOfPeriodDt
+      startOfPeriodDt
     }
   }
 }
@@ -33829,17 +33971,17 @@ export const GetForecastsDocument = gql`
  * @example
  * const { data, loading, error } = useGetForecastsQuery({
  *   variables: {
+ *      billingEntityCode: // value for 'billingEntityCode'
  *      currency: // value for 'currency'
  *      customerCountry: // value for 'customerCountry'
  *      customerType: // value for 'customerType'
- *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
  *      externalCustomerId: // value for 'externalCustomerId'
+ *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
  *      externalSubscriptionId: // value for 'externalSubscriptionId'
- *      fromDate: // value for 'fromDate'
  *      planCode: // value for 'planCode'
- *      timeGranularity: // value for 'timeGranularity'
+ *      fromDate: // value for 'fromDate'
  *      toDate: // value for 'toDate'
- *      billingEntityCode: // value for 'billingEntityCode'
+ *      timeGranularity: // value for 'timeGranularity'
  *   },
  * });
  */

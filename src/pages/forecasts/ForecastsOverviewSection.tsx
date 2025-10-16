@@ -152,20 +152,20 @@ export const ForecastsOverviewSection = ({
             timeGranularity={timeGranularity}
             lines={[
               {
-                dataKey: 'amountCentsForecast90thPercentile',
-                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecast90thPercentile,
+                dataKey: 'amountCentsForecastOptimistic',
+                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastOptimistic,
                 tooltipLabel: translate('text_17564701329935iz92g07zaj'),
                 strokeDasharray: '3 3',
               },
               {
-                dataKey: 'amountCentsForecast50thPercentile',
-                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecast50thPercentile,
+                dataKey: 'amountCentsForecastRealistic',
+                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastRealistic,
                 tooltipLabel: translate('text_1756470132993ziruszj5lu1'),
                 strokeDasharray: '3 3',
               },
               {
-                dataKey: 'amountCentsForecast10thPercentile',
-                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecast10thPercentile,
+                dataKey: 'amountCentsForecastConservative',
+                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastConservative,
                 tooltipLabel: translate('text_1756470132993wnnhcrw15q9'),
                 strokeDasharray: '3 3',
               },
@@ -191,16 +191,16 @@ export const ForecastsOverviewSection = ({
                 },
               },
               {
-                key: 'amountCentsForecast90thPercentile',
+                key: 'amountCentsForecastOptimistic',
                 type: 'data',
                 label: (
                   <ForecastsRowLabel
                     label={translate('text_17564701329935iz92g07zaj')}
-                    color={FORECASTS_GRAPH_COLORS.amountCentsForecast90thPercentile}
+                    color={FORECASTS_GRAPH_COLORS.amountCentsForecastOptimistic}
                   />
                 ),
                 content: (item) => {
-                  const amountCents = Number(item.amountCentsForecast90thPercentile) || 0
+                  const amountCents = Number(item.amountCentsForecastOptimistic) || 0
 
                   return (
                     <AmountCell
@@ -215,16 +215,16 @@ export const ForecastsOverviewSection = ({
                 },
               },
               {
-                key: 'amountCentsForecast50thPercentile',
+                key: 'amountCentsForecastRealistic',
                 type: 'data',
                 label: (
                   <ForecastsRowLabel
                     label={translate('text_1756470132993ziruszj5lu1')}
-                    color={FORECASTS_GRAPH_COLORS.amountCentsForecast50thPercentile}
+                    color={FORECASTS_GRAPH_COLORS.amountCentsForecastRealistic}
                   />
                 ),
                 content: (item) => {
-                  const amountCents = Number(item.amountCentsForecast50thPercentile) || 0
+                  const amountCents = Number(item.amountCentsForecastRealistic) || 0
 
                   return (
                     <AmountCell
@@ -239,16 +239,16 @@ export const ForecastsOverviewSection = ({
                 },
               },
               {
-                key: 'amountCentsForecast10thPercentile',
+                key: 'amountCentsForecastConservative',
                 type: 'data',
                 label: (
                   <ForecastsRowLabel
                     label={translate('text_1756470132993wnnhcrw15q9')}
-                    color={FORECASTS_GRAPH_COLORS.amountCentsForecast10thPercentile}
+                    color={FORECASTS_GRAPH_COLORS.amountCentsForecastConservative}
                   />
                 ),
                 content: (item) => {
-                  const amountCents = Number(item.amountCentsForecast10thPercentile) || 0
+                  const amountCents = Number(item.amountCentsForecastConservative) || 0
 
                   return (
                     <AmountCell
