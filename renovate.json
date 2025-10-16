@@ -17,9 +17,8 @@
   },
   "packageRules": [
     {
-      "matchDatasources": ["node-version"],
       "matchPackageNames": ["node"],
-      "enabled": false
+      "pinVersions": false
     },
     {
       "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
