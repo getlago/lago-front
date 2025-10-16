@@ -101,7 +101,7 @@
     "vite-plugin-html": "3.2.2",
     "vite-plugin-svgr": "4.3.0",
     "vite-plugin-top-level-await": "1.4.4",
-    "vite-plugin-wasm": "3.4.1"
+    "vite-plugin-wasm": "3.5.0"
   },
   "dependencies": {
     "@apollo/client": "3.14.0",
