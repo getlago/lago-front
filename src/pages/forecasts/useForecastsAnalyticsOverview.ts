@@ -98,12 +98,8 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
   const getDefaultStaticDateFilter = useCallback((): string => {
     const now = DateTime.now().setZone(getTimezoneConfig(TimezoneEnum.TzUtc).name)
 
-    if (!hasAccessToForecastsFeature) {
-      return `${now.minus({ month: 1 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
-    }
-
-    return `${now.minus({ month: 12 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
-  }, [hasAccessToForecastsFeature])
+    return `${now.startOf('day').toISO()},${now.plus({ month: 11 }).endOf('day').toISO()}`
+  }, [])
 
   const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
     if (!hasAccessToForecastsFeature) {

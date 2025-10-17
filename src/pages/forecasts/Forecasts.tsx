@@ -1,4 +1,4 @@
-import { Icon, Typography } from 'lago-design-system'
+import { AiBadge, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
@@ -11,12 +11,12 @@ export const BadgeAI = () => {
   const { translate } = useInternationalization()
 
   return (
-    <div className="flex items-center gap-1 rounded-[9px] bg-[linear-gradient(0deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.9)_100%),linear-gradient(268deg,#A277E3_2.81%,#EE4545_90.17%)] px-1.5 py-1">
-      <Icon className="text-blue-600" name="sparkles" size="small" />
-
-      <Typography className="text-xs font-medium text-purple-700">
-        {translate('text_17530144570404vslv3s1ki3')}
-      </Typography>
+    <div className="flex items-center gap-1">
+      <AiBadge iconSize={12}>
+        <Typography className="mt-px text-xs font-medium text-purple-700">
+          {translate('text_17530144570404vslv3s1ki3')}
+        </Typography>
+      </AiBadge>
     </div>
   )
 }
@@ -43,7 +43,7 @@ const Forecasts = () => {
             <BadgeAI />
           </div>
 
-          <Typography variant="body" color="grey600">
+          <Typography className="max-w-2xl" variant="body" color="grey600">
             {translate('text_17530144570400ri03obw5mv')}
           </Typography>
         </div>
