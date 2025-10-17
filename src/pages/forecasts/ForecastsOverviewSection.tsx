@@ -1,12 +1,8 @@
 import { Icon, Tooltip } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
-import { Button, HorizontalDataTable, Typography } from '~/components/designSystem'
-import {
-  AvailableQuickFilters,
-  Filters,
-  ForecastsAvailableFilters,
-} from '~/components/designSystem/Filters'
+import { Button, HorizontalDataTable, InitScrollTo, Typography } from '~/components/designSystem'
+import { Filters, ForecastsAvailableFilters } from '~/components/designSystem/Filters'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -67,8 +63,6 @@ export const ForecastsOverviewSection = ({
     hasError,
     isLoading,
     timeGranularity,
-    getDefaultStaticDateFilter,
-    getDefaultStaticTimeGranularityFilter,
     hasAccessToForecastsFeature,
   } = useForecastsAnalyticsOverview()
 
@@ -79,12 +73,7 @@ export const ForecastsOverviewSection = ({
           filtersNamePrefix={FORECASTS_FILTER_PREFIX}
           staticFilters={{
             currency: defaultCurrency,
-            date: getDefaultStaticDateFilter(),
           }}
-          staticQuickFilters={{
-            timeGranularity: getDefaultStaticTimeGranularityFilter(),
-          }}
-          quickFiltersType={AvailableQuickFilters.timeGranularity}
           availableFilters={ForecastsAvailableFilters}
           buttonOpener={({ onClick }) => (
             <Button
@@ -119,10 +108,6 @@ export const ForecastsOverviewSection = ({
                 >
                   <Icon name="info-circle" className="text-grey-600" />
                 </Tooltip>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <Filters.QuickFilters />
               </div>
             </div>
 
@@ -177,6 +162,7 @@ export const ForecastsOverviewSection = ({
             columnWidth={timeGranularity === TimeGranularityEnum.Monthly ? 180 : 228}
             data={data}
             loading={isLoading}
+            initScrollTo={InitScrollTo.START}
             rows={[
               {
                 key: 'startOfPeriodDt',
@@ -205,7 +191,7 @@ export const ForecastsOverviewSection = ({
                   return (
                     <AmountCell
                       className={tw({
-                        'text-green-600': amountCents > 0,
+                        'text-grey-700': amountCents > 0,
                         'text-grey-500': amountCents === 0,
                       })}
                       value={amountCents}
@@ -229,7 +215,7 @@ export const ForecastsOverviewSection = ({
                   return (
                     <AmountCell
                       className={tw({
-                        'text-green-600': amountCents > 0,
+                        'text-grey-700': amountCents > 0,
                         'text-grey-500': amountCents === 0,
                       })}
                       value={amountCents}
@@ -253,7 +239,7 @@ export const ForecastsOverviewSection = ({
                   return (
                     <AmountCell
                       className={tw({
-                        'text-green-600': amountCents > 0,
+                        'text-grey-700': amountCents > 0,
                         'text-grey-500': amountCents === 0,
                       })}
                       value={amountCents}
