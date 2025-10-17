@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 
 import {
   formatDataForAreaChart,
@@ -10,7 +10,16 @@ import {
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 
+const originalDefaultZone = Settings.defaultZone
+
+afterEach(() => {
+  Settings.defaultZone = originalDefaultZone
+})
+
 describe('components/graphs/utils', () => {
+  beforeEach(() => {
+    Settings.defaultZone = 'UTC'
+  })
   describe('getLastTwelveMonthsNumbersUntilNow', () => {
     it('should return an array of 12 months', () => {
       const builtArray = getLastTwelveMonthsNumbersUntilNow()
