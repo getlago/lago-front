@@ -4,6 +4,7 @@ import { FormikProps } from 'formik'
 import { memo, useCallback } from 'react'
 
 import { AmountInput } from '~/components/form'
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -20,17 +21,19 @@ gql`
 `
 
 interface StandardChargeProps {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
+  disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
-  disabled?: boolean
 }
 
 export const StandardCharge = memo(
   ({
+    chargeCursor,
     chargeIndex,
     chargePricingUnitShortName,
     currency,
@@ -43,7 +46,7 @@ export const StandardCharge = memo(
 
     const handleUpdate = useCallback(
       (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+        formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [chargeIndex],

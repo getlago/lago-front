@@ -2,6 +2,7 @@ import Decimal from 'decimal.js'
 import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
@@ -30,12 +31,14 @@ type InfoCalculationRow = {
 }
 
 type UseVolumeChargeForm = ({
+  chargeCursor,
   chargeIndex,
   disabled,
   formikProps,
   propertyCursor,
   valuePointer,
 }: {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
@@ -50,13 +53,14 @@ type UseVolumeChargeForm = ({
 }
 
 export const useVolumeChargeForm: UseVolumeChargeForm = ({
+  chargeCursor,
   chargeIndex,
   disabled,
   formikProps,
   propertyCursor,
   valuePointer,
 }) => {
-  const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.volumeRanges`
+  const formikIdentifier = `${chargeCursor}.${chargeIndex}.${propertyCursor}.volumeRanges`
   const volumeRanges = useMemo(() => valuePointer?.volumeRanges || [], [valuePointer])
 
   useEffect(() => {
@@ -118,7 +122,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       }, [])
 
       formikProps.setFieldValue(
-        `charges.${chargeIndex}.${propertyCursor}.volumeRanges`,
+        `${chargeCursor}.${chargeIndex}.${propertyCursor}.volumeRanges`,
         newVolumeRanges,
       )
     },

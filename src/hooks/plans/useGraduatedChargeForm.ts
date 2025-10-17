@@ -1,6 +1,7 @@
 import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
@@ -15,12 +16,14 @@ type InfoCalculationRow = {
 }
 
 type UseGraduatedChargeForm = ({
-  formikProps,
+  chargeCursor,
   chargeIndex,
   disabled,
+  formikProps,
   propertyCursor,
   valuePointer,
 }: {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
@@ -50,13 +53,14 @@ export const DEFAULT_GRADUATED_CHARGES = [
 ]
 
 export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
+  chargeCursor,
   chargeIndex,
   disabled,
   formikProps,
   propertyCursor,
   valuePointer,
 }) => {
-  const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.graduatedRanges`
+  const formikIdentifier = `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedRanges`
   const graduatedRanges = useMemo(() => valuePointer?.graduatedRanges || [], [valuePointer])
 
   useEffect(() => {
@@ -155,7 +159,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       )
 
       formikProps.setFieldValue(
-        `charges.${chargeIndex}.${propertyCursor}.graduatedRanges`,
+        `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedRanges`,
         newGraduatedRanges,
       )
     },

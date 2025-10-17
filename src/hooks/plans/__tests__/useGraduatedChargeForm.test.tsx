@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { useFormik } from 'formik'
 
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import {
@@ -16,6 +17,7 @@ import {
 } from '~/hooks/plans/useGraduatedChargeForm'
 
 type PrepareType = {
+  chargeCursor?: ChargeCursor
   chargeIndex?: number
   filterIndex?: number
   disabled?: boolean
@@ -24,6 +26,7 @@ type PrepareType = {
 
 const prepare = async ({
   chargeIndex = 0,
+  chargeCursor = 'charges',
   filterIndex,
   disabled = false,
   graduatedRanges = [],
@@ -82,6 +85,7 @@ const prepare = async ({
         : localCharge?.properties
 
     return useGraduatedChargeForm({
+      chargeCursor,
       formikProps,
       chargeIndex,
       disabled,

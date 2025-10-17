@@ -1,6 +1,7 @@
 import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { GraduatedPercentageRangeInput, PropertiesInput } from '~/generated/graphql'
 
@@ -12,12 +13,14 @@ type InfoCalculationRow = {
 }
 
 type useGraduatedPercentageChargeForm = ({
+  chargeCursor,
   formikProps,
   chargeIndex,
   disabled,
   propertyCursor,
   valuePointer,
 }: {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
@@ -47,13 +50,14 @@ export const DEFAULT_GRADUATED_PERCENTAGE_CHARGES = [
 ]
 
 export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm = ({
+  chargeCursor,
   chargeIndex,
   disabled,
   formikProps,
   propertyCursor,
   valuePointer,
 }) => {
-  const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`
+  const formikIdentifier = `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`
   const graduatedPercentageRanges = useMemo(
     () => valuePointer?.graduatedPercentageRanges || [],
     [valuePointer],
@@ -131,7 +135,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
       }, [])
 
       formikProps.setFieldValue(
-        `charges.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`,
+        `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`,
         newgraduatedPercentageRanges,
       )
     },

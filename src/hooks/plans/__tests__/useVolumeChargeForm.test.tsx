@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { useFormik } from 'formik'
 
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import {
@@ -13,6 +14,7 @@ import {
 import { DEFAULT_VOLUME_CHARGES, useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 
 type PrepareType = {
+  chargeCursor?: ChargeCursor
   chargeIndex?: number
   filterIndex?: number
   disabled?: boolean
@@ -20,6 +22,7 @@ type PrepareType = {
 }
 
 const prepare = async ({
+  chargeCursor = 'charges',
   chargeIndex = 0,
   filterIndex,
   disabled = false,
@@ -79,6 +82,7 @@ const prepare = async ({
         : localCharge?.properties
 
     return useVolumeChargeForm({
+      chargeCursor,
       formikProps,
       chargeIndex,
       disabled,

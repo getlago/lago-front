@@ -4,6 +4,7 @@ import _get from 'lodash/get'
 import { memo, useCallback, useRef } from 'react'
 
 import { JsonEditor } from '~/components/form'
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import {
   EditCustomChargeDrawer,
   EditCustomChargeDrawerRef,
@@ -20,6 +21,7 @@ gql`
 `
 
 interface CustomChargeProps {
+  chargeCursor: ChargeCursor
   chargeIndex: number
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
@@ -28,19 +30,26 @@ interface CustomChargeProps {
 }
 
 export const CustomCharge = memo(
-  ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: CustomChargeProps) => {
+  ({
+    chargeCursor,
+    chargeIndex,
+    disabled,
+    formikProps,
+    propertyCursor,
+    valuePointer,
+  }: CustomChargeProps) => {
     const { translate } = useInternationalization()
     const drawerRef = useRef<EditCustomChargeDrawerRef>(null)
 
     const propertyInput: keyof PropertiesInput = 'customProperties'
-    const inputId = `charges.${chargeIndex}.${propertyCursor}.${propertyInput}`
+    const inputId = `${chargeCursor}.${chargeIndex}.${propertyCursor}.${propertyInput}`
 
     const handleUpdate = useCallback(
       (value: string) => {
         formikProps.setFieldValue(inputId, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex],
+      [inputId],
     )
 
     return (
