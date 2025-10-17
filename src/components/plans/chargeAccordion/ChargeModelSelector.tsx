@@ -7,14 +7,14 @@ import { getChargeModelHelpTextTranslationKey } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const ChargeModelSelector = ({
-  shouldDisplayAlreadyUsedChargeAlert,
+  alreadyUsedChargeAlertMessage,
   isInSubscriptionForm,
   disabled,
   localCharge,
   chargeModelComboboxData,
   handleUpdate,
 }: {
-  shouldDisplayAlreadyUsedChargeAlert: boolean
+  alreadyUsedChargeAlertMessage: string | undefined
   isInSubscriptionForm: boolean | undefined
   disabled: boolean | undefined
   localCharge: LocalUsageChargeInput
@@ -28,9 +28,9 @@ export const ChargeModelSelector = ({
 
   return (
     <div className="p-4 pb-0" data-test="charge-model-wrapper">
-      {!!shouldDisplayAlreadyUsedChargeAlert && (
+      {!!alreadyUsedChargeAlertMessage && (
         <Alert type="warning" className="mb-4">
-          {translate('text_6435895831d323008a47911f')}
+          {alreadyUsedChargeAlertMessage}
         </Alert>
       )}
       <ComboBox

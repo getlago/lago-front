@@ -59,7 +59,7 @@ async function prepare({ filters, properties }: PrepareProps = {}) {
         id="0"
         index={0}
         currency={CurrencyEnum.Usd}
-        shouldDisplayAlreadyUsedChargeAlert={false}
+        alreadyUsedChargeAlertMessage={undefined}
         formikProps={formikProps as unknown as FormikProps<PlanFormInput>}
         editInvoiceDisplayNameDialogRef={{} as React.RefObject<EditInvoiceDisplayNameDialogRef>}
       />
