@@ -90,7 +90,7 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const hasAccessToForecastsFeature = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.AnalyticsDashboards,
+    PremiumIntegrationTypeEnum.ForecastedUsage,
   )
 
   const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
@@ -102,12 +102,8 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
   }, [])
 
   const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
-    if (!hasAccessToForecastsFeature) {
-      return TimeGranularityEnum.Daily
-    }
-
     return TimeGranularityEnum.Monthly
-  }, [hasAccessToForecastsFeature])
+  }, [])
 
   const filtersForForecastsQuery = useMemo(() => {
     if (!hasAccessToForecastsFeature) {
