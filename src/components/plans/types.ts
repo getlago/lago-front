@@ -1,4 +1,5 @@
 import {
+  AddOnForFixedChargesSectionFragment,
   AppliedPricingUnitInput,
   BillableMetricForPlanFragment,
   ChargeFilterInput,
@@ -7,6 +8,7 @@ import {
   CreatePlanInput,
   EntitlementInput,
   EntitlementPrivilegeInput,
+  FixedChargeInput,
   PrivilegeValueTypeEnum,
   PropertiesInput,
   TaxForPlanAndChargesInPlanFormFragment,
@@ -33,6 +35,14 @@ export type LocalPricingUnitInput = Omit<AppliedPricingUnitInput, 'conversionRat
 export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'values'> & {
   properties: PropertiesInput
   values: string[] // This value should be defined using transformFilterObjectToString method
+}
+
+export type LocalFixedChargeInput = FixedChargeInput & {
+  id?: string
+  // NOTE: used for display purpose, replaced by taxCodes[] on save
+  taxes?: TaxForTaxesSelectorSectionFragment[] | null
+  // NOTE: used for display purpose, replaced by addOnId on save
+  addOn: AddOnForFixedChargesSectionFragment
 }
 
 export type LocalUsageChargeInput = Omit<
@@ -71,6 +81,7 @@ export type PlanFormInput = Omit<
   'clientMutationId' | 'charges' | 'usageThresholds' | 'entitlements'
 > & {
   charges: LocalUsageChargeInput[]
+  fixedCharges: LocalFixedChargeInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanSettingsSectionFragment[]
   minimumCommitment?: LocalCommitmentInput

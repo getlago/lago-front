@@ -40,6 +40,7 @@ const prepare = async ({
         name: 'volume',
         payInAdvance: false,
         entitlements: [],
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Volume,

@@ -37,12 +37,12 @@ import {
   ChargeModelEnum,
   CurrencyEnum,
   CustomChargeFragmentDoc,
-  DynamicChargeFragmentDoc,
   GraduatedChargeFragmentDoc,
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
   PlanInterval,
+  PricingGroupKeysFragmentDoc,
   StandardChargeFragmentDoc,
   TaxForTaxesSelectorSectionFragmentDoc,
   VolumeRangesFragmentDoc,
@@ -84,7 +84,7 @@ gql`
       ...StandardCharge
       ...PercentageCharge
       ...CustomCharge
-      ...DynamicCharge
+      ...PricingGroupKeys
     }
     filters {
       invoiceDisplayName
@@ -103,7 +103,7 @@ gql`
         ...StandardCharge
         ...PercentageCharge
         ...CustomCharge
-        ...DynamicCharge
+        ...PricingGroupKeys
       }
     }
     billableMetric {
@@ -130,7 +130,7 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${ChargeForUsageChargeOptionsAccordionFragmentDoc}
-  ${DynamicChargeFragmentDoc}
+  ${PricingGroupKeysFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
