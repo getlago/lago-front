@@ -1,4 +1,4 @@
-import { FormikProps } from 'formik'
+import { FormikProps, FormikState } from 'formik'
 import { memo, RefObject } from 'react'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
@@ -17,6 +17,7 @@ export type ChargeCursor = keyof Pick<PlanFormInput, 'charges' | 'fixedCharges'>
 
 interface ChargeWrapperSwitchProps {
   chargeCursor: ChargeCursor
+  chargeErrors: FormikState<PlanFormInput>['errors']
   chargeIndex: number
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
@@ -25,6 +26,7 @@ interface ChargeWrapperSwitchProps {
   formikProps: FormikProps<PlanFormInput>
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
@@ -32,6 +34,7 @@ export const ChargeWrapperSwitch = memo(
   ({
     chargeCursor,
     chargeIndex,
+    chargeErrors,
     chargePricingUnitShortName,
     currency,
     disabled,
@@ -39,6 +42,7 @@ export const ChargeWrapperSwitch = memo(
     formikProps,
     premiumWarningDialogRef,
     propertyCursor,
+    setFieldValue,
     valuePointer,
   }: ChargeWrapperSwitchProps) => {
     const localCharge = formikProps.values[chargeCursor]?.[chargeIndex]
@@ -52,20 +56,21 @@ export const ChargeWrapperSwitch = memo(
             chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
         {localCharge?.chargeModel === ChargeModelEnum.Package && (
           <PackageCharge
             chargeCursor={chargeCursor}
+            chargeErrors={chargeErrors}
             chargeIndex={chargeIndex}
             chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
@@ -76,8 +81,8 @@ export const ChargeWrapperSwitch = memo(
             chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
@@ -88,22 +93,23 @@ export const ChargeWrapperSwitch = memo(
             chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
         {localCharge?.chargeModel === ChargeModelEnum.Percentage && (
           <ChargePercentage
             chargeCursor={chargeCursor}
+            chargeErrors={chargeErrors}
             chargeIndex={chargeIndex}
             chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
             filterIndex={filterIndex}
-            formikProps={formikProps}
             premiumWarningDialogRef={premiumWarningDialogRef}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
@@ -114,18 +120,19 @@ export const ChargeWrapperSwitch = memo(
             chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
         {localCharge?.chargeModel === ChargeModelEnum.Custom && (
           <CustomCharge
             chargeCursor={chargeCursor}
+            chargeErrors={chargeErrors}
             chargeIndex={chargeIndex}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
@@ -134,8 +141,8 @@ export const ChargeWrapperSwitch = memo(
             chargeCursor={chargeCursor}
             chargeIndex={chargeIndex}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}

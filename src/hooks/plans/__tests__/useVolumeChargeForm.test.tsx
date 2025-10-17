@@ -83,10 +83,10 @@ const prepare = async ({
 
     return useVolumeChargeForm({
       chargeCursor,
-      formikProps,
       chargeIndex,
       disabled,
       propertyCursor,
+      setFieldValue: formikProps.setFieldValue,
       valuePointer,
     })
   })

@@ -30,8 +30,8 @@ interface GraduatedPercentageChargeTableProps {
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
@@ -61,8 +61,8 @@ export const GraduatedPercentageChargeTable = memo(
     chargePricingUnitShortName,
     currency,
     disabled,
-    formikProps,
     propertyCursor,
+    setFieldValue,
     valuePointer,
   }: GraduatedPercentageChargeTableProps) => {
     const { translate } = useInternationalization()
@@ -72,8 +72,8 @@ export const GraduatedPercentageChargeTable = memo(
         chargeCursor,
         chargeIndex,
         disabled,
-        formikProps,
         propertyCursor,
+        setFieldValue,
         valuePointer,
       })
 
@@ -304,7 +304,7 @@ export const GraduatedPercentageChargeTable = memo(
           <PricingGroupKeys
             disabled={disabled}
             handleUpdate={(name, value) => {
-              formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
+              setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
             }}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}

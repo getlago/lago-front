@@ -26,8 +26,8 @@ interface StandardChargeProps {
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
@@ -38,18 +38,19 @@ export const StandardCharge = memo(
     chargePricingUnitShortName,
     currency,
     disabled,
-    formikProps,
     propertyCursor,
+    setFieldValue,
     valuePointer,
   }: StandardChargeProps) => {
     const { translate } = useInternationalization()
 
     const handleUpdate = useCallback(
       (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
+        setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
       },
+
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex],
+      [chargeCursor, chargeIndex],
     )
 
     return (

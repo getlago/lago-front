@@ -18,10 +18,10 @@ gql`
 type DynamicChargeProps = {
   chargeCursor: ChargeCursor
   chargeIndex: number
-  formikProps: FormikProps<PlanFormInput>
-  propertyCursor: string
-  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
+  propertyCursor: string
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const DynamicCharge = memo(
@@ -29,15 +29,15 @@ export const DynamicCharge = memo(
     chargeCursor,
     chargeIndex,
     disabled,
-    formikProps,
     propertyCursor,
+    setFieldValue,
     valuePointer,
   }: DynamicChargeProps) => {
     const { translate } = useInternationalization()
 
     const handleUpdate = useCallback(
       (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
+        setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [chargeCursor, chargeIndex],

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikProps, FormikState } from 'formik'
 import _get from 'lodash/get'
 import { memo, useCallback } from 'react'
 
@@ -24,30 +24,32 @@ gql`
 
 interface PackageChargeProps {
   chargeCursor: ChargeCursor
+  chargeErrors: FormikState<PlanFormInput>['errors']
   chargeIndex: number
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const PackageCharge = memo(
   ({
     chargeCursor,
+    chargeErrors,
     chargeIndex,
     chargePricingUnitShortName,
     currency,
     disabled,
-    formikProps,
     propertyCursor,
+    setFieldValue,
     valuePointer,
   }: PackageChargeProps) => {
     const { translate } = useInternationalization()
     const handleUpdate = useCallback(
       (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
+        setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [chargeIndex],
@@ -77,7 +79,7 @@ export const PackageCharge = memo(
         <TextInput
           name={`${propertyCursor}.packageSize`}
           beforeChangeFormatter={['positiveNumber', 'int']}
-          error={_get(formikProps.errors, `${chargeCursor}.${chargeIndex}.properties.packageSize`)}
+          error={_get(chargeErrors, `${chargeCursor}.${chargeIndex}.${propertyCursor}.packageSize`)}
           disabled={disabled}
           value={serializedPackageCharge}
           onChange={(value) => handleUpdate(`${propertyCursor}.packageSize`, value)}

@@ -34,15 +34,15 @@ type UseVolumeChargeForm = ({
   chargeCursor,
   chargeIndex,
   disabled,
-  formikProps,
   propertyCursor,
+  setFieldValue,
   valuePointer,
 }: {
   chargeCursor: ChargeCursor
   chargeIndex: number
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
@@ -56,8 +56,8 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
   chargeCursor,
   chargeIndex,
   disabled,
-  formikProps,
   propertyCursor,
+  setFieldValue,
   valuePointer,
 }) => {
   const formikIdentifier = `${chargeCursor}.${chargeIndex}.${propertyCursor}.volumeRanges`
@@ -66,7 +66,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
   useEffect(() => {
     if (!volumeRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      formikProps.setFieldValue(formikIdentifier, DEFAULT_VOLUME_CHARGES)
+      setFieldValue(formikIdentifier, DEFAULT_VOLUME_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikIdentifier])
@@ -121,14 +121,14 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         return acc
       }, [])
 
-      formikProps.setFieldValue(
+      setFieldValue(
         `${chargeCursor}.${chargeIndex}.${propertyCursor}.volumeRanges`,
         newVolumeRanges,
       )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        formikProps.setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
+        setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
           if (rangeIndex === i) {
@@ -155,7 +155,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
           return acc
         }, [])
 
-        formikProps.setFieldValue(formikIdentifier, newVolumeRanges)
+        setFieldValue(formikIdentifier, newVolumeRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -176,7 +176,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       // Last row needs to has toValue null
       newVolumeRanges[newVolumeRanges.length - 1].toValue = null
 
-      formikProps.setFieldValue(formikIdentifier, newVolumeRanges)
+      setFieldValue(formikIdentifier, newVolumeRanges)
     },
   }
 }
