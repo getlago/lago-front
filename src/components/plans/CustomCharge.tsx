@@ -56,20 +56,18 @@ export const CustomCharge = memo(
 
     return (
       <>
-        <div className="flex flex-col gap-6">
-          <JsonEditor
-            name={`${propertyCursor}.${propertyInput}`}
-            label={translate('text_663dea5702b60301d8d06502')}
-            value={valuePointer?.customProperties}
-            disabled={disabled}
-            error={_get(chargeErrors, inputId)}
-            onExpand={() =>
-              drawerRef.current?.openDrawer({
-                customProperties: valuePointer?.customProperties,
-              })
-            }
-          />
-        </div>
+        <JsonEditor
+          name={`${propertyCursor}.${propertyInput}`}
+          label={translate('text_663dea5702b60301d8d06502')}
+          value={valuePointer?.customProperties}
+          disabled={disabled}
+          error={_get(chargeErrors, inputId)}
+          onExpand={() =>
+            drawerRef.current?.openDrawer({
+              customProperties: valuePointer?.customProperties,
+            })
+          }
+        />
         <EditCustomChargeDrawer ref={drawerRef} onSubmit={(value) => handleUpdate(value)} />
       </>
     )

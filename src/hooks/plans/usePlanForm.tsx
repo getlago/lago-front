@@ -195,6 +195,7 @@ export const usePlanForm: ({
           amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
         }))
         .find(({ recurring }) => !!recurring),
+      fixedCharges: [],
       charges: plan?.charges
         ? (plan?.charges.map(
             ({

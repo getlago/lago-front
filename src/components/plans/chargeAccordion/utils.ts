@@ -1,7 +1,12 @@
 import { FormikProps } from 'formik'
 import { RefObject } from 'react'
 
-import { LocalUsageChargeInput, PlanFormInput } from '~/components/plans/types'
+import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
+import {
+  LocalFixedChargeInput,
+  LocalUsageChargeInput,
+  PlanFormInput,
+} from '~/components/plans/types'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { ChargeModelEnum } from '~/generated/graphql'
@@ -14,6 +19,20 @@ export type HandleUpdateUsageChargesProps = {
   name: string
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef> | undefined
   value: unknown
+}
+
+export function isFixedChargeInput(
+  chargeCursor: ChargeCursor,
+  charge: LocalFixedChargeInput | LocalUsageChargeInput | undefined,
+): charge is LocalFixedChargeInput {
+  return chargeCursor === 'fixedCharges'
+}
+
+export function isUsageChargeInput(
+  chargeCursor: ChargeCursor,
+  charge: LocalUsageChargeInput | LocalFixedChargeInput | undefined,
+): charge is LocalUsageChargeInput {
+  return chargeCursor === 'charges'
 }
 
 export const handleUpdateUsageCharges = ({

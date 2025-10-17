@@ -37,12 +37,12 @@ import {
   ChargeModelEnum,
   CurrencyEnum,
   CustomChargeFragmentDoc,
-  DynamicChargeFragmentDoc,
   GraduatedChargeFragmentDoc,
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
   PlanInterval,
+  PricingGroupKeysFragmentDoc,
   StandardChargeFragmentDoc,
   TaxForTaxesSelectorSectionFragmentDoc,
   VolumeRangesFragmentDoc,
@@ -84,7 +84,7 @@ gql`
       ...StandardCharge
       ...PercentageCharge
       ...CustomCharge
-      ...DynamicCharge
+      ...PricingGroupKeys
     }
     filters {
       invoiceDisplayName
@@ -103,7 +103,7 @@ gql`
         ...StandardCharge
         ...PercentageCharge
         ...CustomCharge
-        ...DynamicCharge
+        ...PricingGroupKeys
       }
     }
     billableMetric {
@@ -130,7 +130,7 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${ChargeForUsageChargeOptionsAccordionFragmentDoc}
-  ${DynamicChargeFragmentDoc}
+  ${PricingGroupKeysFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
@@ -147,14 +147,14 @@ interface UsageChargeAccordionProps {
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  shouldDisplayAlreadyUsedChargeAlert: boolean
+  alreadyUsedChargeAlertMessage: string | undefined
 }
 
 export const UsageChargeAccordion = memo(
   ({
     currency,
     disabled,
-    shouldDisplayAlreadyUsedChargeAlert,
+    alreadyUsedChargeAlertMessage,
     removeChargeWarningDialogRef,
     premiumWarningDialogRef,
     editInvoiceDisplayNameDialogRef,
@@ -362,7 +362,7 @@ export const UsageChargeAccordion = memo(
           />
 
           <ChargeModelSelector
-            shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+            alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
             isInSubscriptionForm={isInSubscriptionForm}
             disabled={disabled}
             localCharge={localCharge}

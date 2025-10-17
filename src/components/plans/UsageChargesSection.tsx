@@ -317,8 +317,10 @@ export const UsageChargesSection = memo(
                     const isNew = !alreadyExistingCharges?.find(
                       (chargeFetched) => chargeFetched?.id === charge.id,
                     )
-                    const shouldDisplayAlreadyUsedChargeAlert =
+                    const alreadyUsedChargeAlertMessage =
                       (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
+                        ? translate('text_6435895831d323008a47911f')
+                        : undefined
 
                     return (
                       <UsageChargeAccordion
@@ -327,7 +329,7 @@ export const UsageChargesSection = memo(
                         isInitiallyOpen={isInitiallyOpen}
                         isInSubscriptionForm={isInSubscriptionForm}
                         subscriptionFormType={subscriptionFormType}
-                        shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+                        alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
                         removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                         premiumWarningDialogRef={premiumWarningDialogRef}
                         editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
@@ -443,8 +445,10 @@ export const UsageChargesSection = memo(
                     const isNew = !alreadyExistingCharges?.find(
                       (chargeFetched) => chargeFetched?.id === charge.id,
                     )
-                    const shouldDisplayAlreadyUsedChargeAlert =
+                    const alreadyUsedChargeAlertMessage =
                       (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
+                        ? translate('text_6435895831d323008a47911f')
+                        : undefined
 
                     return (
                       <UsageChargeAccordion
@@ -453,7 +457,7 @@ export const UsageChargesSection = memo(
                         isInitiallyOpen={isInitiallyOpen}
                         isInSubscriptionForm={isInSubscriptionForm}
                         subscriptionFormType={subscriptionFormType}
-                        shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+                        alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
                         removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                         premiumWarningDialogRef={premiumWarningDialogRef}
                         editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}

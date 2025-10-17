@@ -45,6 +45,7 @@ describe('cleanPlanValues', () => {
       recurring: true,
       thresholdDisplayName: 'Recurring threshold',
     },
+    fixedCharges: [],
     charges: [
       {
         id: 'charge-1',

@@ -3477,5 +3477,7 @@
   "text_1759933141735g1r551m8os0": "Search or select multiple countries",
   "text_1759933204078u1tne7oow48": "Type one or multiple states",
   "text_1759933204078h2854rr8kve": "Type one or multiple zipcodes",
-  "text_1759933204078d8saqn06pdf": "Search or select multiple currencies"
+  "text_1759933204078d8saqn06pdf": "Search or select multiple currencies",
+  "text_1760721761361octnb0dfqm5": "Apply unit changes at plan update",
+  "text_1760721761361lqhc17vjr2b": "If true, unit changes update all linked subscriptions on save and may trigger invoices for advanced charges. If false, changes apply from the next billing period."
 }
