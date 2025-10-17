@@ -108,7 +108,7 @@
     "@llm-ui/code": "0.13.3",
     "@llm-ui/markdown": "0.13.3",
     "@llm-ui/react": "0.13.3",
-    "@fragaria/address-formatter": "^6.6.1",
+    "@fragaria/address-formatter": "6.6.1",
     "@mui/material": "5.14.18",
     "@mui/x-date-pickers": "6.20.0",
     "@nangohq/frontend": "0.67.8",
