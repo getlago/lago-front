@@ -75,6 +75,7 @@ describe('serializePlanInput()', () => {
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
         charges: [],
+        fixedCharges: [],
         code: 'my-plan',
         interval: PlanInterval.Monthly,
         name: 'My plan',
@@ -91,6 +92,7 @@ describe('serializePlanInput()', () => {
         amountCurrency: 'EUR',
         billChargesMonthly: true,
         charges: [],
+        fixedCharges: [],
         code: 'my-plan',
         interval: 'monthly',
         minimumCommitment: {},
@@ -110,6 +112,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Graduated,
@@ -140,6 +143,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -197,6 +201,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
@@ -227,6 +232,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -286,6 +292,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Package,
@@ -314,6 +321,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -360,6 +368,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Percentage,
@@ -389,6 +398,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -435,6 +445,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
@@ -464,6 +475,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -508,6 +520,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
@@ -537,6 +550,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -577,6 +591,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
@@ -634,6 +649,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -715,6 +731,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Volume,
@@ -744,6 +761,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -801,6 +819,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Custom,
@@ -830,6 +849,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -877,6 +897,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [],
         code: 'my-plan',
         interval: PlanInterval.Monthly,
@@ -907,6 +928,7 @@ describe('serializePlanInput()', () => {
         amountCurrency: 'EUR',
         billChargesMonthly: true,
         charges: [],
+        fixedCharges: [],
         code: 'my-plan',
         interval: 'monthly',
         minimumCommitment: {},
@@ -942,6 +964,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
@@ -977,6 +1000,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -1020,6 +1044,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
@@ -1055,6 +1080,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -1097,6 +1123,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [],
         code: 'my-plan',
         interval: PlanInterval.Monthly,
@@ -1127,6 +1154,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [],
         code: 'my-plan',
         entitlements: [
@@ -1163,6 +1191,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
@@ -1194,6 +1223,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',
@@ -1234,6 +1264,7 @@ describe('serializePlanInput()', () => {
         amountCents: '1',
         amountCurrency: CurrencyEnum.Eur,
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Standard,
@@ -1265,6 +1296,7 @@ describe('serializePlanInput()', () => {
         amountCents: 100,
         amountCurrency: 'EUR',
         billChargesMonthly: true,
+        fixedCharges: [],
         charges: [
           {
             billableMetricId: '1234',

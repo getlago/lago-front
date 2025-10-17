@@ -7,7 +7,6 @@ import { memo, RefObject, useCallback, useMemo } from 'react'
 import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
-import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -104,7 +103,7 @@ export const ChargePercentage = memo(
     }
 
     return (
-      <div className="flex flex-col gap-6">
+      <>
         <TextInput
           className="flex-1"
           name={`${propertyCursor}.rate`}
@@ -593,14 +592,7 @@ export const ChargePercentage = memo(
             </Typography>
           )}
         </Alert>
-
-        <PricingGroupKeys
-          disabled={disabled}
-          handleUpdate={handleUpdate}
-          propertyCursor={propertyCursor}
-          valuePointer={valuePointer}
-        />
-      </div>
+      </>
     )
   },
 )

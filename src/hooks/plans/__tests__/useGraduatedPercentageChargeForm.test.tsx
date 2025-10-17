@@ -43,6 +43,7 @@ const prepare = async ({
         name: 'graduated',
         payInAdvance: false,
         entitlements: [],
+        fixedCharges: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Graduated,

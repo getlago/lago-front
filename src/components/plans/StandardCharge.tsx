@@ -5,7 +5,6 @@ import { memo, useCallback } from 'react'
 
 import { AmountInput } from '~/components/form'
 import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
-import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { PropertiesInput } from '~/generated/graphql'
@@ -54,32 +53,23 @@ export const StandardCharge = memo(
     )
 
     return (
-      <div className="flex flex-col gap-6">
-        <AmountInput
-          name={`${propertyCursor}.amount`}
-          chargePricingUnitShortName={chargePricingUnitShortName}
-          currency={currency}
-          beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-          disabled={disabled}
-          label={translate('text_624453d52e945301380e49b6')}
-          value={valuePointer?.amount || ''}
-          onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                {chargePricingUnitShortName || getCurrencySymbol(currency)}
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <PricingGroupKeys
-          disabled={disabled}
-          handleUpdate={handleUpdate}
-          propertyCursor={propertyCursor}
-          valuePointer={valuePointer}
-        />
-      </div>
+      <AmountInput
+        name={`${propertyCursor}.amount`}
+        chargePricingUnitShortName={chargePricingUnitShortName}
+        currency={currency}
+        beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+        disabled={disabled}
+        label={translate('text_624453d52e945301380e49b6')}
+        value={valuePointer?.amount || ''}
+        onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              {chargePricingUnitShortName || getCurrencySymbol(currency)}
+            </InputAdornment>
+          ),
+        }}
+      />
     )
   },
 )
