@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "sideEffects": false,
-  "packageManager": "pnpm@10.18.0",
+  "packageManager": "pnpm@10.18.2",
   "changelog": {
     "repo": "git@gitlab.com:getlago/lago-front.git"
   },
