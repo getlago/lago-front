@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { memo, useCallback } from 'react'
 
@@ -9,11 +8,6 @@ import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-gql`
-  fragment DynamicCharge on Properties {
-    pricingGroupKeys
-  }
-`
 
 type DynamicChargeProps = {
   chargeCursor: ChargeCursor

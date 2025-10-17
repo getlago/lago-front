@@ -9967,8 +9967,6 @@ export type DeletePlanMutationVariables = Exact<{
 
 export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
 
-export type DynamicChargeFragment = { __typename?: 'Properties', pricingGroupKeys?: Array<string> | null };
-
 export type FeatureEntitlementForPlanFragment = { __typename?: 'Plan', entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null };
 
 export type GetFeaturesListForPlanSectionQueryVariables = Exact<{
@@ -10009,6 +10007,8 @@ export type GetTaxesForPlanQueryVariables = Exact<{
 
 
 export type GetTaxesForPlanQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } };
+
+export type PricingGroupKeysFragment = { __typename?: 'Properties', pricingGroupKeys?: Array<string> | null };
 
 export type StandardChargeFragment = { __typename?: 'Properties', amount?: string | null, pricingGroupKeys?: Array<string> | null };
 
@@ -10068,6 +10068,8 @@ export type GetSubscribtionsForPlanDetailsQueryVariables = Exact<{
 
 
 export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+
+export type AddOnForFixedChargesSectionFragment = { __typename?: 'AddOn', id: string, name: string, code: string };
 
 export type DeleteOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, name: string };
 
@@ -14661,6 +14663,13 @@ export const BillableMetricForUsageChargeSectionFragmentDoc = gql`
   }
 }
     `;
+export const AddOnForFixedChargesSectionFragmentDoc = gql`
+    fragment AddOnForFixedChargesSection on AddOn {
+  id
+  name
+  code
+}
+    `;
 export const DeleteOktaIntegrationDialogFragmentDoc = gql`
     fragment DeleteOktaIntegrationDialog on OktaIntegration {
   id
@@ -16034,8 +16043,8 @@ export const CustomChargeFragmentDoc = gql`
   customProperties
 }
     `;
-export const DynamicChargeFragmentDoc = gql`
-    fragment DynamicCharge on Properties {
+export const PricingGroupKeysFragmentDoc = gql`
+    fragment PricingGroupKeys on Properties {
   pricingGroupKeys
 }
     `;
@@ -16072,7 +16081,7 @@ export const UsageChargeAccordionFragmentDoc = gql`
     ...StandardCharge
     ...PercentageCharge
     ...CustomCharge
-    ...DynamicCharge
+    ...PricingGroupKeys
   }
   filters {
     invoiceDisplayName
@@ -16091,7 +16100,7 @@ export const UsageChargeAccordionFragmentDoc = gql`
       ...StandardCharge
       ...PercentageCharge
       ...CustomCharge
-      ...DynamicCharge
+      ...PricingGroupKeys
     }
   }
   billableMetric {
@@ -16116,7 +16125,7 @@ ${PackageChargeFragmentDoc}
 ${StandardChargeFragmentDoc}
 ${PercentageChargeFragmentDoc}
 ${CustomChargeFragmentDoc}
-${DynamicChargeFragmentDoc}
+${PricingGroupKeysFragmentDoc}
 ${TaxForTaxesSelectorSectionFragmentDoc}
 ${ChargeForUsageChargeOptionsAccordionFragmentDoc}`;
 export const PlanForUsageChargeAccordionFragmentDoc = gql`
