@@ -88,7 +88,7 @@ jobs:
     needs: [build-images]
     steps:
       - name: Download Digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: ./_tmp/${{ github.run_id}}/${{ github.run_attempt }}/digests
           pattern: digests-*
