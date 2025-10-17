@@ -5,7 +5,6 @@ import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
-import { InfoBlock } from '~/components/customers/CustomerMainInfos'
 import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -61,6 +60,7 @@ gql`
     invoiceRequiresSuccessfulPayment
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
+    priority
   }
 `
 
@@ -289,44 +289,45 @@ const CreateWalletTopUp = () => {
                 </Typography>
               </div>
 
-              <div>
-                {[
-                  [translate('text_623b42ff8ee4e000ba87d0be'), wallet?.name || '-'],
-                  [
-                    translate('text_1750411499858su5b7bbp5t9'),
-                    translate('text_62da6ec24a8e24e44f812872', {
+              <WalletSettingsInfosDisplay
+                infos={[
+                  { label: translate('text_6419c64eace749372fc72b0f'), value: wallet.name },
+                  {
+                    label: translate('text_1755695821678c8hkgkxkh73'),
+                    value: wallet.priority,
+                  },
+                  {
+                    label: translate('text_1750411499858su5b7bbp5t9'),
+                    value: translate('text_62da6ec24a8e24e44f812872', {
                       rateAmount: intlFormatNumber(wallet.rateAmount, {
                         currency,
                         minimumFractionDigits: getCurrencyPrecision(currency),
                         currencyDisplay: 'symbol',
                       }),
                     }),
-                  ],
-                  [
-                    translate('text_1759387047166vuoep9t72ny'),
-                    intlFormatNumber(deserializeAmount(wallet?.paidTopUpMinAmountCents, currency), {
-                      currency,
-                    }),
-                    !!wallet?.paidTopUpMinAmountCents,
-                  ],
-                  [
-                    translate('text_1759387047167hwbqm5hx7ye'),
-                    intlFormatNumber(deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency), {
-                      currency,
-                    }),
-                    !!wallet?.paidTopUpMaxAmountCents,
-                  ],
-                ]
-                  .filter(([, , enabled]) => enabled !== false)
-                  .map(([label, content], index) => (
-                    <InfoBlock key={`create-wallet-topup-information-${index}`}>
-                      <Typography variant="caption">{label}</Typography>
-                      <Typography color="textSecondary" forceBreak>
-                        {content}
-                      </Typography>
-                    </InfoBlock>
-                  ))}
-              </div>
+                  },
+                  {
+                    label: translate('text_1759387047166vuoep9t72ny'),
+                    value: intlFormatNumber(
+                      deserializeAmount(wallet?.paidTopUpMinAmountCents, currency),
+                      {
+                        currency,
+                      },
+                    ),
+                    hide: !wallet?.paidTopUpMinAmountCents,
+                  },
+                  {
+                    label: translate('text_1759387047167hwbqm5hx7ye'),
+                    value: intlFormatNumber(
+                      deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency),
+                      {
+                        currency,
+                      },
+                    ),
+                    hide: !wallet?.paidTopUpMaxAmountCents,
+                  },
+                ]}
+              />
             </section>
 
             <section className="flex flex-col gap-6 pb-12 shadow-b">
@@ -578,6 +579,35 @@ const CreateWalletTopUp = () => {
         onContinue={() => navigateToCustomerWalletTab()}
       />
     </>
+  )
+}
+
+const WalletSettingsInfosDisplay = ({
+  infos,
+}: {
+  infos?: {
+    label: string
+    value?: string | number | null
+    hide?: boolean
+  }[]
+}) => {
+  if (!infos?.length) return null
+
+  return (
+    <div className="flex flex-col gap-1">
+      {infos
+        .filter((info) => !info.hide)
+        .map((info, infoIndex) => (
+          <div key={infoIndex} className="flex min-h-10 items-center">
+            <Typography variant="body" color="grey600" className="w-55 shrink-0">
+              {info.label}
+            </Typography>
+            <Typography variant="body" color="grey700" className="grow">
+              {info.value || '-'}
+            </Typography>
+          </div>
+        ))}
+    </div>
   )
 }
 
