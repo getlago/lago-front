@@ -104,7 +104,7 @@
     "vite-plugin-wasm": "3.5.0"
   },
   "dependencies": {
-    "@apollo/client": "3.14.0",
+    "@apollo/client": "4.0.7",
     "@llm-ui/code": "0.13.3",
     "@llm-ui/markdown": "0.13.3",
     "@llm-ui/react": "0.13.3",
