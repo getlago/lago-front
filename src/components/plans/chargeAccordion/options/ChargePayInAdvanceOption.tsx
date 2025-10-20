@@ -31,7 +31,7 @@ export const ChargePayInAdvanceOption: FC<ChargePayInAdvanceOptionProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-1">
         <Typography variant="captionHl" color="textSecondary" component="legend">
           {translate('text_6682c52081acea90520743a8')}
         </Typography>
