@@ -340,7 +340,7 @@ const CustomerInvoiceVoid = () => {
                           })}
                         </Typography>
 
-                        <Typography variant="body" color="grey600" className="text-nowrap">
+                        <Typography variant="caption" color="grey600" className="text-nowrap">
                           {`${translate('text_1741604005109aspaz4chd7y')}: ${intlFormatNumber(
                             deserializeAmount(totalPaidAmountCents, currency),
                             {
@@ -470,7 +470,10 @@ const CustomerInvoiceVoid = () => {
                 )}
               </div>
 
-              {!!getIn(formikProps.errors, 'payBackErrors') && (
+              {/**
+               * The maxTotal check is to avoid showing this error when the invoice has been paid but can still be generated as credit note
+               */}
+              {!!getIn(formikProps.errors, 'payBackErrors') && maxTotal > 0 && (
                 <Alert type="danger">
                   <Typography className="text-grey-700">
                     {translate('text_1747911423385xh4lo4ephnl', {
