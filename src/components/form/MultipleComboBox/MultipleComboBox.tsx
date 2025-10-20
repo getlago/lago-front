@@ -181,12 +181,12 @@ export const MultipleComboBox = ({
               return option?.value === val.value
             }
       }
-      renderOption={(props, option, state) => {
+      renderOption={({ key, ...props }, option, state) => {
         return (
           <MultipleComboBoxItemWrapper
             multipleComboBoxProps={props}
             id={`option-${option.value}`}
-            key={`option-${option.value}`}
+            key={`option-${option.value}-${key}`}
             option={option}
             selected={state.selected}
             virtualized={virtualized}

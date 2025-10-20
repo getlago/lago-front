@@ -153,12 +153,12 @@ export const ComboBox = ({
       isOptionEqualToValue={(option, val) => {
         return option?.value === (val as unknown as string)
       }}
-      renderOption={(props, option, state) => {
+      renderOption={({ key, ...props }, option, state) => {
         return (
           <ComboBoxItemWrapper
             comboboxProps={props}
             id={`option-${option.value}`}
-            key={`option-${option.value}`}
+            key={`option-${option.value}-${key}`}
             option={option}
             selected={state.selected}
             virtualized={virtualized}
