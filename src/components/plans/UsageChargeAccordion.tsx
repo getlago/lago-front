@@ -147,14 +147,14 @@ interface UsageChargeAccordionProps {
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  shouldDisplayAlreadyUsedChargeAlert: boolean
+  alreadyUsedChargeAlertMessage: string | undefined
 }
 
 export const UsageChargeAccordion = memo(
   ({
     currency,
     disabled,
-    shouldDisplayAlreadyUsedChargeAlert,
+    alreadyUsedChargeAlertMessage,
     removeChargeWarningDialogRef,
     premiumWarningDialogRef,
     editInvoiceDisplayNameDialogRef,
@@ -362,7 +362,7 @@ export const UsageChargeAccordion = memo(
           />
 
           <ChargeModelSelector
-            shouldDisplayAlreadyUsedChargeAlert={shouldDisplayAlreadyUsedChargeAlert}
+            alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
             isInSubscriptionForm={isInSubscriptionForm}
             disabled={disabled}
             localCharge={localCharge}
