@@ -123,13 +123,12 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
       {!isPremium && (
         <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
           <Box>
-            <Typography
-              className="flex items-center justify-start"
-              variant="bodyHl"
-              color="textSecondary"
-            >
-              {translate('text_1753864223060kmmxk4a59aj')} <Icon className="ml-2" name="sparkles" />
-            </Typography>
+            <div className="flex items-center justify-start gap-2">
+              <Typography variant="bodyHl" color="textSecondary">
+                {translate('text_1753864223060kmmxk4a59aj')}
+              </Typography>
+              <Icon name="sparkles" />
+            </div>
             <Typography variant="caption">{translate('text_17538642230601w4ue2sz9iy')}</Typography>
           </Box>
           <Button
