@@ -162,20 +162,6 @@ const XeroIntegrationDetails = () => {
                 variant="quaternary"
                 align="left"
                 fullWidth
-                onClick={() => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: xeroIntegration,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dad')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                fullWidth
                 onClick={async () => {
                   const nango = new Nango({ publicKey: nangoPublicKey })
 
@@ -197,6 +183,20 @@ const XeroIntegrationDetails = () => {
                 }}
               >
                 {translate('text_62b31e1f6a5b8b1b745ece41')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                fullWidth
+                onClick={() => {
+                  deleteDialogRef.current?.openDialog({
+                    provider: xeroIntegration,
+                    callback: deleteDialogCallback,
+                  })
+                  closePopper()
+                }}
+              >
+                {translate('text_65845f35d7d69c3ab4793dad')}
               </Button>
             </MenuPopper>
           )}
