@@ -68,14 +68,24 @@ const BillingEntityCreateEdit = () => {
   useEffect(() => {
     if (
       formikProps.values.country &&
-      MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country)
+      MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country) &&
+      !formikProps.values.einvoicing
     ) {
-      formikProps.setFieldValue('einvoicing', true)
-    } else {
       formikProps.setFieldValue('einvoicing', false)
+    }
+
+    if (
+      !formikProps.values.country ||
+      !MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country)
+    ) {
+      formikProps.setFieldValue('einvoicing', undefined)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.country])
+
+  const canDisplayEinvoicingField =
+    formikProps.values.country &&
+    MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country)
 
   return (
     <>
@@ -236,7 +246,7 @@ const BillingEntityCreateEdit = () => {
                     </Typography>
                   </div>
                   <div className="mb-8 flex flex-col gap-6">
-                    {!formikProps.values.country ? (
+                    {!canDisplayEinvoicingField ? (
                       <Alert type="warning">
                         <Typography
                           className="word-break-word"
