@@ -2,7 +2,7 @@ import { InputAdornment } from '@mui/material'
 import { getIn, useFormik } from 'formik'
 import { Alert, Button, GenericPlaceholder, Typography } from 'lago-design-system'
 import { generatePath, Link, useNavigate, useParams } from 'react-router-dom'
-import { array, object, string, ValidationError } from 'yup'
+import { array, number, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
 import { Status, Table } from '~/components/designSystem'
@@ -165,7 +165,7 @@ const CustomerInvoiceVoid = () => {
     },
     validationSchema: object()
       .shape({
-        handle: string(),
+        handle: number(),
         payBack: array().of(
           object().shape({
             type: string(),
@@ -176,6 +176,7 @@ const CustomerInvoiceVoid = () => {
       .test({
         test: (value, { createError }) => {
           const payBack = value?.payBack
+          const handleValue = value?.handle
 
           const refund = Number(payBack?.[0]?.value ?? 0)
           const credit = Number(payBack?.[1]?.value ?? 0)
@@ -184,7 +185,11 @@ const CustomerInvoiceVoid = () => {
 
           const sum = credit + refund
 
-          if (sum > maxTotal) {
+          /**
+           * This error can only occur when we try to generate a credit note.
+           * If we only want to void, we skip this check as we don't want the error to be displayed in that case.
+           */
+          if (handleValue !== HandleEnum.VoidOnly && sum > maxTotal) {
             errors.push(
               createError({
                 message: PayBackErrorEnum.maxTotalInvoice,
@@ -326,7 +331,7 @@ const CustomerInvoiceVoid = () => {
                     key: 'number',
                     title: translate('text_64188b3d9735d5007d71226c'),
                     maxSpace: true,
-                    content: ({ number }) => number,
+                    content: ({ number: nb }) => nb,
                   },
                   {
                     key: 'totalDueAmountCents',
@@ -470,10 +475,7 @@ const CustomerInvoiceVoid = () => {
                 )}
               </div>
 
-              {/**
-               * The maxTotal check is to avoid showing this error when the invoice has been paid but can still be generated as credit note
-               */}
-              {!!getIn(formikProps.errors, 'payBackErrors') && maxTotal > 0 && (
+              {!!getIn(formikProps.errors, 'payBackErrors') && (
                 <Alert type="danger">
                   <Typography className="text-grey-700">
                     {translate('text_1747911423385xh4lo4ephnl', {
