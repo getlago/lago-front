@@ -149,17 +149,23 @@ export const MultipleComboBox = ({
         }
 
         return tagValues.map((option, index) => {
-          // Happens when `freeSolo` is true and user types a value that is not in the list and press enter
-          const optionToDisplay =
-            typeof option === 'string' ? { value: option, label: option } : option
           const tagOptions = getTagProps({ index })
+          // Happens when `freeSolo` is true and user types a value that is not in the list and press enter
+          const optionValue = typeof option === 'string' ? option : option.value
+          const optionLabel = typeof option === 'string' ? option : option.label || optionValue
+
+          // Happens when `freeSolo` is true and we click on the option instead of submitting by using the enter key
+          const labelContainsCreateText =
+            optionLabel === translate('text_65ef30711cfd3e0083135de8', { value: optionValue })
+
+          const labelToUse = labelContainsCreateText ? optionValue : optionLabel
 
           return (
             <Chip
               {...tagOptions}
               className="my-2 ml-2 mr-0"
               key={tagOptions.key}
-              label={optionToDisplay.label ?? optionToDisplay.value}
+              label={labelToUse}
             />
           )
         })
