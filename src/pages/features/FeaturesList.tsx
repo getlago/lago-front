@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, Button, Chip, Icon, Typography } from 'lago-design-system'
+import { Avatar, Button, Icon, Typography } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -105,13 +105,9 @@ const FeaturesList = () => {
   return (
     <>
       <PageHeader.Wrapper withSide>
-        <div className="flex items-center gap-3">
-          <Typography variant="bodyHl" color="grey700">
-            {translate('text_1752692673070k7z0mmf0494')}
-          </Typography>
-
-          <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
-        </div>
+        <Typography variant="bodyHl" color="grey700">
+          {translate('text_1752692673070k7z0mmf0494')}
+        </Typography>
 
         {canAccessFeatureForm && (
           <PageHeader.Group>
