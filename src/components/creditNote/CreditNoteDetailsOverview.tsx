@@ -99,7 +99,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
   }, [hasError, loading, hasPermissions])
 
   const canDownloadXmlFile = useMemo(() => {
-    return creditNote?.billingEntity.einvoicing
+    return creditNote?.billingEntity.einvoicing || creditNote?.xmlUrl
   }, [creditNote])
 
   return (
