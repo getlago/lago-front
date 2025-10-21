@@ -66,7 +66,7 @@ export const useDownloadFile = () => {
         // 200ms should be enough, and we don't want to keep the tab opened for too long
         setTimeout(() => {
           myWindow?.close()
-        }, 200)
+        }, 400)
         return
       }
 
