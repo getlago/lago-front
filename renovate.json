@@ -6,6 +6,7 @@
   "prCreation": "immediate",
   "minimumReleaseAge": "7 days",
   "pinVersions": true,
+  "preserveSemverRanges": true,
   "addLabels": ["🔗 dependencies"],
   "schedule": ["every weekend", "before 5am every weekday"],
   "dependencyDashboardTitle": "👷‍♀️ Dependency Dashboard",
