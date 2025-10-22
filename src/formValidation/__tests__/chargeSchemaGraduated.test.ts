@@ -10,7 +10,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: undefined,
+              graduatedRanges: undefined,
             },
           },
         ]
@@ -23,7 +23,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [],
+              graduatedRanges: [],
             },
           },
         ]
@@ -36,7 +36,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [
+              graduatedRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -56,7 +56,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [
+              graduatedRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -77,7 +77,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [
+              graduatedRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -98,7 +98,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [
+              graduatedRanges: [
                 {
                   fromValue: '100',
                   toValue: '10',
@@ -118,7 +118,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [
+              graduatedRanges: [
                 {
                   fromValue: '1',
                   toValue: '10',
@@ -145,7 +145,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [
+              graduatedRanges: [
                 {
                   fromValue: '100',
                   toValue: '100',
@@ -167,7 +167,7 @@ describe('chargeSchema Graduated', () => {
           {
             chargeModel: ChargeModelEnum.Graduated,
             properties: {
-              graduatedRange: [
+              graduatedRanges: [
                 {
                   fromValue: '1',
                   toValue: '100',
@@ -186,7 +186,7 @@ describe('chargeSchema Graduated', () => {
         ]
         const result = chargeSchema.isValidSync(values)
 
-        expect(result).toBeFalsy()
+        expect(result).toBeTruthy()
       })
     })
   })
@@ -208,7 +208,7 @@ describe('chargeSchema Graduated', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedRange: undefined,
+                  graduatedRanges: undefined,
                 },
               },
             ],
@@ -233,7 +233,7 @@ describe('chargeSchema Graduated', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedRange: [],
+                  graduatedRanges: [],
                 },
               },
             ],
@@ -259,7 +259,7 @@ describe('chargeSchema Graduated', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    graduatedRange: [
+                    graduatedRanges: [
                       {
                         fromValue: '0',
                         toValue: '100',
@@ -293,7 +293,7 @@ describe('chargeSchema Graduated', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    graduatedRange: [
+                    graduatedRanges: [
                       {
                         fromValue: '0',
                         toValue: '100',
@@ -328,7 +328,7 @@ describe('chargeSchema Graduated', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    graduatedRange: [
+                    graduatedRanges: [
                       {
                         fromValue: '0',
                         toValue: '100',
@@ -363,7 +363,7 @@ describe('chargeSchema Graduated', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    graduatedRange: [
+                    graduatedRanges: [
                       {
                         fromValue: '100',
                         toValue: '10',
@@ -397,7 +397,7 @@ describe('chargeSchema Graduated', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    graduatedRange: [
+                    graduatedRanges: [
                       {
                         fromValue: '1',
                         toValue: '10',
@@ -438,7 +438,7 @@ describe('chargeSchema Graduated', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    graduatedRange: [
+                    graduatedRanges: [
                       {
                         fromValue: '100',
                         toValue: '100',
@@ -474,7 +474,7 @@ describe('chargeSchema Graduated', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    graduatedRange: [
+                    graduatedRanges: [
                       {
                         fromValue: '1',
                         toValue: '100',

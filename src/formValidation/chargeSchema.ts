@@ -32,18 +32,39 @@ const percentageShape = {
 const graduatedShape = {
   graduatedRanges: array()
     .test({
-      test: (graduatedRange) => {
+      test: (graduatedRanges) => {
         let isValid = true
 
-        graduatedRange?.every(({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
+        graduatedRanges?.every(({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
+          // Check if both perUnitAmount and flatAmount are invalid
           if (isNaN(Number(perUnitAmount)) && isNaN(Number(flatAmount))) {
             isValid = false
             return false
           }
 
-          if (i < graduatedRange.length - 1 && Number(fromValue || 0) > Number(toValue || 0)) {
+          // Check if either perUnitAmount or flatAmount is invalid (but not empty/undefined)
+          if (
+            (perUnitAmount !== undefined && perUnitAmount !== '' && isNaN(Number(perUnitAmount))) ||
+            (flatAmount !== undefined && flatAmount !== '' && isNaN(Number(flatAmount)))
+          ) {
             isValid = false
             return false
+          }
+
+          // Check for all ranges except the last one (which can have no toValue)
+          if (i < graduatedRanges.length - 1) {
+            if (Number(fromValue || 0) >= Number(toValue || 0)) {
+              isValid = false
+              return false
+            }
+          } else {
+            // For the last range, check if toValue exists and validate
+            if (toValue !== undefined && toValue !== null && toValue !== '') {
+              if (Number(fromValue || 0) >= Number(toValue || 0)) {
+                isValid = false
+                return false
+              }
+            }
           }
 
           return true
@@ -59,21 +80,30 @@ const graduatedShape = {
 const graduatedPercentageShape = {
   graduatedPercentageRanges: array()
     .test({
-      test: (graduatedPercentageRange) => {
+      test: (graduatedPercentageRanges) => {
         let isValid = true
 
-        graduatedPercentageRange?.every(({ fromValue, toValue, rate }, i) => {
-          if (
-            i < graduatedPercentageRange.length - 1 &&
-            Number(fromValue || 0) > Number(toValue || 0)
-          ) {
+        graduatedPercentageRanges?.every(({ fromValue, toValue, rate }, i) => {
+          // Check if rate is invalid
+          if (isNaN(Number(rate)) || rate === '' || rate === null) {
             isValid = false
             return false
           }
 
-          if (isNaN(Number(rate)) || rate === '' || rate === null) {
-            isValid = false
-            return false
+          // Check for all ranges except the last one (which can have no toValue)
+          if (i < graduatedPercentageRanges.length - 1) {
+            if (Number(fromValue || 0) >= Number(toValue || 0)) {
+              isValid = false
+              return false
+            }
+          } else {
+            // For the last range, check if toValue exists and validate
+            if (toValue !== undefined && toValue !== null && toValue !== '') {
+              if (Number(fromValue || 0) >= Number(toValue || 0)) {
+                isValid = false
+                return false
+              }
+            }
           }
 
           return true
@@ -89,18 +119,39 @@ const graduatedPercentageShape = {
 const volumeShape = {
   volumeRanges: array()
     .test({
-      test: (volumeRange) => {
+      test: (volumeRanges) => {
         let isValid = true
 
-        volumeRange?.every(({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
+        volumeRanges?.every(({ fromValue, toValue, perUnitAmount, flatAmount }, i) => {
+          // Check if both perUnitAmount and flatAmount are invalid
           if (isNaN(Number(perUnitAmount)) && isNaN(Number(flatAmount))) {
             isValid = false
             return false
           }
 
-          if (i < volumeRange.length - 1 && Number(fromValue || 0) > Number(toValue || 0)) {
+          // Check if either perUnitAmount or flatAmount is invalid (but not empty/undefined)
+          if (
+            (perUnitAmount !== undefined && perUnitAmount !== '' && isNaN(Number(perUnitAmount))) ||
+            (flatAmount !== undefined && flatAmount !== '' && isNaN(Number(flatAmount)))
+          ) {
             isValid = false
             return false
+          }
+
+          // Check for all ranges except the last one (which can have no toValue)
+          if (i < volumeRanges.length - 1) {
+            if (Number(fromValue || 0) >= Number(toValue || 0)) {
+              isValid = false
+              return false
+            }
+          } else {
+            // For the last range, check if toValue exists and validate
+            if (toValue !== undefined && toValue !== null && toValue !== '') {
+              if (Number(fromValue || 0) >= Number(toValue || 0)) {
+                isValid = false
+                return false
+              }
+            }
           }
 
           return true

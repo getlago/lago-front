@@ -10,7 +10,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: undefined,
+              volumeRanges: undefined,
             },
           },
         ]
@@ -23,7 +23,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [],
+              volumeRanges: [],
             },
           },
         ]
@@ -36,7 +36,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [
+              volumeRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -56,7 +56,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [
+              volumeRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -76,7 +76,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [
+              volumeRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -97,7 +97,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [
+              volumeRanges: [
                 {
                   fromValue: '100',
                   toValue: '10',
@@ -118,7 +118,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [
+              volumeRanges: [
                 {
                   fromValue: '1',
                   toValue: '10',
@@ -145,7 +145,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [
+              volumeRanges: [
                 {
                   fromValue: '100',
                   toValue: '100',
@@ -167,7 +167,7 @@ describe('chargeSchema Volume', () => {
           {
             chargeModel: ChargeModelEnum.Volume,
             properties: {
-              volumeRange: [
+              volumeRanges: [
                 {
                   fromValue: '1',
                   toValue: '100',
@@ -186,7 +186,7 @@ describe('chargeSchema Volume', () => {
         ]
         const result = chargeSchema.isValidSync(values)
 
-        expect(result).toBeFalsy()
+        expect(result).toBeTruthy()
       })
     })
   })
@@ -208,7 +208,7 @@ describe('chargeSchema Volume', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  volumeRange: undefined,
+                  volumeRanges: undefined,
                 },
               },
             ],
@@ -233,7 +233,7 @@ describe('chargeSchema Volume', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  volumeRange: [],
+                  volumeRanges: [],
                 },
               },
             ],
@@ -259,7 +259,7 @@ describe('chargeSchema Volume', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    volumeRange: [
+                    volumeRanges: [
                       {
                         fromValue: '0',
                         toValue: '100',
@@ -293,7 +293,7 @@ describe('chargeSchema Volume', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    volumeRange: [
+                    volumeRanges: [
                       {
                         fromValue: '0',
                         toValue: '100',
@@ -328,7 +328,7 @@ describe('chargeSchema Volume', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    volumeRange: [
+                    volumeRanges: [
                       {
                         fromValue: '0',
                         toValue: '100',
@@ -363,7 +363,7 @@ describe('chargeSchema Volume', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    volumeRange: [
+                    volumeRanges: [
                       {
                         fromValue: '100',
                         toValue: '10',
@@ -397,7 +397,7 @@ describe('chargeSchema Volume', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    volumeRange: [
+                    volumeRanges: [
                       {
                         fromValue: '1',
                         toValue: '10',
@@ -438,7 +438,7 @@ describe('chargeSchema Volume', () => {
                     transformFilterObjectToString('key', 'value'),
                   ],
                   properties: {
-                    volumeRange: [
+                    volumeRanges: [
                       {
                         fromValue: '100',
                         toValue: '100',
@@ -465,38 +465,36 @@ describe('chargeSchema Volume', () => {
             billableMetric: {
               filters: [{ key: 'key', values: ['value'], id: '1' }],
             },
-            values: {
-              filters: [
-                {
-                  invoiceDisplayName: undefined,
-                  values: [
-                    transformFilterObjectToString('key'),
-                    transformFilterObjectToString('key', 'value'),
+            filters: [
+              {
+                invoiceDisplayName: undefined,
+                values: [
+                  transformFilterObjectToString('key'),
+                  transformFilterObjectToString('key', 'value'),
+                ],
+                properties: {
+                  volumeRanges: [
+                    {
+                      fromValue: '1',
+                      toValue: '100',
+                      perUnitAmount: '1',
+                      flatAmount: '1',
+                    },
+                    {
+                      fromValue: '101',
+                      toValue: '1000',
+                      perUnitAmount: '1',
+                      flatAmount: '1',
+                    },
                   ],
-                  properties: {
-                    volumeRange: [
-                      {
-                        fromValue: '1',
-                        toValue: '100',
-                        perUnitAmount: '1',
-                        flatAmount: '1',
-                      },
-                      {
-                        fromValue: '101',
-                        toValue: '1000',
-                        perUnitAmount: '1',
-                        flatAmount: '1',
-                      },
-                    ],
-                  },
                 },
-              ],
-            },
+              },
+            ],
           },
         ]
         const result = chargeSchema.isValidSync(values)
 
-        expect(result).toBeFalsy()
+        expect(result).toBeTruthy()
       })
     })
   })
