@@ -10,7 +10,7 @@ import { Status, StatusType, Typography } from '~/components/designSystem'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import { formatDateToTZ } from '~/core/timezone'
+import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
@@ -80,6 +80,17 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
     state: customer?.state,
     zipcode: customer?.zipcode,
   })
+
+  const getFormattedDate = (date: string | null | undefined): string => {
+    if (!date) return '-'
+
+    const formattedDate = intlFormatDateTime(date, {
+      timezone: customer?.applicableTimezone,
+      formatDate: DateFormat.DATE_MED,
+    })
+
+    return `${formattedDate.date} ${formattedDate.timezone}`
+  }
 
   return (
     <section className="grid grid-cols-1 gap-0 py-6 shadow-b md:grid-cols-2">
@@ -183,11 +194,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               {translate('text_634687079be251fdb4383407')}
             </Typography>
             <Typography variant="body" color="grey700">
-              {formatDateToTZ(
-                invoice?.issuingDate,
-                customer?.applicableTimezone,
-                "LLL. dd, yyyy U'T'CZ",
-              )}
+              {getFormattedDate(invoice?.issuingDate)}
             </Typography>
           </InfoLine>
         )}
@@ -198,11 +205,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             </Typography>
             <Stack alignItems="baseline" flexDirection="row" flexWrap="wrap" columnGap={3}>
               <Typography variant="body" color="grey700">
-                {formatDateToTZ(
-                  invoice?.paymentDueDate,
-                  customer?.applicableTimezone,
-                  "LLL. dd, yyyy U'T'CZ",
-                )}
+                {getFormattedDate(invoice?.paymentDueDate)}
               </Typography>
               {invoice?.paymentOverdue && <Status type={StatusType.danger} label="overdue" />}
             </Stack>

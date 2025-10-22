@@ -22,7 +22,7 @@ import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   ChargeUsage,
@@ -310,6 +310,10 @@ export const SubscriptionCurrentUsageTableComponent = ({
   const unitsKey = showProjected ? 'projectedUnits' : 'units'
   const showPremiumError = showProjected && !hasAccessToProjectedUsage
 
+  const getFormattedDate = (date: string): string => {
+    return intlFormatDateTime(date, { timezone: customerTimezone, locale }).date
+  }
+
   return (
     <section>
       <div className="flex h-10 flex-row items-start justify-between shadow-b">
@@ -336,16 +340,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
         {!isLoading && !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime && (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: locale
-                ? intlFormatDateTime(usageData?.fromDatetime, {
-                    timezone: customerTimezone,
-                    locale,
-                  }).date
-                : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
-              toDate: locale
-                ? intlFormatDateTime(usageData?.toDatetime, { timezone: customerTimezone, locale })
-                    .date
-                : formatDateToTZ(usageData?.toDatetime, customerTimezone),
+              fromDate: getFormattedDate(usageData?.fromDatetime),
+              toDate: getFormattedDate(usageData?.toDatetime),
             })}
           </Typography>
         )}

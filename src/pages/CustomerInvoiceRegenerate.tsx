@@ -15,7 +15,7 @@ import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   Charge,
   CurrencyEnum,
@@ -338,6 +338,14 @@ const CustomerInvoiceRegenerate = () => {
     }
   }
 
+  const getFormattedDate = (date: string): string => {
+    if (!date) return '-'
+
+    return intlFormatDateTime(date, {
+      timezone: customer?.applicableTimezone,
+    }).date
+  }
+
   if (error) {
     return (
       <GenericPlaceholder
@@ -379,24 +387,12 @@ const CustomerInvoiceRegenerate = () => {
                   {!!invoice?.voidedAt
                     ? translate('text_17506785063887oto6r0hcq0', {
                         invoiceNumber: invoice?.number,
-                        issuingDate: formatDateToTZ(
-                          invoice?.issuingDate,
-                          customer?.applicableTimezone,
-                          'LLL. dd, yyyy',
-                        ),
-                        voidDate: formatDateToTZ(
-                          invoice?.voidedAt,
-                          customer?.applicableTimezone,
-                          'LLL. dd, yyyy',
-                        ),
+                        issuingDate: getFormattedDate(invoice?.issuingDate),
+                        voidDate: getFormattedDate(invoice?.voidedAt),
                       })
                     : translate('text_1751991206828m0rxpmddapo', {
                         invoiceNumber: invoice?.number,
-                        issuingDate: formatDateToTZ(
-                          invoice?.issuingDate,
-                          customer?.applicableTimezone,
-                          'LLL. dd, yyyy',
-                        ),
+                        issuingDate: getFormattedDate(invoice?.issuingDate),
                       })}
                 </Typography>
               </Alert>

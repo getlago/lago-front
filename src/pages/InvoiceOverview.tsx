@@ -36,7 +36,7 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   AvalaraIntegrationInfosForInvoiceOverviewFragment,
   BillingEntity,
@@ -425,6 +425,10 @@ const InvoiceOverview = memo(
 
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
 
+    const formattedInvoiceIssuingDate = intlFormatDateTime(invoice?.issuingDate, {
+      timezone: customer?.applicableTimezone,
+    })
+
     return (
       <>
         <SectionHeader variant="subhead1">
@@ -547,11 +551,7 @@ const InvoiceOverview = memo(
                         ? 'text_1724170152395tr7v0f15xsv'
                         : 'text_63a41a8eabb9ae67047c1c0c',
                       {
-                        issuingDate: formatDateToTZ(
-                          invoice.issuingDate,
-                          customer?.applicableTimezone,
-                          "LLL. dd, yyyy U'T'CZ",
-                        ),
+                        issuingDate: `${formattedInvoiceIssuingDate.date} ${formattedInvoiceIssuingDate.timezone}`,
                       },
                     )}
                   </Alert>

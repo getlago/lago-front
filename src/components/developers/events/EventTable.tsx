@@ -4,10 +4,10 @@ import { generatePath } from 'react-router-dom'
 import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { EVENT_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
+import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { EventsQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 type EventTableProps = {
   getEventsResult: EventsQueryResult
@@ -16,9 +16,15 @@ type EventTableProps = {
 
 export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef }) => {
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   const { data, error, loading, fetchMore, refetch } = getEventsResult
+
+  const formattedReceivedAt = (date: string) => {
+    return intlFormatDateTime(date, {
+      formatDate: DateFormat.DATE_MED,
+      formatTime: TimeFormat.TIME_WITH_SECONDS,
+    })
+  }
 
   const events = useMemo(
     () =>
@@ -74,7 +80,9 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
             title: translate('text_664cb90097bfa800e6efa3f5'),
             key: 'receivedAt',
             content: ({ receivedAt }) => (
-              <Typography noWrap>{formatTimeOrgaTZ(receivedAt, 'LLL dd, hh:mm:ss a')}</Typography>
+              <Typography noWrap>
+                {`${formattedReceivedAt(receivedAt).date} ${formattedReceivedAt(receivedAt).time}`}
+              </Typography>
             ),
           },
         ]}

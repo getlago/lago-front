@@ -2,7 +2,7 @@ import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
 
 import { Tooltip, TooltipProps, Typography, TypographyProps } from '~/components/designSystem'
-import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
+import { DateFormat, getTimezoneConfig, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -16,7 +16,11 @@ enum MainTimezoneEnum {
 
 interface TimezoneDateProps {
   date: string // Should be given in UTC +0
-  mainDateFormat?: string
+  showFullDateTime?: boolean
+  mainDateFormat?: {
+    formatTime: TimeFormat
+    formatDate: DateFormat
+  }
   mainTimezone?: keyof typeof MainTimezoneEnum
   customerTimezone?: TimezoneEnum
   mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color' | 'className' | 'noWrap'>
@@ -26,7 +30,11 @@ interface TimezoneDateProps {
 }
 
 export const TimezoneDate = ({
-  mainDateFormat = 'LLL. dd, yyyy',
+  showFullDateTime = false,
+  mainDateFormat = {
+    formatTime: TimeFormat.TIME_SIMPLE,
+    formatDate: DateFormat.DATE_MED,
+  },
   date,
   mainTimezone = MainTimezoneEnum.organization,
   customerTimezone,
@@ -36,7 +44,7 @@ export const TimezoneDate = ({
   className,
 }: TimezoneDateProps) => {
   const { translate } = useInternationalization()
-  const { timezone, timezoneConfig, formatTimeOrgaTZ } = useOrganizationInfos()
+  const { timezone, timezoneConfig } = useOrganizationInfos()
   const formattedCustomerTZ = getTimezoneConfig(customerTimezone || timezone)
 
   const displayTimezone = useMemo(() => {
@@ -44,6 +52,33 @@ export const TimezoneDate = ({
     if (mainTimezone === MainTimezoneEnum.customer) return customerTimezone
     return TimezoneEnum.TzUtc
   }, [mainTimezone, customerTimezone, timezone])
+
+  const customerFormattedDate = useMemo(() => {
+    return intlFormatDateTime(date, {
+      timezone: customerTimezone,
+      formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+      formatDate: DateFormat.DATE_MED_WITH_WEEKDAY,
+    })
+  }, [date, customerTimezone])
+
+  const organizationFormattedDate = useMemo(() => {
+    return intlFormatDateTime(date, {
+      formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+      formatDate: DateFormat.DATE_MED_WITH_WEEKDAY,
+    })
+  }, [date])
+
+  const timestampFormattedDate = useMemo(() => {
+    const formattedDate = intlFormatDateTime(date, {
+      timezone: displayTimezone,
+      ...mainDateFormat,
+    })
+
+    if (showFullDateTime) {
+      return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
+    }
+    return formattedDate.date
+  }, [date, displayTimezone, mainDateFormat, showFullDateTime])
 
   return (
     <Tooltip
@@ -64,7 +99,7 @@ export const TimezoneDate = ({
               {translate('text_6390bc0405db04e825d347aa', { offset: formattedCustomerTZ.offset })}
             </Typography>
             <Typography variant="caption" color="white">
-              {formatDateToTZ(date, customerTimezone, 'EEE dd LLL, yyyy HH:mm:ss')}
+              {`${customerFormattedDate.date} ${customerFormattedDate.time}`}
             </Typography>
 
             <Icon name="company" color="disabled" />
@@ -75,7 +110,7 @@ export const TimezoneDate = ({
               {translate('text_6390bc0405db04e825d347aa', { offset: timezoneConfig.offset })}
             </Typography>
             <Typography variant="caption" color="white">
-              {formatTimeOrgaTZ(date, 'EEE dd LLL, yyyy HH:mm:ss')}
+              {`${organizationFormattedDate.date} ${organizationFormattedDate.time}`}
             </Typography>
           </div>
         </div>
@@ -88,7 +123,7 @@ export const TimezoneDate = ({
         {...mainTypographyProps}
         noWrap
       >
-        {formatDateToTZ(date, displayTimezone, mainDateFormat)}
+        {timestampFormattedDate}
       </Typography>
     </Tooltip>
   )

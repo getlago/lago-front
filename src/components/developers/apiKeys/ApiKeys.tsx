@@ -24,6 +24,7 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { addToast } from '~/core/apolloClient'
 import { obfuscateValue } from '~/core/formats/obfuscate'
 import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE } from '~/core/router'
+import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   ApiKeyForDeleteApiKeyDialogFragmentDoc,
@@ -36,7 +37,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { STATE_KEY_ID_TO_REVEAL } from '~/pages/developers/ApiKeysForm'
 import { tw } from '~/styles/utils'
@@ -86,12 +86,15 @@ gql`
   ${ApiKeyForDeleteApiKeyDialogFragmentDoc}
 `
 
+const getFormattedDate = (date: string) => {
+  return intlFormatDateTime(date, { formatDate: DateFormat.DATE_MED }).date
+}
+
 export const ApiKeys = () => {
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
   const { state } = useLocation()
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
   const { closePanel: close } = useDeveloperTool()
 
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
@@ -229,7 +232,7 @@ export const ApiKeys = () => {
                       minWidth: 138,
                       content: ({ createdAt }) => (
                         <Typography color="grey700" variant="body">
-                          {formatTimeOrgaTZ(createdAt)}
+                          {getFormattedDate(createdAt)}
                         </Typography>
                       ),
                     },
@@ -415,7 +418,11 @@ export const ApiKeys = () => {
                       minWidth: 140,
                       content: ({ lastUsedAt }) => (
                         <Typography color="grey700" variant="body">
-                          {!!lastUsedAt ? formatTimeOrgaTZ(lastUsedAt) : '-'}
+                          {!!lastUsedAt
+                            ? intlFormatDateTime(lastUsedAt, {
+                                formatDate: DateFormat.DATE_MED,
+                              }).date
+                            : '-'}
                         </Typography>
                       ),
                     },
@@ -425,7 +432,7 @@ export const ApiKeys = () => {
                       minWidth: 140,
                       content: ({ createdAt }) => (
                         <Typography color="grey700" variant="body">
-                          {formatTimeOrgaTZ(createdAt)}
+                          {getFormattedDate(createdAt)}
                         </Typography>
                       ),
                     },
