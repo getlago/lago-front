@@ -155,10 +155,7 @@ export const MultipleComboBox = ({
           const optionLabel = typeof option === 'string' ? option : option.label || optionValue
 
           // Happens when `freeSolo` is true and we click on the option instead of submitting by using the enter key
-          const labelContainsCreateText =
-            optionLabel === translate('text_65ef30711cfd3e0083135de8', { value: optionValue })
-
-          const labelToUse = labelContainsCreateText ? optionValue : optionLabel
+          const labelToUse = option.customValue ? optionValue : optionLabel
 
           return (
             <Chip
