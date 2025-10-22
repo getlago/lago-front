@@ -32,10 +32,13 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
   )
 
   const formattedDate = useMemo(() => {
-    return (date: string) =>
-      intlFormatDateTimeOrgaTZ(date, {
+    return (date: string) => {
+      const { date: d, time } = intlFormatDateTimeOrgaTZ(date, {
         formatTime: TimeFormat.TIME_WITH_SECONDS,
       })
+
+      return `${d} ${time}`
+    }
   }, [intlFormatDateTimeOrgaTZ])
 
   return (
@@ -82,9 +85,7 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
             title: translate('text_664cb90097bfa800e6efa3f5'),
             key: 'receivedAt',
             content: ({ receivedAt }) => (
-              <Typography
-                noWrap
-              >{`${formattedDate(receivedAt).date} ${formattedDate(receivedAt).time}`}</Typography>
+              <Typography noWrap>{formattedDate(receivedAt)}</Typography>
             ),
           },
         ]}

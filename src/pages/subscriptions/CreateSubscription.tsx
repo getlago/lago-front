@@ -594,14 +594,18 @@ const CreateSubscription = () => {
               {formType === FORM_TYPE_ENUM.upgradeDowngrade && (
                 <Alert type="info">
                   {translate('text_6328e70de459381ed4ba50d6', {
-                    subscriptionEndDate: intlFormatDateTimeOrgaTZ(subscription?.periodEndDate).date,
+                    subscriptionEndDate: subscription?.periodEndDate
+                      ? intlFormatDateTimeOrgaTZ(subscription.periodEndDate).date
+                      : '-',
                   })}
                 </Alert>
               )}
               {subscription?.status === StatusTypeEnum.Pending && (
                 <Alert type="info">
                   {translate('text_6335e50b0b089e1d8ed508da', {
-                    subscriptionAt: intlFormatDateTimeOrgaTZ(subscription?.startedAt).date,
+                    subscriptionAt: subscription?.startedAt
+                      ? intlFormatDateTimeOrgaTZ(subscription.startedAt).date
+                      : '-',
                   })}
                 </Alert>
               )}

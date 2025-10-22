@@ -7,7 +7,7 @@ import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { StatusTypeEnum, useGetSubscribtionsForPlanDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -150,11 +150,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
               minWidth: 150,
               content: ({ subscriptionAt }) => (
                 <Typography variant="body" color="grey700">
-                  {
-                    intlFormatDateTime(subscriptionAt, {
-                      formatDate: DateFormat.DATE_MED,
-                    }).date
-                  }
+                  {intlFormatDateTime(subscriptionAt).date}
                 </Typography>
               ),
             },
@@ -164,11 +160,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
               minWidth: 150,
               content: ({ endingAt }) => (
                 <Typography variant="body" color="grey700">
-                  {!!endingAt
-                    ? intlFormatDateTime(endingAt, {
-                        formatDate: DateFormat.DATE_MED,
-                      }).date
-                    : '-'}
+                  {!!endingAt ? intlFormatDateTime(endingAt).date : '-'}
                 </Typography>
               ),
             },
