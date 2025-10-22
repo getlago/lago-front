@@ -42,6 +42,12 @@ gql`
   ${OrganizationForDatePickerFragmentDoc}
 `
 
+type DateTimeFormatOptions = {
+  formatTime?: TimeFormat
+  formatDate?: DateFormat
+  formatTimezone?: TimezoneFormat
+}
+
 type UseOrganizationInfos = () => {
   loading: boolean
   organization?: MainOrganizationInfosFragment
@@ -53,11 +59,7 @@ type UseOrganizationInfos = () => {
   formatTimeOrgaTZ: (date: string, format?: string) => string
   intlFormatDateTimeOrgaTZ: (
     date: string,
-    format?: {
-      formatTime?: TimeFormat
-      formatDate?: DateFormat
-      formatTimezone?: TimezoneFormat
-    },
+    format?: DateTimeFormatOptions,
   ) => { date: string; time: string; timezone: string }
   hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) => boolean
   refetchOrganizationInfos: () => void
@@ -84,14 +86,7 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     timezoneConfig,
     formatTimeOrgaTZ: (date, format) =>
       formatDateToTZ(date, orgaTimezone, format || 'LLL. dd, yyyy'),
-    intlFormatDateTimeOrgaTZ: (
-      date: string,
-      format?: {
-        formatTime?: TimeFormat
-        formatDate?: DateFormat
-        formatTimezone?: TimezoneFormat
-      },
-    ) => {
+    intlFormatDateTimeOrgaTZ: (date: string, format?: DateTimeFormatOptions) => {
       const defaultFormat = {
         formatDate: DateFormat.DATE_MED,
         formatTime: TimeFormat.TIME_SIMPLE,
