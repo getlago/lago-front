@@ -1,6 +1,6 @@
 import { transformFilterObjectToString } from '~/components/plans/utils'
-import { chargeSchema } from '~/formValidation/chargeSchema'
-import { ChargeModelEnum } from '~/generated/graphql'
+import { chargeSchema, fixedChargeSchema } from '~/formValidation/chargeSchema'
+import { ChargeModelEnum, FixedChargeChargeModelEnum } from '~/generated/graphql'
 
 describe('chargeSchema Standard', () => {
   describe('properties', () => {
@@ -165,6 +165,86 @@ describe('chargeSchema Standard', () => {
           },
         ]
         const result = chargeSchema.isValidSync(values)
+
+        expect(result).toBeTruthy()
+      })
+    })
+  })
+})
+
+describe('fixedChargeSchema Standard', () => {
+  describe('properties', () => {
+    describe('invalid', () => {
+      it('has empty string amount', () => {
+        const values = [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Standard,
+            properties: {
+              amount: '',
+            },
+            units: '10',
+          },
+        ]
+        const result = fixedChargeSchema.isValidSync(values)
+
+        expect(result).toBeFalsy()
+      })
+
+      it('has invalid string amount', () => {
+        const values = [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Standard,
+            properties: {
+              amount: 'a',
+            },
+            units: '10',
+          },
+        ]
+        const result = fixedChargeSchema.isValidSync(values)
+
+        expect(result).toBeFalsy()
+      })
+
+      it('has empty units', () => {
+        const values = [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Standard,
+            properties: {
+              amount: '1',
+            },
+          },
+        ]
+        const result = fixedChargeSchema.isValidSync(values)
+
+        expect(result).toBeFalsy()
+      })
+    })
+    describe('valid', () => {
+      it('has string amount and units', () => {
+        const values = [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Standard,
+            properties: {
+              amount: '1',
+            },
+            units: '10',
+          },
+        ]
+        const result = fixedChargeSchema.isValidSync(values)
+
+        expect(result).toBeTruthy()
+      })
+      it('has number value and units', () => {
+        const values = [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Standard,
+            properties: {
+              amount: 1,
+            },
+            units: '10',
+          },
+        ]
+        const result = fixedChargeSchema.isValidSync(values)
 
         expect(result).toBeTruthy()
       })

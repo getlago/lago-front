@@ -16,6 +16,7 @@ export enum ValueFormatter {
   decimal = 'decimal', // Truncate numbers to 2 decimals
   triDecimal = 'triDecimal', // Truncate numbers to 3 decimals
   quadDecimal = 'quadDecimal', // Truncate numbers to 4 decimals
+  sextDecimal = 'sextDecimal', // Truncate numbers to 6 decimals
   positiveNumber = 'positiveNumber',
   code = 'code', // Replace all the spaces by "_"
   chargeDecimal = 'chargeDecimal', // Truncate charge numbers to 15 decimals
@@ -45,7 +46,7 @@ export interface TextInputProps
 }
 
 const numberFormatter = new RegExp(
-  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.quadDecimal}|${ValueFormatter.positiveNumber}`,
+  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.quadDecimal}|${ValueFormatter.sextDecimal}|${ValueFormatter.positiveNumber}`,
 )
 
 export const formatValue = (
@@ -93,6 +94,10 @@ export const formatValue = (
     if (formattedValue !== '-') {
       formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,4})?/) || [])[0]
     }
+  }
+
+  if (formatterFunctions.includes(ValueFormatter.sextDecimal)) {
+    formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,6})?/) || [])[0]
   }
 
   if (formatterFunctions.includes(ValueFormatter.chargeDecimal)) {

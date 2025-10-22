@@ -84,6 +84,7 @@ export const cleanPlanValues = (planValues: PlanOverridesInput) => {
     taxes: undefined,
     payInAdvance: undefined,
     billChargesMonthly: undefined,
+    billFixedChargesMonthly: undefined,
     cascadeUpdates: undefined,
     entitlements: undefined,
     charges: planValues?.charges?.map((charge) => ({
@@ -100,6 +101,12 @@ export const cleanPlanValues = (planValues: PlanOverridesInput) => {
       invoiceable: undefined,
       prorated: undefined,
       regroupPaidFees: undefined,
+    })),
+    fixedCharges: planValues?.fixedCharges?.map((fixedCharge) => ({
+      ...fixedCharge,
+      chargeModel: undefined,
+      payInAdvance: undefined,
+      prorated: undefined,
     })),
   }
 }

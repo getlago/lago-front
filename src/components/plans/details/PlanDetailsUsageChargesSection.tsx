@@ -1,6 +1,6 @@
 import { Accordion, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { PlanDetailsChargesSectionAccordion } from '~/components/plans/details/PlanDetailsChargesSectionAccordion'
+import { PlanDetailsUsageChargesSectionAccordion } from '~/components/plans/details/PlanDetailsUsageChargesSectionAccordion'
 import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -14,7 +14,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const PlanDetailsChargesSection = ({
+export const PlanDetailsUsageChargesSection = ({
   currency,
   plan,
 }: {
@@ -115,7 +115,10 @@ export const PlanDetailsChargesSection = ({
                   />
                 </div>
                 {/* Properties accordion */}
-                <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
+                <PlanDetailsUsageChargesSectionAccordion
+                  currency={currency}
+                  charge={charge as Charge}
+                />
                 {/* Options */}
                 <div className="px-4 pb-4">
                   <DetailsPage.InfoGrid
@@ -256,7 +259,10 @@ export const PlanDetailsChargesSection = ({
                   />
                 </div>
                 {/* Properties accordion */}
-                <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
+                <PlanDetailsUsageChargesSectionAccordion
+                  currency={currency}
+                  charge={charge as Charge}
+                />
                 {/* Options */}
                 <div className="px-4 pb-4">
                   <DetailsPage.InfoGrid

@@ -114,6 +114,22 @@ const graduatedShape = {
             return false
           }
 
+          // Check for all ranges except the last one (which can have no toValue)
+          if (i < graduatedRanges.length - 1) {
+            if (Number(fromValue || 0) >= Number(toValue || 0)) {
+              isValid = false
+              return false
+            }
+          } else {
+            // For the last range, check if toValue exists and validate
+            if (toValue !== undefined && toValue !== null && toValue !== '') {
+              if (Number(fromValue || 0) >= Number(toValue || 0)) {
+                isValid = false
+                return false
+              }
+            }
+          }
+
           return true
         })
 
@@ -176,6 +192,22 @@ const volumeShape = {
             return false
           }
 
+          // Check for all ranges except the last one (which can have no toValue)
+          if (i < volumeRanges.length - 1) {
+            if (Number(fromValue || 0) >= Number(toValue || 0)) {
+              isValid = false
+              return false
+            }
+          } else {
+            // For the last range, check if toValue exists and validate
+            if (toValue !== undefined && toValue !== null && toValue !== '') {
+              if (Number(fromValue || 0) >= Number(toValue || 0)) {
+                isValid = false
+                return false
+              }
+            }
+          }
+
           return true
         })
 
@@ -185,6 +217,93 @@ const volumeShape = {
     .min(1)
     .required(''),
 }
+
+const propertiesShape = object()
+  .when('chargeModel', {
+    is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Standard),
+    then: () =>
+      object().when({
+        is: (values: Properties) => !!values,
+        then: (schema) => schema.shape(standardShape),
+      }),
+  })
+  .when('chargeModel', {
+    is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Package),
+    then: () =>
+      object().when({
+        is: (values: Properties) => !!values,
+        then: (schema) => schema.shape(packageShape),
+      }),
+  })
+  .when('chargeModel', {
+    is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Percentage),
+    then: () =>
+      object().when({
+        is: (values: Properties) => !!values,
+        then: (schema) => schema.shape(percentageShape),
+      }),
+  })
+  .when('chargeModel', {
+    is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Graduated),
+    then: () =>
+      object().when({
+        is: (values: Properties) => !!values,
+        then: (schema) => schema.shape(graduatedShape),
+      }),
+  })
+  .when('chargeModel', {
+    is: (chargeModel: ChargeModelEnum) =>
+      isChargeModel(chargeModel, ChargeModelEnum.GraduatedPercentage),
+    then: () =>
+      object().when({
+        is: (values: Properties) => !!values,
+        then: (schema) => schema.shape(graduatedPercentageShape),
+      }),
+  })
+  .when('chargeModel', {
+    is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Volume),
+    then: () =>
+      object().when({
+        is: (values: Properties) => !!values,
+        then: (schema) => schema.shape(volumeShape),
+      }),
+  })
+  .when('chargeModel', {
+    is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Custom),
+    then: (schema) => schema.shape(customShape),
+  })
+
+const filtersShape = array()
+  .when(['chargeModel', 'billableMetric'], {
+    is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+      isChargeModel(chargeModel, ChargeModelEnum.Standard) && hasFilters(billableMetric),
+    then: (schema) => schema.of(createFilterShape(standardShape)),
+  })
+  .when(['chargeModel', 'billableMetric'], {
+    is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+      isChargeModel(chargeModel, ChargeModelEnum.Package) && hasFilters(billableMetric),
+    then: (schema) => schema.of(createFilterShape(packageShape)),
+  })
+  .when(['chargeModel', 'billableMetric'], {
+    is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+      isChargeModel(chargeModel, ChargeModelEnum.Percentage) && hasFilters(billableMetric),
+    then: (schema) => schema.of(createFilterShape(percentageShape)),
+  })
+  .when(['chargeModel', 'billableMetric'], {
+    is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+      isChargeModel(chargeModel, ChargeModelEnum.Graduated) && hasFilters(billableMetric),
+    then: (schema) => schema.of(createFilterShape(graduatedShape)),
+  })
+  .when(['chargeModel', 'billableMetric'], {
+    is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+      isChargeModel(chargeModel, ChargeModelEnum.GraduatedPercentage) && hasFilters(billableMetric),
+    then: (schema) => schema.of(createFilterShape(graduatedPercentageShape)),
+  })
+  .when(['chargeModel', 'billableMetric'], {
+    is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
+      isChargeModel(chargeModel, ChargeModelEnum.Volume) && hasFilters(billableMetric),
+    then: (schema) => schema.of(createFilterShape(volumeShape)),
+  })
 
 export const customShape = {
   customProperties: object().json().required(''),
@@ -208,97 +327,28 @@ export const chargeSchema = array().of(
       .default(undefined)
       .nullable()
       .notRequired(),
-    properties: object()
-      .when('chargeModel', {
-        is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Standard),
-        then: () =>
-          object().when({
-            is: (values: Properties) => !!values,
-            then: (schema) => schema.shape(standardShape),
-          }),
+    properties: propertiesShape.when(['filters'], {
+      is: (filter: LocalChargeFilterInput[]) => !filter?.length,
+      then: (schema) => schema.required(),
+      otherwise: (schema) => schema.optional(),
+    }),
+    filters: filtersShape,
+  }),
+)
+
+export const fixedChargeSchema = array().of(
+  object().shape({
+    chargeModel: string().required(''),
+    properties: propertiesShape,
+    units: string()
+      .test({
+        test: (value) => !isNaN(Number(value || 0)),
+        message: 'text_624ea7c29103fd010732ab7d',
       })
-      .when('chargeModel', {
-        is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Package),
-        then: () =>
-          object().when({
-            is: (values: Properties) => !!values,
-            then: (schema) => schema.shape(packageShape),
-          }),
+      .test({
+        test: (value) => Number(value || 0) > 0,
+        message: 'text_624ea7c29103fd010732ab7d',
       })
-      .when('chargeModel', {
-        is: (chargeModel: ChargeModelEnum) =>
-          isChargeModel(chargeModel, ChargeModelEnum.Percentage),
-        then: () =>
-          object().when({
-            is: (values: Properties) => !!values,
-            then: (schema) => schema.shape(percentageShape),
-          }),
-      })
-      .when('chargeModel', {
-        is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Graduated),
-        then: () =>
-          object().when({
-            is: (values: Properties) => !!values,
-            then: (schema) => schema.shape(graduatedShape),
-          }),
-      })
-      .when('chargeModel', {
-        is: (chargeModel: ChargeModelEnum) =>
-          isChargeModel(chargeModel, ChargeModelEnum.GraduatedPercentage),
-        then: () =>
-          object().when({
-            is: (values: Properties) => !!values,
-            then: (schema) => schema.shape(graduatedPercentageShape),
-          }),
-      })
-      .when('chargeModel', {
-        is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Volume),
-        then: () =>
-          object().when({
-            is: (values: Properties) => !!values,
-            then: (schema) => schema.shape(volumeShape),
-          }),
-      })
-      .when('chargeModel', {
-        is: (chargeModel: ChargeModelEnum) => isChargeModel(chargeModel, ChargeModelEnum.Custom),
-        then: (schema) => schema.shape(customShape),
-      })
-      .when(['filters'], {
-        is: (filter: LocalChargeFilterInput[]) => !filter?.length,
-        then: (schema) => schema.required(),
-        otherwise: (schema) => schema.optional(),
-      }),
-    filters: array()
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          isChargeModel(chargeModel, ChargeModelEnum.Standard) && hasFilters(billableMetric),
-        then: (schema) => schema.of(createFilterShape(standardShape)),
-      })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          isChargeModel(chargeModel, ChargeModelEnum.Package) && hasFilters(billableMetric),
-        then: (schema) => schema.of(createFilterShape(packageShape)),
-      })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          isChargeModel(chargeModel, ChargeModelEnum.Percentage) && hasFilters(billableMetric),
-        then: (schema) => schema.of(createFilterShape(percentageShape)),
-      })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          isChargeModel(chargeModel, ChargeModelEnum.Graduated) && hasFilters(billableMetric),
-        then: (schema) => schema.of(createFilterShape(graduatedShape)),
-      })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          isChargeModel(chargeModel, ChargeModelEnum.GraduatedPercentage) &&
-          hasFilters(billableMetric),
-        then: (schema) => schema.of(createFilterShape(graduatedPercentageShape)),
-      })
-      .when(['chargeModel', 'billableMetric'], {
-        is: (chargeModel: ChargeModelEnum, billableMetric: BillableMetric) =>
-          isChargeModel(chargeModel, ChargeModelEnum.Volume) && hasFilters(billableMetric),
-        then: (schema) => schema.of(createFilterShape(volumeShape)),
-      }),
+      .required(''),
   }),
 )

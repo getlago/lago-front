@@ -135,43 +135,45 @@ gql`
 `
 
 interface UsageChargeAccordionProps {
+  alreadyUsedChargeAlertMessage: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
-  isInitiallyOpen?: boolean
-  isInSubscriptionForm?: boolean
+  editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
   id: string
   index: number
+  isEdition: boolean
+  isInitiallyOpen?: boolean
+  isInSubscriptionForm?: boolean
   isUsedInSubscription?: boolean
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
-  editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  alreadyUsedChargeAlertMessage: string | undefined
 }
 
 export const UsageChargeAccordion = memo(
   ({
+    alreadyUsedChargeAlertMessage,
     currency,
     disabled,
-    alreadyUsedChargeAlertMessage,
-    removeChargeWarningDialogRef,
-    premiumWarningDialogRef,
     editInvoiceDisplayNameDialogRef,
-    isUsedInSubscription,
-    isInitiallyOpen,
-    isInSubscriptionForm,
     formikProps,
     id,
     index,
+    isEdition,
+    isInitiallyOpen,
+    isInSubscriptionForm,
+    isUsedInSubscription,
+    premiumWarningDialogRef,
+    removeChargeWarningDialogRef,
     subscriptionFormType,
   }: UsageChargeAccordionProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const {
       getUsageChargeModelComboboxData,
-      getIsPayInAdvanceOptionDisabled,
-      getIsProRatedOptionDisabled,
+      getIsPayInAdvanceOptionDisabledForUsageCharge,
+      getIsProRatedOptionDisabledForUsageCharge,
     } = useChargeForm()
     const chargeErrors = formikProps?.errors?.charges
 
@@ -188,14 +190,14 @@ export const UsageChargeAccordion = memo(
         isPremium,
         aggregationType: formikCharge.billableMetric.aggregationType,
       })
-      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabled({
+      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabledForUsageCharge({
         aggregationType: formikCharge.billableMetric.aggregationType,
         chargeModel: formikCharge.chargeModel,
         isPayInAdvance: formikCharge.payInAdvance || false,
         isProrated: formikCharge.prorated || false,
         isRecurring: formikCharge.billableMetric.recurring,
       })
-      const localIsProratedOptionDisabled = getIsProRatedOptionDisabled({
+      const localIsProratedOptionDisabled = getIsProRatedOptionDisabledForUsageCharge({
         isPayInAdvance: formikCharge.payInAdvance || false,
         aggregationType: formikCharge.billableMetric.aggregationType,
         chargeModel: formikCharge.chargeModel,
@@ -217,8 +219,8 @@ export const UsageChargeAccordion = memo(
       formikProps.initialValues.charges,
       formikProps.values.charges,
       getUsageChargeModelComboboxData,
-      getIsPayInAdvanceOptionDisabled,
-      getIsProRatedOptionDisabled,
+      getIsPayInAdvanceOptionDisabledForUsageCharge,
+      getIsProRatedOptionDisabledForUsageCharge,
       index,
       isPremium,
     ])
@@ -446,6 +448,7 @@ export const UsageChargeAccordion = memo(
                       chargePricingUnitShortName={chargePricingUnitShortName}
                       currency={currency}
                       formikProps={formikProps}
+                      isEdition={isEdition}
                       premiumWarningDialogRef={premiumWarningDialogRef}
                       propertyCursor="properties"
                       setFieldValue={formikProps.setFieldValue}
@@ -559,6 +562,7 @@ export const UsageChargeAccordion = memo(
                             currency={currency}
                             filterIndex={filterIndex}
                             formikProps={formikProps}
+                            isEdition={isEdition}
                             premiumWarningDialogRef={premiumWarningDialogRef}
                             propertyCursor={`filters.${filterIndex}.properties`}
                             setFieldValue={formikProps.setFieldValue}
