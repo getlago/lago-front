@@ -20,10 +20,10 @@ import {
   UPDATE_ADD_ON_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { AddOnItemFragment, useAddOnsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader } from '~/styles'
 
@@ -55,6 +55,7 @@ const AddOnsList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
     variables: { limit: 20 },
@@ -156,7 +157,7 @@ const AddOnsList = () => {
               minWidth: 140,
               content: ({ createdAt }) => (
                 <Typography color="textSecondary" variant="bodyHl" noWrap>
-                  {intlFormatDateTime(createdAt, { formatDate: DateFormat.DATE_MED }).date}
+                  {intlFormatDateTimeOrgaTZ(createdAt).date}
                 </Typography>
               ),
             },

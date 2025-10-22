@@ -20,7 +20,6 @@ import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone/utils'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
@@ -98,7 +97,7 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -239,10 +238,7 @@ const CustomersList = () => {
               {
                 key: 'createdAt',
                 title: translate('text_624efab67eb2570101d117e3'),
-                content: ({ createdAt }) =>
-                  intlFormatDateTime(createdAt, {
-                    formatDate: DateFormat.DATE_MED,
-                  }).date,
+                content: ({ createdAt }) => intlFormatDateTimeOrgaTZ(createdAt).date,
               },
             ]}
             actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}

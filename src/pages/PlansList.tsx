@@ -9,10 +9,10 @@ import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader } from '~/styles'
 
@@ -46,6 +46,7 @@ const PlansList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
     variables: { limit: 20 },
@@ -152,11 +153,7 @@ const PlansList = () => {
               textAlign: 'right',
               content: ({ createdAt }) => (
                 <Typography variant="body" color="grey600" className="text-right">
-                  {
-                    intlFormatDateTime(createdAt, {
-                      formatDate: DateFormat.DATE_MED,
-                    }).date
-                  }
+                  {intlFormatDateTimeOrgaTZ(createdAt).date}
                 </Typography>
               ),
             },

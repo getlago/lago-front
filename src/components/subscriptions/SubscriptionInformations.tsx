@@ -8,13 +8,13 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -68,6 +68,7 @@ export const SubscriptionInformations = ({
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
 }) => {
   const { translate } = useInternationalization()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const customerName = subscription?.customer?.displayName
 
@@ -82,9 +83,7 @@ export const SubscriptionInformations = ({
             <Alert type="info">
               {translate('text_62681c60582e4f00aa82938a', {
                 planName: subscription?.nextPlan?.name,
-                dateStartNewPlan: intlFormatDateTime(subscription?.nextSubscriptionAt, {
-                  formatDate: DateFormat.DATE_MED,
-                }).date,
+                dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription?.nextSubscriptionAt).date,
               })}
             </Alert>
           )}

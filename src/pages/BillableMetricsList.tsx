@@ -15,10 +15,10 @@ import {
   CREATE_BILLABLE_METRIC_ROUTE,
   UPDATE_BILLABLE_METRIC_ROUTE,
 } from '~/core/router'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { useBillableMetricsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader } from '~/styles'
 
@@ -47,6 +47,7 @@ const BillableMetricsList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
   const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
     useBillableMetricsLazyQuery({
@@ -133,7 +134,7 @@ const BillableMetricsList = () => {
               minWidth: 140,
               content: ({ createdAt }) => (
                 <Typography variant="body" color="grey600">
-                  {intlFormatDateTime(createdAt, { formatDate: DateFormat.DATE_MED }).date}
+                  {intlFormatDateTimeOrgaTZ(createdAt).date}
                 </Typography>
               ),
             },

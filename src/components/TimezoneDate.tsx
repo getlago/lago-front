@@ -44,7 +44,7 @@ export const TimezoneDate = ({
   className,
 }: TimezoneDateProps) => {
   const { translate } = useInternationalization()
-  const { timezone, timezoneConfig } = useOrganizationInfos()
+  const { timezone, timezoneConfig, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const formattedCustomerTZ = getTimezoneConfig(customerTimezone || timezone)
 
   const displayTimezone = useMemo(() => {
@@ -62,11 +62,11 @@ export const TimezoneDate = ({
   }, [date, customerTimezone])
 
   const organizationFormattedDate = useMemo(() => {
-    return intlFormatDateTime(date, {
+    return intlFormatDateTimeOrgaTZ(date, {
       formatTime: TimeFormat.TIME_24_WITH_SECONDS,
       formatDate: DateFormat.DATE_MED_WITH_WEEKDAY,
     })
-  }, [date])
+  }, [date, intlFormatDateTimeOrgaTZ])
 
   const timestampFormattedDate = useMemo(() => {
     const formattedDate = intlFormatDateTime(date, {

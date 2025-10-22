@@ -10,13 +10,13 @@ import {
   getCouponTypeTranslationKey,
 } from '~/core/constants/form'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   CouponFrequency,
   CouponTypeEnum,
   useGetCouponForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CouponDetailsForOverview on Coupon {
@@ -52,6 +52,7 @@ gql`
 export const CouponDetailsOverview = () => {
   const { translate } = useInternationalization()
   const { couponId } = useParams()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { data, loading } = useGetCouponForDetailsOverviewQuery({
     variables: { id: couponId as string },
@@ -190,11 +191,7 @@ export const CouponDetailsOverview = () => {
                       key="expiration-date-body"
                       className="py-4"
                       label={translate('text_664cb90097bfa800e6efa3f5')}
-                      value={
-                        intlFormatDateTime(coupon.expirationAt, {
-                          formatDate: DateFormat.DATE_MED,
-                        }).date
-                      }
+                      value={intlFormatDateTimeOrgaTZ(coupon.expirationAt).date}
                     />,
                   ],
                 ]}

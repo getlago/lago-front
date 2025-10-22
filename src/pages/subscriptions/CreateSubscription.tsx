@@ -51,7 +51,7 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
 } from '~/core/router'
-import { DateFormat, getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
+import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
@@ -68,6 +68,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
 import { BREAKPOINT_LG, PageHeader } from '~/styles'
@@ -216,6 +217,7 @@ const CreateSubscription = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe } = useSalesForceConfig()
 
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
@@ -592,14 +594,16 @@ const CreateSubscription = () => {
               {formType === FORM_TYPE_ENUM.upgradeDowngrade && (
                 <Alert type="info">
                   {translate('text_6328e70de459381ed4ba50d6', {
-                    subscriptionEndDate: intlFormatDateTime(subscription?.periodEndDate, {
-                      formatDate: DateFormat.DATE_MED,
-                    }).date,
+                    subscriptionEndDate: intlFormatDateTimeOrgaTZ(subscription?.periodEndDate).date,
                   })}
                 </Alert>
               )}
               {subscription?.status === StatusTypeEnum.Pending && (
-                <Alert type="info">{translate('text_6335e50b0b089e1d8ed508da')}</Alert>
+                <Alert type="info">
+                  {translate('text_6335e50b0b089e1d8ed508da', {
+                    subscriptionAt: intlFormatDateTimeOrgaTZ(subscription?.startedAt).date,
+                  })}
+                </Alert>
               )}
             </>
           )}

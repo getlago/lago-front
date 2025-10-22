@@ -45,6 +45,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -123,6 +124,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
   } = wallet
   const { isPremium } = useCurrentUser()
   const { customerId } = useParams()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { setUrl, openPanel: open } = useDeveloperTool()
@@ -176,9 +178,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                   {name
                     ? name
                     : translate('text_62da6ec24a8e24e44f8128b2', {
-                        createdAt: intlFormatDateTime(createdAt, {
-                          formatDate: DateFormat.DATE_MED,
-                        }).date,
+                        createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
                       })}
                 </Typography>
                 <Typography variant="caption">
@@ -539,9 +539,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                     className="flex h-5 items-end"
                     placement="top-end"
                     title={translate('text_62da6db136909f52c2704c40', {
-                      date: intlFormatDateTime(lastConsumedCreditAt || DateTime.now(), {
-                        formatDate: DateFormat.DATE_MED,
-                      }).date,
+                      date: intlFormatDateTimeOrgaTZ(lastConsumedCreditAt || DateTime.now()).date,
                     })}
                   >
                     <Icon name="info-circle" />

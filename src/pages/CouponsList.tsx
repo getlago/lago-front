@@ -14,7 +14,6 @@ import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   CouponCaptionFragmentDoc,
   CouponStatusEnum,
@@ -23,6 +22,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader } from '~/styles'
 
@@ -64,6 +64,7 @@ const CouponsList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
@@ -161,9 +162,7 @@ const CouponsList = () => {
                 <Typography color="grey600">
                   {!expirationAt
                     ? translate('text_62876a50ea3bba00b56d2c2c')
-                    : intlFormatDateTime(expirationAt, {
-                        formatDate: DateFormat.DATE_MED,
-                      }).date}
+                    : intlFormatDateTimeOrgaTZ(expirationAt).date}
                 </Typography>
               ),
             },
