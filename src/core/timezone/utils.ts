@@ -161,17 +161,17 @@ const getTimezoneString = (dateTime: DateTime, timezone: TimezoneEnum, format: T
  * ```
  */
 
+export type IntlFormatDateTimeOptions = {
+  timezone?: TimezoneEnum | null | undefined
+  locale?: LocaleEnum
+  formatDate?: DateFormat
+  formatTime?: TimeFormat
+  formatTimezone?: TimezoneFormat
+}
+
 export const intlFormatDateTime = (
   date: string,
-  options:
-    | {
-        timezone?: TimezoneEnum | null | undefined
-        locale?: LocaleEnum
-        formatDate?: DateFormat
-        formatTime?: TimeFormat
-        formatTimezone?: TimezoneFormat
-      }
-    | undefined = {},
+  options: IntlFormatDateTimeOptions | undefined = {},
 ): {
   date: string
   time: string
