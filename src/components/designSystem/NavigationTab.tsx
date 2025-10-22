@@ -123,7 +123,7 @@ export const NavigationTab = ({
     <>
       <div className={tw('flex flex-row shadow-b', className)}>
         <Tabs
-          className={tw('min-h-0 flex-1 items-center overflow-visible', {
+          className={tw('min-h-0 w-full flex-1 items-center overflow-visible', {
             'min-h-13': nonHiddenTabs.length > 1,
           })}
           variant="scrollable"
