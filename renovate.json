@@ -5,7 +5,7 @@
   "branchConcurrentLimit": 10,
   "prCreation": "immediate",
   "minimumReleaseAge": "7 days",
-  "pinVersions": true,
+  "rangeStrategy": "pin",
   "addLabels": ["🔗 dependencies"],
   "schedule": ["every weekend", "before 5am every weekday"],
   "dependencyDashboardTitle": "👷‍♀️ Dependency Dashboard",
@@ -18,11 +18,14 @@
   "packageRules": [
     {
       "matchPackageNames": ["node"],
-      "pinVersions": false,
       "rangeStrategy": "preserve"
     },
     {
-      "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
+      "matchPackageNames": [
+        "@types/react",
+        "@types/react-dom",
+        "@types/react-router-dom"
+      ],
       "groupName": "React types",
       "commitMessagePrefix": "chore(deps):"
     },
