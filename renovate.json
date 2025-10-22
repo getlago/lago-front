@@ -6,7 +6,6 @@
   "prCreation": "immediate",
   "minimumReleaseAge": "7 days",
   "pinVersions": true,
-  "preserveSemverRanges": true,
   "addLabels": ["🔗 dependencies"],
   "schedule": ["every weekend", "before 5am every weekday"],
   "dependencyDashboardTitle": "👷‍♀️ Dependency Dashboard",
@@ -19,7 +18,8 @@
   "packageRules": [
     {
       "matchPackageNames": ["node"],
-      "pinVersions": false
+      "pinVersions": false,
+      "rangeStrategy": "preserve"
     },
     {
       "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
