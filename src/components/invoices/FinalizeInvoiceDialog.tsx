@@ -98,7 +98,7 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
       ref={dialogRef}
       title={translate('text_63a4269f72ead1bda4bed106')}
       description={translate('text_63a4269f72ead1bda4bed108', {
-        issuingDate: formattedDateWithTimezone(invoice?.issuingDate),
+        issuingDate: invoice?.issuingDate ? formattedDateWithTimezone(invoice?.issuingDate) : '-',
       })}
       actions={({ closeDialog }) => (
         <>

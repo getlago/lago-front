@@ -1,5 +1,5 @@
 /*
- * This hook serves as a central point for ONLY common formatting logic
+ * This hook serves as a central point for ONLY common formatting logic for dates
  * that can be shared across multiple components
  * NB:
  * A new method is supposed to be added here only when we have duplication in formatting logic

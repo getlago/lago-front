@@ -14,6 +14,11 @@ enum MainTimezoneEnum {
   customer = 'customer',
 }
 
+const DEFAULT_DATE_FORMAT = {
+  formatTime: TimeFormat.TIME_SIMPLE,
+  formatDate: DateFormat.DATE_MED,
+}
+
 interface TimezoneDateProps {
   date: string // Should be given in UTC +0
   showFullDateTime?: boolean
@@ -31,10 +36,7 @@ interface TimezoneDateProps {
 
 export const TimezoneDate = ({
   showFullDateTime = false,
-  mainDateFormat = {
-    formatTime: TimeFormat.TIME_SIMPLE,
-    formatDate: DateFormat.DATE_MED,
-  },
+  mainDateFormat = DEFAULT_DATE_FORMAT,
   date,
   mainTimezone = MainTimezoneEnum.organization,
   customerTimezone,

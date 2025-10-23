@@ -4,11 +4,10 @@ import { generatePath } from 'react-router-dom'
 import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { EVENT_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
-import { TimeFormat } from '~/core/timezone'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { EventsQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 type EventTableProps = {
   getEventsResult: EventsQueryResult
@@ -17,7 +16,7 @@ type EventTableProps = {
 
 export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef }) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
 
   const { data, error, loading, fetchMore, refetch } = getEventsResult
 
@@ -30,16 +29,6 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
       })) || [],
     [data?.events?.collection],
   )
-
-  const formattedDate = useMemo(() => {
-    return (date: string) => {
-      const { date: d, time } = intlFormatDateTimeOrgaTZ(date, {
-        formatTime: TimeFormat.TIME_WITH_SECONDS,
-      })
-
-      return `${d} ${time}`
-    }
-  }, [intlFormatDateTimeOrgaTZ])
 
   return (
     <InfiniteScroll
@@ -85,7 +74,7 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
             title: translate('text_664cb90097bfa800e6efa3f5'),
             key: 'receivedAt',
             content: ({ receivedAt }) => (
-              <Typography noWrap>{formattedDate(receivedAt)}</Typography>
+              <Typography noWrap>{formattedDateTimeWithSecondsOrgaTZ(receivedAt)}</Typography>
             ),
           },
         ]}
