@@ -1,7 +1,7 @@
 /*
  * This hook serves as a central point for ONLY common formatting logic
  * that can be shared across multiple components
- * 
+ * NB:
  * A new method is supposed to be added here only when we have duplication in formatting logic
  * across multiple components. If the formatting logic is specific to a single component,
  * it should reside within that component or, in case, its dedicated hook.
