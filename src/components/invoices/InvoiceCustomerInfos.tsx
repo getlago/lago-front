@@ -10,13 +10,13 @@ import { Status, StatusType, Typography } from '~/components/designSystem'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
   InvoiceStatusTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 gql`
   fragment InvoiceForInvoiceInfos on Invoice {
@@ -67,6 +67,7 @@ interface InvoiceCustomerInfosProps {
 
 export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps) => {
   const { customer } = invoice || {}
+  const { formattedDateWithTimezone } = useFormatterDateHelper()
   const { translate } = useInternationalization()
 
   const customerName = customer?.displayName
@@ -80,17 +81,6 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
     state: customer?.state,
     zipcode: customer?.zipcode,
   })
-
-  const getFormattedDate = (date: string | null | undefined): string => {
-    if (!date) return '-'
-
-    const formattedDate = intlFormatDateTime(date, {
-      timezone: customer?.applicableTimezone,
-      formatDate: DateFormat.DATE_MED,
-    })
-
-    return `${formattedDate.date} ${formattedDate.timezone}`
-  }
 
   return (
     <section className="grid grid-cols-1 gap-0 py-6 shadow-b md:grid-cols-2">
@@ -194,7 +184,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               {translate('text_634687079be251fdb4383407')}
             </Typography>
             <Typography variant="body" color="grey700">
-              {getFormattedDate(invoice?.issuingDate)}
+              {formattedDateWithTimezone(invoice.issuingDate)}
             </Typography>
           </InfoLine>
         )}
@@ -205,7 +195,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             </Typography>
             <Stack alignItems="baseline" flexDirection="row" flexWrap="wrap" columnGap={3}>
               <Typography variant="body" color="grey700">
-                {getFormattedDate(invoice?.paymentDueDate)}
+                {formattedDateWithTimezone(invoice.paymentDueDate)}
               </Typography>
               {invoice?.paymentOverdue && <Status type={StatusType.danger} label="overdue" />}
             </Stack>

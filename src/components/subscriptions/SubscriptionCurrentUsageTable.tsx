@@ -311,7 +311,10 @@ export const SubscriptionCurrentUsageTableComponent = ({
   const showPremiumError = showProjected && !hasAccessToProjectedUsage
 
   const getFormattedDate = (date: string): string => {
-    return intlFormatDateTime(date, { timezone: customerTimezone, locale }).date
+    return intlFormatDateTime(date, {
+      timezone: customerTimezone,
+      locale,
+    }).date
   }
 
   return (
@@ -340,8 +343,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
         {!isLoading && !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime && (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: getFormattedDate(usageData?.fromDatetime),
-              toDate: getFormattedDate(usageData?.toDatetime),
+              fromDate: usageData?.fromDatetime ? getFormattedDate(usageData?.fromDatetime) : '-',
+              toDate: usageData?.toDatetime ? getFormattedDate(usageData?.toDatetime) : '-',
             })}
           </Typography>
         )}

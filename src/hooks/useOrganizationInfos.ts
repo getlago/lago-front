@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 
 import {
-  formatDateToTZ,
   intlFormatDateTime,
   IntlFormatDateTimeOptions,
   TimezoneConfigObject,
@@ -45,16 +44,12 @@ type UseOrganizationInfos = () => {
   organization?: MainOrganizationInfosFragment
   timezone: TimezoneEnum
   timezoneConfig: TimezoneConfigObject
-  /**
-   * @deprecated Use `intlFormatDateTime` instead.
-   */
-  formatTimeOrgaTZ: (date: string, format?: string) => string
+  hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) => boolean
+  refetchOrganizationInfos: () => void
   intlFormatDateTimeOrgaTZ: (
     date: string,
     options?: IntlFormatDateTimeOptions,
   ) => { date: string; time: string; timezone: string }
-  hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) => boolean
-  refetchOrganizationInfos: () => void
 }
 
 export const useOrganizationInfos: UseOrganizationInfos = () => {
@@ -76,8 +71,9 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     organization: data?.organization || undefined,
     timezone: orgaTimezone || TimezoneEnum.TzUtc,
     timezoneConfig,
-    formatTimeOrgaTZ: (date, format) =>
-      formatDateToTZ(date, orgaTimezone, format || 'LLL. dd, yyyy'),
+    hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) =>
+      !!premiumIntegrations?.includes(integration),
+    refetchOrganizationInfos: refetch,
     intlFormatDateTimeOrgaTZ: (date: string, options?: IntlFormatDateTimeOptions) => {
       const appliedOptions = options || {}
 
@@ -86,8 +82,5 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
         timezone: orgaTimezone,
       })
     },
-    hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) =>
-      !!premiumIntegrations?.includes(integration),
-    refetchOrganizationInfos: refetch,
   }
 }

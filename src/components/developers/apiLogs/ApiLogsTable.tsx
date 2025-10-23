@@ -9,7 +9,7 @@ import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { GetApiLogsQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 interface ApiLogsTableProps {
   getApiLogsResult: GetApiLogsQueryResult
@@ -18,7 +18,7 @@ interface ApiLogsTableProps {
 
 export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListRef }) => {
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const [searchParams] = useSearchParams()
 
   const { data, error, loading, fetchMore, refetch } = getApiLogsResult
@@ -93,7 +93,7 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListR
             title: translate('text_664cb90097bfa800e6efa3f5'),
             key: 'loggedAt',
             content: ({ loggedAt }) => (
-              <Typography noWrap>{formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a')}</Typography>
+              <Typography noWrap>{formattedDateTimeWithSecondsOrgaTZ(loggedAt)}</Typography>
             ),
           },
         ]}

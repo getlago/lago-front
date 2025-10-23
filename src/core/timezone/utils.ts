@@ -27,19 +27,6 @@ export const getTimezoneConfig = (timezone: TimezoneEnum | null | undefined) => 
   return TimeZonesConfig[timezone as TimezoneEnum]
 }
 
-/**
- * @deprecated Use `intlFormatDateTime` instead.
- */
-export const formatDateToTZ = (
-  date: string,
-  timezone: TimezoneEnum | null | undefined,
-  format?: string,
-) => {
-  return DateTime.fromISO(date, {
-    zone: getTimezoneConfig(timezone).name,
-  }).toFormat(format || 'LLL. dd, yyyy')
-}
-
 export const isSameDay = (a: DateTime, b: DateTime): boolean => {
   return a.hasSame(b, 'day') && a.hasSame(b, 'month') && a.hasSame(b, 'year')
 }
@@ -169,14 +156,16 @@ export type IntlFormatDateTimeOptions = {
   formatTimezone?: TimezoneFormat
 }
 
-export const intlFormatDateTime = (
-  date: string,
-  options: IntlFormatDateTimeOptions | undefined = {},
-): {
+export type IntlFormatDateTimeReturn = {
   date: string
   time: string
   timezone: string
-} => {
+}
+
+export const intlFormatDateTime = (
+  date: string,
+  options: IntlFormatDateTimeOptions | undefined = {},
+): IntlFormatDateTimeReturn => {
   const timezone = options?.timezone || TimezoneEnum.TzUtc
   const locale = options?.locale || LocaleEnum.en
 

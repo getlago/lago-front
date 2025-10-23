@@ -35,7 +35,7 @@ import {
   PAYMENTS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
+import { intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CurrencyEnum,
@@ -192,6 +192,18 @@ const PaymentDetails = () => {
         },
       ),
     [customerId, goBack],
+  )
+
+  const paymentFormattedDate = useCallback(
+    (dateString: string) => {
+      const formattedDate = intlFormatDateTime(dateString, {
+        timezone: customer?.applicableTimezone,
+        formatTime: TimeFormat.TIME_24_SIMPLE,
+      })
+
+      return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
+    },
+    [customer?.applicableTimezone],
   )
 
   return (
@@ -365,19 +377,11 @@ const PaymentDetails = () => {
                 />
                 <InfoLine
                   label={translate('text_62442e40cea25600b0b6d858')}
-                  value={formatDateToTZ(
-                    payment?.createdAt,
-                    customer?.applicableTimezone,
-                    "LLL. dd, yyyy, hh:mm U'T'CZ",
-                  )}
+                  value={paymentFormattedDate(payment?.createdAt)}
                 />
                 <InfoLine
                   label={translate('text_1737043149535dhigi301msf')}
-                  value={formatDateToTZ(
-                    payment?.updatedAt,
-                    customer?.applicableTimezone,
-                    "LLL. dd, yyyy, hh:mm U'T'CZ",
-                  )}
+                  value={paymentFormattedDate(payment?.updatedAt)}
                 />
               </div>
 

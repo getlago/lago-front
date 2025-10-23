@@ -3,7 +3,6 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
-import { formatDateToTZ } from '~/core/timezone'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   InvoiceForFinalizeInvoiceFragment,
@@ -12,6 +11,7 @@ import {
   useFinalizeInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 gql`
   fragment InvoiceForFinalizeInvoice on Invoice {
@@ -40,6 +40,7 @@ export interface FinalizeInvoiceDialogRef {
 
 export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
+  const { formattedDateWithTimezone } = useFormatterDateHelper()
   const dialogRef = useRef<DialogRef>(null)
   const [invoice, setInvoice] = useState<InvoiceForFinalizeInvoiceFragment>()
   const [callback, setCallback] = useState<Function | null>(null)
@@ -97,11 +98,7 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
       ref={dialogRef}
       title={translate('text_63a4269f72ead1bda4bed106')}
       description={translate('text_63a4269f72ead1bda4bed108', {
-        issuingDate: formatDateToTZ(
-          invoice?.issuingDate,
-          invoice?.customer?.applicableTimezone,
-          "LLL. dd, yyyy U'T'CZ",
-        ),
+        issuingDate: formattedDateWithTimezone(invoice?.issuingDate),
       })}
       actions={({ closeDialog }) => (
         <>

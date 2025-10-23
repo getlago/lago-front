@@ -27,7 +27,7 @@ import {
   useGetSubscriptionIdForActivityLogDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 const remapResourceTypeNames = (resourceType: string): keyof typeof ResourceTypeEnum => {
   if (resourceType === 'FeatureObject') return 'Feature'
@@ -123,7 +123,7 @@ gql`
 export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ logId: string }>()
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
 
   const { data, loading } = useGetSingleActivityLogQuery({
     variables: { id: logId || '' },
@@ -273,7 +273,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               ],
               [
                 translate('text_17473520702542eqnulj06zc'),
-                formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),
+                formattedDateTimeWithSecondsOrgaTZ(loggedAt),
               ],
               [translate('text_174735207025406tp34gdzxb'), userEmail],
               [translate('text_1747352070254xmjaw609ifs'), activitySource],
