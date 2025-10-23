@@ -27,6 +27,7 @@ interface ChargeWrapperSwitchProps {
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
+  isEdition: boolean
   filterIndex?: number
   formikProps: FormikProps<PlanFormInput>
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
@@ -38,13 +39,14 @@ interface ChargeWrapperSwitchProps {
 export const ChargeWrapperSwitch = memo(
   ({
     chargeCursor,
-    chargeIndex,
     chargeErrors,
+    chargeIndex,
     chargePricingUnitShortName,
     currency,
     disabled,
     filterIndex,
     formikProps,
+    isEdition,
     premiumWarningDialogRef,
     propertyCursor,
     setFieldValue,
@@ -166,15 +168,17 @@ export const ChargeWrapperSwitch = memo(
               value={localCharge.units}
             />
 
-            <Switch
-              name={`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`}
-              label={translate('text_1760721761361octnb0dfqm5')}
-              subLabel={translate('text_1760721761361lqhc17vjr2b')}
-              onChange={(value) =>
-                setFieldValue(`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`, value)
-              }
-              checked={localCharge.applyUnitsImmediately || false}
-            />
+            {isEdition && (
+              <Switch
+                name={`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`}
+                label={translate('text_1760721761361octnb0dfqm5')}
+                subLabel={translate('text_1760721761361lqhc17vjr2b')}
+                onChange={(value) =>
+                  setFieldValue(`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`, value)
+                }
+                checked={localCharge.applyUnitsImmediately || false}
+              />
+            )}
           </>
         )}
       </div>
