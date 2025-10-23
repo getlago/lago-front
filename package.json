@@ -112,7 +112,7 @@
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
     "@nangohq/frontend": "0.69.3",
-    "@sentry/react": "10.19.0",
+    "@sentry/react": "10.20.0",
     "@tanstack/react-virtual": "3.13.12",
     "ace-builds": "1.43.3",
     "actioncable": "5.2.8-1",
