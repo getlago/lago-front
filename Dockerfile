@@ -9,7 +9,7 @@ RUN pnpm install --pnpmfile=./pnpmfile.docker.cjs
 COPY . .
 RUN pnpm install && pnpm build
 
-FROM nginx:1.27-alpine
+FROM nginx:1.29-alpine
 
 WORKDIR /usr/share/nginx/html
 
