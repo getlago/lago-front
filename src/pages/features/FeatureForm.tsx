@@ -1,6 +1,6 @@
 import { FetchResult, gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Chip, Tooltip, Typography } from 'lago-design-system'
+import { Button, Tooltip, Typography } from 'lago-design-system'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
@@ -232,14 +232,11 @@ const FeatureForm = () => {
     <>
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
-          <div className="flex items-center gap-3">
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {translate(
-                isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj',
-              )}
-            </Typography>
-            <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
-          </div>
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
+            {translate(
+              isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj',
+            )}
+          </Typography>
 
           <Button
             variant="quaternary"

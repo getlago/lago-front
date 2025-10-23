@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Box } from '@mui/material'
 import { FormikProps } from 'formik'
-import { Chip, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { FC, useId, useMemo, useState } from 'react'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
@@ -106,13 +106,10 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
   return (
     <div className="flex flex-col items-start gap-4">
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-3">
-          <Typography variant="bodyHl" color="grey700">
-            {translate('text_63e26d8308d03687188221a6')}
-          </Typography>
+        <Typography variant="bodyHl" color="grey700">
+          {translate('text_63e26d8308d03687188221a6')}
+        </Typography>
 
-          <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
-        </div>
         <Typography
           variant="caption"
           color="grey600"
