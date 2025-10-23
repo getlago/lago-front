@@ -71,7 +71,7 @@ gql`
   }
 `
 
-interface UsageProps {
+interface UsageChargesSectionProps {
   alreadyExistingCharges?: LocalUsageChargeInput[] | null
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
@@ -79,7 +79,7 @@ interface UsageProps {
   isInitiallyOpen?: boolean
   isInSubscriptionForm?: boolean
   formikProps: FormikProps<PlanFormInput>
-  isEdition?: boolean
+  isEdition: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
 }
 
@@ -96,7 +96,7 @@ export const UsageChargesSection = memo(
     isEdition,
     premiumWarningDialogRef,
     subscriptionFormType,
-  }: UsageProps) => {
+  }: UsageChargesSectionProps) => {
     const { translate } = useInternationalization()
     const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
     const hasAnyCharge = !!formikProps.values.charges.length
@@ -324,20 +324,21 @@ export const UsageChargesSection = memo(
 
                     return (
                       <UsageChargeAccordion
+                        alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
+                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                        disabled={isEdition && !canBeEdited && !isNew}
+                        editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                        formikProps={formikProps}
                         id={id}
-                        key={id}
+                        index={i}
+                        isEdition={!!isEdition}
                         isInitiallyOpen={isInitiallyOpen}
                         isInSubscriptionForm={isInSubscriptionForm}
-                        subscriptionFormType={subscriptionFormType}
-                        alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
-                        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
-                        editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                         isUsedInSubscription={!isNew && !canBeEdited}
-                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                        index={i}
-                        disabled={isEdition && !canBeEdited && !isNew}
-                        formikProps={formikProps}
+                        key={id}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                        subscriptionFormType={subscriptionFormType}
                       />
                     )
                   })}
@@ -452,20 +453,21 @@ export const UsageChargesSection = memo(
 
                     return (
                       <UsageChargeAccordion
+                        alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
+                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+                        disabled={isEdition && !canBeEdited && !isNew}
+                        editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                        formikProps={formikProps}
                         id={id}
-                        key={id}
+                        index={i}
+                        isEdition={isEdition}
                         isInitiallyOpen={isInitiallyOpen}
                         isInSubscriptionForm={isInSubscriptionForm}
-                        subscriptionFormType={subscriptionFormType}
-                        alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
-                        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
-                        editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                         isUsedInSubscription={!isNew && !canBeEdited}
-                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                        index={i}
-                        disabled={isEdition && !canBeEdited && !isNew}
-                        formikProps={formikProps}
+                        key={id}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                        subscriptionFormType={subscriptionFormType}
                       />
                     )
                   })}

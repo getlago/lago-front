@@ -860,6 +860,7 @@ const CreateSubscription = () => {
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
                               formikProps={planFormikProps}
+                              isEdition={formType === FORM_TYPE_ENUM.edition}
                               premiumWarningDialogRef={premiumWarningDialogRef}
                               alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
                               editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
