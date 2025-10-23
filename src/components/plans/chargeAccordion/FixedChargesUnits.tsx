@@ -13,9 +13,9 @@ const FixedChargesUnits = ({ onChange, value }: FixedChargesUnitsProps) => {
 
   return (
     <TextInput
-      label={translate('text_65ba6d45e780c1ff8acb206f')}
+      label={translate('text_65771fa3f4ab9a00720726ce')}
       placeholder={translate('text_643e592657fc1ba5ce110c80')}
-      beforeChangeFormatter={['positiveNumber', 'decimal']}
+      beforeChangeFormatter={['positiveNumber', 'sextDecimal']}
       value={value || ''}
       onChange={onChange}
       InputProps={{
