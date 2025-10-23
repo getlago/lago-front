@@ -334,7 +334,7 @@ const MultipleLineChart = <T extends DataItem>({
                     {
                       intlFormatDateTime(dateValue, {
                         timezone: TimezoneEnum.TzUtc,
-                      }).time
+                      }).date
                     }
                   </text>
                 </g>
