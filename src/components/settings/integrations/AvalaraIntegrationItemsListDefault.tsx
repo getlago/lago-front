@@ -4,11 +4,13 @@ import { RefObject, useMemo } from 'react'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { AvalaraIntegrationItemsListDefaultFragment, MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  IntegrationItemHeader,
+  IntegrationItemLine,
+} from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 import { AvalaraIntegrationMapItemDialogRef } from './AvalaraIntegrationMapItemDialog'
-import IntegrationItemHeader from './IntegrationItemHeader'
-import IntegrationItemLine from './IntegrationItemLine'
 
 gql`
   fragment AvalaraIntegrationItemsListDefault on CollectionMapping {
