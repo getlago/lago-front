@@ -9,11 +9,11 @@ const IntegrationItemHeader = ({ columnName }: IntegrationItemHeaderProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <div className="flex h-12 w-full items-center justify-between bg-grey-100 px-12 shadow-b">
-      <Typography variant="bodyHl" color="grey500">
+    <div className="flex h-10 w-full items-center justify-between px-12 shadow-b">
+      <Typography variant="captionHl" color="grey600">
         {columnName}
       </Typography>
-      <Typography variant="bodyHl" color="grey500">
+      <Typography variant="captionHl" color="grey600">
         {translate('text_6630e3210c13c500cd398e97')}
       </Typography>
     </div>
