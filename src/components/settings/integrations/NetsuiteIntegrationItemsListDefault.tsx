@@ -1,14 +1,17 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { RefObject, useMemo } from 'react'
+import { Fragment, RefObject, useMemo } from 'react'
 
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { MappingTypeEnum, NetsuiteIntegrationItemsListDefaultFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  IntegrationItemHeader,
+  IntegrationItemLine,
+  type IntegrationItemsSection,
+} from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import IntegrationItemHeader from './IntegrationItemHeader'
-import IntegrationItemLine from './IntegrationItemLine'
 import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
 
 gql`

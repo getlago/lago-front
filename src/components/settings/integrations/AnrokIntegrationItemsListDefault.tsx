@@ -5,11 +5,13 @@ import { RefObject, useMemo } from 'react'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { MappingTypeEnum, NetsuiteIntegrationItemsListDefaultFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  IntegrationItemHeader,
+  IntegrationItemLine,
+} from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
-import IntegrationItemHeader from './IntegrationItemHeader'
-import IntegrationItemLine from './IntegrationItemLine'
 
 gql`
   fragment AnrokIntegrationItemsListDefault on CollectionMapping {

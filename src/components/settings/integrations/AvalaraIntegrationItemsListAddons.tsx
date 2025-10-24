@@ -11,12 +11,14 @@ import {
   MappableTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  IntegrationItemHeader,
+  IntegrationItemLine,
+} from '~/pages/settings/integrations/IntegrationItem'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 import { AvalaraIntegrationMapItemDialogRef } from './AvalaraIntegrationMapItemDialog'
-import IntegrationItemHeader from './IntegrationItemHeader'
-import IntegrationItemLine from './IntegrationItemLine'
 
 gql`
   fragment AvalaraIntegrationItemsListAddons on AddOn {
