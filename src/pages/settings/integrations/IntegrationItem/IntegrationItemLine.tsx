@@ -1,11 +1,8 @@
 import { Stack } from '@mui/material'
 import { Avatar, Icon, IconName } from 'lago-design-system'
 
-import { Skeleton, Typography } from '~/components/designSystem'
+import { Skeleton, Status, StatusType, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
-
-const STATUS_SIZE = 12
 
 type TIntegrationItemLineProps = {
   description: string
@@ -64,22 +61,14 @@ const IntegrationItemLine = ({
         </Stack>
       </Stack>
 
-      <div className="flex min-h-8 items-center gap-2 rounded-xl border border-grey-300 bg-grey-100 px-2 py-1">
-        <svg height={STATUS_SIZE} width={STATUS_SIZE} className="shrink-0">
-          <circle
-            cx="6"
-            cy="6"
-            r="6"
-            fill={!!mappingInfos ? theme.palette.success[600] : theme.palette.error[600]}
-          />
-        </svg>
-
-        <Typography variant="captionHl" color="grey700">
-          {!!mappingInfos
+      <Status
+        type={!!mappingInfos ? StatusType.success : StatusType.warning}
+        label={
+          !!mappingInfos
             ? `${mappingInfos.name}${!!mappingInfos.id ? ` (${mappingInfos.id})` : ''} `
-            : translate('text_6630e3210c13c500cd398e9a')}
-        </Typography>
-      </div>
+            : translate('text_6630e3210c13c500cd398e9a')
+        }
+      />
     </button>
   )
 }
