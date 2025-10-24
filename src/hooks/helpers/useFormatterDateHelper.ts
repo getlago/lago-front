@@ -6,8 +6,6 @@
  * across multiple components. If the formatting logic is specific to a single component,
  * it should reside within that component or, in case, its dedicated hook.
  */
-import { useMemo } from 'react'
-
 import { intlFormatDateTime, TimeFormat } from '~/core/timezone/utils'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -19,25 +17,21 @@ type useFormatterDateHelper = () => {
 export const useFormatterDateHelper: useFormatterDateHelper = () => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
-  // Memoized formatter for date-time with seconds considering organization's timezone
-  const formattedDateTimeWithSecondsOrgaTZ = useMemo(() => {
-    return (date: string) => {
-      const { date: d, time } = intlFormatDateTimeOrgaTZ(date, {
-        formatTime: TimeFormat.TIME_WITH_SECONDS,
-      })
+  // Formatter for date-time with seconds considering organization's timezone
+  const formattedDateTimeWithSecondsOrgaTZ = (date: string) => {
+    const { date: d, time } = intlFormatDateTimeOrgaTZ(date, {
+      formatTime: TimeFormat.TIME_WITH_SECONDS,
+    })
 
-      return `${d} ${time}`
-    }
-  }, [intlFormatDateTimeOrgaTZ])
+    return `${d} ${time}`
+  }
 
-  // Memoized formatter for date-timezone without preset organization timezone
-  const formattedDateWithTimezone = useMemo(() => {
-    return (date: string) => {
-      const { date: d, timezone } = intlFormatDateTime(date, {})
+  // Formatter for date-timezone without preset organization timezone
+  const formattedDateWithTimezone = (date: string) => {
+    const { date: d, timezone } = intlFormatDateTime(date, {})
 
-      return `${d} ${timezone}`
-    }
-  }, [])
+    return `${d} ${timezone}`
+  }
 
   return {
     formattedDateTimeWithSecondsOrgaTZ,

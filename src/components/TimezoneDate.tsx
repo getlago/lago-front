@@ -55,32 +55,21 @@ export const TimezoneDate = ({
     return TimezoneEnum.TzUtc
   }, [mainTimezone, customerTimezone, timezone])
 
-  const customerFormattedDate = useMemo(() => {
-    return intlFormatDateTime(date, {
-      timezone: customerTimezone,
-      formatTime: TimeFormat.TIME_24_WITH_SECONDS,
-      formatDate: DateFormat.DATE_MED_WITH_WEEKDAY,
-    })
-  }, [date, customerTimezone])
+  const customerFormattedDate = intlFormatDateTime(date, {
+    timezone: customerTimezone,
+    formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+    formatDate: DateFormat.DATE_MED_WITH_WEEKDAY,
+  })
 
-  const organizationFormattedDate = useMemo(() => {
-    return intlFormatDateTimeOrgaTZ(date, {
-      formatTime: TimeFormat.TIME_24_WITH_SECONDS,
-      formatDate: DateFormat.DATE_MED_WITH_WEEKDAY,
-    })
-  }, [date, intlFormatDateTimeOrgaTZ])
+  const organizationFormattedDate = intlFormatDateTimeOrgaTZ(date, {
+    formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+    formatDate: DateFormat.DATE_MED_WITH_WEEKDAY,
+  })
 
-  const timestampFormattedDate = useMemo(() => {
-    const formattedDate = intlFormatDateTime(date, {
-      timezone: displayTimezone,
-      ...mainDateFormat,
-    })
-
-    if (showFullDateTime) {
-      return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
-    }
-    return formattedDate.date
-  }, [date, displayTimezone, mainDateFormat, showFullDateTime])
+  const timestampFormattedDate = intlFormatDateTime(date, {
+    timezone: displayTimezone,
+    ...mainDateFormat,
+  })
 
   return (
     <Tooltip
@@ -125,7 +114,9 @@ export const TimezoneDate = ({
         {...mainTypographyProps}
         noWrap
       >
-        {timestampFormattedDate}
+        {showFullDateTime
+          ? `${timestampFormattedDate.date} ${timestampFormattedDate.time} ${timestampFormattedDate.timezone}`
+          : timestampFormattedDate.date}
       </Typography>
     </Tooltip>
   )
