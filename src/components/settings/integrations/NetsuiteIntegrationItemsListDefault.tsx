@@ -92,181 +92,203 @@ const NetsuiteIntegrationItemsListDefault = ({
     )
   }
 
-  return (
-    <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e96')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_6630e3210c13c500cd398e98')}
-        description={translate('text_6630e3210c13c500cd398e99')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.FallbackItem,
-            itemId: fallbackItem?.id,
-            itemExternalId: fallbackItem?.externalId,
-            itemExternalCode: fallbackItem?.externalAccountCode || undefined,
-            itemExternalName: fallbackItem?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          fallbackItem
+  const defaultListToDisplay: Array<IntegrationItemsSection> = [
+    {
+      sectionName: translate('text_6630e3210c13c500cd398e96'),
+      children: [
+        {
+          icon: 'box',
+          label: translate('text_6630e3210c13c500cd398e98'),
+          description: translate('text_6630e3210c13c500cd398e99'),
+          onMappingClick: () => {
+            netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+              integrationId,
+              type: MappingTypeEnum.FallbackItem,
+              itemId: fallbackItem?.id,
+              itemExternalId: fallbackItem?.externalId,
+              itemExternalCode: fallbackItem?.externalAccountCode || undefined,
+              itemExternalName: fallbackItem?.externalName || undefined,
+            })
+          },
+          mappingInfos: fallbackItem
             ? {
                 id: fallbackItem.externalId || '',
                 name: fallbackItem.externalName || '',
               }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e9b')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_637ccf8133d2c9a7d11ce705')}
-        description={translate('text_6630e3210c13c500cd398e9e')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.Coupon,
-            itemId: coupon?.id,
-            itemExternalId: coupon?.externalId,
-            itemExternalCode: coupon?.externalAccountCode || undefined,
-            itemExternalName: coupon?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          coupon
+            : undefined,
+        },
+      ],
+    },
+    {
+      sectionName: translate('text_6630e3210c13c500cd398e9b'),
+      children: [
+        {
+          icon: 'box',
+          label: translate('text_637ccf8133d2c9a7d11ce705'),
+          description: translate('text_6630e3210c13c500cd398e9e'),
+          onMappingClick: () => {
+            netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+              integrationId,
+              type: MappingTypeEnum.Coupon,
+              itemId: coupon?.id,
+              itemExternalId: coupon?.externalId,
+              itemExternalCode: coupon?.externalAccountCode || undefined,
+              itemExternalName: coupon?.externalName || undefined,
+            })
+          },
+          mappingInfos: coupon
             ? {
                 id: coupon.externalId || '',
                 name: coupon.externalName || '',
               }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_66461ada56a84401188e8c61')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_66461ada56a84401188e8c63')}
-        description={translate('text_66461ada56a84401188e8c64')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.CreditNote,
-            itemId: creditNote?.id,
-            itemExternalId: creditNote?.externalId,
-            itemExternalCode: creditNote?.externalAccountCode || undefined,
-            itemExternalName: creditNote?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          creditNote
+            : undefined,
+        },
+      ],
+    },
+    {
+      sectionName: translate('text_66461ada56a84401188e8c61'),
+      children: [
+        {
+          icon: 'box',
+          label: translate('text_66461ada56a84401188e8c63'),
+          description: translate('text_66461ada56a84401188e8c64'),
+          onMappingClick: () => {
+            netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+              integrationId,
+              type: MappingTypeEnum.CreditNote,
+              itemId: creditNote?.id,
+              itemExternalId: creditNote?.externalId,
+              itemExternalCode: creditNote?.externalAccountCode || undefined,
+              itemExternalName: creditNote?.externalName || undefined,
+            })
+          },
+          mappingInfos: creditNote
             ? {
                 id: creditNote.externalId || '',
                 name: creditNote.externalName || '',
               }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea0')} />
-      <IntegrationItemLine
-        icon="board"
-        label={translate('text_6630e3210c13c500cd398ea2')}
-        description={translate('text_6630e3210c13c500cd398ea3')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.SubscriptionFee,
-            itemId: subscriptionFee?.id,
-            itemExternalId: subscriptionFee?.externalId,
-            itemExternalCode: subscriptionFee?.externalAccountCode || undefined,
-            itemExternalName: subscriptionFee?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          subscriptionFee
+            : undefined,
+        },
+      ],
+    },
+    {
+      sectionName: translate('text_6630e3210c13c500cd398ea0'),
+      children: [
+        {
+          icon: 'board',
+          label: translate('text_6630e3210c13c500cd398ea2'),
+          description: translate('text_6630e3210c13c500cd398ea3'),
+          onMappingClick: () => {
+            netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+              integrationId,
+              type: MappingTypeEnum.SubscriptionFee,
+              itemId: subscriptionFee?.id,
+              itemExternalId: subscriptionFee?.externalId,
+              itemExternalCode: subscriptionFee?.externalAccountCode || undefined,
+              itemExternalName: subscriptionFee?.externalName || undefined,
+            })
+          },
+          mappingInfos: subscriptionFee
             ? {
                 id: subscriptionFee.externalId || '',
                 name: subscriptionFee.externalName || '',
               }
-            : undefined
-        }
-      />
-      <IntegrationItemLine
-        icon="board"
-        label={translate('text_6630e3210c13c500cd398ea5')}
-        description={translate('text_6630e3210c13c500cd398ea3')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.MinimumCommitment,
-            itemId: minimumCommitment?.id,
-            itemExternalId: minimumCommitment?.externalId,
-            itemExternalCode: minimumCommitment?.externalAccountCode || undefined,
-            itemExternalName: minimumCommitment?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          minimumCommitment
+            : undefined,
+        },
+        {
+          icon: 'board',
+          label: translate('text_6630e3210c13c500cd398ea5'),
+          description: translate('text_6630e3210c13c500cd398ea3'),
+          onMappingClick: () => {
+            netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+              integrationId,
+              type: MappingTypeEnum.MinimumCommitment,
+              itemId: minimumCommitment?.id,
+              itemExternalId: minimumCommitment?.externalId,
+              itemExternalCode: minimumCommitment?.externalAccountCode || undefined,
+              itemExternalName: minimumCommitment?.externalName || undefined,
+            })
+          },
+          mappingInfos: minimumCommitment
             ? {
                 id: minimumCommitment.externalId || '',
                 name: minimumCommitment.externalName || '',
               }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea8')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_645bb193927b375079d28a8f')}
-        description={translate('text_6630e3210c13c500cd398eab')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.Tax,
-            itemId: tax?.id,
-            taxCode: tax?.taxCode,
-            taxNexus: tax?.taxNexus,
-            taxType: tax?.taxType,
-          })
-        }}
-        mappingInfos={
-          tax
+            : undefined,
+        },
+      ],
+    },
+    {
+      sectionName: translate('text_6630e3210c13c500cd398ea8'),
+      children: [
+        {
+          icon: 'box',
+          label: translate('text_645bb193927b375079d28a8f'),
+          description: translate('text_6630e3210c13c500cd398eab'),
+          onMappingClick: () => {
+            netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+              integrationId,
+              type: MappingTypeEnum.Tax,
+              itemId: tax?.id,
+              taxCode: tax?.taxCode,
+              taxNexus: tax?.taxNexus,
+              taxType: tax?.taxType,
+            })
+          },
+          mappingInfos: tax
             ? {
                 name: translate('text_17272714562192y06u5okvo4'),
               }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ead')} />
-      <IntegrationItemLine
-        icon="coupon"
-        label={translate('text_637ccf8133d2c9a7d11ce6e1')}
-        description={translate('text_6630e3210c13c500cd398eb0')}
-        loading={isLoading}
-        onMappingClick={() => {
-          netsuiteIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.PrepaidCredit,
-            itemId: prepaidCredit?.id,
-            itemExternalId: prepaidCredit?.externalId,
-            itemExternalCode: prepaidCredit?.externalAccountCode || undefined,
-            itemExternalName: prepaidCredit?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          prepaidCredit
+            : undefined,
+        },
+      ],
+    },
+    {
+      sectionName: translate('text_6630e3210c13c500cd398ead'),
+      children: [
+        {
+          icon: 'coupon',
+          label: translate('text_637ccf8133d2c9a7d11ce6e1'),
+          description: translate('text_6630e3210c13c500cd398eb0'),
+          onMappingClick: () => {
+            netsuiteIntegrationMapItemDialogRef.current?.openDialog({
+              integrationId,
+              type: MappingTypeEnum.PrepaidCredit,
+              itemId: prepaidCredit?.id,
+              itemExternalId: prepaidCredit?.externalId,
+              itemExternalCode: prepaidCredit?.externalAccountCode || undefined,
+              itemExternalName: prepaidCredit?.externalName || undefined,
+            })
+          },
+          mappingInfos: prepaidCredit
             ? {
                 id: prepaidCredit.externalId || '',
                 name: prepaidCredit.externalName || '',
               }
-            : undefined
-        }
-      />
+            : undefined,
+        },
+      ],
+    },
+  ]
+
+  return (
+    <Stack>
+      {defaultListToDisplay.map((section) => (
+        <Fragment key={`netsuite-integration-items-section-${section.sectionName}`}>
+          <IntegrationItemHeader columnName={section.sectionName} />
+          {section.children.map((item) => (
+            <IntegrationItemLine
+              key={`integration-item-line-${item.label}`}
+              icon={item.icon}
+              label={item.label}
+              description={item.description}
+              loading={isLoading}
+              onMappingClick={item.onMappingClick}
+              mappingInfos={item.mappingInfos}
+            />
+          ))}
+        </Fragment>
+      ))}
     </Stack>
   )
 }
