@@ -194,17 +194,14 @@ const PaymentDetails = () => {
     [customerId, goBack],
   )
 
-  const paymentFormattedDate = useCallback(
-    (dateString: string) => {
-      const formattedDate = intlFormatDateTime(dateString, {
-        timezone: customer?.applicableTimezone,
-        formatTime: TimeFormat.TIME_24_SIMPLE,
-      })
+  const paymentFormattedDate = (dateString: string) => {
+    const formattedDate = intlFormatDateTime(dateString, {
+      timezone: customer?.applicableTimezone,
+      formatTime: TimeFormat.TIME_24_SIMPLE,
+    })
 
-      return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
-    },
-    [customer?.applicableTimezone],
-  )
+    return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
+  }
 
   return (
     <div>
