@@ -152,7 +152,7 @@ export const initializeApolloClient = async () => {
         console.warn(
           `[GraphQL error]: Message: ${message}, Path: ${path}, Location: ${JSON.stringify(
             locations,
-          )}`,
+          )}, Extensions: ${JSON.stringify(extensions)}`,
         )
       })
     }
