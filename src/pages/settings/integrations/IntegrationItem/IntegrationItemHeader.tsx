@@ -1,11 +1,11 @@
 import { Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-type TIntegrationItemHeaderProps = {
+type IntegrationItemHeaderProps = {
   columnName: string
 }
 
-const IntegrationItemHeader = ({ columnName }: TIntegrationItemHeaderProps) => {
+const IntegrationItemHeader = ({ columnName }: IntegrationItemHeaderProps) => {
   const { translate } = useInternationalization()
 
   return (
