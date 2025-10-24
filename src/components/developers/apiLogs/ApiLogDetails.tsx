@@ -7,7 +7,7 @@ import { CodeSnippet } from '~/components/CodeSnippet'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem'
 import { useGetApiLogDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 gql`
   fragment ApiLogDetails on ApiLog {
@@ -37,7 +37,7 @@ gql`
 export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ logId: string }>()
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
 
   const { data, loading } = useGetApiLogDetailsQuery({
     variables: { requestId: logId || '' },
@@ -113,7 +113,7 @@ export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
               [translate('text_174981999903061p5t158es0'), requestId],
               [
                 translate('text_17473520702542eqnulj06zc'),
-                formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),
+                formattedDateTimeWithSecondsOrgaTZ(loggedAt),
               ],
               [
                 translate('text_645d071272418a14c1c76aa4'),

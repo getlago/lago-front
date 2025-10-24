@@ -46,7 +46,7 @@ import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import {
   chargeTableData,
@@ -751,11 +751,12 @@ const DesignSystem = () => {
                           content: (item) => {
                             return (
                               <Typography variant="captionHl">
-                                {formatDateToTZ(
-                                  item.end_of_period_dt,
-                                  TimezoneEnum.TzUtc,
-                                  'LLL yyyy',
-                                )}
+                                {
+                                  intlFormatDateTime(item.end_of_period_dt, {
+                                    timezone: TimezoneEnum.TzUtc,
+                                    formatDate: DateFormat.DATE_MONTH_YEAR,
+                                  }).date
+                                }
                               </Typography>
                             )
                           },
@@ -877,11 +878,12 @@ const DesignSystem = () => {
                           content: (item) => {
                             return (
                               <Typography variant="captionHl">
-                                {formatDateToTZ(
-                                  item.end_of_period_dt,
-                                  TimezoneEnum.TzUtc,
-                                  'LLL yyyy',
-                                )}
+                                {
+                                  intlFormatDateTime(item.end_of_period_dt, {
+                                    timezone: TimezoneEnum.TzUtc,
+                                    formatDate: DateFormat.DATE_MONTH_YEAR,
+                                  }).date
+                                }
                               </Typography>
                             )
                           },

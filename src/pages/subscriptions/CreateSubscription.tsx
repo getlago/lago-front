@@ -217,7 +217,7 @@ const CreateSubscription = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe } = useSalesForceConfig()
 
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
@@ -594,14 +594,18 @@ const CreateSubscription = () => {
               {formType === FORM_TYPE_ENUM.upgradeDowngrade && (
                 <Alert type="info">
                   {translate('text_6328e70de459381ed4ba50d6', {
-                    subscriptionEndDate: formatTimeOrgaTZ(subscription?.periodEndDate as string),
+                    subscriptionEndDate: subscription?.periodEndDate
+                      ? intlFormatDateTimeOrgaTZ(subscription.periodEndDate).date
+                      : '-',
                   })}
                 </Alert>
               )}
               {subscription?.status === StatusTypeEnum.Pending && (
                 <Alert type="info">
                   {translate('text_6335e50b0b089e1d8ed508da', {
-                    subscriptionAt: formatTimeOrgaTZ(subscription?.startedAt as string),
+                    subscriptionAt: subscription?.startedAt
+                      ? intlFormatDateTimeOrgaTZ(subscription.startedAt).date
+                      : '-',
                   })}
                 </Alert>
               )}

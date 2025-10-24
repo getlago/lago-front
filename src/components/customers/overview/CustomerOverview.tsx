@@ -11,7 +11,7 @@ import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { isSameDay } from '~/core/timezone'
+import { isSameDay, TimeFormat } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
@@ -77,7 +77,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   userCurrency,
 }) => {
   const { translate } = useInternationalization()
-  const { organization, formatTimeOrgaTZ } = useOrganizationInfos()
+  const { organization, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { customerId } = useParams()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
@@ -213,10 +213,14 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                             relativeDay: lastPaymentRequestDate.toRelativeCalendar({
                               locale: LocaleEnum.en,
                             }),
-                            time: formatTimeOrgaTZ(
-                              overdueBalancesData?.paymentRequests.collection[0]?.createdAt,
-                              'HH:mm:ss',
-                            ),
+                            time: overdueBalancesData?.paymentRequests.collection[0]?.createdAt
+                              ? intlFormatDateTimeOrgaTZ(
+                                  overdueBalancesData?.paymentRequests.collection[0]?.createdAt,
+                                  {
+                                    formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+                                  },
+                                ).time
+                              : '-',
                           })
                         : translate('text_6670a2a7ae3562006c4ee3db')}
                     </Typography>

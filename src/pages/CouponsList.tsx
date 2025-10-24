@@ -64,7 +64,7 @@ const CouponsList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
@@ -162,7 +162,7 @@ const CouponsList = () => {
                 <Typography color="grey600">
                   {!expirationAt
                     ? translate('text_62876a50ea3bba00b56d2c2c')
-                    : formatTimeOrgaTZ(expirationAt)}
+                    : intlFormatDateTimeOrgaTZ(expirationAt).date}
                 </Typography>
               ),
             },

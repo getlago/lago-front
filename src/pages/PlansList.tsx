@@ -46,7 +46,7 @@ const PlansList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
     variables: { limit: 20 },
@@ -153,7 +153,7 @@ const PlansList = () => {
               textAlign: 'right',
               content: ({ createdAt }) => (
                 <Typography variant="body" color="grey600" className="text-right">
-                  {formatTimeOrgaTZ(createdAt)}
+                  {intlFormatDateTimeOrgaTZ(createdAt).date}
                 </Typography>
               ),
             },
