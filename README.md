@@ -13,15 +13,15 @@ This library will allow you to build an entire billing logic from scratch, even 
 
 ## Documentation
 
-The official Lago documentation is available here : https://docs.getlago.com
+The official Lago documentation is available here: https://docs.getlago.com
 
 ## Contributing
 
-The contribution documentation is available [here](https://github.com/getlago/lago-front/blob/main/CONTRIBUTING.md)
+The contribution documentation is available [here](https://github.com/getlago/lago-front/blob/main/CONTRIBUTING.md).
 
 ## Front Development Environment
 
-Check the wiki [guide](https://github.com/getlago/lago-front/wiki)
+Check the wiki [guide](https://github.com/getlago/lago-front/wiki).
 
 ## License
 
