@@ -114,7 +114,7 @@
     "@nangohq/frontend": "0.69.4",
     "@sentry/react": "10.20.0",
     "@tanstack/react-virtual": "3.13.12",
-    "ace-builds": "1.43.3",
+    "ace-builds": "1.43.4",
     "actioncable": "5.2.8-1",
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "17.0.0",
