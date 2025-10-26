@@ -123,6 +123,8 @@ const CreatePayment = () => {
         deserializeAmount(invoice.totalDueAmountCents, invoice.currency ?? CurrencyEnum.Usd),
       )
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice])
 
   const currency = invoice?.currency ?? CurrencyEnum.Usd
@@ -149,6 +151,8 @@ const CreatePayment = () => {
         ...(errorCode ?? {}),
       })
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createError])
 
   const maxAmount = useCallback(

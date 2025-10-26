@@ -136,7 +136,7 @@ const Dunnings = () => {
                   }
                 />
 
-                {!hasAccessToFeature ? (
+                {!hasAccessToFeature && (
                   <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
                     <div>
                       <Typography variant="bodyHl" color="textSecondary">
@@ -159,77 +159,85 @@ const Dunnings = () => {
                       {translate('text_65ae73ebe3a66bec2b91d72d')}
                     </ButtonLink>
                   </div>
-                ) : !data?.dunningCampaigns.collection.length ? (
-                  <Typography variant="body" color="grey500">
-                    {translate('text_17285860642666dsgcx901iq')}
-                  </Typography>
-                ) : (
-                  <InfiniteScroll
-                    onBottom={() => {
-                      const { currentPage, totalPages } = data.dunningCampaigns.metadata
+                )}
 
-                      currentPage < totalPages &&
-                        !loading &&
-                        fetchMore({
-                          variables: {
-                            page: currentPage + 1,
-                          },
-                        })
-                    }}
-                  >
-                    <Table
-                      name="dunnings-settings-list"
-                      containerSize={{ default: 0 }}
-                      rowSize={72}
-                      isLoading={loading}
-                      data={sortedTable}
-                      columns={[
-                        {
-                          key: 'name',
-                          title: translate('text_626162c62f790600f850b76a'),
-                          maxSpace: true,
-                          content: ({ name, code }) => (
-                            <div className="flex flex-1 items-center gap-3" data-test={code}>
-                              <Avatar size="big" variant="connector">
-                                <Icon size="medium" name="coin-dollar" color="dark" />
-                              </Avatar>
-                              <div>
-                                <Typography color="textSecondary" variant="bodyHl" noWrap>
-                                  {name}
-                                </Typography>
-                                <Typography variant="caption" noWrap>
-                                  {code}
-                                </Typography>
-                              </div>
-                            </div>
-                          ),
-                        },
-                      ]}
-                      actionColumnTooltip={() => translate('text_17285747264959xu1spelnh9')}
-                      actionColumn={(campaign) => {
-                        return [
-                          {
-                            startIcon: 'pen',
-                            title: translate('text_17321873136602nzwuvcycbr'),
-                            onAction: () => {
-                              navigate(
-                                generatePath(UPDATE_DUNNING_ROUTE, {
-                                  campaignId: campaign?.id || '',
-                                }),
-                              )
+                {hasAccessToFeature && (
+                  <>
+                    {!data?.dunningCampaigns.collection.length && (
+                      <Typography variant="body" color="grey500">
+                        {translate('text_17285860642666dsgcx901iq')}
+                      </Typography>
+                    )}
+
+                    {!!data?.dunningCampaigns.collection.length && (
+                      <InfiniteScroll
+                        onBottom={() => {
+                          const { currentPage, totalPages } = data.dunningCampaigns.metadata
+
+                          currentPage < totalPages &&
+                            !loading &&
+                            fetchMore({
+                              variables: {
+                                page: currentPage + 1,
+                              },
+                            })
+                        }}
+                      >
+                        <Table
+                          name="dunnings-settings-list"
+                          containerSize={{ default: 0 }}
+                          rowSize={72}
+                          isLoading={loading}
+                          data={sortedTable}
+                          columns={[
+                            {
+                              key: 'name',
+                              title: translate('text_626162c62f790600f850b76a'),
+                              maxSpace: true,
+                              content: ({ name, code }) => (
+                                <div className="flex flex-1 items-center gap-3" data-test={code}>
+                                  <Avatar size="big" variant="connector">
+                                    <Icon size="medium" name="coin-dollar" color="dark" />
+                                  </Avatar>
+                                  <div>
+                                    <Typography color="textSecondary" variant="bodyHl" noWrap>
+                                      {name}
+                                    </Typography>
+                                    <Typography variant="caption" noWrap>
+                                      {code}
+                                    </Typography>
+                                  </div>
+                                </div>
+                              ),
                             },
-                          },
-                          {
-                            startIcon: 'trash',
-                            title: translate('text_1732187313660we30lb9kg57'),
-                            onAction: () => {
-                              deleteCampaignDialogRef.current?.openDialog(campaign)
-                            },
-                          },
-                        ]
-                      }}
-                    />
-                  </InfiniteScroll>
+                          ]}
+                          actionColumnTooltip={() => translate('text_17285747264959xu1spelnh9')}
+                          actionColumn={(campaign) => {
+                            return [
+                              {
+                                startIcon: 'pen',
+                                title: translate('text_17321873136602nzwuvcycbr'),
+                                onAction: () => {
+                                  navigate(
+                                    generatePath(UPDATE_DUNNING_ROUTE, {
+                                      campaignId: campaign?.id || '',
+                                    }),
+                                  )
+                                },
+                              },
+                              {
+                                startIcon: 'trash',
+                                title: translate('text_1732187313660we30lb9kg57'),
+                                onAction: () => {
+                                  deleteCampaignDialogRef.current?.openDialog(campaign)
+                                },
+                              },
+                            ]
+                          }}
+                        />
+                      </InfiniteScroll>
+                    )}
+                  </>
                 )}
               </SettingsListItem>
             </SettingsListWrapper>

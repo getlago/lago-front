@@ -13,14 +13,14 @@ interface EnvGlobal {
   disablePdfGeneration: boolean
 }
 
-const apiUrl = !!window.API_URL
-  ? window.API_URL
-  : !!window.LAGO_DOMAIN
-    ? `https://${window.LAGO_DOMAIN}/api`
-    : API_URL
+const getApiUrl = () => {
+  if (!!window.API_URL) return window.API_URL
+  if (!!window.LAGO_DOMAIN) return `https://${window.LAGO_DOMAIN}/api`
+  return API_URL
+}
 
 export const envGlobalVar = makeVar<EnvGlobal>({
-  apiUrl,
+  apiUrl: getApiUrl(),
   appEnv: window.APP_ENV || APP_ENV,
   lagoOauthProxyUrl: window.LAGO_OAUTH_PROXY_URL || LAGO_OAUTH_PROXY_URL,
   disableSignUp: (window.LAGO_DISABLE_SIGNUP || LAGO_DISABLE_SIGNUP) === 'true',

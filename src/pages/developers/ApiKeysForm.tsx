@@ -138,6 +138,18 @@ const transformApiPermissionsForForm = (
   })
 }
 
+const getHeaderCheckboxValue = (
+  permissions: ApiKeyPermissions[],
+  field: 'canRead' | 'canWrite',
+): boolean | undefined => {
+  const allTrue = permissions.every((permission) => permission[field] === true)
+  const allFalse = permissions.every((permission) => permission[field] === false)
+
+  if (allTrue) return true
+  if (allFalse) return false
+  return undefined // Indeterminate state
+}
+
 const ApiKeysForm = () => {
   const devtool = useDeveloperTool()
   const { apiKeyId = '' } = useParams()
@@ -384,17 +396,10 @@ const ApiKeysForm = () => {
                                 {translate('text_1732893748379m7jh7zzz956')}
                               </Typography>
                             }
-                            value={
-                              formikProps.values.permissions.every(
-                                ({ canRead }) => canRead === true,
-                              )
-                                ? true
-                                : formikProps.values.permissions.every(
-                                      ({ canRead }) => canRead === false,
-                                    )
-                                  ? false
-                                  : undefined
-                            }
+                            value={getHeaderCheckboxValue(
+                              formikProps.values.permissions,
+                              'canRead',
+                            )}
                             onChange={() => {
                               const nextValue = !formikProps.values.permissions.every(
                                 ({ canRead }) => canRead === true,
@@ -444,17 +449,10 @@ const ApiKeysForm = () => {
                                 {translate('text_17328937483790tnuhasm2yr')}
                               </Typography>
                             }
-                            value={
-                              formikProps.values.permissions.every(
-                                ({ canWrite }) => canWrite === true,
-                              )
-                                ? true
-                                : formikProps.values.permissions.every(
-                                      ({ canWrite }) => canWrite === false,
-                                    )
-                                  ? false
-                                  : undefined
-                            }
+                            value={getHeaderCheckboxValue(
+                              formikProps.values.permissions,
+                              'canWrite',
+                            )}
                             onChange={() => {
                               const nextValue = !formikProps.values.permissions.every(
                                 ({ canWrite }) => canWrite === true,

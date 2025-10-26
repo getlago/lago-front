@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon, tw } from 'lago-design-system'
+import { Avatar, GenericPlaceholderProps, Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -57,6 +57,28 @@ const PlansList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
   const list = data?.plans?.collection || []
   const shouldShowItemActions = hasPermissions(['plansCreate', 'plansUpdate', 'plansDelete'])
+
+  const getEmptyState = (): Partial<GenericPlaceholderProps> => {
+    if (!!variables?.searchTerm) {
+      return {
+        title: translate('text_63bee1cc88d85f04deb0d676'),
+        subtitle: translate('text_63bee1cc88d85f04deb0d67a'),
+      }
+    }
+    if (hasPermissions(['plansCreate'])) {
+      return {
+        title: translate('text_624451f920b6a500aab37618'),
+        subtitle: translate('text_624451f920b6a500aab3761c'),
+        buttonTitle: translate('text_624451f920b6a500aab37620'),
+        buttonVariant: 'primary',
+        buttonAction: () => navigate(CREATE_PLAN_ROUTE),
+      }
+    }
+    return {
+      title: translate('text_664dea0f9995af014cf66c9a'),
+      subtitle: translate('text_624451f920b6a500aab3761c'),
+    }
+  }
 
   return (
     <>
@@ -206,23 +228,7 @@ const PlansList = () => {
                   buttonAction: () => location.reload(),
                 },
 
-            emptyState: !!variables?.searchTerm
-              ? {
-                  title: translate('text_63bee1cc88d85f04deb0d676'),
-                  subtitle: translate('text_63bee1cc88d85f04deb0d67a'),
-                }
-              : hasPermissions(['plansCreate'])
-                ? {
-                    title: translate('text_624451f920b6a500aab37618'),
-                    subtitle: translate('text_624451f920b6a500aab3761c'),
-                    buttonTitle: translate('text_624451f920b6a500aab37620'),
-                    buttonVariant: 'primary',
-                    buttonAction: () => navigate(CREATE_PLAN_ROUTE),
-                  }
-                : {
-                    title: translate('text_664dea0f9995af014cf66c9a'),
-                    subtitle: translate('text_624451f920b6a500aab3761c'),
-                  },
+            emptyState: getEmptyState(),
           }}
         />
       </InfiniteScroll>

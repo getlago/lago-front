@@ -37,7 +37,7 @@ export const POSSIBLE_TOAST: TToast[] = [
 ]
 
 export const tableData: Array<{
-  status: string
+  status: 'succeeded' | 'finalized' | 'pay'
   id: string
   amount: number
   customer: string

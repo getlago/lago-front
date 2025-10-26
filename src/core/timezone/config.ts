@@ -9,13 +9,23 @@ const getOffsetInMinute = (zone: string) => DateTime.fromISO(currentDate as stri
 export const getOffset = (zone: string, forDate?: string) => {
   const dateToUse = forDate || currentDate
   const offsetInMinute = DateTime.fromISO(dateToUse as string, { zone }).offset
-  const sign = Math.sign(offsetInMinute)
 
-  return isNaN(offsetInMinute)
-    ? 'NaN'
-    : Duration.fromObject({
-        minutes: Math.abs(offsetInMinute),
-      }).toFormat(`${sign === -1 ? '-' : offsetInMinute === 0 ? '±' : '+'}h:mm`)
+  if (isNaN(offsetInMinute)) return 'NaN'
+
+  const sign = Math.sign(offsetInMinute)
+  const formatString = () => {
+    const signString = () => {
+      if (sign === -1) return '-'
+      if (offsetInMinute === 0) return '±'
+      return '+'
+    }
+
+    return `${signString()}h:mm`
+  }
+
+  return Duration.fromObject({
+    minutes: Math.abs(offsetInMinute),
+  }).toFormat(formatString())
 }
 
 export interface TimezoneConfigObject {

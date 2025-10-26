@@ -184,12 +184,15 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
     const isCollectionContext = !Object.values(MappableTypeEnum).includes(
       localData?.type as MappableTypeEnum,
     )
-    const refetchQueries =
-      localData?.type === MappableTypeEnum.AddOn
-        ? ['getAddOnsForXeroItemsList']
-        : localData?.type === MappableTypeEnum.BillableMetric
-          ? ['getBillableMetricsForXeroItemsList']
-          : ['getXeroIntegrationCollectionMappings']
+    const refetchQueries = useMemo(() => {
+      if (localData?.type === MappableTypeEnum.AddOn) return ['getAddOnsForXeroItemsList']
+
+      if (localData?.type === MappableTypeEnum.BillableMetric) {
+        return ['getBillableMetricsForXeroItemsList']
+      }
+
+      return ['getXeroIntegrationCollectionMappings']
+    }, [localData?.type])
 
     // Item fetch
     const [

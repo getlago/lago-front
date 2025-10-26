@@ -137,16 +137,20 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
             // fromValue should always be toValueOfPreviousRange + 1
             const { toValue } = acc[i - 1]
             const fromValue = String(Number(toValue || 0) + 1)
+            const formattedToValue = () => {
+              if (range.toValue === null) return null
+
+              if (Number(range.toValue || 0) <= Number(fromValue)) {
+                return String(Number(fromValue) + 1)
+              }
+
+              return String(range.toValue || 0)
+            }
 
             acc.push({
               ...range,
               fromValue,
-              toValue:
-                range.toValue === null
-                  ? null
-                  : Number(range.toValue || 0) <= Number(fromValue)
-                    ? String(Number(fromValue) + 1)
-                    : String(range.toValue || 0),
+              toValue: formattedToValue(),
             })
           } else {
             acc.push(range)

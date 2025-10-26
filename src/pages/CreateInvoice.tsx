@@ -1019,12 +1019,12 @@ const CreateInvoice = () => {
                           placeholder={translate('text_6453819268763979024ad0ad')}
                           onChange={(value) => {
                             const addOn = addOnData?.addOns?.collection.find((c) => c.id === value)
-                            const addonApplicableTaxes = hasTaxProvider
-                              ? undefined
-                              : addOn?.taxes?.length
-                                ? addOn?.taxes
-                                : customerApplicableTax
                             const today = DateTime.now()
+                            const addonApplicableTaxes = () => {
+                              if (hasTaxProvider) return undefined
+                              if (!!addOn?.taxes?.length) return addOn?.taxes
+                              return customerApplicableTax
+                            }
 
                             if (!!addOn) {
                               formikProps.setFieldValue('fees', [
@@ -1036,7 +1036,7 @@ const CreateInvoice = () => {
                                   invoiceDisplayName: addOn.invoiceDisplayName || '',
                                   units: 1,
                                   unitAmountCents: deserializeAmount(addOn.amountCents, currency),
-                                  taxes: addonApplicableTaxes,
+                                  taxes: addonApplicableTaxes(),
                                   fromDatetime: today.startOf('day').toISO(),
                                   toDatetime: today.endOf('day').toISO(),
                                 },
