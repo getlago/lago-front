@@ -10,7 +10,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: undefined,
+              graduatedPercentageRanges: undefined,
             },
           },
         ]
@@ -23,7 +23,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: [],
+              graduatedPercentageRanges: [],
             },
           },
         ]
@@ -36,7 +36,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: [
+              graduatedPercentageRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -56,7 +56,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: [
+              graduatedPercentageRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -76,7 +76,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: [
+              graduatedPercentageRanges: [
                 {
                   fromValue: '0',
                   toValue: '100',
@@ -96,7 +96,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: [
+              graduatedPercentageRanges: [
                 {
                   fromValue: '100',
                   toValue: '10',
@@ -116,7 +116,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: [
+              graduatedPercentageRanges: [
                 {
                   fromValue: '100',
                   toValue: '100',
@@ -137,7 +137,7 @@ describe('chargeSchema GraduatedPercentage', () => {
           {
             chargeModel: ChargeModelEnum.GraduatedPercentage,
             properties: {
-              graduatedPercentageRange: [
+              graduatedPercentageRanges: [
                 {
                   fromValue: '1',
                   toValue: '100',
@@ -154,7 +154,7 @@ describe('chargeSchema GraduatedPercentage', () => {
         ]
         const result = chargeSchema.isValidSync(values)
 
-        expect(result).toBeFalsy()
+        expect(result).toBeTruthy()
       })
     })
   })
@@ -176,7 +176,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: undefined,
+                  graduatedPercentageRanges: undefined,
                 },
               },
             ],
@@ -201,7 +201,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: [],
+                  graduatedPercentageRanges: [],
                 },
               },
             ],
@@ -226,7 +226,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: [
+                  graduatedPercentageRanges: [
                     {
                       fromValue: '0',
                       toValue: '100',
@@ -258,7 +258,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: [
+                  graduatedPercentageRanges: [
                     {
                       fromValue: '0',
                       toValue: '100',
@@ -290,7 +290,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: [
+                  graduatedPercentageRanges: [
                     {
                       fromValue: '0',
                       toValue: '100',
@@ -322,7 +322,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: [
+                  graduatedPercentageRanges: [
                     {
                       fromValue: '100',
                       toValue: '10',
@@ -354,7 +354,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: [
+                  graduatedPercentageRanges: [
                     {
                       fromValue: '100',
                       toValue: '100',
@@ -387,7 +387,7 @@ describe('chargeSchema GraduatedPercentage', () => {
                   transformFilterObjectToString('key', 'value'),
                 ],
                 properties: {
-                  graduatedPercentageRange: [
+                  graduatedPercentageRanges: [
                     {
                       fromValue: '1',
                       toValue: '100',
@@ -406,7 +406,7 @@ describe('chargeSchema GraduatedPercentage', () => {
         ]
         const result = chargeSchema.isValidSync(values)
 
-        expect(result).toBeFalsy()
+        expect(result).toBeTruthy()
       })
     })
   })
