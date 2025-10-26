@@ -116,7 +116,7 @@
     "@tanstack/react-virtual": "3.13.12",
     "ace-builds": "1.43.3",
     "actioncable": "5.2.8-1",
-    "apollo-link-timeout": "4.0.0",
+    "apollo-link-timeout": "5.0.2",
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.15.0",
     "decimal.js": "10.6.0",

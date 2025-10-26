@@ -49,8 +49,8 @@ importers:
         specifier: 5.2.8-1
         version: 5.2.8-1
       apollo-link-timeout:
-        specifier: 4.0.0
-        version: 4.0.0(@apollo/client@3.14.0(@types/react@18.3.26)(graphql-ws@5.16.0(graphql@16.11.0))(graphql@16.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        specifier: 5.0.2
+        version: 5.0.2(@apollo/client@3.14.0(@types/react@18.3.26)(graphql-ws@5.16.0(graphql@16.11.0))(graphql@16.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       apollo-upload-client:
         specifier: 17.0.0
         version: 17.0.0(@apollo/client@3.14.0(@types/react@18.3.26)(graphql-ws@5.16.0(graphql@16.11.0))(graphql@16.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(graphql@16.11.0)
@@ -3523,8 +3523,8 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
-  apollo-link-timeout@4.0.0:
-    resolution: {integrity: sha512-2tZsNvmbsAHunWSsGi+URLMQSDoSU0NRDJeYicX/eB7J94QXydgvZOG4FCsgU5hY0dhUrPrLCotcpJjvOOfSlA==}
+  apollo-link-timeout@5.0.2:
+    resolution: {integrity: sha512-PYuqIMWr2L9pI7k8LmrClB5VJQFM5I+8e07XBjnJff2bitFIA/Q/STspBfvP9FBULDGpaW10Bj76uOaS+8q5AQ==}
     peerDependencies:
       '@apollo/client': ^3.0.0
 
@@ -11561,7 +11561,7 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  apollo-link-timeout@4.0.0(@apollo/client@3.14.0(@types/react@18.3.26)(graphql-ws@5.16.0(graphql@16.11.0))(graphql@16.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
+  apollo-link-timeout@5.0.2(@apollo/client@3.14.0(@types/react@18.3.26)(graphql-ws@5.16.0(graphql@16.11.0))(graphql@16.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
     dependencies:
       '@apollo/client': 3.14.0(@types/react@18.3.26)(graphql-ws@5.16.0(graphql@16.11.0))(graphql@16.11.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
