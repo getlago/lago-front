@@ -124,7 +124,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
   } = wallet
   const { isPremium } = useCurrentUser()
   const { customerId } = useParams()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { setUrl, openPanel: open } = useDeveloperTool()
@@ -178,7 +178,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                   {name
                     ? name
                     : translate('text_62da6ec24a8e24e44f8128b2', {
-                        createdAt: formatTimeOrgaTZ(createdAt),
+                        createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
                       })}
                 </Typography>
                 <Typography variant="caption">
@@ -539,7 +539,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                     className="flex h-5 items-end"
                     placement="top-end"
                     title={translate('text_62da6db136909f52c2704c40', {
-                      date: formatTimeOrgaTZ(lastConsumedCreditAt || DateTime.now()),
+                      date: intlFormatDateTimeOrgaTZ(lastConsumedCreditAt || DateTime.now()).date,
                     })}
                   >
                     <Icon name="info-circle" />

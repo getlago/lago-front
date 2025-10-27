@@ -8,7 +8,7 @@ import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { GetWebhookLogQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 type WebhookLogTableProps = {
   getWebhookLogsResult: GetWebhookLogQueryResult
@@ -23,7 +23,7 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
 }) => {
   const { webhookId = '' } = useParams<{ webhookId: string; logId?: string }>()
   const [searchParams] = useSearchParams()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { translate } = useInternationalization()
 
   const { data, error, loading, fetchMore, variables } = getWebhookLogsResult
@@ -81,7 +81,7 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
             title: translate('text_664cb90097bfa800e6efa3f5'),
             key: 'updatedAt',
             content: ({ updatedAt }) => (
-              <Typography noWrap>{formatTimeOrgaTZ(updatedAt, 'LLL dd, hh:mm:ss a')}</Typography>
+              <Typography noWrap>{formattedDateTimeWithSecondsOrgaTZ(updatedAt)}</Typography>
             ),
           },
         ]}

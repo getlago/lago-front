@@ -5,7 +5,7 @@ import { formatActivityType, getActivityDescription } from '~/components/activit
 import { Table, TableProps, Typography } from '~/components/designSystem'
 import { ActivityLogsTableDataFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 gql`
   fragment ActivityLogsTableData on ActivityLog {
@@ -35,7 +35,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
   refetch,
 }) => {
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
 
   const logs = useMemo(() => {
     return data.map((log) => ({
@@ -91,7 +91,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
           title: translate('text_664cb90097bfa800e6efa3f5'),
           key: 'loggedAt',
           content: ({ loggedAt }) => (
-            <Typography noWrap>{formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a')}</Typography>
+            <Typography noWrap>{formattedDateTimeWithSecondsOrgaTZ(loggedAt)}</Typography>
           ),
         },
       ]}

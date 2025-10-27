@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Avatar } from 'lago-design-system'
-import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 
 import { computeCustomerInitials } from '~/components/customers/utils'
@@ -8,6 +7,7 @@ import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
+import { intlFormatDateTime } from '~/core/timezone'
 import { StatusTypeEnum, useGetSubscribtionsForPlanDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -150,7 +150,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
               minWidth: 150,
               content: ({ subscriptionAt }) => (
                 <Typography variant="body" color="grey700">
-                  {DateTime.fromISO(subscriptionAt).toFormat('LLL. dd, yyyy')}
+                  {intlFormatDateTime(subscriptionAt).date}
                 </Typography>
               ),
             },
@@ -160,7 +160,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
               minWidth: 150,
               content: ({ endingAt }) => (
                 <Typography variant="body" color="grey700">
-                  {!!endingAt ? DateTime.fromISO(endingAt).toFormat('LLL. dd, yyyy') : '-'}
+                  {!!endingAt ? intlFormatDateTime(endingAt).date : '-'}
                 </Typography>
               ),
             },

@@ -68,7 +68,7 @@ export const SubscriptionInformations = ({
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
 }) => {
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const customerName = subscription?.customer?.displayName
 
@@ -83,7 +83,7 @@ export const SubscriptionInformations = ({
             <Alert type="info">
               {translate('text_62681c60582e4f00aa82938a', {
                 planName: subscription?.nextPlan?.name,
-                dateStartNewPlan: formatTimeOrgaTZ(subscription?.nextSubscriptionAt),
+                dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription?.nextSubscriptionAt).date,
               })}
             </Alert>
           )}

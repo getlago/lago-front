@@ -12,7 +12,7 @@ import {
   WebhookStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 gql`
   fragment WebhookLogDetails on Webhook {
@@ -43,7 +43,7 @@ gql`
 
 export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ webhookId: string; logId: string }>()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { translate } = useInternationalization()
 
   const { data, loading } = useGetSingleWebhookLogQuery({
@@ -143,7 +143,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
               {translate('text_63e27c56dfe64b846474ef6c')}
             </Typography>
             <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {formatTimeOrgaTZ(updatedAt, 'LLL. dd, yyyy HH:mm:ss')}
+              {formattedDateTimeWithSecondsOrgaTZ(updatedAt)}
             </Typography>
 
             <Typography className="pt-1" variant="caption">

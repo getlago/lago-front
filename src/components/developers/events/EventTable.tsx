@@ -7,7 +7,7 @@ import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { EventsQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 type EventTableProps = {
   getEventsResult: EventsQueryResult
@@ -16,7 +16,7 @@ type EventTableProps = {
 
 export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef }) => {
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
 
   const { data, error, loading, fetchMore, refetch } = getEventsResult
 
@@ -74,7 +74,7 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
             title: translate('text_664cb90097bfa800e6efa3f5'),
             key: 'receivedAt',
             content: ({ receivedAt }) => (
-              <Typography noWrap>{formatTimeOrgaTZ(receivedAt, 'LLL dd, hh:mm:ss a')}</Typography>
+              <Typography noWrap>{formattedDateTimeWithSecondsOrgaTZ(receivedAt)}</Typography>
             ),
           },
         ]}

@@ -47,7 +47,7 @@ const BillableMetricsList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
   const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
     useBillableMetricsLazyQuery({
@@ -134,7 +134,7 @@ const BillableMetricsList = () => {
               minWidth: 140,
               content: ({ createdAt }) => (
                 <Typography variant="body" color="grey600">
-                  {formatTimeOrgaTZ(createdAt)}
+                  {intlFormatDateTimeOrgaTZ(createdAt).date}
                 </Typography>
               ),
             },

@@ -52,7 +52,7 @@ gql`
 export const CouponDetailsOverview = () => {
   const { translate } = useInternationalization()
   const { couponId } = useParams()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { data, loading } = useGetCouponForDetailsOverviewQuery({
     variables: { id: couponId as string },
@@ -191,7 +191,7 @@ export const CouponDetailsOverview = () => {
                       key="expiration-date-body"
                       className="py-4"
                       label={translate('text_664cb90097bfa800e6efa3f5')}
-                      value={formatTimeOrgaTZ(coupon.expirationAt)}
+                      value={intlFormatDateTimeOrgaTZ(coupon.expirationAt).date}
                     />,
                   ],
                 ]}

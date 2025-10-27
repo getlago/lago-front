@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { TimezoneDate } from '~/components/TimezoneDate'
+import { DateFormat, TimeFormat } from '~/core/timezone/utils'
 import { useGetSingleEventQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -32,6 +33,11 @@ gql`
     }
   }
 `
+
+const dateFormatOptions = {
+  formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+  formatDate: DateFormat.DATE_MED,
+}
 
 export const EventDetails = ({ goBack }: { goBack: () => void }) => {
   const { eventId } = useParams<{ eventId: string }>()
@@ -145,7 +151,8 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
               date={receivedAt}
               customerTimezone={customerTimezone}
               mainTimezone="utc0"
-              mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+              mainDateFormat={dateFormatOptions}
+              showFullDateTime={true}
               position="top-start"
             />
 
@@ -157,7 +164,8 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
               date={timestamp}
               customerTimezone={customerTimezone}
               mainTimezone="utc0"
-              mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+              mainDateFormat={dateFormatOptions}
+              showFullDateTime={true}
               position="top-start"
             />
 

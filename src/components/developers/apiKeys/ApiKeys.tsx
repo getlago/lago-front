@@ -91,7 +91,7 @@ export const ApiKeys = () => {
   const { isPremium } = useCurrentUser()
   const { state } = useLocation()
   const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { closePanel: close } = useDeveloperTool()
 
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
@@ -229,7 +229,7 @@ export const ApiKeys = () => {
                       minWidth: 138,
                       content: ({ createdAt }) => (
                         <Typography color="grey700" variant="body">
-                          {formatTimeOrgaTZ(createdAt)}
+                          {intlFormatDateTimeOrgaTZ(createdAt).date}
                         </Typography>
                       ),
                     },
@@ -415,7 +415,7 @@ export const ApiKeys = () => {
                       minWidth: 140,
                       content: ({ lastUsedAt }) => (
                         <Typography color="grey700" variant="body">
-                          {!!lastUsedAt ? formatTimeOrgaTZ(lastUsedAt) : '-'}
+                          {!!lastUsedAt ? intlFormatDateTimeOrgaTZ(lastUsedAt).date : '-'}
                         </Typography>
                       ),
                     },
@@ -425,7 +425,7 @@ export const ApiKeys = () => {
                       minWidth: 140,
                       content: ({ createdAt }) => (
                         <Typography color="grey700" variant="body">
-                          {formatTimeOrgaTZ(createdAt)}
+                          {intlFormatDateTimeOrgaTZ(createdAt).date}
                         </Typography>
                       ),
                     },

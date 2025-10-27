@@ -55,7 +55,7 @@ const AddOnsList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
     variables: { limit: 20 },
@@ -157,7 +157,7 @@ const AddOnsList = () => {
               minWidth: 140,
               content: ({ createdAt }) => (
                 <Typography color="textSecondary" variant="bodyHl" noWrap>
-                  {formatTimeOrgaTZ(createdAt)}
+                  {intlFormatDateTimeOrgaTZ(createdAt).date}
                 </Typography>
               ),
             },
