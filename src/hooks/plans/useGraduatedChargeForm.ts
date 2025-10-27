@@ -5,6 +5,7 @@ import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSw
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
+import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -175,20 +176,15 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
               // fromValue should always be toValueOfPreviousRange + 1
               const { toValue } = acc[i - 1]
               const fromValue = String(Number(toValue || 0) + 1)
-              const formattedToValue = () => {
-                if (range.toValue === null) return null
-
-                if (Number(range.toValue || 0) <= Number(fromValue)) {
-                  return String(Number(fromValue) + 1)
-                }
-
-                return String(range.toValue || 0)
-              }
+              const formattedToValue = formataAnyToValueForChargeFormArrays(
+                range.toValue,
+                fromValue,
+              )
 
               acc.push({
                 ...range,
                 fromValue,
-                toValue: formattedToValue(),
+                toValue: formattedToValue,
               })
             } else {
               acc.push(range)

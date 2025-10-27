@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { GraduatedPercentageRangeInput, PropertiesInput } from '~/generated/graphql'
+import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedPercentageRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -155,20 +156,12 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
             // fromValue should always be toValueOfPreviousRange + 1
             const { toValue } = acc[i - 1]
             const fromValue = String(Number(toValue || 0) + 1)
-            const formattedToValue = () => {
-              if (range.toValue === null) return null
-
-              if (Number(range.toValue || 0) <= Number(fromValue)) {
-                return String(Number(fromValue) + 1)
-              }
-
-              return String(range.toValue || 0)
-            }
+            const formattedToValue = formataAnyToValueForChargeFormArrays(range.toValue, fromValue)
 
             acc.push({
               ...range,
               fromValue,
-              toValue: formattedToValue(),
+              toValue: formattedToValue,
             })
           } else {
             acc.push(range)
