@@ -2,6 +2,7 @@ import {
   ChargeModelEnum,
   CouponFrequency,
   CouponTypeEnum,
+  FixedChargeChargeModelEnum,
   HubspotTargetedObjectsEnum,
   InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
   MembershipRole,
@@ -100,15 +101,18 @@ export enum LocalTaxProviderErrorsEnum {
   GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
 }
 
-export const chargeModelLookupTranslation: Record<string, string> = {
-  [ChargeModelEnum.Graduated]: 'text_65201b8216455901fe273e11',
-  [ChargeModelEnum.GraduatedPercentage]: 'text_65201b8216455901fe273e32',
-  [ChargeModelEnum.Package]: 'text_65201b8216455901fe273de5',
-  [ChargeModelEnum.Percentage]: 'text_65201b8216455901fe273df8',
-  [ChargeModelEnum.Standard]: 'text_65201b8216455901fe273dd6',
-  [ChargeModelEnum.Volume]: 'text_65201b8216455901fe273e4f',
-  [ChargeModelEnum.Custom]: 'text_6641dd21c0cffd005b5e2a8b',
-  [ChargeModelEnum.Dynamic]: 'text_1727770512968tj58xr3h64p',
+export const chargeModelLookupTranslation: Record<
+  ChargeModelEnum | FixedChargeChargeModelEnum,
+  string
+> = {
+  graduated: 'text_65201b8216455901fe273e11',
+  graduated_percentage: 'text_65201b8216455901fe273e32',
+  package: 'text_65201b8216455901fe273de5',
+  percentage: 'text_65201b8216455901fe273df8',
+  standard: 'text_65201b8216455901fe273dd6',
+  volume: 'text_65201b8216455901fe273e4f',
+  custom: 'text_6641dd21c0cffd005b5e2a8b',
+  dynamic: 'text_1727770512968tj58xr3h64p',
 }
 
 export const getChargeModelHelpTextTranslationKey = {
