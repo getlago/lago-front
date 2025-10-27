@@ -49,7 +49,7 @@ import {
   SETTINGS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
-import { PremiumIntegrationTypeEnum, useSideNavInfosQuery } from '~/generated/graphql'
+import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -108,7 +108,6 @@ const MainNavLayout = () => {
     organization,
     loading: currentOrganizationLoading,
     refetchOrganizationInfos,
-    hasOrganizationPremiumAddon,
   } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const { data, loading, error } = useSideNavInfosQuery()
@@ -122,10 +121,6 @@ const MainNavLayout = () => {
   const contentRef = useRef<HTMLDivElement>(null)
   const organizationList = currentUser?.memberships.map((membership) => membership.organization)
   const isLoading = currentOrganizationLoading || currentUserLoading || loading
-
-  const hasAccessToForecastsFeature = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.ForecastedUsage,
-  )
 
   useEffect(() => {
     // Avoid weird scroll behavior on navigation
@@ -333,10 +328,10 @@ const MainNavLayout = () => {
                     },
                     {
                       title: translate('text_1753014457040hxp6wkphkvw'),
-                      icon: 'eye',
+                      icon: 'forecast',
                       link: FORECASTS_ROUTE,
                       match: [FORECASTS_ROUTE],
-                      hidden: !hasPermissions(['analyticsView']) || !hasAccessToForecastsFeature,
+                      hidden: !hasPermissions(['analyticsView']),
                       extra: <BadgeAI />,
                     },
                   ]}
