@@ -3,15 +3,26 @@ import { useId } from 'react'
 import { Alert, Chip } from '~/components/designSystem'
 import { JsonEditor } from '~/components/form'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { ALL_CHARGE_MODELS } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   AppliedPricingUnit,
   ChargeModelEnum,
   CurrencyEnum,
+  FixedChargeChargeModelEnum,
+  FixedChargeProperties,
   Maybe,
   Properties,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+const isUsageChargeProperties = (
+  values?: Maybe<Properties> | Maybe<FixedChargeProperties>,
+): values is Properties => {
+  if (!values) return false
+
+  return values?.__typename === 'Properties'
+}
 
 export const PlanDetailsChargeWrapperSwitch = ({
   currency,
@@ -20,17 +31,19 @@ export const PlanDetailsChargeWrapperSwitch = ({
   chargeAppliedPricingUnit,
 }: {
   currency: CurrencyEnum
-  chargeModel: ChargeModelEnum
-  values?: Maybe<Properties>
-  chargeAppliedPricingUnit: Maybe<AppliedPricingUnit> | undefined
+  chargeModel: ChargeModelEnum | FixedChargeChargeModelEnum
+  values?: Maybe<Properties> | Maybe<FixedChargeProperties>
+  chargeAppliedPricingUnit?: Maybe<AppliedPricingUnit>
 }) => {
   const componentId = useId()
   const { translate } = useInternationalization()
-  const pricingGroupKeys = values?.pricingGroupKeys || undefined
+
+  const isUsageCharge = isUsageChargeProperties(values)
+  const pricingGroupKeys = isUsageCharge ? values?.pricingGroupKeys : undefined
 
   return (
     <div className="flex flex-col gap-4">
-      {chargeModel === ChargeModelEnum.Standard && (
+      {chargeModel === ALL_CHARGE_MODELS.Standard && (
         <DetailsPage.TableDisplay
           name="standard"
           header={[translate('text_624453d52e945301380e49b6')]}
@@ -46,7 +59,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
           ]}
         />
       )}
-      {chargeModel === ChargeModelEnum.Package && (
+      {chargeModel === ALL_CHARGE_MODELS.Package && isUsageCharge && (
         <DetailsPage.TableDisplay
           name="package"
           header={[
@@ -68,7 +81,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
           ]}
         />
       )}
-      {chargeModel === ChargeModelEnum.Graduated && !!values?.graduatedRanges?.length && (
+      {chargeModel === ALL_CHARGE_MODELS.Graduated && !!values?.graduatedRanges?.length && (
         <DetailsPage.TableDisplay
           name="graduated-ranges"
           header={[
@@ -99,7 +112,8 @@ export const PlanDetailsChargeWrapperSwitch = ({
           })()}
         />
       )}
-      {chargeModel === ChargeModelEnum.GraduatedPercentage &&
+      {chargeModel === ALL_CHARGE_MODELS.GraduatedPercentage &&
+        isUsageCharge &&
         !!values?.graduatedPercentageRanges?.length && (
           <DetailsPage.TableDisplay
             name="graduated-percentage-ranges"
@@ -110,7 +124,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
               translate('text_62793bbb599f1c01522e91bc'),
             ]}
             body={(() => {
-              return values?.graduatedPercentageRanges?.map((value) => {
+              return values.graduatedPercentageRanges.map((value) => {
                 return [
                   value.fromValue,
                   value.toValue || '∞',
@@ -128,7 +142,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
             })()}
           />
         )}
-      {chargeModel === ChargeModelEnum.Percentage && (
+      {chargeModel === ALL_CHARGE_MODELS.Percentage && isUsageCharge && (
         <>
           <DetailsPage.TableDisplay
             name="percentage"
@@ -181,7 +195,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
           />
         </>
       )}
-      {chargeModel === ChargeModelEnum.Volume && !!values?.volumeRanges?.length && (
+      {chargeModel === ALL_CHARGE_MODELS.Volume && !!values?.volumeRanges?.length && (
         <DetailsPage.TableDisplay
           name="volume-ranges"
           header={[
@@ -212,7 +226,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
           })()}
         />
       )}
-      {chargeModel === ChargeModelEnum.Custom && (
+      {chargeModel === ALL_CHARGE_MODELS.Custom && isUsageCharge && (
         <DetailsPage.TableDisplay
           name="custom"
           className="[&_tbody_td]:p-0"
@@ -230,16 +244,16 @@ export const PlanDetailsChargeWrapperSwitch = ({
           ]}
         />
       )}
-      {chargeModel === ChargeModelEnum.Dynamic && (
+      {chargeModel === ALL_CHARGE_MODELS.Dynamic && (
         <Alert type="info">{translate('text_17277706303454rxgscdqklx')}</Alert>
       )}
 
-      {chargeModel !== ChargeModelEnum.Custom && !!pricingGroupKeys?.length && (
+      {chargeModel !== 'custom' && !!pricingGroupKeys?.length && (
         <DetailsPage.InfoGridItem
           label={translate('text_65ba6d45e780c1ff8acb20ce')}
           value={
             <div className="mt-1 flex flex-wrap gap-2">
-              {pricingGroupKeys?.map((group, groupIndex) => (
+              {pricingGroupKeys?.map((group: string, groupIndex: number) => (
                 <Chip key={`${componentId}-${groupIndex}`} label={group} />
               ))}
             </div>
