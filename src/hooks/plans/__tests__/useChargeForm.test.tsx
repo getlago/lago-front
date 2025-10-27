@@ -35,13 +35,14 @@ const preparePayinAdvanceOptionDisabledTest = async ({
   const { result } = renderHook(useChargeForm)
 
   return {
-    getIsPayInAdvanceOptionDisabled: result.current.getIsPayInAdvanceOptionDisabled({
-      aggregationType,
-      chargeModel,
-      isPayInAdvance,
-      isProrated,
-      isRecurring,
-    }),
+    getIsPayInAdvanceOptionDisabledForUsageCharge:
+      result.current.getIsPayInAdvanceOptionDisabledForUsageCharge({
+        aggregationType,
+        chargeModel,
+        isPayInAdvance,
+        isProrated,
+        isRecurring,
+      }),
   }
 }
 
@@ -77,15 +78,16 @@ describe('useChargeForm()', () => {
           expectedDisabledValue,
         } = testSetup
 
-        const { getIsPayInAdvanceOptionDisabled } = await preparePayinAdvanceOptionDisabledTest({
-          aggregationType,
-          chargeModel,
-          isPayInAdvance,
-          isProrated,
-          isRecurring,
-        })
+        const { getIsPayInAdvanceOptionDisabledForUsageCharge } =
+          await preparePayinAdvanceOptionDisabledTest({
+            aggregationType,
+            chargeModel,
+            isPayInAdvance,
+            isProrated,
+            isRecurring,
+          })
 
-        expect(getIsPayInAdvanceOptionDisabled).toEqual(expectedDisabledValue)
+        expect(getIsPayInAdvanceOptionDisabledForUsageCharge).toEqual(expectedDisabledValue)
       },
     )
   })
@@ -97,13 +99,14 @@ describe('useChargeForm()', () => {
         const { aggregationType, chargeModel, isPayInAdvance, expectedDisabledValue } = testSetup
 
         const { result } = renderHook(useChargeForm)
-        const getIsProRatedOptionDisabled = result.current.getIsProRatedOptionDisabled({
-          aggregationType,
-          chargeModel,
-          isPayInAdvance,
-        })
+        const getIsProRatedOptionDisabledForUsageCharge =
+          result.current.getIsProRatedOptionDisabledForUsageCharge({
+            aggregationType,
+            chargeModel,
+            isPayInAdvance,
+          })
 
-        expect(getIsProRatedOptionDisabled).toEqual(expectedDisabledValue)
+        expect(getIsProRatedOptionDisabledForUsageCharge).toEqual(expectedDisabledValue)
       },
     )
   })

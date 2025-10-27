@@ -172,8 +172,8 @@ export const UsageChargeAccordion = memo(
     const { isPremium } = useCurrentUser()
     const {
       getUsageChargeModelComboboxData,
-      getIsPayInAdvanceOptionDisabled,
-      getIsProRatedOptionDisabled,
+      getIsPayInAdvanceOptionDisabledForUsageCharge,
+      getIsProRatedOptionDisabledForUsageCharge,
     } = useChargeForm()
     const chargeErrors = formikProps?.errors?.charges
 
@@ -190,14 +190,14 @@ export const UsageChargeAccordion = memo(
         isPremium,
         aggregationType: formikCharge.billableMetric.aggregationType,
       })
-      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabled({
+      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabledForUsageCharge({
         aggregationType: formikCharge.billableMetric.aggregationType,
         chargeModel: formikCharge.chargeModel,
         isPayInAdvance: formikCharge.payInAdvance || false,
         isProrated: formikCharge.prorated || false,
         isRecurring: formikCharge.billableMetric.recurring,
       })
-      const localIsProratedOptionDisabled = getIsProRatedOptionDisabled({
+      const localIsProratedOptionDisabled = getIsProRatedOptionDisabledForUsageCharge({
         isPayInAdvance: formikCharge.payInAdvance || false,
         aggregationType: formikCharge.billableMetric.aggregationType,
         chargeModel: formikCharge.chargeModel,
@@ -219,8 +219,8 @@ export const UsageChargeAccordion = memo(
       formikProps.initialValues.charges,
       formikProps.values.charges,
       getUsageChargeModelComboboxData,
-      getIsPayInAdvanceOptionDisabled,
-      getIsProRatedOptionDisabled,
+      getIsPayInAdvanceOptionDisabledForUsageCharge,
+      getIsProRatedOptionDisabledForUsageCharge,
       index,
       isPremium,
     ])
