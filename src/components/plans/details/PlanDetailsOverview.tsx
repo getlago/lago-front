@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PlanDetailsUsageChargesSection } from '~/components/plans/details/PlanDetailsUsageChargesSection'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import {
   CurrencyEnum,
@@ -13,7 +14,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PlanDetailsSubscriptionFeeAccordion } from './PlanDetailsAdvancedFeeAccordion'
 import { PlanDetailsAdvancedSettingsSection } from './PlanDetailsAdvancedSettingsSection'
-import { PlanDetailsChargesSection } from './PlanDetailsChargesSection'
 
 gql`
   query getPlanForDetailsOverviewSection($plan: ID!) {
@@ -42,6 +42,7 @@ export const PlanDetailsOverview = ({
   })
 
   const plan = planResult?.plan
+  const currency = plan?.amountCurrency || CurrencyEnum.Usd
 
   if (!plan && isPlanLoading) {
     return <DetailsPage.Skeleton />
@@ -89,7 +90,7 @@ export const PlanDetailsOverview = ({
       </section>
       <section>
         <DetailsPage.SectionTitle variant="subhead1" noWrap>
-          {translate('text_642d5eb2783a2ad10d670332')}
+          {translate('text_176072970726728iw4tc8ucl')}
         </DetailsPage.SectionTitle>
         <PlanDetailsSubscriptionFeeAccordion plan={plan} />
       </section>
@@ -98,16 +99,13 @@ export const PlanDetailsOverview = ({
           <DetailsPage.SectionTitle variant="subhead1" noWrap>
             {translate('text_6435888d7cc86500646d8977')}
           </DetailsPage.SectionTitle>
-          <PlanDetailsChargesSection
-            plan={plan}
-            currency={plan?.amountCurrency || CurrencyEnum.Usd}
-          />
+          <PlanDetailsUsageChargesSection currency={currency} plan={plan} />
         </section>
       )}
 
       <PlanDetailsAdvancedSettingsSection
+        currency={currency}
         plan={plan}
-        currency={plan?.amountCurrency || CurrencyEnum.Usd}
         showEntitlementSection={showEntitlementSection}
       />
     </section>
