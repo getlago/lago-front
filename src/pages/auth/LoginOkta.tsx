@@ -108,6 +108,18 @@ const LoginOkta = () => {
     },
   ])
 
+  const getEmailFieldError = (): string | undefined => {
+    if (formikProps.touched.email && formikProps.errors.email) {
+      return formikProps.errors.email
+    }
+
+    if (errorField) {
+      return translate(getErrorKey(errorField))
+    }
+
+    return undefined
+  }
+
   return (
     <Page>
       <Card>
@@ -134,13 +146,7 @@ const LoginOkta = () => {
             formikProps={formikProps}
             label={translate('text_62ab2d0396dd6b0361614d60')}
             placeholder={translate('text_62a99ba2af7535cefacab4bf')}
-            error={
-              formikProps.touched.email && formikProps.errors.email
-                ? formikProps.errors.email
-                : errorField
-                  ? translate(getErrorKey(errorField))
-                  : undefined
-            }
+            error={getEmailFieldError()}
           />
 
           <Button

@@ -106,11 +106,11 @@ export const usePlanForm: ({
     skip: !id && !parentId && !planIdToFetch,
   })
   const isDuplicate = actionType === 'duplicate' && !!parentId
-  const type = !!id
-    ? FORM_TYPE_ENUM.edition
-    : isDuplicate
-      ? FORM_TYPE_ENUM.duplicate
-      : FORM_TYPE_ENUM.creation
+  const type = useMemo(() => {
+    if (!!id) return FORM_TYPE_ENUM.edition
+    if (isDuplicate) return FORM_TYPE_ENUM.duplicate
+    return FORM_TYPE_ENUM.creation
+  }, [id, isDuplicate])
 
   const isEdition = type === FORM_TYPE_ENUM.edition
   const plan = data?.plan

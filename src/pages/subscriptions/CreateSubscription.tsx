@@ -74,6 +74,19 @@ import ThinkingManeki from '~/public/images/maneki/thinking.svg'
 import { BREAKPOINT_LG, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
+const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
+  switch (planInterval) {
+    case PlanInterval.Yearly:
+      return 'text_62ebd597d5d5130a03ced107'
+    case PlanInterval.Weekly:
+      return 'text_62ebd597d5d5130a03ced101'
+    case PlanInterval.Quarterly:
+      return 'text_64d6357b00dea100ad1cba27'
+    default:
+      return 'text_62ea7cd44cd4b14bb9ac1db9'
+  }
+}
+
 gql`
   fragment AddSubscriptionPlan on Plan {
     id
@@ -417,11 +430,12 @@ const CreateSubscription = () => {
         return translate('text_62ea7cd44cd4b14bb9ac1d8e')
 
       case PlanInterval.Yearly:
-        return billingTime === BillingTimeEnum.Calendar
-          ? translate('text_62ea7cd44cd4b14bb9ac1d92')
-          : formattedCurrentDate === february29
-            ? translate('text_62ea7cd44cd4b14bb9ac1d9a')
-            : translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
+        if (billingTime === BillingTimeEnum.Calendar)
+          return translate('text_62ea7cd44cd4b14bb9ac1d92')
+
+        if (formattedCurrentDate === february29) return translate('text_62ea7cd44cd4b14bb9ac1d9a')
+
+        return translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
 
       case PlanInterval.Semiannual:
         return billingTime === BillingTimeEnum.Calendar
@@ -457,6 +471,12 @@ const CreateSubscription = () => {
   // NOTE: useCallback here is needed
   // is handles the case where the user clicks on the button while being focused on a plan's input
   const SubmitButton = useCallback(() => {
+    const buttonLabel = () => {
+      if (formType === FORM_TYPE_ENUM.creation) return translate('text_65118a52df984447c1869463')
+      if (formType === FORM_TYPE_ENUM.edition) return translate('text_62d7f6178ec94cd09370e63c')
+      return translate('text_65118a52df984447c18694c6')
+    }
+
     return (
       <Button
         size="large"
@@ -471,11 +491,7 @@ const CreateSubscription = () => {
         data-test="submit"
       >
         <Typography color="inherit" noWrap>
-          {formType === FORM_TYPE_ENUM.creation
-            ? translate('text_65118a52df984447c1869463')
-            : formType === FORM_TYPE_ENUM.edition
-              ? translate('text_62d7f6178ec94cd09370e63c')
-              : translate('text_65118a52df984447c18694c6')}
+          {buttonLabel()}
         </Typography>
       </Button>
     )
@@ -727,14 +743,9 @@ const CreateSubscription = () => {
                                 helperText={billingTimeHelper}
                                 options={[
                                   {
-                                    label:
-                                      selectedPlan?.interval === PlanInterval.Yearly
-                                        ? translate('text_62ebd597d5d5130a03ced107')
-                                        : selectedPlan?.interval === PlanInterval.Weekly
-                                          ? translate('text_62ebd597d5d5130a03ced101')
-                                          : selectedPlan?.interval === PlanInterval.Quarterly
-                                            ? translate('text_64d6357b00dea100ad1cba27')
-                                            : translate('text_62ea7cd44cd4b14bb9ac1db9'),
+                                    label: translate(
+                                      getBillingTimeSelectorTranslationKey(selectedPlan?.interval),
+                                    ),
                                     value: BillingTimeEnum.Calendar,
                                   },
                                   {
@@ -788,7 +799,7 @@ const CreateSubscription = () => {
                         </Card>
                       </div>
 
-                      {!isPremium ? (
+                      {!isPremium && (
                         <Card className="flex-row items-center justify-between gap-3">
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2">
@@ -810,16 +821,18 @@ const CreateSubscription = () => {
                             {translate('text_65118a52df984447c18694d0')}
                           </Button>
                         </Card>
-                      ) : formType !== FORM_TYPE_ENUM.edition || !subscription?.plan.parent?.id ? (
-                        <Typography
-                          className="flex items-center gap-4 uppercase before:inline-block before:h-[2px] before:w-full before:bg-grey-300 before:content-[''] after:inline-block after:h-[2px] after:w-full after:bg-grey-300 after:content-['']"
-                          noWrap
-                          variant="captionHl"
-                          color="grey500"
-                        >
-                          {translate('text_65118a52df984447c18694d0')}
-                        </Typography>
-                      ) : null}
+                      )}
+                      {isPremium &&
+                        (formType !== FORM_TYPE_ENUM.edition || !subscription?.plan.parent?.id) && (
+                          <Typography
+                            className="flex items-center gap-4 uppercase before:inline-block before:h-[2px] before:w-full before:bg-grey-300 before:content-[''] after:inline-block after:h-[2px] after:w-full after:bg-grey-300 after:content-['']"
+                            noWrap
+                            variant="captionHl"
+                            color="grey500"
+                          >
+                            {translate('text_65118a52df984447c18694d0')}
+                          </Typography>
+                        )}
 
                       <div
                         className={tw(

@@ -4,7 +4,7 @@ import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
 import { generatePath, Link, LinkProps, useParams } from 'react-router-dom'
 
-import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
+import { Alert, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   DeleteAdjustedFeeDialog,
@@ -21,6 +21,7 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { InvoiceCreditNotesTable } from '~/components/invoices/InvoiceCreditNotesTable'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
+import { InvoiceOverviewHeaderButtons } from '~/components/invoices/InvoiceOverviewHeaderButtons'
 import { Metadatas } from '~/components/invoices/Metadatas'
 import { InvoiceFeesForDisplay, InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import { envGlobalVar } from '~/core/apolloClient'
@@ -48,7 +49,6 @@ import {
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   Invoice,
   InvoiceStatusTypeEnum,
-  InvoiceTaxStatusTypeEnum,
   LagoApiError,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
   RefreshInvoiceMutationFn,
@@ -65,7 +65,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { SectionHeader } from '~/styles/customer'
 import { tw } from '~/styles/utils'
 
-const { disablePdfGeneration, appEnv } = envGlobalVar()
+const { appEnv } = envGlobalVar()
 
 gql`
   fragment InvoiceDetailsForInvoiceOverview on Invoice {
@@ -422,8 +422,6 @@ const InvoiceOverview = memo(
       showHubspotSection ||
       showSalesforceSection
 
-    const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
-
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
 
     return (
@@ -431,55 +429,21 @@ const InvoiceOverview = memo(
         <SectionHeader variant="subhead1">
           {translate('text_634687079be251fdb43833bf')}
           <div className="flex gap-3">
-            {invoice?.status === InvoiceStatusTypeEnum.Draft ? (
-              <>
-                <Button
-                  variant="quaternary"
-                  startIcon="reload"
-                  disabled={loading || loadingRefreshInvoice || isTaxStatusPending}
-                  onClick={async () => {
-                    await refreshInvoice()
-                  }}
-                >
-                  {translate('text_63a41a8eabb9ae67047c1c06')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  disabled={loading || isTaxStatusPending}
-                  onClick={() => {
-                    finalizeInvoiceRef.current?.openDialog(invoice, goToPreviousRoute)
-                  }}
-                >
-                  {translate('text_638f4d756d899445f18a4a10')}
-                </Button>
-              </>
-            ) : hasTaxProviderError ? (
-              <Button
-                variant="quaternary"
-                disabled={loading || loadingRetryInvoice || isTaxStatusPending}
-                onClick={async () => {
-                  await retryInvoice()
-                }}
-              >
-                {translate('text_1724164767403kyknbaw13mg')}
-              </Button>
-            ) : (
-              !hasError &&
-              !loading &&
-              !disablePdfGeneration && (
-                <Button
-                  variant="quaternary"
-                  disabled={loadingInvoiceDownload || isTaxStatusPending}
-                  onClick={async () => {
-                    await downloadInvoice({
-                      variables: { input: { id: invoiceId || '' } },
-                    })
-                  }}
-                >
-                  {translate('text_634687079be251fdb43833b9')}
-                </Button>
-              )
-            )}
+            <InvoiceOverviewHeaderButtons
+              invoice={invoice}
+              loading={loading}
+              loadingRefreshInvoice={loadingRefreshInvoice}
+              loadingRetryInvoice={loadingRetryInvoice}
+              loadingInvoiceDownload={loadingInvoiceDownload}
+              hasError={hasError}
+              hasTaxProviderError={hasTaxProviderError}
+              refreshInvoice={refreshInvoice}
+              retryInvoice={retryInvoice}
+              downloadInvoice={downloadInvoice}
+              finalizeInvoiceRef={finalizeInvoiceRef}
+              goToPreviousRoute={goToPreviousRoute}
+              invoiceId={invoiceId}
+            />
           </div>
         </SectionHeader>
         <>

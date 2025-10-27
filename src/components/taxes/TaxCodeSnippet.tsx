@@ -9,10 +9,22 @@ const { apiUrl } = envGlobalVar()
 const getSnippets = ({ tax, isEdition, initialTaxCode }: Omit<TaxCodeSnippetProps, 'loading'>) => {
   if (!tax) return '# Fill the form to generate the code snippet'
 
+  const urlString = () => {
+    const prefix = `${apiUrl}/api/v1/taxes`
+
+    if (!isEdition) return prefix
+
+    if (initialTaxCode) {
+      return `${prefix}/${initialTaxCode}`
+    }
+
+    return `${prefix}/__CODE_OF_TAX__`
+  }
+
   return snippetBuilder({
     title: isEdition ? 'Edit a tax rate' : 'Create a tax rate',
     method: isEdition ? 'PUT' : 'POST',
-    url: `${apiUrl}/api/v1/taxes${isEdition ? (initialTaxCode ? `/${initialTaxCode}` : '/__CODE_OF_TAX__') : ''}`,
+    url: urlString(),
     headers: [
       { Authorization: `Bearer $${SnippetVariables.API_KEY}` },
       { 'Content-Type': 'application/json' },

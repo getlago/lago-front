@@ -156,6 +156,12 @@ const DesignSystem = () => {
     onSubmit: () => {},
   })
 
+  const getCheckboxValue = (cond1: boolean, cond2: boolean) => {
+    if (cond1 && cond2) return true
+    if (!cond1 && !cond2) return false
+    return undefined
+  }
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -630,10 +636,7 @@ const DesignSystem = () => {
                       {
                         key: 'status',
                         title: 'Status',
-                        content: (row) => (
-                          // @ts-expect-error
-                          <Status label={row.status} type={StatusType.success} />
-                        ),
+                        content: (row) => <Status label={row.status} type={StatusType.success} />,
                       },
                       {
                         key: 'id',
@@ -1343,13 +1346,10 @@ const DesignSystem = () => {
                     <Checkbox
                       name="checkboxCond3"
                       canBeIndeterminate
-                      value={
-                        formikProps.values.checkboxCond1 && formikProps.values.checkboxCond2
-                          ? true
-                          : !formikProps.values.checkboxCond1 && !formikProps.values.checkboxCond2
-                            ? false
-                            : undefined
-                      }
+                      value={getCheckboxValue(
+                        formikProps.values.checkboxCond1,
+                        formikProps.values.checkboxCond2,
+                      )}
                       onChange={(e, value) => {
                         if (value) {
                           formikProps.setFieldValue('checkboxCond1', true)

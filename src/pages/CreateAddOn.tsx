@@ -29,6 +29,14 @@ const CreateAddOn = () => {
   const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()
   const warningDialogRef = useRef<WarningDialogRef>(null)
 
+  const onCloseRedirection = () => {
+    if (isEdition && !!addOnId) {
+      return navigate(generatePath(ADD_ON_DETAILS_ROUTE, { addOnId }))
+    }
+
+    return navigate(ADD_ONS_ROUTE)
+  }
+
   const formikProps = useFormik<AddOnFormInput>({
     initialValues: {
       name: addOn?.name || '',
@@ -81,13 +89,11 @@ const CreateAddOn = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() =>
-            formikProps.dirty
-              ? warningDialogRef.current?.openDialog()
-              : isEdition && addOnId
-                ? navigate(generatePath(ADD_ON_DETAILS_ROUTE, { addOnId }))
-                : navigate(ADD_ONS_ROUTE)
-          }
+          onClick={() => {
+            if (formikProps.dirty) return warningDialogRef.current?.openDialog()
+
+            onCloseRedirection()
+          }}
         />
       </PageHeader.Wrapper>
       <div className="min-height-minus-nav flex">
@@ -352,7 +358,7 @@ const CreateAddOn = () => {
         title={translate('text_665deda4babaf700d603ea13')}
         description={translate('text_665dedd557dc3c00c62eb83d')}
         continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => navigate(ADD_ONS_ROUTE)}
+        onContinue={onCloseRedirection}
       />
     </div>
   )

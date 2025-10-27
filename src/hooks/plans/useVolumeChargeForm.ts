@@ -6,6 +6,7 @@ import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSw
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
+import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
 export const DEFAULT_VOLUME_CHARGES = [
   {
@@ -137,16 +138,12 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
             // fromValue should always be toValueOfPreviousRange + 1
             const { toValue } = acc[i - 1]
             const fromValue = String(Number(toValue || 0) + 1)
+            const formattedToValue = formataAnyToValueForChargeFormArrays(range.toValue, fromValue)
 
             acc.push({
               ...range,
               fromValue,
-              toValue:
-                range.toValue === null
-                  ? null
-                  : Number(range.toValue || 0) <= Number(fromValue)
-                    ? String(Number(fromValue) + 1)
-                    : String(range.toValue || 0),
+              toValue: formattedToValue,
             })
           } else {
             acc.push(range)

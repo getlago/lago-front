@@ -121,12 +121,15 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
     const isCollectionContext = !Object.values(MappableTypeEnum).includes(
       localData?.type as MappableTypeEnum,
     )
-    const refetchQueries =
-      localData?.type === MappableTypeEnum.AddOn
-        ? ['getAddOnsForNetsuiteItemsList']
-        : localData?.type === MappableTypeEnum.BillableMetric
-          ? ['getBillableMetricsForNetsuiteItemsList']
-          : ['getNetsuiteIntegrationCollectionMappings']
+    const refetchQueries = useMemo(() => {
+      if (localData?.type === MappableTypeEnum.AddOn) return ['getAddOnsForNetsuiteItemsList']
+
+      if (localData?.type === MappableTypeEnum.BillableMetric) {
+        return ['getBillableMetricsForNetsuiteItemsList']
+      }
+
+      return ['getNetsuiteIntegrationCollectionMappings']
+    }, [localData?.type])
 
     // Mapping Creation
     const [createCollectionMapping] = useCreateNetsuiteIntegrationCollectionMappingMutation({

@@ -116,12 +116,15 @@ export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemD
     const isCollectionContext = !Object.values(MappableTypeEnum).includes(
       localData?.type as MappableTypeEnum,
     )
-    const refetchQueries =
-      localData?.type === MappableTypeEnum.AddOn
-        ? ['getAddOnsForAnrokItemsList']
-        : localData?.type === MappableTypeEnum.BillableMetric
-          ? ['getBillableMetricsForAnrokItemsList']
-          : ['getAnrokIntegrationCollectionMappings']
+    const refetchQueries = useMemo(() => {
+      if (localData?.type === MappableTypeEnum.AddOn) return ['getAddOnsForAnrokItemsList']
+
+      if (localData?.type === MappableTypeEnum.BillableMetric) {
+        return ['getBillableMetricsForAnrokItemsList']
+      }
+
+      return ['getAnrokIntegrationCollectionMappings']
+    }, [localData?.type])
 
     // Mapping Creation
     const [createCollectionMapping] = useCreateAnrokIntegrationCollectionMappingMutation({
