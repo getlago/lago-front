@@ -15,18 +15,9 @@ import { StandardCharge } from '~/components/plans/StandardCharge'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  ChargeModelEnum,
-  CurrencyEnum,
-  FixedChargeChargeModelEnum,
-  PropertiesInput,
-} from '~/generated/graphql'
+import { ALL_CHARGE_MODELS } from '~/core/constants/form'
+import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-const CHARGE_MODEL = {
-  ...ChargeModelEnum,
-  ...FixedChargeChargeModelEnum,
-} as const
 
 export type ChargeCursor = keyof Pick<PlanFormInput, 'charges' | 'fixedCharges'>
 
@@ -69,7 +60,7 @@ export const ChargeWrapperSwitch = memo(
 
     return (
       <div className="m-4 flex flex-col gap-6">
-        {localCharge?.chargeModel === CHARGE_MODEL.Standard && (
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Standard && (
           <>
             <StandardCharge
               chargeCursor={chargeCursor}
@@ -83,7 +74,7 @@ export const ChargeWrapperSwitch = memo(
             />
           </>
         )}
-        {localCharge?.chargeModel === CHARGE_MODEL.Package && (
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Package && (
           <PackageCharge
             chargeCursor={chargeCursor}
             chargeErrors={chargeErrors}
@@ -96,7 +87,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === CHARGE_MODEL.Graduated && (
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Graduated && (
           <GraduatedChargeTable
             chargeCursor={chargeCursor}
             chargeIndex={chargeIndex}
@@ -108,7 +99,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === CHARGE_MODEL.GraduatedPercentage && (
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.GraduatedPercentage && (
           <GraduatedPercentageChargeTable
             chargeCursor={chargeCursor}
             chargeIndex={chargeIndex}
@@ -120,7 +111,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === CHARGE_MODEL.Percentage && (
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Percentage && (
           <ChargePercentage
             chargeCursor={chargeCursor}
             chargeErrors={chargeErrors}
@@ -135,7 +126,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === CHARGE_MODEL.Volume && (
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Volume && (
           <VolumeChargeTable
             chargeCursor={chargeCursor}
             chargeIndex={chargeIndex}
@@ -147,7 +138,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === CHARGE_MODEL.Custom && (
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Custom && (
           <CustomCharge
             chargeCursor={chargeCursor}
             chargeErrors={chargeErrors}
@@ -158,7 +149,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === CHARGE_MODEL.Dynamic && <DynamicCharge />}
+        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Dynamic && <DynamicCharge />}
 
         {isUsageCharge && (
           <PricingGroupKeys

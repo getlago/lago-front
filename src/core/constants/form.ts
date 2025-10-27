@@ -65,6 +65,11 @@ export const FORM_TYPE_ENUM = {
   duplicate: 'duplicate',
   upgradeDowngrade: 'upgradeDowngrade',
 } as const
+// Charges
+export const ALL_CHARGE_MODELS = {
+  ...ChargeModelEnum,
+  ...FixedChargeChargeModelEnum,
+} as const
 // Filters
 export const ALL_FILTER_VALUES = '__ALL_FILTER_VALUES__'
 
@@ -102,7 +107,7 @@ export enum LocalTaxProviderErrorsEnum {
 }
 
 export const chargeModelLookupTranslation: Record<
-  ChargeModelEnum | FixedChargeChargeModelEnum,
+  (typeof ALL_CHARGE_MODELS)[keyof typeof ALL_CHARGE_MODELS],
   string
 > = {
   graduated: 'text_65201b8216455901fe273e11',
