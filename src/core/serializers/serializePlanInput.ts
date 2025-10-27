@@ -131,6 +131,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
     entitlements,
     trialPeriod,
     charges,
+    fixedCharges,
     taxes: planTaxes,
     minimumCommitment,
     nonRecurringUsageThresholds,
@@ -156,6 +157,22 @@ export const serializePlanInput = (values: PlanFormInput) => {
         config: undefined,
         id: undefined,
       })),
+    })),
+    fixedCharges: fixedCharges.map(({ addOn, ...fixedCharge }) => ({
+      ...fixedCharge,
+      addOnId: addOn.id,
+      taxCodes: fixedCharge.taxes?.map(({ code }) => code) || [],
+      // Cleaning display only attributes, see plans/types.ts for details
+      addon: undefined,
+      taxes: undefined,
+      properties: {
+        ...fixedCharge.properties,
+        // Cleaning properties that are not supported by FixedChargePropertiesInput
+        // They are initialized by getPropertyShape method
+        pricingGroupKeys: undefined,
+        packageSize: undefined,
+        freeUnits: undefined,
+      },
     })),
     minimumCommitment:
       !!minimumCommitment && !!Object.keys(minimumCommitment).length
