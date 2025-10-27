@@ -37,6 +37,16 @@
       "commitMessagePrefix": "chore(deps):"
     },
     {
+      "matchPackageNames": [
+        "@apollo/*",
+        "apollo-*",
+        "@types/apollo-*",
+        "@graphql-codegen/typescript-react-apollo"
+      ],
+      "groupName": "Apollo",
+      "commitMessagePrefix": "chore(deps):"
+    },
+    {
       "matchUpdateTypes": ["major"],
       "commitMessagePrefix": "chore(deps-major)"
     },
