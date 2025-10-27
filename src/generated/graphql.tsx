@@ -14731,78 +14731,6 @@ export const FeatureObjectEntitlementPrivilegeForPlanFragmentDoc = gql`
   }
 }
     `;
-export const AddOnForFixedChargeAccordionFragmentDoc = gql`
-    fragment addOnForFixedChargeAccordion on AddOn {
-  id
-  name
-  code
-}
-    `;
-export const GraduatedChargeFragmentDoc = gql`
-    fragment GraduatedCharge on GraduatedRange {
-  flatAmount
-  fromValue
-  perUnitAmount
-  toValue
-}
-    `;
-export const VolumeRangesFragmentDoc = gql`
-    fragment VolumeRanges on VolumeRange {
-  flatAmount
-  fromValue
-  perUnitAmount
-  toValue
-}
-    `;
-export const TaxForTaxesSelectorSectionFragmentDoc = gql`
-    fragment TaxForTaxesSelectorSection on Tax {
-  id
-  code
-  name
-  rate
-}
-    `;
-export const ChargeForFixedChargeOptionsAccordionFragmentDoc = gql`
-    fragment ChargeForFixedChargeOptionsAccordion on FixedCharge {
-  id
-  payInAdvance
-  prorated
-}
-    `;
-export const FixedChargeAccordionFragmentDoc = gql`
-    fragment FixedChargeAccordion on FixedCharge {
-  id
-  chargeModel
-  invoiceDisplayName
-  payInAdvance
-  prorated
-  units
-  addOn {
-    ...addOnForFixedChargeAccordion
-  }
-  properties {
-    graduatedRanges {
-      ...GraduatedCharge
-    }
-    volumeRanges {
-      ...VolumeRanges
-    }
-  }
-  taxes {
-    ...TaxForTaxesSelectorSection
-  }
-  ...ChargeForFixedChargeOptionsAccordion
-}
-    ${AddOnForFixedChargeAccordionFragmentDoc}
-${GraduatedChargeFragmentDoc}
-${VolumeRangesFragmentDoc}
-${TaxForTaxesSelectorSectionFragmentDoc}
-${ChargeForFixedChargeOptionsAccordionFragmentDoc}`;
-export const PlanForFixedChargeAccordionFragmentDoc = gql`
-    fragment PlanForFixedChargeAccordion on Plan {
-  billFixedChargesMonthly
-}
-    `;
 export const BillableMetricForUsageChargeSectionFragmentDoc = gql`
     fragment BillableMetricForUsageChargeSection on BillableMetric {
   id
@@ -15772,6 +15700,14 @@ export const InvoiceCreateCreditNoteFragmentDoc = gql`
 }
     ${InvoiceFeeFragmentDoc}
 ${CreateCreditNoteInvoiceFragmentDoc}`;
+export const TaxForTaxesSelectorSectionFragmentDoc = gql`
+    fragment TaxForTaxesSelectorSection on Tax {
+  id
+  code
+  name
+  rate
+}
+    `;
 export const EditAddOnFragmentDoc = gql`
     fragment EditAddOn on AddOn {
   id
@@ -16132,11 +16068,27 @@ export const BillableMetricForPlanFragmentDoc = gql`
   }
 }
     `;
+export const GraduatedChargeFragmentDoc = gql`
+    fragment GraduatedCharge on GraduatedRange {
+  flatAmount
+  fromValue
+  perUnitAmount
+  toValue
+}
+    `;
 export const GraduatedPercentageChargeFragmentDoc = gql`
     fragment GraduatedPercentageCharge on GraduatedPercentageRange {
   flatAmount
   fromValue
   rate
+  toValue
+}
+    `;
+export const VolumeRangesFragmentDoc = gql`
+    fragment VolumeRanges on VolumeRange {
+  flatAmount
+  fromValue
+  perUnitAmount
   toValue
 }
     `;

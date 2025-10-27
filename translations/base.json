@@ -3483,5 +3483,10 @@
   "text_1760729707267wn4kdsg4mpi": "Based on the subscription start and end date of the billing period.",
   "text_1760729707267seik64l67k8": "Tax rates (optional)",
   "text_17607297072672w5hid8gl1i": "Define a specific tax rate that will apply on this fixed charge",
-  "text_176072970726728iw4tc8ucl": "Fixed charges"
+  "text_176072970726728iw4tc8ucl": "Fixed charges",
+  "text_1760729707268c05r06ip8vg": "Recurring fees independent of usage-based events, often used for integrations, seats, or other add-ons.",
+  "text_1760729707268reew4lqsqof": "Apply fixed charges montlhy",
+  "text_1760729707268ge00k7a7e84": "If true, all fixed charges will be invoiced monthly, even if the plan is yearly.",
+  "text_1760729707268h378x60alri": "This Add-On is already used for a different fixed charge.",
+  "text_176072970726882uau5y69f1": "Add a fixed charge"
 }

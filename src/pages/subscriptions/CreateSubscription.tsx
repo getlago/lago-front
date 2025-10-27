@@ -36,6 +36,7 @@ import {
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
@@ -52,6 +53,7 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
 } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
@@ -238,6 +240,7 @@ const CreateSubscription = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const isResponsive = useMediaQuery(`(max-width:${BREAKPOINT_LG - 1}px)`)
+  const hasAccessToFixedChargesFeature = isFeatureFlagActive(FeatureFlags.FIXED_CHARGES)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -872,6 +875,17 @@ const CreateSubscription = () => {
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
                             />
+
+                            {hasAccessToFixedChargesFeature && (
+                              <FixedChargesSection
+                                canBeEdited={formType === FORM_TYPE_ENUM.edition}
+                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                                formikProps={planFormikProps}
+                                isEdition={formType === FORM_TYPE_ENUM.edition}
+                                isInSubscriptionForm={isInSubscriptionForm}
+                                premiumWarningDialogRef={premiumWarningDialogRef}
+                              />
+                            )}
 
                             <UsageChargesSection
                               alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
