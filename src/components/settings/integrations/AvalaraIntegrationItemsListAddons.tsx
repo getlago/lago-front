@@ -5,6 +5,7 @@ import { CREATE_ADD_ON_ROUTE } from '~/core/router'
 import {
   GetAddOnsForAvalaraItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetAddOnsForAvalaraItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -63,7 +64,7 @@ const AvalaraIntegrationItemsListAddons = ({
         integrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
         createRoute={CREATE_ADD_ON_ROUTE}
         mappableType={MappableTypeEnum.AddOn}
-        provider="avalara"
+        provider={IntegrationTypeEnum.Avalara}
       />
     </div>
   )

@@ -6,6 +6,7 @@ import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   GetBillableMetricsForXeroItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetBillableMetricsForXeroItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -66,7 +67,7 @@ const XeroIntegrationItemsListBillableMetrics = ({
         integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
         createRoute={CREATE_BILLABLE_METRIC_ROUTE}
         mappableType={MappableTypeEnum.BillableMetric}
-        provider="xero"
+        provider={IntegrationTypeEnum.Xero}
       />
     </Stack>
   )

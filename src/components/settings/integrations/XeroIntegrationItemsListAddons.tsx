@@ -6,6 +6,7 @@ import { CREATE_ADD_ON_ROUTE } from '~/core/router'
 import {
   GetAddOnsForXeroItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetAddOnsForXeroItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -64,7 +65,7 @@ const XeroIntegrationItemsListAddons = ({
         integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
         createRoute={CREATE_ADD_ON_ROUTE}
         mappableType={MappableTypeEnum.AddOn}
-        provider="xero"
+        provider={IntegrationTypeEnum.Xero}
       />
     </Stack>
   )

@@ -4,6 +4,7 @@ import { AnrokIntegrationMapItemDialogRef } from '~/components/settings/integrat
 import { AvalaraIntegrationMapItemDialogRef } from '~/components/settings/integrations/AvalaraIntegrationMapItemDialog'
 import { NetsuiteIntegrationMapItemDialogRef } from '~/components/settings/integrations/NetsuiteIntegrationMapItemDialog'
 import { XeroIntegrationMapItemDialogRef } from '~/components/settings/integrations/XeroIntegrationMapItemDialog'
+import { PickEnum } from '~/core/types/pickEnum.type'
 import {
   GetAddOnsForAnrokItemsListQuery,
   GetAddOnsForAvalaraItemsListQuery,
@@ -14,8 +15,8 @@ import {
   GetBillableMetricsForNetsuiteItemsListQuery,
   GetBillableMetricsForXeroItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
-  MappingTypeEnum,
   useGetAddOnsForAnrokItemsListLazyQuery,
   useGetAddOnsForAvalaraItemsListLazyQuery,
   useGetAddOnsForNetsuiteItemsListLazyQuery,
@@ -55,6 +56,14 @@ export type FetchableIntegrationMapItemDialogRef = RefObject<
   | XeroIntegrationMapItemDialogRef
 >
 
+type FetchableIntegrationProvider = PickEnum<
+  IntegrationTypeEnum,
+  | IntegrationTypeEnum.Anrok
+  | IntegrationTypeEnum.Avalara
+  | IntegrationTypeEnum.Netsuite
+  | IntegrationTypeEnum.Xero
+>
+
 export type FetchIntegrationItemsListProps = {
   integrationId: string
   data: FetchableIntegrationItemsListData
@@ -64,8 +73,8 @@ export type FetchIntegrationItemsListProps = {
   isLoading: boolean
   integrationMapItemDialogRef: FetchableIntegrationMapItemDialogRef
   createRoute: string
-  mappableType: MappingTypeEnum | MappableTypeEnum
-  provider: 'anrok' | 'avalara' | 'netsuite' | 'xero'
+  mappableType: MappableTypeEnum
+  provider: FetchableIntegrationProvider
 }
 
 export type FetchableIntegrationItemErrorProps = {
@@ -74,6 +83,6 @@ export type FetchableIntegrationItemErrorProps = {
 
 export type FetchableIntegrationItemEmptyProps = {
   hasSearchTerm: boolean
-  type: MappingTypeEnum | MappableTypeEnum
+  type: MappableTypeEnum
   createRoute: string
 }

@@ -6,6 +6,7 @@ import { CREATE_ADD_ON_ROUTE } from '~/core/router'
 import {
   GetAddOnsForNetsuiteItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetAddOnsForNetsuiteItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -64,7 +65,7 @@ const NetsuiteIntegrationItemsListAddons = ({
         integrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
         createRoute={CREATE_ADD_ON_ROUTE}
         mappableType={MappableTypeEnum.AddOn}
-        provider="netsuite"
+        provider={IntegrationTypeEnum.Netsuite}
       />
     </Stack>
   )

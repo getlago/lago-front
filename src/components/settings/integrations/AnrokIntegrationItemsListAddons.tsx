@@ -6,6 +6,7 @@ import { CREATE_ADD_ON_ROUTE } from '~/core/router'
 import {
   GetAddOnsForAnrokItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetAddOnsForAnrokItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -64,7 +65,7 @@ const AnrokIntegrationItemsListAddons = ({
         integrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
         createRoute={CREATE_ADD_ON_ROUTE}
         mappableType={MappableTypeEnum.AddOn}
-        provider="anrok"
+        provider={IntegrationTypeEnum.Anrok}
       />
     </Stack>
   )

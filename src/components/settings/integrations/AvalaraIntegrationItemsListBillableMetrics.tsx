@@ -5,6 +5,7 @@ import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   GetBillableMetricsForAvalaraItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetBillableMetricsForAvalaraItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -65,7 +66,7 @@ const AvalaraIntegrationItemsListBillableMetrics = ({
         integrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
         createRoute={CREATE_BILLABLE_METRIC_ROUTE}
         mappableType={MappableTypeEnum.BillableMetric}
-        provider="avalara"
+        provider={IntegrationTypeEnum.Avalara}
       />
     </div>
   )
