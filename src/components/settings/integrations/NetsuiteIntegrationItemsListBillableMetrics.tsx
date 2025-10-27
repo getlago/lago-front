@@ -6,6 +6,7 @@ import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   GetBillableMetricsForNetsuiteItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetBillableMetricsForNetsuiteItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -66,7 +67,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
         integrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
         createRoute={CREATE_BILLABLE_METRIC_ROUTE}
         mappableType={MappableTypeEnum.BillableMetric}
-        provider="netsuite"
+        provider={IntegrationTypeEnum.Netsuite}
       />
     </Stack>
   )

@@ -1,5 +1,5 @@
 import { InfiniteScroll } from '~/components/designSystem'
-import { createRangeArray } from '~/core/utils/createRangeArray'
+import { createNumberRangeArray } from '~/core/utils/createNumberRangeArray'
 import { FetchIntegrationItemsListProps } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
 import { IntegrationItemLine } from '~/pages/settings/integrations/IntegrationItem'
 
@@ -24,7 +24,7 @@ const FetchableIntegrationItemList = ({
 
   const displayCorrectState = () => {
     if (isLoading) {
-      return createRangeArray(3).map((i) => (
+      return createNumberRangeArray(3).map((i) => (
         <IntegrationItemLine
           key={`fetchable-integration-item-skeleton-${i}`}
           icon="pulse"

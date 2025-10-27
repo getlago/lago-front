@@ -6,6 +6,7 @@ import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   GetBillableMetricsForAnrokItemsListQuery,
   InputMaybe,
+  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetBillableMetricsForAnrokItemsListLazyQuery,
 } from '~/generated/graphql'
@@ -66,7 +67,7 @@ const AnrokIntegrationItemsListBillableMetrics = ({
         integrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
         createRoute={CREATE_BILLABLE_METRIC_ROUTE}
         mappableType={MappableTypeEnum.BillableMetric}
-        provider="anrok"
+        provider={IntegrationTypeEnum.Anrok}
       />
     </Stack>
   )

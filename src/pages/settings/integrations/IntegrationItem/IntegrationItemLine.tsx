@@ -26,6 +26,16 @@ const IntegrationItemLine = ({
 }: TIntegrationItemLineProps) => {
   const { translate } = useInternationalization()
 
+  const statusType = !!mappingInfos ? StatusType.success : StatusType.warning
+
+  const getStatusLabel = () => {
+    if (!mappingInfos) {
+      return translate('text_6630e3210c13c500cd398e9a')
+    }
+
+    return `${mappingInfos.name}${!!mappingInfos.id ? ` (${mappingInfos.id})` : ''} `
+  }
+
   if (loading) {
     return (
       <div className="flex h-nav w-full items-center justify-between px-12 py-3 shadow-b">
@@ -61,14 +71,7 @@ const IntegrationItemLine = ({
         </Stack>
       </Stack>
 
-      <Status
-        type={!!mappingInfos ? StatusType.success : StatusType.warning}
-        label={
-          !!mappingInfos
-            ? `${mappingInfos.name}${!!mappingInfos.id ? ` (${mappingInfos.id})` : ''} `
-            : translate('text_6630e3210c13c500cd398e9a')
-        }
-      />
+      <Status type={statusType} label={getStatusLabel()} />
     </button>
   )
 }

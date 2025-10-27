@@ -4,7 +4,7 @@
  * @param startAt starting number
  * @returns array of numbers
  */
-export const createRangeArray = (size: number, startAt = 0): ReadonlyArray<number> => {
+export const createNumberRangeArray = (size: number, startAt = 0): ReadonlyArray<number> => {
   if (!size || isNaN(size) || size < 1) {
     return []
   }
