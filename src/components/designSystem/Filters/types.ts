@@ -46,6 +46,7 @@ export enum AvailableFiltersEnum {
   activeSubscriptions = 'activeSubscriptions',
   amount = 'amount',
   apiKeyIds = 'apiKeyIds',
+  billableMetricCode = 'billableMetricCode',
   billingEntityIds = 'billingEntityIds',
   billingEntityCode = 'billingEntityCode',
   country = 'country',
@@ -227,6 +228,7 @@ export const UsageBillableMetricAvailableFilters = [
 ]
 
 export const ForecastsAvailableFilters = [
+  AvailableFiltersEnum.billableMetricCode,
   AvailableFiltersEnum.billingEntityCode,
   AvailableFiltersEnum.country,
   AvailableFiltersEnum.currency,
@@ -272,6 +274,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activeSubscriptions]: 'text_65281f686a80b400c8e2f6be',
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
   [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
+  [AvailableFiltersEnum.billableMetricCode]: 'text_1761553933730mc7ttuol4be',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
   [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',

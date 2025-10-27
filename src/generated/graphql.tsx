@@ -12445,6 +12445,7 @@ export type GetFeaturesListQueryVariables = Exact<{
 export type GetFeaturesListQuery = { __typename?: 'Query', features: { __typename?: 'FeatureObjectCollection', collection: Array<{ __typename?: 'FeatureObject', id: string, name?: string | null, code: string, createdAt: any, subscriptionsCount: number }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
 
 export type GetForecastsQueryVariables = Exact<{
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
@@ -34056,8 +34057,9 @@ export type GetFeaturesListLazyQueryHookResult = ReturnType<typeof useGetFeature
 export type GetFeaturesListSuspenseQueryHookResult = ReturnType<typeof useGetFeaturesListSuspenseQuery>;
 export type GetFeaturesListQueryResult = Apollo.QueryResult<GetFeaturesListQuery, GetFeaturesListQueryVariables>;
 export const GetForecastsDocument = gql`
-    query getForecasts($billingEntityCode: String, $currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $isCustomerTinEmpty: Boolean, $externalSubscriptionId: String, $planCode: String, $fromDate: ISO8601Date, $toDate: ISO8601Date, $timeGranularity: TimeGranularityEnum) {
+    query getForecasts($billableMetricCode: String, $billingEntityCode: String, $currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $isCustomerTinEmpty: Boolean, $externalSubscriptionId: String, $planCode: String, $fromDate: ISO8601Date, $toDate: ISO8601Date, $timeGranularity: TimeGranularityEnum) {
   dataApiUsagesForecasted(
+    billableMetricCode: $billableMetricCode
     billingEntityCode: $billingEntityCode
     currency: $currency
     customerCountry: $customerCountry
@@ -34099,6 +34101,7 @@ export const GetForecastsDocument = gql`
  * @example
  * const { data, loading, error } = useGetForecastsQuery({
  *   variables: {
+ *      billableMetricCode: // value for 'billableMetricCode'
  *      billingEntityCode: // value for 'billingEntityCode'
  *      currency: // value for 'currency'
  *      customerCountry: // value for 'customerCountry'

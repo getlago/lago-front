@@ -23,6 +23,7 @@ import { formatForecastsData } from '~/pages/forecasts/utils'
 
 gql`
   query getForecasts(
+    $billableMetricCode: String
     $billingEntityCode: String
     $currency: CurrencyEnum
     $customerCountry: CountryCode
@@ -36,6 +37,7 @@ gql`
     $timeGranularity: TimeGranularityEnum
   ) {
     dataApiUsagesForecasted(
+      billableMetricCode: $billableMetricCode
       billingEntityCode: $billingEntityCode
       currency: $currency
       customerCountry: $customerCountry

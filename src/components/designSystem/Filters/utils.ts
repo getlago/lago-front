@@ -202,6 +202,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.zipcodes]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.billableMetricCode]: (value: string) => value,
 }
 
 // NOTE: this is fixing list fetching issue when new item are added to the DB and user scrolls to the bottom of the list
@@ -636,6 +637,8 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
+    case AvailableFiltersEnum.billableMetricCode:
+      return value
     case AvailableFiltersEnum.billingEntityCode:
       return value
     default:

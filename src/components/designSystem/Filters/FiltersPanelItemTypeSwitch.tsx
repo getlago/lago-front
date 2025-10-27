@@ -5,6 +5,7 @@ import { FiltersItemActivitySources } from '~/components/designSystem/Filters/fi
 import { FiltersItemActivityTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityTypes'
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
 import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiKeyIds'
+import { FiltersItemBillableMetricCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillableMetricCode'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemBillingEntityCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityCode'
 import { FiltersItemCountries } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountries'
@@ -114,6 +115,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
     [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
     [AvailableFiltersEnum.zipcodes]: <FiltersItemZipcodes {...props} />,
+    [AvailableFiltersEnum.billableMetricCode]: <FiltersItemBillableMetricCode {...props} />,
   }
 
   return (
