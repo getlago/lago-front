@@ -1,5 +1,6 @@
 import { InfiniteScroll } from '~/components/designSystem'
 import { createNumberRangeArray } from '~/core/utils/createNumberRangeArray'
+import { IntegrationTypeEnum, MappableTypeEnum } from '~/generated/graphql'
 import { FetchIntegrationItemsListProps } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
 import { IntegrationItemLine } from '~/pages/settings/integrations/IntegrationItem'
 
@@ -78,7 +79,7 @@ const FetchableIntegrationItemList = ({
         return undefined
       }
 
-      if (provider === 'xero') {
+      if (provider === IntegrationTypeEnum.Xero) {
         return {
           id: itemMapping.externalAccountCode ?? undefined,
           name: itemMapping.externalName ?? '',
@@ -118,7 +119,7 @@ const FetchableIntegrationItemList = ({
             return (
               <IntegrationItemLine
                 key={`billableMetric-item-${itemToDisplay.id}`}
-                icon="pulse"
+                icon={mappableType === MappableTypeEnum.AddOn ? 'puzzle' : 'pulse'}
                 label={itemToDisplay.name}
                 description={itemToDisplay.code}
                 loading={false}

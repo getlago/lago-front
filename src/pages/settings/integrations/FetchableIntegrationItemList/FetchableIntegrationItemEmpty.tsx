@@ -7,7 +7,7 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 
 import { FetchableIntegrationItemEmptyProps } from './types'
 
-const FetchableIntegrationItemError = ({
+const FetchableIntegrationItemEmpty = ({
   hasSearchTerm,
   type,
   createRoute,
@@ -56,4 +56,4 @@ const FetchableIntegrationItemError = ({
   )
 }
 
-export default FetchableIntegrationItemError
+export default FetchableIntegrationItemEmpty
