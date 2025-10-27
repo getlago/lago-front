@@ -198,7 +198,7 @@ const AnrokIntegrationDetails = () => {
             component: <AnrokIntegrationSettings />,
           },
           {
-            title: translate('text_661ff6e56ef7e1b7c542b200'),
+            title: translate('text_1761319649394ft46yvka31r'),
             link: generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: AnrokIntegrationDetailsTabs.Items,

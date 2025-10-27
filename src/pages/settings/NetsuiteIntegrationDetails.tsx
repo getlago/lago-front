@@ -198,7 +198,7 @@ const NetsuiteIntegrationDetails = () => {
             component: <NetsuiteIntegrationSettings />,
           },
           {
-            title: translate('text_661ff6e56ef7e1b7c542b200'),
+            title: translate('text_1761319649394ft46yvka31r'),
             link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: NetsuiteIntegrationDetailsTabs.Items,
