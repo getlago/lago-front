@@ -130,7 +130,7 @@ export const ForecastsOverviewSection = ({
         <AnalyticsStateProvider>
           <MultipleLineChart
             xAxisDataKey="startOfPeriodDt"
-            xAxisTickAttributes={['endOfPeriodDt', 'startOfPeriodDt']}
+            xAxisTickAttributes={['endOfPeriodDt', 'endOfPeriodDt']}
             currency={selectedCurrency}
             data={data}
             loading={isLoading}
