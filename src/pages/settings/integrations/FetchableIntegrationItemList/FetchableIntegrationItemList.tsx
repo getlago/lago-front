@@ -91,11 +91,10 @@ const FetchableIntegrationItemList = ({
       }
     }
 
-    const getOnMappingClick = (itemMapping: unknown, itemToDisplay: (typeof itemsToDisplay)[0]) => {
-      if (!isItemMapping(itemMapping) || !itemMapping.id) {
-        return
-      }
-
+    const getOnMappingClick = (
+      itemMapping: NonNullable<(typeof itemsToDisplay)[0]['integrationMappings']>[0] | undefined,
+      itemToDisplay: (typeof itemsToDisplay)[0],
+    ) => {
       integrationMapItemDialogRef.current?.openDialog({
         integrationId,
         type: mappableType,
