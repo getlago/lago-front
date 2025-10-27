@@ -20,7 +20,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-const ACTIVE_WALLET_COUNT_LIMIT = 5
+const ACTIVE_WALLET_COUNT_LIMIT = 1
 
 gql`
   fragment CustomerWallet on Wallet {
@@ -87,9 +87,13 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
           <>
             {hasPermissions(['walletsCreate']) && (
               <Tooltip
-                title={translate('text_176071328361044kwwdb4re4', {
-                  count: ACTIVE_WALLET_COUNT_LIMIT,
-                })}
+                title={translate(
+                  'text_176071328361044kwwdb4re4',
+                  {
+                    count: ACTIVE_WALLET_COUNT_LIMIT,
+                  },
+                  ACTIVE_WALLET_COUNT_LIMIT,
+                )}
                 disableHoverListener={!hasMoreThanActiveWalletsLimit}
               >
                 <Button

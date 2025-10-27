@@ -3479,5 +3479,5 @@
   "text_1755697949545w7vb1hox4n5": "Wallet priority",
   "text_175569794954699gxpjhn4fe": "Order in which this wallet is used compared to others (1 and 50 — 1 is the highest). If wallets share the same priority, the oldest will be used first.",
   "text_1755697949546zuqgeved2ma": "Type a priority. Default to 50",
-  "text_176071328361044kwwdb4re4": "We only allow creating up to {{count}} active wallets"
+  "text_176071328361044kwwdb4re4": "We only allow creating up to {{count}} active wallet|We only allow creating up to {{count}} active wallets"
 }
