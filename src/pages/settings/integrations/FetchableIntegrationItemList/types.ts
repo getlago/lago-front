@@ -67,3 +67,13 @@ export type FetchIntegrationItemsListProps = {
   mappableType: MappingTypeEnum | MappableTypeEnum
   provider: 'anrok' | 'avalara' | 'netsuite' | 'xero'
 }
+
+export type FetchableIntegrationItemErrorProps = {
+  hasSearchTerm: boolean
+}
+
+export type FetchableIntegrationItemEmptyProps = {
+  hasSearchTerm: boolean
+  type: MappingTypeEnum | MappableTypeEnum
+  createRoute: string
+}
