@@ -10051,6 +10051,12 @@ export type GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables
 
 export type GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery = { __typename?: 'Query', feature: { __typename?: 'FeatureObject', id: string, code: string, name?: string | null, privileges: Array<{ __typename?: 'PrivilegeObject', id: string, name?: string | null, code: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> } };
 
+export type AddOnForFixedChargeAccordionFragment = { __typename?: 'AddOn', id: string, name: string, code: string };
+
+export type FixedChargeAccordionFragment = { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, invoiceDisplayName?: string | null, payInAdvance: boolean, prorated: boolean, units: string, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
+
+export type PlanForFixedChargeAccordionFragment = { __typename?: 'Plan', billFixedChargesMonthly?: boolean | null };
+
 export type GraduatedChargeFragment = { __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
 
 export type GraduatedPercentageChargeFragment = { __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null };
@@ -10101,6 +10107,8 @@ export type GetRecurringBillableMetricsQueryVariables = Exact<{
 export type GetRecurringBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }> } };
 
 export type VolumeRangesFragment = { __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
+
+export type ChargeForFixedChargeOptionsAccordionFragment = { __typename?: 'FixedCharge', id: string, payInAdvance: boolean, prorated: boolean };
 
 export type ChargeForUsageChargeOptionsAccordionFragment = { __typename?: 'Charge', id: string, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null };
 
@@ -14712,6 +14720,78 @@ export const FeatureObjectEntitlementPrivilegeForPlanFragmentDoc = gql`
   }
 }
     `;
+export const AddOnForFixedChargeAccordionFragmentDoc = gql`
+    fragment addOnForFixedChargeAccordion on AddOn {
+  id
+  name
+  code
+}
+    `;
+export const GraduatedChargeFragmentDoc = gql`
+    fragment GraduatedCharge on GraduatedRange {
+  flatAmount
+  fromValue
+  perUnitAmount
+  toValue
+}
+    `;
+export const VolumeRangesFragmentDoc = gql`
+    fragment VolumeRanges on VolumeRange {
+  flatAmount
+  fromValue
+  perUnitAmount
+  toValue
+}
+    `;
+export const TaxForTaxesSelectorSectionFragmentDoc = gql`
+    fragment TaxForTaxesSelectorSection on Tax {
+  id
+  code
+  name
+  rate
+}
+    `;
+export const ChargeForFixedChargeOptionsAccordionFragmentDoc = gql`
+    fragment ChargeForFixedChargeOptionsAccordion on FixedCharge {
+  id
+  payInAdvance
+  prorated
+}
+    `;
+export const FixedChargeAccordionFragmentDoc = gql`
+    fragment FixedChargeAccordion on FixedCharge {
+  id
+  chargeModel
+  invoiceDisplayName
+  payInAdvance
+  prorated
+  units
+  addOn {
+    ...addOnForFixedChargeAccordion
+  }
+  properties {
+    graduatedRanges {
+      ...GraduatedCharge
+    }
+    volumeRanges {
+      ...VolumeRanges
+    }
+  }
+  taxes {
+    ...TaxForTaxesSelectorSection
+  }
+  ...ChargeForFixedChargeOptionsAccordion
+}
+    ${AddOnForFixedChargeAccordionFragmentDoc}
+${GraduatedChargeFragmentDoc}
+${VolumeRangesFragmentDoc}
+${TaxForTaxesSelectorSectionFragmentDoc}
+${ChargeForFixedChargeOptionsAccordionFragmentDoc}`;
+export const PlanForFixedChargeAccordionFragmentDoc = gql`
+    fragment PlanForFixedChargeAccordion on Plan {
+  billFixedChargesMonthly
+}
+    `;
 export const BillableMetricForUsageChargeSectionFragmentDoc = gql`
     fragment BillableMetricForUsageChargeSection on BillableMetric {
   id
@@ -15688,14 +15768,6 @@ export const InvoiceCreateCreditNoteFragmentDoc = gql`
 }
     ${InvoiceFeeFragmentDoc}
 ${CreateCreditNoteInvoiceFragmentDoc}`;
-export const TaxForTaxesSelectorSectionFragmentDoc = gql`
-    fragment TaxForTaxesSelectorSection on Tax {
-  id
-  code
-  name
-  rate
-}
-    `;
 export const EditAddOnFragmentDoc = gql`
     fragment EditAddOn on AddOn {
   id
@@ -16056,27 +16128,11 @@ export const BillableMetricForPlanFragmentDoc = gql`
   }
 }
     `;
-export const GraduatedChargeFragmentDoc = gql`
-    fragment GraduatedCharge on GraduatedRange {
-  flatAmount
-  fromValue
-  perUnitAmount
-  toValue
-}
-    `;
 export const GraduatedPercentageChargeFragmentDoc = gql`
     fragment GraduatedPercentageCharge on GraduatedPercentageRange {
   flatAmount
   fromValue
   rate
-  toValue
-}
-    `;
-export const VolumeRangesFragmentDoc = gql`
-    fragment VolumeRanges on VolumeRange {
-  flatAmount
-  fromValue
-  perUnitAmount
   toValue
 }
     `;
