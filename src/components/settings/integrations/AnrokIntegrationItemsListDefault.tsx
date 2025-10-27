@@ -3,7 +3,7 @@ import { Stack } from '@mui/material'
 import { RefObject, useMemo } from 'react'
 
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { MappingTypeEnum, NetsuiteIntegrationItemsListDefaultFragment } from '~/generated/graphql'
+import { AnrokIntegrationItemsListDefaultFragment, MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   IntegrationItemHeader,
@@ -23,21 +23,21 @@ gql`
   }
 `
 
-type NetsuiteIntegrationItemsListDefaultProps = {
-  defaultItems: NetsuiteIntegrationItemsListDefaultFragment[] | undefined
+type AnrokIntegrationItemsListDefaultProps = {
+  defaultItems: AnrokIntegrationItemsListDefaultFragment[] | undefined
   hasError: boolean
   integrationId: string
   isLoading: boolean
   anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
 }
 
-const NetsuiteIntegrationItemsListDefault = ({
+const AnrokIntegrationItemsListDefault = ({
   defaultItems,
   hasError,
   integrationId,
   isLoading,
   anrokIntegrationMapItemDialogRef,
-}: NetsuiteIntegrationItemsListDefaultProps) => {
+}: AnrokIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
   const { fallbackItem, minimumCommitment, subscriptionFee } = useMemo(() => {
@@ -144,4 +144,4 @@ const NetsuiteIntegrationItemsListDefault = ({
   )
 }
 
-export default NetsuiteIntegrationItemsListDefault
+export default AnrokIntegrationItemsListDefault
