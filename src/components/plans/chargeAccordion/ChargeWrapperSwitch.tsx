@@ -15,8 +15,18 @@ import { StandardCharge } from '~/components/plans/StandardCharge'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { ChargeModelEnum, CurrencyEnum, PropertiesInput } from '~/generated/graphql'
+import {
+  ChargeModelEnum,
+  CurrencyEnum,
+  FixedChargeChargeModelEnum,
+  PropertiesInput,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+const CHARGE_MODEL = {
+  ...ChargeModelEnum,
+  ...FixedChargeChargeModelEnum,
+} as const
 
 export type ChargeCursor = keyof Pick<PlanFormInput, 'charges' | 'fixedCharges'>
 
@@ -27,6 +37,7 @@ interface ChargeWrapperSwitchProps {
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
+  isEdition: boolean
   filterIndex?: number
   formikProps: FormikProps<PlanFormInput>
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
@@ -38,13 +49,14 @@ interface ChargeWrapperSwitchProps {
 export const ChargeWrapperSwitch = memo(
   ({
     chargeCursor,
-    chargeIndex,
     chargeErrors,
+    chargeIndex,
     chargePricingUnitShortName,
     currency,
     disabled,
     filterIndex,
     formikProps,
+    isEdition,
     premiumWarningDialogRef,
     propertyCursor,
     setFieldValue,
@@ -57,7 +69,7 @@ export const ChargeWrapperSwitch = memo(
 
     return (
       <div className="m-4 flex flex-col gap-6">
-        {localCharge?.chargeModel === ChargeModelEnum.Standard && (
+        {localCharge?.chargeModel === CHARGE_MODEL.Standard && (
           <>
             <StandardCharge
               chargeCursor={chargeCursor}
@@ -71,7 +83,7 @@ export const ChargeWrapperSwitch = memo(
             />
           </>
         )}
-        {localCharge?.chargeModel === ChargeModelEnum.Package && (
+        {localCharge?.chargeModel === CHARGE_MODEL.Package && (
           <PackageCharge
             chargeCursor={chargeCursor}
             chargeErrors={chargeErrors}
@@ -84,7 +96,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === ChargeModelEnum.Graduated && (
+        {localCharge?.chargeModel === CHARGE_MODEL.Graduated && (
           <GraduatedChargeTable
             chargeCursor={chargeCursor}
             chargeIndex={chargeIndex}
@@ -96,7 +108,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === ChargeModelEnum.GraduatedPercentage && (
+        {localCharge?.chargeModel === CHARGE_MODEL.GraduatedPercentage && (
           <GraduatedPercentageChargeTable
             chargeCursor={chargeCursor}
             chargeIndex={chargeIndex}
@@ -108,7 +120,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === ChargeModelEnum.Percentage && (
+        {localCharge?.chargeModel === CHARGE_MODEL.Percentage && (
           <ChargePercentage
             chargeCursor={chargeCursor}
             chargeErrors={chargeErrors}
@@ -123,7 +135,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === ChargeModelEnum.Volume && (
+        {localCharge?.chargeModel === CHARGE_MODEL.Volume && (
           <VolumeChargeTable
             chargeCursor={chargeCursor}
             chargeIndex={chargeIndex}
@@ -135,7 +147,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === ChargeModelEnum.Custom && (
+        {localCharge?.chargeModel === CHARGE_MODEL.Custom && (
           <CustomCharge
             chargeCursor={chargeCursor}
             chargeErrors={chargeErrors}
@@ -146,7 +158,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
           />
         )}
-        {localCharge?.chargeModel === ChargeModelEnum.Dynamic && <DynamicCharge />}
+        {localCharge?.chargeModel === CHARGE_MODEL.Dynamic && <DynamicCharge />}
 
         {isUsageCharge && (
           <PricingGroupKeys
@@ -166,15 +178,17 @@ export const ChargeWrapperSwitch = memo(
               value={localCharge.units}
             />
 
-            <Switch
-              name={`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`}
-              label={translate('text_1760721761361octnb0dfqm5')}
-              subLabel={translate('text_1760721761361lqhc17vjr2b')}
-              onChange={(value) =>
-                setFieldValue(`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`, value)
-              }
-              checked={localCharge.applyUnitsImmediately || false}
-            />
+            {isEdition && (
+              <Switch
+                name={`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`}
+                label={translate('text_1760721761361octnb0dfqm5')}
+                subLabel={translate('text_1760721761361lqhc17vjr2b')}
+                onChange={(value) =>
+                  setFieldValue(`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`, value)
+                }
+                checked={localCharge.applyUnitsImmediately || false}
+              />
+            )}
           </>
         )}
       </div>
