@@ -44,3 +44,18 @@ export const mapChargeIntervalCopy = (
 
   return ''
 }
+
+export const returnFirstDefinedArrayRatesSumAsString = (
+  arr1: Array<{ rate: number }>,
+  arr2?: Array<{ rate: number }>,
+): string | undefined => {
+  if (arr1.length) {
+    return String(arr1.reduce((acc, curr) => acc + curr.rate, 0))
+  }
+
+  if (arr2?.length) {
+    return String(arr2.reduce((acc, curr) => acc + curr.rate, 0))
+  }
+
+  return undefined
+}

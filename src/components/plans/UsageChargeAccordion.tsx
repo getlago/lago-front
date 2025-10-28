@@ -19,7 +19,10 @@ import {
   HandleUpdateUsageChargesProps,
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
-import { mapChargeIntervalCopy } from '~/components/plans/utils'
+import {
+  mapChargeIntervalCopy,
+  returnFirstDefinedArrayRatesSumAsString,
+} from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
@@ -246,13 +249,11 @@ export const UsageChargeAccordion = memo(
     )
 
     const taxValueForBadgeDisplay = useMemo((): string | undefined => {
-      if (!localCharge?.taxes?.length && !formikProps?.values?.taxes?.length) return
-
-      if (localCharge.taxes?.length)
-        return String(localCharge.taxes.reduce((acc, cur) => acc + cur.rate, 0))
-
-      return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
-    }, [formikProps?.values?.taxes, localCharge.taxes])
+      return returnFirstDefinedArrayRatesSumAsString(
+        localCharge?.taxes || [],
+        formikProps?.values?.taxes || [],
+      )
+    }, [formikProps?.values?.taxes, localCharge?.taxes])
 
     const chargePricingUnitShortName = useMemo(
       () =>
