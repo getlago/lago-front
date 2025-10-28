@@ -1,5 +1,5 @@
 {
-  "extends": ["config:recommended", ":preserveSemverRanges"],
+  "extends": ["config:recommended"],
   "prConcurrentLimit": 10,
   "prHourlyLimit": 10,
   "branchConcurrentLimit": 10,
@@ -16,6 +16,11 @@
     "schedule": "at any time"
   },
   "packageRules": [
+    {
+      "matchDepTypes": ["engines"],
+      "rangeStrategy": "replace",
+      "commitMessagePrefix": "chore(deps-engines):"
+    },
     {
       "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
       "groupName": "React types",
