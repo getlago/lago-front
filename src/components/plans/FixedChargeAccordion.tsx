@@ -360,9 +360,6 @@ export const FixedChargeAccordion = memo(
                 onUpdate={(newTaxArray) => {
                   handleUpdate('taxes', newTaxArray)
                 }}
-                onDelete={(newTaxArray) => {
-                  handleUpdate('taxes', newTaxArray)
-                }}
               />
             </div>
           </FixedChargeOptionsAccordion>
