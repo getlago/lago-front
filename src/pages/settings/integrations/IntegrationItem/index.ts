@@ -1,6 +1,7 @@
 import IntegrationItemHeader from './IntegrationItemHeader'
 import IntegrationItemLine from './IntegrationItemLine'
+import IntegrationItemsTable from './IntegrationItemsTable'
 
-export type { IntegrationItem, IntegrationItemsSection } from './types'
+export type { IntegrationItem, IntegrationItemData } from './types'
 
-export { IntegrationItemHeader, IntegrationItemLine }
+export { IntegrationItemHeader, IntegrationItemLine, IntegrationItemsTable }

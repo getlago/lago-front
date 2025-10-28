@@ -1,6 +1,7 @@
 import { InfiniteScroll } from '~/components/designSystem'
 import { createNumberRangeArray } from '~/core/utils/createNumberRangeArray'
-import { IntegrationTypeEnum, MappableTypeEnum } from '~/generated/graphql'
+import { MappableTypeEnum } from '~/generated/graphql'
+import { getMappingInfos, ItemMapping } from '~/pages/settings/integrations/common'
 import { FetchIntegrationItemsListProps } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
 import { IntegrationItemLine } from '~/pages/settings/integrations/IntegrationItem'
 
@@ -61,39 +62,8 @@ const FetchableIntegrationItemList = ({
       }
     }
 
-    const isItemMapping = (
-      item: unknown,
-    ): item is NonNullable<(typeof itemsToDisplay)[0]['integrationMappings']>[0] => {
-      return (
-        typeof item === 'object' &&
-        item !== null &&
-        'id' in item &&
-        'externalName' in item &&
-        typeof item.externalName === 'string' &&
-        ('externalId' in item || 'externalAccountCode' in item)
-      )
-    }
-
-    const getMappingInfos = (itemMapping: unknown) => {
-      if (!isItemMapping(itemMapping) || !itemMapping.id) {
-        return undefined
-      }
-
-      if (provider === IntegrationTypeEnum.Xero) {
-        return {
-          id: itemMapping.externalAccountCode ?? undefined,
-          name: itemMapping.externalName ?? '',
-        }
-      }
-
-      return {
-        id: itemMapping.externalId ?? undefined,
-        name: itemMapping.externalName ?? '',
-      }
-    }
-
     const getOnMappingClick = (
-      itemMapping: NonNullable<(typeof itemsToDisplay)[0]['integrationMappings']>[0] | undefined,
+      itemMapping: ItemMapping | undefined,
       itemToDisplay: (typeof itemsToDisplay)[0],
     ) => {
       integrationMapItemDialogRef.current?.openDialog({
@@ -124,7 +94,7 @@ const FetchableIntegrationItemList = ({
                 description={itemToDisplay.code}
                 loading={false}
                 onMappingClick={() => getOnMappingClick(itemMapping, itemToDisplay)}
-                mappingInfos={getMappingInfos(itemMapping)}
+                mappingInfos={getMappingInfos(itemMapping, provider)}
               />
             )
           })}

@@ -1,10 +1,3 @@
-import { RefObject } from 'react'
-
-import { AnrokIntegrationMapItemDialogRef } from '~/components/settings/integrations/AnrokIntegrationMapItemDialog'
-import { AvalaraIntegrationMapItemDialogRef } from '~/components/settings/integrations/AvalaraIntegrationMapItemDialog'
-import { NetsuiteIntegrationMapItemDialogRef } from '~/components/settings/integrations/NetsuiteIntegrationMapItemDialog'
-import { XeroIntegrationMapItemDialogRef } from '~/components/settings/integrations/XeroIntegrationMapItemDialog'
-import { PickEnum } from '~/core/types/pickEnum.type'
 import {
   GetAddOnsForAnrokItemsListQuery,
   GetAddOnsForAvalaraItemsListQuery,
@@ -15,7 +8,6 @@ import {
   GetBillableMetricsForNetsuiteItemsListQuery,
   GetBillableMetricsForXeroItemsListQuery,
   InputMaybe,
-  IntegrationTypeEnum,
   MappableTypeEnum,
   useGetAddOnsForAnrokItemsListLazyQuery,
   useGetAddOnsForAvalaraItemsListLazyQuery,
@@ -26,6 +18,10 @@ import {
   useGetBillableMetricsForNetsuiteItemsListLazyQuery,
   useGetBillableMetricsForXeroItemsListLazyQuery,
 } from '~/generated/graphql'
+import {
+  MappableIntegrationMapItemDialogRef,
+  MappableIntegrationProvider,
+} from '~/pages/settings/integrations/common'
 
 export type FetchableIntegrationItemsListData =
   | GetAddOnsForNetsuiteItemsListQuery['addOns']
@@ -49,21 +45,6 @@ export type FetchMoreFunction = ReturnType<
   | typeof useGetBillableMetricsForXeroItemsListLazyQuery
 >[1]['fetchMore']
 
-export type FetchableIntegrationMapItemDialogRef = RefObject<
-  | NetsuiteIntegrationMapItemDialogRef
-  | AnrokIntegrationMapItemDialogRef
-  | AvalaraIntegrationMapItemDialogRef
-  | XeroIntegrationMapItemDialogRef
->
-
-type FetchableIntegrationProvider = PickEnum<
-  IntegrationTypeEnum,
-  | IntegrationTypeEnum.Anrok
-  | IntegrationTypeEnum.Avalara
-  | IntegrationTypeEnum.Netsuite
-  | IntegrationTypeEnum.Xero
->
-
 export type FetchIntegrationItemsListProps = {
   integrationId: string
   data: FetchableIntegrationItemsListData
@@ -71,10 +52,10 @@ export type FetchIntegrationItemsListProps = {
   hasError: boolean
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  integrationMapItemDialogRef: FetchableIntegrationMapItemDialogRef
+  integrationMapItemDialogRef: MappableIntegrationMapItemDialogRef
   createRoute: string
   mappableType: MappableTypeEnum
-  provider: FetchableIntegrationProvider
+  provider: MappableIntegrationProvider
 }
 
 export type FetchableIntegrationItemErrorProps = {
