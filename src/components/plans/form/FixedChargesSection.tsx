@@ -84,7 +84,7 @@ gql`
 `
 
 interface FixedChargesSectionProps {
-  alreadyExistingFixedChargesIds?: string[] | null
+  alreadyExistingFixedChargesIds: string[]
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
@@ -228,9 +228,7 @@ export const FixedChargesSection = memo(
                 <div className="flex flex-col gap-6">
                   {formFixedCharges.map((fixedCharge: LocalFixedChargeInput, i) => {
                     const id = getNewChargeId(fixedCharge.addOn.id, i)
-                    const isNew =
-                      !!fixedCharge?.id &&
-                      !alreadyExistingFixedChargesIds?.includes(fixedCharge?.id)
+                    const isNew = !alreadyExistingFixedChargesIds?.includes(fixedCharge?.id || '')
                     const alreadyUsedChargeAlertMessage =
                       (alreadyUsedAddOnIds.get(fixedCharge.addOn.id) || 0) > 1
                         ? translate('text_1760729707268h378x60alri')

@@ -164,6 +164,8 @@ const CreatePlan = () => {
   const hasAccessToFixedChargesFeature = isFeatureFlagActive(FeatureFlags.FIXED_CHARGES)
 
   const canBeEdited = !plan?.subscriptionsCount
+  const alreadyExistingFixedChargesIds =
+    plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
 
   const planCloseRedirection = () => {
     const origin = searchParams.get('origin')
@@ -273,6 +275,7 @@ const CreatePlan = () => {
 
                     {hasAccessToFixedChargesFeature && (
                       <FixedChargesSection
+                        alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
                         canBeEdited={canBeEdited}
                         formikProps={formikProps}
                         isEdition={isEdition}

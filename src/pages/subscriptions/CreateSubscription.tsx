@@ -342,6 +342,8 @@ const CreateSubscription = () => {
   })
 
   const subscriptionPlanId = subscriptionFormikProps.values.planId
+  const alreadyExistingPlanFixedChargesIds =
+    plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
 
   const [shouldDisplaySubscriptionExternalId, setShouldDisplaySubscriptionExternalId] =
     useState<boolean>(!!subscriptionFormikProps.initialValues.externalId)
@@ -878,6 +880,7 @@ const CreateSubscription = () => {
 
                             {hasAccessToFixedChargesFeature && (
                               <FixedChargesSection
+                                alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
                                 canBeEdited={formType === FORM_TYPE_ENUM.edition}
                                 editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                                 formikProps={planFormikProps}
