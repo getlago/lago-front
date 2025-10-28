@@ -7,7 +7,10 @@ import { RefObject, useEffect, useMemo, useState } from 'react'
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
-import { mapChargeIntervalCopy } from '~/components/plans/utils'
+import {
+  mapChargeIntervalCopy,
+  returnFirstDefinedArrayRatesSumAsString,
+} from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME } from '~/core/constants/form'
@@ -60,10 +63,8 @@ export const CommitmentsSection = ({
   const hasErrorInGroup = !!formikProps?.errors?.minimumCommitment
 
   const taxValueForBadgeDisplay = useMemo((): string | undefined => {
-    if (!formikProps?.values?.minimumCommitment?.taxes?.length) return
-
-    return String(
-      formikProps?.values?.minimumCommitment?.taxes?.reduce((acc, cur) => acc + cur.rate, 0),
+    return returnFirstDefinedArrayRatesSumAsString(
+      formikProps?.values?.minimumCommitment?.taxes || [],
     )
   }, [formikProps?.values?.minimumCommitment?.taxes])
 
