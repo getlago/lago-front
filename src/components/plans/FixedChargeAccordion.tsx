@@ -168,6 +168,18 @@ export const FixedChargeAccordion = memo(
       index,
     ])
 
+    const chargePricingUnitShortName = undefined
+
+    const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
+      formikProps.values.interval,
+    )
+
+    const disableProRatedOption = isInSubscriptionForm || disabled || isProratedOptionDisabled
+
+    const isAccordionInitiallyOpen = !!(
+      isInitiallyOpen || !formikProps.values.fixedCharges?.[index]?.id
+    )
+
     const handleUpdate = useCallback(
       (
         name: HandleUpdateFixedChargesProps['name'],
@@ -195,18 +207,34 @@ export const FixedChargeAccordion = memo(
       return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
     }, [formikProps?.values?.taxes, localCharge.taxes])
 
-    // Fixed charges don't have a pricing unit
-    const chargePricingUnitShortName = undefined
+    const editInvoiceDisplayNameValue = useCallback(
+      (invoiceDisplayName: string) => {
+        formikProps.setFieldValue(`fixedCharges.${index}.invoiceDisplayName`, invoiceDisplayName)
+      },
 
-    const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-      formikProps.values.interval,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [index],
     )
+
+    const intervalBadgeCopy = useMemo(() => {
+      return translate(
+        mapChargeIntervalCopy(
+          formikProps.values.interval,
+          (isAnnual && !!formikProps.values.billFixedChargesMonthly) || false,
+        ),
+      )
+    }, [
+      translate,
+      formikProps.values.interval,
+      formikProps.values.billFixedChargesMonthly,
+      isAnnual,
+    ])
 
     return (
       <Accordion
         noContentMargin
         id={id}
-        initiallyOpen={!!(isInitiallyOpen || !formikProps.values.fixedCharges?.[index]?.id)}
+        initiallyOpen={isAccordionInitiallyOpen}
         summary={
           <div className="flex w-full items-center justify-between gap-3 overflow-hidden">
             <div className="flex flex-col overflow-hidden">
@@ -217,12 +245,7 @@ export const FixedChargeAccordion = memo(
                 <EditInvoiceDisplayNameButton
                   editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                   currentInvoiceDisplayName={localCharge.invoiceDisplayName}
-                  onEdit={(invoiceDisplayName: string) => {
-                    formikProps.setFieldValue(
-                      `fixedCharges.${index}.invoiceDisplayName`,
-                      invoiceDisplayName,
-                    )
-                  }}
+                  onEdit={editInvoiceDisplayNameValue}
                 />
               </div>
               <Typography variant="caption" noWrap>
@@ -239,14 +262,7 @@ export const FixedChargeAccordion = memo(
                   })}
                 />
               )}
-              <Chip
-                label={translate(
-                  mapChargeIntervalCopy(
-                    formikProps.values.interval,
-                    (isAnnual && !!formikProps.values.billFixedChargesMonthly) || false,
-                  ),
-                )}
-              />
+              <Chip label={intervalBadgeCopy} />
 
               <RemoveChargeButton
                 isInSubscriptionForm={isInSubscriptionForm}
@@ -322,7 +338,7 @@ export const FixedChargeAccordion = memo(
               <Switch
                 name={`fixed-charge-${localCharge.id}-prorated`}
                 label={translate('text_17607297072670cl4jl071yy')}
-                disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
+                disabled={disableProRatedOption}
                 checked={!!localCharge.prorated}
                 onChange={(value) => handleUpdate('prorated', Boolean(value))}
               />

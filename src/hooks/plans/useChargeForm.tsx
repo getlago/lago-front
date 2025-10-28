@@ -263,16 +263,13 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     chargeModel,
     isPayInAdvance,
   }: TGetIsProRatedOptionDisabledForFixedChargeProps): boolean => {
-    if (
-      isPayInAdvance &&
-      (chargeModel === FixedChargeChargeModelEnum.Graduated ||
-        chargeModel === FixedChargeChargeModelEnum.Volume)
-    ) {
-      return true
+    if (!isPayInAdvance) {
+      return false
     }
 
-    // Enabled by default
-    return false
+    return [FixedChargeChargeModelEnum.Graduated, FixedChargeChargeModelEnum.Volume].includes(
+      chargeModel,
+    )
   }
 
   return {
