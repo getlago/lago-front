@@ -8,6 +8,17 @@ import {
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+const CHIP_LABELS_MAPPING = {
+  payInAdvance: {
+    true: 'text_646e2d0bc536351b62ba6ebb',
+    false: 'text_646e2d0cc536351b62ba6f0c',
+  },
+  prorated: {
+    true: 'text_649c47c0a6c1f200de8ff48d',
+    false: 'text_649c49bcebd91c0082d84446',
+  },
+}
+
 gql`
   fragment ChargeForFixedChargeOptionsAccordion on FixedCharge {
     id
@@ -34,21 +45,10 @@ export const FixedChargeOptionsAccordion = ({
           <Typography variant="captionHl" color="grey700">
             {translate('text_646e2d0cc536351b62ba6f01')}
           </Typography>
+
           <div className="flex flex-wrap gap-2">
-            <Chip
-              label={
-                charge.payInAdvance
-                  ? translate('text_646e2d0bc536351b62ba6ebb')
-                  : translate('text_646e2d0cc536351b62ba6f0c')
-              }
-            />
-            <Chip
-              label={
-                charge.prorated
-                  ? translate('text_649c47c0a6c1f200de8ff48d')
-                  : translate('text_649c49bcebd91c0082d84446')
-              }
-            />
+            <Chip label={translate(CHIP_LABELS_MAPPING.payInAdvance[`${!!charge.payInAdvance}`])} />
+            <Chip label={translate(CHIP_LABELS_MAPPING.prorated[`${!!charge.prorated}`])} />
           </div>
         </div>
       }
