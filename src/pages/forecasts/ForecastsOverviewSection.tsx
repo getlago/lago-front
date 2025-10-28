@@ -1,5 +1,3 @@
-import { Icon, Tooltip } from 'lago-design-system'
-
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Button, HorizontalDataTable, InitScrollTo, Typography } from '~/components/designSystem'
 import { Filters, ForecastsAvailableFilters } from '~/components/designSystem/Filters'
@@ -100,14 +98,6 @@ export const ForecastsOverviewSection = ({
                 <Typography variant="subhead1" color="grey700">
                   {translate('text_1753014457040hhkl9fy58wy')}
                 </Typography>
-
-                <Tooltip
-                  placement="top-start"
-                  title={translate('text_1747817451282js22pfg16gg')}
-                  className="flex"
-                >
-                  <Icon name="info-circle" className="text-grey-600" />
-                </Tooltip>
               </div>
             </div>
 

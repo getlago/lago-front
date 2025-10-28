@@ -1,4 +1,4 @@
-import { AiBadge, Typography } from 'lago-design-system'
+import { AiBadge, Icon, Tooltip, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
@@ -42,18 +42,20 @@ const Forecasts = () => {
       </PageHeader.Wrapper>
 
       <FullscreenPage.Wrapper>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Typography variant="headline" color="grey700">
-              {translate('text_1753014457040hxp6wkphkvw')}
-            </Typography>
-
-            <BadgeAI />
-          </div>
-
-          <Typography className="max-w-2xl" variant="body" color="grey600">
-            {translate('text_17530144570400ri03obw5mv')}
+        <div className="flex items-center gap-2">
+          <Typography variant="headline" color="grey700">
+            {translate('text_1753014457040hxp6wkphkvw')}
           </Typography>
+
+          <Tooltip
+            placement="top-start"
+            title={translate('text_17530144570400ri03obw5mv')}
+            className="flex"
+          >
+            <Icon name="info-circle" className="text-grey-600" />
+          </Tooltip>
+
+          <BadgeAI />
         </div>
 
         {!hasAccessToForecastsFeature && (
