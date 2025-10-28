@@ -303,7 +303,7 @@ export const FixedChargesSection = memo(
           )}
         </Card>
 
-        <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} formikProps={formikProps} />
+        <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
       </>
     )
   },

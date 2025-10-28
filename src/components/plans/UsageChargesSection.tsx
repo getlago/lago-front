@@ -551,7 +551,7 @@ export const UsageChargesSection = memo(
           )}
         </Card>
 
-        <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} formikProps={formikProps} />
+        <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
       </>
     )
   },
