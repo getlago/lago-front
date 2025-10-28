@@ -24,7 +24,7 @@ const FetchableIntegrationItemList = ({
   const metadata = data?.metadata
 
   const displayCorrectState = () => {
-    if (isLoading) {
+    if (isLoading && !itemsToDisplay.length && searchTerm) {
       return createNumberRangeArray(3).map((i) => (
         <IntegrationItemLine
           key={`fetchable-integration-item-skeleton-${i}`}
@@ -128,6 +128,16 @@ const FetchableIntegrationItemList = ({
               />
             )
           })}
+        {isLoading &&
+          createNumberRangeArray(3).map((i) => (
+            <IntegrationItemLine
+              key={`fetchable-integration-item-skeleton-${i}`}
+              icon="pulse"
+              label={''}
+              description={''}
+              loading={true}
+            />
+          ))}
       </InfiniteScroll>
     )
   }
