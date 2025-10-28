@@ -41,12 +41,10 @@ export const TaxesSelectorSection = <T extends TaxForTaxesSelectorSectionFragmen
   taxes,
   comboboxSelector,
   onUpdate,
-  onDelete,
 }: {
   taxes: T[]
   comboboxSelector: string
   onUpdate: (newTaxArray: T[]) => void
-  onDelete: (newTaxArray: T[]) => void
 }) => {
   const { translate } = useInternationalization()
   const [shouldDisplayTaxesInput, setShouldDisplayTaxesInput] = useState<boolean>(false)
@@ -101,7 +99,7 @@ export const TaxesSelectorSection = <T extends TaxForTaxesSelectorSectionFragmen
               onDelete={() => {
                 const newTaxedArray = taxes?.filter((tax) => tax.id !== localTaxId) || []
 
-                onDelete(newTaxedArray)
+                onUpdate(newTaxedArray)
               }}
             />
           ))}

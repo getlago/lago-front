@@ -181,9 +181,6 @@ export const CommitmentsSection = ({
                 onUpdate={(newTaxArray) => {
                   formikProps.setFieldValue('minimumCommitment.taxes', newTaxArray)
                 }}
-                onDelete={(newTaxArray) => {
-                  formikProps.setFieldValue('minimumCommitment.taxes', newTaxArray)
-                }}
               />
             </div>
           </Stack>

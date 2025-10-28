@@ -236,9 +236,6 @@ const CreateAddOn = () => {
                       onUpdate={(newTaxArray) => {
                         formikProps.setFieldValue('taxes', newTaxArray)
                       }}
-                      onDelete={(newTaxArray) => {
-                        formikProps.setFieldValue('taxes', newTaxArray)
-                      }}
                     />
                   </div>
 

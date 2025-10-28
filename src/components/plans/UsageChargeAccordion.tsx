@@ -734,9 +734,6 @@ export const UsageChargeAccordion = memo(
               onUpdate={(newTaxArray) => {
                 handleUpdate('taxes', newTaxArray)
               }}
-              onDelete={(newTaxArray) => {
-                handleUpdate('taxes', newTaxArray)
-              }}
             />
           </UsageChargeOptionsAccordion>
         </>
