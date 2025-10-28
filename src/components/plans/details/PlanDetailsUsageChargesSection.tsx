@@ -1,7 +1,7 @@
 import { Accordion, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsUsageChargesSectionAccordion } from '~/components/plans/details/PlanDetailsUsageChargesSectionAccordion'
-import { mapChargeIntervalCopy } from '~/components/plans/utils'
+import { isPlanIntervalAnnual, mapChargeIntervalCopy } from '~/components/plans/utils'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -38,8 +38,7 @@ export const PlanDetailsUsageChargesSection = ({
       },
     ) ?? {}
 
-  const isAnnual =
-    plan?.interval && [PlanInterval.Semiannual, PlanInterval.Yearly].includes(plan?.interval)
+  const isAnnual = isPlanIntervalAnnual(plan?.interval)
 
   return (
     <section className="flex flex-col gap-12">

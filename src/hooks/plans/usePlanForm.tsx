@@ -10,7 +10,7 @@ import {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
-import { transformFilterObjectToString } from '~/components/plans/utils'
+import { isPlanIntervalAnnual, transformFilterObjectToString } from '~/components/plans/utils'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -456,9 +456,7 @@ export const usePlanForm: ({
     return undefined
   }, [createError, updateError])
 
-  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-    formikProps.values.interval,
-  )
+  const isAnnual = isPlanIntervalAnnual(formikProps.values.interval)
 
   // Clear duplicate plan var when leaving the page
   useEffect(() => {

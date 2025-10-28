@@ -20,6 +20,7 @@ import {
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
 import {
+  isPlanIntervalAnnual,
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
@@ -44,7 +45,6 @@ import {
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
-  PlanInterval,
   PricingGroupKeysFragmentDoc,
   StandardChargeFragmentDoc,
   TaxForTaxesSelectorSectionFragmentDoc,
@@ -292,9 +292,7 @@ export const UsageChargeAccordion = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currency])
 
-    const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-      formikProps.values.interval,
-    )
+    const isAnnual = isPlanIntervalAnnual(formikProps.values.interval)
 
     return (
       <Accordion

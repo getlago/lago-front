@@ -59,3 +59,9 @@ export const returnFirstDefinedArrayRatesSumAsString = (
 
   return undefined
 }
+
+export const isPlanIntervalAnnual = (interval: PlanInterval | undefined): boolean => {
+  if (!interval) return false
+
+  return [PlanInterval.Semiannual, PlanInterval.Yearly].includes(interval)
+}

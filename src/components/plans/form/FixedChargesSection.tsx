@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { memo, RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button, Card, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
@@ -27,6 +27,9 @@ import {
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+const ACCORDION_HEIGHT = 72 // px
+const ACCORDION_PADDING = 16 // px
 
 gql`
   fragment AddOnForFixedChargesSection on AddOn {
@@ -139,6 +142,38 @@ export const FixedChargesSection = memo(
       })
     }, [addOnsForFixedChargesSectionData?.addOns?.collection])
 
+    const onAddFixedCharge = useCallback(
+      (newFixedChargeId: string): void => {
+        const previousCharges = [...formFixedCharges]
+        const newId = getNewChargeId(newFixedChargeId, previousCharges.length)
+        const localAddOn = addOnsForFixedChargesSectionData?.addOns?.collection.find(
+          (bm) => bm.id === newFixedChargeId,
+        )
+        const newChargeIndex = formFixedCharges.length
+
+        previousCharges.splice(newChargeIndex, 0, {
+          addOn: {
+            id: localAddOn?.id || '',
+            name: localAddOn?.name || '',
+            code: localAddOn?.code || '',
+          },
+          applyUnitsImmediately: false,
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          invoiceDisplayName: undefined,
+          payInAdvance: false,
+          properties: getPropertyShape({}),
+          prorated: false,
+          units: undefined,
+          taxes: [],
+        } satisfies LocalFixedChargeInput)
+
+        formikProps.setFieldValue('fixedCharges', previousCharges)
+        setShowAddFixedChargeCombobox(false)
+        newChargeId.current = newId
+      },
+      [addOnsForFixedChargesSectionData?.addOns?.collection, formFixedCharges, formikProps],
+    )
+
     useEffect(() => {
       // When adding a new charge, scroll to the new charge element
       if (!!newChargeId.current) {
@@ -147,27 +182,19 @@ export const FixedChargesSection = memo(
 
         if (!element || !rootElement) return
 
-        rootElement.scrollTo({ top: element.offsetTop - 72 - 16 })
+        rootElement.scrollTo({ top: element.offsetTop - ACCORDION_HEIGHT - ACCORDION_PADDING })
       }
     }, [newChargeId])
 
     useEffect(() => {
-      const allAddOnIdsMap = new Map()
+      setAlreadyUsedAddOnIds(
+        formFixedCharges?.reduce((prev, curr) => {
+          const id = curr.addOn.id
 
-      for (let i = 0; i < formFixedCharges.length; i++) {
-        const element = formFixedCharges[i]
-        const addOnId = element.addOn.id
-
-        if (allAddOnIdsMap.has(addOnId)) {
-          allAddOnIdsMap.set(addOnId, allAddOnIdsMap.get(addOnId) + 1)
-        } else {
-          allAddOnIdsMap.set(addOnId, 1)
-        }
-      }
-
-      setAlreadyUsedAddOnIds(allAddOnIdsMap)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formFixedCharges.length])
+          return prev.set(id, (prev.get(id) || 0) + 1)
+        }, new Map()),
+      )
+    }, [formFixedCharges])
 
     if (!hasAnyFixedCharge && isInSubscriptionForm) {
       return null
@@ -240,34 +267,7 @@ export const FixedChargesSection = memo(
                     loading={addOnsForFixedChargesSectionLoading}
                     placeholder={translate('text_6435888d7cc86500646d8981')}
                     emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
-                    onChange={(newCharge) => {
-                      const previousCharges = [...formFixedCharges]
-                      const newId = getNewChargeId(newCharge, previousCharges.length)
-                      const localAddOn = addOnsForFixedChargesSectionData?.addOns?.collection.find(
-                        (bm) => bm.id === newCharge,
-                      )
-                      const newChargeIndex = formFixedCharges.length
-
-                      previousCharges.splice(newChargeIndex, 0, {
-                        addOn: {
-                          id: localAddOn?.id || '',
-                          name: localAddOn?.name || '',
-                          code: localAddOn?.code || '',
-                        },
-                        applyUnitsImmediately: false,
-                        chargeModel: FixedChargeChargeModelEnum.Standard,
-                        invoiceDisplayName: undefined,
-                        payInAdvance: false,
-                        properties: getPropertyShape({}),
-                        prorated: false,
-                        units: undefined,
-                        taxes: [],
-                      } satisfies LocalFixedChargeInput)
-
-                      formikProps.setFieldValue('fixedCharges', previousCharges)
-                      setShowAddFixedChargeCombobox(false)
-                      newChargeId.current = newId
-                    }}
+                    onChange={onAddFixedCharge}
                   />
                   <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
                     <Button
