@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Tooltip } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -7,18 +8,19 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
-import { CREATE_WALLET_ROUTE, CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
+import { CREATE_WALLET_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
   useGetCustomerWalletListQuery,
   WalletAccordionFragmentDoc,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
-  WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
+
+const ACTIVE_WALLET_COUNT_LIMIT = 1
 
 gql`
   fragment CustomerWallet on Wallet {
@@ -32,6 +34,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        customerActiveWalletsCount
       }
       collection {
         ...CustomerWallet
@@ -56,11 +59,11 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
-    variables: { customerId, page: 0, limit: 20 },
+    variables: { customerId, page: 0, limit: 10 },
   })
-  const list = data?.wallets?.collection || []
-  const hasNoWallet = !list || !list.length
-  const activeWallet = list.find((wallet) => wallet.status === WalletStatusEnum.Active)
+  const walletsCollection = data?.wallets?.collection || []
+  const hasMoreThanActiveWalletsLimit =
+    (data?.wallets?.metadata?.customerActiveWalletsCount || 0) >= ACTIVE_WALLET_COUNT_LIMIT
 
   if (!loading && !!error) {
     return (
@@ -82,34 +85,31 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
         subtitle={translate('text_1737647019083bbxjrexen5s')}
         customAction={
           <>
-            {!activeWallet && hasPermissions(['walletsCreate']) && (
-              <Button
-                variant="inline"
-                onClick={() =>
-                  navigate(
-                    generatePath(CREATE_WALLET_ROUTE, {
-                      customerId: customerId as string,
-                    }),
-                  )
-                }
+            {hasPermissions(['walletsCreate']) && (
+              <Tooltip
+                title={translate(
+                  'text_176071328361044kwwdb4re4',
+                  {
+                    count: ACTIVE_WALLET_COUNT_LIMIT,
+                  },
+                  ACTIVE_WALLET_COUNT_LIMIT,
+                )}
+                disableHoverListener={!hasMoreThanActiveWalletsLimit}
               >
-                {translate('text_62d175066d2dbf1d50bc9382')}
-              </Button>
-            )}
-            {activeWallet && hasPermissions(['walletsTopUp']) && (
-              <Button
-                variant="inline"
-                onClick={() =>
-                  navigate(
-                    generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
-                      customerId: customerId,
-                      walletId: activeWallet.id,
-                    }),
-                  )
-                }
-              >
-                {translate('text_62e161ceb87c201025388ada')}
-              </Button>
+                <Button
+                  variant="inline"
+                  disabled={hasMoreThanActiveWalletsLimit || loading}
+                  onClick={() =>
+                    navigate(
+                      generatePath(CREATE_WALLET_ROUTE, {
+                        customerId: customerId as string,
+                      }),
+                    )
+                  }
+                >
+                  {translate('text_62d175066d2dbf1d50bc9382')}
+                </Button>
+              </Tooltip>
             )}
           </>
         }
@@ -123,13 +123,13 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
         </div>
       )}
 
-      {!loading && hasNoWallet && (
+      {!loading && !walletsCollection.length && (
         <Typography className="text-grey-500">
           {translate('text_62d175066d2dbf1d50bc9386')}
         </Typography>
       )}
 
-      {!loading && !hasNoWallet && (
+      {!loading && !!walletsCollection.length && (
         <InfiniteScroll
           onBottom={() => {
             const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
@@ -142,7 +142,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
           }}
         >
           <div className="flex flex-col gap-4">
-            {list.map((wallet) => (
+            {walletsCollection.map((wallet) => (
               <WalletAccordion
                 key={`wallet-${wallet.id}`}
                 premiumWarningDialogRef={premiumWarningDialogRef}
