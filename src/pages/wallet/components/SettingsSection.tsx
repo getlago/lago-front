@@ -184,6 +184,8 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             name: 'paidTopUpMinAmountCents',
             label: translate('text_1758286730208kztcznofxvr'),
             onDelete: () => {
+              formikProps?.setFieldValue('paidTopUpMinAmountCents', undefined)
+
               setShowMinTopUp(false)
             },
             errorLabel: translate('text_175872290080132j1em37b08'),
@@ -193,6 +195,8 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             name: 'paidTopUpMaxAmountCents',
             label: translate('text_1758286730208ey87jz8nzuz'),
             onDelete: () => {
+              formikProps?.setFieldValue('paidTopUpMaxAmountCents', undefined)
+
               setShowMaxTopUp(false)
             },
             errorLabel: translate('text_1758722900801nbox9c5bgnn'),

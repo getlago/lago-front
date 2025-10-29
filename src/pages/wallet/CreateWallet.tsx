@@ -328,7 +328,9 @@ const CreateWallet = () => {
                   valuesCurrency,
                 ),
               }
-            : {}),
+            : {
+                paidTopUpMinAmountCents: null,
+              }),
           ...(values.paidTopUpMaxAmountCents
             ? {
                 paidTopUpMaxAmountCents: serializeAmount(
@@ -336,7 +338,9 @@ const CreateWallet = () => {
                   valuesCurrency,
                 ),
               }
-            : {}),
+            : {
+                paidTopUpMaxAmountCents: null,
+              }),
           priority: priority || WALLET_DEFAULT_PRIORITY,
         } satisfies UpdateCustomerWalletInput
 
