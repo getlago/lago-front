@@ -332,7 +332,7 @@ const MainNavLayout = () => {
                       link: FORECASTS_ROUTE,
                       match: [FORECASTS_ROUTE],
                       hidden: !hasPermissions(['analyticsView']),
-                      extra: <BadgeAI />,
+                      extraComponent: <BadgeAI />,
                     },
                   ]}
                 />
