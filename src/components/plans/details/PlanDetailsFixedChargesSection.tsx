@@ -56,7 +56,7 @@ export const PlanDetailsFixedChargesSection = ({
                           value: translate(
                             mapChargeIntervalCopy(
                               plan?.interval as PlanInterval,
-                              (isAnnual && !!plan?.billChargesMonthly) || false,
+                              (isAnnual && !!plan?.billFixedChargesMonthly) || false,
                             ),
                           ),
                         },
