@@ -28,6 +28,8 @@ export const MUI_INPUT_BASE_ROOT_CLASSNAME = 'MuiInputBase-root'
 export const MUI_BUTTON_BASE_ROOT_CLASSNAME = 'MuiButtonBase-root'
 // Plans
 export const SEARCH_METERED_CHARGE_INPUT_CLASSNAME = 'searchMeteredChargeInput'
+export const SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME =
+  'searchAddOnForFixedChargesSectionInput'
 export const SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME = 'searchRecurringChargeInput'
 export const SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME = 'searchTaxForPlanInput'
 export const SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME = 'searchTaxForChargeInput'

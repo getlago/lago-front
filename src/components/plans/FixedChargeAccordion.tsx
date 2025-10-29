@@ -16,6 +16,7 @@ import {
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
 import {
+  isPlanIntervalAnnual,
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
@@ -31,7 +32,6 @@ import {
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
-  PlanInterval,
   PricingGroupKeysFragmentDoc,
   StandardChargeFragmentDoc,
   TaxForTaxesSelectorSectionFragmentDoc,
@@ -173,9 +173,7 @@ export const FixedChargeAccordion = memo(
 
     const chargePricingUnitShortName = undefined
 
-    const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-      formikProps.values.interval,
-    )
+    const isAnnual = isPlanIntervalAnnual(formikProps.values.interval)
 
     const disableProRatedOption = isInSubscriptionForm || disabled || isProratedOptionDisabled
 

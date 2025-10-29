@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { PlanDetailsUsageChargesSection } from '~/components/plans/details/PlanDetailsUsageChargesSection'
+import { PlanDetailsFixedChargesSection } from '~/components/plans/details/PlanDetailsFixedChargesSection'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import {
   CurrencyEnum,
@@ -14,6 +14,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PlanDetailsSubscriptionFeeAccordion } from './PlanDetailsAdvancedFeeAccordion'
 import { PlanDetailsAdvancedSettingsSection } from './PlanDetailsAdvancedSettingsSection'
+import { PlanDetailsUsageChargesSection } from './PlanDetailsUsageChargesSection'
 
 gql`
   query getPlanForDetailsOverviewSection($plan: ID!) {
@@ -90,10 +91,20 @@ export const PlanDetailsOverview = ({
       </section>
       <section>
         <DetailsPage.SectionTitle variant="subhead1" noWrap>
-          {translate('text_176072970726728iw4tc8ucl')}
+          {translate('text_642d5eb2783a2ad10d670336')}
         </DetailsPage.SectionTitle>
         <PlanDetailsSubscriptionFeeAccordion plan={plan} />
       </section>
+
+      {!!plan?.fixedCharges?.length && (
+        <section>
+          <DetailsPage.SectionTitle variant="subhead1" noWrap>
+            {translate('text_176072970726728iw4tc8ucl')}
+          </DetailsPage.SectionTitle>
+          <PlanDetailsFixedChargesSection currency={currency} plan={plan} />
+        </section>
+      )}
+
       {!!plan?.charges?.length && (
         <section>
           <DetailsPage.SectionTitle variant="subhead1" noWrap>

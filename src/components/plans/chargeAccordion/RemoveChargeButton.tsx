@@ -45,7 +45,7 @@ export const RemoveChargeButton = ({
               }
 
               if (actionType !== 'duplicate' && isUsedInSubscription) {
-                removeChargeWarningDialogRef?.current?.openDialog(chargeToRemoveIndex)
+                removeChargeWarningDialogRef?.current?.openDialog({ callback: deleteCharge })
               } else {
                 deleteCharge()
               }
