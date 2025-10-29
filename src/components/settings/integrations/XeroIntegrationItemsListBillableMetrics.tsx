@@ -12,7 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
-import { XeroIntegrationMapItemDialogRef } from './XeroIntegrationMapItemDialog'
+import { XeroIntegrationMapItemDrawerRef } from './XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListBillableMetrics on BillableMetric {
@@ -38,7 +38,7 @@ type XeroIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  xeroIntegrationMapItemDialogRef: RefObject<XeroIntegrationMapItemDialogRef>
+  xeroIntegrationMapItemDrawerRef: RefObject<XeroIntegrationMapItemDrawerRef>
 }
 
 const XeroIntegrationItemsListBillableMetrics = ({
@@ -47,7 +47,7 @@ const XeroIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  xeroIntegrationMapItemDialogRef,
+  xeroIntegrationMapItemDrawerRef,
   searchTerm,
 }: XeroIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
@@ -60,7 +60,7 @@ const XeroIntegrationItemsListBillableMetrics = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
       createRoute={CREATE_BILLABLE_METRIC_ROUTE}
       mappableType={MappableTypeEnum.BillableMetric}
       provider={IntegrationTypeEnum.Xero}

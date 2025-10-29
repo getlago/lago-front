@@ -14,7 +14,7 @@ import {
 } from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
+import { AnrokIntegrationMapItemDrawerRef } from './AnrokIntegrationMapItemDrawer'
 
 gql`
   fragment AnrokIntegrationItemsListDefault on CollectionMapping {
@@ -31,7 +31,7 @@ type AnrokIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
+  anrokIntegrationMapItemDrawerRef: RefObject<AnrokIntegrationMapItemDrawerRef>
 }
 
 const AnrokIntegrationItemsListDefault = ({
@@ -39,7 +39,7 @@ const AnrokIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  anrokIntegrationMapItemDialogRef,
+  anrokIntegrationMapItemDrawerRef,
 }: AnrokIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -90,7 +90,7 @@ const AnrokIntegrationItemsListDefault = ({
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Anrok}
     />

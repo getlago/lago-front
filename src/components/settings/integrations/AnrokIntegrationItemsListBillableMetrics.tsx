@@ -12,7 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
-import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
+import { AnrokIntegrationMapItemDrawerRef } from './AnrokIntegrationMapItemDrawer'
 
 gql`
   fragment AnrokIntegrationItemsListBillableMetrics on BillableMetric {
@@ -38,7 +38,7 @@ type AnrokIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
+  anrokIntegrationMapItemDrawerRef: RefObject<AnrokIntegrationMapItemDrawerRef>
 }
 
 const AnrokIntegrationItemsListBillableMetrics = ({
@@ -47,7 +47,7 @@ const AnrokIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  anrokIntegrationMapItemDialogRef,
+  anrokIntegrationMapItemDrawerRef,
   searchTerm,
 }: AnrokIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
@@ -60,7 +60,7 @@ const AnrokIntegrationItemsListBillableMetrics = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
       createRoute={CREATE_BILLABLE_METRIC_ROUTE}
       mappableType={MappableTypeEnum.BillableMetric}
       provider={IntegrationTypeEnum.Anrok}

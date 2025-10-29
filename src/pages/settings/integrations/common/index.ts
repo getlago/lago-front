@@ -3,5 +3,5 @@ export { getMappingInfos } from './getMappingInfos'
 export type {
   MappableIntegrationProvider,
   ItemMapping,
-  MappableIntegrationMapItemDialogRef,
+  MappableIntegrationMapItemDrawerRef,
 } from './types'

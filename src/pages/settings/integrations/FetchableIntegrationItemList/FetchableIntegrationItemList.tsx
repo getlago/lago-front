@@ -18,7 +18,7 @@ const FetchableIntegrationItemList = ({
   hasError,
   searchTerm,
   isLoading,
-  integrationMapItemDialogRef,
+  integrationMapItemDrawerRef,
   createRoute,
   mappableType,
   provider,
@@ -81,10 +81,11 @@ const FetchableIntegrationItemList = ({
       <InfiniteScroll onBottom={handleOnBottom}>
         <IntegrationItemsTable
           integrationId={integrationId}
-          integrationMapItemDialogRef={integrationMapItemDialogRef}
+          integrationMapItemDrawerRef={integrationMapItemDrawerRef}
           provider={provider}
           items={formattedItems}
           firstColumnName={firstColumnName}
+          isLoading={isLoading}
         />
       </InfiniteScroll>
     )

@@ -12,7 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
-import { AvalaraIntegrationMapItemDialogRef } from './AvalaraIntegrationMapItemDialog'
+import { AvalaraIntegrationMapItemDrawerRef } from './AvalaraIntegrationMapItemDrawer'
 
 gql`
   fragment AvalaraIntegrationItemsListAddons on AddOn {
@@ -36,7 +36,7 @@ type AvalaraIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  avalaraIntegrationMapItemDialogRef: RefObject<AvalaraIntegrationMapItemDialogRef>
+  avalaraIntegrationMapItemDrawerRef: RefObject<AvalaraIntegrationMapItemDrawerRef>
 }
 
 const AvalaraIntegrationItemsListAddons = ({
@@ -45,7 +45,7 @@ const AvalaraIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  avalaraIntegrationMapItemDialogRef,
+  avalaraIntegrationMapItemDrawerRef,
   searchTerm,
 }: AvalaraIntegrationItemsListAddonsProps) => {
   const { translate } = useInternationalization()
@@ -58,7 +58,7 @@ const AvalaraIntegrationItemsListAddons = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
       createRoute={CREATE_ADD_ON_ROUTE}
       mappableType={MappableTypeEnum.AddOn}
       provider={IntegrationTypeEnum.Avalara}

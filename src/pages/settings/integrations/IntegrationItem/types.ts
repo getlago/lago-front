@@ -3,7 +3,7 @@ import { IconName } from 'lago-design-system'
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   ItemMapping,
-  MappableIntegrationMapItemDialogRef,
+  MappableIntegrationMapItemDrawerRef,
   MappableIntegrationProvider,
 } from '~/pages/settings/integrations/common'
 
@@ -26,6 +26,7 @@ export type IntegrationItemsTableProps = {
   integrationId: string
   items: Array<IntegrationItem>
   provider: MappableIntegrationProvider
-  integrationMapItemDialogRef: MappableIntegrationMapItemDialogRef
+  integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
   firstColumnName?: string
+  isLoading?: boolean
 }

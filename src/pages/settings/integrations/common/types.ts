@@ -1,9 +1,9 @@
 import { RefObject } from 'react'
 
-import { AnrokIntegrationMapItemDialogRef } from '~/components/settings/integrations/AnrokIntegrationMapItemDialog'
-import { AvalaraIntegrationMapItemDialogRef } from '~/components/settings/integrations/AvalaraIntegrationMapItemDialog'
-import { NetsuiteIntegrationMapItemDialogRef } from '~/components/settings/integrations/NetsuiteIntegrationMapItemDialog'
-import { XeroIntegrationMapItemDialogRef } from '~/components/settings/integrations/XeroIntegrationMapItemDialog'
+import { AnrokIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AnrokIntegrationMapItemDrawer'
+import { AvalaraIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AvalaraIntegrationMapItemDrawer'
+import { NetsuiteIntegrationMapItemDrawerRef } from '~/components/settings/integrations/NetsuiteIntegrationMapItemDrawer'
+import { XeroIntegrationMapItemDrawerRef } from '~/components/settings/integrations/XeroIntegrationMapItemDrawer'
 import { PickEnum } from '~/core/types/pickEnum.type'
 import {
   AnrokIntegrationItemsListDefaultFragment,
@@ -31,9 +31,9 @@ export type ItemMapping =
   | AvalaraIntegrationItemsListDefaultFragment
   | XeroIntegrationItemsListDefaultFragment
 
-export type MappableIntegrationMapItemDialogRef = RefObject<
-  | NetsuiteIntegrationMapItemDialogRef
-  | AnrokIntegrationMapItemDialogRef
-  | AvalaraIntegrationMapItemDialogRef
-  | XeroIntegrationMapItemDialogRef
+export type MappableIntegrationMapItemDrawerRef = RefObject<
+  | NetsuiteIntegrationMapItemDrawerRef
+  | AnrokIntegrationMapItemDrawerRef
+  | AvalaraIntegrationMapItemDrawerRef
+  | XeroIntegrationMapItemDrawerRef
 >

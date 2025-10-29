@@ -12,7 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
-import { AvalaraIntegrationMapItemDialogRef } from './AvalaraIntegrationMapItemDialog'
+import { AvalaraIntegrationMapItemDrawerRef } from './AvalaraIntegrationMapItemDrawer'
 
 gql`
   fragment AvalaraIntegrationItemsListBillableMetrics on BillableMetric {
@@ -38,7 +38,7 @@ type AvalaraIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  avalaraIntegrationMapItemDialogRef: RefObject<AvalaraIntegrationMapItemDialogRef>
+  avalaraIntegrationMapItemDrawerRef: RefObject<AvalaraIntegrationMapItemDrawerRef>
 }
 
 const AvalaraIntegrationItemsListBillableMetrics = ({
@@ -47,7 +47,7 @@ const AvalaraIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  avalaraIntegrationMapItemDialogRef,
+  avalaraIntegrationMapItemDrawerRef,
   searchTerm,
 }: AvalaraIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
@@ -60,7 +60,7 @@ const AvalaraIntegrationItemsListBillableMetrics = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
       createRoute={CREATE_BILLABLE_METRIC_ROUTE}
       mappableType={MappableTypeEnum.BillableMetric}
       provider={IntegrationTypeEnum.Avalara}

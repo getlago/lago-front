@@ -22,9 +22,9 @@ import AnrokIntegrationItemsListAddons from './AnrokIntegrationItemsListAddons'
 import AnrokIntegrationItemsListBillableMetrics from './AnrokIntegrationItemsListBillableMetrics'
 import AnrokIntegrationItemsListDefault from './AnrokIntegrationItemsListDefault'
 import {
-  AnrokIntegrationMapItemDialog,
-  AnrokIntegrationMapItemDialogRef,
-} from './AnrokIntegrationMapItemDialog'
+  AnrokIntegrationMapItemDrawer,
+  AnrokIntegrationMapItemDrawerRef,
+} from './AnrokIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
@@ -97,7 +97,7 @@ gql`
 
 const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const anrokIntegrationMapItemDialogRef = useRef<AnrokIntegrationMapItemDialogRef>(null)
+  const anrokIntegrationMapItemDrawerRef = useRef<AnrokIntegrationMapItemDrawerRef>(null)
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -252,7 +252,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
+          anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
         />
       )}
       {selectedItemType === MappableTypeEnum.AddOn && (
@@ -262,7 +262,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           integrationId={integrationId}
           isLoading={isLoadingAddons}
           hasError={!!addonError}
-          anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
+          anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
           searchTerm={addonVariables?.searchTerm}
         />
       )}
@@ -273,12 +273,12 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           integrationId={integrationId}
           isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
-          anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
+          anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
       )}
 
-      <AnrokIntegrationMapItemDialog ref={anrokIntegrationMapItemDialogRef} />
+      <AnrokIntegrationMapItemDrawer ref={anrokIntegrationMapItemDrawerRef} />
     </>
   )
 }

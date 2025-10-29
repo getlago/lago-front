@@ -3,9 +3,8 @@ import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
-import { Button, Dialog } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { ComboBox, ComboBoxProps } from '~/components/form'
-import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   IntegrationItemTypeEnum,
@@ -44,7 +43,7 @@ const extractOptionValue = (optionValue: string) => {
 }
 
 gql`
-  fragment XeroIntegrationMapItemDialog on IntegrationItem {
+  fragment XeroIntegrationMapItemDrawer on IntegrationItem {
     id
     externalId
     externalName
@@ -52,14 +51,14 @@ gql`
     itemType
   }
 
-  fragment XeroIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+  fragment XeroIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
     id
     externalId
     externalName
     externalAccountCode
   }
 
-  fragment XeroIntegrationMapItemDialogCollectionItem on Mapping {
+  fragment XeroIntegrationMapItemDrawerCollectionItem on Mapping {
     id
     externalId
     externalName
@@ -82,7 +81,7 @@ gql`
       searchTerm: $searchTerm
     ) {
       collection {
-        ...XeroIntegrationMapItemDialog
+        ...XeroIntegrationMapItemDrawer
       }
       metadata {
         currentPage
@@ -95,7 +94,7 @@ gql`
   mutation triggerXeroIntegrationAccountsRefetch($input: FetchIntegrationAccountsInput!) {
     fetchIntegrationAccounts(input: $input) {
       collection {
-        ...XeroIntegrationMapItemDialog
+        ...XeroIntegrationMapItemDrawer
       }
     }
   }
@@ -103,7 +102,7 @@ gql`
   mutation triggerXeroIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
     fetchIntegrationItems(input: $input) {
       collection {
-        ...XeroIntegrationMapItemDialog
+        ...XeroIntegrationMapItemDrawer
       }
     }
   }
@@ -114,14 +113,14 @@ gql`
   ) {
     createIntegrationCollectionMapping(input: $input) {
       id
-      ...XeroIntegrationMapItemDialogCollectionMappingItem
+      ...XeroIntegrationMapItemDrawerCollectionMappingItem
     }
   }
 
   mutation createXeroIntegrationMapping($input: CreateIntegrationMappingInput!) {
     createIntegrationMapping(input: $input) {
       id
-      ...XeroIntegrationMapItemDialogCollectionItem
+      ...XeroIntegrationMapItemDrawerCollectionItem
     }
   }
 
@@ -156,7 +155,7 @@ gql`
   }
 `
 
-type TXeroIntegrationMapItemDialogProps = {
+type XeroIntegrationMapItemDrawerProps = {
   type: MappingTypeEnum | MappableTypeEnum
   integrationId: string
   itemId?: string
@@ -167,16 +166,16 @@ type TXeroIntegrationMapItemDialogProps = {
   lagoMappableName?: string
 }
 
-export interface XeroIntegrationMapItemDialogRef {
-  openDialog: (props: TXeroIntegrationMapItemDialogProps) => unknown
-  closeDialog: () => unknown
+export interface XeroIntegrationMapItemDrawerRef {
+  openDrawer: (props: XeroIntegrationMapItemDrawerProps) => unknown
+  closeDrawer: () => unknown
 }
 
-export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDialogRef>(
+export const XeroIntegrationMapItemDrawer = forwardRef<XeroIntegrationMapItemDrawerRef>(
   (_, ref) => {
     const { translate } = useInternationalization()
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TXeroIntegrationMapItemDialogProps | undefined>(
+    const drawerRef = useRef<DrawerRef>(null)
+    const [localData, setLocalData] = useState<XeroIntegrationMapItemDrawerProps | undefined>(
       undefined,
     )
     const isAccountContext = localData?.type === MappingTypeEnum.Account
@@ -339,7 +338,7 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isCreate) {
           let answer
@@ -376,7 +375,7 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isEdit) {
           let answer
@@ -415,7 +414,7 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         }
       },
@@ -528,31 +527,30 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
     }, [localData?.lagoMappableName, localData?.type, translate])
 
     useImperativeHandle(ref, () => ({
-      openDialog: (props) => {
+      openDrawer: (props) => {
         setLocalData(props)
-        dialogRef.current?.openDialog()
+        drawerRef.current?.openDrawer()
       },
-      closeDialog: () => dialogRef.current?.closeDialog(),
+      closeDrawer: () => drawerRef.current?.closeDrawer(),
     }))
 
     return (
-      <Dialog
-        ref={dialogRef}
+      <Drawer
+        ref={drawerRef}
         title={title}
-        description={description}
         onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
         }}
         onOpen={() => {
-          // Have to delay the ececution of the query, as the dialog props are not present immediatly after the dialog is opened
+          // Have to delay the ececution of the query, as the drawer props are not present immediatly after the drawer is opened
           setTimeout(() => {
             getXeroIntegrationItems()
           }, 1)
         }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
+        stickyBottomBar={
+          <div className="flex justify-end gap-3">
+            <Button variant="quaternary" onClick={() => drawerRef.current?.closeDrawer()}>
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
@@ -561,51 +559,57 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
             >
               {translate('text_6630e51df0a194013daea624')}
             </Button>
-          </>
-        )}
+          </div>
+        }
       >
-        <div className="mb-8 flex flex-row gap-3">
-          <div className="flex-1">
-            <ComboBox
-              value={formikProps.values.selectedElementValue}
-              data={comboboxData}
+        <div className="flex flex-col gap-12">
+          <div>
+            <Typography variant="headline">{title}</Typography>
+            <Typography>{description}</Typography>
+          </div>
+          <div className="mb-8 flex flex-row gap-3">
+            <div className="flex-1">
+              <ComboBox
+                value={formikProps.values.selectedElementValue}
+                data={comboboxData}
+                loading={isLoading}
+                label={translate('text_6672ebb8b1b50be550eccb73')}
+                placeholder={translate('text_6630e51df0a194013daea622')}
+                helperText={
+                  !isLoading && !comboboxData.length
+                    ? translate('text_6630ec823adac97d3bf0fb4b')
+                    : undefined
+                }
+                searchQuery={
+                  !isAccountContext
+                    ? (getXeroIntegrationItems as unknown as ComboBoxProps['searchQuery'])
+                    : undefined
+                }
+                onChange={(value) => {
+                  formikProps.setFieldValue('selectedElementValue', value)
+                }}
+                PopperProps={{ displayInDialog: true }}
+              />
+            </div>
+            <Button
+              className="mt-8"
+              icon="reload"
+              variant="quaternary"
+              disabled={isLoading}
               loading={isLoading}
-              label={translate('text_6672ebb8b1b50be550eccb73')}
-              placeholder={translate('text_6630e51df0a194013daea622')}
-              helperText={
-                !isLoading && !comboboxData.length
-                  ? translate('text_6630ec823adac97d3bf0fb4b')
-                  : undefined
-              }
-              searchQuery={
-                !isAccountContext
-                  ? (getXeroIntegrationItems as unknown as ComboBoxProps['searchQuery'])
-                  : undefined
-              }
-              onChange={(value) => {
-                formikProps.setFieldValue('selectedElementValue', value)
+              onClick={() => {
+                if (isAccountContext) {
+                  triggerAccountItemRefetch()
+                } else {
+                  triggerItemRefetch()
+                }
               }}
-              PopperProps={{ displayInDialog: true }}
             />
           </div>
-          <Button
-            className="mt-8"
-            icon="reload"
-            variant="quaternary"
-            disabled={isLoading}
-            loading={isLoading}
-            onClick={() => {
-              if (isAccountContext) {
-                triggerAccountItemRefetch()
-              } else {
-                triggerItemRefetch()
-              }
-            }}
-          />
         </div>
-      </Dialog>
+      </Drawer>
     )
   },
 )
 
-XeroIntegrationMapItemDialog.displayName = 'XeroIntegrationMapItemDialog'
+XeroIntegrationMapItemDrawer.displayName = 'XeroIntegrationMapItemDrawer'

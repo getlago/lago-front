@@ -12,7 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
-import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
+import { NetsuiteIntegrationMapItemDrawerRef } from './NetsuiteIntegrationMapItemDrawer'
 
 gql`
   fragment NetsuiteIntegrationItemsListAddons on AddOn {
@@ -36,7 +36,7 @@ type NetsuiteIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
+  netsuiteIntegrationMapItemDrawerRef: RefObject<NetsuiteIntegrationMapItemDrawerRef>
 }
 
 const NetsuiteIntegrationItemsListAddons = ({
@@ -45,7 +45,7 @@ const NetsuiteIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDialogRef,
+  netsuiteIntegrationMapItemDrawerRef,
   searchTerm,
 }: NetsuiteIntegrationItemsListAddonsProps) => {
   const { translate } = useInternationalization()
@@ -58,7 +58,7 @@ const NetsuiteIntegrationItemsListAddons = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
       createRoute={CREATE_ADD_ON_ROUTE}
       mappableType={MappableTypeEnum.AddOn}
       provider={IntegrationTypeEnum.Netsuite}

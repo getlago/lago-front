@@ -21,9 +21,9 @@ import AvalaraIntegrationItemsListAddons from './AvalaraIntegrationItemsListAddo
 import AvalaraIntegrationItemsListBillableMetrics from './AvalaraIntegrationItemsListBillableMetrics'
 import AvalaraIntegrationItemsListDefault from './AvalaraIntegrationItemsListDefault'
 import {
-  AvalaraIntegrationMapItemDialog,
-  AvalaraIntegrationMapItemDialogRef,
-} from './AvalaraIntegrationMapItemDialog'
+  AvalaraIntegrationMapItemDrawer,
+  AvalaraIntegrationMapItemDrawerRef,
+} from './AvalaraIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
@@ -96,7 +96,7 @@ gql`
 
 const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const avalaraIntegrationMapItemDialogRef = useRef<AvalaraIntegrationMapItemDialogRef>(null)
+  const avalaraIntegrationMapItemDrawerRef = useRef<AvalaraIntegrationMapItemDrawerRef>(null)
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -251,7 +251,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          avalaraIntegrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
+          avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
         />
       )}
       {selectedItemType === MappableTypeEnum.AddOn && (
@@ -261,7 +261,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           integrationId={integrationId}
           isLoading={isLoadingAddons}
           hasError={!!addonError}
-          avalaraIntegrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
+          avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
           searchTerm={addonVariables?.searchTerm}
         />
       )}
@@ -272,12 +272,12 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           integrationId={integrationId}
           isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
-          avalaraIntegrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
+          avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
       )}
 
-      <AvalaraIntegrationMapItemDialog ref={avalaraIntegrationMapItemDialogRef} />
+      <AvalaraIntegrationMapItemDrawer ref={avalaraIntegrationMapItemDrawerRef} />
     </>
   )
 }

@@ -12,7 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
-import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
+import { NetsuiteIntegrationMapItemDrawerRef } from './NetsuiteIntegrationMapItemDrawer'
 
 gql`
   fragment NetsuiteIntegrationItemsListBillableMetrics on BillableMetric {
@@ -38,7 +38,7 @@ type NetsuiteIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
+  netsuiteIntegrationMapItemDrawerRef: RefObject<NetsuiteIntegrationMapItemDrawerRef>
 }
 
 const NetsuiteIntegrationItemsListBillableMetrics = ({
@@ -47,7 +47,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDialogRef,
+  netsuiteIntegrationMapItemDrawerRef,
   searchTerm,
 }: NetsuiteIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
@@ -60,7 +60,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
       createRoute={CREATE_BILLABLE_METRIC_ROUTE}
       mappableType={MappableTypeEnum.BillableMetric}
       provider={IntegrationTypeEnum.Netsuite}

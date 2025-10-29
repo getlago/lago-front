@@ -19,7 +19,7 @@ import {
   useGetBillableMetricsForXeroItemsListLazyQuery,
 } from '~/generated/graphql'
 import {
-  MappableIntegrationMapItemDialogRef,
+  MappableIntegrationMapItemDrawerRef,
   MappableIntegrationProvider,
 } from '~/pages/settings/integrations/common'
 
@@ -52,7 +52,7 @@ export type FetchIntegrationItemsListProps = {
   hasError: boolean
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  integrationMapItemDialogRef: MappableIntegrationMapItemDialogRef
+  integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
   createRoute: string
   mappableType: MappableTypeEnum
   provider: MappableIntegrationProvider

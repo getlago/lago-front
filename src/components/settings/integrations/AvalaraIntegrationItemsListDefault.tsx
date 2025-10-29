@@ -14,7 +14,7 @@ import {
 } from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { AvalaraIntegrationMapItemDialogRef } from './AvalaraIntegrationMapItemDialog'
+import { AvalaraIntegrationMapItemDrawerRef } from './AvalaraIntegrationMapItemDrawer'
 
 gql`
   fragment AvalaraIntegrationItemsListDefault on CollectionMapping {
@@ -31,7 +31,7 @@ type AvalaraIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  avalaraIntegrationMapItemDialogRef: RefObject<AvalaraIntegrationMapItemDialogRef>
+  avalaraIntegrationMapItemDrawerRef: RefObject<AvalaraIntegrationMapItemDrawerRef>
 }
 
 const AvalaraIntegrationItemsListDefault = ({
@@ -39,7 +39,7 @@ const AvalaraIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  avalaraIntegrationMapItemDialogRef,
+  avalaraIntegrationMapItemDrawerRef,
 }: AvalaraIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -90,7 +90,7 @@ const AvalaraIntegrationItemsListDefault = ({
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Avalara}
     />
