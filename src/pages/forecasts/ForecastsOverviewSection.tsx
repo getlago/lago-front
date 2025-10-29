@@ -1,5 +1,11 @@
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
-import { Button, HorizontalDataTable, InitScrollTo, Typography } from '~/components/designSystem'
+import {
+  Button,
+  HorizontalDataTable,
+  InitScrollTo,
+  RowType,
+  Typography,
+} from '~/components/designSystem'
 import { Filters, ForecastsAvailableFilters } from '~/components/designSystem/Filters'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
@@ -8,7 +14,7 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FORECASTS_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
+import { CurrencyEnum, DataApiUsageForecasted, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useForecastsAnalyticsOverview } from '~/pages/forecasts/useForecastsAnalyticsOverview'
 import { FORECASTS_GRAPH_COLORS } from '~/pages/forecasts/utils'
@@ -29,17 +35,21 @@ const ForecastsRowLabel = ({ label, color }: { label: string; color: string }) =
 
 const AmountCell = ({
   value,
-  className,
   currency,
   showMinusSign = false,
 }: {
   value: number
-  className: string
   currency: CurrencyEnum
   showMinusSign?: boolean
 }) => {
   return (
-    <Typography variant="body" className={tw(className)}>
+    <Typography
+      variant="body"
+      className={tw({
+        'text-grey-700': value > 0,
+        'text-grey-500': value === 0,
+      })}
+    >
       {showMinusSign && '-'}
       {intlFormatNumber(deserializeAmount(value, currency), {
         currencyDisplay: 'symbol',
@@ -63,6 +73,97 @@ export const ForecastsOverviewSection = ({
     timeGranularity,
     hasAccessToForecastsFeature,
   } = useForecastsAnalyticsOverview()
+
+  const CHART_LINES: Array<{
+    dataKey: keyof DataApiUsageForecasted
+    colorHex: string
+    tooltipLabel: string
+    strokeDasharray: string
+  }> = [
+    {
+      dataKey: 'amountCentsForecastOptimistic',
+      colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastOptimistic,
+      tooltipLabel: translate('text_17564701329935iz92g07zaj'),
+      strokeDasharray: '3 3',
+    },
+    {
+      dataKey: 'amountCentsForecastRealistic',
+      colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastRealistic,
+      tooltipLabel: translate('text_1756470132993ziruszj5lu1'),
+      strokeDasharray: '3 3',
+    },
+    {
+      dataKey: 'amountCentsForecastConservative',
+      colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastConservative,
+      tooltipLabel: translate('text_1756470132993wnnhcrw15q9'),
+      strokeDasharray: '3 3',
+    },
+  ]
+
+  const TABLE_ROWS: Array<{
+    key: string
+    type: RowType
+    label: string | React.ReactElement
+    content: (item: DataApiUsageForecasted) => React.ReactElement
+  }> = [
+    {
+      key: 'startOfPeriodDt',
+      type: 'header',
+      label: translate('text_1739268382272qnne2h7slna'),
+      content: (item) => {
+        return (
+          <Typography variant="captionHl">
+            {getItemDateFormatedByTimeGranularity({ item, timeGranularity })}
+          </Typography>
+        )
+      },
+    },
+    {
+      key: 'amountCentsForecastOptimistic',
+      type: 'data',
+      label: (
+        <ForecastsRowLabel
+          label={translate('text_17564701329935iz92g07zaj')}
+          color={FORECASTS_GRAPH_COLORS.amountCentsForecastOptimistic}
+        />
+      ),
+      content: (item) => {
+        const amountCents = Number(item.amountCentsForecastOptimistic) || 0
+
+        return <AmountCell value={amountCents} currency={selectedCurrency} />
+      },
+    },
+    {
+      key: 'amountCentsForecastRealistic',
+      type: 'data',
+      label: (
+        <ForecastsRowLabel
+          label={translate('text_1756470132993ziruszj5lu1')}
+          color={FORECASTS_GRAPH_COLORS.amountCentsForecastRealistic}
+        />
+      ),
+      content: (item) => {
+        const amountCents = Number(item.amountCentsForecastRealistic) || 0
+
+        return <AmountCell value={amountCents} currency={selectedCurrency} />
+      },
+    },
+    {
+      key: 'amountCentsForecastConservative',
+      type: 'data',
+      label: (
+        <ForecastsRowLabel
+          label={translate('text_1756470132993wnnhcrw15q9')}
+          color={FORECASTS_GRAPH_COLORS.amountCentsForecastConservative}
+        />
+      ),
+      content: (item) => {
+        const amountCents = Number(item.amountCentsForecastConservative) || 0
+
+        return <AmountCell value={amountCents} currency={selectedCurrency} />
+      },
+    },
+  ]
 
   return (
     <section className="flex flex-col gap-6">
@@ -125,26 +226,7 @@ export const ForecastsOverviewSection = ({
             data={data}
             loading={isLoading}
             timeGranularity={timeGranularity}
-            lines={[
-              {
-                dataKey: 'amountCentsForecastOptimistic',
-                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastOptimistic,
-                tooltipLabel: translate('text_17564701329935iz92g07zaj'),
-                strokeDasharray: '3 3',
-              },
-              {
-                dataKey: 'amountCentsForecastRealistic',
-                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastRealistic,
-                tooltipLabel: translate('text_1756470132993ziruszj5lu1'),
-                strokeDasharray: '3 3',
-              },
-              {
-                dataKey: 'amountCentsForecastConservative',
-                colorHex: FORECASTS_GRAPH_COLORS.amountCentsForecastConservative,
-                tooltipLabel: translate('text_1756470132993wnnhcrw15q9'),
-                strokeDasharray: '3 3',
-              },
-            ]}
+            lines={CHART_LINES}
           />
 
           <HorizontalDataTable
@@ -153,92 +235,7 @@ export const ForecastsOverviewSection = ({
             data={data}
             loading={isLoading}
             initScrollTo={InitScrollTo.START}
-            rows={[
-              {
-                key: 'startOfPeriodDt',
-                type: 'header',
-                label: translate('text_1739268382272qnne2h7slna'),
-                content: (item) => {
-                  return (
-                    <Typography variant="captionHl">
-                      {getItemDateFormatedByTimeGranularity({ item, timeGranularity })}
-                    </Typography>
-                  )
-                },
-              },
-              {
-                key: 'amountCentsForecastOptimistic',
-                type: 'data',
-                label: (
-                  <ForecastsRowLabel
-                    label={translate('text_17564701329935iz92g07zaj')}
-                    color={FORECASTS_GRAPH_COLORS.amountCentsForecastOptimistic}
-                  />
-                ),
-                content: (item) => {
-                  const amountCents = Number(item.amountCentsForecastOptimistic) || 0
-
-                  return (
-                    <AmountCell
-                      className={tw({
-                        'text-grey-700': amountCents > 0,
-                        'text-grey-500': amountCents === 0,
-                      })}
-                      value={amountCents}
-                      currency={selectedCurrency}
-                    />
-                  )
-                },
-              },
-              {
-                key: 'amountCentsForecastRealistic',
-                type: 'data',
-                label: (
-                  <ForecastsRowLabel
-                    label={translate('text_1756470132993ziruszj5lu1')}
-                    color={FORECASTS_GRAPH_COLORS.amountCentsForecastRealistic}
-                  />
-                ),
-                content: (item) => {
-                  const amountCents = Number(item.amountCentsForecastRealistic) || 0
-
-                  return (
-                    <AmountCell
-                      className={tw({
-                        'text-grey-700': amountCents > 0,
-                        'text-grey-500': amountCents === 0,
-                      })}
-                      value={amountCents}
-                      currency={selectedCurrency}
-                    />
-                  )
-                },
-              },
-              {
-                key: 'amountCentsForecastConservative',
-                type: 'data',
-                label: (
-                  <ForecastsRowLabel
-                    label={translate('text_1756470132993wnnhcrw15q9')}
-                    color={FORECASTS_GRAPH_COLORS.amountCentsForecastConservative}
-                  />
-                ),
-                content: (item) => {
-                  const amountCents = Number(item.amountCentsForecastConservative) || 0
-
-                  return (
-                    <AmountCell
-                      className={tw({
-                        'text-grey-700': amountCents > 0,
-                        'text-grey-500': amountCents === 0,
-                      })}
-                      value={amountCents}
-                      currency={selectedCurrency}
-                    />
-                  )
-                },
-              },
-            ]}
+            rows={TABLE_ROWS}
           />
         </AnalyticsStateProvider>
       )}
