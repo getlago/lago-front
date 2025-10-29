@@ -70,15 +70,15 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     return [
       {
         label: translate('text_62793bbb599f1c01522e919f'),
-        value: ChargeModelEnum.Graduated,
+        value: FixedChargeChargeModelEnum.Graduated,
       },
       {
         label: translate('text_624aa732d6af4e0103d40e6f'),
-        value: ChargeModelEnum.Standard,
+        value: FixedChargeChargeModelEnum.Standard,
       },
       {
         label: translate('text_6304e74aab6dbc18d615f386'),
-        value: ChargeModelEnum.Volume,
+        value: FixedChargeChargeModelEnum.Volume,
       },
     ]
   }
