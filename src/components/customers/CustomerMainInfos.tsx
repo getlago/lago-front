@@ -3,8 +3,9 @@ import { Avatar, Icon } from 'lago-design-system'
 import { FC, PropsWithChildren } from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 
-import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
+import { CustomerInfoRows } from '~/components/customers/CustomerInfoRows'
 import { Skeleton, Typography } from '~/components/designSystem'
+import { InfoRow } from '~/components/InfoRow'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import {
@@ -17,8 +18,6 @@ import {
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
 import { getTargetedObjectTranslationKey } from '~/core/constants/form'
-import { formatAddress } from '~/core/formats/formatAddress'
-import { getTimezoneConfig } from '~/core/timezone'
 import {
   AnrokIntegration,
   AvalaraIntegration,
@@ -28,7 +27,6 @@ import {
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   SalesforceIntegration,
-  TimezoneEnum,
   useIntegrationsListForCustomerMainInfosQuery,
   usePaymentProvidersListForCustomerMainInfosQuery,
   XeroIntegration,
@@ -224,10 +222,6 @@ interface CustomerMainInfosProps {
   onEdit?: () => unknown
 }
 
-export const InfoBlock = ({ children }: { children: React.ReactNode }) => (
-  <div className="mb-2 flex gap-4 first-child:w-50 first-child:shrink-0">{children}</div>
-)
-
 const InlineLink: FC<PropsWithChildren<LinkProps>> = ({ children, ...props }) => {
   return (
     <Link
@@ -335,51 +329,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
       </div>
     )
 
-  const {
-    customerType,
-    name,
-    firstname,
-    lastname,
-    externalId,
-    externalSalesforceId,
-    legalName,
-    legalNumber,
-    taxIdentificationNumber,
-    phone,
-    email,
-    url,
-    currency,
-    addressLine1,
-    addressLine2,
-    state,
-    country,
-    city,
-    zipcode,
-    shippingAddress,
-    paymentProvider,
-    providerCustomer,
-    timezone,
-    metadata,
-    billingEntity,
-  } = customer
-
-  const formattedAddress = formatAddress({
-    addressLine1,
-    addressLine2,
-    city,
-    country,
-    state,
-    zipcode,
-  })
-
-  const formattedShippingAddress = formatAddress({
-    addressLine1: shippingAddress?.addressLine1,
-    addressLine2: shippingAddress?.addressLine2,
-    city: shippingAddress?.city,
-    country: shippingAddress?.country,
-    state: shippingAddress?.state,
-    zipcode: shippingAddress?.zipcode,
-  })
+  const { paymentProvider, providerCustomer } = customer
 
   return (
     <div>
@@ -394,132 +344,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
       />
 
       <div className="flex flex-col" data-id="customer-info-list">
-        {billingEntity && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_1743611497157teaa1zu8l24')}</Typography>
-            <Typography color="textSecondary" forceBreak>
-              {billingEntity.name || billingEntity.code}
-            </Typography>
-          </InfoBlock>
-        )}
-        {customerType && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_1726128938631ioz4orixel3')}</Typography>
-            <Typography color="textSecondary" forceBreak>
-              {translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customerType])}
-            </Typography>
-          </InfoBlock>
-        )}
-        {name && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_626162c62f790600f850b76a')}</Typography>
-            <Typography color="textSecondary" forceBreak>
-              {name}
-            </Typography>
-          </InfoBlock>
-        )}
-        {(firstname || lastname) && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_17261289386311s35rvzyxbz')}</Typography>
-            <Typography color="textSecondary" forceBreak>
-              {firstname} {lastname}
-            </Typography>
-          </InfoBlock>
-        )}
-        <InfoBlock>
-          <Typography variant="caption">{translate('text_6250304370f0f700a8fdc283')}</Typography>
-          <Typography color="textSecondary">{externalId}</Typography>
-        </InfoBlock>
-        {timezone && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_6390a767b79591bc70ba39f7')}</Typography>
-            <Typography color="textSecondary">
-              {translate('text_638f743fa9a2a9545ee6409a', {
-                zone: translate(timezone || TimezoneEnum.TzUtc),
-                offset: getTimezoneConfig(timezone).offset,
-              })}
-            </Typography>
-          </InfoBlock>
-        )}
-        {externalSalesforceId && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_651fd42936a03200c126c683')}</Typography>
-            <Typography color="textSecondary">{externalSalesforceId}</Typography>
-          </InfoBlock>
-        )}
-        {currency && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_632b4acf0c41206cbcb8c324')}</Typography>
-            <Typography color="textSecondary">{currency}</Typography>
-          </InfoBlock>
-        )}
-        {legalName && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_626c0c301a16a600ea061471')}</Typography>
-            <Typography color="textSecondary">{legalName}</Typography>
-          </InfoBlock>
-        )}
-        {legalNumber && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_626c0c301a16a600ea061475')}</Typography>
-            <Typography color="textSecondary">{legalNumber}</Typography>
-          </InfoBlock>
-        )}
-        {taxIdentificationNumber && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_648053ee819b60364c675d05')}</Typography>
-            <Typography color="textSecondary">{taxIdentificationNumber}</Typography>
-          </InfoBlock>
-        )}
-        {email && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_626c0c301a16a600ea061479')}</Typography>
-            <Typography color="textSecondary">{email.split(',').join(', ')}</Typography>
-          </InfoBlock>
-        )}
-        {url && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_641b164cff8497006bcbd2b3')}</Typography>
-            <Typography color="textSecondary">{url}</Typography>
-          </InfoBlock>
-        )}
-        {phone && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_626c0c301a16a600ea06147d')}</Typography>
-            <Typography color="textSecondary">{phone}</Typography>
-          </InfoBlock>
-        )}
-        {formattedAddress && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_626c0c301a16a600ea06148d')}</Typography>
-            <div className="flex flex-col">
-              <Typography color="textSecondary">{formattedAddress}</Typography>
-            </div>
-          </InfoBlock>
-        )}
-        {formattedShippingAddress && (
-          <InfoBlock>
-            <Typography variant="caption">{translate('text_667d708c1359b49f5a5a822a')}</Typography>
-
-            <div className="flex flex-col">
-              <Typography color="textSecondary">{formattedShippingAddress}</Typography>
-            </div>
-          </InfoBlock>
-        )}
-        {!!metadata?.length &&
-          metadata.map((meta) => (
-            <InfoBlock key={`customer-metadata-${meta.id}`}>
-              <Typography variant="caption" noWrap>
-                {meta.key}
-              </Typography>
-              <Typography className="line-break-anywhere" color="textSecondary">
-                {meta.value}
-              </Typography>
-            </InfoBlock>
-          ))}
+        <CustomerInfoRows customer={customer} />
 
         {!!paymentProvider && !!linkedProvider?.name && (
-          <InfoBlock>
+          <InfoRow>
             <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
             <div>
               <div className="flex flex-row">
@@ -556,11 +384,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </Typography>
                 )}
             </div>
-          </InfoBlock>
+          </InfoRow>
         )}
 
         {(!!customer?.netsuiteCustomer || !!connectedNetsuiteIntegration?.id) && (
-          <InfoBlock>
+          <InfoRow>
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
 
             <div>
@@ -590,11 +418,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </div>
                 )}
             </div>
-          </InfoBlock>
+          </InfoRow>
         )}
 
         {(!!customer?.xeroCustomer || !!connectedXeroIntegration?.id) && (
-          <InfoBlock>
+          <InfoRow>
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
             <div>
               {integrationsLoading && <IntegrationsLoadingSkeleton />}
@@ -620,11 +448,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </div>
                 )}
             </div>
-          </InfoBlock>
+          </InfoRow>
         )}
 
         {!!connectedAnrokIntegration && (
-          <InfoBlock>
+          <InfoRow>
             <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
             <div>
               {integrationsLoading && <IntegrationsLoadingSkeleton />}
@@ -656,11 +484,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </div>
                 )}
             </div>
-          </InfoBlock>
+          </InfoRow>
         )}
 
         {(!!customer?.avalaraCustomer || !!connectedAvalaraIntegration?.id) && (
-          <InfoBlock>
+          <InfoRow>
             <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
             <div>
               {integrationsLoading && <IntegrationsLoadingSkeleton />}
@@ -686,11 +514,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </div>
                 )}
             </div>
-          </InfoBlock>
+          </InfoRow>
         )}
 
         {!!connectedHubspotIntegration && (
-          <InfoBlock>
+          <InfoRow>
             <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
 
             <div>
@@ -734,11 +562,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </div>
                 )}
             </div>
-          </InfoBlock>
+          </InfoRow>
         )}
 
         {!!connectedSalesforceIntegration && (
-          <InfoBlock>
+          <InfoRow>
             <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
             <div>
               {integrationsLoading && <IntegrationsLoadingSkeleton />}
@@ -773,7 +601,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   </div>
                 )}
             </div>
-          </InfoBlock>
+          </InfoRow>
         )}
       </div>
     </div>

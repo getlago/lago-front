@@ -5,9 +5,9 @@ import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
-import { InfoBlock } from '~/components/customers/CustomerMainInfos'
 import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
+import { InfoRow } from '~/components/InfoRow'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -319,12 +319,12 @@ const CreateWalletTopUp = () => {
                 ]
                   .filter(([, , enabled]) => enabled !== false)
                   .map(([label, content], index) => (
-                    <InfoBlock key={`create-wallet-topup-information-${index}`}>
+                    <InfoRow key={`create-wallet-topup-information-${index}`}>
                       <Typography variant="caption">{label}</Typography>
                       <Typography color="textSecondary" forceBreak>
                         {content}
                       </Typography>
-                    </InfoBlock>
+                    </InfoRow>
                   ))}
               </div>
             </section>
