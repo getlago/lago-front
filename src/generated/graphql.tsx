@@ -2911,6 +2911,30 @@ export type DataApiUsageCollection = {
   metadata: CollectionMetadata;
 };
 
+export type DataApiUsageForecasted = {
+  __typename?: 'DataApiUsageForecasted';
+  amountCents: Scalars['BigInt']['output'];
+  amountCentsForecastConservative: Scalars['BigInt']['output'];
+  amountCentsForecastOptimistic: Scalars['BigInt']['output'];
+  amountCentsForecastRealistic: Scalars['BigInt']['output'];
+  amountCurrency: CurrencyEnum;
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  units: Scalars['Float']['output'];
+  unitsForecastConservative: Scalars['Float']['output'];
+  unitsForecastOptimistic: Scalars['Float']['output'];
+  unitsForecastRealistic: Scalars['Float']['output'];
+};
+
+/** DataApiUsageForecastedCollection type */
+export type DataApiUsageForecastedCollection = {
+  __typename?: 'DataApiUsageForecastedCollection';
+  /** A collection of paginated DataApiUsageForecastedCollection */
+  collection: Array<DataApiUsageForecasted>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataApiUsageInvoiced = {
   __typename?: 'DataApiUsageInvoiced';
   amountCents: Scalars['BigInt']['output'];
@@ -3892,6 +3916,7 @@ export enum IntegrationTypeEnum {
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
   ClickhouseLiveAggregation = 'clickhouse_live_aggregation',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -5863,6 +5888,7 @@ export enum PremiumIntegrationTypeEnum {
   Avalara = 'avalara',
   BetaPaymentAuthorization = 'beta_payment_authorization',
   ClickhouseLiveAggregation = 'clickhouse_live_aggregation',
+  ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -6173,6 +6199,8 @@ export type Query = {
   dataApiUsages: DataApiUsageCollection;
   /** Query usages of an organization */
   dataApiUsagesAggregatedAmounts: DataApiUsageAggregatedAmountCollection;
+  /** Query forecasted usages of an organization */
+  dataApiUsagesForecasted: DataApiUsageForecastedCollection;
   /** Query invoiced usages of an organization */
   dataApiUsagesInvoiced: DataApiUsageInvoicedCollection;
   /** Query a single dunning campaign of an organization */
@@ -6634,6 +6662,24 @@ export type QueryDataApiUsagesAggregatedAmountsArgs = {
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
+export type QueryDataApiUsagesForecastedArgs = {
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  chargeFilterId?: InputMaybe<Scalars['String']['input']>;
+  chargeId?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
@@ -12397,6 +12443,24 @@ export type GetFeaturesListQueryVariables = Exact<{
 
 
 export type GetFeaturesListQuery = { __typename?: 'Query', features: { __typename?: 'FeatureObjectCollection', collection: Array<{ __typename?: 'FeatureObject', id: string, name?: string | null, code: string, createdAt: any, subscriptionsCount: number }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+
+export type GetForecastsQueryVariables = Exact<{
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+}>;
+
+
+export type GetForecastsQuery = { __typename?: 'Query', dataApiUsagesForecasted: { __typename?: 'DataApiUsageForecastedCollection', collection: Array<{ __typename?: 'DataApiUsageForecasted', amountCents: any, units: number, amountCentsForecastConservative: any, amountCentsForecastRealistic: any, amountCentsForecastOptimistic: any, unitsForecastConservative: number, unitsForecastRealistic: number, unitsForecastOptimistic: number, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any }> } };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -33992,6 +34056,82 @@ export type GetFeaturesListQueryHookResult = ReturnType<typeof useGetFeaturesLis
 export type GetFeaturesListLazyQueryHookResult = ReturnType<typeof useGetFeaturesListLazyQuery>;
 export type GetFeaturesListSuspenseQueryHookResult = ReturnType<typeof useGetFeaturesListSuspenseQuery>;
 export type GetFeaturesListQueryResult = Apollo.QueryResult<GetFeaturesListQuery, GetFeaturesListQueryVariables>;
+export const GetForecastsDocument = gql`
+    query getForecasts($billableMetricCode: String, $billingEntityCode: String, $currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $isCustomerTinEmpty: Boolean, $externalSubscriptionId: String, $planCode: String, $fromDate: ISO8601Date, $toDate: ISO8601Date, $timeGranularity: TimeGranularityEnum) {
+  dataApiUsagesForecasted(
+    billableMetricCode: $billableMetricCode
+    billingEntityCode: $billingEntityCode
+    currency: $currency
+    customerCountry: $customerCountry
+    customerType: $customerType
+    externalCustomerId: $externalCustomerId
+    isCustomerTinEmpty: $isCustomerTinEmpty
+    externalSubscriptionId: $externalSubscriptionId
+    planCode: $planCode
+    fromDate: $fromDate
+    toDate: $toDate
+    timeGranularity: $timeGranularity
+  ) {
+    collection {
+      amountCents
+      units
+      amountCentsForecastConservative
+      amountCentsForecastRealistic
+      amountCentsForecastOptimistic
+      unitsForecastConservative
+      unitsForecastRealistic
+      unitsForecastOptimistic
+      amountCurrency
+      endOfPeriodDt
+      startOfPeriodDt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetForecastsQuery__
+ *
+ * To run a query within a React component, call `useGetForecastsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetForecastsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetForecastsQuery({
+ *   variables: {
+ *      billableMetricCode: // value for 'billableMetricCode'
+ *      billingEntityCode: // value for 'billingEntityCode'
+ *      currency: // value for 'currency'
+ *      customerCountry: // value for 'customerCountry'
+ *      customerType: // value for 'customerType'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      planCode: // value for 'planCode'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *      timeGranularity: // value for 'timeGranularity'
+ *   },
+ * });
+ */
+export function useGetForecastsQuery(baseOptions?: Apollo.QueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
+      }
+export function useGetForecastsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
+        }
+export function useGetForecastsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
+        }
+export type GetForecastsQueryHookResult = ReturnType<typeof useGetForecastsQuery>;
+export type GetForecastsLazyQueryHookResult = ReturnType<typeof useGetForecastsLazyQuery>;
+export type GetForecastsSuspenseQueryHookResult = ReturnType<typeof useGetForecastsSuspenseQuery>;
+export type GetForecastsQueryResult = Apollo.QueryResult<GetForecastsQuery, GetForecastsQueryVariables>;
 export const GetAdyenIntegrationsDetailsDocument = gql`
     query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {

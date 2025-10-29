@@ -15,6 +15,11 @@ type DataItem = {
   [key: string]: unknown
 }
 
+export enum InitScrollTo {
+  START,
+  END,
+}
+
 export type RowType = 'header' | 'data' | 'group'
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 type DotNestedKeys<T> = (
@@ -43,6 +48,7 @@ type HorizontalDataTableProps<T> = {
   data?: T[]
   leftColumnWidth?: number
   loading?: boolean
+  initScrollTo?: InitScrollTo
 }
 
 const getRowHeight = (rowType: RowType, isCollapsed?: boolean) => {
@@ -62,6 +68,7 @@ export const HorizontalDataTable = <T extends DataItem>({
   leftColumnWidth = DEFAULT_LEFT_COLUMN_WIDTH,
   loading,
   rows,
+  initScrollTo = InitScrollTo.END,
 }: HorizontalDataTableProps<T>) => {
   // Get the hover and click state from context
   const { clickedDataIndex, setHoverDataIndex, setClickedDataIndex } = useAnalyticsState()
@@ -84,7 +91,11 @@ export const HorizontalDataTable = <T extends DataItem>({
   useEffect(() => {
     if (!loading && !!data?.length) {
       // On init, scroll to the last element
-      columnVirtualizer.scrollToIndex((data?.length || 1) - 1)
+      if (initScrollTo === InitScrollTo.END) {
+        return columnVirtualizer.scrollToIndex((data?.length || 1) - 1)
+      }
+
+      return columnVirtualizer.scrollToIndex(0)
     }
   }, [columnVirtualizer, data?.length, loading])
 

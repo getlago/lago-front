@@ -3479,5 +3479,16 @@
   "text_1755697949545w7vb1hox4n5": "Wallet priority",
   "text_175569794954699gxpjhn4fe": "Order in which this wallet is used compared to others (1 and 50 — 1 is the highest). If wallets share the same priority, the oldest will be used first.",
   "text_1755697949546zuqgeved2ma": "Type a priority. Default to 50",
-  "text_176071328361044kwwdb4re4": "We only allow creating up to {{count}} active wallet|We only allow creating up to {{count}} active wallets"
+  "text_176071328361044kwwdb4re4": "We only allow creating up to {{count}} active wallet|We only allow creating up to {{count}} active wallets",
+  "text_1753014457040hxp6wkphkvw": "Forecasts",
+  "text_17530144570400ri03obw5mv": "Lago’s AI model forecasts revenue and usage with precision. New metrics need 4–6 months of data for accuracy — otherwise, Lago generates a proxy estimate.",
+  "text_1753014457040hhkl9fy58wy": "Usage forecast overview",
+  "text_17530144570404vslv3s1ki3": "AI",
+  "text_17564701329935iz92g07zaj": "Optimistic (total)",
+  "text_1756470132993ziruszj5lu1": "Realistic (total)",
+  "text_1756470132993wnnhcrw15q9": "Pessimistic (total)",
+  "text_1761553933730mc7ttuol4be": "Billable metric",
+  "text_1761554090907c9n5qyilqow": "Search or select a billable metric",
+  "text_1761560753771d6ppz3evqxc": "Unlock Forecasts",
+  "text_1761560714509hv9325ywuzq": "Lago requires sufficient usage and revenue data to run its AI model effectively. Contact us to check if you're eligible."
 }
