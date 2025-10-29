@@ -56,6 +56,10 @@ const AvalaraIntegrationItemsListDefault = ({
     )
   }
 
+  /**
+   * integrationMappings is passed to each item because FetchableIntegrationItems (billing + addOns) each have their own mappings
+   * while defaultItems here is the full list of mappings for all mapping types
+   */
   const defaultListToDisplay: Array<IntegrationItem> = [
     {
       id: 'fallback-item',
@@ -63,6 +67,7 @@ const AvalaraIntegrationItemsListDefault = ({
       label: translate('text_6630e3210c13c500cd398e98'),
       description: translate('text_6630e3210c13c500cd398e99'),
       mappingType: MappingTypeEnum.FallbackItem,
+      integrationMappings: defaultItems,
     },
     {
       id: 'subscription-fee',
@@ -70,6 +75,7 @@ const AvalaraIntegrationItemsListDefault = ({
       label: translate('text_6630e3210c13c500cd398ea2'),
       description: translate('text_6630e3210c13c500cd398ea3'),
       mappingType: MappingTypeEnum.SubscriptionFee,
+      integrationMappings: defaultItems,
     },
     {
       id: 'minimum-commitment',
@@ -77,6 +83,7 @@ const AvalaraIntegrationItemsListDefault = ({
       label: translate('text_6630e3210c13c500cd398ea5'),
       description: translate('text_6630e3210c13c500cd398ea3'),
       mappingType: MappingTypeEnum.MinimumCommitment,
+      integrationMappings: defaultItems,
     },
   ]
 
@@ -84,7 +91,6 @@ const AvalaraIntegrationItemsListDefault = ({
     <IntegrationItemsTable
       integrationId={integrationId}
       integrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
-      defaultItems={defaultItems}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Avalara}
     />

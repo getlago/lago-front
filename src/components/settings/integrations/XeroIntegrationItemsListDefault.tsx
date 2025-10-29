@@ -56,6 +56,10 @@ const XeroIntegrationItemsListDefault = ({
     )
   }
 
+  /**
+   * integrationMappings is passed to each item because FetchableIntegrationItems (billing + addOns) each have their own mappings
+   * while defaultItems here is the full list of mappings for all mapping types
+   */
   const defaultListToDisplay: Array<IntegrationItem> = [
     {
       id: 'fallback-item',
@@ -63,6 +67,7 @@ const XeroIntegrationItemsListDefault = ({
       label: translate('text_6630e3210c13c500cd398e98'),
       description: translate('text_6630e3210c13c500cd398e99'),
       mappingType: MappingTypeEnum.FallbackItem,
+      integrationMappings: defaultItems,
     },
     {
       id: 'coupon',
@@ -70,6 +75,7 @@ const XeroIntegrationItemsListDefault = ({
       label: translate('text_637ccf8133d2c9a7d11ce705'),
       description: translate('text_6630e3210c13c500cd398e9e'),
       mappingType: MappingTypeEnum.Coupon,
+      integrationMappings: defaultItems,
     },
     {
       id: 'credit-note',
@@ -77,6 +83,7 @@ const XeroIntegrationItemsListDefault = ({
       label: translate('text_66461ada56a84401188e8c63'),
       description: translate('text_66461ada56a84401188e8c64'),
       mappingType: MappingTypeEnum.CreditNote,
+      integrationMappings: defaultItems,
     },
     {
       id: 'subscription-fee',
@@ -84,6 +91,7 @@ const XeroIntegrationItemsListDefault = ({
       label: translate('text_6630e3210c13c500cd398ea2'),
       description: translate('text_6630e3210c13c500cd398ea3'),
       mappingType: MappingTypeEnum.SubscriptionFee,
+      integrationMappings: defaultItems,
     },
     {
       id: 'minimum-commitment',
@@ -91,6 +99,7 @@ const XeroIntegrationItemsListDefault = ({
       label: translate('text_6630e3210c13c500cd398ea5'),
       description: translate('text_6630e3210c13c500cd398ea3'),
       mappingType: MappingTypeEnum.MinimumCommitment,
+      integrationMappings: defaultItems,
     },
     {
       id: 'account',
@@ -98,6 +107,7 @@ const XeroIntegrationItemsListDefault = ({
       label: translate('text_6672ebb8b1b50be550eccbed'),
       description: translate('text_6672ebb8b1b50be550eccbf0'),
       mappingType: MappingTypeEnum.Account,
+      integrationMappings: defaultItems,
     },
     {
       id: 'prepaid-credit',
@@ -105,6 +115,7 @@ const XeroIntegrationItemsListDefault = ({
       label: translate('text_637ccf8133d2c9a7d11ce6e1'),
       description: translate('text_6630e3210c13c500cd398eb0'),
       mappingType: MappingTypeEnum.PrepaidCredit,
+      integrationMappings: defaultItems,
     },
   ]
 
@@ -112,7 +123,6 @@ const XeroIntegrationItemsListDefault = ({
     <IntegrationItemsTable
       integrationId={integrationId}
       integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
-      defaultItems={defaultItems}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Xero}
     />

@@ -1,9 +1,12 @@
 import { InfiniteScroll } from '~/components/designSystem'
 import { createNumberRangeArray } from '~/core/utils/createNumberRangeArray'
 import { MappableTypeEnum } from '~/generated/graphql'
-import { getMappingInfos, ItemMapping } from '~/pages/settings/integrations/common'
 import { FetchIntegrationItemsListProps } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
-import { IntegrationItemLine } from '~/pages/settings/integrations/IntegrationItem'
+import {
+  IntegrationItem,
+  IntegrationItemLine,
+  IntegrationItemsTable,
+} from '~/pages/settings/integrations/IntegrationItem'
 
 import FetchableIntegrationItemEmpty from './FetchableIntegrationItemEmpty'
 import FetchableIntegrationItemError from './FetchableIntegrationItemError'
@@ -19,6 +22,7 @@ const FetchableIntegrationItemList = ({
   createRoute,
   mappableType,
   provider,
+  firstColumnName,
 }: FetchIntegrationItemsListProps) => {
   const itemsToDisplay = data?.collection || []
 
@@ -62,52 +66,26 @@ const FetchableIntegrationItemList = ({
       }
     }
 
-    const getOnMappingClick = (
-      itemMapping: ItemMapping | undefined,
-      itemToDisplay: (typeof itemsToDisplay)[0],
-    ) => {
-      integrationMapItemDialogRef.current?.openDialog({
-        integrationId,
-        type: mappableType,
-        itemId: itemMapping?.id,
-        itemExternalId: itemMapping?.externalId,
-        itemExternalCode: itemMapping?.externalAccountCode || undefined,
-        itemExternalName: itemMapping?.externalName || undefined,
-        lagoMappableId: itemToDisplay.id,
-        lagoMappableName: itemToDisplay.name,
-      })
-    }
+    const formattedItems: Array<IntegrationItem> = itemsToDisplay.map((itemToDisplay) => {
+      return {
+        id: itemToDisplay.id,
+        label: itemToDisplay.name,
+        description: itemToDisplay.code,
+        mappingType: mappableType,
+        integrationMappings: itemToDisplay.integrationMappings,
+        icon: mappableType === MappableTypeEnum.AddOn ? 'puzzle' : 'pulse',
+      }
+    })
 
     return (
       <InfiniteScroll onBottom={handleOnBottom}>
-        {!!itemsToDisplay.length &&
-          itemsToDisplay.map((itemToDisplay) => {
-            const itemMapping = itemToDisplay.integrationMappings?.find(
-              (mapping) => mapping.mappableType === mappableType,
-            )
-
-            return (
-              <IntegrationItemLine
-                key={`billableMetric-item-${itemToDisplay.id}`}
-                icon={mappableType === MappableTypeEnum.AddOn ? 'puzzle' : 'pulse'}
-                label={itemToDisplay.name}
-                description={itemToDisplay.code}
-                loading={false}
-                onMappingClick={() => getOnMappingClick(itemMapping, itemToDisplay)}
-                mappingInfos={getMappingInfos(itemMapping, provider)}
-              />
-            )
-          })}
-        {isLoading &&
-          createNumberRangeArray(3).map((i) => (
-            <IntegrationItemLine
-              key={`fetchable-integration-item-skeleton-${i}`}
-              icon="pulse"
-              label={''}
-              description={''}
-              loading={true}
-            />
-          ))}
+        <IntegrationItemsTable
+          integrationId={integrationId}
+          integrationMapItemDialogRef={integrationMapItemDialogRef}
+          provider={provider}
+          items={formattedItems}
+          firstColumnName={firstColumnName}
+        />
       </InfiniteScroll>
     )
   }
