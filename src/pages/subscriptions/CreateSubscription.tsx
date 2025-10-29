@@ -266,7 +266,7 @@ const CreateSubscription = () => {
   const subscriptionFormikProps = useFormik<Omit<CreateSubscriptionInput, 'customerId'>>({
     initialValues: {
       planId: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.plan?.id || '' : '',
-      name: subscription?.name || '',
+      name: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.name || '' : '',
       externalId: subscription?.externalId || '',
       subscriptionAt: subscription?.subscriptionAt || currentDateRef?.current,
       endingAt: subscription?.endingAt || undefined,
