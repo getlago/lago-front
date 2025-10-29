@@ -3,6 +3,7 @@ import {
   AggregationTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
+  FixedChargeChargeModelEnum,
   PlanInterval,
   PlanOverridesInput,
   RegroupPaidFeesEnum,
@@ -23,6 +24,7 @@ describe('cleanPlanValues', () => {
     invoiceDisplayName: 'Test Invoice Display Name',
     payInAdvance: true,
     billChargesMonthly: false,
+    billFixedChargesMonthly: false,
     taxCodes: ['TAX001', 'TAX002'],
     taxes: [
       {
@@ -45,7 +47,32 @@ describe('cleanPlanValues', () => {
       recurring: true,
       thresholdDisplayName: 'Recurring threshold',
     },
-    fixedCharges: [],
+    fixedCharges: [
+      {
+        id: 'fixed-charge-1',
+        invoiceDisplayName: 'Fixed Charge 1',
+        payInAdvance: true,
+        prorated: false,
+        chargeModel: FixedChargeChargeModelEnum.Standard,
+        addOn: {
+          id: 'add-on-1',
+          name: 'Add On 1',
+          code: 'ADD_ON_1',
+        },
+      },
+      {
+        id: 'fixed-charge-2',
+        invoiceDisplayName: 'Fixed Charge 2',
+        payInAdvance: false,
+        prorated: true,
+        chargeModel: FixedChargeChargeModelEnum.Graduated,
+        addOn: {
+          id: 'add-on-2',
+          name: 'Add On 2',
+          code: 'ADD_ON_2',
+        },
+      },
+    ],
     charges: [
       {
         id: 'charge-1',
@@ -106,6 +133,7 @@ describe('cleanPlanValues', () => {
     expect(result.taxes).toBeUndefined()
     expect(result.payInAdvance).toBeUndefined()
     expect(result.billChargesMonthly).toBeUndefined()
+    expect(result.billFixedChargesMonthly).toBeUndefined()
     expect(result.cascadeUpdates).toBeUndefined()
 
     // Should clean charges
@@ -132,6 +160,16 @@ describe('cleanPlanValues', () => {
     expect(cleanedCharge?.invoiceable).toBeUndefined()
     expect(cleanedCharge?.prorated).toBeUndefined()
     expect(cleanedCharge?.regroupPaidFees).toBeUndefined()
+
+    // Should clean fixed charges
+    expect(result.fixedCharges).toHaveLength(2)
+    const cleanedFixedCharge = result.fixedCharges?.[0]
+
+    expect(cleanedFixedCharge?.id).toBe('fixed-charge-1')
+    expect(cleanedFixedCharge?.invoiceDisplayName).toBe('Fixed Charge 1')
+    expect(cleanedFixedCharge?.payInAdvance).toBeUndefined()
+    expect(cleanedFixedCharge?.prorated).toBeUndefined()
+    expect(cleanedFixedCharge?.chargeModel).toBeUndefined()
   })
 
   describe('edge cases', () => {
@@ -148,6 +186,7 @@ describe('cleanPlanValues', () => {
         billChargesMonthly: undefined,
         cascadeUpdates: undefined,
         charges: undefined,
+        fixedCharges: undefined,
       })
     })
 

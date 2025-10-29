@@ -195,9 +195,6 @@ export const PlanSettingsSection = memo(
             onUpdate={(newTaxArray) => {
               formikProps.setFieldValue('taxes', newTaxArray)
             }}
-            onDelete={(newTaxArray) => {
-              formikProps.setFieldValue('taxes', newTaxArray)
-            }}
           />
         </div>
       </Card>

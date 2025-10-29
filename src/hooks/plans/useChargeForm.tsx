@@ -2,7 +2,11 @@ import { Icon } from 'lago-design-system'
 
 import { Typography } from '~/components/designSystem'
 import { BasicComboBoxData } from '~/components/form'
-import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  ChargeModelEnum,
+  FixedChargeChargeModelEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export type TGetUsageChargeModelComboboxDataProps = {
@@ -24,6 +28,16 @@ export type TGetIsProRatedOptionDisabledForUsageChargeProps = {
   isPayInAdvance: boolean
 }
 
+export type TGetIsPayInAdvanceOptionDisabledForFixedChargeProps = {
+  chargeModel: FixedChargeChargeModelEnum
+  isProrated: boolean
+}
+
+export type TGetIsProRatedOptionDisabledForFixedChargeProps = {
+  chargeModel: FixedChargeChargeModelEnum
+  isPayInAdvance: boolean
+}
+
 export type TGetIsAbleToSwitchToProRatedProps = {
   aggregationType: AggregationTypeEnum
   chargeModel: ChargeModelEnum
@@ -34,14 +48,40 @@ type TUseChargeFormReturn = {
   getUsageChargeModelComboboxData: (
     data: TGetUsageChargeModelComboboxDataProps,
   ) => BasicComboBoxData[]
-  getIsPayInAdvanceOptionDisabled: (
+  getFixedChargeModelComboboxData: () => BasicComboBoxData[]
+  getIsPayInAdvanceOptionDisabledForUsageCharge: (
     data: TGetIsPayInAdvanceOptionDisabledForUsageChargeProps,
   ) => boolean
-  getIsProRatedOptionDisabled: (data: TGetIsProRatedOptionDisabledForUsageChargeProps) => boolean
+  getIsProRatedOptionDisabledForUsageCharge: (
+    data: TGetIsProRatedOptionDisabledForUsageChargeProps,
+  ) => boolean
+  getIsPayInAdvanceOptionDisabledForFixedCharge: (
+    data: TGetIsPayInAdvanceOptionDisabledForFixedChargeProps,
+  ) => boolean
+  getIsProRatedOptionDisabledForFixedCharge: (
+    data: TGetIsProRatedOptionDisabledForFixedChargeProps,
+  ) => boolean
 }
 
 export const useChargeForm: () => TUseChargeFormReturn = () => {
   const { translate } = useInternationalization()
+
+  const getFixedChargeModelComboboxData = (): BasicComboBoxData[] => {
+    return [
+      {
+        label: translate('text_62793bbb599f1c01522e919f'),
+        value: FixedChargeChargeModelEnum.Graduated,
+      },
+      {
+        label: translate('text_624aa732d6af4e0103d40e6f'),
+        value: FixedChargeChargeModelEnum.Standard,
+      },
+      {
+        label: translate('text_6304e74aab6dbc18d615f386'),
+        value: FixedChargeChargeModelEnum.Volume,
+      },
+    ]
+  }
 
   const getUsageChargeModelComboboxData = ({
     isPremium,
@@ -151,6 +191,20 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     return false
   }
 
+  const getIsPayInAdvanceOptionDisabledForFixedCharge = ({
+    chargeModel,
+    isProrated,
+  }: TGetIsPayInAdvanceOptionDisabledForFixedChargeProps): boolean => {
+    if (chargeModel === FixedChargeChargeModelEnum.Volume) {
+      return true
+    } else if (chargeModel === FixedChargeChargeModelEnum.Graduated && isProrated) {
+      return true
+    }
+
+    // Enabled by default
+    return false
+  }
+
   const getIsProRatedOptionDisabledForUsageCharge = ({
     aggregationType,
     chargeModel,
@@ -205,9 +259,25 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     return false
   }
 
+  const getIsProRatedOptionDisabledForFixedCharge = ({
+    chargeModel,
+    isPayInAdvance,
+  }: TGetIsProRatedOptionDisabledForFixedChargeProps): boolean => {
+    if (!isPayInAdvance) {
+      return false
+    }
+
+    return [FixedChargeChargeModelEnum.Graduated, FixedChargeChargeModelEnum.Volume].includes(
+      chargeModel,
+    )
+  }
+
   return {
     getUsageChargeModelComboboxData,
-    getIsPayInAdvanceOptionDisabled: getIsPayInAdvanceOptionDisabledForUsageCharge,
-    getIsProRatedOptionDisabled: getIsProRatedOptionDisabledForUsageCharge,
+    getFixedChargeModelComboboxData,
+    getIsPayInAdvanceOptionDisabledForUsageCharge,
+    getIsProRatedOptionDisabledForUsageCharge,
+    getIsPayInAdvanceOptionDisabledForFixedCharge,
+    getIsProRatedOptionDisabledForFixedCharge,
   }
 }

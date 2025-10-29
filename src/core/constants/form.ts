@@ -2,6 +2,7 @@ import {
   ChargeModelEnum,
   CouponFrequency,
   CouponTypeEnum,
+  FixedChargeChargeModelEnum,
   HubspotTargetedObjectsEnum,
   InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
   MembershipRole,
@@ -27,6 +28,8 @@ export const MUI_INPUT_BASE_ROOT_CLASSNAME = 'MuiInputBase-root'
 export const MUI_BUTTON_BASE_ROOT_CLASSNAME = 'MuiButtonBase-root'
 // Plans
 export const SEARCH_METERED_CHARGE_INPUT_CLASSNAME = 'searchMeteredChargeInput'
+export const SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME =
+  'searchAddOnForFixedChargesSectionInput'
 export const SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME = 'searchRecurringChargeInput'
 export const SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME = 'searchTaxForPlanInput'
 export const SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME = 'searchTaxForChargeInput'
@@ -64,6 +67,11 @@ export const FORM_TYPE_ENUM = {
   duplicate: 'duplicate',
   upgradeDowngrade: 'upgradeDowngrade',
 } as const
+// Charges
+export const ALL_CHARGE_MODELS = {
+  ...ChargeModelEnum,
+  ...FixedChargeChargeModelEnum,
+} as const
 // Filters
 export const ALL_FILTER_VALUES = '__ALL_FILTER_VALUES__'
 
@@ -100,15 +108,18 @@ export enum LocalTaxProviderErrorsEnum {
   GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
 }
 
-export const chargeModelLookupTranslation: Record<string, string> = {
-  [ChargeModelEnum.Graduated]: 'text_65201b8216455901fe273e11',
-  [ChargeModelEnum.GraduatedPercentage]: 'text_65201b8216455901fe273e32',
-  [ChargeModelEnum.Package]: 'text_65201b8216455901fe273de5',
-  [ChargeModelEnum.Percentage]: 'text_65201b8216455901fe273df8',
-  [ChargeModelEnum.Standard]: 'text_65201b8216455901fe273dd6',
-  [ChargeModelEnum.Volume]: 'text_65201b8216455901fe273e4f',
-  [ChargeModelEnum.Custom]: 'text_6641dd21c0cffd005b5e2a8b',
-  [ChargeModelEnum.Dynamic]: 'text_1727770512968tj58xr3h64p',
+export const chargeModelLookupTranslation: Record<
+  (typeof ALL_CHARGE_MODELS)[keyof typeof ALL_CHARGE_MODELS],
+  string
+> = {
+  graduated: 'text_65201b8216455901fe273e11',
+  graduated_percentage: 'text_65201b8216455901fe273e32',
+  package: 'text_65201b8216455901fe273de5',
+  percentage: 'text_65201b8216455901fe273df8',
+  standard: 'text_65201b8216455901fe273dd6',
+  volume: 'text_65201b8216455901fe273e4f',
+  custom: 'text_6641dd21c0cffd005b5e2a8b',
+  dynamic: 'text_1727770512968tj58xr3h64p',
 }
 
 export const getChargeModelHelpTextTranslationKey = {

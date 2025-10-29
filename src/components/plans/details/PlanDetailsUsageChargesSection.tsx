@@ -1,7 +1,7 @@
 import { Accordion, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { PlanDetailsChargesSectionAccordion } from '~/components/plans/details/PlanDetailsChargesSectionAccordion'
-import { mapChargeIntervalCopy } from '~/components/plans/utils'
+import { PlanDetailsUsageChargesSectionAccordion } from '~/components/plans/details/PlanDetailsUsageChargesSectionAccordion'
+import { isPlanIntervalAnnual, mapChargeIntervalCopy } from '~/components/plans/utils'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -14,7 +14,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const PlanDetailsChargesSection = ({
+export const PlanDetailsUsageChargesSection = ({
   currency,
   plan,
 }: {
@@ -38,8 +38,7 @@ export const PlanDetailsChargesSection = ({
       },
     ) ?? {}
 
-  const isAnnual =
-    plan?.interval && [PlanInterval.Semiannual, PlanInterval.Yearly].includes(plan?.interval)
+  const isAnnual = isPlanIntervalAnnual(plan?.interval)
 
   return (
     <section className="flex flex-col gap-12">
@@ -115,7 +114,10 @@ export const PlanDetailsChargesSection = ({
                   />
                 </div>
                 {/* Properties accordion */}
-                <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
+                <PlanDetailsUsageChargesSectionAccordion
+                  currency={currency}
+                  charge={charge as Charge}
+                />
                 {/* Options */}
                 <div className="px-4 pb-4">
                   <DetailsPage.InfoGrid
@@ -256,7 +258,10 @@ export const PlanDetailsChargesSection = ({
                   />
                 </div>
                 {/* Properties accordion */}
-                <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
+                <PlanDetailsUsageChargesSectionAccordion
+                  currency={currency}
+                  charge={charge as Charge}
+                />
                 {/* Options */}
                 <div className="px-4 pb-4">
                   <DetailsPage.InfoGrid
