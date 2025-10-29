@@ -97,6 +97,8 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
 
   const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
 
+  const timeGranularity = TimeGranularityEnum.Monthly
+
   const getDefaultStaticDateFilter = useCallback((): string => {
     const now = DateTime.now().setZone(getTimezoneConfig(TimezoneEnum.TzUtc).name)
 
@@ -135,11 +137,6 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
       ...filtersForForecastsQuery,
     },
   })
-
-  const timeGranularity = getFilterByKey(
-    AvailableFiltersEnum.timeGranularity,
-    searchParams,
-  ) as TimeGranularityEnum
 
   const selectedCurrency = useMemo(() => {
     const currencyFromFilter = getFilterByKey(AvailableFiltersEnum.currency, searchParams)
