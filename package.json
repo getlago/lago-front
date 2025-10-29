@@ -32,6 +32,7 @@
     "test:e2e": "cypress open --config-file cypress/cypress.config.js",
     "translations:add": "node scripts/translations/add",
     "translations:inspect": "node scripts/translations/inspect",
+    "translations:ensure-consistency": "node scripts/translations/ensure-translations-consistency",
     "codemod": "node scripts/codemod.js",
     "bundle-analyzer": "pnpx vite-bundle-analyzer"
   },

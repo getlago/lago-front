@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Translation Check
         run: |
-          pnpm run translations:inspect
+          pnpm run translations:inspect && pnpm run translations:ensure-consistency
 
       - name: Run linters
         run: |
