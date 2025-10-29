@@ -3475,5 +3475,10 @@
   "text_1759933204078h2854rr8kve": "Type one or multiple zipcodes",
   "text_1759933204078d8saqn06pdf": "Search or select multiple currencies",
   "text_1760721761361octnb0dfqm5": "Apply unit changes at plan update",
-  "text_1760721761361lqhc17vjr2b": "If true, unit changes update all linked subscriptions on save and may trigger invoices for advanced charges. If false, changes apply from the next billing period."
+  "text_1760721761361lqhc17vjr2b": "If true, unit changes update all linked subscriptions on save and may trigger invoices for advanced charges. If false, changes apply from the next billing period.",
+  "text_1761739990693wvc9w2ug40q": "All payment methods available for this customer across connected providers.",
+  "text_176173999069325upct4llec": "Add a payment method",
+  "text_1761740371156d1sqhhhlpry": "No payment method added yet. Make sure this customer is connected to a payment provider before adding one.",
+  "text_1761742509080y1rvllmtnwl": "Select the payment provider. A secure link will be generated — once your customer adds their details, a new payment method will be created.",
+  "text_1761742639677kycigdsyyov": "Generate link"
 }
