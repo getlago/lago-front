@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
+import { Typography } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
-import { Button, Dialog } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   MappableTypeEnum,
@@ -82,7 +82,7 @@ gql`
   }
 `
 
-type TNetsuiteIntegrationMapItemDialogProps = {
+type NetsuiteIntegrationMapItemDrawerProps = {
   type: MappingTypeEnum | MappableTypeEnum
   integrationId: string
   itemId?: string
@@ -105,16 +105,16 @@ type FormValuesType = {
   externalAccountCode: string
 }
 
-export interface NetsuiteIntegrationMapItemDialogRef {
-  openDialog: (props: TNetsuiteIntegrationMapItemDialogProps) => unknown
-  closeDialog: () => unknown
+export interface NetsuiteIntegrationMapItemDrawerRef {
+  openDrawer: (props: NetsuiteIntegrationMapItemDrawerProps) => unknown
+  closeDrawer: () => unknown
 }
 
-export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMapItemDialogRef>(
+export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMapItemDrawerRef>(
   (_, ref) => {
     const { translate } = useInternationalization()
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TNetsuiteIntegrationMapItemDialogProps | undefined>(
+    const drawerRef = useRef<DrawerRef>(null)
+    const [localData, setLocalData] = useState<NetsuiteIntegrationMapItemDrawerProps | undefined>(
       undefined,
     )
     const isTaxContext = localData?.type === MappingTypeEnum.Tax
@@ -277,7 +277,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isCreate) {
           let answer
@@ -315,7 +315,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isEdit) {
           let answer
@@ -355,7 +355,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         }
       },
@@ -450,25 +450,24 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
     }, [localData?.lagoMappableName, localData?.type, translate])
 
     useImperativeHandle(ref, () => ({
-      openDialog: (props) => {
+      openDrawer: (props) => {
         setLocalData(props)
-        dialogRef.current?.openDialog()
+        drawerRef.current?.openDrawer()
       },
-      closeDialog: () => dialogRef.current?.closeDialog(),
+      closeDrawer: () => drawerRef.current?.closeDrawer(),
     }))
 
     return (
-      <Dialog
-        ref={dialogRef}
+      <Drawer
+        ref={drawerRef}
         title={title}
-        description={description}
         onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
         }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
+        stickyBottomBar={
+          <div className="flex justify-end gap-3">
+            <Button variant="quaternary" onClick={() => drawerRef.current?.closeDrawer()}>
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
@@ -477,73 +476,79 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
             >
               {translate('text_6630e51df0a194013daea624')}
             </Button>
-          </>
-        )}
+          </div>
+        }
       >
-        <div className="mb-8 flex flex-col gap-6">
-          {isTaxContext ? (
-            <>
-              <TextInputField
-                name="taxNexus"
-                autoComplete="off"
-                label={translate('text_172727145621913rzc8t0twl')}
-                placeholder={translate('text_17272714562195xp5rofbulp')}
-                formikProps={formikProps}
-                error={undefined}
-              />
+        <div className="flex flex-col gap-12">
+          <div>
+            <Typography variant="headline">{title}</Typography>
+            <Typography>{description}</Typography>
+          </div>
+          <div className="mb-8 flex flex-col gap-6">
+            {isTaxContext ? (
+              <>
+                <TextInputField
+                  name="taxNexus"
+                  autoComplete="off"
+                  label={translate('text_172727145621913rzc8t0twl')}
+                  placeholder={translate('text_17272714562195xp5rofbulp')}
+                  formikProps={formikProps}
+                  error={undefined}
+                />
 
-              <TextInputField
-                name="taxType"
-                autoComplete="off"
-                label={translate('text_1727271456219atwdpxysccc')}
-                placeholder={translate('text_1727271456219tl2bt8qdevm')}
-                formikProps={formikProps}
-                error={undefined}
-              />
+                <TextInputField
+                  name="taxType"
+                  autoComplete="off"
+                  label={translate('text_1727271456219atwdpxysccc')}
+                  placeholder={translate('text_1727271456219tl2bt8qdevm')}
+                  formikProps={formikProps}
+                  error={undefined}
+                />
 
-              <TextInputField
-                name="taxCode"
-                autoComplete="off"
-                label={translate('text_1727271456220dvb59po0x1g')}
-                placeholder={translate('text_1727271456220u56zdq1mfrn')}
-                formikProps={formikProps}
-                error={undefined}
-              />
-            </>
-          ) : (
-            <>
-              <TextInputField
-                name="externalName"
-                autoComplete="off"
-                label={translate('text_1730738987881evzsfqnn1tr')}
-                placeholder={translate('text_1730738987882hhl5gijws0m')}
-                formikProps={formikProps}
-                error={undefined}
-              />
+                <TextInputField
+                  name="taxCode"
+                  autoComplete="off"
+                  label={translate('text_1727271456220dvb59po0x1g')}
+                  placeholder={translate('text_1727271456220u56zdq1mfrn')}
+                  formikProps={formikProps}
+                  error={undefined}
+                />
+              </>
+            ) : (
+              <>
+                <TextInputField
+                  name="externalName"
+                  autoComplete="off"
+                  label={translate('text_1730738987881evzsfqnn1tr')}
+                  placeholder={translate('text_1730738987882hhl5gijws0m')}
+                  formikProps={formikProps}
+                  error={undefined}
+                />
 
-              <TextInputField
-                name="externalId"
-                autoComplete="off"
-                label={translate('text_17307389878820u8ldpctozo')}
-                placeholder={translate('text_173073898788226ev6fudddk')}
-                formikProps={formikProps}
-                error={undefined}
-              />
+                <TextInputField
+                  name="externalId"
+                  autoComplete="off"
+                  label={translate('text_17307389878820u8ldpctozo')}
+                  placeholder={translate('text_173073898788226ev6fudddk')}
+                  formikProps={formikProps}
+                  error={undefined}
+                />
 
-              <TextInputField
-                name="externalAccountCode"
-                autoComplete="off"
-                label={translate('text_1730738987882c15jo2dyc9f')}
-                placeholder={translate('text_1730738987882h2yy21a82k2')}
-                formikProps={formikProps}
-                error={undefined}
-              />
-            </>
-          )}
+                <TextInputField
+                  name="externalAccountCode"
+                  autoComplete="off"
+                  label={translate('text_1730738987882c15jo2dyc9f')}
+                  placeholder={translate('text_1730738987882h2yy21a82k2')}
+                  formikProps={formikProps}
+                  error={undefined}
+                />
+              </>
+            )}
+          </div>
         </div>
-      </Dialog>
+      </Drawer>
     )
   },
 )
 
-NetsuiteIntegrationMapItemDialog.displayName = 'NetsuiteIntegrationMapItemDialog'
+NetsuiteIntegrationMapItemDrawer.displayName = 'NetsuiteIntegrationMapItemDrawer'

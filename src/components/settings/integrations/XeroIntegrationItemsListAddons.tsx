@@ -12,7 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
-import { XeroIntegrationMapItemDialogRef } from './XeroIntegrationMapItemDialog'
+import { XeroIntegrationMapItemDrawerRef } from './XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListAddons on AddOn {
@@ -36,7 +36,7 @@ type XeroIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  xeroIntegrationMapItemDialogRef: RefObject<XeroIntegrationMapItemDialogRef>
+  xeroIntegrationMapItemDrawerRef: RefObject<XeroIntegrationMapItemDrawerRef>
 }
 
 const XeroIntegrationItemsListAddons = ({
@@ -45,7 +45,7 @@ const XeroIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  xeroIntegrationMapItemDialogRef,
+  xeroIntegrationMapItemDrawerRef,
   searchTerm,
 }: XeroIntegrationItemsListAddonsProps) => {
   const { translate } = useInternationalization()
@@ -58,7 +58,7 @@ const XeroIntegrationItemsListAddons = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
       createRoute={CREATE_ADD_ON_ROUTE}
       mappableType={MappableTypeEnum.AddOn}
       provider={IntegrationTypeEnum.Xero}

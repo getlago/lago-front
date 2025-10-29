@@ -14,7 +14,7 @@ import {
 } from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
+import { NetsuiteIntegrationMapItemDrawerRef } from './NetsuiteIntegrationMapItemDrawer'
 
 gql`
   fragment NetsuiteIntegrationItemsListDefault on CollectionMapping {
@@ -34,7 +34,7 @@ type NetsuiteIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
+  netsuiteIntegrationMapItemDrawerRef: RefObject<NetsuiteIntegrationMapItemDrawerRef>
 }
 
 const NetsuiteIntegrationItemsListDefault = ({
@@ -42,22 +42,9 @@ const NetsuiteIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDialogRef,
+  netsuiteIntegrationMapItemDrawerRef,
 }: NetsuiteIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
-
-  if (!isLoading && hasError) {
-    return (
-      <GenericPlaceholder
-        title={translate('text_624451f920b6a500aab3761a')}
-        subtitle={translate('text_624451f920b6a500aab3761e')}
-        buttonTitle={translate('text_624451f920b6a500aab37622')}
-        buttonVariant="primary"
-        buttonAction={() => location.reload()}
-        image={<ErrorImage width="136" height="104" />}
-      />
-    )
-  }
 
   /**
    * integrationMappings is passed to each item because FetchableIntegrationItems (billing + addOns) each have their own mappings
@@ -122,10 +109,23 @@ const NetsuiteIntegrationItemsListDefault = ({
     },
   ]
 
+  if (!isLoading && hasError) {
+    return (
+      <GenericPlaceholder
+        title={translate('text_624451f920b6a500aab3761a')}
+        subtitle={translate('text_624451f920b6a500aab3761e')}
+        buttonTitle={translate('text_624451f920b6a500aab37622')}
+        buttonVariant="primary"
+        buttonAction={() => location.reload()}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
+
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Netsuite}
     />

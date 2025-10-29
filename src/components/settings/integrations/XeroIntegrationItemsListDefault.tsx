@@ -14,7 +14,7 @@ import {
 } from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { XeroIntegrationMapItemDialogRef } from './XeroIntegrationMapItemDialog'
+import { XeroIntegrationMapItemDrawerRef } from './XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListDefault on CollectionMapping {
@@ -31,7 +31,7 @@ type XeroIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  xeroIntegrationMapItemDialogRef: RefObject<XeroIntegrationMapItemDialogRef>
+  xeroIntegrationMapItemDrawerRef: RefObject<XeroIntegrationMapItemDrawerRef>
 }
 
 const XeroIntegrationItemsListDefault = ({
@@ -39,7 +39,7 @@ const XeroIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  xeroIntegrationMapItemDialogRef,
+  xeroIntegrationMapItemDrawerRef,
 }: XeroIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -122,7 +122,7 @@ const XeroIntegrationItemsListDefault = ({
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+      integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Xero}
     />

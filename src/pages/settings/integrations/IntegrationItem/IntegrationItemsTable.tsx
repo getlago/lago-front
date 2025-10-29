@@ -10,9 +10,10 @@ import { IntegrationItemData, IntegrationItemsTableProps } from './types'
 
 const IntegrationItemsTable = ({
   integrationId,
-  integrationMapItemDialogRef,
+  integrationMapItemDrawerRef,
   items,
   provider,
+  isLoading = false,
   firstColumnName,
 }: IntegrationItemsTableProps) => {
   const { translate } = useInternationalization()
@@ -22,7 +23,17 @@ const IntegrationItemsTable = ({
       return undefined
     }
 
-    const itemMapping = item.integrationMappings?.find((mapping) => mapping.id === item.id)
+    const itemMapping = item.integrationMappings?.find((mapping) => {
+      if ('mappingType' in mapping) {
+        return mapping.mappingType === item.mappingType
+      }
+
+      if ('mappableType' in mapping) {
+        return mapping.mappableType === item.mappingType
+      }
+
+      return false
+    })
 
     return itemMapping
   }
@@ -90,7 +101,7 @@ const IntegrationItemsTable = ({
 
     if (item.mappingType === MappingTypeEnum.Tax && itemMapping && 'taxCode' in itemMapping) {
       return () =>
-        integrationMapItemDialogRef.current?.openDialog({
+        integrationMapItemDrawerRef.current?.openDrawer({
           ...sharedProps,
           taxCode: itemMapping?.taxCode,
           taxNexus: itemMapping?.taxNexus,
@@ -100,14 +111,14 @@ const IntegrationItemsTable = ({
 
     if (Object.values(MappableTypeEnum).includes(item.mappingType as MappableTypeEnum)) {
       return () =>
-        integrationMapItemDialogRef.current?.openDialog({
+        integrationMapItemDrawerRef.current?.openDrawer({
           ...sharedProps,
           lagoMappableId: item.id,
           lagoMappableName: item.label,
         })
     }
 
-    return () => integrationMapItemDialogRef.current?.openDialog(sharedProps)
+    return () => integrationMapItemDrawerRef.current?.openDrawer(sharedProps)
   }
 
   const handleRowActionClick = (item: IntegrationItemData) => {
@@ -123,6 +134,7 @@ const IntegrationItemsTable = ({
       columns={columns}
       data={items}
       onRowActionClick={handleRowActionClick}
+      isLoading={isLoading}
     />
   )
 }

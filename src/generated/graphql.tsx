@@ -10619,11 +10619,11 @@ export type AnrokIntegrationItemsListBillableMetricsFragment = { __typename?: 'B
 
 export type AnrokIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null };
 
-export type AnrokIntegrationMapItemDialogFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
+export type AnrokIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type AnrokIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AnrokIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
-export type AnrokIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AnrokIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
 export type CreateAnrokIntegrationCollectionMappingMutationVariables = Exact<{
   input: CreateIntegrationCollectionMappingInput;
@@ -10735,11 +10735,11 @@ export type AvalaraIntegrationItemsListBillableMetricsFragment = { __typename?: 
 
 export type AvalaraIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null };
 
-export type AvalaraIntegrationMapItemDialogFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
+export type AvalaraIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type AvalaraIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AvalaraIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
-export type AvalaraIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AvalaraIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
 export type CreateAvalaraIntegrationCollectionMappingMutationVariables = Exact<{
   input: CreateIntegrationCollectionMappingInput;
@@ -11039,11 +11039,11 @@ export type XeroIntegrationItemsListBillableMetricsFragment = { __typename?: 'Bi
 
 export type XeroIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null };
 
-export type XeroIntegrationMapItemDialogFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
+export type XeroIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type XeroIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type XeroIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
-export type XeroIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type XeroIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
 export type GetXeroIntegrationItemsQueryVariables = Exact<{
   integrationId: Scalars['ID']['input'];
@@ -14982,8 +14982,8 @@ export const AnrokIntegrationItemsListDefaultFragmentDoc = gql`
   externalName
 }
     `;
-export const AnrokIntegrationMapItemDialogFragmentDoc = gql`
-    fragment AnrokIntegrationMapItemDialog on IntegrationItem {
+export const AnrokIntegrationMapItemDrawerFragmentDoc = gql`
+    fragment AnrokIntegrationMapItemDrawer on IntegrationItem {
   id
   externalId
   externalName
@@ -14991,16 +14991,16 @@ export const AnrokIntegrationMapItemDialogFragmentDoc = gql`
   itemType
 }
     `;
-export const AnrokIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
-    fragment AnrokIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+export const AnrokIntegrationMapItemDrawerCollectionMappingItemFragmentDoc = gql`
+    fragment AnrokIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
   id
   externalId
   externalName
   externalAccountCode
 }
     `;
-export const AnrokIntegrationMapItemDialogCollectionItemFragmentDoc = gql`
-    fragment AnrokIntegrationMapItemDialogCollectionItem on Mapping {
+export const AnrokIntegrationMapItemDrawerCollectionItemFragmentDoc = gql`
+    fragment AnrokIntegrationMapItemDrawerCollectionItem on Mapping {
   id
   externalId
   externalName
@@ -15059,8 +15059,8 @@ export const AvalaraIntegrationItemsListDefaultFragmentDoc = gql`
   externalName
 }
     `;
-export const AvalaraIntegrationMapItemDialogFragmentDoc = gql`
-    fragment AvalaraIntegrationMapItemDialog on IntegrationItem {
+export const AvalaraIntegrationMapItemDrawerFragmentDoc = gql`
+    fragment AvalaraIntegrationMapItemDrawer on IntegrationItem {
   id
   externalId
   externalName
@@ -15068,16 +15068,16 @@ export const AvalaraIntegrationMapItemDialogFragmentDoc = gql`
   itemType
 }
     `;
-export const AvalaraIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
-    fragment AvalaraIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+export const AvalaraIntegrationMapItemDrawerCollectionMappingItemFragmentDoc = gql`
+    fragment AvalaraIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
   id
   externalId
   externalName
   externalAccountCode
 }
     `;
-export const AvalaraIntegrationMapItemDialogCollectionItemFragmentDoc = gql`
-    fragment AvalaraIntegrationMapItemDialogCollectionItem on Mapping {
+export const AvalaraIntegrationMapItemDrawerCollectionItemFragmentDoc = gql`
+    fragment AvalaraIntegrationMapItemDrawerCollectionItem on Mapping {
   id
   externalId
   externalName
@@ -15240,8 +15240,8 @@ export const XeroIntegrationItemsListDefaultFragmentDoc = gql`
   externalName
 }
     `;
-export const XeroIntegrationMapItemDialogFragmentDoc = gql`
-    fragment XeroIntegrationMapItemDialog on IntegrationItem {
+export const XeroIntegrationMapItemDrawerFragmentDoc = gql`
+    fragment XeroIntegrationMapItemDrawer on IntegrationItem {
   id
   externalId
   externalName
@@ -15249,16 +15249,16 @@ export const XeroIntegrationMapItemDialogFragmentDoc = gql`
   itemType
 }
     `;
-export const XeroIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
-    fragment XeroIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+export const XeroIntegrationMapItemDrawerCollectionMappingItemFragmentDoc = gql`
+    fragment XeroIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
   id
   externalId
   externalName
   externalAccountCode
 }
     `;
-export const XeroIntegrationMapItemDialogCollectionItemFragmentDoc = gql`
-    fragment XeroIntegrationMapItemDialogCollectionItem on Mapping {
+export const XeroIntegrationMapItemDrawerCollectionItemFragmentDoc = gql`
+    fragment XeroIntegrationMapItemDrawerCollectionItem on Mapping {
   id
   externalId
   externalName
@@ -25852,10 +25852,10 @@ export const CreateAnrokIntegrationCollectionMappingDocument = gql`
     mutation createAnrokIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {
     id
-    ...AnrokIntegrationMapItemDialogCollectionMappingItem
+    ...AnrokIntegrationMapItemDrawerCollectionMappingItem
   }
 }
-    ${AnrokIntegrationMapItemDialogCollectionMappingItemFragmentDoc}`;
+    ${AnrokIntegrationMapItemDrawerCollectionMappingItemFragmentDoc}`;
 export type CreateAnrokIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<CreateAnrokIntegrationCollectionMappingMutation, CreateAnrokIntegrationCollectionMappingMutationVariables>;
 
 /**
@@ -25886,10 +25886,10 @@ export const CreateAnrokIntegrationMappingDocument = gql`
     mutation createAnrokIntegrationMapping($input: CreateIntegrationMappingInput!) {
   createIntegrationMapping(input: $input) {
     id
-    ...AnrokIntegrationMapItemDialogCollectionItem
+    ...AnrokIntegrationMapItemDrawerCollectionItem
   }
 }
-    ${AnrokIntegrationMapItemDialogCollectionItemFragmentDoc}`;
+    ${AnrokIntegrationMapItemDrawerCollectionItemFragmentDoc}`;
 export type CreateAnrokIntegrationMappingMutationFn = Apollo.MutationFunction<CreateAnrokIntegrationMappingMutation, CreateAnrokIntegrationMappingMutationVariables>;
 
 /**
@@ -26285,10 +26285,10 @@ export const CreateAvalaraIntegrationCollectionMappingDocument = gql`
     mutation createAvalaraIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {
     id
-    ...AvalaraIntegrationMapItemDialogCollectionMappingItem
+    ...AvalaraIntegrationMapItemDrawerCollectionMappingItem
   }
 }
-    ${AvalaraIntegrationMapItemDialogCollectionMappingItemFragmentDoc}`;
+    ${AvalaraIntegrationMapItemDrawerCollectionMappingItemFragmentDoc}`;
 export type CreateAvalaraIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<CreateAvalaraIntegrationCollectionMappingMutation, CreateAvalaraIntegrationCollectionMappingMutationVariables>;
 
 /**
@@ -26319,10 +26319,10 @@ export const CreateAvalaraIntegrationMappingDocument = gql`
     mutation createAvalaraIntegrationMapping($input: CreateIntegrationMappingInput!) {
   createIntegrationMapping(input: $input) {
     id
-    ...AvalaraIntegrationMapItemDialogCollectionItem
+    ...AvalaraIntegrationMapItemDrawerCollectionItem
   }
 }
-    ${AvalaraIntegrationMapItemDialogCollectionItemFragmentDoc}`;
+    ${AvalaraIntegrationMapItemDrawerCollectionItemFragmentDoc}`;
 export type CreateAvalaraIntegrationMappingMutationFn = Apollo.MutationFunction<CreateAvalaraIntegrationMappingMutation, CreateAvalaraIntegrationMappingMutationVariables>;
 
 /**
@@ -27387,7 +27387,7 @@ export const GetXeroIntegrationItemsDocument = gql`
     searchTerm: $searchTerm
   ) {
     collection {
-      ...XeroIntegrationMapItemDialog
+      ...XeroIntegrationMapItemDrawer
     }
     metadata {
       currentPage
@@ -27396,7 +27396,7 @@ export const GetXeroIntegrationItemsDocument = gql`
     }
   }
 }
-    ${XeroIntegrationMapItemDialogFragmentDoc}`;
+    ${XeroIntegrationMapItemDrawerFragmentDoc}`;
 
 /**
  * __useGetXeroIntegrationItemsQuery__
@@ -27438,11 +27438,11 @@ export const TriggerXeroIntegrationAccountsRefetchDocument = gql`
     mutation triggerXeroIntegrationAccountsRefetch($input: FetchIntegrationAccountsInput!) {
   fetchIntegrationAccounts(input: $input) {
     collection {
-      ...XeroIntegrationMapItemDialog
+      ...XeroIntegrationMapItemDrawer
     }
   }
 }
-    ${XeroIntegrationMapItemDialogFragmentDoc}`;
+    ${XeroIntegrationMapItemDrawerFragmentDoc}`;
 export type TriggerXeroIntegrationAccountsRefetchMutationFn = Apollo.MutationFunction<TriggerXeroIntegrationAccountsRefetchMutation, TriggerXeroIntegrationAccountsRefetchMutationVariables>;
 
 /**
@@ -27473,11 +27473,11 @@ export const TriggerXeroIntegrationItemsRefetchDocument = gql`
     mutation triggerXeroIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
   fetchIntegrationItems(input: $input) {
     collection {
-      ...XeroIntegrationMapItemDialog
+      ...XeroIntegrationMapItemDrawer
     }
   }
 }
-    ${XeroIntegrationMapItemDialogFragmentDoc}`;
+    ${XeroIntegrationMapItemDrawerFragmentDoc}`;
 export type TriggerXeroIntegrationItemsRefetchMutationFn = Apollo.MutationFunction<TriggerXeroIntegrationItemsRefetchMutation, TriggerXeroIntegrationItemsRefetchMutationVariables>;
 
 /**
@@ -27508,10 +27508,10 @@ export const CreateXeroIntegrationCollectionMappingDocument = gql`
     mutation createXeroIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {
     id
-    ...XeroIntegrationMapItemDialogCollectionMappingItem
+    ...XeroIntegrationMapItemDrawerCollectionMappingItem
   }
 }
-    ${XeroIntegrationMapItemDialogCollectionMappingItemFragmentDoc}`;
+    ${XeroIntegrationMapItemDrawerCollectionMappingItemFragmentDoc}`;
 export type CreateXeroIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<CreateXeroIntegrationCollectionMappingMutation, CreateXeroIntegrationCollectionMappingMutationVariables>;
 
 /**
@@ -27542,10 +27542,10 @@ export const CreateXeroIntegrationMappingDocument = gql`
     mutation createXeroIntegrationMapping($input: CreateIntegrationMappingInput!) {
   createIntegrationMapping(input: $input) {
     id
-    ...XeroIntegrationMapItemDialogCollectionItem
+    ...XeroIntegrationMapItemDrawerCollectionItem
   }
 }
-    ${XeroIntegrationMapItemDialogCollectionItemFragmentDoc}`;
+    ${XeroIntegrationMapItemDrawerCollectionItemFragmentDoc}`;
 export type CreateXeroIntegrationMappingMutationFn = Apollo.MutationFunction<CreateXeroIntegrationMappingMutation, CreateXeroIntegrationMappingMutationVariables>;
 
 /**
