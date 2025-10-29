@@ -22,14 +22,6 @@ export const PlanDetailsFixedChargesSection = ({
     <section className="flex flex-col gap-12">
       {!!plan?.fixedCharges?.length && (
         <div className="flex flex-col gap-6">
-          <div>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_64d2713ec021c6005ef64e03')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_64d2715f868d50004c21fee8')}
-            </Typography>
-          </div>
           {plan?.fixedCharges.map((fixedCharge, i) => {
             const fixedTaxes = !!fixedCharge?.taxes?.length && fixedCharge.taxes
             const planTaxes = !!plan?.taxes?.length && plan.taxes
