@@ -160,7 +160,7 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
   }, [
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
-    forecastsData?.dataApiUsagesForecasted.collection,
+    forecastsData?.dataApiUsagesForecasted?.collection,
     searchParams,
   ])
 

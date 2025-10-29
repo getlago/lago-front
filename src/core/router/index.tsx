@@ -1,6 +1,5 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
-import Forecasts from '~/pages/forecasts/Forecasts'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
@@ -20,6 +19,7 @@ const Home = lazyLoad(() => import('~/pages/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
+const Forecasts = lazyLoad(() => import('~/pages/forecasts/Forecasts'))
 const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 
 // Route Available only on dev mode
