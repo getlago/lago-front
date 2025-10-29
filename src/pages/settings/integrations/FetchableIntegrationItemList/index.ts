@@ -1,2 +1,2 @@
 export { default } from './FetchableIntegrationItemList'
-export type { FetchIntegrationItemsListProps, FetchableIntegrationMapItemDialogRef } from './types'
+export type { FetchIntegrationItemsListProps } from './types'

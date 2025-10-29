@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { RefObject } from 'react'
 
 import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
@@ -12,7 +11,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { IntegrationItemHeader } from '~/pages/settings/integrations/IntegrationItem'
 
 import { XeroIntegrationMapItemDialogRef } from './XeroIntegrationMapItemDialog'
 
@@ -55,21 +53,19 @@ const XeroIntegrationItemsListBillableMetrics = ({
   const { translate } = useInternationalization()
 
   return (
-    <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006e')} />
-      <FetchableIntegrationItemList
-        integrationId={integrationId}
-        data={data?.billableMetrics}
-        fetchMore={fetchMoreBillableMetrics}
-        hasError={hasError}
-        searchTerm={searchTerm}
-        isLoading={isLoading}
-        integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
-        createRoute={CREATE_BILLABLE_METRIC_ROUTE}
-        mappableType={MappableTypeEnum.BillableMetric}
-        provider={IntegrationTypeEnum.Xero}
-      />
-    </Stack>
+    <FetchableIntegrationItemList
+      integrationId={integrationId}
+      data={data?.billableMetrics}
+      fetchMore={fetchMoreBillableMetrics}
+      hasError={hasError}
+      searchTerm={searchTerm}
+      isLoading={isLoading}
+      integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+      createRoute={CREATE_BILLABLE_METRIC_ROUTE}
+      mappableType={MappableTypeEnum.BillableMetric}
+      provider={IntegrationTypeEnum.Xero}
+      firstColumnName={translate('text_6630ea71a6c2ef00bc63006e')}
+    />
   )
 }
 

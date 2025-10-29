@@ -56,6 +56,7 @@ export type FetchIntegrationItemsListProps = {
   createRoute: string
   mappableType: MappableTypeEnum
   provider: MappableIntegrationProvider
+  firstColumnName?: string
 }
 
 export type FetchableIntegrationItemErrorProps = {

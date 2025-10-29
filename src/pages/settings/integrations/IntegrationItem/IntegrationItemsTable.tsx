@@ -2,7 +2,7 @@ import { Stack } from '@mui/material'
 import { Avatar, Icon, Typography } from 'lago-design-system'
 
 import { Status, StatusType, Table, TableColumn } from '~/components/designSystem'
-import { MappingTypeEnum } from '~/generated/graphql'
+import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { getMappingInfos, ItemMapping } from '~/pages/settings/integrations/common'
 
@@ -11,15 +11,20 @@ import { IntegrationItemData, IntegrationItemsTableProps } from './types'
 const IntegrationItemsTable = ({
   integrationId,
   integrationMapItemDialogRef,
-  defaultItems,
   items,
   provider,
   firstColumnName,
 }: IntegrationItemsTableProps) => {
   const { translate } = useInternationalization()
 
-  const findItemMapping = (mappingType: MappingTypeEnum): ItemMapping | undefined => {
-    return defaultItems?.find((item) => item.mappingType === mappingType)
+  const findItemMapping = (item: IntegrationItemData): ItemMapping | undefined => {
+    if (!item.integrationMappings || item.integrationMappings.length === 0) {
+      return undefined
+    }
+
+    const itemMapping = item.integrationMappings?.find((mapping) => mapping.id === item.id)
+
+    return itemMapping
   }
 
   const columns: Array<TableColumn<IntegrationItemData>> = [
@@ -51,7 +56,7 @@ const IntegrationItemsTable = ({
       key: 'id',
       title: translate('text_6630e3210c13c500cd398e97'),
       content: (item: IntegrationItemData) => {
-        const itemMapping = findItemMapping(item.mappingType)
+        const itemMapping = findItemMapping(item)
         const mappingInfos = getMappingInfos(itemMapping, provider)
         const statusType = !!mappingInfos ? StatusType.success : StatusType.warning
 
@@ -78,6 +83,9 @@ const IntegrationItemsTable = ({
       integrationId,
       type: item.mappingType,
       itemId: itemMapping?.id,
+      itemExternalId: itemMapping?.externalId,
+      itemExternalCode: itemMapping?.externalAccountCode || undefined,
+      itemExternalName: itemMapping?.externalName || undefined,
     }
 
     if (item.mappingType === MappingTypeEnum.Tax && itemMapping && 'taxCode' in itemMapping) {
@@ -90,17 +98,20 @@ const IntegrationItemsTable = ({
         })
     }
 
-    return () =>
-      integrationMapItemDialogRef.current?.openDialog({
-        ...sharedProps,
-        itemExternalId: itemMapping?.externalId,
-        itemExternalCode: itemMapping?.externalAccountCode || undefined,
-        itemExternalName: itemMapping?.externalName || undefined,
-      })
+    if (Object.values(MappableTypeEnum).includes(item.mappingType as MappableTypeEnum)) {
+      return () =>
+        integrationMapItemDialogRef.current?.openDialog({
+          ...sharedProps,
+          lagoMappableId: item.id,
+          lagoMappableName: item.label,
+        })
+    }
+
+    return () => integrationMapItemDialogRef.current?.openDialog(sharedProps)
   }
 
   const handleRowActionClick = (item: IntegrationItemData) => {
-    const itemMapping = findItemMapping(item.mappingType)
+    const itemMapping = findItemMapping(item)
     const onMappingClick = getOnMappingClick(itemMapping, item)
 
     onMappingClick()
