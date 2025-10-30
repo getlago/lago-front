@@ -103,6 +103,24 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography variant="captionHl" color="grey700">
+            {translate('text_1755697949545w7vb1hox4n5')}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_175569794954699gxpjhn4fe')}
+          </Typography>
+        </div>
+
+        <TextInputField
+          name="priority"
+          beforeChangeFormatter={['positiveNumber', 'int']}
+          placeholder={translate('text_1755697949546zuqgeved2ma')}
+          formikProps={formikProps}
+        />
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <Typography variant="captionHl" color="grey700">
             {translate('text_1748422458559n8iqcz37i2z')}
           </Typography>
           <Typography variant="caption" color="grey600">
@@ -166,6 +184,8 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             name: 'paidTopUpMinAmountCents',
             label: translate('text_1758286730208kztcznofxvr'),
             onDelete: () => {
+              formikProps?.setFieldValue('paidTopUpMinAmountCents', undefined)
+
               setShowMinTopUp(false)
             },
             errorLabel: translate('text_175872290080132j1em37b08'),
@@ -175,6 +195,8 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             name: 'paidTopUpMaxAmountCents',
             label: translate('text_1758286730208ey87jz8nzuz'),
             onDelete: () => {
+              formikProps?.setFieldValue('paidTopUpMaxAmountCents', undefined)
+
               setShowMaxTopUp(false)
             },
             errorLabel: translate('text_1758722900801nbox9c5bgnn'),

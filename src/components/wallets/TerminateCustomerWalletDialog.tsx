@@ -69,6 +69,7 @@ export const TerminateCustomerWalletDialog = forwardRef<
         },
       })
     },
+    refetchQueries: ['getCustomerWalletList'],
   })
 
   return (

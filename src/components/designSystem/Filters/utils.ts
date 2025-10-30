@@ -17,6 +17,7 @@ import {
   API_LOGS_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
+  FORECASTS_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
@@ -49,6 +50,7 @@ import {
   CreditNoteAvailableFilters,
   CustomerAvailableFilters,
   filterDataInlineSeparator,
+  ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
@@ -200,6 +202,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.zipcodes]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.billableMetricCode]: (value: string) => value,
 }
 
 // NOTE: this is fixing list fetching issue when new item are added to the DB and user scrolls to the bottom of the list
@@ -513,6 +516,22 @@ export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearch
   })
 }
 
+export const formatFiltersForForecastsQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.country]: 'customerCountry',
+    [AvailableFiltersEnum.customerType]: 'customerType',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
+  }
+
+  return formatFiltersForQuery({
+    keyMap,
+    searchParams,
+    availableFilters: [...ForecastsAvailableFilters, AvailableFiltersEnum.timeGranularity],
+    filtersNamePrefix: FORECASTS_FILTER_PREFIX,
+  })
+}
+
 export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams) => {
   const formatted = formatFiltersForQuery({
     searchParams: defineDefaultToDateValue(searchParams, ACTIVITY_LOG_FILTER_PREFIX),
@@ -618,6 +637,8 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
+    case AvailableFiltersEnum.billableMetricCode:
+      return value
     case AvailableFiltersEnum.billingEntityCode:
       return value
     default:

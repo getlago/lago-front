@@ -10,7 +10,7 @@ import {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
-import { transformFilterObjectToString } from '~/components/plans/utils'
+import { isPlanIntervalAnnual, transformFilterObjectToString } from '~/components/plans/utils'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -33,7 +33,7 @@ import { serializePlanInput } from '~/core/serializers'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { chargeSchema } from '~/formValidation/chargeSchema'
+import { chargeSchema, fixedChargeSchema } from '~/formValidation/chargeSchema'
 import {
   CurrencyEnum,
   DeletePlanDialogFragmentDoc,
@@ -97,12 +97,12 @@ export const usePlanForm: ({
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { planId: id } = useParams()
+  const { planId: id = '' } = useParams()
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const { parentId, type: actionType } = useDuplicatePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({
     context: { silentError: LagoApiError.NotFound },
-    variables: { id: (id as string) || (parentId as string) || (planIdToFetch as string) },
+    variables: { id: id || (parentId as string) || (planIdToFetch as string) },
     skip: !id && !parentId && !planIdToFetch,
   })
   const isDuplicate = actionType === 'duplicate' && !!parentId
@@ -118,24 +118,23 @@ export const usePlanForm: ({
     type === FORM_TYPE_ENUM.creation && !isUsedInSubscriptionForm
       ? organization?.defaultCurrency || CurrencyEnum.Usd
       : plan?.amountCurrency || CurrencyEnum.Usd
-  const onSave =
-    type === FORM_TYPE_ENUM.edition
-      ? async (values: PlanFormInput) => {
-          await update({
-            variables: {
-              input: { id: id as string, ...serializePlanInput(values) },
-            },
-          })
-        }
-      : async (values: PlanFormInput) => {
-          await create({
-            variables: {
-              input: {
-                ...serializePlanInput(values),
-              },
-            },
-          })
-        }
+  const onSave = (values: PlanFormInput) => {
+    const serializedInput = serializePlanInput(values)
+
+    if (type === FORM_TYPE_ENUM.edition) {
+      return update({
+        variables: {
+          input: { ...serializedInput, id },
+        },
+      })
+    }
+
+    return create({
+      variables: {
+        input: serializedInput,
+      },
+    })
+  }
 
   const formikProps = useFormik<PlanFormInput>({
     initialValues: {
@@ -170,7 +169,8 @@ export const usePlanForm: ({
             ? 0
             : undefined
           : plan?.trialPeriod,
-      billChargesMonthly: plan?.billChargesMonthly || undefined,
+      billChargesMonthly: plan?.billChargesMonthly || false,
+      billFixedChargesMonthly: plan?.billFixedChargesMonthly || false,
       minimumCommitment: !!plan?.minimumCommitment
         ? {
             ...plan?.minimumCommitment,
@@ -195,7 +195,7 @@ export const usePlanForm: ({
           amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
         }))
         .find(({ recurring }) => !!recurring),
-      fixedCharges: [],
+      fixedCharges: plan?.fixedCharges || [],
       charges: plan?.charges
         ? (plan?.charges.map(
             ({
@@ -305,6 +305,7 @@ export const usePlanForm: ({
           },
         })
         .nullable(),
+      fixedCharges: fixedChargeSchema,
       charges: chargeSchema,
       nonRecurringUsageThresholds: array()
         .test({
@@ -455,9 +456,7 @@ export const usePlanForm: ({
     return undefined
   }, [createError, updateError])
 
-  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-    formikProps.values.interval,
-  )
+  const isAnnual = isPlanIntervalAnnual(formikProps.values.interval)
 
   // Clear duplicate plan var when leaving the page
   useEffect(() => {

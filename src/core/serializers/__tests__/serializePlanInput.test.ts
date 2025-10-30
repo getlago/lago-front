@@ -6,6 +6,7 @@ import {
   AggregationTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
+  FixedChargeChargeModelEnum,
   PlanInterval,
   PrivilegeValueTypeEnum,
 } from '~/generated/graphql'
@@ -1329,6 +1330,303 @@ describe('serializePlanInput()', () => {
         taxCodes: [],
         usageThresholds: [],
         entitlements: [],
+      })
+    })
+  })
+
+  describe('a plan with fixedCharges', () => {
+    describe('standard fixed charge', () => {
+      it('returns plan correctly serialized', () => {
+        const plan = serializePlanInput({
+          amountCents: '1',
+          amountCurrency: CurrencyEnum.Eur,
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: FixedChargeChargeModelEnum.Standard,
+              addOn: {
+                id: '5678',
+                name: 'simpleAddOn',
+                code: 'simple-addon',
+              },
+              properties: fullProperty,
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: PlanInterval.Monthly,
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          nonRecurringUsageThresholds: [],
+          recurringUsageThreshold: undefined,
+          entitlements: [],
+        })
+
+        expect(plan).toStrictEqual({
+          amountCents: 100,
+          amountCurrency: 'EUR',
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: 'standard',
+              addOnId: '5678',
+              addon: undefined,
+              taxes: undefined,
+              properties: {
+                amount: '1',
+                fixedAmount: '2',
+                freeUnits: undefined,
+                freeUnitsPerEvents: 0,
+                freeUnitsPerTotalAggregation: '1',
+                graduatedRanges: [
+                  {
+                    flatAmount: '1',
+                    fromValue: 0,
+                    perUnitAmount: '1',
+                  },
+                  {
+                    flatAmount: '1',
+                    fromValue: 1,
+                    perUnitAmount: '1',
+                  },
+                ],
+                graduatedPercentageRanges: [
+                  {
+                    fromValue: '0',
+                    toValue: '1',
+                    rate: '0',
+                    flatAmount: '0',
+                  },
+                  {
+                    fromValue: '2',
+                    toValue: null,
+                    rate: '10',
+                    flatAmount: '1',
+                  },
+                ],
+                pricingGroupKeys: undefined,
+                packageSize: undefined,
+                perTransactionMinAmount: '1',
+                rate: '5',
+                volumeRanges: [
+                  {
+                    flatAmount: '1',
+                    fromValue: 0,
+                    perUnitAmount: '1',
+                  },
+                  {
+                    flatAmount: '1',
+                    fromValue: 1,
+                    perUnitAmount: '1',
+                  },
+                ],
+                customProperties: JSON.stringify({
+                  ranges: [
+                    { from: 0, to: 100, thirdPart: '0.13', firstPart: '0.12' },
+                    { from: 101, to: 2000, thirdPart: '0.10', firstPart: '0.09' },
+                    { from: 2001, to: 5000, thirdPart: '0.08', firstPart: '0.07' },
+                    { from: 5001, to: null, thirdPart: '0.06', firstPart: '0.05' },
+                  ],
+                }),
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: 'monthly',
+          minimumCommitment: {},
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          usageThresholds: [],
+          entitlements: [],
+        })
+      })
+    })
+
+    describe('volume fixed charge', () => {
+      it('returns plan correctly serialized', () => {
+        const plan = serializePlanInput({
+          amountCents: '1',
+          amountCurrency: CurrencyEnum.Eur,
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: FixedChargeChargeModelEnum.Volume,
+              addOn: {
+                id: '5678',
+                name: 'simpleAddOn',
+                code: 'simple-addon',
+              },
+              properties: fullProperty,
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: PlanInterval.Monthly,
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          nonRecurringUsageThresholds: [],
+          recurringUsageThreshold: undefined,
+          entitlements: [],
+        })
+
+        expect(plan).toStrictEqual({
+          amountCents: 100,
+          amountCurrency: 'EUR',
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: 'volume',
+              addOnId: '5678',
+              addon: undefined,
+              taxes: undefined,
+              properties: {
+                amount: '1',
+                fixedAmount: '2',
+                freeUnits: undefined,
+                freeUnitsPerEvents: 0,
+                freeUnitsPerTotalAggregation: '1',
+                graduatedRanges: [
+                  {
+                    flatAmount: '1',
+                    fromValue: 0,
+                    perUnitAmount: '1',
+                  },
+                  {
+                    flatAmount: '1',
+                    fromValue: 1,
+                    perUnitAmount: '1',
+                  },
+                ],
+                graduatedPercentageRanges: [
+                  {
+                    fromValue: '0',
+                    toValue: '1',
+                    rate: '0',
+                    flatAmount: '0',
+                  },
+                  {
+                    fromValue: '2',
+                    toValue: null,
+                    rate: '10',
+                    flatAmount: '1',
+                  },
+                ],
+                pricingGroupKeys: undefined,
+                packageSize: undefined,
+                perTransactionMinAmount: '1',
+                rate: '5',
+                volumeRanges: [
+                  {
+                    flatAmount: '1',
+                    fromValue: 0,
+                    perUnitAmount: '1',
+                  },
+                  {
+                    flatAmount: '1',
+                    fromValue: 1,
+                    perUnitAmount: '1',
+                  },
+                ],
+                customProperties: JSON.stringify({
+                  ranges: [
+                    { from: 0, to: 100, thirdPart: '0.13', firstPart: '0.12' },
+                    { from: 101, to: 2000, thirdPart: '0.10', firstPart: '0.09' },
+                    { from: 2001, to: 5000, thirdPart: '0.08', firstPart: '0.07' },
+                    { from: 5001, to: null, thirdPart: '0.06', firstPart: '0.05' },
+                  ],
+                }),
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: 'monthly',
+          minimumCommitment: {},
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          usageThresholds: [],
+          entitlements: [],
+        })
+      })
+    })
+
+    describe('fixed charge with units', () => {
+      it('returns plan correctly serialized with units', () => {
+        const plan = serializePlanInput({
+          amountCents: '1',
+          amountCurrency: CurrencyEnum.Eur,
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: FixedChargeChargeModelEnum.Standard,
+              addOn: {
+                id: '5678',
+                name: 'simpleAddOn',
+                code: 'simple-addon',
+              },
+              units: '10.123456',
+              properties: {
+                amount: '5',
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: PlanInterval.Monthly,
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          nonRecurringUsageThresholds: [],
+          recurringUsageThreshold: undefined,
+          entitlements: [],
+        })
+
+        expect(plan).toStrictEqual({
+          amountCents: 100,
+          amountCurrency: 'EUR',
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: 'standard',
+              addOnId: '5678',
+              units: '10.123456',
+              addon: undefined,
+              taxes: undefined,
+              properties: {
+                amount: '5',
+                freeUnits: undefined,
+                pricingGroupKeys: undefined,
+                packageSize: undefined,
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: 'monthly',
+          minimumCommitment: {},
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          usageThresholds: [],
+          entitlements: [],
+        })
       })
     })
   })

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { array, object, string } from 'yup'
+import { array, number, object, string } from 'yup'
 
 import { dateErrorCodes } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -368,5 +368,6 @@ export const walletFormSchema = () => {
         }),
       )
       .nullable(),
+    priority: number().min(1).max(50),
   })
 }

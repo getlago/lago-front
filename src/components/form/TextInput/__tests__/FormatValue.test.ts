@@ -125,6 +125,26 @@ describe('Text input formatValue', () => {
     expect(writtingDecimals).toBe('-29.')
   })
 
+  it('should return a number with 6 decimals for "sextDecimal" formatter', () => {
+    const negativeValue = formatValue(-12, 'sextDecimal')
+    const value = formatValue(15, 'sextDecimal')
+    const zeroValue = formatValue(0, 'sextDecimal')
+    const negativeDecimalValue = formatValue(-13.459484, 'sextDecimal')
+    const decimalValue = formatValue(11.459484, 'sextDecimal')
+    const shortDecimalValue = formatValue(11.45, 'sextDecimal')
+    const veryLongDecimalValue = formatValue(11.134567890123456, 'sextDecimal')
+    const stringValue = formatValue('random string', 'sextDecimal')
+
+    expect(negativeValue).toBe('-12')
+    expect(value).toBe('15')
+    expect(zeroValue).toBe('0')
+    expect(negativeDecimalValue).toBe('-13.459484')
+    expect(decimalValue).toBe('11.459484')
+    expect(shortDecimalValue).toBe('11.45')
+    expect(veryLongDecimalValue).toBe('11.134567')
+    expect(stringValue).toBe(null)
+  })
+
   it('should return a string with no spaces for "code" formatter', () => {
     const longString = formatValue('I just wanna have fun', 'code')
     const number = formatValue(938884, 'code')

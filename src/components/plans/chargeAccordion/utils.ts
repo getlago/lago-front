@@ -35,6 +35,14 @@ export function isUsageChargeInput(
   return chargeCursor === 'charges'
 }
 
+export type HandleUpdateFixedChargesProps = {
+  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
+  index: number
+  localCharge: LocalFixedChargeInput
+  name: string
+  value: unknown
+}
+
 export const handleUpdateUsageCharges = ({
   formikProps,
   index,
@@ -75,4 +83,17 @@ export const handleUpdateUsageCharges = ({
   }
 
   formikProps.setFieldValue(`charges.${index}`, currentChargeValues)
+}
+
+export const handleUpdateFixedCharges = ({
+  setFieldValue,
+  index,
+  localCharge,
+  name,
+  value,
+}: HandleUpdateFixedChargesProps) => {
+  setFieldValue(`fixedCharges.${index}`, {
+    ...localCharge,
+    [name]: value,
+  })
 }

@@ -10,6 +10,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
+import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import {
   ImpactOverridenSubscriptionsDialog,
   ImpactOverridenSubscriptionsDialogRef,
@@ -35,8 +36,12 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   FeatureEntitlementForPlanFragmentDoc,
+  FixedChargeAccordionFragmentDoc,
+  FixedChargesOnPlanFormFragmentDoc,
+  PlanForFixedChargeAccordionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
@@ -118,6 +123,10 @@ gql`
       ...UsageChargeAccordion
       chargeModel
     }
+    fixedCharges {
+      ...FixedChargeAccordion
+    }
+
     usageThresholds {
       id
       amountCents
@@ -129,12 +138,17 @@ gql`
     ...PlanForSettingsSection
     ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
+    ...FixedChargesOnPlanForm
+    ...PlanForFixedChargeAccordion
   }
 
+  ${FixedChargeAccordionFragmentDoc}
   ${PlanForUsageChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
+  ${FixedChargesOnPlanFormFragmentDoc}
+  ${PlanForFixedChargeAccordionFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -147,8 +161,11 @@ const CreatePlan = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
+  const hasAccessToFixedChargesFeature = isFeatureFlagActive(FeatureFlags.FIXED_CHARGES)
 
   const canBeEdited = !plan?.subscriptionsCount
+  const alreadyExistingFixedChargesIds =
+    plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
 
   const planCloseRedirection = () => {
     const origin = searchParams.get('origin')
@@ -255,6 +272,17 @@ const CreatePlan = () => {
                       isEdition={isEdition}
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
+
+                    {hasAccessToFixedChargesFeature && (
+                      <FixedChargesSection
+                        alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
+                        canBeEdited={canBeEdited}
+                        formikProps={formikProps}
+                        isEdition={isEdition}
+                        editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                      />
+                    )}
 
                     <UsageChargesSection
                       canBeEdited={canBeEdited}

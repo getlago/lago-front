@@ -37,7 +37,7 @@ export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'val
   values: string[] // This value should be defined using transformFilterObjectToString method
 }
 
-export type LocalFixedChargeInput = FixedChargeInput & {
+export type LocalFixedChargeInput = Omit<FixedChargeInput, 'addOnId'> & {
   id?: string
   // NOTE: used for display purpose, replaced by taxCodes[] on save
   taxes?: TaxForTaxesSelectorSectionFragment[] | null
@@ -78,10 +78,10 @@ export type LocalEntitlementInput = Omit<EntitlementInput, 'privileges'> & {
 
 export type PlanFormInput = Omit<
   CreatePlanInput,
-  'clientMutationId' | 'charges' | 'usageThresholds' | 'entitlements'
+  'clientMutationId' | 'charges' | 'usageThresholds' | 'entitlements' | 'fixedCharges'
 > & {
-  charges: LocalUsageChargeInput[]
   fixedCharges: LocalFixedChargeInput[]
+  charges: LocalUsageChargeInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanSettingsSectionFragment[]
   minimumCommitment?: LocalCommitmentInput

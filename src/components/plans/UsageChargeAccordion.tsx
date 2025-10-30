@@ -19,7 +19,11 @@ import {
   HandleUpdateUsageChargesProps,
 } from '~/components/plans/chargeAccordion/utils'
 import { ValidationIcon } from '~/components/plans/chargeAccordion/ValidationIcon'
-import { mapChargeIntervalCopy } from '~/components/plans/utils'
+import {
+  isPlanIntervalAnnual,
+  mapChargeIntervalCopy,
+  returnFirstDefinedArrayRatesSumAsString,
+} from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
@@ -41,7 +45,6 @@ import {
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
-  PlanInterval,
   PricingGroupKeysFragmentDoc,
   StandardChargeFragmentDoc,
   TaxForTaxesSelectorSectionFragmentDoc,
@@ -172,8 +175,8 @@ export const UsageChargeAccordion = memo(
     const { isPremium } = useCurrentUser()
     const {
       getUsageChargeModelComboboxData,
-      getIsPayInAdvanceOptionDisabled,
-      getIsProRatedOptionDisabled,
+      getIsPayInAdvanceOptionDisabledForUsageCharge,
+      getIsProRatedOptionDisabledForUsageCharge,
     } = useChargeForm()
     const chargeErrors = formikProps?.errors?.charges
 
@@ -190,14 +193,14 @@ export const UsageChargeAccordion = memo(
         isPremium,
         aggregationType: formikCharge.billableMetric.aggregationType,
       })
-      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabled({
+      const localIsPayInAdvanceOptionDisabled = getIsPayInAdvanceOptionDisabledForUsageCharge({
         aggregationType: formikCharge.billableMetric.aggregationType,
         chargeModel: formikCharge.chargeModel,
         isPayInAdvance: formikCharge.payInAdvance || false,
         isProrated: formikCharge.prorated || false,
         isRecurring: formikCharge.billableMetric.recurring,
       })
-      const localIsProratedOptionDisabled = getIsProRatedOptionDisabled({
+      const localIsProratedOptionDisabled = getIsProRatedOptionDisabledForUsageCharge({
         isPayInAdvance: formikCharge.payInAdvance || false,
         aggregationType: formikCharge.billableMetric.aggregationType,
         chargeModel: formikCharge.chargeModel,
@@ -219,8 +222,8 @@ export const UsageChargeAccordion = memo(
       formikProps.initialValues.charges,
       formikProps.values.charges,
       getUsageChargeModelComboboxData,
-      getIsPayInAdvanceOptionDisabled,
-      getIsProRatedOptionDisabled,
+      getIsPayInAdvanceOptionDisabledForUsageCharge,
+      getIsProRatedOptionDisabledForUsageCharge,
       index,
       isPremium,
     ])
@@ -246,13 +249,11 @@ export const UsageChargeAccordion = memo(
     )
 
     const taxValueForBadgeDisplay = useMemo((): string | undefined => {
-      if (!localCharge?.taxes?.length && !formikProps?.values?.taxes?.length) return
-
-      if (localCharge.taxes?.length)
-        return String(localCharge.taxes.reduce((acc, cur) => acc + cur.rate, 0))
-
-      return String(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0))
-    }, [formikProps?.values?.taxes, localCharge.taxes])
+      return returnFirstDefinedArrayRatesSumAsString(
+        localCharge?.taxes || [],
+        formikProps?.values?.taxes || [],
+      )
+    }, [formikProps?.values?.taxes, localCharge?.taxes])
 
     const chargePricingUnitShortName = useMemo(
       () =>
@@ -291,9 +292,7 @@ export const UsageChargeAccordion = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currency])
 
-    const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-      formikProps.values.interval,
-    )
+    const isAnnual = isPlanIntervalAnnual(formikProps.values.interval)
 
     return (
       <Accordion
@@ -732,9 +731,6 @@ export const UsageChargeAccordion = memo(
               taxes={localCharge?.taxes || []}
               comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
               onUpdate={(newTaxArray) => {
-                handleUpdate('taxes', newTaxArray)
-              }}
-              onDelete={(newTaxArray) => {
                 handleUpdate('taxes', newTaxArray)
               }}
             />
