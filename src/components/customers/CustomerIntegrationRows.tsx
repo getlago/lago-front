@@ -213,8 +213,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
   const customerIntegrations = [
     {
       integrationProvider: 'NetsuiteIntegration',
-      canRender:
-        !!customer?.netsuiteCustomer?.externalCustomerId && !!connectedNetsuiteIntegration?.id,
+      canRender: !!customer?.netsuiteCustomer?.integrationId && !!connectedNetsuiteIntegration?.id,
       label: translate('text_66423cad72bbad009f2f568f'),
       additionalLabel: '',
       buildExternalUrl: () => {
@@ -240,7 +239,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     },
     {
       integrationProvider: 'XeroIntegration',
-      canRender: !!customer?.xeroCustomer?.externalCustomerId && !!connectedXeroIntegration?.id,
+      canRender: !!customer?.xeroCustomer?.integrationId && !!connectedXeroIntegration?.id,
       label: translate('text_66423cad72bbad009f2f568f'),
       additionalLabel: '',
       buildExternalUrl: () => {
@@ -260,20 +259,20 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     },
     {
       integrationProvider: 'AnrokIntegration',
-      canRender: !!customer?.anrokCustomer?.externalCustomerId && !!connectedAnrokIntegration?.id,
+      canRender: !!customer?.anrokCustomer?.integrationId && !!connectedAnrokIntegration?.id,
       label: translate('text_6668821d94e4da4dfd8b3840'),
       additionalLabel: '',
       buildExternalUrl: () => {
         if (
           !connectedAnrokIntegration?.externalAccountId ||
-          !customer?.anrokCustomer?.integrationId
+          !customer?.anrokCustomer?.externalCustomerId
         ) {
           return ''
         }
 
         return buildAnrokCustomerUrl(
-          connectedAnrokIntegration?.externalAccountId,
-          customer?.anrokCustomer?.integrationId,
+          connectedAnrokIntegration.externalAccountId,
+          customer.anrokCustomer.externalCustomerId,
         )
       },
       integrationName: connectedAnrokIntegration?.name,
@@ -286,8 +285,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     },
     {
       integrationProvider: 'AvalaraIntegration',
-      canRender:
-        !!customer?.avalaraCustomer?.externalCustomerId && !!connectedAvalaraIntegration?.id,
+      canRender: !!customer?.avalaraCustomer?.integrationId && !!connectedAvalaraIntegration?.id,
       label: translate('text_6668821d94e4da4dfd8b3840'),
       additionalLabel: '',
       buildExternalUrl: () => {
@@ -375,7 +373,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
         <InfoRow>
           <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
           <div>
-            <div className="flex flex-row">
+            <div className="flex flex-row" data-test={linkedProvider?.name}>
               <PaymentProviderChip paymentProvider={paymentProvider} label={linkedProvider?.name} />
               {!!providerCustomer?.providerCustomerId && (
                 <>
@@ -431,7 +429,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
               <InfoRow key={`${integrationProvider}-${i}`}>
                 <Typography variant="caption">{label}</Typography>
 
-                <div>
+                <div data-test={integrationProvider}>
                   {integrationsLoading && <IntegrationsLoadingSkeleton />}
                   {!integrationsLoading && (
                     <div className="flex flex-row">
@@ -447,7 +445,12 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
                         </Typography>
                       )}
                       {externalLink && (
-                        <InlineLink target="_blank" rel="noopener noreferrer" to={externalLink}>
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={externalLink}
+                          data-test="external-integration-link"
+                        >
                           <Typography className="flex items-center gap-1" color="primary600">
                             {externalCustomerId} <Icon name="outside" />
                           </Typography>
