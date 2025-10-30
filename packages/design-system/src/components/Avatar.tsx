@@ -8,10 +8,11 @@ import { Icon, IconName, IconProps } from './Icon'
 import { Typography } from './Typography'
 
 export type AvatarSize = 'tiny' | 'small' | 'intermediate' | 'medium' | 'big' | 'large'
-type AvatarVariant = 'connector' | 'user' | 'company' | 'connector-full'
+export type AvatarUserCompanyVariant = 'user' | 'company'
+export type AvatarConnectorVariant = 'connector' | 'connector-full'
 
 interface AvatarConnectorProps {
-  variant: Extract<AvatarVariant, 'connector' | 'connector-full'>
+  variant: AvatarConnectorVariant
   children: ReactNode | string
   size?: AvatarSize
   initials?: never
@@ -20,7 +21,7 @@ interface AvatarConnectorProps {
 }
 
 export interface AvatarGenericProps {
-  variant: Extract<AvatarVariant, 'company' | 'user'>
+  variant: AvatarUserCompanyVariant
   identifier: string
   initials?: string // Note that only the first initial will be displayed in small size
   size?: AvatarSize

@@ -1,5 +1,12 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon, Skeleton, Typography } from 'lago-design-system'
+import {
+  Avatar,
+  AvatarConnectorVariant,
+  AvatarSize,
+  Icon,
+  Skeleton,
+  Typography,
+} from 'lago-design-system'
 
 import { InfoRow } from '~/components/InfoRow'
 import { InlineLink } from '~/components/InlineLink'
@@ -167,53 +174,200 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     (provider) => provider?.code === customer?.paymentProviderCode,
   )
 
-  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'NetsuiteIntegration',
-  ) as NetsuiteIntegration[] | undefined
+  const connectedNetsuiteIntegration = integrationsData?.integrations?.collection
+    ?.filter((i) => i.__typename === 'NetsuiteIntegration')
+    ?.find((integration) => integration?.id === customer?.netsuiteCustomer?.integrationId) as
+    | NetsuiteIntegration
+    | undefined
 
-  const allAnrokIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'AnrokIntegration',
-  ) as AnrokIntegration[] | undefined
+  const connectedXeroIntegration = integrationsData?.integrations?.collection
+    ?.filter((i) => i.__typename === 'XeroIntegration')
+    ?.find((integration) => integration?.id === customer?.xeroCustomer?.integrationId) as
+    | XeroIntegration
+    | undefined
 
-  const allAvalaraIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'AvalaraIntegration',
-  ) as AvalaraIntegration[] | undefined
+  const connectedAnrokIntegration = integrationsData?.integrations?.collection
+    ?.filter((i) => i.__typename === 'AnrokIntegration')
+    ?.find((integration) => integration?.id === customer?.anrokCustomer?.integrationId) as
+    | AnrokIntegration
+    | undefined
 
-  const allXeroIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'XeroIntegration',
-  ) as XeroIntegration[] | undefined
+  const connectedAvalaraIntegration = integrationsData?.integrations?.collection
+    ?.filter((i) => i.__typename === 'AvalaraIntegration')
+    ?.find((integration) => integration?.id === customer?.avalaraCustomer?.integrationId) as
+    | AvalaraIntegration
+    | undefined
 
-  const allHubspotIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'HubspotIntegration',
-  ) as HubspotIntegration[] | undefined
+  const connectedHubspotIntegration = integrationsData?.integrations?.collection
+    ?.filter((i) => i.__typename === 'HubspotIntegration')
+    ?.find((integration) => integration?.id === customer?.hubspotCustomer?.integrationId) as
+    | HubspotIntegration
+    | undefined
 
-  const allSalesforceIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'SalesforceIntegration',
-  ) as SalesforceIntegration[] | undefined
+  const connectedSalesforceIntegration = integrationsData?.integrations?.collection
+    ?.filter((i) => i.__typename === 'SalesforceIntegration')
+    ?.find((integration) => integration?.id === customer?.salesforceCustomer?.integrationId) as
+    | SalesforceIntegration
+    | undefined
 
-  const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
-    (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
-  ) as NetsuiteIntegration
+  const customerIntegrations = [
+    {
+      integrationProvider: 'NetsuiteIntegration',
+      canRender:
+        !!customer?.netsuiteCustomer?.externalCustomerId && !!connectedNetsuiteIntegration?.id,
+      label: translate('text_66423cad72bbad009f2f568f'),
+      additionalLabel: '',
+      buildExternalUrl: () => {
+        if (
+          !connectedNetsuiteIntegration?.accountId ||
+          !customer?.netsuiteCustomer?.externalCustomerId
+        ) {
+          return ''
+        }
 
-  const connectedAnrokIntegration = allAnrokIntegrations?.find(
-    (integration) => integration?.id === customer?.anrokCustomer?.integrationId,
-  ) as AnrokIntegration
+        return buildNetsuiteCustomerUrl(
+          connectedNetsuiteIntegration.accountId,
+          customer.netsuiteCustomer.externalCustomerId,
+        )
+      },
+      integrationName: connectedNetsuiteIntegration?.name,
+      integrationIcon: {
+        icon: <Netsuite />,
+        variant: 'connector-full' as AvatarConnectorVariant,
+        size: 'small' as AvatarSize,
+      },
+      externalCustomerId: customer?.netsuiteCustomer?.externalCustomerId,
+    },
+    {
+      integrationProvider: 'XeroIntegration',
+      canRender: !!customer?.xeroCustomer?.externalCustomerId && !!connectedXeroIntegration?.id,
+      label: translate('text_66423cad72bbad009f2f568f'),
+      additionalLabel: '',
+      buildExternalUrl: () => {
+        if (!customer?.xeroCustomer?.externalCustomerId) {
+          return ''
+        }
 
-  const connectedAvalaraIntegration = allAvalaraIntegrations?.find(
-    (integration) => integration?.id === customer?.avalaraCustomer?.integrationId,
-  ) as AvalaraIntegration
+        return buildXeroCustomerUrl(customer.xeroCustomer.externalCustomerId)
+      },
+      integrationName: connectedXeroIntegration?.name,
+      integrationIcon: {
+        icon: <Xero />,
+        variant: 'connector-full' as AvatarConnectorVariant,
+        size: 'small' as AvatarSize,
+      },
+      externalCustomerId: customer?.xeroCustomer?.externalCustomerId,
+    },
+    {
+      integrationProvider: 'AnrokIntegration',
+      canRender: !!customer?.anrokCustomer?.externalCustomerId && !!connectedAnrokIntegration?.id,
+      label: translate('text_6668821d94e4da4dfd8b3840'),
+      additionalLabel: '',
+      buildExternalUrl: () => {
+        if (
+          !connectedAnrokIntegration?.externalAccountId ||
+          !customer?.anrokCustomer?.integrationId
+        ) {
+          return ''
+        }
 
-  const connectedXeroIntegration = allXeroIntegrations?.find(
-    (integration) => integration?.id === customer?.xeroCustomer?.integrationId,
-  ) as XeroIntegration
+        return buildAnrokCustomerUrl(
+          connectedAnrokIntegration?.externalAccountId,
+          customer?.anrokCustomer?.integrationId,
+        )
+      },
+      integrationName: connectedAnrokIntegration?.name,
+      integrationIcon: {
+        icon: <Anrok />,
+        variant: 'connector-full' as AvatarConnectorVariant,
+        size: 'small' as AvatarSize,
+      },
+      externalCustomerId: customer?.anrokCustomer?.externalCustomerId,
+    },
+    {
+      integrationProvider: 'AvalaraIntegration',
+      canRender:
+        !!customer?.avalaraCustomer?.externalCustomerId && !!connectedAvalaraIntegration?.id,
+      label: translate('text_6668821d94e4da4dfd8b3840'),
+      additionalLabel: '',
+      buildExternalUrl: () => {
+        if (!customer?.avalaraCustomer?.externalCustomerId) {
+          return ''
+        }
 
-  const connectedHubspotIntegration = allHubspotIntegrations?.find(
-    (integration) => integration?.id === customer?.hubspotCustomer?.integrationId,
-  ) as HubspotIntegration
+        return buildAvalaraCustomerUrl(customer.avalaraCustomer.externalCustomerId)
+      },
+      integrationName: connectedAvalaraIntegration?.name,
+      integrationIcon: {
+        icon: <Avalara />,
+        variant: 'connector-full' as AvatarConnectorVariant,
+        size: 'small' as AvatarSize,
+      },
+      externalCustomerId: customer?.avalaraCustomer?.externalCustomerId,
+    },
+    {
+      integrationProvider: 'HubspotIntegration',
+      canRender:
+        !!connectedHubspotIntegration &&
+        customer?.hubspotCustomer?.integrationId &&
+        customer?.hubspotCustomer.targetedObject,
+      label: translate('text_1728658962985xpfdvl5ru8a'),
+      additionalLabel: customer?.hubspotCustomer?.targetedObject
+        ? translate(getTargetedObjectTranslationKey[customer.hubspotCustomer.targetedObject])
+        : '',
+      buildExternalUrl: () => {
+        if (
+          !connectedHubspotIntegration?.portalId ||
+          !customer?.hubspotCustomer?.externalCustomerId ||
+          !customer?.hubspotCustomer.targetedObject
+        ) {
+          return ''
+        }
 
-  const connectedSalesforceIntegration = allSalesforceIntegrations?.find(
-    (integration) => integration?.id === customer?.salesforceCustomer?.integrationId,
-  ) as SalesforceIntegration
+        return buildHubspotObjectUrl({
+          portalId: connectedHubspotIntegration.portalId,
+          objectId: customer?.hubspotCustomer?.externalCustomerId,
+          targetedObject: customer?.hubspotCustomer.targetedObject,
+        })
+      },
+      integrationName: connectedHubspotIntegration?.name,
+      integrationIcon: {
+        icon: <Hubspot />,
+        variant: 'connector' as AvatarConnectorVariant,
+        size: 'small' as AvatarSize,
+      },
+      externalCustomerId: customer?.hubspotCustomer?.externalCustomerId,
+    },
+    {
+      integrationProvider: 'SalesforceIntegration',
+      canRender:
+        !!connectedSalesforceIntegration?.id &&
+        customer?.salesforceCustomer?.externalCustomerId &&
+        customer?.salesforceCustomer?.integrationId,
+      label: translate('text_1728658962985xpfdvl5ru8a'),
+      additionalLabel: '',
+      buildExternalUrl: () => {
+        if (
+          !connectedSalesforceIntegration?.instanceId ||
+          !customer?.salesforceCustomer?.externalCustomerId
+        ) {
+          return ''
+        }
+
+        return buildSalesforceUrl({
+          instanceId: connectedSalesforceIntegration.instanceId,
+          externalCustomerId: customer.salesforceCustomer.externalCustomerId,
+        })
+      },
+      integrationName: connectedSalesforceIntegration?.name,
+      integrationIcon: {
+        icon: <Salesforce />,
+        variant: 'connector-full' as AvatarConnectorVariant,
+        size: 'small' as AvatarSize,
+      },
+      externalCustomerId: customer?.salesforceCustomer?.externalCustomerId,
+    },
+  ]
 
   return (
     <>
@@ -255,216 +409,57 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
         </InfoRow>
       )}
 
-      {(!!customer?.netsuiteCustomer || !!connectedNetsuiteIntegration?.id) && (
-        <InfoRow>
-          <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
+      {customerIntegrations.length > 0 &&
+        customerIntegrations.map(
+          (
+            {
+              integrationProvider,
+              canRender,
+              label,
+              additionalLabel,
+              buildExternalUrl,
+              integrationName,
+              integrationIcon,
+              externalCustomerId,
+            },
+            i,
+          ) => {
+            if (!canRender) return null
+            const externalLink = buildExternalUrl()
 
-          <div>
-            {integrationsLoading && <IntegrationsLoadingSkeleton />}
-            {!integrationsLoading &&
-              !!connectedNetsuiteIntegration &&
-              customer?.netsuiteCustomer?.externalCustomerId && (
-                <div className="flex flex-row">
-                  <div className="flex flex-row items-center gap-2">
-                    <Avatar variant="connector-full" size="small">
-                      <Netsuite />
-                    </Avatar>
-                    <Typography color="grey700">{connectedNetsuiteIntegration?.name}</Typography>
-                  </div>
-                  <InlineLink
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    to={buildNetsuiteCustomerUrl(
-                      connectedNetsuiteIntegration?.accountId,
-                      customer?.netsuiteCustomer?.externalCustomerId,
-                    )}
-                  >
-                    <Typography className="flex items-center gap-1" color="primary600">
-                      {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
-                    </Typography>
-                  </InlineLink>
-                </div>
-              )}
-          </div>
-        </InfoRow>
-      )}
+            return (
+              <InfoRow key={`${integrationProvider}-${i}`}>
+                <Typography variant="caption">{label}</Typography>
 
-      {(!!customer?.xeroCustomer || !!connectedXeroIntegration?.id) && (
-        <InfoRow>
-          <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
-          <div>
-            {integrationsLoading && <IntegrationsLoadingSkeleton />}
-            {!integrationsLoading &&
-              !!connectedXeroIntegration &&
-              customer?.xeroCustomer?.externalCustomerId && (
-                <div className="flex flex-row">
-                  <div className="flex flex-row items-center gap-2">
-                    <Avatar variant="connector-full" size="small">
-                      <Xero />
-                    </Avatar>
-                    <Typography color="grey700">{connectedXeroIntegration?.name}</Typography>
-                  </div>
-                  <InlineLink
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    to={buildXeroCustomerUrl(customer?.xeroCustomer?.externalCustomerId)}
-                  >
-                    <Typography className="flex items-center gap-1" color="primary600">
-                      {customer?.xeroCustomer?.externalCustomerId} <Icon name="outside" />
-                    </Typography>
-                  </InlineLink>
-                </div>
-              )}
-          </div>
-        </InfoRow>
-      )}
-
-      {!!connectedAnrokIntegration && (
-        <InfoRow>
-          <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
-          <div>
-            {integrationsLoading && <IntegrationsLoadingSkeleton />}
-            {!integrationsLoading &&
-              !!connectedAnrokIntegration &&
-              customer?.anrokCustomer?.integrationId && (
-                <div className="flex flex-row">
-                  <div className="flex flex-row items-center gap-2">
-                    <Avatar variant="connector-full" size="small">
-                      <Anrok />
-                    </Avatar>
-                    <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
-                  </div>
-                  {!!connectedAnrokIntegration.externalAccountId &&
-                    customer?.anrokCustomer?.externalCustomerId && (
-                      <InlineLink
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        to={buildAnrokCustomerUrl(
-                          connectedAnrokIntegration.externalAccountId,
-                          customer?.anrokCustomer?.externalCustomerId,
-                        )}
-                      >
-                        <Typography className="flex items-center gap-1" color="primary600">
-                          {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
+                <div>
+                  {integrationsLoading && <IntegrationsLoadingSkeleton />}
+                  {!integrationsLoading && (
+                    <div className="flex flex-row">
+                      <div className="flex flex-row items-center gap-2">
+                        <Avatar variant={integrationIcon.variant} size={integrationIcon.size}>
+                          {integrationIcon.icon}
+                        </Avatar>
+                        <Typography color="grey700">{integrationName}</Typography>
+                      </div>
+                      {additionalLabel && (
+                        <Typography className="ml-2" variant="body" color="grey700">
+                          {additionalLabel}
                         </Typography>
-                      </InlineLink>
-                    )}
+                      )}
+                      {externalLink && (
+                        <InlineLink target="_blank" rel="noopener noreferrer" to={externalLink}>
+                          <Typography className="flex items-center gap-1" color="primary600">
+                            {externalCustomerId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      )}
+                    </div>
+                  )}
                 </div>
-              )}
-          </div>
-        </InfoRow>
-      )}
-
-      {(!!customer?.avalaraCustomer || !!connectedAvalaraIntegration?.id) && (
-        <InfoRow>
-          <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
-          <div>
-            {integrationsLoading && <IntegrationsLoadingSkeleton />}
-            {!integrationsLoading &&
-              !!connectedAvalaraIntegration &&
-              customer?.avalaraCustomer?.externalCustomerId && (
-                <div className="flex flex-row">
-                  <div className="flex flex-row items-center gap-2">
-                    <Avatar variant="connector-full" size="small">
-                      <Avalara />
-                    </Avatar>
-                    <Typography color="grey700">{connectedAvalaraIntegration?.name}</Typography>
-                  </div>
-                  <InlineLink
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    to={buildAvalaraCustomerUrl(customer?.avalaraCustomer?.externalCustomerId)}
-                  >
-                    <Typography className="flex items-center gap-1" color="primary600">
-                      {customer?.avalaraCustomer?.externalCustomerId} <Icon name="outside" />
-                    </Typography>
-                  </InlineLink>
-                </div>
-              )}
-          </div>
-        </InfoRow>
-      )}
-
-      {!!connectedHubspotIntegration && (
-        <InfoRow>
-          <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
-
-          <div>
-            {integrationsLoading && <IntegrationsLoadingSkeleton />}
-            {!integrationsLoading &&
-              !!connectedHubspotIntegration &&
-              customer?.hubspotCustomer?.integrationId &&
-              customer?.hubspotCustomer.targetedObject && (
-                <div className="flex flex-row">
-                  <div className="flex flex-row items-center gap-2">
-                    <Avatar variant="connector" size="small">
-                      <Hubspot />
-                    </Avatar>
-                    <Typography color="grey700">{connectedHubspotIntegration?.name}</Typography>
-                  </div>
-                  <Typography variant="body" color="grey700">
-                    {translate(
-                      getTargetedObjectTranslationKey[customer?.hubspotCustomer.targetedObject],
-                    )}
-                  </Typography>
-                  {!!connectedHubspotIntegration.portalId &&
-                    customer?.hubspotCustomer?.externalCustomerId &&
-                    !!customer?.hubspotCustomer.targetedObject && (
-                      <InlineLink
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        to={buildHubspotObjectUrl({
-                          portalId: connectedHubspotIntegration.portalId,
-                          objectId: customer?.hubspotCustomer?.externalCustomerId,
-                          targetedObject: customer?.hubspotCustomer.targetedObject,
-                        })}
-                      >
-                        <Typography className="flex flex-row items-center gap-1" color="primary600">
-                          {customer?.hubspotCustomer?.externalCustomerId} <Icon name="outside" />
-                        </Typography>
-                      </InlineLink>
-                    )}
-                </div>
-              )}
-          </div>
-        </InfoRow>
-      )}
-
-      {!!connectedSalesforceIntegration && (
-        <InfoRow>
-          <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
-          <div>
-            {integrationsLoading && <IntegrationsLoadingSkeleton />}
-            {!integrationsLoading &&
-              !!connectedSalesforceIntegration &&
-              customer?.salesforceCustomer?.integrationId && (
-                <div className="flex flex-row">
-                  <div className="flex flex-row items-center gap-2">
-                    <Avatar variant="connector-full" size="small">
-                      <Salesforce />
-                    </Avatar>
-                    <Typography color="grey700">{connectedSalesforceIntegration?.name}</Typography>
-                  </div>
-                  {!!connectedSalesforceIntegration.instanceId &&
-                    customer?.salesforceCustomer?.externalCustomerId && (
-                      <InlineLink
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        to={buildSalesforceUrl({
-                          instanceId: connectedSalesforceIntegration.instanceId,
-                          externalCustomerId: customer.salesforceCustomer.externalCustomerId,
-                        })}
-                      >
-                        <Typography className="flex items-center gap-1" color="primary600">
-                          {customer?.salesforceCustomer?.externalCustomerId} <Icon name="outside" />
-                        </Typography>
-                      </InlineLink>
-                    )}
-                </div>
-              )}
-          </div>
-        </InfoRow>
-      )}
+              </InfoRow>
+            )
+          },
+        )}
     </>
   )
 }
