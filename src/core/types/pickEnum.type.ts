@@ -15,6 +15,4 @@
  * const color2: PrimaryColors = Colors.Green // Error: Type 'Colors.Green' is not assignable to type 'PrimaryColors'
  * ```
  */
-export type PickEnum<T, K extends T> = {
-  [P in keyof K]: P extends K ? P : never
-}
+export type PickEnum<T, K extends T> = K
