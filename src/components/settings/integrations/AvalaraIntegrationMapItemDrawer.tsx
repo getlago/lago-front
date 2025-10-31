@@ -3,9 +3,8 @@ import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { object } from 'yup'
 
-import { Button, Dialog, Typography } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { AVALARA_TAX_CODE_DOCUMENTATION_URL } from '~/core/constants/externalUrls'
 import {
@@ -21,7 +20,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment AvalaraIntegrationMapItemDialog on IntegrationItem {
+  fragment AvalaraIntegrationMapItemDrawer on IntegrationItem {
     id
     externalId
     externalName
@@ -29,14 +28,14 @@ gql`
     itemType
   }
 
-  fragment AvalaraIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+  fragment AvalaraIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
     id
     externalId
     externalName
     externalAccountCode
   }
 
-  fragment AvalaraIntegrationMapItemDialogCollectionItem on Mapping {
+  fragment AvalaraIntegrationMapItemDrawerCollectionItem on Mapping {
     id
     externalId
     externalName
@@ -49,14 +48,14 @@ gql`
   ) {
     createIntegrationCollectionMapping(input: $input) {
       id
-      ...AvalaraIntegrationMapItemDialogCollectionMappingItem
+      ...AvalaraIntegrationMapItemDrawerCollectionMappingItem
     }
   }
 
   mutation createAvalaraIntegrationMapping($input: CreateIntegrationMappingInput!) {
     createIntegrationMapping(input: $input) {
       id
-      ...AvalaraIntegrationMapItemDialogCollectionItem
+      ...AvalaraIntegrationMapItemDrawerCollectionItem
     }
   }
 
@@ -91,7 +90,7 @@ gql`
   }
 `
 
-type TAvalaraIntegrationMapItemDialogProps = {
+type AvalaraIntegrationMapItemDrawerProps = {
   type: MappingTypeEnum | MappableTypeEnum
   integrationId: string
   itemId?: string
@@ -101,27 +100,32 @@ type TAvalaraIntegrationMapItemDialogProps = {
   lagoMappableName?: string
 }
 
-export interface AvalaraIntegrationMapItemDialogRef {
-  openDialog: (props: TAvalaraIntegrationMapItemDialogProps) => unknown
-  closeDialog: () => unknown
+export interface AvalaraIntegrationMapItemDrawerRef {
+  openDrawer: (props: AvalaraIntegrationMapItemDrawerProps) => unknown
+  closeDrawer: () => unknown
 }
 
-export const AvalaraIntegrationMapItemDialog = forwardRef<AvalaraIntegrationMapItemDialogRef>(
+export const AvalaraIntegrationMapItemDrawer = forwardRef<AvalaraIntegrationMapItemDrawerRef>(
   (_, ref) => {
     const { translate } = useInternationalization()
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TAvalaraIntegrationMapItemDialogProps | undefined>(
+    const drawerRef = useRef<DrawerRef>(null)
+    const [localData, setLocalData] = useState<AvalaraIntegrationMapItemDrawerProps | undefined>(
       undefined,
     )
     const isCollectionContext = !Object.values(MappableTypeEnum).includes(
       localData?.type as MappableTypeEnum,
     )
-    const refetchQueries =
-      localData?.type === MappableTypeEnum.AddOn
-        ? ['getAddOnsForAvalaraItemsList']
-        : localData?.type === MappableTypeEnum.BillableMetric
-          ? ['getBillableMetricsForAvalaraItemsList']
-          : ['getAvalaraIntegrationCollectionMappings']
+    const refetchQueries = useMemo(() => {
+      if (localData?.type === MappableTypeEnum.AddOn) {
+        return ['getAddOnsForAvalaraItemsList']
+      }
+
+      if (localData?.type === MappableTypeEnum.BillableMetric) {
+        return ['getBillableMetricsForAvalaraItemsList']
+      }
+
+      return ['getAvalaraIntegrationCollectionMappings']
+    }, [localData?.type])
 
     // Mapping Creation
     const [createCollectionMapping] = useCreateAvalaraIntegrationCollectionMappingMutation({
@@ -249,7 +253,7 @@ export const AvalaraIntegrationMapItemDialog = forwardRef<AvalaraIntegrationMapI
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isCreate) {
           let answer
@@ -280,7 +284,7 @@ export const AvalaraIntegrationMapItemDialog = forwardRef<AvalaraIntegrationMapI
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isEdit) {
           let answer
@@ -313,7 +317,7 @@ export const AvalaraIntegrationMapItemDialog = forwardRef<AvalaraIntegrationMapI
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         }
       },
@@ -381,25 +385,24 @@ export const AvalaraIntegrationMapItemDialog = forwardRef<AvalaraIntegrationMapI
     }, [localData?.lagoMappableName, localData?.type, translate])
 
     useImperativeHandle(ref, () => ({
-      openDialog: (props) => {
+      openDrawer: (props) => {
         setLocalData(props)
-        dialogRef.current?.openDialog()
+        drawerRef.current?.openDrawer()
       },
-      closeDialog: () => dialogRef.current?.closeDialog(),
+      closeDrawer: () => drawerRef.current?.closeDrawer(),
     }))
 
     return (
-      <Dialog
-        ref={dialogRef}
+      <Drawer
+        ref={drawerRef}
         title={title}
-        description={description}
         onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
         }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
+        stickyBottomBar={
+          <div className="flex justify-end gap-3">
+            <Button variant="quaternary" onClick={() => drawerRef.current?.closeDrawer()}>
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
@@ -408,37 +411,43 @@ export const AvalaraIntegrationMapItemDialog = forwardRef<AvalaraIntegrationMapI
             >
               {translate('text_6630e51df0a194013daea624')}
             </Button>
-          </>
-        )}
+          </div>
+        }
       >
-        <div className="mb-8 flex flex-col gap-6">
-          <TextInputField
-            label={translate('text_1745416010613eidnh95dbs2')}
-            placeholder={translate('text_17454159844152n3rimhvk4b')}
-            name="externalName"
-            formikProps={formikProps}
-          />
-
-          <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-12">
+          <div>
+            <Typography variant="headline">{title}</Typography>
+            <Typography>{description}</Typography>
+          </div>
+          <div className="mb-8 flex flex-col gap-6">
             <TextInputField
-              label={translate('text_17454160106136tkffv4p4c3')}
-              placeholder={translate('text_1745415984416mjvvaj4ahgp')}
-              name="externalId"
+              label={translate('text_1745416010613eidnh95dbs2')}
+              placeholder={translate('text_17454159844152n3rimhvk4b')}
+              name="externalName"
               formikProps={formikProps}
             />
 
-            <Typography
-              variant="caption"
-              color="grey600"
-              html={translate('text_1748266296790rrag2rqt68c', {
-                href: AVALARA_TAX_CODE_DOCUMENTATION_URL,
-              })}
-            />
+            <div className="flex flex-col gap-1">
+              <TextInputField
+                label={translate('text_17454160106136tkffv4p4c3')}
+                placeholder={translate('text_1745415984416mjvvaj4ahgp')}
+                name="externalId"
+                formikProps={formikProps}
+              />
+
+              <Typography
+                variant="caption"
+                color="grey600"
+                html={translate('text_1748266296790rrag2rqt68c', {
+                  href: AVALARA_TAX_CODE_DOCUMENTATION_URL,
+                })}
+              />
+            </div>
           </div>
         </div>
-      </Dialog>
+      </Drawer>
     )
   },
 )
 
-AvalaraIntegrationMapItemDialog.displayName = 'AvalaraIntegrationMapItemDialog'
+AvalaraIntegrationMapItemDrawer.displayName = 'AvalaraIntegrationMapItemDrawer'

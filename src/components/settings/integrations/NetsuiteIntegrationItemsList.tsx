@@ -22,9 +22,9 @@ import NetsuiteIntegrationItemsListAddons from './NetsuiteIntegrationItemsListAd
 import NetsuiteIntegrationItemsListBillableMetrics from './NetsuiteIntegrationItemsListBillableMetrics'
 import NetsuiteIntegrationItemsListDefault from './NetsuiteIntegrationItemsListDefault'
 import {
-  NetsuiteIntegrationMapItemDialog,
-  NetsuiteIntegrationMapItemDialogRef,
-} from './NetsuiteIntegrationMapItemDialog'
+  NetsuiteIntegrationMapItemDrawer,
+  NetsuiteIntegrationMapItemDrawerRef,
+} from './NetsuiteIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
@@ -97,7 +97,7 @@ gql`
 
 const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const netsuiteIntegrationMapItemDialogRef = useRef<NetsuiteIntegrationMapItemDialogRef>(null)
+  const netsuiteIntegrationMapItemDrawerRef = useRef<NetsuiteIntegrationMapItemDrawerRef>(null)
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -247,42 +247,41 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
         )}
       </div>
 
-      {selectedItemType === SelectedItemTypeEnum.Default ? (
+      {selectedItemType === SelectedItemTypeEnum.Default && (
         <NetsuiteIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+          netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
         />
-      ) : (
-        <>
-          {selectedItemType === MappableTypeEnum.AddOn && (
-            <NetsuiteIntegrationItemsListAddons
-              data={addonData}
-              fetchMoreAddons={fetchMoreAddons}
-              integrationId={integrationId}
-              isLoading={isLoadingAddons}
-              hasError={!!addonError}
-              netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
-              searchTerm={addonVariables?.searchTerm}
-            />
-          )}
-          {selectedItemType === MappableTypeEnum.BillableMetric && (
-            <NetsuiteIntegrationItemsListBillableMetrics
-              data={billableMetricsData}
-              fetchMoreBillableMetrics={fetchMoreBillableMetrics}
-              integrationId={integrationId}
-              isLoading={isLoadingBillableMetrics}
-              hasError={!!billableMetricsError}
-              netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
-              searchTerm={billableMetricsVariables?.searchTerm}
-            />
-          )}
-        </>
       )}
 
-      <NetsuiteIntegrationMapItemDialog ref={netsuiteIntegrationMapItemDialogRef} />
+      {selectedItemType === MappableTypeEnum.AddOn && (
+        <NetsuiteIntegrationItemsListAddons
+          data={addonData}
+          fetchMoreAddons={fetchMoreAddons}
+          integrationId={integrationId}
+          isLoading={isLoadingAddons}
+          hasError={!!addonError}
+          netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+          searchTerm={addonVariables?.searchTerm}
+        />
+      )}
+
+      {selectedItemType === MappableTypeEnum.BillableMetric && (
+        <NetsuiteIntegrationItemsListBillableMetrics
+          data={billableMetricsData}
+          fetchMoreBillableMetrics={fetchMoreBillableMetrics}
+          integrationId={integrationId}
+          isLoading={isLoadingBillableMetrics}
+          hasError={!!billableMetricsError}
+          netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+          searchTerm={billableMetricsVariables?.searchTerm}
+        />
+      )}
+
+      <NetsuiteIntegrationMapItemDrawer ref={netsuiteIntegrationMapItemDrawerRef} />
     </>
   )
 }

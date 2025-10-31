@@ -81,6 +81,7 @@ export interface TableProps<T> {
     errorState?: Partial<GenericPlaceholderProps>
   }
   onRowActionLink?: (item: T) => string
+  onRowActionClick?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
   actionColumnTooltip?: (item: T) => string
   rowDataTestId?: (item: T) => string
@@ -342,6 +343,7 @@ export const Table = <T extends DataItem>({
   tableInDialog,
   containerClassName,
   onRowActionLink,
+  onRowActionClick,
   actionColumn,
   actionColumnTooltip,
   rowDataTestId,
@@ -374,7 +376,7 @@ export const Table = <T extends DataItem>({
     },
   })
 
-  const isClickable = !!onRowActionLink && !isLoading
+  const isClickable = (!!onRowActionLink || !!onRowActionClick) && !isLoading
   const shouldDisplayActionColumn =
     !!actionColumn &&
     (data.length > 0
@@ -401,7 +403,7 @@ export const Table = <T extends DataItem>({
   const colSpan = filteredColumns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
-    if (!onRowActionLink) return
+    if (!onRowActionLink && !onRowActionClick) return
 
     // Prevent row action when clicking on button or link in cell
     if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) {
@@ -415,21 +417,34 @@ export const Table = <T extends DataItem>({
       return
     }
 
-    if (e.target instanceof HTMLElement) {
-      const actionColumnButton = e.target.closest('button')?.dataset.id
+    if (!(e.target instanceof HTMLElement)) {
+      return
+    }
 
-      const hasSideKeyPressed = e.metaKey || e.ctrlKey
+    const actionColumnButton = e.target.closest('button')?.dataset.id
 
-      // Make sure anything other than the action column button is clicked
-      if (actionColumnButton !== ACTION_COLUMN_ID) {
-        const link = onRowActionLink(item)
+    const hasSideKeyPressed = e.metaKey || e.ctrlKey
 
-        if (hasSideKeyPressed) {
-          window.open(link, '_blank')
-        } else {
-          navigate(link)
-        }
-      }
+    if (actionColumnButton === ACTION_COLUMN_ID) {
+      return
+    }
+
+    if (onRowActionClick) {
+      onRowActionClick(item)
+      return
+    }
+
+    if (!onRowActionLink) {
+      return
+    }
+
+    // Make sure anything other than the action column button is clicked
+    const link = onRowActionLink(item)
+
+    if (hasSideKeyPressed) {
+      window.open(link, '_blank')
+    } else {
+      navigate(link)
     }
   }
 
