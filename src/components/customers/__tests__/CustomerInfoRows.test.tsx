@@ -2,50 +2,21 @@ import { render } from '@testing-library/react'
 
 import { CustomerMainInfosFragment } from '~/generated/graphql'
 
+import { createMockCustomerDetails } from './factories/CustomerDetails.factory'
+
 import { CustomerInfoRows } from '../CustomerInfoRows'
 
 jest.mock('~/core/formats/formatAddress', () => ({
   formatAddress: jest.fn(({ addressLine1, addressLine2, city, state, country, zipcode }) =>
-    [addressLine1, addressLine2, city, state, country, zipcode].filter(Boolean).join(', '),
+    [addressLine1, addressLine2, city, state, country === 'IT' ? 'Italy' : country, zipcode]
+      .filter(Boolean)
+      .join(', '),
   ),
 }))
 
 describe('CustomerInfoRows', () => {
   it('renders customer fields correctly', () => {
-    const customer: CustomerMainInfosFragment = {
-      name: 'John Doe',
-      firstname: 'Jonathan',
-      lastname: 'Doe',
-      customerType: 'Individual',
-      addressLine1: 'Via Toledo',
-      city: 'Napoli',
-      country: 'Italy',
-      metadata: [
-        { id: '1', key: 'Custom Field 1', value: 'Value 1' },
-        { id: '2', key: 'Custom Field 2', value: 'Value 2' },
-      ],
-      billingEntity: { name: 'Entity 1', code: 'E1' },
-      externalId: 'EXT123',
-      externalSalesforceId: 'SF123',
-      currency: 'EUR',
-      legalName: 'Napoli Legal Name',
-      legalNumber: '123456789',
-      taxIdentificationNumber: 'IT123456789',
-      email: 'john.doe@example.com',
-      url: 'https://example.com',
-      phone: '+390812345678',
-      addressLine2: 'Apartment 5B',
-      state: 'Campania',
-      zipcode: '80100',
-      shippingAddress: {
-        addressLine1: 'Corso Umberto I',
-        addressLine2: 'Building A',
-        city: 'Napoli',
-        state: 'Campania',
-        country: 'Italy',
-        zipcode: '80133',
-      },
-    } as unknown as CustomerMainInfosFragment
+    const customer = createMockCustomerDetails()
 
     const { getByText } = render(<CustomerInfoRows customer={customer} />)
 
