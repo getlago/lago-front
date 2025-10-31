@@ -8,6 +8,7 @@ import {
   Typography,
 } from 'lago-design-system'
 
+import { getConnectedIntegrations } from '~/components/customers/utils'
 import { InfoRow } from '~/components/InfoRow'
 import { InlineLink } from '~/components/InlineLink'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -168,99 +169,59 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     (provider) => provider?.code === customer?.paymentProviderCode,
   )
 
-  const connectedNetsuiteIntegration = integrationsData?.integrations?.collection
-    ?.filter(
-      (
-        i,
-      ): i is {
-        __typename: 'NetsuiteIntegration'
-        id: string
-        name: string
-        accountId?: string | null
-      } => i.__typename === 'NetsuiteIntegration',
-    )
-    ?.find((integration) => integration?.id === customer?.netsuiteCustomer?.integrationId)
+  const connectedIntegrations = {
+    netsuite: getConnectedIntegrations(
+      integrationsData,
+      customer,
+      'NetsuiteIntegration',
+      'netsuiteCustomer',
+    ),
+    xero: getConnectedIntegrations(integrationsData, customer, 'XeroIntegration', 'xeroCustomer'),
+    anrok: getConnectedIntegrations(
+      integrationsData,
+      customer,
+      'AnrokIntegration',
+      'anrokCustomer',
+    ),
+    avalara: getConnectedIntegrations(
+      integrationsData,
+      customer,
+      'AvalaraIntegration',
+      'avalaraCustomer',
+    ),
+    hubspot: getConnectedIntegrations(
+      integrationsData,
+      customer,
+      'HubspotIntegration',
+      'hubspotCustomer',
+    ),
+    salesforce: getConnectedIntegrations(
+      integrationsData,
+      customer,
+      'SalesforceIntegration',
+      'salesforceCustomer',
+    ),
+  }
 
-  const connectedXeroIntegration = integrationsData?.integrations?.collection
-    ?.filter(
-      (i): i is { __typename: 'XeroIntegration'; id: string; name: string } =>
-        i.__typename === 'XeroIntegration',
-    )
-    ?.find((integration) => integration?.id === customer?.xeroCustomer?.integrationId)
-
-  const connectedAnrokIntegration = integrationsData?.integrations?.collection
-    ?.filter(
-      (
-        i,
-      ): i is {
-        __typename: 'AnrokIntegration'
-        id: string
-        name: string
-        apiKey: string
-        externalAccountId?: string | null
-      } => i.__typename === 'AnrokIntegration',
-    )
-    ?.find((integration) => integration?.id === customer?.anrokCustomer?.integrationId)
-
-  const connectedAvalaraIntegration = integrationsData?.integrations?.collection
-    ?.filter(
-      (
-        i,
-      ): i is {
-        __typename: 'AvalaraIntegration'
-        id: string
-        name: string
-        accountId?: string | null
-      } => i.__typename === 'AvalaraIntegration',
-    )
-    ?.find((integration) => integration?.id === customer?.avalaraCustomer?.integrationId)
-
-  const connectedHubspotIntegration = integrationsData?.integrations?.collection
-    ?.filter(
-      (
-        i,
-      ): i is {
-        __typename: 'HubspotIntegration'
-        id: string
-        name: string
-        portalId?: string | null
-      } => i.__typename === 'HubspotIntegration',
-    )
-    ?.find((integration) => integration?.id === customer?.hubspotCustomer?.integrationId)
-
-  const connectedSalesforceIntegration = integrationsData?.integrations?.collection
-    ?.filter(
-      (
-        i,
-      ): i is {
-        __typename: 'SalesforceIntegration'
-        id: string
-        name: string
-        instanceId: string
-      } => i.__typename === 'SalesforceIntegration',
-    )
-    ?.find((integration) => integration?.id === customer?.salesforceCustomer?.integrationId)
+  const { netsuite, xero, anrok, avalara, hubspot, salesforce } = connectedIntegrations
 
   const customerIntegrations = [
     {
       integrationProvider: 'NetsuiteIntegration',
-      canRender: !!customer?.netsuiteCustomer?.integrationId && !!connectedNetsuiteIntegration?.id,
+      canRender: !!customer?.netsuiteCustomer?.integrationId && !!netsuite?.id,
       label: translate('text_66423cad72bbad009f2f568f'),
       additionalLabel: '',
       buildExternalUrl: () => {
-        if (
-          !connectedNetsuiteIntegration?.accountId ||
-          !customer?.netsuiteCustomer?.externalCustomerId
-        ) {
+        if (!netsuite?.accountId || !customer?.netsuiteCustomer?.externalCustomerId) {
           return ''
         }
 
         return buildNetsuiteCustomerUrl(
-          connectedNetsuiteIntegration.accountId,
+          netsuite.accountId,
           customer.netsuiteCustomer.externalCustomerId,
         )
       },
-      integrationName: connectedNetsuiteIntegration?.name,
+      integrationName: netsuite?.name,
       integrationIcon: {
         icon: <Netsuite />,
         variant: 'connector-full' as AvatarConnectorVariant,
@@ -270,7 +231,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     },
     {
       integrationProvider: 'XeroIntegration',
-      canRender: !!customer?.xeroCustomer?.integrationId && !!connectedXeroIntegration?.id,
+      canRender: !!customer?.xeroCustomer?.integrationId && !!xero?.id,
       label: translate('text_66423cad72bbad009f2f568f'),
       additionalLabel: '',
       buildExternalUrl: () => {
@@ -280,7 +241,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
 
         return buildXeroCustomerUrl(customer.xeroCustomer.externalCustomerId)
       },
-      integrationName: connectedXeroIntegration?.name,
+      integrationName: xero?.name,
       integrationIcon: {
         icon: <Xero />,
         variant: 'connector-full' as AvatarConnectorVariant,
@@ -290,23 +251,20 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     },
     {
       integrationProvider: 'AnrokIntegration',
-      canRender: !!customer?.anrokCustomer?.integrationId && !!connectedAnrokIntegration?.id,
+      canRender: !!customer?.anrokCustomer?.integrationId && !!anrok?.id,
       label: translate('text_6668821d94e4da4dfd8b3840'),
       additionalLabel: '',
       buildExternalUrl: () => {
-        if (
-          !connectedAnrokIntegration?.externalAccountId ||
-          !customer?.anrokCustomer?.externalCustomerId
-        ) {
+        if (!anrok?.externalAccountId || !customer?.anrokCustomer?.externalCustomerId) {
           return ''
         }
 
         return buildAnrokCustomerUrl(
-          connectedAnrokIntegration.externalAccountId,
+          anrok.externalAccountId,
           customer.anrokCustomer.externalCustomerId,
         )
       },
-      integrationName: connectedAnrokIntegration?.name,
+      integrationName: anrok?.name,
       integrationIcon: {
         icon: <Anrok />,
         variant: 'connector-full' as AvatarConnectorVariant,
@@ -316,7 +274,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     },
     {
       integrationProvider: 'AvalaraIntegration',
-      canRender: !!customer?.avalaraCustomer?.integrationId && !!connectedAvalaraIntegration?.id,
+      canRender: !!customer?.avalaraCustomer?.integrationId && !!avalara?.id,
       label: translate('text_6668821d94e4da4dfd8b3840'),
       additionalLabel: '',
       buildExternalUrl: () => {
@@ -326,7 +284,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
 
         return buildAvalaraCustomerUrl(customer.avalaraCustomer.externalCustomerId)
       },
-      integrationName: connectedAvalaraIntegration?.name,
+      integrationName: avalara?.name,
       integrationIcon: {
         icon: <Avalara />,
         variant: 'connector-full' as AvatarConnectorVariant,
@@ -337,7 +295,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     {
       integrationProvider: 'HubspotIntegration',
       canRender:
-        !!connectedHubspotIntegration?.id &&
+        !!hubspot?.id &&
         customer?.hubspotCustomer?.integrationId &&
         customer?.hubspotCustomer.targetedObject,
       label: translate('text_1728658962985xpfdvl5ru8a'),
@@ -346,7 +304,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
         : '',
       buildExternalUrl: () => {
         if (
-          !connectedHubspotIntegration?.portalId ||
+          !hubspot?.portalId ||
           !customer?.hubspotCustomer?.externalCustomerId ||
           !customer?.hubspotCustomer.targetedObject
         ) {
@@ -354,12 +312,12 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
         }
 
         return buildHubspotObjectUrl({
-          portalId: connectedHubspotIntegration.portalId,
+          portalId: hubspot.portalId,
           objectId: customer?.hubspotCustomer?.externalCustomerId,
           targetedObject: customer?.hubspotCustomer.targetedObject,
         })
       },
-      integrationName: connectedHubspotIntegration?.name,
+      integrationName: hubspot?.name,
       integrationIcon: {
         icon: <Hubspot />,
         variant: 'connector' as AvatarConnectorVariant,
@@ -370,25 +328,22 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     {
       integrationProvider: 'SalesforceIntegration',
       canRender:
-        !!connectedSalesforceIntegration?.id &&
+        !!salesforce?.id &&
         customer?.salesforceCustomer?.externalCustomerId &&
         customer?.salesforceCustomer?.integrationId,
       label: translate('text_1728658962985xpfdvl5ru8a'),
       additionalLabel: '',
       buildExternalUrl: () => {
-        if (
-          !connectedSalesforceIntegration?.instanceId ||
-          !customer?.salesforceCustomer?.externalCustomerId
-        ) {
+        if (!salesforce?.instanceId || !customer?.salesforceCustomer?.externalCustomerId) {
           return ''
         }
 
         return buildSalesforceUrl({
-          instanceId: connectedSalesforceIntegration.instanceId,
+          instanceId: salesforce.instanceId,
           externalCustomerId: customer.salesforceCustomer.externalCustomerId,
         })
       },
-      integrationName: connectedSalesforceIntegration?.name,
+      integrationName: salesforce?.name,
       integrationIcon: {
         icon: <Salesforce />,
         variant: 'connector-full' as AvatarConnectorVariant,
