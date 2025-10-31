@@ -55,6 +55,7 @@ export const DeleteMoneyhashIntegrationDialog = forwardRef<DeleteMoneyhashIntegr
       update(cache) {
         cache.evict({ id: `MoneyhashProvider:${moneyhashProvider?.id}` })
       },
+      refetchQueries: ['getMoneyhashIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({
