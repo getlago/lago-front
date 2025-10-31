@@ -55,6 +55,7 @@ export const DeleteFlutterwaveIntegrationDialog = forwardRef<DeleteFlutterwaveIn
       update(cache) {
         cache.evict({ id: `FlutterwaveProvider:${flutterwaveProvider?.id}` })
       },
+      refetchQueries: ['getFlutterwaveIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({

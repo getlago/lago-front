@@ -57,6 +57,7 @@ export const DeleteCashfreeIntegrationDialog = forwardRef<DeleteCashfreeIntegrat
       update(cache) {
         cache.evict({ id: `CashfreeProvider:${cashfreeProvider?.id}` })
       },
+      refetchQueries: ['getCashfreeIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({

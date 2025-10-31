@@ -57,6 +57,7 @@ export const DeleteGocardlessIntegrationDialog = forwardRef<DeleteGocardlessInte
       update(cache) {
         cache.evict({ id: `GocardlessProvider:${gocardlessProvider?.id}` })
       },
+      refetchQueries: ['getGocardlessIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({

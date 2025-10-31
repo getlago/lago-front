@@ -54,6 +54,7 @@ export const DeleteStripeIntegrationDialog = forwardRef<DeleteStripeIntegrationD
       update(cache) {
         cache.evict({ id: `StripeProvider:${stripeProvider?.id}` })
       },
+      refetchQueries: ['getStripeIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({
