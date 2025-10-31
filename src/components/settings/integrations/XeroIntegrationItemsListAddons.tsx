@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { RefObject } from 'react'
 
 import { CREATE_ADD_ON_ROUTE } from '~/core/router'
@@ -12,9 +11,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { IntegrationItemHeader } from '~/pages/settings/integrations/IntegrationItem'
 
-import { XeroIntegrationMapItemDialogRef } from './XeroIntegrationMapItemDialog'
+import { XeroIntegrationMapItemDrawerRef } from './XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListAddons on AddOn {
@@ -38,7 +36,7 @@ type XeroIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  xeroIntegrationMapItemDialogRef: RefObject<XeroIntegrationMapItemDialogRef>
+  xeroIntegrationMapItemDrawerRef: RefObject<XeroIntegrationMapItemDrawerRef>
 }
 
 const XeroIntegrationItemsListAddons = ({
@@ -47,27 +45,25 @@ const XeroIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  xeroIntegrationMapItemDialogRef,
+  xeroIntegrationMapItemDrawerRef,
   searchTerm,
 }: XeroIntegrationItemsListAddonsProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006f')} />
-      <FetchableIntegrationItemList
-        integrationId={integrationId}
-        data={data?.addOns}
-        fetchMore={fetchMoreAddons}
-        hasError={hasError}
-        searchTerm={searchTerm}
-        isLoading={isLoading}
-        integrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
-        createRoute={CREATE_ADD_ON_ROUTE}
-        mappableType={MappableTypeEnum.AddOn}
-        provider={IntegrationTypeEnum.Xero}
-      />
-    </Stack>
+    <FetchableIntegrationItemList
+      integrationId={integrationId}
+      data={data?.addOns}
+      fetchMore={fetchMoreAddons}
+      hasError={hasError}
+      searchTerm={searchTerm}
+      isLoading={isLoading}
+      integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
+      createRoute={CREATE_ADD_ON_ROUTE}
+      mappableType={MappableTypeEnum.AddOn}
+      provider={IntegrationTypeEnum.Xero}
+      firstColumnName={translate('text_6630ea71a6c2ef00bc63006f')}
+    />
   )
 }
 

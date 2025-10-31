@@ -1,17 +1,32 @@
 import { IconName } from 'lago-design-system'
 
+import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
+import {
+  ItemMapping,
+  MappableIntegrationMapItemDrawerRef,
+  MappableIntegrationProvider,
+} from '~/pages/settings/integrations/common'
+
+export type IntegrationMappings = Array<ItemMapping> | undefined | null
+
 export type IntegrationItem = {
+  id: string
   icon: IconName
   label: string
   description: string
-  onMappingClick: () => void
-  mappingInfos?: {
-    id?: string
-    name: string
-  }
+  mappingType: MappingTypeEnum | MappableTypeEnum
+  integrationMappings: IntegrationMappings
 }
 
-export type IntegrationItemsSection = {
-  sectionName: string
-  children: Array<IntegrationItem>
+export type IntegrationItemData = IntegrationItem & {
+  id: string
+}
+
+export type IntegrationItemsTableProps = {
+  integrationId: string
+  items: Array<IntegrationItem>
+  provider: MappableIntegrationProvider
+  integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
+  firstColumnName?: string
+  isLoading?: boolean
 }

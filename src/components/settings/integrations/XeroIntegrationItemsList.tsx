@@ -22,9 +22,9 @@ import XeroIntegrationItemsListAddons from './XeroIntegrationItemsListAddons'
 import XeroIntegrationItemsListBillableMetrics from './XeroIntegrationItemsListBillableMetrics'
 import XeroIntegrationItemsListDefault from './XeroIntegrationItemsListDefault'
 import {
-  XeroIntegrationMapItemDialog,
-  XeroIntegrationMapItemDialogRef,
-} from './XeroIntegrationMapItemDialog'
+  XeroIntegrationMapItemDrawer,
+  XeroIntegrationMapItemDrawerRef,
+} from './XeroIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
@@ -97,7 +97,7 @@ gql`
 
 const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const xeroIntegrationMapItemDialogRef = useRef<XeroIntegrationMapItemDialogRef>(null)
+  const xeroIntegrationMapItemDrawerRef = useRef<XeroIntegrationMapItemDrawerRef>(null)
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -252,7 +252,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+          xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
         />
       ) : (
         <>
@@ -263,7 +263,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
               integrationId={integrationId}
               isLoading={isLoadingAddons}
               hasError={!!addonError}
-              xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+              xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
               searchTerm={addonVariables?.searchTerm}
             />
           )}
@@ -274,13 +274,13 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
               integrationId={integrationId}
               isLoading={isLoadingBillableMetrics}
               hasError={!!billableMetricsError}
-              xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+              xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
               searchTerm={billableMetricsVariables?.searchTerm}
             />
           )}
         </>
       )}
-      <XeroIntegrationMapItemDialog ref={xeroIntegrationMapItemDialogRef} />
+      <XeroIntegrationMapItemDrawer ref={xeroIntegrationMapItemDrawerRef} />
     </>
   )
 }

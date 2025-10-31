@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { RefObject } from 'react'
 
 import { CREATE_ADD_ON_ROUTE } from '~/core/router'
@@ -12,9 +11,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { IntegrationItemHeader } from '~/pages/settings/integrations/IntegrationItem'
 
-import { NetsuiteIntegrationMapItemDialogRef } from './NetsuiteIntegrationMapItemDialog'
+import { NetsuiteIntegrationMapItemDrawerRef } from './NetsuiteIntegrationMapItemDrawer'
 
 gql`
   fragment NetsuiteIntegrationItemsListAddons on AddOn {
@@ -38,7 +36,7 @@ type NetsuiteIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteIntegrationMapItemDialogRef: RefObject<NetsuiteIntegrationMapItemDialogRef>
+  netsuiteIntegrationMapItemDrawerRef: RefObject<NetsuiteIntegrationMapItemDrawerRef>
 }
 
 const NetsuiteIntegrationItemsListAddons = ({
@@ -47,27 +45,25 @@ const NetsuiteIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDialogRef,
+  netsuiteIntegrationMapItemDrawerRef,
   searchTerm,
 }: NetsuiteIntegrationItemsListAddonsProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006f')} />
-      <FetchableIntegrationItemList
-        integrationId={integrationId}
-        data={data?.addOns}
-        fetchMore={fetchMoreAddons}
-        hasError={hasError}
-        searchTerm={searchTerm}
-        isLoading={isLoading}
-        integrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
-        createRoute={CREATE_ADD_ON_ROUTE}
-        mappableType={MappableTypeEnum.AddOn}
-        provider={IntegrationTypeEnum.Netsuite}
-      />
-    </Stack>
+    <FetchableIntegrationItemList
+      integrationId={integrationId}
+      data={data?.addOns}
+      fetchMore={fetchMoreAddons}
+      hasError={hasError}
+      searchTerm={searchTerm}
+      isLoading={isLoading}
+      integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+      createRoute={CREATE_ADD_ON_ROUTE}
+      mappableType={MappableTypeEnum.AddOn}
+      provider={IntegrationTypeEnum.Netsuite}
+      firstColumnName={translate('text_6630ea71a6c2ef00bc63006f')}
+    />
   )
 }
 

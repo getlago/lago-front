@@ -11,9 +11,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { IntegrationItemHeader } from '~/pages/settings/integrations/IntegrationItem'
 
-import { AvalaraIntegrationMapItemDialogRef } from './AvalaraIntegrationMapItemDialog'
+import { AvalaraIntegrationMapItemDrawerRef } from './AvalaraIntegrationMapItemDrawer'
 
 gql`
   fragment AvalaraIntegrationItemsListBillableMetrics on BillableMetric {
@@ -39,7 +38,7 @@ type AvalaraIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  avalaraIntegrationMapItemDialogRef: RefObject<AvalaraIntegrationMapItemDialogRef>
+  avalaraIntegrationMapItemDrawerRef: RefObject<AvalaraIntegrationMapItemDrawerRef>
 }
 
 const AvalaraIntegrationItemsListBillableMetrics = ({
@@ -48,27 +47,25 @@ const AvalaraIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  avalaraIntegrationMapItemDialogRef,
+  avalaraIntegrationMapItemDrawerRef,
   searchTerm,
 }: AvalaraIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <div className="flex flex-col">
-      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006e')} />
-      <FetchableIntegrationItemList
-        integrationId={integrationId}
-        data={data?.billableMetrics}
-        fetchMore={fetchMoreBillableMetrics}
-        hasError={hasError}
-        searchTerm={searchTerm}
-        isLoading={isLoading}
-        integrationMapItemDialogRef={avalaraIntegrationMapItemDialogRef}
-        createRoute={CREATE_BILLABLE_METRIC_ROUTE}
-        mappableType={MappableTypeEnum.BillableMetric}
-        provider={IntegrationTypeEnum.Avalara}
-      />
-    </div>
+    <FetchableIntegrationItemList
+      integrationId={integrationId}
+      data={data?.billableMetrics}
+      fetchMore={fetchMoreBillableMetrics}
+      hasError={hasError}
+      searchTerm={searchTerm}
+      isLoading={isLoading}
+      integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
+      createRoute={CREATE_BILLABLE_METRIC_ROUTE}
+      mappableType={MappableTypeEnum.BillableMetric}
+      provider={IntegrationTypeEnum.Avalara}
+      firstColumnName={translate('text_6630ea71a6c2ef00bc63006e')}
+    />
   )
 }
 

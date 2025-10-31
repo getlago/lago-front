@@ -1,16 +1,20 @@
 import { gql } from '@apollo/client'
-import { RefObject, useMemo } from 'react'
+import { RefObject } from 'react'
 
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { AvalaraIntegrationItemsListDefaultFragment, MappingTypeEnum } from '~/generated/graphql'
+import {
+  AvalaraIntegrationItemsListDefaultFragment,
+  IntegrationTypeEnum,
+  MappingTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
-  IntegrationItemHeader,
-  IntegrationItemLine,
+  type IntegrationItem,
+  IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { AvalaraIntegrationMapItemDialogRef } from './AvalaraIntegrationMapItemDialog'
+import { AvalaraIntegrationMapItemDrawerRef } from './AvalaraIntegrationMapItemDrawer'
 
 gql`
   fragment AvalaraIntegrationItemsListDefault on CollectionMapping {
@@ -27,7 +31,7 @@ type AvalaraIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  avalaraIntegrationMapItemDialogRef: RefObject<AvalaraIntegrationMapItemDialogRef>
+  avalaraIntegrationMapItemDrawerRef: RefObject<AvalaraIntegrationMapItemDrawerRef>
 }
 
 const AvalaraIntegrationItemsListDefault = ({
@@ -35,26 +39,11 @@ const AvalaraIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  avalaraIntegrationMapItemDialogRef,
+  avalaraIntegrationMapItemDrawerRef,
 }: AvalaraIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
-  const fallbackItem = useMemo(
-    () => defaultItems?.find((item) => item.mappingType === MappingTypeEnum.FallbackItem),
-    [defaultItems],
-  )
-
-  const subscriptionFee = useMemo(
-    () => defaultItems?.find((item) => item.mappingType === MappingTypeEnum.SubscriptionFee),
-    [defaultItems],
-  )
-
-  const minimumCommitment = useMemo(
-    () => defaultItems?.find((item) => item.mappingType === MappingTypeEnum.MinimumCommitment),
-    [defaultItems],
-  )
-
-  if (hasError) {
+  if (!isLoading && hasError) {
     return (
       <GenericPlaceholder
         title={translate('text_629728388c4d2300e2d380d5')}
@@ -67,80 +56,44 @@ const AvalaraIntegrationItemsListDefault = ({
     )
   }
 
+  /**
+   * integrationMappings is passed to each item because FetchableIntegrationItems (billing + addOns) each have their own mappings
+   * while defaultItems here is the full list of mappings for all mapping types
+   */
+  const defaultListToDisplay: Array<IntegrationItem> = [
+    {
+      id: 'fallback-item',
+      icon: 'box',
+      label: translate('text_6630e3210c13c500cd398e98'),
+      description: translate('text_6630e3210c13c500cd398e99'),
+      mappingType: MappingTypeEnum.FallbackItem,
+      integrationMappings: defaultItems,
+    },
+    {
+      id: 'subscription-fee',
+      icon: 'board',
+      label: translate('text_6630e3210c13c500cd398ea2'),
+      description: translate('text_6630e3210c13c500cd398ea3'),
+      mappingType: MappingTypeEnum.SubscriptionFee,
+      integrationMappings: defaultItems,
+    },
+    {
+      id: 'minimum-commitment',
+      icon: 'board',
+      label: translate('text_6630e3210c13c500cd398ea5'),
+      description: translate('text_6630e3210c13c500cd398ea3'),
+      mappingType: MappingTypeEnum.MinimumCommitment,
+      integrationMappings: defaultItems,
+    },
+  ]
+
   return (
-    <div className="flex flex-col">
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e96')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_6630e3210c13c500cd398e98')}
-        description={translate('text_6630e3210c13c500cd398e99')}
-        loading={isLoading}
-        onMappingClick={() => {
-          avalaraIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.FallbackItem,
-            itemId: fallbackItem?.id,
-            itemExternalId: fallbackItem?.externalId,
-            itemExternalName: fallbackItem?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          fallbackItem
-            ? {
-                id: fallbackItem.externalId || '',
-                name: fallbackItem.externalName || '',
-              }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea0')} />
-      <IntegrationItemLine
-        icon="board"
-        label={translate('text_6630e3210c13c500cd398ea2')}
-        description={translate('text_6630e3210c13c500cd398ea3')}
-        loading={isLoading}
-        onMappingClick={() => {
-          avalaraIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.SubscriptionFee,
-            itemId: subscriptionFee?.id,
-            itemExternalId: subscriptionFee?.externalId,
-            itemExternalName: subscriptionFee?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          subscriptionFee
-            ? {
-                id: subscriptionFee.externalId || '',
-                name: subscriptionFee.externalName || '',
-              }
-            : undefined
-        }
-      />
-      <IntegrationItemLine
-        icon="board"
-        label={translate('text_6630e3210c13c500cd398ea5')}
-        description={translate('text_6630e3210c13c500cd398ea3')}
-        loading={isLoading}
-        onMappingClick={() => {
-          avalaraIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.MinimumCommitment,
-            itemId: minimumCommitment?.id,
-            itemExternalId: minimumCommitment?.externalId,
-            itemExternalName: minimumCommitment?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          minimumCommitment
-            ? {
-                id: minimumCommitment.externalId || '',
-                name: minimumCommitment.externalName || '',
-              }
-            : undefined
-        }
-      />
-    </div>
+    <IntegrationItemsTable
+      integrationId={integrationId}
+      integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
+      items={defaultListToDisplay}
+      provider={IntegrationTypeEnum.Avalara}
+    />
   )
 }
 

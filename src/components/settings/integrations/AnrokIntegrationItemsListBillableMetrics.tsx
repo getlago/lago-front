@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { RefObject } from 'react'
 
 import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
@@ -12,9 +11,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { IntegrationItemHeader } from '~/pages/settings/integrations/IntegrationItem'
 
-import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
+import { AnrokIntegrationMapItemDrawerRef } from './AnrokIntegrationMapItemDrawer'
 
 gql`
   fragment AnrokIntegrationItemsListBillableMetrics on BillableMetric {
@@ -40,7 +38,7 @@ type AnrokIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
+  anrokIntegrationMapItemDrawerRef: RefObject<AnrokIntegrationMapItemDrawerRef>
 }
 
 const AnrokIntegrationItemsListBillableMetrics = ({
@@ -49,27 +47,25 @@ const AnrokIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  anrokIntegrationMapItemDialogRef,
+  anrokIntegrationMapItemDrawerRef,
   searchTerm,
 }: AnrokIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630ea71a6c2ef00bc63006e')} />
-      <FetchableIntegrationItemList
-        integrationId={integrationId}
-        data={data?.billableMetrics}
-        fetchMore={fetchMoreBillableMetrics}
-        hasError={hasError}
-        searchTerm={searchTerm}
-        isLoading={isLoading}
-        integrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
-        createRoute={CREATE_BILLABLE_METRIC_ROUTE}
-        mappableType={MappableTypeEnum.BillableMetric}
-        provider={IntegrationTypeEnum.Anrok}
-      />
-    </Stack>
+    <FetchableIntegrationItemList
+      integrationId={integrationId}
+      data={data?.billableMetrics}
+      fetchMore={fetchMoreBillableMetrics}
+      hasError={hasError}
+      searchTerm={searchTerm}
+      isLoading={isLoading}
+      integrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
+      createRoute={CREATE_BILLABLE_METRIC_ROUTE}
+      mappableType={MappableTypeEnum.BillableMetric}
+      provider={IntegrationTypeEnum.Anrok}
+      firstColumnName={translate('text_6630ea71a6c2ef00bc63006e')}
+    />
   )
 }
 

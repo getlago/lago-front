@@ -1,17 +1,20 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
-import { RefObject, useMemo } from 'react'
+import { RefObject } from 'react'
 
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { AnrokIntegrationItemsListDefaultFragment, MappingTypeEnum } from '~/generated/graphql'
+import {
+  AnrokIntegrationItemsListDefaultFragment,
+  IntegrationTypeEnum,
+  MappingTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
-  IntegrationItemHeader,
-  IntegrationItemLine,
+  type IntegrationItem,
+  IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { AnrokIntegrationMapItemDialogRef } from './AnrokIntegrationMapItemDialog'
+import { AnrokIntegrationMapItemDrawerRef } from './AnrokIntegrationMapItemDrawer'
 
 gql`
   fragment AnrokIntegrationItemsListDefault on CollectionMapping {
@@ -28,7 +31,7 @@ type AnrokIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  anrokIntegrationMapItemDialogRef: RefObject<AnrokIntegrationMapItemDialogRef>
+  anrokIntegrationMapItemDrawerRef: RefObject<AnrokIntegrationMapItemDrawerRef>
 }
 
 const AnrokIntegrationItemsListDefault = ({
@@ -36,23 +39,9 @@ const AnrokIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  anrokIntegrationMapItemDialogRef,
+  anrokIntegrationMapItemDrawerRef,
 }: AnrokIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
-
-  const { fallbackItem, minimumCommitment, subscriptionFee } = useMemo(() => {
-    return {
-      fallbackItem: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.FallbackItem,
-      ),
-      subscriptionFee: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.SubscriptionFee,
-      ),
-      minimumCommitment: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.MinimumCommitment,
-      ),
-    }
-  }, [defaultItems])
 
   if (!isLoading && hasError) {
     return (
@@ -67,80 +56,44 @@ const AnrokIntegrationItemsListDefault = ({
     )
   }
 
+  /**
+   * integrationMappings is passed to each item because FetchableIntegrationItems (billing + addOns) each have their own mappings
+   * while defaultItems here is the full list of mappings for all mapping types
+   */
+  const defaultListToDisplay: Array<IntegrationItem> = [
+    {
+      id: 'fallback-item',
+      icon: 'box',
+      label: translate('text_6630e3210c13c500cd398e98'),
+      description: translate('text_6630e3210c13c500cd398e99'),
+      mappingType: MappingTypeEnum.FallbackItem,
+      integrationMappings: defaultItems,
+    },
+    {
+      id: 'subscription-fee',
+      icon: 'board',
+      label: translate('text_6630e3210c13c500cd398ea2'),
+      description: translate('text_6630e3210c13c500cd398ea3'),
+      mappingType: MappingTypeEnum.SubscriptionFee,
+      integrationMappings: defaultItems,
+    },
+    {
+      id: 'minimum-commitment',
+      icon: 'board',
+      label: translate('text_6630e3210c13c500cd398ea5'),
+      description: translate('text_6630e3210c13c500cd398ea3'),
+      mappingType: MappingTypeEnum.MinimumCommitment,
+      integrationMappings: defaultItems,
+    },
+  ]
+
   return (
-    <Stack>
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398e96')} />
-      <IntegrationItemLine
-        icon="box"
-        label={translate('text_6630e3210c13c500cd398e98')}
-        description={translate('text_6630e3210c13c500cd398e99')}
-        loading={isLoading}
-        onMappingClick={() => {
-          anrokIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.FallbackItem,
-            itemId: fallbackItem?.id,
-            itemExternalId: fallbackItem?.externalId,
-            itemExternalName: fallbackItem?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          fallbackItem
-            ? {
-                id: fallbackItem.externalId || '',
-                name: fallbackItem.externalName || '',
-              }
-            : undefined
-        }
-      />
-      <IntegrationItemHeader columnName={translate('text_6630e3210c13c500cd398ea0')} />
-      <IntegrationItemLine
-        icon="board"
-        label={translate('text_6630e3210c13c500cd398ea2')}
-        description={translate('text_6630e3210c13c500cd398ea3')}
-        loading={isLoading}
-        onMappingClick={() => {
-          anrokIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.SubscriptionFee,
-            itemId: subscriptionFee?.id,
-            itemExternalId: subscriptionFee?.externalId,
-            itemExternalName: subscriptionFee?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          subscriptionFee
-            ? {
-                id: subscriptionFee.externalId || '',
-                name: subscriptionFee.externalName || '',
-              }
-            : undefined
-        }
-      />
-      <IntegrationItemLine
-        icon="board"
-        label={translate('text_6630e3210c13c500cd398ea5')}
-        description={translate('text_6630e3210c13c500cd398ea3')}
-        loading={isLoading}
-        onMappingClick={() => {
-          anrokIntegrationMapItemDialogRef.current?.openDialog({
-            integrationId,
-            type: MappingTypeEnum.MinimumCommitment,
-            itemId: minimumCommitment?.id,
-            itemExternalId: minimumCommitment?.externalId,
-            itemExternalName: minimumCommitment?.externalName || undefined,
-          })
-        }}
-        mappingInfos={
-          minimumCommitment
-            ? {
-                id: minimumCommitment.externalId || '',
-                name: minimumCommitment.externalName || '',
-              }
-            : undefined
-        }
-      />
-    </Stack>
+    <IntegrationItemsTable
+      integrationId={integrationId}
+      integrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
+      items={defaultListToDisplay}
+      provider={IntegrationTypeEnum.Anrok}
+    />
   )
 }
 
