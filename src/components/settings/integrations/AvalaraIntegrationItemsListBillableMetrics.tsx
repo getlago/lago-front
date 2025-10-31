@@ -25,6 +25,7 @@ gql`
       externalAccountCode
       externalName
       mappableType
+      billingEntityId
     }
   }
 `

@@ -11,8 +11,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-
-import { NetsuiteIntegrationMapItemDrawerRef } from './NetsuiteIntegrationMapItemDrawer'
+import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 
 gql`
   fragment NetsuiteIntegrationItemsListAddons on AddOn {
@@ -25,6 +24,7 @@ gql`
       externalAccountCode
       externalName
       mappableType
+      billingEntityId
     }
   }
 `
