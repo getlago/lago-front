@@ -22,17 +22,11 @@ import {
 } from '~/core/constants/externalUrls'
 import { getTargetedObjectTranslationKey } from '~/core/constants/form'
 import {
-  AnrokIntegration,
-  AvalaraIntegration,
   CustomerMainInfosFragment,
-  HubspotIntegration,
-  NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
-  SalesforceIntegration,
   useIntegrationsListForCustomerMainInfosQuery,
   usePaymentProvidersListForCustomerMainInfosQuery,
-  XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
@@ -175,40 +169,77 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
   )
 
   const connectedNetsuiteIntegration = integrationsData?.integrations?.collection
-    ?.filter((i) => i.__typename === 'NetsuiteIntegration')
-    ?.find((integration) => integration?.id === customer?.netsuiteCustomer?.integrationId) as
-    | NetsuiteIntegration
-    | undefined
+    ?.filter(
+      (
+        i,
+      ): i is {
+        __typename: 'NetsuiteIntegration'
+        id: string
+        name: string
+        accountId?: string | null
+      } => i.__typename === 'NetsuiteIntegration',
+    )
+    ?.find((integration) => integration?.id === customer?.netsuiteCustomer?.integrationId)
 
   const connectedXeroIntegration = integrationsData?.integrations?.collection
-    ?.filter((i) => i.__typename === 'XeroIntegration')
-    ?.find((integration) => integration?.id === customer?.xeroCustomer?.integrationId) as
-    | XeroIntegration
-    | undefined
+    ?.filter(
+      (i): i is { __typename: 'XeroIntegration'; id: string; name: string } =>
+        i.__typename === 'XeroIntegration',
+    )
+    ?.find((integration) => integration?.id === customer?.xeroCustomer?.integrationId)
 
   const connectedAnrokIntegration = integrationsData?.integrations?.collection
-    ?.filter((i) => i.__typename === 'AnrokIntegration')
-    ?.find((integration) => integration?.id === customer?.anrokCustomer?.integrationId) as
-    | AnrokIntegration
-    | undefined
+    ?.filter(
+      (
+        i,
+      ): i is {
+        __typename: 'AnrokIntegration'
+        id: string
+        name: string
+        apiKey: string
+        externalAccountId?: string | null
+      } => i.__typename === 'AnrokIntegration',
+    )
+    ?.find((integration) => integration?.id === customer?.anrokCustomer?.integrationId)
 
   const connectedAvalaraIntegration = integrationsData?.integrations?.collection
-    ?.filter((i) => i.__typename === 'AvalaraIntegration')
-    ?.find((integration) => integration?.id === customer?.avalaraCustomer?.integrationId) as
-    | AvalaraIntegration
-    | undefined
+    ?.filter(
+      (
+        i,
+      ): i is {
+        __typename: 'AvalaraIntegration'
+        id: string
+        name: string
+        accountId?: string | null
+      } => i.__typename === 'AvalaraIntegration',
+    )
+    ?.find((integration) => integration?.id === customer?.avalaraCustomer?.integrationId)
 
   const connectedHubspotIntegration = integrationsData?.integrations?.collection
-    ?.filter((i) => i.__typename === 'HubspotIntegration')
-    ?.find((integration) => integration?.id === customer?.hubspotCustomer?.integrationId) as
-    | HubspotIntegration
-    | undefined
+    ?.filter(
+      (
+        i,
+      ): i is {
+        __typename: 'HubspotIntegration'
+        id: string
+        name: string
+        portalId?: string | null
+      } => i.__typename === 'HubspotIntegration',
+    )
+    ?.find((integration) => integration?.id === customer?.hubspotCustomer?.integrationId)
 
   const connectedSalesforceIntegration = integrationsData?.integrations?.collection
-    ?.filter((i) => i.__typename === 'SalesforceIntegration')
-    ?.find((integration) => integration?.id === customer?.salesforceCustomer?.integrationId) as
-    | SalesforceIntegration
-    | undefined
+    ?.filter(
+      (
+        i,
+      ): i is {
+        __typename: 'SalesforceIntegration'
+        id: string
+        name: string
+        instanceId: string
+      } => i.__typename === 'SalesforceIntegration',
+    )
+    ?.find((integration) => integration?.id === customer?.salesforceCustomer?.integrationId)
 
   const customerIntegrations = [
     {
@@ -306,7 +337,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
     {
       integrationProvider: 'HubspotIntegration',
       canRender:
-        !!connectedHubspotIntegration &&
+        !!connectedHubspotIntegration?.id &&
         customer?.hubspotCustomer?.integrationId &&
         customer?.hubspotCustomer.targetedObject,
       label: translate('text_1728658962985xpfdvl5ru8a'),
