@@ -1,12 +1,4 @@
 import {
-  GetAddOnsForAnrokItemsListQuery,
-  GetAddOnsForAvalaraItemsListQuery,
-  GetAddOnsForNetsuiteItemsListQuery,
-  GetAddOnsForXeroItemsListQuery,
-  GetBillableMetricsForAnrokItemsListQuery,
-  GetBillableMetricsForAvalaraItemsListQuery,
-  GetBillableMetricsForNetsuiteItemsListQuery,
-  GetBillableMetricsForXeroItemsListQuery,
   InputMaybe,
   MappableTypeEnum,
   useGetAddOnsForAnrokItemsListLazyQuery,
@@ -19,20 +11,10 @@ import {
   useGetBillableMetricsForXeroItemsListLazyQuery,
 } from '~/generated/graphql'
 import {
+  FetchableIntegrationItemsListData,
   MappableIntegrationMapItemDrawerRef,
   MappableIntegrationProvider,
 } from '~/pages/settings/integrations/common'
-
-export type FetchableIntegrationItemsListData =
-  | GetAddOnsForNetsuiteItemsListQuery['addOns']
-  | GetBillableMetricsForNetsuiteItemsListQuery['billableMetrics']
-  | GetAddOnsForAnrokItemsListQuery['addOns']
-  | GetBillableMetricsForAnrokItemsListQuery['billableMetrics']
-  | GetAddOnsForAvalaraItemsListQuery['addOns']
-  | GetBillableMetricsForAvalaraItemsListQuery['billableMetrics']
-  | GetAddOnsForXeroItemsListQuery['addOns']
-  | GetBillableMetricsForXeroItemsListQuery['billableMetrics']
-  | undefined
 
 export type FetchMoreFunction = ReturnType<
   | typeof useGetAddOnsForNetsuiteItemsListLazyQuery
