@@ -23,6 +23,7 @@ gql`
     externalId
     externalAccountCode
     externalName
+    billingEntityId
   }
 `
 

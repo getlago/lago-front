@@ -12,9 +12,8 @@ import {
   type IntegrationItem,
   IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
+import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 import ErrorImage from '~/public/images/maneki/error.svg'
-
-import { NetsuiteIntegrationMapItemDrawerRef } from './NetsuiteIntegrationMapItemDrawer'
 
 gql`
   fragment NetsuiteIntegrationItemsListDefault on CollectionMapping {
@@ -26,6 +25,7 @@ gql`
     taxCode
     taxNexus
     taxType
+    billingEntityId
   }
 `
 

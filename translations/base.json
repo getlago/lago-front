@@ -377,7 +377,7 @@
   "text_661ff6e56ef7e1b7c542b220": "Request access to premium NetSuite add-on",
   "text_661ff6e56ef7e1b7c542b238": "Hello, I would like to access your NetSuite add-on. \nPlease let me know if you need more info!",
   "text_6630e3210c13c500cd398e95": "Items from",
-  "text_6630e3210c13c500cd398e97": "Mapped to",
+  "text_6630e3210c13c500cd398e97": "Default mapping",
   "text_6630e3210c13c500cd398e98": "Fallback item",
   "text_6630e3210c13c500cd398e99": "For all items not defined",
   "text_6630e3210c13c500cd398e9a": "Undefined",
@@ -3499,5 +3499,8 @@
   "text_17621837056900geit2h3mg6": "Click to copy",
   "text_1762184099398x60go694x4g": "Checkout link",
   "text_1762185015908yvajftyvcnq": "Payment checkout link copy to clipboard.",
-  "text_1761319649394ft46yvka31r": "Item mappings"
+  "text_1761319649394ft46yvka31r": "Item mappings",
+  "text_1762159805730gne2kxieeqo": "Values defined here will apply to all billing entities. Override them below if needed.",
+  "text_1762159805730r5zfutgdloi": "Mapping per billing entities",
+  "text_1762159805730hqzi614r672": "Adjust values for each billing entity if required."
 }

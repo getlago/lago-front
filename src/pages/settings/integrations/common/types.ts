@@ -2,17 +2,35 @@ import { RefObject } from 'react'
 
 import { AnrokIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AnrokIntegrationMapItemDrawer'
 import { AvalaraIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AvalaraIntegrationMapItemDrawer'
-import { NetsuiteIntegrationMapItemDrawerRef } from '~/components/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 import { XeroIntegrationMapItemDrawerRef } from '~/components/settings/integrations/XeroIntegrationMapItemDrawer'
 import { PickEnum } from '~/core/types/pickEnum.type'
 import {
   AnrokIntegrationItemsListDefaultFragment,
   AvalaraIntegrationItemsListDefaultFragment,
+  GetAddOnsForAnrokItemsListQuery,
+  GetAddOnsForAvalaraItemsListQuery,
+  GetAddOnsForNetsuiteItemsListQuery,
+  GetAddOnsForXeroItemsListQuery,
+  GetBillableMetricsForAnrokItemsListQuery,
+  GetBillableMetricsForAvalaraItemsListQuery,
+  GetBillableMetricsForNetsuiteItemsListQuery,
+  GetBillableMetricsForXeroItemsListQuery,
   IntegrationTypeEnum,
   NetsuiteIntegrationItemsListDefaultFragment,
   XeroIntegrationItemsListDefaultFragment,
 } from '~/generated/graphql'
-import { FetchableIntegrationItemsListData } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
+import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
+
+export type FetchableIntegrationItemsListData =
+  | GetAddOnsForNetsuiteItemsListQuery['addOns']
+  | GetBillableMetricsForNetsuiteItemsListQuery['billableMetrics']
+  | GetAddOnsForAnrokItemsListQuery['addOns']
+  | GetBillableMetricsForAnrokItemsListQuery['billableMetrics']
+  | GetAddOnsForAvalaraItemsListQuery['addOns']
+  | GetBillableMetricsForAvalaraItemsListQuery['billableMetrics']
+  | GetAddOnsForXeroItemsListQuery['addOns']
+  | GetBillableMetricsForXeroItemsListQuery['billableMetrics']
+  | undefined
 
 export type MappableIntegrationProvider = PickEnum<
   IntegrationTypeEnum,
@@ -36,4 +54,41 @@ export type MappableIntegrationMapItemDrawerRef = RefObject<
   | AnrokIntegrationMapItemDrawerRef
   | AvalaraIntegrationMapItemDrawerRef
   | XeroIntegrationMapItemDrawerRef
+>
+
+export type BillingEntityForIntegrationMapping = {
+  id: string | null
+  key: string
+  name: string
+}
+
+export type ItemMappingForTaxMapping = {
+  itemId: string | null
+  itemExternalId: string | null
+  itemExternalName?: string
+  itemExternalCode?: string
+  taxCode: string | null
+  taxNexus: string | null
+  taxType: string | null
+}
+
+export type ItemMappingForNonTaxMapping = {
+  itemId: string | null
+  itemExternalId: string | null
+  itemExternalName?: string
+  itemExternalCode?: string
+}
+
+export type ItemMappingForMappable = {
+  itemId: string | null
+  itemExternalId: string | null
+  itemExternalName?: string
+  itemExternalCode?: string
+  lagoMappableId: string
+  lagoMappableName: string
+}
+
+export type ItemMappingPerBillingEntity = Record<
+  'default' | string,
+  ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable
 >
