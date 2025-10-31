@@ -11,6 +11,7 @@ export const isItemMapping = (item: unknown): item is ItemMapping => {
     typeof item === 'object' &&
     item !== null &&
     'id' in item &&
+    typeof item.id === 'string' &&
     'externalName' in item &&
     typeof item.externalName === 'string' &&
     ('externalId' in item || 'externalAccountCode' in item)
