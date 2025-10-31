@@ -1,6 +1,6 @@
 import { RefObject } from 'react'
 
-import { Button } from '~/components/designSystem'
+import { Button, Popper } from '~/components/designSystem'
 import { FinalizeInvoiceDialogRef } from '~/components/invoices/FinalizeInvoiceDialog'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
@@ -12,6 +12,8 @@ import {
   RetryInvoiceMutationFn,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
+import { MenuPopper } from '~/styles'
 
 const { disablePdfGeneration } = envGlobalVar()
 
@@ -47,7 +49,11 @@ export const InvoiceOverviewHeaderButtons = ({
   invoiceId,
 }: InvoiceOverviewHeaderButtonsProps) => {
   const { translate } = useInternationalization()
+  const { handleDownloadFileWithCors } = useDownloadFile()
+
   const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
+  const canDownloadInvoice = !hasError && !loading && !disablePdfGeneration
+  const canDownloadXml = invoice.billingEntity?.einvoicing || invoice.xmlUrl
 
   if (invoice?.status === InvoiceStatusTypeEnum.Draft) {
     return (
@@ -89,7 +95,7 @@ export const InvoiceOverviewHeaderButtons = ({
     )
   }
 
-  if (!hasError && !loading && !disablePdfGeneration) {
+  if (canDownloadInvoice && !canDownloadXml) {
     return (
       <Button
         variant="quaternary"
@@ -102,6 +108,46 @@ export const InvoiceOverviewHeaderButtons = ({
       >
         {translate('text_634687079be251fdb43833b9')}
       </Button>
+    )
+  }
+
+  if (canDownloadInvoice && canDownloadXml) {
+    return (
+      <Popper
+        PopperProps={{ placement: 'bottom-end' }}
+        opener={
+          <Button variant="inline" endIcon="chevron-down" data-test="coupon-details-actions">
+            {translate('text_634687079be251fdb43833b9')}
+          </Button>
+        }
+      >
+        {({ closePopper }) => (
+          <MenuPopper>
+            <Button
+              variant="quaternary"
+              align="left"
+              onClick={async () => {
+                await downloadInvoice({
+                  variables: { input: { id: invoiceId || '' } },
+                })
+                closePopper()
+              }}
+            >
+              {translate('text_1760358170490a3z3ocq0hyj')}
+            </Button>
+            <Button
+              variant="quaternary"
+              align="left"
+              onClick={async () => {
+                await handleDownloadFileWithCors(invoice?.xmlUrl)
+                closePopper()
+              }}
+            >
+              {translate('text_17603581704907ndpljkjzhg')}
+            </Button>
+          </MenuPopper>
+        )}
+      </Popper>
     )
   }
 
