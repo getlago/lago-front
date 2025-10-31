@@ -1,10 +1,8 @@
 import { InfiniteScroll } from '~/components/designSystem'
-import { createNumberRangeArray } from '~/core/utils/createNumberRangeArray'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { FetchIntegrationItemsListProps } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
 import {
   IntegrationItem,
-  IntegrationItemLine,
   IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
 
@@ -29,18 +27,6 @@ const FetchableIntegrationItemList = ({
   const metadata = data?.metadata
 
   const displayCorrectState = () => {
-    if (isLoading && !itemsToDisplay.length && searchTerm) {
-      return createNumberRangeArray(3).map((i) => (
-        <IntegrationItemLine
-          key={`fetchable-integration-item-skeleton-${i}`}
-          icon="pulse"
-          label={''}
-          description={''}
-          loading={true}
-        />
-      ))
-    }
-
     if (!isLoading && !!hasError) {
       return <FetchableIntegrationItemError hasSearchTerm={!!searchTerm} />
     }

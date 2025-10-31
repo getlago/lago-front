@@ -372,7 +372,6 @@ export const Table = <T extends DataItem>({
 
       if (item) {
         onRowActionLink?.(item)
-        onRowActionClick?.(item)
       }
     },
   })
