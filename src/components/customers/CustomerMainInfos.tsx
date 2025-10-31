@@ -2,8 +2,10 @@ import { gql } from '@apollo/client'
 
 import { CustomerInfoRows } from '~/components/customers/CustomerInfoRows'
 import { CustomerIntegrationRows } from '~/components/customers/CustomerIntegrationRows'
+import { CustomerPaymentMethods } from '~/components/customers/CustomerPaymentMethods'
 import { Skeleton } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { CustomerMainInfosFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -96,6 +98,7 @@ interface CustomerMainInfosProps {
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
 
   if (loading || !customer)
     return (
@@ -126,10 +129,19 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         }}
       />
 
-      <div className="flex flex-col" data-id="customer-info-list">
+      <div
+        className={`flex flex-col ${hasAccessToMultiPaymentFlow ? 'pb-12 shadow-b' : ''}`}
+        data-id="customer-info-list"
+      >
         <CustomerInfoRows customer={customer} />
         <CustomerIntegrationRows customer={customer} />
       </div>
+
+      {hasAccessToMultiPaymentFlow && (
+        <div className="mt-12">
+          <CustomerPaymentMethods customer={customer} />
+        </div>
+      )}
     </div>
   )
 }

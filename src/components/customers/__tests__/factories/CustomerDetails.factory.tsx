@@ -1,4 +1,4 @@
-import { CustomerMainInfosFragment } from '~/generated/graphql'
+import { CustomerMainInfosFragment, ProviderPaymentMethodsEnum } from '~/generated/graphql'
 
 export const createMockCustomerDetails = (
   overrides: Partial<CustomerMainInfosFragment> = {},
@@ -87,7 +87,7 @@ export const createMockCustomerDetails = (
       __typename: 'ProviderCustomer',
       id: 'prov_cust_001',
       providerCustomerId: 'ProviderCustomer',
-      providerPaymentMethods: ['CARD', 'BANK'],
+      providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
     },
     ...overrides,
   } as unknown as CustomerMainInfosFragment

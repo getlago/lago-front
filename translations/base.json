@@ -3496,5 +3496,11 @@
   "text_1760729707268reew4lqsqof": "Apply fixed charges montlhy",
   "text_1760729707268ge00k7a7e84": "If true, all fixed charges will be invoiced monthly, even if the plan is yearly.",
   "text_1760729707268h378x60alri": "This Add-On is already used for a different fixed charge.",
-  "text_176072970726882uau5y69f1": "Add a fixed charge"
+  "text_176072970726882uau5y69f1": "Add a fixed charge",
+  "text_1761914802986ww4ima0w9w9": "Add a payment method",
+  "text_17619148029867qcebvr5eui": "All payment methods available for this customer across connected providers.",
+  "text_17619148029863fx3w8kwfdp": "This customer is connected to a payment provider using Bank Transfer or Crypto (stablecoins), which doesn’t support adding new payment methods. Please update the connection to enable additional methods.",
+  "text_1761915128154gyls7eboz4s": "No payment method added yet. Make sure this customer is connected to a payment provider before adding one.",
+  "text_1761914802986ipq0aot8fas": "Select the payment provider. A secure link will be generated — once your customer adds their details, a new payment method will be created.",
+  "text_1761914802986cu9mjc19csx": "Generate link"
 }

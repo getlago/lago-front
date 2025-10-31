@@ -13,7 +13,7 @@ export const PageSectionTitle = ({
   className?: string
   title: string
   subtitle?: string
-  action?: { title: string; onClick: () => void; dataTest?: string }
+  action?: { title: string; onClick: () => void; dataTest?: string; isDisabled?: boolean }
   customAction?: React.ReactNode
   loading?: boolean
 }) => {
@@ -40,7 +40,12 @@ export const PageSectionTitle = ({
           </div>
 
           {action && (
-            <Button variant="inline" onClick={action.onClick} data-test={action.dataTest || ''}>
+            <Button
+              variant="inline"
+              onClick={action.onClick}
+              data-test={action.dataTest || ''}
+              disabled={action.isDisabled || false}
+            >
               {action.title}
             </Button>
           )}
