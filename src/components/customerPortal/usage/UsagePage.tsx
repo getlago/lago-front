@@ -177,6 +177,7 @@ const UsagePage = () => {
       {customerId && subscriptionId && (
         <div className="mt-12">
           <SubscriptionCurrentUsageTableComponent
+            isUsedinCustomerPortal
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             showExcludingTaxLabel
