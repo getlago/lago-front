@@ -37,9 +37,9 @@
     "bundle-analyzer": "pnpx vite-bundle-analyzer"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.28.3",
-    "@babel/preset-react": "7.27.1",
-    "@babel/preset-typescript": "7.27.1",
+    "@babel/preset-env": "7.28.5",
+    "@babel/preset-react": "7.28.5",
+    "@babel/preset-typescript": "7.28.5",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@eslint/compat": "1.4.0",
