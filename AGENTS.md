@@ -68,6 +68,41 @@ You are an expert development assistant for the Lago billing system project. Alw
 - Maintain consistent naming conventions (camelCase for variables, PascalCase for components)
 - Use proper error handling with Apollo Client error boundaries
 
+## TypeScript Conventions
+
+### Discriminated Unions Rather Than Conditional Props
+
+We prefer to have our props described with "discrimination" and prevent optional props overuse. Do it as much as possible as it helps understanding the logic of how props are used.
+
+```tsx
+// ❌ Bad - Optional props create ambiguity
+type Props = {
+  authenticated: boolean
+  level?: 'basic' | 'admin'
+}
+
+// ✅ Good - Discriminated union makes the relationship clear
+type Props =
+  | { authenticated: true; level: 'basic' | 'admin' }
+  | { authenticated: false };
+```
+
+### Explicit Function Return Types
+
+Always write the return type of a function explicitly. This improves code readability, helps catch errors early, and makes the codebase more maintainable.
+
+```tsx
+// ❌ Bad - Implicit return type
+const calculateTotal = (items: Item[]) => {
+  return items.reduce((sum, item) => sum + item.price, 0)
+}
+
+// ✅ Good - Explicit return type
+const calculateTotal = (items: Item[]): number => {
+  return items.reduce((sum, item) => sum + item.price, 0)
+}
+```
+
 ## Documentation & Library References
 
 ### Using Context7 MCP (If Installed)
