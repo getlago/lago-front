@@ -127,6 +127,10 @@ export interface EditFeeDrawerRef {
   closeDrawer: () => unknown
 }
 
+type formikValues = Omit<Partial<CreateAdjustedFeeInput>, 'feeId'> & {
+  adjustmentType?: AdjustedFeeTypeEnum.AdjustedAmount | AdjustedFeeTypeEnum.AdjustedUnits
+}
+
 export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const { translate } = useInternationalization()
   const drawerRef = useRef<DrawerRef>(null)
@@ -164,19 +168,26 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     refetchQueries: ['getInvoiceSubscriptions'],
   })
 
-  const formikProps = useFormik<
-    Omit<Partial<CreateAdjustedFeeInput>, 'feeId'> & {
-      adjustmentType?: AdjustedFeeTypeEnum.AdjustedAmount | AdjustedFeeTypeEnum.AdjustedUnits
-    }
-  >({
-    initialValues: {
+  const initialValues = useMemo(() => {
+    const values: formikValues = {
       invoiceDisplayName: fee?.invoiceDisplayName || '',
       chargeFilterId: '',
       chargeId: '',
-      unitPreciseAmount: localData?.onAdd ? fee?.preciseUnitAmount?.toString() : undefined,
-      units: localData?.onAdd ? fee?.units : undefined,
+      unitPreciseAmount: undefined,
+      units: undefined,
       adjustmentType: undefined,
-    },
+    }
+
+    if (isEditingFeeForInvoiceRegenerate) {
+      values.unitPreciseAmount = fee?.preciseUnitAmount?.toString()
+      values.units = fee?.units
+    }
+
+    return values
+  }, [fee, isEditingFeeForInvoiceRegenerate])
+
+  const formikProps = useFormik<formikValues>({
+    initialValues,
     validationSchema: object().shape({
       invoiceDisplayName: string(),
       chargeId: string().test({
