@@ -2,11 +2,11 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { number, object, string } from 'yup'
 
 import { Alert, Button, Drawer, DrawerRef, Skeleton, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBoxField, TextInputField } from '~/components/form'
+import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { DrawerLayout } from '~/components/layouts/Drawer'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
@@ -134,6 +134,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const fee = localData?.fee
   const currency = fee?.currency || CurrencyEnum.Usd
   const pricingUnitUsage = fee?.pricingUnitUsage
+  const isEditingFeeForInvoiceRegenerate = !!localData?.onAdd
 
   const resetForm = () => {
     formikProps.resetForm()
@@ -287,16 +288,6 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
     return true
   }, [chargeFiltersComboboxData?.length, fee, formikProps.values.chargeFilterId])
-
-  // Reset unitPreciseAmount and units if adjustmentType changes, also triggers again validations
-  useEffect(() => {
-    if (!localData?.onAdd) {
-      const newValues = { ...formikProps.values, unitPreciseAmount: undefined, units: undefined }
-
-      formikProps.setValues(newValues)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.adjustmentType])
 
   useImperativeHandle(ref, () => ({
     openDrawer: (data) => {
@@ -488,7 +479,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                           formikProps={formikProps}
                         />
 
-                        <ComboBoxField
+                        <ComboBox
                           label={translate('text_65a6b4e2cb38d9b70ec53d49')}
                           name="adjustmentType"
                           placeholder={translate('text_65a94d976d7a9700716590d9')}
@@ -503,8 +494,24 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                               disabled: isUnitAdjustmentTypeDisabled,
                             },
                           ]}
-                          formikProps={formikProps}
+                          value={formikProps.values.adjustmentType}
+                          onChange={(newValue) => {
+                            const formValues = {
+                              ...formikProps.values,
+                              adjustmentType: newValue as AdjustedFeeTypeEnum,
+                            }
+
+                            // NOTE: During invoice re-generate, we don't want to reset the unitPreciseAmount and units for fee already existing.
+                            // Because the fee is already existing and we don't want to lose the data.
+                            if (!isEditingFeeForInvoiceRegenerate) {
+                              formValues.unitPreciseAmount = undefined
+                              formValues.units = undefined
+                            }
+
+                            formikProps.setValues(formValues)
+                          }}
                         />
+
                         {!!formikProps.values.adjustmentType && (
                           <>
                             <div className="flex items-start gap-4 *:flex-1">
