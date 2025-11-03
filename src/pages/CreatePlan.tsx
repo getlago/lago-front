@@ -312,11 +312,7 @@ const CreatePlan = () => {
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
 
-                    <FeatureEntitlementSection
-                      formikProps={formikProps}
-                      isEdition={isEdition}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
-                    />
+                    <FeatureEntitlementSection formikProps={formikProps} isEdition={isEdition} />
                   </Card>
                 </SectionWrapper>
               </Stack>
