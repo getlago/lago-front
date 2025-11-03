@@ -230,6 +230,7 @@ type SubscriptionCurrentUsageTableComponentProps = {
   setActiveTab: (t: number) => void
 
   hasAccessToProjectedUsage?: boolean
+  isUsedinCustomerPortal?: boolean
 }
 
 export const getPricingUnitAmountCents = (
@@ -270,6 +271,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
   locale,
   activeTab,
   setActiveTab,
+  isUsedinCustomerPortal,
   hasAccessToProjectedUsage,
 }: SubscriptionCurrentUsageTableComponentProps) => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -359,6 +361,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
           },
           {
             title: translate('text_1753094834414tu9mxavuco7'),
+            hidden: isUsedinCustomerPortal && !hasAccessToProjectedUsage,
           },
         ]}
       />
