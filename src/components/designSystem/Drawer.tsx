@@ -58,6 +58,23 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const preventClosingDrawerDialogRef = useRef<PreventClosingDrawerDialogRef>(null)
     const [isOpen, setIsOpen] = useState(forceOpen)
 
+    const closeAction = () => {
+      const _closeAndHideDrawer = () => {
+        onClose && onClose()
+        setIsOpen(false)
+      }
+
+      if (showCloseWarningDialog) {
+        preventClosingDrawerDialogRef.current?.openDialog({
+          onContinue: () => {
+            _closeAndHideDrawer()
+          },
+        })
+      } else {
+        _closeAndHideDrawer()
+      }
+    }
+
     useImperativeHandle(ref, () => ({
       openDrawer: () => {
         setIsOpen(true)
@@ -73,22 +90,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           open={isOpen}
           anchor={anchor}
           elevation={4}
-          onClose={() => {
-            const closeAction = () => {
-              onClose && onClose()
-              setIsOpen(false)
-            }
-
-            if (showCloseWarningDialog) {
-              preventClosingDrawerDialogRef.current?.openDialog({
-                onContinue: () => {
-                  closeAction()
-                },
-              })
-            } else {
-              closeAction()
-            }
-          }}
+          onClose={closeAction}
           transitionDuration={250}
           slotProps={{
             backdrop: {
@@ -112,26 +114,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
             ) : (
               title
             )}
-            <Button
-              icon="close"
-              variant="quaternary"
-              onClick={() => {
-                const closeAction = () => {
-                  onClose && onClose()
-                  setIsOpen(false)
-                }
-
-                if (showCloseWarningDialog) {
-                  preventClosingDrawerDialogRef.current?.openDialog({
-                    onContinue: () => {
-                      closeAction()
-                    },
-                  })
-                } else {
-                  closeAction()
-                }
-              }}
-            />
+            <Button icon="close" variant="quaternary" onClick={closeAction} />
           </div>
           <div
             className={tw(
