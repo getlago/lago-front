@@ -1,4 +1,4 @@
-import { AiBadge, Icon, Tooltip, Typography } from 'lago-design-system'
+import { AiBadge, Chip, Icon, Tooltip, tw, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
@@ -10,13 +10,21 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ForecastsOverviewSection } from '~/pages/forecasts/ForecastsOverviewSection'
 import { PageHeader } from '~/styles'
 
-export const BadgeAI = () => {
+export const BadgeAI = ({
+  badgeClassName,
+  iconSize = 12,
+  textClassName,
+}: {
+  badgeClassName?: string
+  iconSize?: number
+  textClassName?: string
+}) => {
   const { translate } = useInternationalization()
 
   return (
     <div className="flex items-center gap-1">
-      <AiBadge iconSize={12}>
-        <Typography className="mt-px text-xs font-medium text-purple-700">
+      <AiBadge className={badgeClassName} iconSize={iconSize}>
+        <Typography className={tw('mt-px text-xs font-medium text-purple-700', textClassName)}>
           {translate('text_17530144570404vslv3s1ki3')}
         </Typography>
       </AiBadge>
@@ -55,7 +63,14 @@ const Forecasts = () => {
             <Icon name="info-circle" className="text-grey-600" />
           </Tooltip>
 
-          <BadgeAI />
+          <BadgeAI badgeClassName="px-2 py-1" iconSize={16} textClassName="text-sm" />
+
+          <Chip
+            className="bg-purple-100 !px-2 !py-0.5 text-purple-600"
+            color="info600"
+            size="small"
+            label={translate('text_65d8d71a640c5400917f8a13')}
+          />
         </div>
 
         {!hasAccessToForecastsFeature && (
