@@ -135,6 +135,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const currency = fee?.currency || CurrencyEnum.Usd
   const pricingUnitUsage = fee?.pricingUnitUsage
 
+  const resetForm = () => {
+    formikProps.resetForm()
+    formikProps.validateForm()
+  }
+
   const { loading: invoiceLoading, data: invoiceData } =
     useGetInvoiceDetailsForCreateFeeDrawerQuery({
       variables: {
@@ -152,8 +157,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       if (createAdjustedFee?.id) {
         // Close drawer
         drawerRef.current?.closeDrawer()
-        formikProps.resetForm()
-        formikProps.validateForm()
+        resetForm()
       }
     },
     refetchQueries: ['getInvoiceSubscriptions'],
@@ -239,8 +243,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
       if (localData?.onAdd) {
         drawerRef.current?.closeDrawer()
-        formikProps.resetForm()
-        formikProps.validateForm()
+        resetForm()
 
         const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
           (charge) => charge.id === values.chargeId,
@@ -349,6 +352,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
   return (
     <Drawer
+      showCloseWarningDialog={formikProps.dirty}
       fullContentHeight
       ref={drawerRef}
       withPadding={false}
@@ -359,10 +363,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
             })
           : translate('text_1737709105343hpvidjp0yz0')
       }
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
+      onClose={resetForm}
     >
       {({ closeDrawer }) => (
         <DrawerLayout.Wrapper>
