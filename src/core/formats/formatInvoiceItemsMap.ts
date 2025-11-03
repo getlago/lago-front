@@ -60,11 +60,12 @@ gql`
 export type TExtendedRemainingFee = Fee & {
   metadata: {
     displayName: string
-    isSubscriptionFee?: boolean
-    isFilterChildFee?: boolean
-    isTrueUpFee?: boolean
-    isNormalFee?: boolean
     isCommitmentFee?: boolean
+    isFilterChildFee?: boolean
+    isFixedCharge?: boolean
+    isNormalFee?: boolean
+    isSubscriptionFee?: boolean
+    isTrueUpFee?: boolean
   }
 }
 export type TSubscriptionDataForDisplay = {
@@ -304,6 +305,14 @@ export const _newDeepFormatFees = (
           displayName: getSubscriptionFeeDisplayName(fee),
         },
       })
+    } else if (fee.feeType === FeeTypesEnum.FixedCharge) {
+      feesData.push({
+        ...fee,
+        metadata: {
+          isFixedCharge: true,
+          displayName: fee?.invoiceName || fee?.itemName,
+        },
+      })
     } else if (fee.feeType === FeeTypesEnum.Commitment) {
       feesData.push({
         ...fee,
@@ -362,6 +371,10 @@ export const _newDeepFormatFees = (
     if (!!a?.metadata?.isSubscriptionFee && !b?.metadata?.isSubscriptionFee) {
       return -1
     } else if (!a?.metadata?.isSubscriptionFee && !!b?.metadata?.isSubscriptionFee) {
+      return 1
+    } else if (!!a?.metadata?.isFixedCharge && !b?.metadata?.isFixedCharge) {
+      return -1
+    } else if (!a?.metadata?.isFixedCharge && !!b?.metadata?.isFixedCharge) {
       return 1
     } else if (!!a?.metadata?.isCommitmentFee && !b?.metadata?.isCommitmentFee) {
       return 1
