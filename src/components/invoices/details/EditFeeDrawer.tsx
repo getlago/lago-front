@@ -30,6 +30,23 @@ import {
   getChargesFiltersComboboxDataFromInvoiceSubscription,
 } from './utils'
 
+const isChargeModelUnitAdjustmentDisabled = (chargeModel?: ChargeModelEnum, prorated?: boolean) => {
+  if (!chargeModel) return false
+
+  return (
+    chargeModel === ChargeModelEnum.Percentage ||
+    chargeModel === ChargeModelEnum.Dynamic ||
+    (chargeModel === ChargeModelEnum.Graduated && prorated)
+  )
+}
+
+const calculateTotalAmount = (
+  units?: number | string | null,
+  unitAmount?: number | string | null,
+) => {
+  return Number(units || 0) * Number(unitAmount || 0)
+}
+
 gql`
   fragment InvoiceSubscriptionForCreateFeeDrawer on InvoiceSubscription {
     subscription {
@@ -226,32 +243,27 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async ({ adjustmentType, unitPreciseAmount, units, ...values }) => {
-      const defaultPayload: CreateAdjustedFeeInput = {
+      const chargeFilterId =
+        values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined
+
+      const basePayload: CreateAdjustedFeeInput = {
         invoiceId: localData?.invoiceId || '',
-        units: !!adjustmentType ? Number(units || 0) : undefined,
+        invoiceDisplayName: values.invoiceDisplayName || undefined,
+        units: adjustmentType ? Number(units || 0) : undefined,
         unitPreciseAmount:
           adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
             ? String(unitPreciseAmount)
             : undefined,
-        invoiceDisplayName: values.invoiceDisplayName || undefined,
       }
 
-      const chargeFilterId =
-        values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined
-
-      let input: CreateAdjustedFeeInput = {
-        ...defaultPayload,
-        chargeId: values.chargeId,
-        chargeFilterId,
-        subscriptionId: localData?.invoiceSubscriptionId || '',
-      }
-
-      if (!!fee) {
-        input = {
-          ...defaultPayload,
-          feeId: fee?.id,
-        }
-      }
+      const input: CreateAdjustedFeeInput = !!fee
+        ? { ...basePayload, feeId: fee.id }
+        : {
+            ...basePayload,
+            chargeId: values.chargeId,
+            chargeFilterId,
+            subscriptionId: localData?.invoiceSubscriptionId || '',
+          }
 
       if (localData?.onAdd) {
         drawerRef.current?.closeDrawer()
@@ -329,28 +341,27 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     ])
 
   const isUnitAdjustmentTypeDisabled = useMemo(() => {
-    if (!!fee) {
-      return (
-        fee?.charge?.chargeModel === ChargeModelEnum.Percentage ||
-        fee?.charge?.chargeModel === ChargeModelEnum.Dynamic ||
-        (fee?.charge?.chargeModel === ChargeModelEnum.Graduated && fee.charge.prorated)
-      )
+    if (fee) {
+      return isChargeModelUnitAdjustmentDisabled(fee.charge?.chargeModel, fee.charge?.prorated)
     }
 
     const selectedCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
       (charge) => charge.id === formikProps.values.chargeId,
     )
 
-    if (!selectedCharge) return false
-
-    return (
-      selectedCharge?.chargeModel === ChargeModelEnum.Percentage ||
-      selectedCharge?.chargeModel === ChargeModelEnum.Dynamic ||
-      (selectedCharge?.chargeModel === ChargeModelEnum.Graduated && selectedCharge.prorated)
+    return isChargeModelUnitAdjustmentDisabled(
+      selectedCharge?.chargeModel,
+      selectedCharge?.prorated,
     )
   }, [currentInvoiceSubscription?.subscription.plan.charges, fee, formikProps.values.chargeId])
 
   const feeName = fee?.metadata?.displayName || fee?.itemName || ''
+  const drawerTitle = !!fee
+    ? translate('text_65a6b4e2cb38d9b70ec53c25', { name: feeName })
+    : translate('text_1737709105343hpvidjp0yz0')
+  const drawerDescription = !!fee
+    ? translate('text_65a6b4e2cb38d9b70ec53c2d')
+    : translate('text_1737731953885hprgxewyizj')
 
   return (
     <Drawer
@@ -358,13 +369,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       fullContentHeight
       ref={drawerRef}
       withPadding={false}
-      title={
-        !!fee
-          ? translate('text_65a6b4e2cb38d9b70ec53c25', {
-              name: feeName,
-            })
-          : translate('text_1737709105343hpvidjp0yz0')
-      }
+      title={drawerTitle}
       onClose={resetForm}
     >
       {({ closeDrawer }) => (
@@ -384,20 +389,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
               </div>
             ) : (
               <>
-                <DrawerLayout.Header
-                  title={
-                    !!fee
-                      ? translate('text_65a6b4e2cb38d9b70ec53c25', {
-                          name: feeName,
-                        })
-                      : translate('text_1737709105343hpvidjp0yz0')
-                  }
-                  description={
-                    !!fee
-                      ? translate('text_65a6b4e2cb38d9b70ec53c2d')
-                      : translate('text_1737731953885hprgxewyizj')
-                  }
-                />
+                <DrawerLayout.Header title={drawerTitle} description={drawerDescription} />
 
                 {!!fee && (
                   <>
@@ -567,10 +559,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                                     <div className="flex h-12 flex-col items-end justify-center self-end">
                                       <Typography variant="body" color="grey700">
                                         {intlFormatNumber(
-                                          Number(
-                                            Number(formikProps.values.units || 0) *
-                                              Number(formikProps.values.unitPreciseAmount || 0) ||
-                                              0,
+                                          calculateTotalAmount(
+                                            formikProps.values.units,
+                                            formikProps.values.unitPreciseAmount,
                                           ),
                                           {
                                             currencyDisplay: 'symbol',
@@ -584,9 +575,10 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                                       {!!pricingUnitUsage && (
                                         <Typography variant="caption" color="grey600">
                                           {intlFormatNumber(
-                                            Number(formikProps.values.units || 0) *
-                                              Number(formikProps.values.unitPreciseAmount || 0) *
-                                              Number(pricingUnitUsage?.conversionRate || 0),
+                                            calculateTotalAmount(
+                                              formikProps.values.units,
+                                              formikProps.values.unitPreciseAmount,
+                                            ) * Number(pricingUnitUsage?.conversionRate || 0),
                                             {
                                               currencyDisplay: 'symbol',
                                               currency: currency,
