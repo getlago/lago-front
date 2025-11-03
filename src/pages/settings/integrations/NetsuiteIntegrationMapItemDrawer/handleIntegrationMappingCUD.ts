@@ -1,5 +1,3 @@
-import { GraphQLFormattedError } from 'graphql'
-
 import {
   MappableTypeEnum,
   MappingTypeEnum,
@@ -16,6 +14,7 @@ import type {
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
 } from '~/pages/settings/integrations/common'
+import { CreateUpdateDeleteSuccessAnswer } from '~/pages/settings/integrations/common/types'
 
 import type { FormValuesType } from './types'
 
@@ -52,11 +51,7 @@ export const handleIntegrationMappingCUD = async (
     updateMapping,
   }: CreateUpdateDeleteFunctions,
   billingEntity: BillingEntityForIntegrationMapping,
-): Promise<
-  | { success: true }
-  | { success: false; errors: readonly GraphQLFormattedError[] }
-  | { success: false; reasons: readonly string[] }
-> => {
+): Promise<CreateUpdateDeleteSuccessAnswer> => {
   const isCollectionContext = (type: unknown): type is MappingTypeEnum => {
     return Object.values(MappingTypeEnum).includes(type as MappingTypeEnum)
   }

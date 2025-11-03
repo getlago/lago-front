@@ -1,3 +1,4 @@
+import { GraphQLFormattedError } from 'graphql'
 import { RefObject } from 'react'
 
 import { AnrokIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AnrokIntegrationMapItemDrawer'
@@ -92,3 +93,8 @@ export type ItemMappingPerBillingEntity = Record<
   'default' | string,
   ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable
 >
+
+export type CreateUpdateDeleteSuccessAnswer =
+  | { success: true }
+  | { success: false; errors: readonly GraphQLFormattedError[] }
+  | { success: false; reasons: readonly string[] }
