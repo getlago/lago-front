@@ -1,11 +1,19 @@
+import { tw } from '~/lib'
+
 type AiBadgeProps = {
+  className?: string
   children?: React.ReactNode
   iconSize?: number
 }
 
-export const AiBadge = ({ iconSize = 16, children }: AiBadgeProps) => {
+export const AiBadge = ({ className, iconSize = 16, children }: AiBadgeProps) => {
   return (
-    <div className="flex items-center justify-center gap-1 rounded-lg bg-[linear-gradient(0deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.9)_100%),linear-gradient(268deg,#A277E3_2.81%,#EE4545_90.17%)] px-1.5 py-1">
+    <div
+      className={tw(
+        'flex items-center justify-center gap-1 rounded-lg bg-[linear-gradient(0deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.9)_100%),linear-gradient(268deg,#A277E3_2.81%,#EE4545_90.17%)] px-1.5 py-1',
+        className,
+      )}
+    >
       <svg
         width={iconSize}
         height={iconSize}
