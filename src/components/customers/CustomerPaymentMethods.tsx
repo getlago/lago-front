@@ -8,12 +8,15 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 export const ADD_PAYMENT_METHOD_TEST_ID = 'add-payment-method-dialog'
 export const ELIGIBLE_PAYMENT_METHODS_TEST_ID = 'eligible-payment-methods-text'
 export const INELIGIBLE_PAYMENT_METHODS_TEST_ID = 'ineligible-payment-methods-text'
+export const EMPTY_STATE_TEST_ID = 'no-payment-methods-available-text'
 
 export const CustomerPaymentMethods = ({ customer }: { customer: CustomerMainInfosFragment }) => {
   const { translate } = useInternationalization()
   const addPaymentDialogRef = useRef<DialogRef>(null)
 
   const customerAvailablePaymentMethods = customer?.providerCustomer?.providerPaymentMethods || []
+  const hasAtLeastOneAvailablePaymentMethod = customerAvailablePaymentMethods.length > 0
+
   const ineligiblePaymentMethods = [
     ProviderPaymentMethodsEnum.CustomerBalance,
     ProviderPaymentMethodsEnum.Crypto,
@@ -37,16 +40,21 @@ export const CustomerPaymentMethods = ({ customer }: { customer: CustomerMainInf
         }}
       />
 
-      {!isCustomerEligibleForAddingPaymentMethods && (
+      {!hasAtLeastOneAvailablePaymentMethod && (
+        <Typography color="grey500" data-test={EMPTY_STATE_TEST_ID}>
+          {translate('text_1761915128154gyls7eboz4s')}{' '}
+          {/* TODO: do we use this also for empty methods list applied already to the customer? */}
+        </Typography>
+      )}
+
+      {hasAtLeastOneAvailablePaymentMethod && !isCustomerEligibleForAddingPaymentMethods && (
         <Typography color="grey500" className="mb-4" data-test={INELIGIBLE_PAYMENT_METHODS_TEST_ID}>
           {translate('text_17619148029863fx3w8kwfdp')}
         </Typography>
       )}
 
-      {isCustomerEligibleForAddingPaymentMethods && (
+      {hasAtLeastOneAvailablePaymentMethod && isCustomerEligibleForAddingPaymentMethods && (
         <div data-test={ELIGIBLE_PAYMENT_METHODS_TEST_ID}>
-          <Typography color="grey500">{translate('text_1761915128154gyls7eboz4s')}</Typography>
-
           <Dialog
             ref={addPaymentDialogRef}
             title={translate('text_1761914802986ww4ima0w9w9')}

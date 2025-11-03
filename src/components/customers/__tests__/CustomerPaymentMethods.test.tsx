@@ -4,6 +4,7 @@ import {
   ADD_PAYMENT_METHOD_TEST_ID,
   CustomerPaymentMethods,
   ELIGIBLE_PAYMENT_METHODS_TEST_ID,
+  EMPTY_STATE_TEST_ID,
   INELIGIBLE_PAYMENT_METHODS_TEST_ID,
 } from '~/components/customers/CustomerPaymentMethods'
 import { ProviderPaymentMethodsEnum } from '~/generated/graphql'
@@ -29,8 +30,9 @@ describe('CustomerPaymentMethods', () => {
 
       await act(() => render(<CustomerPaymentMethods customer={customer} />))
 
-      expect(screen.getByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
-      expect(screen.getByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
+      expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
     })
   })
@@ -49,8 +51,9 @@ describe('CustomerPaymentMethods', () => {
 
       await act(() => render(<CustomerPaymentMethods customer={customer} />))
 
-      expect(screen.getByTestId(ADD_PAYMENT_METHOD_TEST_ID)).toBeDisabled()
-      expect(screen.getByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).toBeDisabled()
+      expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
     })
   })
@@ -70,8 +73,27 @@ describe('CustomerPaymentMethods', () => {
 
       await act(() => render(<CustomerPaymentMethods customer={customer} />))
 
-      expect(screen.getByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
-      expect(screen.getByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
+      expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('WHEN there are no available payment methods', () => {
+    it('THEN shows the empty state text', async () => {
+      const customer = createMockCustomerDetails({
+        providerCustomer: {
+          ...baseProviderCustomer,
+          providerPaymentMethods: [],
+        },
+      })
+
+      await act(() => render(<CustomerPaymentMethods customer={customer} />))
+
+      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).toBeDisabled()
+      expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
     })
   })
