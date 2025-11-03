@@ -3,6 +3,7 @@ import { act, screen } from '@testing-library/react'
 import { render } from '~/test-utils'
 
 import { createMockCustomerDetails } from './factories/CustomerDetails.factory'
+import { createMockLinkedPaymentProvider } from './factories/LinkedPaymentProvider.factory'
 
 import { CustomerIntegrationRows } from '../CustomerIntegrationRows'
 
@@ -69,8 +70,16 @@ jest.mock('~/generated/graphql', () => ({
 describe('CustomerIntegrationRows', () => {
   it('renders payment providers and integrations', async () => {
     const customer = createMockCustomerDetails()
+    const linkedPaymentProvider = createMockLinkedPaymentProvider()
 
-    await act(() => render(<CustomerIntegrationRows customer={customer} />))
+    await act(() =>
+      render(
+        <CustomerIntegrationRows
+          customer={customer}
+          linkedPaymentProvider={linkedPaymentProvider}
+        />,
+      ),
+    )
 
     // Payment Providers
     expect(screen.getByTestId(/Stripe/i)).toBeInTheDocument()
@@ -86,8 +95,16 @@ describe('CustomerIntegrationRows', () => {
 
   it('does not render a provider not received from GraphQL', async () => {
     const customer = createMockCustomerDetails()
+    const linkedPaymentProvider = createMockLinkedPaymentProvider()
 
-    await act(() => render(<CustomerIntegrationRows customer={customer} />))
+    await act(() =>
+      render(
+        <CustomerIntegrationRows
+          customer={customer}
+          linkedPaymentProvider={linkedPaymentProvider}
+        />,
+      ),
+    )
 
     // Ensure a non-existent provider is not in the document
     expect(screen.queryByTestId(/NonExistentProvider/i)).not.toBeInTheDocument()
@@ -95,8 +112,16 @@ describe('CustomerIntegrationRows', () => {
 
   it('navigates to the correct URL when clicking on InlineLink', async () => {
     const customer = createMockCustomerDetails()
+    const linkedPaymentProvider = createMockLinkedPaymentProvider()
 
-    await act(() => render(<CustomerIntegrationRows customer={customer} />))
+    await act(() =>
+      render(
+        <CustomerIntegrationRows
+          customer={customer}
+          linkedPaymentProvider={linkedPaymentProvider}
+        />,
+      ),
+    )
 
     const hubspotLink = screen
       .getByTestId(/HubspotIntegration/i)

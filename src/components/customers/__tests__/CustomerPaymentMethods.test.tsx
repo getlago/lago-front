@@ -3,7 +3,6 @@ import { act, screen } from '@testing-library/react'
 import {
   ADD_PAYMENT_METHOD_TEST_ID,
   CustomerPaymentMethods,
-  ELIGIBLE_PAYMENT_METHODS_TEST_ID,
   EMPTY_STATE_TEST_ID,
   INELIGIBLE_PAYMENT_METHODS_TEST_ID,
 } from '~/components/customers/CustomerPaymentMethods'
@@ -11,12 +10,15 @@ import { ProviderPaymentMethodsEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { createMockCustomerDetails } from './factories/CustomerDetails.factory'
+import { createMockLinkedPaymentProvider } from './factories/LinkedPaymentProvider.factory'
 
 const baseProviderCustomer = {
   __typename: 'ProviderCustomer' as const,
   id: 'prov_cust_001',
   providerCustomerId: 'ProviderCustomer',
 }
+
+const linkedPaymentProvider = createMockLinkedPaymentProvider()
 
 describe('CustomerPaymentMethods', () => {
   describe('WHEN customer available payment methods are NOT only Crypto or CustomerBalance', () => {
@@ -28,11 +30,17 @@ describe('CustomerPaymentMethods', () => {
         },
       })
 
-      await act(() => render(<CustomerPaymentMethods customer={customer} />))
+      await act(() =>
+        render(
+          <CustomerPaymentMethods
+            customer={customer}
+            linkedPaymentProvider={linkedPaymentProvider}
+          />,
+        ),
+      )
 
       expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
-      expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
     })
   })
@@ -49,12 +57,18 @@ describe('CustomerPaymentMethods', () => {
         },
       })
 
-      await act(() => render(<CustomerPaymentMethods customer={customer} />))
+      await act(() =>
+        render(
+          <CustomerPaymentMethods
+            customer={customer}
+            linkedPaymentProvider={linkedPaymentProvider}
+          />,
+        ),
+      )
 
       expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).toBeDisabled()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
-      expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
@@ -71,11 +85,17 @@ describe('CustomerPaymentMethods', () => {
         },
       })
 
-      await act(() => render(<CustomerPaymentMethods customer={customer} />))
+      await act(() =>
+        render(
+          <CustomerPaymentMethods
+            customer={customer}
+            linkedPaymentProvider={linkedPaymentProvider}
+          />,
+        ),
+      )
 
       expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
-      expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
     })
   })
@@ -89,11 +109,17 @@ describe('CustomerPaymentMethods', () => {
         },
       })
 
-      await act(() => render(<CustomerPaymentMethods customer={customer} />))
+      await act(() =>
+        render(
+          <CustomerPaymentMethods
+            customer={customer}
+            linkedPaymentProvider={linkedPaymentProvider}
+          />,
+        ),
+      )
 
       expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).toBeInTheDocument()
-      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).toBeDisabled()
-      expect(screen.queryByTestId(ELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
     })
   })

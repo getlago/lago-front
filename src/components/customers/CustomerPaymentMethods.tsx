@@ -1,8 +1,25 @@
-import { useRef } from 'react'
+import { gql } from '@apollo/client'
+import { useEffect, useRef, useState } from 'react'
 
-import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { LinkedPaymentProvider } from '~/components/customers/types'
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogRef,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import { ComboBox } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { CustomerMainInfosFragment, ProviderPaymentMethodsEnum } from '~/generated/graphql'
+import { addToast } from '~/core/apolloClient'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import {
+  CustomerMainInfosFragment,
+  ProviderPaymentMethodsEnum,
+  useGenerateCheckoutUrlMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const ADD_PAYMENT_METHOD_TEST_ID = 'add-payment-method-dialog'
@@ -10,9 +27,31 @@ export const ELIGIBLE_PAYMENT_METHODS_TEST_ID = 'eligible-payment-methods-text'
 export const INELIGIBLE_PAYMENT_METHODS_TEST_ID = 'ineligible-payment-methods-text'
 export const EMPTY_STATE_TEST_ID = 'no-payment-methods-available-text'
 
-export const CustomerPaymentMethods = ({ customer }: { customer: CustomerMainInfosFragment }) => {
+interface Props {
+  customer: CustomerMainInfosFragment
+  linkedPaymentProvider: LinkedPaymentProvider
+}
+
+gql`
+  mutation generateCheckoutUrl($input: GenerateCheckoutUrlInput!) {
+    generateCheckoutUrl(input: $input) {
+      checkoutUrl
+    }
+  }
+`
+
+export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Props) => {
   const { translate } = useInternationalization()
+  const [hasError, setHasError] = useState(false)
+  const [generateCheckoutUrlMutation, { data, loading, error }] = useGenerateCheckoutUrlMutation({
+    variables: {
+      input: { customerId: customer.id },
+    },
+  })
+
   const addPaymentDialogRef = useRef<DialogRef>(null)
+
+  const [selectedPaymentProvider, setSelectedPaymentProvider] = useState<string>('')
 
   const customerAvailablePaymentMethods = customer?.providerCustomer?.providerPaymentMethods || []
   const hasAtLeastOneAvailablePaymentMethod = customerAvailablePaymentMethods.length > 0
@@ -26,6 +65,34 @@ export const CustomerPaymentMethods = ({ customer }: { customer: CustomerMainInf
     (method) => !ineligiblePaymentMethods.includes(method),
   )
 
+  const hasMissingConnectedPaymentProvider =
+    hasAtLeastOneAvailablePaymentMethod && !isCustomerEligibleForAddingPaymentMethods
+
+  const mapOptions = linkedPaymentProvider ? [linkedPaymentProvider] : []
+
+  const connectedPaymentProvidersData = mapOptions.map(({ code, name }) => ({
+    value: code,
+    label: name,
+  }))
+
+  const hasOneAvailableOption = connectedPaymentProvidersData.length === 1
+
+  useEffect(() => {
+    if (hasOneAvailableOption) {
+      setSelectedPaymentProvider(connectedPaymentProvidersData[0].value)
+    }
+  }, [connectedPaymentProvidersData, hasOneAvailableOption, setSelectedPaymentProvider])
+
+  useEffect(() => {
+    if (error) {
+      setHasError(true)
+    } else {
+      setHasError(false)
+    }
+  }, [error])
+
+  const checkoutUrl = data?.generateCheckoutUrl?.checkoutUrl || ''
+
   return (
     <>
       <PageSectionTitle
@@ -35,44 +102,103 @@ export const CustomerPaymentMethods = ({ customer }: { customer: CustomerMainInf
         action={{
           title: translate('text_1761914802986ww4ima0w9w9'),
           onClick: () => addPaymentDialogRef.current?.openDialog(),
-          isDisabled: !isCustomerEligibleForAddingPaymentMethods,
+          isDisabled: hasMissingConnectedPaymentProvider,
           dataTest: ADD_PAYMENT_METHOD_TEST_ID,
         }}
       />
 
       {!hasAtLeastOneAvailablePaymentMethod && (
         <Typography color="grey500" data-test={EMPTY_STATE_TEST_ID}>
-          {translate('text_1761915128154gyls7eboz4s')}{' '}
-          {/* TODO: do we use this also for empty methods list applied already to the customer? */}
+          {translate('text_1761915128154gyls7eboz4s')}
         </Typography>
       )}
 
-      {hasAtLeastOneAvailablePaymentMethod && !isCustomerEligibleForAddingPaymentMethods && (
+      {hasMissingConnectedPaymentProvider && (
         <Typography color="grey500" className="mb-4" data-test={INELIGIBLE_PAYMENT_METHODS_TEST_ID}>
           {translate('text_17619148029863fx3w8kwfdp')}
         </Typography>
       )}
 
-      {hasAtLeastOneAvailablePaymentMethod && isCustomerEligibleForAddingPaymentMethods && (
-        <div data-test={ELIGIBLE_PAYMENT_METHODS_TEST_ID}>
-          <Dialog
-            ref={addPaymentDialogRef}
-            title={translate('text_1761914802986ww4ima0w9w9')}
-            description={translate('text_1761914802986ipq0aot8fas')}
-            actions={({ closeDialog }) => (
-              <>
-                <Button variant="quaternary" onClick={() => closeDialog()}>
-                  {translate('text_63e51ef4985f0ebd75c21313')}
-                </Button>
-                <Button onClick={() => {} /* TODO implement generate link*/}>
-                  {translate('text_1761914802986cu9mjc19csx')}
-                </Button>
-              </>
+      {!hasMissingConnectedPaymentProvider && (
+        <Dialog
+          ref={addPaymentDialogRef}
+          title={translate('text_1761914802986ww4ima0w9w9')}
+          description={translate('text_1761914802986ipq0aot8fas')}
+          onClose={() => {
+            if (hasError) {
+              setHasError(false)
+            }
+          }}
+          actions={({ closeDialog }) => (
+            <>
+              <Button variant="quaternary" onClick={() => closeDialog()}>
+                {translate('text_63e51ef4985f0ebd75c21313')}
+              </Button>
+              <Button
+                loading={loading}
+                disabled={!selectedPaymentProvider}
+                onClick={async () => {
+                  await generateCheckoutUrlMutation()
+                }}
+              >
+                {translate('text_1761914802986cu9mjc19csx')}
+              </Button>
+            </>
+          )}
+        >
+          <>
+            <ComboBox
+              className="mb-8"
+              disabled={hasOneAvailableOption}
+              disableClearable={hasOneAvailableOption}
+              name="selectPaymentProvider"
+              data={connectedPaymentProvidersData}
+              label={translate('text_634ea0ecc6147de10ddb6631')}
+              placeholder={translate('text_1762173848714al2j36a59ce')}
+              emptyText={translate('text_1762173891817jhfenej7eho')}
+              PopperProps={{ displayInDialog: true }}
+              value={selectedPaymentProvider}
+              onChange={(value) => {
+                setSelectedPaymentProvider(value)
+              }}
+            />
+
+            {hasError && (
+              <Alert type="danger" className="mb-8">
+                {translate('text_1762182354095wfjiizpju0e')}
+              </Alert>
             )}
-          >
-            <Typography className="mb-4">--- Select Payment Method ---</Typography>
-          </Dialog>
-        </div>
+
+            {(checkoutUrl || loading) && (
+              <div className="mb-8">
+                <Typography className="mb-2 font-medium" color="grey700" variant="caption">
+                  {translate('text_1762184099398x60go694x4g')}
+                </Typography>
+
+                {loading && <Skeleton className="w-60" variant="text" textVariant="caption" />}
+
+                {checkoutUrl && (
+                  <Tooltip placement="top" title={translate('text_17621837056900geit2h3mg6')}>
+                    <Typography
+                      className="w-full cursor-pointer truncate"
+                      color="grey700"
+                      variant="captionCode"
+                      onClick={() => {
+                        copyToClipboard(checkoutUrl)
+                        addToast({
+                          severity: 'info',
+                          translateKey: 'text_1762185015908yvajftyvcnq',
+                        })
+                      }}
+                    >
+                      {checkoutUrl}
+                    </Typography>
+                  </Tooltip>
+                )}
+              </div>
+            )}
+          </>
+        </Dialog>
       )}
     </>
   )

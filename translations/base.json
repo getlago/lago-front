@@ -3502,5 +3502,11 @@
   "text_17619148029863fx3w8kwfdp": "This customer is connected to a payment provider using Bank Transfer or Crypto (stablecoins), which doesn’t support adding new payment methods. Please update the connection to enable additional methods.",
   "text_1761915128154gyls7eboz4s": "No payment method added yet. Make sure this customer is connected to a payment provider before adding one.",
   "text_1761914802986ipq0aot8fas": "Select the payment provider. A secure link will be generated — once your customer adds their details, a new payment method will be created.",
-  "text_1761914802986cu9mjc19csx": "Generate link"
+  "text_1761914802986cu9mjc19csx": "Generate link",
+  "text_1762173848714al2j36a59ce": "Select and search a payment provider",
+  "text_1762173891817jhfenej7eho": "Please connect your payment provider in the Settings → Integration section",
+  "text_1762182354095wfjiizpju0e": "We couldn’t generate the payment method checkout link. There may be an issue with your payment provider settings. Please try again or contact support.",
+  "text_17621837056900geit2h3mg6": "Click to copy",
+  "text_1762184099398x60go694x4g": "Checkout link",
+  "text_1762185015908yvajftyvcnq": "Payment checkout link copy to clipboard."
 }

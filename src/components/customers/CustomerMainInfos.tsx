@@ -6,7 +6,10 @@ import { CustomerPaymentMethods } from '~/components/customers/CustomerPaymentMe
 import { Skeleton } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
-import { CustomerMainInfosFragment } from '~/generated/graphql'
+import {
+  CustomerMainInfosFragment,
+  usePaymentProvidersListForCustomerMainInfosQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -88,6 +91,48 @@ gql`
       code
     }
   }
+
+  query paymentProvidersListForCustomerMainInfos($limit: Int) {
+    paymentProviders(limit: $limit) {
+      collection {
+        ... on StripeProvider {
+          id
+          name
+          code
+        }
+
+        ... on GocardlessProvider {
+          id
+          name
+          code
+        }
+
+        ... on FlutterwaveProvider {
+          id
+          name
+          code
+        }
+
+        ... on CashfreeProvider {
+          id
+          name
+          code
+        }
+
+        ... on MoneyhashProvider {
+          id
+          name
+          code
+        }
+
+        ... on AdyenProvider {
+          id
+          name
+          code
+        }
+      }
+    }
+  }
 `
 
 interface CustomerMainInfosProps {
@@ -99,6 +144,14 @@ interface CustomerMainInfosProps {
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
   const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+
+  const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
+    variables: { limit: 1000 },
+  })
+
+  const linkedPaymentProvider = paymentProvidersData?.paymentProviders?.collection?.find(
+    (provider) => provider?.code === customer?.paymentProviderCode,
+  )
 
   if (loading || !customer)
     return (
@@ -134,12 +187,18 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         data-id="customer-info-list"
       >
         <CustomerInfoRows customer={customer} />
-        <CustomerIntegrationRows customer={customer} />
+        <CustomerIntegrationRows
+          customer={customer}
+          linkedPaymentProvider={linkedPaymentProvider}
+        />
       </div>
 
       {hasAccessToMultiPaymentFlow && (
         <div className="mt-12">
-          <CustomerPaymentMethods customer={customer} />
+          <CustomerPaymentMethods
+            customer={customer}
+            linkedPaymentProvider={linkedPaymentProvider}
+          />
         </div>
       )}
     </div>

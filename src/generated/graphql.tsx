@@ -9234,20 +9234,6 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
 
 export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } }> } };
 
-export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
-      | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
-      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
-      | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
-      | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
-      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string }
-      | { __typename?: 'StripeProvider', id: string, name: string, code: string }
-    > } | null };
-
 export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -9300,6 +9286,27 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
 export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } };
+
+export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
+      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
+      | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
+      | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
+      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string }
+      | { __typename?: 'StripeProvider', id: string, name: string, code: string }
+    > } | null };
+
+export type GenerateCheckoutUrlMutationVariables = Exact<{
+  input: GenerateCheckoutUrlInput;
+}>;
+
+
+export type GenerateCheckoutUrlMutation = { __typename?: 'Mutation', generateCheckoutUrl?: { __typename?: 'GenerateCheckoutUrlPayload', checkoutUrl: string } | null };
 
 export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null };
 
@@ -19977,77 +19984,6 @@ export type GetCustomerCreditNotesQueryHookResult = ReturnType<typeof useGetCust
 export type GetCustomerCreditNotesLazyQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesLazyQuery>;
 export type GetCustomerCreditNotesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesSuspenseQuery>;
 export type GetCustomerCreditNotesQueryResult = Apollo.QueryResult<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>;
-export const PaymentProvidersListForCustomerMainInfosDocument = gql`
-    query paymentProvidersListForCustomerMainInfos($limit: Int) {
-  paymentProviders(limit: $limit) {
-    collection {
-      ... on StripeProvider {
-        id
-        name
-        code
-      }
-      ... on GocardlessProvider {
-        id
-        name
-        code
-      }
-      ... on FlutterwaveProvider {
-        id
-        name
-        code
-      }
-      ... on CashfreeProvider {
-        id
-        name
-        code
-      }
-      ... on MoneyhashProvider {
-        id
-        name
-        code
-      }
-      ... on AdyenProvider {
-        id
-        name
-        code
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __usePaymentProvidersListForCustomerMainInfosQuery__
- *
- * To run a query within a React component, call `usePaymentProvidersListForCustomerMainInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentProvidersListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePaymentProvidersListForCustomerMainInfosQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function usePaymentProvidersListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-      }
-export function usePaymentProvidersListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-export type PaymentProvidersListForCustomerMainInfosQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosQuery>;
-export type PaymentProvidersListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosLazyQuery>;
-export type PaymentProvidersListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosSuspenseQuery>;
-export type PaymentProvidersListForCustomerMainInfosQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
 export const IntegrationsListForCustomerMainInfosDocument = gql`
     query integrationsListForCustomerMainInfos($limit: Int) {
   integrations(limit: $limit) {
@@ -20276,6 +20212,110 @@ export type GetCustomerInvoicesQueryHookResult = ReturnType<typeof useGetCustome
 export type GetCustomerInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerInvoicesLazyQuery>;
 export type GetCustomerInvoicesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInvoicesSuspenseQuery>;
 export type GetCustomerInvoicesQueryResult = Apollo.QueryResult<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>;
+export const PaymentProvidersListForCustomerMainInfosDocument = gql`
+    query paymentProvidersListForCustomerMainInfos($limit: Int) {
+  paymentProviders(limit: $limit) {
+    collection {
+      ... on StripeProvider {
+        id
+        name
+        code
+      }
+      ... on GocardlessProvider {
+        id
+        name
+        code
+      }
+      ... on FlutterwaveProvider {
+        id
+        name
+        code
+      }
+      ... on CashfreeProvider {
+        id
+        name
+        code
+      }
+      ... on MoneyhashProvider {
+        id
+        name
+        code
+      }
+      ... on AdyenProvider {
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __usePaymentProvidersListForCustomerMainInfosQuery__
+ *
+ * To run a query within a React component, call `usePaymentProvidersListForCustomerMainInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePaymentProvidersListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePaymentProvidersListForCustomerMainInfosQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function usePaymentProvidersListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
+      }
+export function usePaymentProvidersListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
+        }
+export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
+        }
+export type PaymentProvidersListForCustomerMainInfosQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosQuery>;
+export type PaymentProvidersListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosLazyQuery>;
+export type PaymentProvidersListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosSuspenseQuery>;
+export type PaymentProvidersListForCustomerMainInfosQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
+export const GenerateCheckoutUrlDocument = gql`
+    mutation generateCheckoutUrl($input: GenerateCheckoutUrlInput!) {
+  generateCheckoutUrl(input: $input) {
+    checkoutUrl
+  }
+}
+    `;
+export type GenerateCheckoutUrlMutationFn = Apollo.MutationFunction<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
+
+/**
+ * __useGenerateCheckoutUrlMutation__
+ *
+ * To run a mutation, you first call `useGenerateCheckoutUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateCheckoutUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateCheckoutUrlMutation, { data, loading, error }] = useGenerateCheckoutUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGenerateCheckoutUrlMutation(baseOptions?: Apollo.MutationHookOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>(GenerateCheckoutUrlDocument, options);
+      }
+export type GenerateCheckoutUrlMutationHookResult = ReturnType<typeof useGenerateCheckoutUrlMutation>;
+export type GenerateCheckoutUrlMutationResult = Apollo.MutationResult<GenerateCheckoutUrlMutation>;
+export type GenerateCheckoutUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
 export const GetCustomerSettingsDocument = gql`
     query getCustomerSettings($id: ID!) {
   customer(id: $id) {
