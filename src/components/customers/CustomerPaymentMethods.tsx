@@ -26,6 +26,10 @@ export const ADD_PAYMENT_METHOD_TEST_ID = 'add-payment-method-dialog'
 export const ELIGIBLE_PAYMENT_METHODS_TEST_ID = 'eligible-payment-methods-text'
 export const INELIGIBLE_PAYMENT_METHODS_TEST_ID = 'ineligible-payment-methods-text'
 export const EMPTY_STATE_TEST_ID = 'no-payment-methods-available-text'
+export const GENERATE_CHECKOUT_URL_BUTTON_TEST_ID = 'generate-checkout-url-button'
+export const CANCEL_DIALOG_BUTTON_TEST_ID = 'cancel-dialog-button'
+export const ERROR_ALERT_TEST_ID = 'error-alert'
+export const CHECKOUT_URL_TEXT_TEST_ID = 'checkout-url-text'
 
 interface Props {
   customer: CustomerMainInfosFragment
@@ -131,7 +135,11 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
           }}
           actions={({ closeDialog }) => (
             <>
-              <Button variant="quaternary" onClick={() => closeDialog()}>
+              <Button
+                variant="quaternary"
+                onClick={() => closeDialog()}
+                data-test={CANCEL_DIALOG_BUTTON_TEST_ID}
+              >
                 {translate('text_63e51ef4985f0ebd75c21313')}
               </Button>
               <Button
@@ -140,6 +148,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
                 onClick={async () => {
                   await generateCheckoutUrlMutation()
                 }}
+                data-test={GENERATE_CHECKOUT_URL_BUTTON_TEST_ID}
               >
                 {translate('text_1761914802986cu9mjc19csx')}
               </Button>
@@ -164,7 +173,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
             />
 
             {hasError && (
-              <Alert type="danger" className="mb-8">
+              <Alert type="danger" className="mb-8" data-test={ERROR_ALERT_TEST_ID}>
                 {translate('text_1762182354095wfjiizpju0e')}
               </Alert>
             )}
@@ -183,6 +192,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
                       className="w-full cursor-pointer truncate"
                       color="grey700"
                       variant="captionCode"
+                      data-test={CHECKOUT_URL_TEXT_TEST_ID}
                       onClick={() => {
                         copyToClipboard(checkoutUrl)
                         addToast({
