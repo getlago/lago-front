@@ -1,10 +1,13 @@
+import type { AnrokIntegrationMapItemDrawerProps } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import type { ItemMappingForMappable } from '~/pages/settings/integrations/common'
-
-import type { NetsuiteIntegrationMapItemDrawerProps } from './types'
+import type { NetsuiteIntegrationMapItemDrawerProps } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 
 export const isDefaultMappingInMappableContext = (
-  dataToTest: NetsuiteIntegrationMapItemDrawerProps | undefined,
-): dataToTest is NetsuiteIntegrationMapItemDrawerProps & {
+  dataToTest:
+    | NetsuiteIntegrationMapItemDrawerProps
+    | AnrokIntegrationMapItemDrawerProps
+    | undefined,
+): dataToTest is (NetsuiteIntegrationMapItemDrawerProps | AnrokIntegrationMapItemDrawerProps) & {
   itemMappings: { default: ItemMappingForMappable }
 } => {
   if (!dataToTest) return false

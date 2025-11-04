@@ -1,5 +1,6 @@
 export { isItemMapping } from './isItemMapping'
 export { getMappingInfos } from './getMappingInfos'
+export { isDefaultMappingInMappableContext } from './isDefaultMappingInMappableContext'
 export type {
   MappableIntegrationProvider,
   ItemMapping,

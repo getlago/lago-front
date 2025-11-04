@@ -1,12 +1,12 @@
 import { FormikProps } from 'formik'
 
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
-import type {
+import {
   BillingEntityForIntegrationMapping,
   ItemMappingPerBillingEntity,
 } from '~/pages/settings/integrations/common'
 
-export type NetsuiteIntegrationMapItemDrawerProps = {
+export type AnrokIntegrationMapItemDrawerProps = {
   type: MappingTypeEnum | MappableTypeEnum
   integrationId: string
   billingEntities: Array<BillingEntityForIntegrationMapping>
@@ -16,21 +16,17 @@ export type NetsuiteIntegrationMapItemDrawerProps = {
 export type FormValuesType = Record<
   'default' | string,
   {
-    taxCode: string
-    taxNexus: string
-    taxType: string
-    externalId: string
     externalName: string
-    externalAccountCode: string
+    externalId: string
   }
 >
 
-export type NetsuiteIntegrationMapItemFormProps = {
+export type AnrokIntegrationMapItemFormProps = {
   formikProps: FormikProps<FormValuesType>
   billingEntityKey: 'default' | string
 }
 
-export interface NetsuiteIntegrationMapItemDrawerRef {
-  openDrawer: (props: NetsuiteIntegrationMapItemDrawerProps) => unknown
+export interface AnrokIntegrationMapItemDrawerRef {
+  openDrawer: (props: AnrokIntegrationMapItemDrawerProps) => unknown
   closeDrawer: () => unknown
 }

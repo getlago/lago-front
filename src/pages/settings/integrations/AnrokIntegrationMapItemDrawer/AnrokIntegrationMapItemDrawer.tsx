@@ -13,26 +13,26 @@ import {
 } from '~/pages/settings/integrations/common'
 import { IntegrationMapItemDrawer } from '~/pages/settings/integrations/IntegrationMapItemDrawer'
 
+import { AnrokIntegrationMapItemFormWrapper } from './AnrokIntegrationMapItemFormWrapper'
 import { handleIntegrationMappingCUD } from './handleIntegrationMappingCUD'
-import { isMappingInTaxContext } from './isMappingInTaxContext'
-import { netsuiteIntegrationMapItemFormWrapperFactory } from './NetsuiteIntegrationMapItemFormWrapper'
-import type {
+import {
+  AnrokIntegrationMapItemDrawerProps,
+  AnrokIntegrationMapItemDrawerRef,
   FormValuesType,
-  NetsuiteIntegrationMapItemDrawerProps,
-  NetsuiteIntegrationMapItemDrawerRef,
 } from './types'
-import { useNetsuiteIntegrationMappingCUD } from './useNetsuiteIntegrationMappingCUD'
-import { useNetsuiteIntegrationTitleAndDescriptionMapping } from './useNetsuiteIntegrationTitleAndDescriptionMapping'
+import { useAnrokIntegrationMappingCUD } from './useAnrokIntegrationMappingCUD'
+import { useAnrokIntegrationTitleAndDescriptionMapping } from './useAnrokIntegrationTitleAndDescriptionMapping'
 
-export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMapItemDrawerRef>(
+export const AnrokIntegrationMapItemDrawer = forwardRef<AnrokIntegrationMapItemDrawerRef>(
   (_, ref) => {
     const drawerRef = useRef<DrawerRef>(null)
-    const [localData, setLocalData] = useState<NetsuiteIntegrationMapItemDrawerProps | undefined>(
+    const [localData, setLocalData] = useState<AnrokIntegrationMapItemDrawerProps | undefined>(
       undefined,
     )
-    const isTaxContext = localData?.type === MappingTypeEnum.Tax
 
-    const { getTitleAndDescription } = useNetsuiteIntegrationTitleAndDescriptionMapping()
+    const { getTitleAndDescription } = useAnrokIntegrationTitleAndDescriptionMapping()
+
+    const { title, description } = getTitleAndDescription(localData, localData?.type)
 
     const {
       createCollectionMapping,
@@ -41,16 +41,12 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
       deleteMapping,
       updateCollectionMapping,
       updateMapping,
-    } = useNetsuiteIntegrationMappingCUD(localData?.type)
+    } = useAnrokIntegrationMappingCUD(localData?.type)
 
     const getFormInitialValues = (): FormValuesType => {
       const emptyValues = {
-        taxCode: '',
-        taxNexus: '',
-        taxType: '',
         externalId: '',
         externalName: '',
-        externalAccountCode: '',
       }
 
       if (!localData)
@@ -63,18 +59,8 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
           const billingEntityKey = billingEntity.key || DEFAULT_MAPPING_KEY
 
           acc[billingEntityKey] = {
-            taxCode: isMappingInTaxContext(localData, billingEntityKey)
-              ? localData.itemMappings[billingEntityKey].taxCode || ''
-              : '',
-            taxNexus: isMappingInTaxContext(localData, billingEntityKey)
-              ? localData.itemMappings[billingEntityKey].taxNexus || ''
-              : '',
-            taxType: isMappingInTaxContext(localData, billingEntityKey)
-              ? localData.itemMappings[billingEntityKey].taxType || ''
-              : '',
             externalId: localData.itemMappings[billingEntityKey].itemExternalId || '',
             externalName: localData.itemMappings[billingEntityKey].itemExternalName || '',
-            externalAccountCode: localData.itemMappings[billingEntityKey].itemExternalCode || '',
           }
 
           return acc
@@ -109,21 +95,7 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
           }
 
           if (hasOneValueFilled) {
-            if (
-              isTaxContext &&
-              (!values[billingEntityKey].taxCode ||
-                !values[billingEntityKey].taxNexus ||
-                !values[billingEntityKey].taxType)
-            ) {
-              return { success: false, error: 'Fill in all inputs' }
-            }
-
-            if (
-              !isTaxContext &&
-              (!values[billingEntityKey].externalId ||
-                !values[billingEntityKey].externalName ||
-                !values[billingEntityKey].externalAccountCode)
-            ) {
+            if (!values[billingEntityKey].externalId || !values[billingEntityKey].externalName) {
               return { success: false, error: 'Fill in all inputs' }
             }
           }
@@ -144,12 +116,8 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
     }
 
     const validationSchema = object().shape({
-      taxCode: string(),
-      taxNexus: string(),
-      taxType: string(),
       externalId: string(),
       externalName: string(),
-      externalAccountCode: string(),
     })
 
     const handleDataMutation = async (
@@ -181,8 +149,6 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
       )
     }
 
-    const { title, description } = getTitleAndDescription(localData, localData?.type)
-
     useImperativeHandle(ref, () => ({
       openDrawer: (props) => {
         setLocalData(props)
@@ -201,7 +167,7 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
         title={title}
         description={description}
         validationSchema={validationSchema}
-        formComponent={netsuiteIntegrationMapItemFormWrapperFactory(isTaxContext)}
+        formComponent={AnrokIntegrationMapItemFormWrapper}
         getFormInitialValues={getFormInitialValues}
         validateForm={validateForm}
         handleDataMutation={handleDataMutation}
@@ -210,4 +176,4 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
   },
 )
 
-NetsuiteIntegrationMapItemDrawer.displayName = 'NetsuiteIntegrationMapItemDrawer'
+AnrokIntegrationMapItemDrawer.displayName = 'AnrokIntegrationMapItemDrawer'

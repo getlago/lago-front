@@ -1,7 +1,6 @@
 import { GraphQLFormattedError } from 'graphql'
 import { RefObject } from 'react'
 
-import { AnrokIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AnrokIntegrationMapItemDrawer'
 import { AvalaraIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AvalaraIntegrationMapItemDrawer'
 import { XeroIntegrationMapItemDrawerRef } from '~/components/settings/integrations/XeroIntegrationMapItemDrawer'
 import { PickEnum } from '~/core/types/pickEnum.type'
@@ -20,6 +19,7 @@ import {
   NetsuiteIntegrationItemsListDefaultFragment,
   XeroIntegrationItemsListDefaultFragment,
 } from '~/generated/graphql'
+import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 
 export type FetchableIntegrationItemsListData =
