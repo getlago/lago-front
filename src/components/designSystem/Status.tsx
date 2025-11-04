@@ -82,32 +82,9 @@ export type StatusProps = {
   labelVariables?: TranslateData
   locale?: Locale
   endIcon?: IconName
-} & (
-  | {
-      type: StatusType.success
-      label: StatusLabelSuccess
-    }
-  | {
-      type: StatusType.warning
-      label: StatusLabelWarning
-    }
-  | {
-      type: StatusType.outline
-      label: StatusLabelOutline
-    }
-  | {
-      type: StatusType.default
-      label: StatusLabelDefault
-    }
-  | {
-      type: StatusType.danger
-      label: StatusLabelDanger
-    }
-  | {
-      type: StatusType.disabled
-      label: StatusLabelDanger
-    }
-)
+  type: StatusType
+  label: StatusLabel | string
+}
 
 type StatusConfig = Record<
   StatusType,
@@ -168,7 +145,9 @@ export const Status: FC<StatusProps> = ({
   const { translateWithContextualLocal: translate } = useContextualLocale(locale)
 
   const config = STATUS_CONFIG[type ?? 'default']
-  const statusLabel = statusLabelMapping[label]
+  const checkIsLabelStatus = (labelToTest: StatusProps['label']): labelToTest is StatusLabel => {
+    return !!labelToTest && labelToTest in statusLabelMapping
+  }
 
   return (
     <div
@@ -180,7 +159,9 @@ export const Status: FC<StatusProps> = ({
       data-test="status"
     >
       <Typography variant="captionHl" color={config.color} noWrap>
-        {typeof label === 'string' ? translate(statusLabel, labelVariables ?? {}) : label}
+        {checkIsLabelStatus(label)
+          ? translate(statusLabelMapping[label], labelVariables ?? {})
+          : label}
       </Typography>
       {endIcon && <Icon name={endIcon} size="medium" color={config.iconColor} />}
     </div>

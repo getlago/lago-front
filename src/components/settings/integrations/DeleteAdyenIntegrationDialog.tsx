@@ -56,6 +56,7 @@ export const DeleteAdyenIntegrationDialog = forwardRef<DeleteAdyenIntegrationDia
       update(cache) {
         cache.evict({ id: `AdyenProvider:${adyenProvider?.id}` })
       },
+      refetchQueries: ['getAdyenIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({

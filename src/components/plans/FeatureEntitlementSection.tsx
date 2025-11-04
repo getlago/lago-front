@@ -1,13 +1,10 @@
 import { gql } from '@apollo/client'
-import { Box } from '@mui/material'
 import { FormikProps } from 'formik'
-import { Icon } from 'lago-design-system'
 import { FC, useId, useMemo, useState } from 'react'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { FeatureEntitlementSectionPrivilegeAccordion } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_FEATURE_SELECT_OPTIONS_INPUT_CLASSNAME,
@@ -19,7 +16,6 @@ import {
   useGetFeaturesListForPlanSectionLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { PlanFormInput } from './types'
 
@@ -53,18 +49,15 @@ interface FeatureEntitlementSectionProps {
   formikProps: FormikProps<PlanFormInput>
   isInSubscriptionForm?: boolean
   isEdition?: boolean
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
 export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
   formikProps,
   isInSubscriptionForm = false,
   isEdition = false,
-  premiumWarningDialogRef,
 }) => {
   const componentId = useId()
   const { translate } = useInternationalization()
-  const { isPremium } = useCurrentUser()
   const [displayAddFeatureEntitlementInput, setDisplayAddFeatureEntitlementInput] = useState(false)
 
   const [getFeaturesList, { data: featuresListData, loading: isLoadingFeaturesList }] =
@@ -117,109 +110,79 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
         />
       </div>
 
-      {!isPremium && (
-        <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
-          <Box>
-            <div className="flex items-center justify-start gap-2">
-              <Typography variant="bodyHl" color="textSecondary">
-                {translate('text_1753864223060kmmxk4a59aj')}
-              </Typography>
-              <Icon name="sparkles" />
-            </div>
-            <Typography variant="caption">{translate('text_17538642230601w4ue2sz9iy')}</Typography>
-          </Box>
-          <Button
-            variant="tertiary"
-            size="medium"
-            endIcon="sparkles"
-            onClick={() => {
-              premiumWarningDialogRef?.current?.openDialog({
-                mailtoSubject: translate('text_172434514289283gmf8bdhhe'),
-              })
-            }}
-          >
-            {translate('text_65ae73ebe3a66bec2b91d72d')}
-          </Button>
+      {!!formikProps.values.entitlements?.length && (
+        <div className="flex w-full flex-col gap-4">
+          {formikProps.values.entitlements.map((entitlement) => (
+            <FeatureEntitlementSectionPrivilegeAccordion
+              key={`feature-entitlement-${entitlement.featureCode}`}
+              formikProps={formikProps}
+              entitlement={entitlement}
+              isCreatingPlan={!isEdition && !isInSubscriptionForm}
+            />
+          ))}
         </div>
       )}
 
-      {isPremium && (
-        <>
-          {!!formikProps.values.entitlements?.length && (
-            <div className="flex w-full flex-col gap-4">
-              {formikProps.values.entitlements.map((entitlement) => (
-                <FeatureEntitlementSectionPrivilegeAccordion
-                  key={`feature-entitlement-${entitlement.featureCode}`}
-                  formikProps={formikProps}
-                  entitlement={entitlement}
-                  isCreatingPlan={!isEdition && !isInSubscriptionForm}
-                />
-              ))}
-            </div>
-          )}
+      {displayAddFeatureEntitlementInput && (
+        <div className="flex w-full items-center gap-3">
+          <ComboBox
+            disableClearable
+            containerClassName="w-full"
+            placeholder={translate('text_1753864223060h6i2e7303eb')}
+            loading={isLoadingFeaturesList}
+            data={featuresListComboBoxData}
+            className={featureSearchClassName}
+            searchQuery={getFeaturesList}
+            onChange={(selectedFeatureId) => {
+              const selectedFeature = featuresListData?.features?.collection.find(
+                (feature) => feature.id === selectedFeatureId,
+              )
 
-          {displayAddFeatureEntitlementInput && (
-            <div className="flex w-full items-center gap-3">
-              <ComboBox
-                disableClearable
-                containerClassName="w-full"
-                placeholder={translate('text_1753864223060h6i2e7303eb')}
-                loading={isLoadingFeaturesList}
-                data={featuresListComboBoxData}
-                className={featureSearchClassName}
-                searchQuery={getFeaturesList}
-                onChange={(selectedFeatureId) => {
-                  const selectedFeature = featuresListData?.features?.collection.find(
-                    (feature) => feature.id === selectedFeatureId,
-                  )
+              if (!selectedFeature) {
+                setDisplayAddFeatureEntitlementInput(false)
+                return
+              }
 
-                  if (!selectedFeature) {
-                    setDisplayAddFeatureEntitlementInput(false)
-                    return
-                  }
+              formikProps.setFieldValue('entitlements', [
+                ...(formikProps.values.entitlements || []),
+                {
+                  featureId: selectedFeature.id,
+                  featureName: selectedFeature.name,
+                  featureCode: selectedFeature.code,
+                  privileges: [],
+                },
+              ])
 
-                  formikProps.setFieldValue('entitlements', [
-                    ...(formikProps.values.entitlements || []),
-                    {
-                      featureId: selectedFeature.id,
-                      featureName: selectedFeature.name,
-                      featureCode: selectedFeature.code,
-                      privileges: [],
-                    },
-                  ])
+              setDisplayAddFeatureEntitlementInput(false)
+            }}
+          />
 
-                  setDisplayAddFeatureEntitlementInput(false)
-                }}
-              />
-
-              <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    setDisplayAddFeatureEntitlementInput(false)
-                  }}
-                />
-              </Tooltip>
-            </div>
-          )}
-
-          {!displayAddFeatureEntitlementInput && (
+          <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
             <Button
-              variant="inline"
-              startIcon="plus"
+              icon="trash"
+              variant="quaternary"
               onClick={() => {
-                setDisplayAddFeatureEntitlementInput(true)
-
-                scrollToAndClickElement({
-                  selector: `.${featureSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                })
+                setDisplayAddFeatureEntitlementInput(false)
               }}
-            >
-              {translate('text_1753864223060devvklm7vk0')}
-            </Button>
-          )}
-        </>
+            />
+          </Tooltip>
+        </div>
+      )}
+
+      {!displayAddFeatureEntitlementInput && (
+        <Button
+          variant="inline"
+          startIcon="plus"
+          onClick={() => {
+            setDisplayAddFeatureEntitlementInput(true)
+
+            scrollToAndClickElement({
+              selector: `.${featureSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+            })
+          }}
+        >
+          {translate('text_1753864223060devvklm7vk0')}
+        </Button>
       )}
     </div>
   )

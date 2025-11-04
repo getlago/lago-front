@@ -4,9 +4,8 @@ import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { object } from 'yup'
 
-import { Button, Dialog } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   MappableTypeEnum,
@@ -21,7 +20,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment AnrokIntegrationMapItemDialog on IntegrationItem {
+  fragment AnrokIntegrationMapItemDrawer on IntegrationItem {
     id
     externalId
     externalName
@@ -29,14 +28,14 @@ gql`
     itemType
   }
 
-  fragment AnrokIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
+  fragment AnrokIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
     id
     externalId
     externalName
     externalAccountCode
   }
 
-  fragment AnrokIntegrationMapItemDialogCollectionItem on Mapping {
+  fragment AnrokIntegrationMapItemDrawerCollectionItem on Mapping {
     id
     externalId
     externalName
@@ -49,14 +48,14 @@ gql`
   ) {
     createIntegrationCollectionMapping(input: $input) {
       id
-      ...AnrokIntegrationMapItemDialogCollectionMappingItem
+      ...AnrokIntegrationMapItemDrawerCollectionMappingItem
     }
   }
 
   mutation createAnrokIntegrationMapping($input: CreateIntegrationMappingInput!) {
     createIntegrationMapping(input: $input) {
       id
-      ...AnrokIntegrationMapItemDialogCollectionItem
+      ...AnrokIntegrationMapItemDrawerCollectionItem
     }
   }
 
@@ -91,7 +90,7 @@ gql`
   }
 `
 
-type TAnrokIntegrationMapItemDialogProps = {
+type AnrokIntegrationMapItemDrawerProps = {
   type: MappingTypeEnum | MappableTypeEnum
   integrationId: string
   itemId?: string
@@ -101,16 +100,16 @@ type TAnrokIntegrationMapItemDialogProps = {
   lagoMappableName?: string
 }
 
-export interface AnrokIntegrationMapItemDialogRef {
-  openDialog: (props: TAnrokIntegrationMapItemDialogProps) => unknown
-  closeDialog: () => unknown
+export interface AnrokIntegrationMapItemDrawerRef {
+  openDrawer: (props: AnrokIntegrationMapItemDrawerProps) => unknown
+  closeDrawer: () => unknown
 }
 
-export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemDialogRef>(
+export const AnrokIntegrationMapItemDrawer = forwardRef<AnrokIntegrationMapItemDrawerRef>(
   (_, ref) => {
     const { translate } = useInternationalization()
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TAnrokIntegrationMapItemDialogProps | undefined>(
+    const drawerRef = useRef<DrawerRef>(null)
+    const [localData, setLocalData] = useState<AnrokIntegrationMapItemDrawerProps | undefined>(
       undefined,
     )
     const isCollectionContext = !Object.values(MappableTypeEnum).includes(
@@ -252,7 +251,7 @@ export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemD
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isCreate) {
           let answer
@@ -283,7 +282,7 @@ export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemD
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         } else if (isEdit) {
           let answer
@@ -316,7 +315,7 @@ export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemD
           const { errors } = answer
 
           if (!errors?.length) {
-            dialogRef?.current?.closeDialog()
+            drawerRef?.current?.closeDrawer()
           }
         }
       },
@@ -384,25 +383,24 @@ export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemD
     }, [localData?.lagoMappableName, localData?.type, translate])
 
     useImperativeHandle(ref, () => ({
-      openDialog: (props) => {
+      openDrawer: (props) => {
         setLocalData(props)
-        dialogRef.current?.openDialog()
+        drawerRef.current?.openDrawer()
       },
-      closeDialog: () => dialogRef.current?.closeDialog(),
+      closeDrawer: () => drawerRef.current?.closeDrawer(),
     }))
 
     return (
-      <Dialog
-        ref={dialogRef}
+      <Drawer
+        ref={drawerRef}
         title={title}
-        description={description}
         onClose={() => {
           formikProps.resetForm()
           formikProps.validateForm()
         }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
+        stickyBottomBar={
+          <div className="flex justify-end gap-3">
+            <Button variant="quaternary" onClick={() => drawerRef.current?.closeDrawer()}>
               {translate('text_6244277fe0975300fe3fb94a')}
             </Button>
             <Button
@@ -411,27 +409,33 @@ export const AnrokIntegrationMapItemDialog = forwardRef<AnrokIntegrationMapItemD
             >
               {translate('text_6630e51df0a194013daea624')}
             </Button>
-          </>
-        )}
+          </div>
+        }
       >
-        <Stack gap={6} marginBottom={8}>
-          <TextInputField
-            label={translate('text_6668821d94e4da4dfd8b38a6')}
-            placeholder={translate('text_6668821d94e4da4dfd8b38be')}
-            name="externalName"
-            formikProps={formikProps}
-          />
+        <div className="flex flex-col gap-12">
+          <div>
+            <Typography variant="headline">{title}</Typography>
+            <Typography>{description}</Typography>
+          </div>
+          <Stack gap={6} marginBottom={8}>
+            <TextInputField
+              label={translate('text_6668821d94e4da4dfd8b38a6')}
+              placeholder={translate('text_6668821d94e4da4dfd8b38be')}
+              name="externalName"
+              formikProps={formikProps}
+            />
 
-          <TextInputField
-            label={translate('text_6668821d94e4da4dfd8b38d3')}
-            placeholder={translate('text_6668821d94e4da4dfd8b38e7')}
-            name="externalId"
-            formikProps={formikProps}
-          />
-        </Stack>
-      </Dialog>
+            <TextInputField
+              label={translate('text_6668821d94e4da4dfd8b38d3')}
+              placeholder={translate('text_6668821d94e4da4dfd8b38e7')}
+              name="externalId"
+              formikProps={formikProps}
+            />
+          </Stack>
+        </div>
+      </Drawer>
     )
   },
 )
 
-AnrokIntegrationMapItemDialog.displayName = 'AnrokIntegrationMapItemDialog'
+AnrokIntegrationMapItemDrawer.displayName = 'AnrokIntegrationMapItemDrawer'
