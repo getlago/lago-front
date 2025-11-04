@@ -15,15 +15,15 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import {
+  AvalaraIntegrationMapItemDrawer,
+  AvalaraIntegrationMapItemDrawerRef,
+} from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import AvalaraIntegrationItemsListAddons from './AvalaraIntegrationItemsListAddons'
 import AvalaraIntegrationItemsListBillableMetrics from './AvalaraIntegrationItemsListBillableMetrics'
 import AvalaraIntegrationItemsListDefault from './AvalaraIntegrationItemsListDefault'
-import {
-  AvalaraIntegrationMapItemDrawer,
-  AvalaraIntegrationMapItemDrawerRef,
-} from './AvalaraIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
