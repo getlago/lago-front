@@ -2,11 +2,11 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { number, object, string } from 'yup'
 
 import { Alert, Button, Drawer, DrawerRef, Skeleton, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBoxField, TextInputField } from '~/components/form'
+import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { DrawerLayout } from '~/components/layouts/Drawer'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
@@ -29,6 +29,23 @@ import {
   getChargesComboboxDataFromInvoiceSubscription,
   getChargesFiltersComboboxDataFromInvoiceSubscription,
 } from './utils'
+
+const isChargeModelUnitAdjustmentDisabled = (chargeModel?: ChargeModelEnum, prorated?: boolean) => {
+  if (!chargeModel) return false
+
+  return (
+    chargeModel === ChargeModelEnum.Percentage ||
+    chargeModel === ChargeModelEnum.Dynamic ||
+    (chargeModel === ChargeModelEnum.Graduated && prorated)
+  )
+}
+
+const calculateTotalAmount = (
+  units?: number | string | null,
+  unitAmount?: number | string | null,
+) => {
+  return Number(units || 0) * Number(unitAmount || 0)
+}
 
 gql`
   fragment InvoiceSubscriptionForCreateFeeDrawer on InvoiceSubscription {
@@ -127,6 +144,10 @@ export interface EditFeeDrawerRef {
   closeDrawer: () => unknown
 }
 
+type formikValues = Omit<Partial<CreateAdjustedFeeInput>, 'feeId'> & {
+  adjustmentType?: AdjustedFeeTypeEnum.AdjustedAmount | AdjustedFeeTypeEnum.AdjustedUnits
+}
+
 export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const { translate } = useInternationalization()
   const drawerRef = useRef<DrawerRef>(null)
@@ -134,6 +155,12 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const fee = localData?.fee
   const currency = fee?.currency || CurrencyEnum.Usd
   const pricingUnitUsage = fee?.pricingUnitUsage
+  const isEditingFeeForInvoiceRegenerate = !!localData?.onAdd
+
+  const resetForm = () => {
+    formikProps.resetForm()
+    formikProps.validateForm()
+  }
 
   const { loading: invoiceLoading, data: invoiceData } =
     useGetInvoiceDetailsForCreateFeeDrawerQuery({
@@ -152,26 +179,32 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       if (createAdjustedFee?.id) {
         // Close drawer
         drawerRef.current?.closeDrawer()
-        formikProps.resetForm()
-        formikProps.validateForm()
+        resetForm()
       }
     },
     refetchQueries: ['getInvoiceSubscriptions'],
   })
 
-  const formikProps = useFormik<
-    Omit<Partial<CreateAdjustedFeeInput>, 'feeId'> & {
-      adjustmentType?: AdjustedFeeTypeEnum.AdjustedAmount | AdjustedFeeTypeEnum.AdjustedUnits
-    }
-  >({
-    initialValues: {
+  const initialValues = useMemo(() => {
+    const values: formikValues = {
       invoiceDisplayName: fee?.invoiceDisplayName || '',
       chargeFilterId: '',
       chargeId: '',
-      unitPreciseAmount: localData?.onAdd ? fee?.preciseUnitAmount?.toString() : undefined,
-      units: localData?.onAdd ? fee?.units : undefined,
+      unitPreciseAmount: undefined,
+      units: undefined,
       adjustmentType: undefined,
-    },
+    }
+
+    if (isEditingFeeForInvoiceRegenerate) {
+      values.unitPreciseAmount = fee?.preciseUnitAmount?.toString()
+      values.units = fee?.units
+    }
+
+    return values
+  }, [fee, isEditingFeeForInvoiceRegenerate])
+
+  const formikProps = useFormik<formikValues>({
+    initialValues,
     validationSchema: object().shape({
       invoiceDisplayName: string(),
       chargeId: string().test({
@@ -210,37 +243,31 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async ({ adjustmentType, unitPreciseAmount, units, ...values }) => {
-      const defaultPayload: CreateAdjustedFeeInput = {
+      const chargeFilterId =
+        values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined
+
+      const basePayload: CreateAdjustedFeeInput = {
         invoiceId: localData?.invoiceId || '',
-        units: !!adjustmentType ? Number(units || 0) : undefined,
+        invoiceDisplayName: values.invoiceDisplayName || undefined,
+        units: adjustmentType ? Number(units || 0) : undefined,
         unitPreciseAmount:
           adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
             ? String(unitPreciseAmount)
             : undefined,
-        invoiceDisplayName: values.invoiceDisplayName || undefined,
       }
 
-      const chargeFilterId =
-        values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined
-
-      let input: CreateAdjustedFeeInput = {
-        ...defaultPayload,
-        chargeId: values.chargeId,
-        chargeFilterId,
-        subscriptionId: localData?.invoiceSubscriptionId || '',
-      }
-
-      if (!!fee) {
-        input = {
-          ...defaultPayload,
-          feeId: fee?.id,
-        }
-      }
+      const input: CreateAdjustedFeeInput = !!fee
+        ? { ...basePayload, feeId: fee.id }
+        : {
+            ...basePayload,
+            chargeId: values.chargeId,
+            chargeFilterId,
+            subscriptionId: localData?.invoiceSubscriptionId || '',
+          }
 
       if (localData?.onAdd) {
         drawerRef.current?.closeDrawer()
-        formikProps.resetForm()
-        formikProps.validateForm()
+        resetForm()
 
         const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
           (charge) => charge.id === values.chargeId,
@@ -285,16 +312,6 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     return true
   }, [chargeFiltersComboboxData?.length, fee, formikProps.values.chargeFilterId])
 
-  // Reset unitPreciseAmount and units if adjustmentType changes, also triggers again validations
-  useEffect(() => {
-    if (!localData?.onAdd) {
-      const newValues = { ...formikProps.values, unitPreciseAmount: undefined, units: undefined }
-
-      formikProps.setValues(newValues)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.adjustmentType])
-
   useImperativeHandle(ref, () => ({
     openDrawer: (data) => {
       setLocalData(data)
@@ -324,45 +341,36 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     ])
 
   const isUnitAdjustmentTypeDisabled = useMemo(() => {
-    if (!!fee) {
-      return (
-        fee?.charge?.chargeModel === ChargeModelEnum.Percentage ||
-        fee?.charge?.chargeModel === ChargeModelEnum.Dynamic ||
-        (fee?.charge?.chargeModel === ChargeModelEnum.Graduated && fee.charge.prorated)
-      )
+    if (fee) {
+      return isChargeModelUnitAdjustmentDisabled(fee.charge?.chargeModel, fee.charge?.prorated)
     }
 
     const selectedCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
       (charge) => charge.id === formikProps.values.chargeId,
     )
 
-    if (!selectedCharge) return false
-
-    return (
-      selectedCharge?.chargeModel === ChargeModelEnum.Percentage ||
-      selectedCharge?.chargeModel === ChargeModelEnum.Dynamic ||
-      (selectedCharge?.chargeModel === ChargeModelEnum.Graduated && selectedCharge.prorated)
+    return isChargeModelUnitAdjustmentDisabled(
+      selectedCharge?.chargeModel,
+      selectedCharge?.prorated,
     )
   }, [currentInvoiceSubscription?.subscription.plan.charges, fee, formikProps.values.chargeId])
 
   const feeName = fee?.metadata?.displayName || fee?.itemName || ''
+  const drawerTitle = !!fee
+    ? translate('text_65a6b4e2cb38d9b70ec53c25', { name: feeName })
+    : translate('text_1737709105343hpvidjp0yz0')
+  const drawerDescription = !!fee
+    ? translate('text_65a6b4e2cb38d9b70ec53c2d')
+    : translate('text_1737731953885hprgxewyizj')
 
   return (
     <Drawer
+      showCloseWarningDialog={formikProps.dirty}
       fullContentHeight
       ref={drawerRef}
       withPadding={false}
-      title={
-        !!fee
-          ? translate('text_65a6b4e2cb38d9b70ec53c25', {
-              name: feeName,
-            })
-          : translate('text_1737709105343hpvidjp0yz0')
-      }
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
+      title={drawerTitle}
+      onClose={resetForm}
     >
       {({ closeDrawer }) => (
         <DrawerLayout.Wrapper>
@@ -381,20 +389,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
               </div>
             ) : (
               <>
-                <DrawerLayout.Header
-                  title={
-                    !!fee
-                      ? translate('text_65a6b4e2cb38d9b70ec53c25', {
-                          name: feeName,
-                        })
-                      : translate('text_1737709105343hpvidjp0yz0')
-                  }
-                  description={
-                    !!fee
-                      ? translate('text_65a6b4e2cb38d9b70ec53c2d')
-                      : translate('text_1737731953885hprgxewyizj')
-                  }
-                />
+                <DrawerLayout.Header title={drawerTitle} description={drawerDescription} />
 
                 {!!fee && (
                   <>
@@ -487,7 +482,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                           formikProps={formikProps}
                         />
 
-                        <ComboBoxField
+                        <ComboBox
                           label={translate('text_65a6b4e2cb38d9b70ec53d49')}
                           name="adjustmentType"
                           placeholder={translate('text_65a94d976d7a9700716590d9')}
@@ -502,8 +497,24 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                               disabled: isUnitAdjustmentTypeDisabled,
                             },
                           ]}
-                          formikProps={formikProps}
+                          value={formikProps.values.adjustmentType}
+                          onChange={(newValue) => {
+                            const formValues = {
+                              ...formikProps.values,
+                              adjustmentType: newValue as AdjustedFeeTypeEnum,
+                            }
+
+                            // NOTE: During invoice re-generate, we don't want to reset the unitPreciseAmount and units for fee already existing.
+                            // Because the fee is already existing and we don't want to lose the data.
+                            if (!isEditingFeeForInvoiceRegenerate) {
+                              formValues.unitPreciseAmount = undefined
+                              formValues.units = undefined
+                            }
+
+                            formikProps.setValues(formValues)
+                          }}
                         />
+
                         {!!formikProps.values.adjustmentType && (
                           <>
                             <div className="flex items-start gap-4 *:flex-1">
@@ -548,10 +559,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                                     <div className="flex h-12 flex-col items-end justify-center self-end">
                                       <Typography variant="body" color="grey700">
                                         {intlFormatNumber(
-                                          Number(
-                                            Number(formikProps.values.units || 0) *
-                                              Number(formikProps.values.unitPreciseAmount || 0) ||
-                                              0,
+                                          calculateTotalAmount(
+                                            formikProps.values.units,
+                                            formikProps.values.unitPreciseAmount,
                                           ),
                                           {
                                             currencyDisplay: 'symbol',
@@ -565,9 +575,10 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                                       {!!pricingUnitUsage && (
                                         <Typography variant="caption" color="grey600">
                                           {intlFormatNumber(
-                                            Number(formikProps.values.units || 0) *
-                                              Number(formikProps.values.unitPreciseAmount || 0) *
-                                              Number(pricingUnitUsage?.conversionRate || 0),
+                                            calculateTotalAmount(
+                                              formikProps.values.units,
+                                              formikProps.values.unitPreciseAmount,
+                                            ) * Number(pricingUnitUsage?.conversionRate || 0),
                                             {
                                               currencyDisplay: 'symbol',
                                               currency: currency,
