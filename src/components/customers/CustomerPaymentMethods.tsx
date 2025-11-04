@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import {
@@ -72,12 +72,14 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
   const hasMissingConnectedPaymentProvider =
     hasAtLeastOneAvailablePaymentMethod && !isCustomerEligibleForAddingPaymentMethods
 
-  const mapOptions = linkedPaymentProvider ? [linkedPaymentProvider] : []
+  const connectedPaymentProvidersData = useMemo(() => {
+    const mapOptions = linkedPaymentProvider ? [linkedPaymentProvider] : []
 
-  const connectedPaymentProvidersData = mapOptions.map(({ code, name }) => ({
-    value: code,
-    label: name,
-  }))
+    return mapOptions.map(({ code, name }) => ({
+      value: code,
+      label: name,
+    }))
+  }, [linkedPaymentProvider])
 
   const hasOneAvailableOption = connectedPaymentProvidersData.length === 1
 
@@ -85,7 +87,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
     if (hasOneAvailableOption) {
       setSelectedPaymentProvider(connectedPaymentProvidersData[0].value)
     }
-  }, [connectedPaymentProvidersData, hasOneAvailableOption, setSelectedPaymentProvider])
+  }, [connectedPaymentProvidersData, hasOneAvailableOption])
 
   useEffect(() => {
     if (error) {
