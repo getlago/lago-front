@@ -36,14 +36,19 @@ const linkedPaymentProvider = createMockLinkedPaymentProvider({
 })
 
 const mockGenerateCheckoutUrlMutation = jest.fn()
+const mockReset = jest.fn(() => {
+  mockMutationState.error = null
+})
 const mockMutationState: {
   data: { generateCheckoutUrl: { checkoutUrl: string } } | null
   loading: boolean
   error: Error | null
+  reset: jest.Mock
 } = {
   data: null,
   loading: false,
   error: null,
+  reset: mockReset,
 }
 
 jest.mock('~/generated/graphql', () => ({
@@ -60,6 +65,7 @@ describe('CustomerPaymentMethods', () => {
     mockMutationState.data = null
     mockMutationState.loading = false
     mockMutationState.error = null
+    mockReset.mockClear()
   })
 
   describe('WHEN checking customer payment methods eligibility', () => {
@@ -437,7 +443,7 @@ describe('CustomerPaymentMethods', () => {
       mockMutationState.loading = false
       mockMutationState.error = mockError
 
-      await act(() =>
+      const { rerender } = await act(() =>
         render(
           <CustomerPaymentMethods
             customer={customer}
@@ -470,11 +476,28 @@ describe('CustomerPaymentMethods', () => {
 
       await userEvent.click(cancelButton)
 
-      mockMutationState.error = null
+      await waitFor(() => {
+        expect(mockReset).toHaveBeenCalled()
+        expect(mockMutationState.error).toBeNull()
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
+      })
+
+      await act(() => {
+        rerender(
+          <CustomerPaymentMethods
+            customer={customer}
+            linkedPaymentProvider={linkedPaymentProvider}
+          />,
+        )
+      })
 
       await userEvent.click(addButton)
 
       await waitFor(() => {
+        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
         expect(screen.queryByTestId(ERROR_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
     })

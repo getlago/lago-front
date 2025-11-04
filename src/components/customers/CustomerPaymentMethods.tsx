@@ -46,12 +46,12 @@ gql`
 
 export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Props) => {
   const { translate } = useInternationalization()
-  const [hasError, setHasError] = useState(false)
-  const [generateCheckoutUrlMutation, { data, loading, error }] = useGenerateCheckoutUrlMutation({
-    variables: {
-      input: { customerId: customer.id },
-    },
-  })
+  const [generateCheckoutUrlMutation, { data, loading, error, reset }] =
+    useGenerateCheckoutUrlMutation({
+      variables: {
+        input: { customerId: customer.id },
+      },
+    })
 
   const addPaymentDialogRef = useRef<DialogRef>(null)
 
@@ -89,14 +89,6 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
     }
   }, [connectedPaymentProvidersData, hasOneAvailableOption])
 
-  useEffect(() => {
-    if (error) {
-      setHasError(true)
-    } else {
-      setHasError(false)
-    }
-  }, [error])
-
   const checkoutUrl = data?.generateCheckoutUrl?.checkoutUrl || ''
 
   return (
@@ -131,8 +123,8 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
           title={translate('text_1761914802986ww4ima0w9w9')}
           description={translate('text_1761914802986ipq0aot8fas')}
           onClose={() => {
-            if (hasError) {
-              setHasError(false)
+            if (!!error) {
+              reset()
             }
           }}
           actions={({ closeDialog }) => (
@@ -174,7 +166,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
               }}
             />
 
-            {hasError && (
+            {!!error && (
               <Alert type="danger" className="mb-8" data-test={ERROR_ALERT_TEST_ID}>
                 {translate('text_1762182354095wfjiizpju0e')}
               </Alert>
