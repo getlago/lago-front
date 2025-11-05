@@ -8,6 +8,26 @@ import {
   XeroParameters,
 } from './types'
 
+const safeStringConversion = (value: unknown): string | undefined => {
+  if (value === undefined || value === null || value === '') {
+    return undefined
+  }
+  if (typeof value === 'object') {
+    return undefined // Don't convert objects/arrays to strings
+  }
+  return `${value}`
+}
+
+const safeStringConversionOrEmpty = (value: unknown): string => {
+  if (value === undefined || value === null || value === '') {
+    return ''
+  }
+  if (typeof value === 'object') {
+    return '' // Don't convert objects/arrays to strings
+  }
+  return `${value}`
+}
+
 export const getParametersFromProvider = <FormValues>(
   inputValues: FormValues,
   provider: MappableIntegrationProvider,
@@ -41,11 +61,22 @@ export const getParametersFromProvider = <FormValues>(
         }
       }
 
+      // Check if any field is an object (array or object), return failure
+      if (
+        typeof inputValues.externalId === 'object' ||
+        typeof inputValues.externalName === 'object'
+      ) {
+        return {
+          success: false,
+          parameters: undefined,
+        }
+      }
+
       return {
         success: true,
         parameters: {
-          externalId: inputValues.externalId ? `${inputValues.externalId}` : undefined,
-          externalName: inputValues.externalName ? `${inputValues.externalName}` : undefined,
+          externalId: safeStringConversion(inputValues.externalId),
+          externalName: safeStringConversion(inputValues.externalName),
         },
       }
     }
@@ -58,11 +89,22 @@ export const getParametersFromProvider = <FormValues>(
         }
       }
 
+      // Check if any field is an object (array or object), return failure
+      if (
+        typeof inputValues.externalId === 'object' ||
+        typeof inputValues.externalName === 'object'
+      ) {
+        return {
+          success: false,
+          parameters: undefined,
+        }
+      }
+
       return {
         success: true,
         parameters: {
-          externalId: inputValues.externalId ? `${inputValues.externalId}` : undefined,
-          externalName: inputValues.externalName ? `${inputValues.externalName}` : undefined,
+          externalId: safeStringConversion(inputValues.externalId),
+          externalName: safeStringConversion(inputValues.externalName),
         },
       }
     }
@@ -90,25 +132,19 @@ export const getParametersFromProvider = <FormValues>(
         success: true,
         parameters: {
           externalId:
-            'externalId' in inputValues && inputValues.externalId
-              ? `${inputValues.externalId}`
-              : '',
+            'externalId' in inputValues ? safeStringConversionOrEmpty(inputValues.externalId) : '',
           externalName:
-            'externalName' in inputValues && inputValues.externalName
-              ? `${inputValues.externalName}`
+            'externalName' in inputValues
+              ? safeStringConversionOrEmpty(inputValues.externalName)
               : '',
           externalAccountCode:
-            'externalAccountCode' in inputValues && inputValues.externalAccountCode
-              ? `${inputValues.externalAccountCode}`
+            'externalAccountCode' in inputValues
+              ? safeStringConversionOrEmpty(inputValues.externalAccountCode)
               : '',
-          taxCode:
-            'taxCode' in inputValues && inputValues.taxCode ? `${inputValues.taxCode}` : undefined,
+          taxCode: 'taxCode' in inputValues ? safeStringConversion(inputValues.taxCode) : undefined,
           taxNexus:
-            'taxNexus' in inputValues && inputValues.taxNexus
-              ? `${inputValues.taxNexus}`
-              : undefined,
-          taxType:
-            'taxType' in inputValues && inputValues.taxType ? `${inputValues.taxType}` : undefined,
+            'taxNexus' in inputValues ? safeStringConversion(inputValues.taxNexus) : undefined,
+          taxType: 'taxType' in inputValues ? safeStringConversion(inputValues.taxType) : undefined,
         },
       }
     }
