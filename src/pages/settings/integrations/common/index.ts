@@ -1,6 +1,7 @@
 export { isItemMapping } from './isItemMapping'
 export { getMappingInfos } from './getMappingInfos'
 export { isDefaultMappingInMappableContext } from './isDefaultMappingInMappableContext'
+export { handleIntegrationMappingCreateUpdateDelete } from './handleIntegrationMappingCreateUpdateDelete'
 export type {
   MappableIntegrationProvider,
   ItemMapping,

@@ -3,17 +3,17 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
 import { DrawerRef } from '~/components/designSystem'
-import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
+import { IntegrationTypeEnum, MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
+  handleIntegrationMappingCreateUpdateDelete,
   ItemMappingForMappable,
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
 } from '~/pages/settings/integrations/common'
 import { IntegrationMapItemDrawer } from '~/pages/settings/integrations/IntegrationMapItemDrawer'
 
-import { handleIntegrationMappingCUD } from './handleIntegrationMappingCUD'
 import { isMappingInTaxContext } from './isMappingInTaxContext'
 import { netsuiteIntegrationMapItemFormWrapperFactory } from './NetsuiteIntegrationMapItemFormWrapper'
 import type {
@@ -164,7 +164,7 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
 
       billingEntity: BillingEntityForIntegrationMapping,
     ) => {
-      return await handleIntegrationMappingCUD(
+      return await handleIntegrationMappingCreateUpdateDelete(
         inputValues,
         initialMapping,
         formType,
@@ -178,6 +178,7 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
           updateMapping,
         },
         billingEntity,
+        IntegrationTypeEnum.Netsuite,
       )
     }
 

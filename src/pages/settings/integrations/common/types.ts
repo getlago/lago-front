@@ -1,8 +1,6 @@
 import { GraphQLFormattedError } from 'graphql'
 import { RefObject } from 'react'
 
-import { AvalaraIntegrationMapItemDrawerRef } from '~/components/settings/integrations/AvalaraIntegrationMapItemDrawer'
-import { XeroIntegrationMapItemDrawerRef } from '~/components/settings/integrations/XeroIntegrationMapItemDrawer'
 import { PickEnum } from '~/core/types/pickEnum.type'
 import {
   AnrokIntegrationItemsListDefaultFragment,
@@ -17,10 +15,36 @@ import {
   GetBillableMetricsForXeroItemsListQuery,
   IntegrationTypeEnum,
   NetsuiteIntegrationItemsListDefaultFragment,
+  useCreateAnrokIntegrationCollectionMappingMutation,
+  useCreateAnrokIntegrationMappingMutation,
+  useCreateAvalaraIntegrationCollectionMappingMutation,
+  useCreateAvalaraIntegrationMappingMutation,
+  useCreateNetsuiteIntegrationCollectionMappingMutation,
+  useCreateNetsuiteIntegrationMappingMutation,
+  useCreateXeroIntegrationCollectionMappingMutation,
+  useCreateXeroIntegrationMappingMutation,
+  useDeleteAnrokIntegrationCollectionMappingMutation,
+  useDeleteAnrokIntegrationMappingMutation,
+  useDeleteAvalaraIntegrationCollectionMappingMutation,
+  useDeleteAvalaraIntegrationMappingMutation,
+  useDeleteNetsuiteIntegrationCollectionMappingMutation,
+  useDeleteNetsuiteIntegrationMappingMutation,
+  useDeleteXeroIntegrationCollectionMappingMutation,
+  useDeleteXeroIntegrationMappingMutation,
+  useUpdateAnrokIntegrationCollectionMappingMutation,
+  useUpdateAnrokIntegrationMappingMutation,
+  useUpdateAvalaraIntegrationCollectionMappingMutation,
+  useUpdateAvalaraIntegrationMappingMutation,
+  useUpdateNetsuiteIntegrationCollectionMappingMutation,
+  useUpdateNetsuiteIntegrationMappingMutation,
+  useUpdateXeroIntegrationCollectionMappingMutation,
+  useUpdateXeroIntegrationMappingMutation,
   XeroIntegrationItemsListDefaultFragment,
 } from '~/generated/graphql'
 import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
+import { AvalaraIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
 import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
+import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 
 export type FetchableIntegrationItemsListData =
   | GetAddOnsForNetsuiteItemsListQuery['addOns']
@@ -98,3 +122,56 @@ export type CreateUpdateDeleteSuccessAnswer =
   | { success: true }
   | { success: false; errors: readonly GraphQLFormattedError[] }
   | { success: false; reasons: readonly string[] }
+
+export type CreateUpdateDeleteFunctions = {
+  createCollectionMapping:
+    | ReturnType<typeof useCreateAnrokIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useCreateAvalaraIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useCreateNetsuiteIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useCreateXeroIntegrationCollectionMappingMutation>[0]
+  createMapping:
+    | ReturnType<typeof useCreateAnrokIntegrationMappingMutation>[0]
+    | ReturnType<typeof useCreateAvalaraIntegrationMappingMutation>[0]
+    | ReturnType<typeof useCreateNetsuiteIntegrationMappingMutation>[0]
+    | ReturnType<typeof useCreateXeroIntegrationMappingMutation>[0]
+  deleteCollectionMapping:
+    | ReturnType<typeof useDeleteAnrokIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useDeleteAvalaraIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useDeleteNetsuiteIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useDeleteXeroIntegrationCollectionMappingMutation>[0]
+  deleteMapping:
+    | ReturnType<typeof useDeleteAnrokIntegrationMappingMutation>[0]
+    | ReturnType<typeof useDeleteAvalaraIntegrationMappingMutation>[0]
+    | ReturnType<typeof useDeleteNetsuiteIntegrationMappingMutation>[0]
+    | ReturnType<typeof useDeleteXeroIntegrationMappingMutation>[0]
+  updateCollectionMapping:
+    | ReturnType<typeof useUpdateAnrokIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useUpdateAvalaraIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useUpdateNetsuiteIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useUpdateXeroIntegrationCollectionMappingMutation>[0]
+  updateMapping:
+    | ReturnType<typeof useUpdateAnrokIntegrationMappingMutation>[0]
+    | ReturnType<typeof useUpdateAvalaraIntegrationMappingMutation>[0]
+    | ReturnType<typeof useUpdateNetsuiteIntegrationMappingMutation>[0]
+    | ReturnType<typeof useUpdateXeroIntegrationMappingMutation>[0]
+}
+
+export type AvalaraAndAnrokParameters = {
+  externalId: string | undefined
+  externalName: string | undefined
+}
+
+export type NetsuiteParameters = {
+  externalId: string | undefined
+  externalName: string | undefined
+  externalAccountCode: string | undefined
+  taxCode: string | undefined
+  taxNexus: string | undefined
+  taxType: string | undefined
+}
+
+export type XeroParameters = {
+  externalId: string | undefined
+  externalName: string | undefined
+  externalAccountCode: string | undefined
+}

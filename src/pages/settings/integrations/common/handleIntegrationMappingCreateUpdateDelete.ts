@@ -1,34 +1,71 @@
-import {
-  MappableTypeEnum,
-  MappingTypeEnum,
-  useCreateAnrokIntegrationCollectionMappingMutation,
-  useCreateAnrokIntegrationMappingMutation,
-  useDeleteAnrokIntegrationCollectionMappingMutation,
-  useDeleteAnrokIntegrationMappingMutation,
-  useUpdateAnrokIntegrationCollectionMappingMutation,
-  useUpdateAnrokIntegrationMappingMutation,
-} from '~/generated/graphql'
+import { NonNullableFields } from '~/core/types/nonNullableFields'
+import { IntegrationTypeEnum, MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
+
+import { getParametersFromProvider } from './getParametersFromProvider'
 import type {
+  AvalaraAndAnrokParameters,
   BillingEntityForIntegrationMapping,
+  CreateUpdateDeleteFunctions,
+  CreateUpdateDeleteSuccessAnswer,
   ItemMappingForMappable,
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
-} from '~/pages/settings/integrations/common'
-import { CreateUpdateDeleteSuccessAnswer } from '~/pages/settings/integrations/common/types'
+  MappableIntegrationProvider,
+  NetsuiteParameters,
+  XeroParameters,
+} from './types'
 
-import type { FormValuesType } from './types'
-
-type CreateUpdateDeleteFunctions = {
-  createCollectionMapping: ReturnType<typeof useCreateAnrokIntegrationCollectionMappingMutation>[0]
-  createMapping: ReturnType<typeof useCreateAnrokIntegrationMappingMutation>[0]
-  deleteCollectionMapping: ReturnType<typeof useDeleteAnrokIntegrationCollectionMappingMutation>[0]
-  deleteMapping: ReturnType<typeof useDeleteAnrokIntegrationMappingMutation>[0]
-  updateCollectionMapping: ReturnType<typeof useUpdateAnrokIntegrationCollectionMappingMutation>[0]
-  updateMapping: ReturnType<typeof useUpdateAnrokIntegrationMappingMutation>[0]
+const isCollectionContext = (type: unknown): type is MappingTypeEnum => {
+  return Object.values(MappingTypeEnum).includes(type as MappingTypeEnum)
 }
 
-export const handleIntegrationMappingCUD = async (
-  inputValues: FormValuesType['values'],
+const isNetsuiteParameters = (
+  parameters: AvalaraAndAnrokParameters | NetsuiteParameters | XeroParameters,
+): parameters is NetsuiteParameters => {
+  return 'taxCode' in parameters && 'taxNexus' in parameters && 'taxType' in parameters
+}
+
+const getHasItemValues = (
+  parameters: AvalaraAndAnrokParameters | NetsuiteParameters | XeroParameters,
+  provider: MappableIntegrationProvider,
+  formType: MappingTypeEnum | MappableTypeEnum,
+): parameters is NonNullableFields<typeof parameters> => {
+  if (provider === IntegrationTypeEnum.Netsuite && isNetsuiteParameters(parameters)) {
+    if (formType === MappingTypeEnum.Tax) {
+      return !!parameters.taxCode && !!parameters.taxNexus && !!parameters.taxType
+    }
+
+    return !!parameters.externalId && !!parameters.externalName && !!parameters.externalAccountCode
+  }
+
+  return Object.values(parameters).every((value) => !!value)
+}
+
+const getParameterKeyFromInitialMappingKey = (
+  key: string,
+):
+  | keyof AvalaraAndAnrokParameters
+  | keyof NetsuiteParameters
+  | keyof XeroParameters
+  | undefined => {
+  switch (key) {
+    case 'itemExternalId':
+      return 'externalId'
+    case 'itemExternalName':
+      return 'externalName'
+    case 'itemExternalCode':
+      return 'externalAccountCode'
+    case 'taxCode':
+    case 'taxNexus':
+    case 'taxType':
+      return key
+    default:
+      return undefined
+  }
+}
+
+export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
+  inputValues: FormValues,
   initialMapping:
     | ItemMappingForTaxMapping
     | ItemMappingForNonTaxMapping
@@ -45,21 +82,23 @@ export const handleIntegrationMappingCUD = async (
     updateMapping,
   }: CreateUpdateDeleteFunctions,
   billingEntity: BillingEntityForIntegrationMapping,
+  integrationProvider: MappableIntegrationProvider,
 ): Promise<CreateUpdateDeleteSuccessAnswer> => {
-  const isCollectionContext = (type: unknown): type is MappingTypeEnum => {
-    return Object.values(MappingTypeEnum).includes(type as MappingTypeEnum)
+  const { success, parameters } = getParametersFromProvider<FormValues>(
+    inputValues,
+    integrationProvider,
+  )
+
+  if (!success) {
+    return { success: false, reasons: ['Invalid input values'] }
   }
 
-  const hasItemValues = !!inputValues.externalId && !!inputValues.externalName
+  const hasInitialData =
+    initialMapping &&
+    Object.values(initialMapping).some((value) => value !== null && value !== undefined)
 
-  const isTaxContext =
-    !!initialMapping &&
-    'taxCode' in initialMapping &&
-    'taxNexus' in initialMapping &&
-    'taxType' in initialMapping
-  const hasInitialData = isTaxContext
-    ? !!initialMapping.taxCode && !!initialMapping.taxNexus && !!initialMapping.taxType
-    : !!initialMapping?.itemExternalId
+  const hasItemValues = getHasItemValues(parameters, integrationProvider, formType)
+
   const isCreate = !!initialMapping && !initialMapping.itemId && hasItemValues
   const isEdit = !isCreate && hasInitialData && hasItemValues
   const isDelete =
@@ -69,7 +108,7 @@ export const handleIntegrationMappingCUD = async (
    * Happens since we launch this function for each billing entity, but some billing entities
    * might not have any data to process (no initial data and no input data) = we want to keep the default mapping
    */
-  if (!isCreate && !isEdit && !isDelete) {
+  if (!hasItemValues && !hasInitialData) {
     return { success: true }
   }
 
@@ -104,15 +143,34 @@ export const handleIntegrationMappingCUD = async (
   if (isEdit) {
     if (!initialMapping?.itemId) return { success: false, reasons: ['No initial mapping ID found'] }
 
+    const initialMappingAndParametersAreEqual =
+      hasInitialData &&
+      Object.entries(initialMapping).every(([key, initialValue]) => {
+        const parameterKey = getParameterKeyFromInitialMappingKey(key)
+
+        if (!parameterKey) {
+          return false
+        }
+
+        return parameterKey in parameters
+          ? // Cast typing because we already checked the key existence
+            parameters[parameterKey as keyof typeof parameters] === initialValue
+          : false
+      })
+
+    // Skip update if data hasn't changed
+    if (initialMappingAndParametersAreEqual) {
+      return { success: true }
+    }
+
     const answer = isCollectionContext(formType)
       ? await updateCollectionMapping({
           variables: {
             input: {
               id: initialMapping.itemId as string,
-              externalId: inputValues.externalId,
-              externalName: inputValues.externalName,
               integrationId: integrationId,
               mappingType: formType,
+              ...parameters,
             },
           },
         })
@@ -120,12 +178,11 @@ export const handleIntegrationMappingCUD = async (
           variables: {
             input: {
               id: initialMapping.itemId as string,
-              externalId: inputValues.externalId,
-              externalName: inputValues.externalName,
               integrationId: integrationId as string,
               mappableType: formType,
               // Here we know the typing is correct because we checked with the collection context before
               mappableId: (initialMapping as ItemMappingForMappable).lagoMappableId,
+              ...parameters,
             },
           },
         })
@@ -139,6 +196,10 @@ export const handleIntegrationMappingCUD = async (
     return { success: false, errors }
   }
 
+  if (!isCreate) {
+    return { success: false, reasons: ['Could not determine action to perform'] }
+  }
+
   // This allows us to add the id only if needed
   const billingEntityObject = billingEntity.id ? { billingEntityId: billingEntity.id } : {}
 
@@ -146,24 +207,22 @@ export const handleIntegrationMappingCUD = async (
     ? await createCollectionMapping({
         variables: {
           input: {
-            externalId: inputValues.externalId,
-            externalName: inputValues.externalName,
             integrationId: integrationId,
             mappingType: formType,
             ...billingEntityObject,
+            ...parameters,
           },
         },
       })
     : await createMapping({
         variables: {
           input: {
-            externalId: inputValues.externalId,
-            externalName: inputValues.externalName,
             integrationId: integrationId,
             mappableType: formType,
             // Here we know the typing is correct because we checked with the collection context before
             mappableId: (initialMapping as ItemMappingForMappable).lagoMappableId,
             ...billingEntityObject,
+            ...parameters,
           },
         },
       })

@@ -3,10 +3,11 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
 import { DrawerRef } from '~/components/designSystem'
-import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
+import { IntegrationTypeEnum, MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
+  handleIntegrationMappingCreateUpdateDelete,
   ItemMappingForMappable,
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
@@ -14,7 +15,6 @@ import {
 import { IntegrationMapItemDrawer } from '~/pages/settings/integrations/IntegrationMapItemDrawer'
 
 import { extractOptionValue } from './extractOptionValue'
-import { handleIntegrationMappingCUD } from './handleIntegrationMappingCUD'
 import { stringifyOptionValue } from './stringifyOptionValue'
 import {
   FormValuesType,
@@ -143,7 +143,7 @@ export const XeroIntegrationMapItemDrawer = forwardRef<XeroIntegrationMapItemDra
 
       billingEntity: BillingEntityForIntegrationMapping,
     ) => {
-      return await handleIntegrationMappingCUD(
+      return await handleIntegrationMappingCreateUpdateDelete(
         inputValues,
         initialMapping,
         formType,
@@ -157,6 +157,7 @@ export const XeroIntegrationMapItemDrawer = forwardRef<XeroIntegrationMapItemDra
           updateMapping,
         },
         billingEntity,
+        IntegrationTypeEnum.Xero,
       )
     }
 

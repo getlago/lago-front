@@ -3,10 +3,11 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
 import { DrawerRef } from '~/components/designSystem'
-import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
+import { IntegrationTypeEnum, MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
+  handleIntegrationMappingCreateUpdateDelete,
   ItemMappingForMappable,
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
@@ -14,7 +15,6 @@ import {
 import { IntegrationMapItemDrawer } from '~/pages/settings/integrations/IntegrationMapItemDrawer'
 
 import { AvalaraIntegrationMapItemFormWrapper } from './AvalaraIntegrationMapItemFormWrapper'
-import { handleIntegrationMappingCUD } from './handleIntegrationMappingCUD'
 import {
   AvalaraIntegrationMapItemDrawerProps,
   AvalaraIntegrationMapItemDrawerRef,
@@ -132,7 +132,7 @@ export const AvalaraIntegrationMapItemDrawer = forwardRef<AvalaraIntegrationMapI
 
       billingEntity: BillingEntityForIntegrationMapping,
     ) => {
-      return await handleIntegrationMappingCUD(
+      return await handleIntegrationMappingCreateUpdateDelete(
         inputValues,
         initialMapping,
         formType,
@@ -146,6 +146,7 @@ export const AvalaraIntegrationMapItemDrawer = forwardRef<AvalaraIntegrationMapI
           updateMapping,
         },
         billingEntity,
+        IntegrationTypeEnum.Avalara,
       )
     }
 
