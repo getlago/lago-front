@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -81,13 +81,13 @@ type UseCreateEditCouponReturn = {
   coupon?: EditCouponFragment
   errorCode?: string
   hasPlanLimit: boolean
-  setHasPlanLimit: Function
+  setHasPlanLimit: Dispatch<SetStateAction<boolean>>
   limitPlansList: PlansForCouponsFragment[]
-  setLimitPlansList: Function
+  setLimitPlansList: Dispatch<SetStateAction<PlansForCouponsFragment[]>>
   hasBillableMetricLimit: boolean
-  setHasBillableMetricLimit: Function
+  setHasBillableMetricLimit: Dispatch<SetStateAction<boolean>>
   limitBillableMetricsList: BillableMetricsForCouponsFragment[]
-  setLimitBillableMetricsList: Function
+  setLimitBillableMetricsList: Dispatch<SetStateAction<BillableMetricsForCouponsFragment[]>>
   onSave: (value: CreateCouponInput | UpdateCouponInput) => Promise<void>
 }
 

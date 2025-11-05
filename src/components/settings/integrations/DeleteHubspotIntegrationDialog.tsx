@@ -24,7 +24,7 @@ gql`
 
 type TDeleteHubspotIntegrationDialogProps = {
   provider: DeleteHubspotIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteHubspotIntegrationDialogRef {

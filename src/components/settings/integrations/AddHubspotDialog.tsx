@@ -53,7 +53,7 @@ gql`
 type TAddHubspotDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteHubspotIntegrationDialogRef>
   provider: HubspotForCreateDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddHubspotDialogRef {

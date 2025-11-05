@@ -55,7 +55,7 @@ gql`
 type TAddAnrokDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteAnrokIntegrationDialogRef>
   integration: AddAnrokIntegrationDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddAnrokDialogRef {

@@ -21,7 +21,7 @@ gql`
 
 type TDeleteStripeIntegrationDialogProps = {
   provider: DeleteStripeIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteStripeIntegrationDialogRef {

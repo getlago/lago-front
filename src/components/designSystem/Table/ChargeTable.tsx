@@ -130,13 +130,11 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                           </Tooltip>
                         </div>
                       )}
-                      {mapKey ? (
+                      {mapKey && (
                         <Typography variant="body">{_get(row, mapKey) as string}</Typography>
-                      ) : typeof content === 'function' ? (
-                        content(row, i)
-                      ) : (
-                        content
                       )}
+                      {!mapKey && typeof content === 'function' && content(row, i)}
+                      {!mapKey && typeof content !== 'function' && content}
                     </td>
                   )
                 })}

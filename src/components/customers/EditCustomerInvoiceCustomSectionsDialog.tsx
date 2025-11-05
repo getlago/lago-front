@@ -76,16 +76,22 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
     },
   })
 
+  let behavior: BehaviorType
+
+  if (customer.hasOverwrittenInvoiceCustomSectionsSelection) {
+    behavior = BehaviorType.CUSTOM_SECTIONS
+  } else if (customer.skipInvoiceCustomSections) {
+    behavior = BehaviorType.DEACTIVATE
+  } else {
+    behavior = BehaviorType.FALLBACK
+  }
+
   const formikProps = useFormik<{
     behavior: BehaviorType | ''
     configurableInvoiceCustomSectionIds: string[] | undefined
   }>({
     initialValues: {
-      behavior: customer.hasOverwrittenInvoiceCustomSectionsSelection
-        ? BehaviorType.CUSTOM_SECTIONS
-        : customer.skipInvoiceCustomSections
-          ? BehaviorType.DEACTIVATE
-          : BehaviorType.FALLBACK,
+      behavior,
       configurableInvoiceCustomSectionIds: customer.hasOverwrittenInvoiceCustomSectionsSelection
         ? customer.configurableInvoiceCustomSections?.map((section) => section.id)
         : undefined,

@@ -72,7 +72,7 @@ gql`
 type TAddMoneyhashDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteMoneyhashIntegrationDialogRef>
   provider: AddMoneyhashProviderDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddMoneyhashDialogRef {

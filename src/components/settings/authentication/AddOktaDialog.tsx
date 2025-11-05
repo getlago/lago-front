@@ -15,7 +15,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 type AddOktaDialogProps = Partial<{
   integration: AddOktaIntegrationDialogFragment
   deleteModalRef: RefObject<DeleteOktaIntegrationDialogRef>
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
   callback?: UseOktaIntegrationProps['onSubmit']
 }>
 

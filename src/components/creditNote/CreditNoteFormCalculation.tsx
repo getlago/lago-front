@@ -258,7 +258,15 @@ export const CreditNoteFormCalculation = ({
     )
 
     formikProps.setTouched({ payBack: true })
-  }, [totalTaxIncluded])
+  }, [
+    canRefund,
+    currencyPrecision,
+    formikProps,
+    maxCreditableAmount,
+    maxRefundableAmount,
+    setPayBackValidation,
+    totalTaxIncluded,
+  ])
 
   if (!invoice) return null
 
