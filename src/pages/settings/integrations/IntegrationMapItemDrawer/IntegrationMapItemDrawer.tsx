@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import { array } from 'yup'
 
 import { Drawer } from '~/components/designSystem'
+import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DEFAULT_MAPPING_KEY } from '~/pages/settings/integrations/common'
 import { CreateUpdateDeleteSuccessAnswer } from '~/pages/settings/integrations/common/types'
@@ -72,6 +73,10 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
       })
 
       if (!hasErrors) {
+        addToast({
+          message: translate('text_6630e5923500e7015f190643'),
+          severity: 'success',
+        })
         drawerRef.current?.closeDrawer()
       }
     },
