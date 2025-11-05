@@ -72,6 +72,15 @@ gql`
             code
           }
         }
+        fixedCharges {
+          id
+          invoiceDisplayName
+          addOn {
+            id
+            name
+            code
+          }
+        }
       }
     }
     fees {
@@ -96,6 +105,9 @@ gql`
             toValue
           }
         }
+      }
+      fixedCharge {
+        id
       }
       chargeFilter {
         id
@@ -292,9 +304,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
   const chargesComboboxData = useMemo(() => {
     return getChargesComboboxDataFromInvoiceSubscription({
+      chargesGroupLabel: translate('text_6435888d7cc86500646d8977'),
+      fixedChargesGroupLabel: translate('text_176072970726728iw4tc8ucl'),
       invoiceSubscription: currentInvoiceSubscription,
     })
-  }, [currentInvoiceSubscription])
+  }, [currentInvoiceSubscription, translate])
 
   const chargeFiltersComboboxData = useMemo(() => {
     return getChargesFiltersComboboxDataFromInvoiceSubscription({
