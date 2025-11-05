@@ -128,6 +128,7 @@ const NetsuiteIntegrationItemsListDefault = ({
       integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Netsuite}
+      isLoading={isLoading}
     />
   )
 }

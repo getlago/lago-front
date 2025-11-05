@@ -7,6 +7,7 @@ import { array } from 'yup'
 import { Drawer } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DEFAULT_MAPPING_KEY } from '~/pages/settings/integrations/common'
+import { CreateUpdateDeleteSuccessAnswer } from '~/pages/settings/integrations/common/types'
 
 import { IntegrationMapItemDrawerProps } from './types'
 
@@ -41,28 +42,32 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      const promises = (billingEntities || []).map(async (billingEntity) => {
-        if (!itemMappings || !type || !integrationId) return
+      const promises = (billingEntities || []).map(
+        async (billingEntity): Promise<CreateUpdateDeleteSuccessAnswer> => {
+          if (!itemMappings || !type || !integrationId)
+            return {
+              success: false,
+              reasons: ['Missing required data for mutation'],
+            }
 
-        const billingEntityKey = billingEntity.key || DEFAULT_MAPPING_KEY
-        const inputValues = values[billingEntityKey]
+          const billingEntityKey = billingEntity.key || DEFAULT_MAPPING_KEY
+          const inputValues = values[billingEntityKey]
 
-        const initialMapping = itemMappings[billingEntity.key || DEFAULT_MAPPING_KEY]
+          const initialMapping = itemMappings[billingEntity.key || DEFAULT_MAPPING_KEY]
 
-        return await handleDataMutation(
-          inputValues,
-          initialMapping,
-          type,
-          integrationId,
-          billingEntity,
-        )
-      })
+          return await handleDataMutation(
+            inputValues,
+            initialMapping,
+            type,
+            integrationId,
+            billingEntity,
+          )
+        },
+      )
 
       const answers = await Promise.all(promises)
 
       const hasErrors = answers.some((answer) => {
-        // Happens when we don't even make a cal = no data setup in one of the form
-        if (!answer) return false
         return !answer.success
       })
 

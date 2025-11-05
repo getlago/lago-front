@@ -1,8 +1,7 @@
 import { Stack } from '@mui/material'
 import { Avatar, Icon, Typography } from 'lago-design-system'
-import { useMemo } from 'react'
 
-import { Status, StatusType, Table, TableColumn } from '~/components/designSystem'
+import { Status, Table, TableColumn } from '~/components/designSystem'
 import { VoidReturningFunction } from '~/core/types/voidReturningFunction'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -16,6 +15,7 @@ import {
 import { findItemMapping } from './findItemMapping'
 import { generateItemMappingForAllBillingEntities } from './generateItemMappingForAllBillingEntities'
 import { IntegrationItemData, IntegrationItemsTableProps } from './types'
+import { useGetStatusDetails } from './useGetStatusDetails'
 
 const IntegrationItemsTable = ({
   integrationId,
@@ -30,7 +30,9 @@ const IntegrationItemsTable = ({
   const { data: billingEntitiesData, loading: isLoadingBillingEntities } =
     useGetBillingEntitiesQuery()
 
-  const billingEntitiesColumns = useMemo(() => {
+  const { getStatusDetails } = useGetStatusDetails()
+
+  const getBillingEntitiesColumn = () => {
     const baseBillingEntities = [
       {
         id: null,
@@ -54,8 +56,9 @@ const IntegrationItemsTable = ({
     }))
 
     return [...baseBillingEntities, ...billingEntities]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [billingEntitiesData])
+  }
+
+  const billingEntitiesColumns = getBillingEntitiesColumn()
 
   const generateTableColumnDataFromBillingEntity = (
     column: BillingEntityForIntegrationMapping,
@@ -66,43 +69,9 @@ const IntegrationItemsTable = ({
       const itemMapping = findItemMapping(item, column.id)
       const mappingInfos = getMappingInfos(itemMapping, provider)
 
-      const getStatusType = (): StatusType => {
-        // No mapping info for a billing entity
-        if (!mappingInfos && column.id !== null) {
-          return StatusType.disabled
-        }
+      const { type, label } = getStatusDetails(mappingInfos, column.id)
 
-        // No default mapping
-        if (!mappingInfos && column.id === null) {
-          return StatusType.warning
-        }
-
-        if (!!mappingInfos && !mappingInfos.name) {
-          return StatusType.success
-        }
-
-        return StatusType.success
-      }
-
-      const getStatusLabel = () => {
-        // No mapping info for a billing entity
-        if (!mappingInfos && column.id !== null) {
-          return translate('text_65281f686a80b400c8e2f6d1')
-        }
-
-        // No default mapping
-        if (!mappingInfos) {
-          return translate('text_6630e3210c13c500cd398e9a')
-        }
-
-        if (!!mappingInfos && !mappingInfos.name) {
-          return translate('text_17272714562192y06u5okvo4')
-        }
-
-        return `${mappingInfos.name}${!!mappingInfos.id ? ` (${mappingInfos.id})` : ''} `
-      }
-
-      return <Status type={getStatusType()} label={getStatusLabel()} />
+      return <Status type={type} label={label} />
     },
     minWidth: 200,
   })
@@ -165,7 +134,7 @@ const IntegrationItemsTable = ({
       columns={columns}
       data={items}
       onRowActionClick={handleRowActionClick}
-      isLoading={isLoading && isLoadingBillingEntities}
+      isLoading={isLoading || isLoadingBillingEntities}
     />
   )
 }
