@@ -8,6 +8,7 @@ import {
   Typography,
 } from 'lago-design-system'
 
+import { LinkedPaymentProvider } from '~/components/customers/types'
 import { getConnectedIntegrations } from '~/components/customers/utils'
 import { InfoRow } from '~/components/InfoRow'
 import { InlineLink } from '~/components/InlineLink'
@@ -27,7 +28,6 @@ import {
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   useIntegrationsListForCustomerMainInfosQuery,
-  usePaymentProvidersListForCustomerMainInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
@@ -58,48 +58,6 @@ const IntegrationsLoadingSkeleton = () => {
 }
 
 gql`
-  query paymentProvidersListForCustomerMainInfos($limit: Int) {
-    paymentProviders(limit: $limit) {
-      collection {
-        ... on StripeProvider {
-          id
-          name
-          code
-        }
-
-        ... on GocardlessProvider {
-          id
-          name
-          code
-        }
-
-        ... on FlutterwaveProvider {
-          id
-          name
-          code
-        }
-
-        ... on CashfreeProvider {
-          id
-          name
-          code
-        }
-
-        ... on MoneyhashProvider {
-          id
-          name
-          code
-        }
-
-        ... on AdyenProvider {
-          id
-          name
-          code
-        }
-      }
-    }
-  }
-
   query integrationsListForCustomerMainInfos($limit: Int) {
     integrations(limit: $limit) {
       collection {
@@ -144,14 +102,15 @@ gql`
   }
 `
 
-const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFragment }) => {
+interface Props {
+  customer: CustomerMainInfosFragment
+  linkedPaymentProvider: LinkedPaymentProvider
+}
+
+const CustomerIntegrationRows = ({ customer, linkedPaymentProvider }: Props) => {
   const { translate } = useInternationalization()
 
-  const { paymentProvider, providerCustomer } = customer
-
-  const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
-    variables: { limit: 1000 },
-  })
+  const { paymentProvider: customerPaymentProvider, providerCustomer } = customer
 
   const { data: integrationsData, loading: integrationsLoading } =
     useIntegrationsListForCustomerMainInfosQuery({
@@ -164,10 +123,6 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
         !customer?.hubspotCustomer &&
         !customer?.salesforceCustomer,
     })
-
-  const linkedProvider = paymentProvidersData?.paymentProviders?.collection?.find(
-    (provider) => provider?.code === customer?.paymentProviderCode,
-  )
 
   const connectedIntegrations = {
     netsuite: getConnectedIntegrations(
@@ -355,15 +310,18 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
 
   return (
     <>
-      {!!paymentProvider && !!linkedProvider?.name && (
+      {!!customerPaymentProvider && !!linkedPaymentProvider?.name && (
         <InfoRow>
           <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
           <div>
-            <div className="flex flex-row" data-test={linkedProvider?.name}>
-              <PaymentProviderChip paymentProvider={paymentProvider} label={linkedProvider?.name} />
+            <div className="flex flex-row" data-test={linkedPaymentProvider?.name}>
+              <PaymentProviderChip
+                paymentProvider={customerPaymentProvider}
+                label={linkedPaymentProvider?.name}
+              />
               {!!providerCustomer?.providerCustomerId && (
                 <>
-                  {paymentProvider === ProviderTypeEnum?.Stripe ? (
+                  {customerPaymentProvider === ProviderTypeEnum?.Stripe ? (
                     <InlineLink
                       target="_blank"
                       rel="noopener noreferrer"
@@ -381,7 +339,7 @@ const CustomerIntegrationRows = ({ customer }: { customer: CustomerMainInfosFrag
                 </>
               )}
             </div>
-            {paymentProvider === ProviderTypeEnum?.Stripe &&
+            {customerPaymentProvider === ProviderTypeEnum?.Stripe &&
               !!providerCustomer?.providerPaymentMethods?.length && (
                 <Typography color="grey600">
                   {providerCustomer?.providerPaymentMethods

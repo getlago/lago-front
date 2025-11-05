@@ -2,9 +2,14 @@ import { gql } from '@apollo/client'
 
 import { CustomerInfoRows } from '~/components/customers/CustomerInfoRows'
 import { CustomerIntegrationRows } from '~/components/customers/CustomerIntegrationRows'
+import { CustomerPaymentMethods } from '~/components/customers/CustomerPaymentMethods'
 import { Skeleton } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { CustomerMainInfosFragment } from '~/generated/graphql'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
+import {
+  CustomerMainInfosFragment,
+  usePaymentProvidersListForCustomerMainInfosQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -86,6 +91,48 @@ gql`
       code
     }
   }
+
+  query paymentProvidersListForCustomerMainInfos($limit: Int) {
+    paymentProviders(limit: $limit) {
+      collection {
+        ... on StripeProvider {
+          id
+          name
+          code
+        }
+
+        ... on GocardlessProvider {
+          id
+          name
+          code
+        }
+
+        ... on FlutterwaveProvider {
+          id
+          name
+          code
+        }
+
+        ... on CashfreeProvider {
+          id
+          name
+          code
+        }
+
+        ... on MoneyhashProvider {
+          id
+          name
+          code
+        }
+
+        ... on AdyenProvider {
+          id
+          name
+          code
+        }
+      }
+    }
+  }
 `
 
 interface CustomerMainInfosProps {
@@ -96,6 +143,15 @@ interface CustomerMainInfosProps {
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+
+  const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
+    variables: { limit: 1000 },
+  })
+
+  const linkedPaymentProvider = paymentProvidersData?.paymentProviders?.collection?.find(
+    (provider) => provider?.code === customer?.paymentProviderCode,
+  )
 
   if (loading || !customer)
     return (
@@ -126,10 +182,25 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         }}
       />
 
-      <div className="flex flex-col" data-id="customer-info-list">
+      <div
+        className={`flex flex-col ${hasAccessToMultiPaymentFlow ? 'pb-12 shadow-b' : ''}`}
+        data-id="customer-info-list"
+      >
         <CustomerInfoRows customer={customer} />
-        <CustomerIntegrationRows customer={customer} />
+        <CustomerIntegrationRows
+          customer={customer}
+          linkedPaymentProvider={linkedPaymentProvider}
+        />
       </div>
+
+      {hasAccessToMultiPaymentFlow && (
+        <div className="mt-12">
+          <CustomerPaymentMethods
+            customer={customer}
+            linkedPaymentProvider={linkedPaymentProvider}
+          />
+        </div>
+      )}
     </div>
   )
 }

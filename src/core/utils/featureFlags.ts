@@ -3,6 +3,7 @@ export enum FeatureFlags {
   FTR_ENABLED = 'ftr_enabled',
   ANALYTICS_USAGE = 'analyticsUsage',
   FIXED_CHARGES = 'fixedCharges',
+  MULTI_PAYMENT_FLOW = 'multiPaymentFlow',
 }
 
 const FF_KEY = 'featureFlags'
