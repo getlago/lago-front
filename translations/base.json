@@ -397,8 +397,6 @@
   "text_6630e560a830417bd3b119fc": "To link Lago taxes with {{integrationType}}, please choose the corresponding tax item in your {{integrationType}} account.",
   "text_6630e57386f8a700a3318cc8": "Map your coupons with a {{integrationType}} item",
   "text_6630e57386f8a700a3318cc9": "To link Lago coupons with {{integrationType}}, please choose the corresponding coupon item in your {{integrationType}} account.",
-  "text_6630e5923500e7015f19063e": "Lago item mapping successfully deleted",
-  "text_6630e5923500e7015f190641": "Lago item mapping successfully updated",
   "text_6630e5923500e7015f190643": "Lago item successfully mapped",
   "text_6630ea71a6c2ef00bc63006f": "Add-ons items",
   "text_6630ea71a6c2ef00bc63006e": "Billable metrics items",
