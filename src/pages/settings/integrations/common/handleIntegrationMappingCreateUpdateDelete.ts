@@ -148,8 +148,9 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
       Object.entries(initialMapping).every(([key, initialValue]) => {
         const parameterKey = getParameterKeyFromInitialMappingKey(key)
 
+        // Skip the key if there are no matching (itemId for example)
         if (!parameterKey) {
-          return false
+          return true
         }
 
         return parameterKey in parameters

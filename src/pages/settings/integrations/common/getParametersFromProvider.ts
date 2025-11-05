@@ -82,21 +82,25 @@ export const getParametersFromProvider = <FormValues>(
         }
       }
 
+      /*
+       * Netsuite Integration Parameters. externalId, externalName and externalAccountCode are always required
+       * taxCode, taxNexus and taxType are only required in Tax Mapping context
+       */
       return {
         success: true,
         parameters: {
           externalId:
             'externalId' in inputValues && inputValues.externalId
               ? `${inputValues.externalId}`
-              : undefined,
+              : '',
           externalName:
             'externalName' in inputValues && inputValues.externalName
               ? `${inputValues.externalName}`
-              : undefined,
+              : '',
           externalAccountCode:
             'externalAccountCode' in inputValues && inputValues.externalAccountCode
               ? `${inputValues.externalAccountCode}`
-              : undefined,
+              : '',
           taxCode:
             'taxCode' in inputValues && inputValues.taxCode ? `${inputValues.taxCode}` : undefined,
           taxNexus:
