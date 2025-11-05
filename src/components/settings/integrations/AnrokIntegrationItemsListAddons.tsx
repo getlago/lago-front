@@ -10,9 +10,8 @@ import {
   useGetAddOnsForAnrokItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-
-import { AnrokIntegrationMapItemDrawerRef } from './AnrokIntegrationMapItemDrawer'
 
 gql`
   fragment AnrokIntegrationItemsListAddons on AddOn {

@@ -33,7 +33,7 @@ interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
 }
 
 export interface DrawerRef {
-  openDrawer: (props?: unknown) => unknown
+  openDrawer: () => unknown
   closeDrawer: () => unknown
 }
 

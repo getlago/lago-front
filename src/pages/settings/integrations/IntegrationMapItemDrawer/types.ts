@@ -13,7 +13,7 @@ import type {
 } from '~/pages/settings/integrations/common/types'
 
 export interface IntegrationMapItemDrawerRef extends DrawerRef {
-  openDrawer: (props: unknown) => unknown
+  openDrawer: (props?: unknown) => unknown
   closeDrawer: () => unknown
 }
 
