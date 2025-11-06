@@ -349,6 +349,7 @@ export const UsageChargesSection = memo(
                   <ComboBox
                     containerClassName="flex-1"
                     className={SEARCH_METERED_CHARGE_INPUT_CLASSNAME}
+                    data-test="metered-charge-combobox"
                     data={meteredBillableMetrics}
                     searchQuery={getMeteredBillableMetrics}
                     loading={meteredBillableMetricsLoading}
@@ -478,6 +479,7 @@ export const UsageChargesSection = memo(
                   <ComboBox
                     containerClassName="flex-1"
                     className={SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME}
+                    data-test="recurring-charge-combobox"
                     data={recurringBillableMetrics}
                     searchQuery={getRecurringBillableMetrics}
                     loading={recurringBillableMetricsLoading}

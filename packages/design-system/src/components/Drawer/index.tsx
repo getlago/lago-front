@@ -98,12 +98,12 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                 root: 'bg-grey-700/40',
               },
             },
-          }}
-          PaperProps={{
-            className: tw(
-              'w-full max-w-[816px] md:w-[calc(100vw-48px)]',
-              !!stickyBottomBar && 'grid grid-rows-[72px_1fr_80px]',
-            ),
+            paper: {
+              className: tw(
+                'w-full max-w-[816px] md:w-[calc(100vw-48px)]',
+                !!stickyBottomBar && 'grid grid-rows-[72px_1fr_80px]',
+              ),
+            },
           }}
         >
           <div className="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12">

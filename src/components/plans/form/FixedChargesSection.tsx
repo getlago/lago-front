@@ -283,7 +283,7 @@ export const FixedChargesSection = memo(
                     fitContent
                     startIcon="plus"
                     variant="inline"
-                    data-test="add-metered-charge"
+                    data-test="add-fixed-charge"
                     onClick={() => {
                       setShowAddFixedChargeCombobox(true)
                       setTimeout(() => {

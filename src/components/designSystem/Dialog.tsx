@@ -68,10 +68,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
                 root: 'bg-grey-700/40',
               },
             },
-          }}
-          PaperProps={{
-            className:
-              'flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl',
+            paper: {
+              className:
+                'flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl',
+            },
           }}
           transitionDuration={80}
           {...props}

@@ -14,9 +14,12 @@ export const scrollToAndExpandAccordion = (accordionId: string, delay: number = 
       // Find the AccordionSummary element (which is the clickable part)
       const accordionSummary = accordion.querySelector('[role="button"]') as HTMLElement | null
 
-      if (accordionSummary?.getAttribute('aria-expanded') === 'false') {
+      // Check if accordion is collapsed (aria-expanded is "false" or not set)
+      const ariaExpanded = accordionSummary?.getAttribute('aria-expanded')
+
+      if (ariaExpanded !== 'true') {
         // Use native click method to ensure proper event handling
-        accordionSummary.click()
+        accordionSummary?.click()
       }
     }
   }, delay)
