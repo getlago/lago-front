@@ -39,6 +39,7 @@ export const ComboBox = ({
   onOpen,
   onChange,
   variant = 'default',
+  'data-test': dataTest = 'autocomplete',
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
@@ -92,6 +93,7 @@ export const ComboBox = ({
   return (
     <Autocomplete
       className={containerClassName}
+      data-test={dataTest}
       options={data}
       disabled={disabled}
       onOpen={() => {
