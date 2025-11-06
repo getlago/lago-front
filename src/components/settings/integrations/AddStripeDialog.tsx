@@ -76,7 +76,7 @@ gql`
 type TAddStripeDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteStripeIntegrationDialogRef>
   provider: AddStripeProviderDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddStripeDialogRef {

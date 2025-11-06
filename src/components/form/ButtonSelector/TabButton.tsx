@@ -70,13 +70,9 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
           }
         }}
       >
-        {isLoading ? (
-          <Icon name="processing" animation="spin" />
-        ) : typeof icon === 'string' ? (
-          <Icon name={icon as IconName} />
-        ) : (
-          !!icon && icon
-        )}
+        {isLoading && <Icon name="processing" animation="spin" />}
+        {!isLoading && typeof icon === 'string' && <Icon name={icon as IconName} />}
+        {!isLoading && typeof icon !== 'string' && !!icon && icon}
         {title && (
           <Typography className="flex-1" noWrap color="inherit">
             {title}

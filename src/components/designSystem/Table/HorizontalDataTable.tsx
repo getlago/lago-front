@@ -97,7 +97,7 @@ export const HorizontalDataTable = <T extends DataItem>({
 
       return columnVirtualizer.scrollToIndex(0)
     }
-  }, [columnVirtualizer, data?.length, loading])
+  }, [columnVirtualizer, data?.length, loading, initScrollTo])
 
   useEffect(() => {
     if (typeof clickedDataIndex === 'number') {

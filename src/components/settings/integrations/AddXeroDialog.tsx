@@ -51,7 +51,7 @@ gql`
 type TAddXeroDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteXeroIntegrationDialogRef>
   provider: XeroForCreateDialogDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddXeroDialogRef {

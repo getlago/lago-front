@@ -24,7 +24,7 @@ gql`
 
 type TDeleteXeroIntegrationDialogProps = {
   provider: DeleteXeroIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteXeroIntegrationDialogRef {

@@ -113,17 +113,13 @@ export const VerticalMenu = ({
           })}
         </div>
       )}
-      {loading ? (
-        loadingComponent ? (
-          loadingComponent
-        ) : (
-          <div className="m-auto flex h-40 w-full items-center justify-center">
-            <Icon name="processing" color="info" size="large" animation="spin" />
-          </div>
-        )
-      ) : (
-        activeTab?.component || children
+      {loading && loadingComponent}
+      {loading && !loadingComponent && (
+        <div className="m-auto flex h-40 w-full items-center justify-center">
+          <Icon name="processing" color="info" size="large" animation="spin" />
+        </div>
       )}
+      {!loading && (activeTab?.component || children)}
     </div>
   )
 }

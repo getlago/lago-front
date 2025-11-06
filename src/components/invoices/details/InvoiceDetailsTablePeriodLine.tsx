@@ -10,10 +10,18 @@ export const InvoiceDetailsTablePeriodLine = ({
   canHaveUnitPrice,
   isDraftInvoice,
   period,
-}: InvoiceDetailsTablePeriodLineProps) => {
+}: InvoiceDetailsTablePeriodLineProps): JSX.Element => {
+  let colSpan = 4
+
+  if (isDraftInvoice) {
+    colSpan = 6
+  } else if (canHaveUnitPrice) {
+    colSpan = 5
+  }
+
   return (
     <tr>
-      <td colSpan={isDraftInvoice ? 6 : canHaveUnitPrice ? 5 : 4}>
+      <td colSpan={colSpan}>
         <Typography variant="captionHl" color="grey600">
           {period}
         </Typography>

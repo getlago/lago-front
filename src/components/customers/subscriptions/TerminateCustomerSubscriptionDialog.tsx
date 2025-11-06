@@ -150,7 +150,7 @@ export const TerminateCustomerSubscriptionDialog =
           : translate('text_1753198825180e09v150qcko'),
         continueText: translate('text_62d7f6178ec94cd09370e351'),
       }
-    }, [context])
+    }, [context, translate])
 
     return (
       <WarningDialog

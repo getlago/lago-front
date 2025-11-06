@@ -91,6 +91,14 @@ export const Switch = ({
     }
   }, [])
 
+  let circleFillColor = theme.palette.grey[500]
+
+  if (disabled) {
+    circleFillColor = theme.palette.grey[300]
+  } else if (checked) {
+    circleFillColor = theme.palette.common.white
+  }
+
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
@@ -189,18 +197,7 @@ export const Switch = ({
             checked ? 'left-8' : 'left-1',
           )}
         >
-          <circle
-            cx="12"
-            cy="12"
-            r="12"
-            fill={
-              disabled
-                ? theme.palette.grey[300]
-                : checked
-                  ? theme.palette.common.white
-                  : theme.palette.grey[500]
-            }
-          />
+          <circle cx="12" cy="12" r="12" fill={circleFillColor} />
           <circle cx="12" cy="12" r="11" fill={theme.palette.common.white} />
         </svg>
       </div>

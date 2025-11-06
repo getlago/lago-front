@@ -24,7 +24,7 @@ gql`
 
 type TDeleteCashfreeIntegrationDialogProps = {
   provider: DeleteCashfreeIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteCashfreeIntegrationDialogRef {

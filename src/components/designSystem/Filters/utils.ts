@@ -131,6 +131,8 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.loggedDate,
 ]
 
+// TODO: Fix this type
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activityIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.activitySources]: (value: string) => (value as string).split(','),

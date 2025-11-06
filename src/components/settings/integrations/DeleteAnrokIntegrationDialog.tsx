@@ -24,7 +24,7 @@ gql`
 
 type TDeleteAnrokIntegrationDialogProps = {
   provider: DeleteAnrokIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteAnrokIntegrationDialogRef {

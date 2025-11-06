@@ -123,13 +123,9 @@ export const Selector = ({
           {subtitle}
         </Typography>
       </div>
-      {loading ? (
-        <Icon animation="spin" color="primary" name="processing" />
-      ) : typeof endIcon === 'string' ? (
-        <Icon name={endIcon as IconName} color="dark" />
-      ) : (
-        endIcon
-      )}
+      {loading && <Icon animation="spin" color="primary" name="processing" />}
+      {!loading && typeof endIcon === 'string' && <Icon name={endIcon as IconName} color="dark" />}
+      {!loading && typeof endIcon !== 'string' && endIcon}
     </div>
   )
 }

@@ -1,10 +1,10 @@
-import { ComponentType, lazy } from 'react'
+import { ComponentType, lazy, LazyExoticComponent } from 'react'
 
 const retry = (
-  fn: Function,
-  retriesLeft: number = 2,
-  interval: number = 1000,
-): Promise<{ default: ComponentType<unknown> }> => {
+  fn: () => Promise<{ default: ComponentType<Record<string, never>> }>,
+  retriesLeft = 2,
+  interval = 1000,
+): Promise<{ default: ComponentType<Record<string, never>> }> => {
   return new Promise((resolve) => {
     fn()
       .then(resolve)
@@ -20,4 +20,6 @@ const retry = (
   })
 }
 
-export const lazyLoad = (fn: Function) => lazy(() => retry(fn))
+export const lazyLoad = (
+  fn: () => Promise<{ default: ComponentType<Record<string, never>> }>,
+): LazyExoticComponent<ComponentType<Record<string, never>>> => lazy(() => retry(fn))

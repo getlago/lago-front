@@ -31,14 +31,20 @@ export default function (file, api) {
           attr.name.name === 'marginTop'
         ) {
           const key = attr.name.name
-          const clasNamePrefix = key === 'marginRight' ? 'mr' : key === 'marginBottom' ? 'mb' : 'mt'
+          let classNamePrefix = 'mt'
+
+          if (key === 'marginRight') {
+            classNamePrefix = 'mr'
+          } else if (key === 'marginBottom') {
+            classNamePrefix = 'mb'
+          }
 
           let localValue = 0
 
           if (attr.value.type === 'JSXExpressionContainer') {
             localValue = attr.value.expression.arguments[0].value
 
-            classNames.push(`${clasNamePrefix}-${localValue}`)
+            classNames.push(`${classNamePrefix}-${localValue}`)
 
             return
           } else if (typeof attr.value.value === 'number') {
@@ -60,7 +66,7 @@ export default function (file, api) {
             }
           }
 
-          classNames.push(`${clasNamePrefix}-${localValue / 4}`)
+          classNames.push(`${classNamePrefix}-${localValue / 4}`)
         }
       })
 

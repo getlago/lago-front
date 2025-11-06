@@ -24,7 +24,7 @@ gql`
 
 type DeleteOktaIntegrationDialogProps = {
   integration: DeleteOktaIntegrationDialogFragment | undefined
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteOktaIntegrationDialogRef {

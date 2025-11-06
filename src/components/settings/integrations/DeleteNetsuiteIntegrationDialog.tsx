@@ -24,7 +24,7 @@ gql`
 
 type TDeleteNetsuiteIntegrationDialogProps = {
   provider: DeleteNetsuiteIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteNetsuiteIntegrationDialogRef {

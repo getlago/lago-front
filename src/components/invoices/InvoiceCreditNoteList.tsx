@@ -115,7 +115,7 @@ export const InvoiceCreditNoteList = () => {
         </div>
       )}
       <>
-        {!!error && !loading ? (
+        {!!error && !loading && (
           <GenericPlaceholder
             title={translate('text_636d023ce11a9d038819b579')}
             subtitle={translate('text_636d023ce11a9d038819b57b')}
@@ -124,11 +124,13 @@ export const InvoiceCreditNoteList = () => {
             buttonAction={() => location.reload()}
             image={<ErrorImage width="136" height="104" />}
           />
-        ) : !loading && !creditNotes?.length ? (
+        )}
+        {!error && !loading && !creditNotes?.length && (
           <Typography className="mt-6" variant="body" color="grey500">
             {translate('text_636bdef6565341dcb9cfb12b')}
           </Typography>
-        ) : (
+        )}
+        {(loading || (!error && !!creditNotes?.length)) && (
           <CreditNotesTable
             creditNotes={creditNotes}
             fetchMore={fetchMore}

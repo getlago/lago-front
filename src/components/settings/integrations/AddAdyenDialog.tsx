@@ -81,7 +81,7 @@ gql`
 type TAddAdyenDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteAdyenIntegrationDialogRef>
   provider: AddAdyenProviderDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddAdyenDialogRef {

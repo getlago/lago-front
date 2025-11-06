@@ -187,7 +187,7 @@ export const InvoiceDetailsTableFooter = memo(
                 </Typography>
               </td>
             </tr>
-            {shouldDisplayPlaceholder ? (
+            {shouldDisplayPlaceholder && (
               <tr>
                 <td></td>
                 <td colSpan={colSpan}>
@@ -201,7 +201,8 @@ export const InvoiceDetailsTableFooter = memo(
                   </Typography>
                 </td>
               </tr>
-            ) : !!invoice.appliedTaxes?.length ? (
+            )}
+            {!shouldDisplayPlaceholder && !!invoice.appliedTaxes?.length && (
               <>
                 {invoice.appliedTaxes.map((appliedTax, i) => (
                   <tr key={`invoice-details-table-footer-tax-${appliedTax.id}`}>
@@ -269,7 +270,8 @@ export const InvoiceDetailsTableFooter = memo(
                   </tr>
                 ))}
               </>
-            ) : (
+            )}
+            {!shouldDisplayPlaceholder && !invoice.appliedTaxes?.length && (
               <tr>
                 <td></td>
                 <td colSpan={colSpan}>
@@ -454,21 +456,23 @@ export const InvoiceDetailsTableFooter = memo(
           </td>
         </tr>
 
-        {invoice.status === InvoiceStatusTypeEnum.Draft ? (
+        {invoice.status === InvoiceStatusTypeEnum.Draft && (
           <tr>
             <td></td>
             <td colSpan={4} className="!shadow-none">
               <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
             </td>
           </tr>
-        ) : shouldDisplayPlaceholder || invoice.taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
-          <tr>
-            <td></td>
-            <td colSpan={4} className="!shadow-none">
-              <Alert type="info">{translate('text_1724166369123t6c4k8zn80c')}</Alert>
-            </td>
-          </tr>
-        ) : null}
+        )}
+        {invoice.status !== InvoiceStatusTypeEnum.Draft &&
+          (shouldDisplayPlaceholder || invoice.taxStatus === InvoiceTaxStatusTypeEnum.Pending) && (
+            <tr>
+              <td></td>
+              <td colSpan={4} className="!shadow-none">
+                <Alert type="info">{translate('text_1724166369123t6c4k8zn80c')}</Alert>
+              </td>
+            </tr>
+          )}
       </tfoot>
     )
   },

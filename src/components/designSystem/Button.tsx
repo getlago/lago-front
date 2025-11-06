@@ -214,15 +214,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...mapProperties(variant, !!inheritColor)}
         {...props}
       >
-        {icon ? (
-          localLoading ? (
-            <Icon animation="spin" name="processing" />
-          ) : (
-            <Icon name={icon} />
-          )
-        ) : (
-          children
-        )}
+        {icon && localLoading && <Icon animation="spin" name="processing" />}
+        {icon && !localLoading && <Icon name={icon} />}
+        {!icon && children}
       </MuiButton>
     )
   },
