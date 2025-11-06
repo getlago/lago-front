@@ -93,7 +93,9 @@ export const CheckboxIcon: FC<
 > = ({ value, canBeIndeterminate, ...checkboxIconProps }) => {
   if (value) {
     return <CheckboxCheckedIcon {...checkboxIconProps} />
-  } else if (canBeIndeterminate) {
+  }
+
+  if (canBeIndeterminate) {
     return <CheckboxIndeterminateIcon {...checkboxIconProps} />
   }
 
