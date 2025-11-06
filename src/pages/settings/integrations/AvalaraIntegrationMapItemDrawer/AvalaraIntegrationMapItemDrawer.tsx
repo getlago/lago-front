@@ -150,6 +150,10 @@ export const AvalaraIntegrationMapItemDrawer = forwardRef<AvalaraIntegrationMapI
       )
     }
 
+    const resetLocalData = () => {
+      setLocalData(undefined)
+    }
+
     useImperativeHandle(ref, () => ({
       openDrawer: (props) => {
         setLocalData(props)
@@ -172,6 +176,7 @@ export const AvalaraIntegrationMapItemDrawer = forwardRef<AvalaraIntegrationMapI
         getFormInitialValues={getFormInitialValues}
         validateForm={validateForm}
         handleDataMutation={handleDataMutation}
+        resetLocalData={resetLocalData}
       />
     )
   },

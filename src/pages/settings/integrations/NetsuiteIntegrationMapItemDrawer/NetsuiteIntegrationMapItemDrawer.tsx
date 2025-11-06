@@ -184,6 +184,10 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
 
     const { title, description } = getTitleAndDescription(localData, localData?.type)
 
+    const resetLocalData = () => {
+      setLocalData(undefined)
+    }
+
     useImperativeHandle(ref, () => ({
       openDrawer: (props) => {
         setLocalData(props)
@@ -206,6 +210,7 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
         getFormInitialValues={getFormInitialValues}
         validateForm={validateForm}
         handleDataMutation={handleDataMutation}
+        resetLocalData={resetLocalData}
       />
     )
   },

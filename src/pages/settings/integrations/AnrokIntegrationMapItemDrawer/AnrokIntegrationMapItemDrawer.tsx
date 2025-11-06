@@ -150,6 +150,10 @@ export const AnrokIntegrationMapItemDrawer = forwardRef<AnrokIntegrationMapItemD
       )
     }
 
+    const resetLocalData = () => {
+      setLocalData(undefined)
+    }
+
     useImperativeHandle(ref, () => ({
       openDrawer: (props) => {
         setLocalData(props)
@@ -172,6 +176,7 @@ export const AnrokIntegrationMapItemDrawer = forwardRef<AnrokIntegrationMapItemD
         getFormInitialValues={getFormInitialValues}
         validateForm={validateForm}
         handleDataMutation={handleDataMutation}
+        resetLocalData={resetLocalData}
       />
     )
   },

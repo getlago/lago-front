@@ -25,6 +25,7 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
   getFormInitialValues,
   validateForm,
   handleDataMutation,
+  resetLocalData,
 }: IntegrationMapItemDrawerProps<FormValues>) {
   const { translate } = useInternationalization()
 
@@ -77,6 +78,8 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
           message: translate('text_6630e5923500e7015f190643'),
           severity: 'success',
         })
+        // Reset local data after successful submission just so we're sure we always start fresh
+        resetLocalData()
         drawerRef.current?.closeDrawer()
       }
     },

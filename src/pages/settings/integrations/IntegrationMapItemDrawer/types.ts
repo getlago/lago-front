@@ -47,4 +47,5 @@ export type IntegrationMapItemDrawerProps<FormValues extends FormikValues> = {
     integrationId: string,
     billingEntity: BillingEntityForIntegrationMapping,
   ) => Promise<CreateUpdateDeleteSuccessAnswer>
+  resetLocalData: () => void
 }

@@ -161,6 +161,10 @@ export const XeroIntegrationMapItemDrawer = forwardRef<XeroIntegrationMapItemDra
       )
     }
 
+    const resetLocalData = () => {
+      setLocalData(undefined)
+    }
+
     useImperativeHandle(ref, () => ({
       openDrawer: (props) => {
         setLocalData(props)
@@ -186,6 +190,7 @@ export const XeroIntegrationMapItemDrawer = forwardRef<XeroIntegrationMapItemDra
         getFormInitialValues={getFormInitialValues}
         validateForm={validateForm}
         handleDataMutation={handleDataMutation}
+        resetLocalData={resetLocalData}
       />
     )
   },
