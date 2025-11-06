@@ -45,6 +45,7 @@ describe('Create plan', () => {
     // Standard
     cy.get('[data-test="add-charge"]').first().click({ force: true })
     cy.get('[data-test="add-metered-charge"]').first().click({ force: true })
+    cy.get('[data-test="metered-charge-combobox"]').click()
     cy.get('[data-option-index="0"]').click({ force: true })
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Standard pricing')
@@ -54,6 +55,7 @@ describe('Create plan', () => {
     // Graduated
     cy.get('[data-test="add-charge"]').last().click({ force: true })
     cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
+    cy.get('[data-test="metered-charge-combobox"]').click()
     cy.get('[data-option-index="1"]').click({ force: true })
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click({ force: true })
@@ -70,6 +72,7 @@ describe('Create plan', () => {
     // Graduated percentage
     cy.get('[data-test="add-charge"]').last().click({ force: true })
     cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
+    cy.get('[data-test="metered-charge-combobox"]').click()
     cy.get('[data-option-index="1"]').click({ force: true })
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click({ force: true })
@@ -89,6 +92,7 @@ describe('Create plan', () => {
     // Package
     cy.get('[data-test="add-charge"]').last().click({ force: true })
     cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
+    cy.get('[data-test="metered-charge-combobox"]').click()
     cy.get('[data-option-index="1"]').click({ force: true })
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click({ force: true })
@@ -100,6 +104,7 @@ describe('Create plan', () => {
     // Percentage
     cy.get('[data-test="add-charge"]').last().click({ force: true })
     cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
+    cy.get('[data-test="metered-charge-combobox"]').click()
     cy.get('[data-option-index="1"]').click({ force: true })
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click({ force: true })
@@ -127,6 +132,7 @@ describe('Create plan', () => {
     // Volume
     cy.get('[data-test="add-charge"]').last().click({ force: true })
     cy.get('[data-test="add-recurring-charge"]').last().click({ force: true })
+    cy.get('[data-test="recurring-charge-combobox"]').click()
     cy.get('[data-option-index="0"]').click({ force: true })
     cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
     cy.get('input[name="chargeModel"]').last().click({ force: true })
@@ -162,6 +168,7 @@ describe('Create plan', () => {
       // Config charge
       cy.get('[data-test="add-charge"]').last().click({ force: true })
       cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
+      cy.get('[data-test="metered-charge-combobox"]').click()
       cy.get('[data-option-index="1"]').click({ force: true })
       cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
       cy.get('input[name="chargeModel"]').last().click({ force: true })
