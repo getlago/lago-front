@@ -93,6 +93,7 @@ const AvalaraIntegrationItemsListDefault = ({
       integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Avalara}
+      isLoading={isLoading}
     />
   )
 }

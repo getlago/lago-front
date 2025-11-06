@@ -125,6 +125,7 @@ const XeroIntegrationItemsListDefault = ({
       integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Xero}
+      isLoading={isLoading}
     />
   )
 }

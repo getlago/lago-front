@@ -93,6 +93,7 @@ const AnrokIntegrationItemsListDefault = ({
       integrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Anrok}
+      isLoading={isLoading}
     />
   )
 }

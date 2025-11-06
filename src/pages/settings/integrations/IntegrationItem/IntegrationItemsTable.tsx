@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material'
-import { Avatar, Icon, Typography } from 'lago-design-system'
+import { Avatar, Icon, Skeleton, Typography } from 'lago-design-system'
 
 import { Status, Table, TableColumn } from '~/components/designSystem'
 import { VoidReturningFunction } from '~/core/types/voidReturningFunction'
@@ -17,12 +17,14 @@ import { generateItemMappingForAllBillingEntities } from './generateItemMappingF
 import { IntegrationItemData, IntegrationItemsTableProps } from './types'
 import { useGetStatusDetails } from './useGetStatusDetails'
 
+const COLUMN_MIN_WIDTH = 200
+
 const IntegrationItemsTable = ({
   integrationId,
   integrationMapItemDrawerRef,
   items,
   provider,
-  isLoading = false,
+  isLoading,
   firstColumnName,
 }: IntegrationItemsTableProps) => {
   const { translate } = useInternationalization()
@@ -66,6 +68,13 @@ const IntegrationItemsTable = ({
     key: 'id',
     title: column.name,
     content: (item: IntegrationItemData) => {
+      if (isLoading || isLoadingBillingEntities) {
+        return (
+          <div className="flex h-full min-w-42 items-center justify-center">
+            <Skeleton className="w-full" variant="text" />
+          </div>
+        )
+      }
       const itemMapping = findItemMapping(item, column.id)
       const mappingInfos = getMappingInfos(itemMapping, provider)
 
@@ -73,7 +82,7 @@ const IntegrationItemsTable = ({
 
       return <Status type={type} label={label} />
     },
-    minWidth: 200,
+    minWidth: COLUMN_MIN_WIDTH,
   })
 
   const columns: Array<TableColumn<IntegrationItemData>> = [
@@ -98,7 +107,7 @@ const IntegrationItemsTable = ({
           </Stack>
         )
       },
-      minWidth: 200,
+      minWidth: COLUMN_MIN_WIDTH,
       maxSpace: true,
     },
     ...billingEntitiesColumns.map(generateTableColumnDataFromBillingEntity),
