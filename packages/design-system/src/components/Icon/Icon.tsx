@@ -52,6 +52,7 @@ export interface IconProps extends IconVariantProps {
   name: IconName
   className?: string
   onClick?: () => void | void | Promise<void>
+  'data-test'?: string
 }
 
 export const Icon = ({
@@ -61,13 +62,14 @@ export const Icon = ({
   className,
   animation,
   onClick,
+  'data-test': dataTest,
 }: IconProps) => {
   const SVGIcon = ALL_ICONS[name]
 
   return (
     <SVGIcon
       title={`${name}/${size}`}
-      data-test={`${name}/${size}`}
+      data-test={dataTest || `${name}/${size}`}
       className={tw(iconStyles({ animation, color, size }), className, {
         'cursor-pointer': !!onClick,
       })}
