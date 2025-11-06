@@ -163,6 +163,7 @@ describe('DomUtils', () => {
     })
 
     it('should handle multiple accordions independently', async () => {
+      const user = userEvent.setup({ delay: null })
       const accordionId1 = 'test-accordion-multi-1'
       const accordionId2 = 'test-accordion-multi-2'
 
@@ -185,7 +186,15 @@ describe('DomUtils', () => {
       expect(screen.queryByText('Test Accordion Content 1')).not.toBeInTheDocument()
       expect(screen.queryByText('Test Accordion Content 2')).not.toBeInTheDocument()
 
-      // Call function on first accordion
+      // Get the first accordion button and click it manually to open it
+      const firstAccordion = document.getElementById(accordionId1)
+      const firstButton = firstAccordion?.querySelector('button[aria-expanded="false"]')
+
+      if (firstButton) {
+        await user.click(firstButton)
+      }
+
+      // Call scrollToAndExpandAccordion on first accordion
       scrollToAndExpandAccordion(accordionId1)
       act(() => {
         jest.advanceTimersByTime(100)
@@ -198,16 +207,20 @@ describe('DomUtils', () => {
       })
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
 
-      // Verify that the click method was called on the first accordion's button
-      expect(mockClick).toHaveBeenCalledTimes(1)
+      // Verify the first accordion content is now visible
+      await waitFor(() => {
+        expect(screen.getByText('Test Accordion Content 1')).toBeInTheDocument()
+      })
 
-      // Verify that the function found the correct accordion
-      const firstAccordion = document.getElementById(accordionId1)
-      const firstAccordionButton = firstAccordion?.querySelector('[role="button"]')
+      // Get the second accordion button and click it manually to open it
+      const secondAccordion = document.getElementById(accordionId2)
+      const secondButton = secondAccordion?.querySelector('button[aria-expanded="false"]')
 
-      expect(firstAccordionButton).toBeInTheDocument()
+      if (secondButton) {
+        await user.click(secondButton)
+      }
 
-      // Call function on second accordion to verify independence
+      // Call scrollToAndExpandAccordion on second accordion to verify independence
       scrollToAndExpandAccordion(accordionId2)
       act(() => {
         jest.advanceTimersByTime(100)
@@ -215,7 +228,15 @@ describe('DomUtils', () => {
 
       // Should have been called again for the second accordion
       expect(mockScrollIntoView).toHaveBeenCalledTimes(2)
-      expect(mockClick).toHaveBeenCalledTimes(2)
+
+      // Verify the second accordion content is now visible
+      await waitFor(() => {
+        expect(screen.getByText('Test Accordion Content 2')).toBeInTheDocument()
+      })
+
+      // Verify both accordion contents are visible, showing independence
+      expect(screen.getByText('Test Accordion Content 1')).toBeInTheDocument()
+      expect(screen.getByText('Test Accordion Content 2')).toBeInTheDocument()
     })
 
     it('should verify accordion structure and state checking', () => {

@@ -35,7 +35,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         onBlur={handleClose}
       >
         <MuiTooltip
-          componentsProps={{
+          slotProps={{
             tooltip: {
               style: {
                 maxWidth: maxWidth,

@@ -16,7 +16,9 @@ export const OptionsAccordion = ({ children, summary }: OptionsAccordionProps) =
       <MuiAccordion
         expanded={isOpen}
         onChange={(_, expanded) => setIsOpen(expanded)}
-        TransitionProps={{ unmountOnExit: true }}
+        slotProps={{
+          transition: { unmountOnExit: true },
+        }}
         square
       >
         <AccordionSummary

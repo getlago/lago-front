@@ -1,12 +1,12 @@
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
 import { TransitionProps } from '@mui/material/transitions'
+import { Icon } from 'lago-design-system'
 import { ReactNode, useState } from 'react'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
-import { Button } from './Button'
 import { Tooltip } from './Tooltip'
 
 enum AccordionSizeEnum {
@@ -78,7 +78,12 @@ export const Accordion = ({
           if (expanded && !!onOpen) onOpen()
         }
       }}
-      TransitionProps={{ unmountOnExit: true, ...transitionProps }}
+      slotProps={{
+        transition: {
+          unmountOnExit: true,
+          ...transitionProps,
+        },
+      }}
       {...props}
     >
       <AccordionSummary
@@ -119,12 +124,9 @@ export const Accordion = ({
             isOpen ? 'text_624aa732d6af4e0103d40e61' : 'text_624aa79870f60300a3c4d074',
           )}
         >
-          <Button
-            tabIndex={-1}
+          <Icon
             data-test="open-charge"
-            variant="quaternary"
-            size="small"
-            icon={isOpen ? 'chevron-down-filled' : 'chevron-right-filled'}
+            name={isOpen ? 'chevron-down-filled' : 'chevron-right-filled'}
           />
         </Tooltip>
         {summary}

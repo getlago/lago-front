@@ -25,7 +25,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         onMouseLeave={() => setIsOpen(false)}
       >
         <MuiTooltip
-          componentsProps={{
+          slotProps={{
             tooltip: {
               style: {
                 maxWidth: maxWidth,
