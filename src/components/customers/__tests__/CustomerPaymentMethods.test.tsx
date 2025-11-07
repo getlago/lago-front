@@ -6,10 +6,10 @@ import {
   CANCEL_DIALOG_BUTTON_TEST_ID,
   CHECKOUT_URL_TEXT_TEST_ID,
   CustomerPaymentMethods,
-  EMPTY_STATE_TEST_ID,
   ERROR_ALERT_TEST_ID,
   GENERATE_CHECKOUT_URL_BUTTON_TEST_ID,
   INELIGIBLE_PAYMENT_METHODS_TEST_ID,
+  PAYMENT_METHODS_LIST_TEST_ID,
 } from '~/components/customers/CustomerPaymentMethods'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -26,6 +26,10 @@ jest.mock('~/core/apolloClient', () => ({
 
 jest.mock('~/core/utils/copyToClipboard', () => ({
   copyToClipboard: jest.fn(),
+}))
+
+jest.mock('~/components/customers/PaymentMethodsList', () => ({
+  PaymentMethodsList: () => <div>Payment Methods List</div>,
 }))
 
 const linkedPaymentProvider = createMockLinkedPaymentProvider({
@@ -74,7 +78,11 @@ describe('CustomerPaymentMethods', () => {
         providerCustomer: {
           __typename: 'ProviderCustomer' as const,
           id: 'prov_cust_001',
-          providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+          providerPaymentMethods: [
+            ProviderPaymentMethodsEnum.Card,
+            ProviderPaymentMethodsEnum.CustomerBalance,
+            ProviderPaymentMethodsEnum.Crypto,
+          ],
         },
       })
 
@@ -87,9 +95,9 @@ describe('CustomerPaymentMethods', () => {
         ),
       )
 
-      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(PAYMENT_METHODS_LIST_TEST_ID)).toBeInTheDocument()
     })
 
     it('THEN disables add-payment-method button when methods are only Crypto or CustomerBalance', async () => {
@@ -113,59 +121,9 @@ describe('CustomerPaymentMethods', () => {
         ),
       )
 
-      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).toBeDisabled()
       expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
-    })
-
-    it('THEN enable add-payment-method button when methods include Crypto or CustomerBalance with other methods', async () => {
-      const customer = createMockCustomerDetails({
-        providerCustomer: {
-          __typename: 'ProviderCustomer' as const,
-          id: 'prov_cust_001',
-          providerPaymentMethods: [
-            ProviderPaymentMethodsEnum.Card,
-            ProviderPaymentMethodsEnum.CustomerBalance,
-            ProviderPaymentMethodsEnum.Crypto,
-          ],
-        },
-      })
-
-      await act(() =>
-        render(
-          <CustomerPaymentMethods
-            customer={customer}
-            linkedPaymentProvider={linkedPaymentProvider}
-          />,
-        ),
-      )
-
-      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).not.toBeInTheDocument()
-      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
-      expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
-    })
-
-    it('THEN shows the empty state text when there are no available payment methods', async () => {
-      const customer = createMockCustomerDetails({
-        providerCustomer: {
-          __typename: 'ProviderCustomer' as const,
-          id: 'prov_cust_001',
-          providerPaymentMethods: [],
-        },
-      })
-
-      await act(() =>
-        render(
-          <CustomerPaymentMethods
-            customer={customer}
-            linkedPaymentProvider={linkedPaymentProvider}
-          />,
-        ),
-      )
-
-      expect(screen.queryByTestId(EMPTY_STATE_TEST_ID)).toBeInTheDocument()
-      expect(screen.queryByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
-      expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(PAYMENT_METHODS_LIST_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
@@ -197,7 +155,7 @@ describe('CustomerPaymentMethods', () => {
       })
     })
 
-    it('THEN pre-selects payment provider when only one is available', async () => {
+    it('THEN pre-selects payment provider combobox option when only one is available', async () => {
       const customer = createMockCustomerDetails({
         providerCustomer: {
           __typename: 'ProviderCustomer' as const,
@@ -383,7 +341,7 @@ describe('CustomerPaymentMethods', () => {
   })
 
   describe('WHEN handling errors', () => {
-    it('THEN shows error alert when mutation fails', async () => {
+    it('THEN shows error alert when generating checkout URL fails', async () => {
       const customer = createMockCustomerDetails({
         providerCustomer: {
           __typename: 'ProviderCustomer' as const,

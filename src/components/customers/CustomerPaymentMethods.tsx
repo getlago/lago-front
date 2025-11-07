@@ -112,6 +112,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
           dataTest: ADD_PAYMENT_METHOD_TEST_ID,
         }}
       />
+
       {!hasOnlyIneligiblePaymentMethods && (
         <Dialog
           ref={addPaymentDialogRef}
