@@ -117,7 +117,7 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
       }
     >
       <div className="flex flex-col gap-12">
-        <div>
+        <div className="flex flex-col gap-1">
           <Typography variant="headline">{title}</Typography>
           <Typography>{description}</Typography>
         </div>
