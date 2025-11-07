@@ -250,9 +250,15 @@ const CreateCustomer = () => {
     validateOnMount: true,
     enableReinitialize: true,
     validateOnChange: false,
-    onSubmit: async ({ metadata, ...values }, formikBag) => {
+    onSubmit: async ({ metadata, email, ...values }, formikBag) => {
+      const formattedEmail = email
+        ?.split(',')
+        .map((mail) => mail.trim())
+        .join(',')
+
       const answer = await onSave({
         ...values,
+        email: formattedEmail,
         metadata: ((metadata as LocalCustomerMetadata[]) || []).map(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           ({ localId, ...rest }) => rest,
