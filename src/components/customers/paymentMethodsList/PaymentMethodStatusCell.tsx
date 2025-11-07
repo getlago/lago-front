@@ -1,0 +1,27 @@
+import { Status, StatusType, Typography } from '~/components/designSystem'
+import { PaymentMethodsQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
+
+interface PaymentMethodStatusCellProps {
+  item: PaymentMethodItem
+}
+
+export const PaymentMethodStatusCell = ({ item }: PaymentMethodStatusCellProps): JSX.Element => {
+  const { translate } = useInternationalization()
+
+  // @ts-expect-error - delatedAt will be available when BE provides the status field
+  const isDeleted = !!item?.delatedAt
+
+  const status = {
+    type: isDeleted ? StatusType.disabled : StatusType.success,
+    label: isDeleted ? 'text_17625289719370dmo0r5s8c3' : 'text_624efab67eb2570101d1180e',
+  }
+
+  return (
+    <Typography variant="caption" color="textSecondary">
+      <Status type={status.type} label={translate(status.label)} />
+    </Typography>
+  )
+}
