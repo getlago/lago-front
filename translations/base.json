@@ -3499,5 +3499,14 @@
   "text_17621837056900geit2h3mg6": "Click to copy",
   "text_1762184099398x60go694x4g": "Checkout link",
   "text_1762185015908yvajftyvcnq": "Payment checkout link copy to clipboard.",
-  "text_1761319649394ft46yvka31r": "Item mappings"
+  "text_1761319649394ft46yvka31r": "Item mappings",
+  "text_17624373282988xkhppid3at": "No payment method added yet.",
+  "text_1762437344178ud4kecr8cz9": "Make sure this customer is connected to a payment provider before adding one.",
+  "text_1762437511802p8qb8qpfy9a": "Copy payment method ID",
+  "text_176243751180284tefl8wgpw": "Payment method ID successfully copied to clipboard",
+  "text_1762437511802sg9jrl46lkb": "Delete payment method",
+  "text_1762437511802g5ysxig14q5": "Payment method ID successfully deleted",
+  "text_1762437511802dynl0tx20xe": "Payment Method",
+  "text_1762437511802do7br4qjc5p": "Payment method successfully set as default",
+  "text_1762437511802zhw5mx0iamd": "Exp"
 }

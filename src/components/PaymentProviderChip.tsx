@@ -1,4 +1,5 @@
-import { Avatar, Icon } from 'lago-design-system'
+import { TypographyProps as MuiTypographyProps } from '@mui/material'
+import { Avatar, Icon, TypographyColor } from 'lago-design-system'
 import { FC } from 'react'
 
 import { Typography } from '~/components/designSystem'
@@ -16,6 +17,8 @@ interface PaymentProviderChipProps {
   paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
   label?: string
   className?: string
+  textVariant?: MuiTypographyProps['variant']
+  textColor?: TypographyColor
 }
 
 const providers: Record<ProviderTypeEnum, { icon: JSX.Element; label: string }> = {
@@ -49,6 +52,8 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
   paymentProvider,
   label,
   className,
+  textVariant = 'body',
+  textColor = 'textSecondary',
 }) => {
   const { translate } = useInternationalization()
 
@@ -69,7 +74,7 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
           providers[paymentProvider].icon
         )}
       </Avatar>
-      <Typography variant="body" color="textSecondary" noWrap>
+      <Typography variant={textVariant} color={textColor} noWrap>
         {isManual ? translate(manualLabel) : (label ?? translate(providers[paymentProvider].label))}
       </Typography>
     </div>

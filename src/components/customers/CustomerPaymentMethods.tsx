@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { PaymentMethodsList } from '~/components/customers/PaymentMethodsList'
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import {
   Alert,
@@ -57,22 +58,22 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
 
   const [selectedPaymentProvider, setSelectedPaymentProvider] = useState<string>('')
 
-  const customerAvailablePaymentMethods = customer?.providerCustomer?.providerPaymentMethods || []
-  const hasAtLeastOneAvailablePaymentMethod = customerAvailablePaymentMethods.length > 0
-
   const ineligiblePaymentMethods = [
     ProviderPaymentMethodsEnum.CustomerBalance,
     ProviderPaymentMethodsEnum.Crypto,
   ]
 
-  const isCustomerEligibleForAddingPaymentMethods = customerAvailablePaymentMethods.some(
+  // START Business view logic
+  const customerLinkedPaymentProvider = customer.providerCustomer
+  const customerLinkedPaymentMethodsList =
+    customerLinkedPaymentProvider?.providerPaymentMethods || []
+
+  const isCustomerEligibleForAddingPaymentMethods = customerLinkedPaymentMethodsList.some(
     (method) => !ineligiblePaymentMethods.includes(method),
   )
+  // END business view logic)
 
-  const hasMissingConnectedPaymentProvider =
-    hasAtLeastOneAvailablePaymentMethod && !isCustomerEligibleForAddingPaymentMethods
-
-  const connectedPaymentProvidersData = useMemo(() => {
+  const mappedOptionsPaymentProvider = useMemo(() => {
     const mapOptions = linkedPaymentProvider ? [linkedPaymentProvider] : []
 
     return mapOptions.map(({ code, name }) => ({
@@ -81,13 +82,13 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
     }))
   }, [linkedPaymentProvider])
 
-  const hasOneAvailableOption = connectedPaymentProvidersData.length === 1
+  const hasOneAvailableOption = mappedOptionsPaymentProvider.length === 1
 
   useEffect(() => {
     if (hasOneAvailableOption) {
-      setSelectedPaymentProvider(connectedPaymentProvidersData[0].value)
+      setSelectedPaymentProvider(mappedOptionsPaymentProvider[0].value)
     }
-  }, [connectedPaymentProvidersData, hasOneAvailableOption])
+  }, [mappedOptionsPaymentProvider, hasOneAvailableOption])
 
   const checkoutUrl = data?.generateCheckoutUrl?.checkoutUrl || ''
 
@@ -100,24 +101,19 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
         action={{
           title: translate('text_1761914802986ww4ima0w9w9'),
           onClick: () => addPaymentDialogRef.current?.openDialog(),
-          isDisabled: hasMissingConnectedPaymentProvider,
+          isDisabled: !!(
+            customerLinkedPaymentProvider &&
+            customerLinkedPaymentMethodsList.length > 0 &&
+            !isCustomerEligibleForAddingPaymentMethods
+          ),
           dataTest: ADD_PAYMENT_METHOD_TEST_ID,
         }}
       />
-
-      {!hasAtLeastOneAvailablePaymentMethod && (
-        <Typography color="grey500" data-test={EMPTY_STATE_TEST_ID}>
-          {translate('text_1761915128154gyls7eboz4s')}
-        </Typography>
-      )}
-
-      {hasMissingConnectedPaymentProvider && (
-        <Typography color="grey500" className="mb-4" data-test={INELIGIBLE_PAYMENT_METHODS_TEST_ID}>
-          {translate('text_17619148029863fx3w8kwfdp')}
-        </Typography>
-      )}
-
-      {!hasMissingConnectedPaymentProvider && (
+      {!!!(
+        customerLinkedPaymentProvider &&
+        customerLinkedPaymentMethodsList.length > 0 &&
+        !isCustomerEligibleForAddingPaymentMethods
+      ) && (
         <Dialog
           ref={addPaymentDialogRef}
           title={translate('text_1761914802986ww4ima0w9w9')}
@@ -155,7 +151,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
               disabled={hasOneAvailableOption}
               disableClearable={hasOneAvailableOption}
               name="selectPaymentProvider"
-              data={connectedPaymentProvidersData}
+              data={mappedOptionsPaymentProvider}
               label={translate('text_634ea0ecc6147de10ddb6631')}
               placeholder={translate('text_1762173848714al2j36a59ce')}
               emptyText={translate('text_1762173891817jhfenej7eho')}
@@ -203,6 +199,18 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
             )}
           </>
         </Dialog>
+      )}
+
+      {!!(
+        customerLinkedPaymentProvider &&
+        customerLinkedPaymentMethodsList.length > 0 &&
+        !isCustomerEligibleForAddingPaymentMethods
+      ) ? (
+        <Typography color="grey500" className="mb-4" data-test={INELIGIBLE_PAYMENT_METHODS_TEST_ID}>
+          {translate('text_17619148029863fx3w8kwfdp')}
+        </Typography>
+      ) : (
+        <PaymentMethodsList externalCustomerId={customer.externalId} />
       )}
     </>
   )
