@@ -34,7 +34,7 @@ gql`
 `
 
 export interface FinalizeInvoiceDialogRef {
-  openDialog: (invoice: InvoiceForFinalizeInvoiceFragment, callback?: Function) => unknown
+  openDialog: (invoice: InvoiceForFinalizeInvoiceFragment, callback?: () => void) => unknown
   closeDialog: () => unknown
 }
 
@@ -43,7 +43,7 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
   const { formattedDateWithTimezone } = useFormatterDateHelper()
   const dialogRef = useRef<DialogRef>(null)
   const [invoice, setInvoice] = useState<InvoiceForFinalizeInvoiceFragment>()
-  const [callback, setCallback] = useState<Function | null>(null)
+  const [callback, setCallback] = useState<(() => void) | null>(null)
 
   const client = useApolloClient()
 

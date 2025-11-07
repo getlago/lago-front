@@ -31,6 +31,12 @@ export const GENERATE_CHECKOUT_URL_BUTTON_TEST_ID = 'generate-checkout-url-butto
 export const CANCEL_DIALOG_BUTTON_TEST_ID = 'cancel-dialog-button'
 export const ERROR_ALERT_TEST_ID = 'error-alert'
 export const CHECKOUT_URL_TEXT_TEST_ID = 'checkout-url-text'
+export const PAYMENT_METHODS_LIST_TEST_ID = 'payment-methods-list'
+
+const INELIGIBLE_PAYMENT_METHODS: ProviderPaymentMethodsEnum[] = [
+  ProviderPaymentMethodsEnum.CustomerBalance,
+  ProviderPaymentMethodsEnum.Crypto,
+]
 
 interface Props {
   customer: CustomerMainInfosFragment
@@ -47,6 +53,9 @@ gql`
 
 export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Props) => {
   const { translate } = useInternationalization()
+  const addPaymentDialogRef = useRef<DialogRef>(null)
+  const [selectedPaymentProvider, setSelectedPaymentProvider] = useState<string>('')
+
   const [generateCheckoutUrlMutation, { data, loading, error, reset }] =
     useGenerateCheckoutUrlMutation({
       variables: {
@@ -54,41 +63,39 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
       },
     })
 
-  const addPaymentDialogRef = useRef<DialogRef>(null)
+  const hasOnlyIneligiblePaymentMethods = useMemo(() => {
+    const linkedProviderCustomer = customer.providerCustomer
+    const availableProviderPaymentMethods = linkedProviderCustomer?.providerPaymentMethods || []
 
-  const [selectedPaymentProvider, setSelectedPaymentProvider] = useState<string>('')
+    const canAddPaymentMethods = availableProviderPaymentMethods.some(
+      (method) => !INELIGIBLE_PAYMENT_METHODS.includes(method),
+    )
 
-  const ineligiblePaymentMethods = [
-    ProviderPaymentMethodsEnum.CustomerBalance,
-    ProviderPaymentMethodsEnum.Crypto,
-  ]
+    return (
+      !!linkedProviderCustomer &&
+      availableProviderPaymentMethods.length > 0 &&
+      !canAddPaymentMethods
+    )
+  }, [customer.providerCustomer])
 
-  // START Business view logic
-  const customerLinkedPaymentProvider = customer.providerCustomer
-  const customerLinkedPaymentMethodsList =
-    customerLinkedPaymentProvider?.providerPaymentMethods || []
+  const paymentProviderOptions = useMemo(() => {
+    if (!linkedPaymentProvider) return []
 
-  const isCustomerEligibleForAddingPaymentMethods = customerLinkedPaymentMethodsList.some(
-    (method) => !ineligiblePaymentMethods.includes(method),
-  )
-  // END business view logic)
-
-  const mappedOptionsPaymentProvider = useMemo(() => {
-    const mapOptions = linkedPaymentProvider ? [linkedPaymentProvider] : []
-
-    return mapOptions.map(({ code, name }) => ({
-      value: code,
-      label: name,
-    }))
+    return [
+      {
+        value: linkedPaymentProvider.code,
+        label: linkedPaymentProvider.name,
+      },
+    ]
   }, [linkedPaymentProvider])
 
-  const hasOneAvailableOption = mappedOptionsPaymentProvider.length === 1
+  const hasOneAvailableOption = paymentProviderOptions.length === 1
 
   useEffect(() => {
     if (hasOneAvailableOption) {
-      setSelectedPaymentProvider(mappedOptionsPaymentProvider[0].value)
+      setSelectedPaymentProvider(paymentProviderOptions[0].value)
     }
-  }, [mappedOptionsPaymentProvider, hasOneAvailableOption])
+  }, [hasOneAvailableOption, paymentProviderOptions])
 
   const checkoutUrl = data?.generateCheckoutUrl?.checkoutUrl || ''
 
@@ -101,25 +108,17 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
         action={{
           title: translate('text_1761914802986ww4ima0w9w9'),
           onClick: () => addPaymentDialogRef.current?.openDialog(),
-          isDisabled: !!(
-            customerLinkedPaymentProvider &&
-            customerLinkedPaymentMethodsList.length > 0 &&
-            !isCustomerEligibleForAddingPaymentMethods
-          ),
+          isDisabled: hasOnlyIneligiblePaymentMethods,
           dataTest: ADD_PAYMENT_METHOD_TEST_ID,
         }}
       />
-      {!!!(
-        customerLinkedPaymentProvider &&
-        customerLinkedPaymentMethodsList.length > 0 &&
-        !isCustomerEligibleForAddingPaymentMethods
-      ) && (
+      {!hasOnlyIneligiblePaymentMethods && (
         <Dialog
           ref={addPaymentDialogRef}
           title={translate('text_1761914802986ww4ima0w9w9')}
           description={translate('text_1761914802986ipq0aot8fas')}
           onClose={() => {
-            if (!!error) {
+            if (error) {
               reset()
             }
           }}
@@ -151,7 +150,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
               disabled={hasOneAvailableOption}
               disableClearable={hasOneAvailableOption}
               name="selectPaymentProvider"
-              data={mappedOptionsPaymentProvider}
+              data={paymentProviderOptions}
               label={translate('text_634ea0ecc6147de10ddb6631')}
               placeholder={translate('text_1762173848714al2j36a59ce')}
               emptyText={translate('text_1762173891817jhfenej7eho')}
@@ -162,7 +161,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
               }}
             />
 
-            {!!error && (
+            {error && (
               <Alert type="danger" className="mb-8" data-test={ERROR_ALERT_TEST_ID}>
                 {translate('text_1762182354095wfjiizpju0e')}
               </Alert>
@@ -201,16 +200,16 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
         </Dialog>
       )}
 
-      {!!(
-        customerLinkedPaymentProvider &&
-        customerLinkedPaymentMethodsList.length > 0 &&
-        !isCustomerEligibleForAddingPaymentMethods
-      ) ? (
+      {hasOnlyIneligiblePaymentMethods && (
         <Typography color="grey500" className="mb-4" data-test={INELIGIBLE_PAYMENT_METHODS_TEST_ID}>
           {translate('text_17619148029863fx3w8kwfdp')}
         </Typography>
-      ) : (
-        <PaymentMethodsList externalCustomerId={customer.externalId} />
+      )}
+
+      {!hasOnlyIneligiblePaymentMethods && (
+        <div data-test={PAYMENT_METHODS_LIST_TEST_ID}>
+          <PaymentMethodsList externalCustomerId={customer.externalId} />
+        </div>
       )}
     </>
   )

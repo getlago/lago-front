@@ -24,7 +24,7 @@ gql`
 
 type TDeleteAdyenIntegrationDialogProps = {
   provider: DeleteAdyenIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteAdyenIntegrationDialogRef {

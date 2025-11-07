@@ -24,7 +24,7 @@ gql`
 
 type TDeleteGocardlessIntegrationDialogProps = {
   provider: DeleteGocardlessIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteGocardlessIntegrationDialogRef {

@@ -55,7 +55,7 @@ gql`
 type TAddNetsuiteDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteNetsuiteIntegrationDialogRef>
   provider: NetsuiteForCreateDialogDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddNetsuiteDialogRef {

@@ -67,7 +67,7 @@ gql`
 type TAddGocardlessDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteGocardlessIntegrationDialogRef>
   provider: AddGocardlessProviderDialogFragment
-  deleteDialogCallback: Function
+  deleteDialogCallback: () => void
 }>
 
 export interface AddGocardlessDialogRef {

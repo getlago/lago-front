@@ -23,7 +23,7 @@ gql`
 
 type TDeleteMoneyhashIntegrationDialogProps = {
   provider: DeleteMoneyhashIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteMoneyhashIntegrationDialogRef {

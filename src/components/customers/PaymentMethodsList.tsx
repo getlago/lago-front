@@ -18,7 +18,7 @@ const OBFUSCATED_LAST4_PREFIX = '••••'
 
 const PaymentProviderMethodTranslationsLookup: Record<ProviderPaymentMethodsEnum, IconName> = {
   [ProviderPaymentMethodsEnum.BacsDebit]: 'bank',
-  [ProviderPaymentMethodsEnum.Card]: 'bank',
+  [ProviderPaymentMethodsEnum.Card]: 'card',
   [ProviderPaymentMethodsEnum.Link]: 'bank',
   [ProviderPaymentMethodsEnum.SepaDebit]: 'bank',
   [ProviderPaymentMethodsEnum.UsBankAccount]: 'bank',

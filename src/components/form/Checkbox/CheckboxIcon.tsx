@@ -91,15 +91,13 @@ const CheckboxIndeterminateIcon: FC<CheckboxCheckedIconProps> = ({ disabled, foc
 export const CheckboxIcon: FC<
   { value?: boolean; canBeIndeterminate?: boolean } & CheckboxCheckedIconProps
 > = ({ value, canBeIndeterminate, ...checkboxIconProps }) => {
-  return (
-    <>
-      {value ? (
-        <CheckboxCheckedIcon {...checkboxIconProps} />
-      ) : value === undefined && canBeIndeterminate ? (
-        <CheckboxIndeterminateIcon {...checkboxIconProps} />
-      ) : (
-        <CheckboxUncheckedIcon />
-      )}
-    </>
-  )
+  if (value) {
+    return <CheckboxCheckedIcon {...checkboxIconProps} />
+  }
+
+  if (canBeIndeterminate) {
+    return <CheckboxIndeterminateIcon {...checkboxIconProps} />
+  }
+
+  return <CheckboxUncheckedIcon />
 }

@@ -27,6 +27,8 @@ export type ExportValues<T> = {
 
 type ExportDialogProps = {
   totalCountLabel: string
+  // TODO: Fix this type
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   onExport: Function
   disableExport?: boolean
   resourceTypeOptions: {
