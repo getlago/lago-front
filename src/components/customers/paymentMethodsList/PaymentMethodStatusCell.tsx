@@ -1,4 +1,4 @@
-import { Status, StatusType, Typography } from '~/components/designSystem'
+import { Status, StatusType } from '~/components/designSystem'
 import { PaymentMethodsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -19,9 +19,5 @@ export const PaymentMethodStatusCell = ({ item }: PaymentMethodStatusCellProps):
     label: isDeleted ? 'text_17625289719370dmo0r5s8c3' : 'text_624efab67eb2570101d1180e',
   }
 
-  return (
-    <Typography variant="caption" color="textSecondary">
-      <Status type={status.type} label={translate(status.label)} />
-    </Typography>
-  )
+  return <Status type={status.type} label={translate(status.label)} />
 }
