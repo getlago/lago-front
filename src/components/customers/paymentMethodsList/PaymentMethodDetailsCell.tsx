@@ -1,22 +1,11 @@
-import { Icon, IconName } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 
 import { Chip, Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { PaymentMethodsQuery, ProviderPaymentMethodsEnum } from '~/generated/graphql'
+import { PaymentMethodsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const OBFUSCATED_LAST4_PREFIX = '••••'
-
-const PaymentProviderMethodIconsLookup: Record<ProviderPaymentMethodsEnum, IconName> = {
-  [ProviderPaymentMethodsEnum.BacsDebit]: 'bank',
-  [ProviderPaymentMethodsEnum.Card]: 'card',
-  [ProviderPaymentMethodsEnum.Link]: 'bank',
-  [ProviderPaymentMethodsEnum.SepaDebit]: 'bank',
-  [ProviderPaymentMethodsEnum.UsBankAccount]: 'bank',
-  [ProviderPaymentMethodsEnum.Boleto]: 'bank',
-  [ProviderPaymentMethodsEnum.Crypto]: 'bank',
-  [ProviderPaymentMethodsEnum.CustomerBalance]: 'bank',
-}
 
 type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
 
@@ -27,17 +16,11 @@ interface PaymentMethodDetailsCellProps {
 export const PaymentMethodDetailsCell = ({ item }: PaymentMethodDetailsCellProps): JSX.Element => {
   const { translate } = useInternationalization()
 
-  const paymentDetailType = (item.details?.type || '').toLowerCase()
-  const iconName =
-    paymentDetailType && paymentDetailType in PaymentProviderMethodIconsLookup
-      ? PaymentProviderMethodIconsLookup[paymentDetailType as ProviderPaymentMethodsEnum]
-      : 'bank'
-
   return (
     <div className="flex items-center gap-3">
       {/* ICON */}
       <div className="flex size-10 items-center justify-center rounded-xl bg-grey-100">
-        <Icon name={iconName} color="black" />
+        <Icon name="coin-dollar" color="dark" />
       </div>
 
       <div className="flex flex-1 flex-col">
