@@ -7,6 +7,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const OBFUSCATED_LAST4_PREFIX = '••••'
 
+export const DEFAULT_BADGE_TEST_ID = 'default-badge'
+
 type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
 
 interface PaymentMethodDetailsCellProps {
@@ -62,6 +64,7 @@ export const PaymentMethodDetailsCell = ({ item }: PaymentMethodDetailsCellProps
           {/* DEFAULT BADGE */}
           {item.isDefault && (
             <Chip
+              data-test={DEFAULT_BADGE_TEST_ID}
               label={translate('text_17440321235444hcxi31f8j6')}
               type="secondary"
               variant="caption"
