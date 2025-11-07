@@ -7,9 +7,11 @@ import {
   type ItemMappingForTaxMapping,
   type ItemMappingPerBillingEntity,
 } from '~/pages/settings/integrations/common'
+import { ItemMappingForCurrenciesMapping } from '~/pages/settings/integrations/common/types'
 import type { IntegrationItemData } from '~/pages/settings/integrations/IntegrationItem'
 
 import { findItemMapping } from './findItemMapping'
+import { isNetsuiteIntegrationAdditionalItemsListFragment } from './isNetsuiteIntegrationAdditionalItemsListFragment'
 
 export const generateItemMappingForAllBillingEntities = (
   item: IntegrationItemData,
@@ -19,6 +21,16 @@ export const generateItemMappingForAllBillingEntities = (
     const billingEntityId = billingEntity.id || DEFAULT_MAPPING_KEY
 
     const itemMapping = findItemMapping(item, billingEntity.id)
+
+    if (!itemMapping && item.mappingType === MappingTypeEnum.Currencies) {
+      const itemToAdd: ItemMappingForCurrenciesMapping = {
+        itemId: null,
+        currencies: [],
+      }
+
+      acc[billingEntityId] = itemToAdd
+      return acc
+    }
 
     if (!itemMapping && item.mappingType === MappingTypeEnum.Tax) {
       const itemToAdd: ItemMappingForTaxMapping = {
@@ -58,6 +70,16 @@ export const generateItemMappingForAllBillingEntities = (
         itemExternalId: null,
         itemExternalName: undefined,
         itemExternalCode: undefined,
+      }
+
+      acc[billingEntityId] = itemToAdd
+      return acc
+    }
+
+    if (isNetsuiteIntegrationAdditionalItemsListFragment(item, itemMapping)) {
+      const itemToAdd: ItemMappingForCurrenciesMapping = {
+        itemId: itemMapping.id,
+        currencies: itemMapping.currencies || [],
       }
 
       acc[billingEntityId] = itemToAdd

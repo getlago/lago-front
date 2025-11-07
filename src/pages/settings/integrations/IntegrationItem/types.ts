@@ -29,4 +29,5 @@ export type IntegrationItemsTableProps = {
   integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
   isLoading: boolean
   firstColumnName?: string
+  displayBillingEntities?: boolean
 }

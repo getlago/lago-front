@@ -5,6 +5,7 @@ import { PickEnum } from '~/core/types/pickEnum.type'
 import {
   AnrokIntegrationItemsListDefaultFragment,
   AvalaraIntegrationItemsListDefaultFragment,
+  CurrencyMappingItem,
   GetAddOnsForAnrokItemsListQuery,
   GetAddOnsForAvalaraItemsListQuery,
   GetAddOnsForNetsuiteItemsListQuery,
@@ -14,6 +15,7 @@ import {
   GetBillableMetricsForNetsuiteItemsListQuery,
   GetBillableMetricsForXeroItemsListQuery,
   IntegrationTypeEnum,
+  NetsuiteIntegrationAdditionalItemsListFragment,
   NetsuiteIntegrationItemsListDefaultFragment,
   useCreateAnrokIntegrationCollectionMappingMutation,
   useCreateAnrokIntegrationMappingMutation,
@@ -43,6 +45,7 @@ import {
 } from '~/generated/graphql'
 import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import { AvalaraIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
+import { NetsuiteAdditionalMappingDrawerRef } from '~/pages/settings/integrations/NetsuiteAdditionalMappings/types'
 import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 
@@ -73,12 +76,14 @@ export type ItemMapping =
   | NetsuiteIntegrationItemsListDefaultFragment
   | AvalaraIntegrationItemsListDefaultFragment
   | XeroIntegrationItemsListDefaultFragment
+  | NetsuiteIntegrationAdditionalItemsListFragment
 
 export type MappableIntegrationMapItemDrawerRef = RefObject<
   | NetsuiteIntegrationMapItemDrawerRef
   | AnrokIntegrationMapItemDrawerRef
   | AvalaraIntegrationMapItemDrawerRef
   | XeroIntegrationMapItemDrawerRef
+  | NetsuiteAdditionalMappingDrawerRef
 >
 
 export type BillingEntityForIntegrationMapping = {
@@ -113,9 +118,17 @@ export type ItemMappingForMappable = {
   lagoMappableName: string
 }
 
+export type ItemMappingForCurrenciesMapping = {
+  itemId: string | null
+  currencies: Array<CurrencyMappingItem>
+}
+
 export type ItemMappingPerBillingEntity = Record<
   'default' | string,
-  ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable
+  | ItemMappingForTaxMapping
+  | ItemMappingForNonTaxMapping
+  | ItemMappingForMappable
+  | ItemMappingForCurrenciesMapping
 >
 
 export type CreateUpdateDeleteSuccessAnswer =
