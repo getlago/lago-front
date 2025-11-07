@@ -8,9 +8,13 @@ import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  DestroyPaymentMethodInput,
   PaymentMethodsQuery,
   ProviderPaymentMethodsEnum,
+  SetAsDefaultInput,
+  useDestroyPaymentMethodMutation,
   usePaymentMethodsQuery,
+  useSetPaymentMethodAsDefaultMutation,
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -46,6 +50,18 @@ gql`
       }
     }
   }
+
+  mutation setPaymentMethodAsDefault($input: SetAsDefaultInput!) {
+    setPaymentMethodAsDefault(input: $input) {
+      id
+    }
+  }
+
+  mutation destroyPaymentMethod($input: DestroyPaymentMethodInput!) {
+    destroyPaymentMethod(input: $input) {
+      id
+    }
+  }
 `
 
 interface Props {
@@ -56,14 +72,19 @@ type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][num
 
 const generateActionColumn = ({
   translate,
+  setPaymentMethodAsDefault,
+  destroyPaymentMethod,
 }: {
   translate: TranslateFunc
+  setPaymentMethodAsDefault: (input: SetAsDefaultInput) => Promise<void>
+  destroyPaymentMethod: (input: DestroyPaymentMethodInput) => Promise<void>
 }): ActionItem<PaymentMethodItem>[] => {
   const setPaymentMethodAsDefaultAction: ActionItem<PaymentMethodItem> = {
     startIcon: 'star-filled',
     title: translate('text_1728574726495n9jdse2hnrf'),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onAction: (paymentMethod) => {
+    onAction: async (paymentMethod) => {
+      await setPaymentMethodAsDefault({ id: paymentMethod.id })
+
       addToast({
         severity: 'success',
         translateKey: translate('text_1762437511802do7br4qjc5p'),
@@ -87,8 +108,9 @@ const generateActionColumn = ({
   const deletePaymentMethodAction: ActionItem<PaymentMethodItem> = {
     startIcon: 'trash',
     title: translate('text_1762437511802sg9jrl46lkb'),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onAction: (paymentMethod) => {
+    onAction: async (paymentMethod) => {
+      await destroyPaymentMethod({ id: paymentMethod.id })
+
       addToast({
         severity: 'success',
         translateKey: translate('text_1762437511802g5ysxig14q5'),
@@ -102,12 +124,35 @@ const generateActionColumn = ({
 export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
   const { translate } = useInternationalization()
 
-  const { data, error, loading } = usePaymentMethodsQuery({
+  const {
+    data,
+    error: hasErrorPaymentMethods,
+    loading,
+    refetch,
+  } = usePaymentMethodsQuery({
     variables: { externalCustomerId },
   })
 
+  const [setPaymentMethodAsDefaultMutation, { error: hasErrorSetPaymentMethodAsDefault }] =
+    useSetPaymentMethodAsDefaultMutation()
+  const [destroyPaymentMethodMutation, { error: hasErrorDestroyPaymentMethod }] =
+    useDestroyPaymentMethodMutation()
+
+  const setPaymentMethodAsDefault = async (input: SetAsDefaultInput): Promise<void> => {
+    await setPaymentMethodAsDefaultMutation({ variables: { input } })
+    refetch()
+  }
+
+  const destroyPaymentMethod = async (input: DestroyPaymentMethodInput): Promise<void> => {
+    await destroyPaymentMethodMutation({ variables: { input } })
+    refetch()
+  }
+
   const paymentMethods: PaymentMethodsQuery['paymentMethods']['collection'] =
     data?.paymentMethods?.collection || []
+
+  const hasError =
+    hasErrorPaymentMethods || hasErrorSetPaymentMethodAsDefault || hasErrorDestroyPaymentMethod
 
   return (
     <Table
@@ -122,7 +167,9 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
         },
       }}
       actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
-      actionColumn={() => generateActionColumn({ translate })}
+      actionColumn={() =>
+        generateActionColumn({ translate, setPaymentMethodAsDefault, destroyPaymentMethod })
+      }
       columns={[
         {
           key: 'id',
@@ -231,7 +278,7 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
         },
       ]}
       isLoading={loading}
-      hasError={!!error}
+      hasError={!!hasError}
     />
   )
 }
