@@ -53,7 +53,7 @@ export const InvoiceOverviewHeaderButtons = ({
 
   const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
   const canDownloadInvoice = !hasError && !loading && !disablePdfGeneration
-  const canDownloadXml = invoice.billingEntity?.einvoicing || invoice.xmlUrl
+  const canDownloadXml = invoice?.billingEntity?.einvoicing || invoice?.xmlUrl
 
   if (invoice?.status === InvoiceStatusTypeEnum.Draft) {
     return (

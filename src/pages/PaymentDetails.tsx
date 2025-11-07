@@ -48,6 +48,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -84,6 +85,9 @@ gql`
         name
         displayName
         applicableTimezone
+        billingEntity {
+          einvoicing
+        }
       }
       payable {
         ... on Invoice {
@@ -101,6 +105,7 @@ gql`
       }
       paymentReceipt {
         id
+        xmlUrl
       }
     }
   }
@@ -162,6 +167,7 @@ const PaymentDetails = () => {
   const { timezone } = useOrganizationInfos()
   const { customerId, paymentId } = useParams()
   const { goBack } = useLocationHistory()
+  const { handleDownloadFileWithCors } = useDownloadFile()
 
   const { data = {}, loading } = useGetPaymentDetailsQuery({
     variables: {
@@ -177,6 +183,9 @@ const PaymentDetails = () => {
   const invoices = payableInvoice || requestPaymentInvoices || []
 
   const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
+  const canDownloadXmlFile =
+    canDownloadPaymentReceipts &&
+    (!!payment?.paymentReceipt?.xmlUrl || !!payment?.customer?.billingEntity?.einvoicing)
 
   const goToPreviousRoute = useCallback(
     () =>
@@ -248,7 +257,7 @@ const PaymentDetails = () => {
                 {translate('text_1737029625089rtcf3ah5khq')}
               </Button>
 
-              {canDownloadPaymentReceipts && (
+              {canDownloadPaymentReceipts && !canDownloadXmlFile && (
                 <Button
                   variant="quaternary"
                   align="left"
@@ -263,6 +272,37 @@ const PaymentDetails = () => {
                 >
                   {translate('text_1741334392622fl3ozwejrul')}
                 </Button>
+              )}
+
+              {canDownloadXmlFile && (
+                <>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={!payment?.paymentReceipt?.id}
+                    onClick={() => {
+                      downloadPaymentReceipts({
+                        paymentReceiptId: payment?.paymentReceipt?.id,
+                      })
+
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_1762529003426q0xqqentmsc')}
+                  </Button>
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={!payment?.paymentReceipt?.id}
+                    onClick={() => {
+                      handleDownloadFileWithCors(payment?.paymentReceipt?.xmlUrl)
+
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_17625290034260szr7wfl8cs')}
+                  </Button>
+                </>
               )}
             </MenuPopper>
           )}
@@ -314,7 +354,7 @@ const PaymentDetails = () => {
           <div className="mb-4 flex items-center justify-between">
             <Typography variant="subhead1">{translate('text_634687079be251fdb43833b7')}</Typography>
 
-            {canDownloadPaymentReceipts && (
+            {canDownloadPaymentReceipts && !canDownloadXmlFile && (
               <Button
                 variant="inline"
                 align="left"
@@ -327,6 +367,48 @@ const PaymentDetails = () => {
               >
                 {translate('text_1741334392622fl3ozwejrul')}
               </Button>
+            )}
+
+            {canDownloadXmlFile && (
+              <Popper
+                PopperProps={{ placement: 'bottom-end' }}
+                opener={
+                  <Button
+                    variant="inline"
+                    endIcon="chevron-down"
+                    data-test="coupon-details-actions"
+                  >
+                    {translate('text_1741334392622fl3ozwejrul')}
+                  </Button>
+                }
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={async () => {
+                        await downloadPaymentReceipts({
+                          paymentReceiptId: payment?.paymentReceipt?.id,
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1762529003426q0xqqentmsc')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={async () => {
+                        await handleDownloadFileWithCors(payment?.paymentReceipt?.xmlUrl)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_17625290034260szr7wfl8cs')}
+                    </Button>
+                  </MenuPopper>
+                )}
+              </Popper>
             )}
           </div>
 
