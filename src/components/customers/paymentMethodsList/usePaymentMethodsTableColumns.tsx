@@ -46,11 +46,12 @@ export const usePaymentMethodsTableColumns = ({
           content: (item: PaymentMethodItem) => <PaymentMethodStatusCell item={item} />,
         },
       ],
-      actionColumn: () =>
+      actionColumn: (item: PaymentMethodItem) =>
         generatePaymentMethodsActions({
           translate,
           setPaymentMethodAsDefault,
           destroyPaymentMethod,
+          item,
         }),
     }),
     [translate, setPaymentMethodAsDefault, destroyPaymentMethod],

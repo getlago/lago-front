@@ -25,7 +25,9 @@ describe('generatePaymentMethodsActions', () => {
 
   describe('WHEN generating actions', () => {
     it('THEN returns three actions', () => {
+      const paymentMethod = createMockPaymentMethod()
       const actions = generatePaymentMethodsActions({
+        item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
         destroyPaymentMethod: mockDestroyPaymentMethod,
@@ -39,21 +41,60 @@ describe('generatePaymentMethodsActions', () => {
       expect(copyAction).toBeDefined()
       expect(deleteAction).toBeDefined()
     })
-  })
 
-  describe('WHEN executing set as default action', () => {
-    it('THEN calls setPaymentMethodAsDefault with correct input and shows success toast', async () => {
+    it('THEN disables set as default action when payment method is default', () => {
+      const paymentMethod = createMockPaymentMethod({ isDefault: true })
       const actions = generatePaymentMethodsActions({
+        item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
         destroyPaymentMethod: mockDestroyPaymentMethod,
       })
 
-      const paymentMethod = createMockPaymentMethod({ id: 'pm_test_001' })
       const setAsDefaultAction = actions.find((action) => action.startIcon === 'star-filled')
 
       expect(setAsDefaultAction).toBeDefined()
-      await setAsDefaultAction?.onAction(paymentMethod)
+      expect(setAsDefaultAction?.disabled).toBe(true)
+    })
+
+    it('THEN disables set as default and delete actions when payment method is deleted', () => {
+      const paymentMethod = createMockPaymentMethod({
+        // @ts-expect-error - deletedAt will be available when BE provides the status field
+        deletedAt: '2024-01-01T00:00:00Z',
+      })
+      const actions = generatePaymentMethodsActions({
+        item: paymentMethod,
+        translate: mockTranslate,
+        setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
+        destroyPaymentMethod: mockDestroyPaymentMethod,
+      })
+
+      const setAsDefaultAction = actions.find((action) => action.startIcon === 'star-filled')
+      const deleteAction = actions.find((action) => action.startIcon === 'trash')
+
+      expect(setAsDefaultAction).toBeDefined()
+      expect(setAsDefaultAction?.disabled).toBe(true)
+      expect(deleteAction).toBeDefined()
+      expect(deleteAction?.disabled).toBe(true)
+    })
+  })
+
+  describe('WHEN executing set as default action', () => {
+    it('THEN calls setPaymentMethodAsDefault with correct input and shows success toast', async () => {
+      const paymentMethod = createMockPaymentMethod({ id: 'pm_test_001' })
+      const actions = generatePaymentMethodsActions({
+        item: paymentMethod,
+        translate: mockTranslate,
+        setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
+        destroyPaymentMethod: mockDestroyPaymentMethod,
+      })
+
+      const setAsDefaultAction = actions.find((action) => action.startIcon === 'star-filled')
+
+      expect(setAsDefaultAction).toBeDefined()
+      if (!setAsDefaultAction) return
+
+      await setAsDefaultAction.onAction(paymentMethod)
 
       expect(mockSetPaymentMethodAsDefault).toHaveBeenCalledWith({ id: 'pm_test_001' })
 
@@ -67,17 +108,20 @@ describe('generatePaymentMethodsActions', () => {
 
   describe('WHEN executing copy action', () => {
     it('THEN copies payment method id to clipboard and shows info toast', () => {
+      const paymentMethod = createMockPaymentMethod({ id: 'pm_copy_001' })
       const actions = generatePaymentMethodsActions({
+        item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
         destroyPaymentMethod: mockDestroyPaymentMethod,
       })
 
-      const paymentMethod = createMockPaymentMethod({ id: 'pm_copy_001' })
       const copyAction = actions.find((action) => action.startIcon === 'duplicate')
 
       expect(copyAction).toBeDefined()
-      copyAction?.onAction(paymentMethod)
+      if (!copyAction) return
+
+      copyAction.onAction(paymentMethod)
 
       expect(copyToClipboard).toHaveBeenCalledWith('pm_copy_001')
 
@@ -91,17 +135,20 @@ describe('generatePaymentMethodsActions', () => {
 
   describe('WHEN executing delete action', () => {
     it('THEN calls destroyPaymentMethod with correct input and shows success toast', async () => {
+      const paymentMethod = createMockPaymentMethod({ id: 'pm_delete_001' })
       const actions = generatePaymentMethodsActions({
+        item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
         destroyPaymentMethod: mockDestroyPaymentMethod,
       })
 
-      const paymentMethod = createMockPaymentMethod({ id: 'pm_delete_001' })
       const deleteAction = actions.find((action) => action.startIcon === 'trash')
 
       expect(deleteAction).toBeDefined()
-      await deleteAction?.onAction(paymentMethod)
+      if (!deleteAction) return
+
+      await deleteAction.onAction(paymentMethod)
 
       expect(mockDestroyPaymentMethod).toHaveBeenCalledWith({ id: 'pm_delete_001' })
 
