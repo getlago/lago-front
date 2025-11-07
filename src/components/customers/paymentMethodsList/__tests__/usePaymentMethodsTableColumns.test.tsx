@@ -10,7 +10,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 describe('usePaymentMethodsTableColumns', () => {
   const mockSetPaymentMethodAsDefault = jest.fn().mockResolvedValue(undefined)
-  const mockDestroyPaymentMethod = jest.fn().mockResolvedValue(undefined)
+  const mockOnDeletePaymentMethod = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -21,7 +21,7 @@ describe('usePaymentMethodsTableColumns', () => {
       const { result } = renderHook(() =>
         usePaymentMethodsTableColumns({
           setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
-          destroyPaymentMethod: mockDestroyPaymentMethod,
+          onDeletePaymentMethod: mockOnDeletePaymentMethod,
         }),
       )
 

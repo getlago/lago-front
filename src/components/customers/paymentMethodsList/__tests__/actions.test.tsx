@@ -17,7 +17,7 @@ jest.mock('~/core/utils/copyToClipboard', () => ({
 describe('generatePaymentMethodsActions', () => {
   const mockTranslate = jest.fn((key: string) => key)
   const mockSetPaymentMethodAsDefault = jest.fn().mockResolvedValue(undefined)
-  const mockDestroyPaymentMethod = jest.fn().mockResolvedValue(undefined)
+  const mockOnDeletePaymentMethod = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -30,7 +30,7 @@ describe('generatePaymentMethodsActions', () => {
         item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
-        destroyPaymentMethod: mockDestroyPaymentMethod,
+        onDeletePaymentMethod: mockOnDeletePaymentMethod,
       })
 
       const setAsDefaultAction = actions.find((action) => action.startIcon === 'star-filled')
@@ -48,7 +48,7 @@ describe('generatePaymentMethodsActions', () => {
         item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
-        destroyPaymentMethod: mockDestroyPaymentMethod,
+        onDeletePaymentMethod: mockOnDeletePaymentMethod,
       })
 
       const setAsDefaultAction = actions.find((action) => action.startIcon === 'star-filled')
@@ -66,7 +66,7 @@ describe('generatePaymentMethodsActions', () => {
         item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
-        destroyPaymentMethod: mockDestroyPaymentMethod,
+        onDeletePaymentMethod: mockOnDeletePaymentMethod,
       })
 
       const setAsDefaultAction = actions.find((action) => action.startIcon === 'star-filled')
@@ -86,7 +86,7 @@ describe('generatePaymentMethodsActions', () => {
         item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
-        destroyPaymentMethod: mockDestroyPaymentMethod,
+        onDeletePaymentMethod: mockOnDeletePaymentMethod,
       })
 
       const setAsDefaultAction = actions.find((action) => action.startIcon === 'star-filled')
@@ -113,7 +113,7 @@ describe('generatePaymentMethodsActions', () => {
         item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
-        destroyPaymentMethod: mockDestroyPaymentMethod,
+        onDeletePaymentMethod: mockOnDeletePaymentMethod,
       })
 
       const copyAction = actions.find((action) => action.startIcon === 'duplicate')
@@ -134,13 +134,13 @@ describe('generatePaymentMethodsActions', () => {
   })
 
   describe('WHEN executing delete action', () => {
-    it('THEN calls destroyPaymentMethod with correct input and shows success toast', async () => {
+    it('THEN opens delete payment method dialog', () => {
       const paymentMethod = createMockPaymentMethod({ id: 'pm_delete_001' })
       const actions = generatePaymentMethodsActions({
         item: paymentMethod,
         translate: mockTranslate,
         setPaymentMethodAsDefault: mockSetPaymentMethodAsDefault,
-        destroyPaymentMethod: mockDestroyPaymentMethod,
+        onDeletePaymentMethod: mockOnDeletePaymentMethod,
       })
 
       const deleteAction = actions.find((action) => action.startIcon === 'trash')
@@ -148,15 +148,9 @@ describe('generatePaymentMethodsActions', () => {
       expect(deleteAction).toBeDefined()
       if (!deleteAction) return
 
-      await deleteAction.onAction(paymentMethod)
+      deleteAction.onAction(paymentMethod)
 
-      expect(mockDestroyPaymentMethod).toHaveBeenCalledWith({ id: 'pm_delete_001' })
-
-      expect(addToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          severity: 'success',
-        }),
-      )
+      expect(mockOnDeletePaymentMethod).toHaveBeenCalledWith(paymentMethod)
     })
   })
 })

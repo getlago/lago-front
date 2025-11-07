@@ -2,11 +2,7 @@ import { useMemo } from 'react'
 
 import { ActionItem } from '~/components/designSystem/Table'
 import { TableColumn } from '~/components/designSystem/Table'
-import {
-  DestroyPaymentMethodInput,
-  PaymentMethodsQuery,
-  SetAsDefaultInput,
-} from '~/generated/graphql'
+import { PaymentMethodsQuery, SetAsDefaultInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { generatePaymentMethodsActions } from './actions'
@@ -17,7 +13,7 @@ type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][num
 
 interface UsePaymentMethodsTableColumnsParams {
   setPaymentMethodAsDefault: (input: SetAsDefaultInput) => Promise<void>
-  destroyPaymentMethod: (input: DestroyPaymentMethodInput) => Promise<void>
+  onDeletePaymentMethod: (item: PaymentMethodItem) => void
 }
 
 interface UsePaymentMethodsTableColumnsReturn {
@@ -27,7 +23,7 @@ interface UsePaymentMethodsTableColumnsReturn {
 
 export const usePaymentMethodsTableColumns = ({
   setPaymentMethodAsDefault,
-  destroyPaymentMethod,
+  onDeletePaymentMethod,
 }: UsePaymentMethodsTableColumnsParams): UsePaymentMethodsTableColumnsReturn => {
   const { translate } = useInternationalization()
 
@@ -50,10 +46,10 @@ export const usePaymentMethodsTableColumns = ({
         generatePaymentMethodsActions({
           translate,
           setPaymentMethodAsDefault,
-          destroyPaymentMethod,
+          onDeletePaymentMethod,
           item,
         }),
     }),
-    [translate, setPaymentMethodAsDefault, destroyPaymentMethod],
+    [translate, setPaymentMethodAsDefault, onDeletePaymentMethod],
   )
 }
