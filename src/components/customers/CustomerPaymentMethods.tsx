@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { PaymentMethodsList } from '~/components/customers/PaymentMethodsList'
+import { PaymentMethodsList } from '~/components/customers/paymentMethodsList'
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import {
   Alert,
