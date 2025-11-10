@@ -16,15 +16,15 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import {
+  NetsuiteIntegrationMapItemDrawer,
+  NetsuiteIntegrationMapItemDrawerRef,
+} from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import NetsuiteIntegrationItemsListAddons from './NetsuiteIntegrationItemsListAddons'
 import NetsuiteIntegrationItemsListBillableMetrics from './NetsuiteIntegrationItemsListBillableMetrics'
 import NetsuiteIntegrationItemsListDefault from './NetsuiteIntegrationItemsListDefault'
-import {
-  NetsuiteIntegrationMapItemDrawer,
-  NetsuiteIntegrationMapItemDrawerRef,
-} from './NetsuiteIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',

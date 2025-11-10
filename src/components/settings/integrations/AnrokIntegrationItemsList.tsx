@@ -16,15 +16,15 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import {
+  AnrokIntegrationMapItemDrawer,
+  AnrokIntegrationMapItemDrawerRef,
+} from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import AnrokIntegrationItemsListAddons from './AnrokIntegrationItemsListAddons'
 import AnrokIntegrationItemsListBillableMetrics from './AnrokIntegrationItemsListBillableMetrics'
 import AnrokIntegrationItemsListDefault from './AnrokIntegrationItemsListDefault'
-import {
-  AnrokIntegrationMapItemDrawer,
-  AnrokIntegrationMapItemDrawerRef,
-} from './AnrokIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
