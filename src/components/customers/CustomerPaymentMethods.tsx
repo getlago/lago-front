@@ -65,7 +65,9 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
 
   const hasOnlyIneligiblePaymentMethods = useMemo(() => {
     const linkedProviderCustomer = customer.providerCustomer
-    const availableProviderPaymentMethods = linkedProviderCustomer?.providerPaymentMethods || []
+    const availableProviderPaymentMethods = linkedProviderCustomer?.providerPaymentMethods
+
+    if (!linkedProviderCustomer || !availableProviderPaymentMethods) return false
 
     const canAddPaymentMethods = availableProviderPaymentMethods.some(
       (method) => !INELIGIBLE_PAYMENT_METHODS.includes(method),

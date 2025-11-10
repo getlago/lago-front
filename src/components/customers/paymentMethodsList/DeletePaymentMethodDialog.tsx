@@ -1,10 +1,9 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
+import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { DestroyPaymentMethodInput, PaymentMethodsQuery } from '~/generated/graphql'
+import { DestroyPaymentMethodInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
 
 interface DeletePaymentMethodDialogProps {
   paymentMethod?: PaymentMethodItem

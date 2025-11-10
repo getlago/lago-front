@@ -1,15 +1,13 @@
 import { Icon } from 'lago-design-system'
 
+import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { Chip, Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { PaymentMethodsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const OBFUSCATED_LAST4_PREFIX = '••••'
 
 export const DEFAULT_BADGE_TEST_ID = 'default-badge'
-
-type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
 
 interface PaymentMethodDetailsCellProps {
   item: PaymentMethodItem

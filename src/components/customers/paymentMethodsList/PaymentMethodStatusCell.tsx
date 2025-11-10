@@ -1,8 +1,6 @@
+import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { Status, StatusType } from '~/components/designSystem'
-import { PaymentMethodsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
 
 interface PaymentMethodStatusCellProps {
   item: PaymentMethodItem

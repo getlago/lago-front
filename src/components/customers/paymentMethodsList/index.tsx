@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { useCallback, useRef } from 'react'
 
+import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { Table } from '~/components/designSystem/Table'
 import { addToast } from '~/core/apolloClient'
 import {
   DestroyPaymentMethodInput,
-  PaymentMethodsQuery,
   SetAsDefaultInput,
   useDestroyPaymentMethodMutation,
   usePaymentMethodsQuery,
@@ -18,8 +18,6 @@ import {
   DeletePaymentMethodDialogRef,
 } from './DeletePaymentMethodDialog'
 import { usePaymentMethodsTableColumns } from './usePaymentMethodsTableColumns'
-
-type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
 
 gql`
   query PaymentMethods($externalCustomerId: ID!) {

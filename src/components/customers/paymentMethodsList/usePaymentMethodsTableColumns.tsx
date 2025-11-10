@@ -1,15 +1,14 @@
 import { useMemo } from 'react'
 
+import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { ActionItem } from '~/components/designSystem/Table'
 import { TableColumn } from '~/components/designSystem/Table'
-import { PaymentMethodsQuery, SetAsDefaultInput } from '~/generated/graphql'
+import { SetAsDefaultInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { generatePaymentMethodsActions } from './actions'
 import { PaymentMethodDetailsCell } from './PaymentMethodDetailsCell'
 import { PaymentMethodStatusCell } from './PaymentMethodStatusCell'
-
-type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
 
 interface UsePaymentMethodsTableColumnsParams {
   setPaymentMethodAsDefault: (input: SetAsDefaultInput) => Promise<void>

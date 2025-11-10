@@ -1,6 +1,5 @@
-import { PaymentMethodsQuery, ProviderTypeEnum } from '~/generated/graphql'
-
-type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][number]
+import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
+import { ProviderTypeEnum } from '~/generated/graphql'
 
 export const createMockPaymentMethod = (
   overrides: Partial<PaymentMethodItem> = {},
