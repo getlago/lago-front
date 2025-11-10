@@ -27,6 +27,6 @@ export type IntegrationItemsTableProps = {
   items: Array<IntegrationItem>
   provider: MappableIntegrationProvider
   integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
+  isLoading: boolean
   firstColumnName?: string
-  isLoading?: boolean
 }

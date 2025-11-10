@@ -16,15 +16,15 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import {
+  XeroIntegrationMapItemDrawer,
+  XeroIntegrationMapItemDrawerRef,
+} from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import XeroIntegrationItemsListAddons from './XeroIntegrationItemsListAddons'
 import XeroIntegrationItemsListBillableMetrics from './XeroIntegrationItemsListBillableMetrics'
 import XeroIntegrationItemsListDefault from './XeroIntegrationItemsListDefault'
-import {
-  XeroIntegrationMapItemDrawer,
-  XeroIntegrationMapItemDrawerRef,
-} from './XeroIntegrationMapItemDrawer'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
