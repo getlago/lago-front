@@ -3534,5 +3534,7 @@
   "text_1762447672902pzry6bl0qnj": "Currency mapping",
   "text_1762447672902fngpnyhdc9x": "Values defined here will apply to all billing entities.",
   "text_1762447693332s34s28y76vs": "Add currency mapping",
-  "text_1762497490412zk5srhy8fqp": "Type a NetSuite currency code"
+  "text_1762497490412zk5srhy8fqp": "Type a NetSuite currency code",
+  "text_6630e5923500e7015f19063e": "Lago item mapping successfully deleted",
+  "text_6630e5923500e7015f190641": "Lago item mapping successfully updated"
 }
