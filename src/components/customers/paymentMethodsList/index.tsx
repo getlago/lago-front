@@ -23,13 +23,14 @@ type PaymentMethodItem = PaymentMethodsQuery['paymentMethods']['collection'][num
 
 gql`
   query PaymentMethods($externalCustomerId: ID!) {
-    paymentMethods(externalCustomerId: $externalCustomerId) {
+    paymentMethods(externalCustomerId: $externalCustomerId, withDeleted: true) {
       collection {
         id
         isDefault
         paymentProviderCode
         paymentProviderCustomerId
         paymentProviderType
+        deletedAt
         details {
           brand
           expirationYear

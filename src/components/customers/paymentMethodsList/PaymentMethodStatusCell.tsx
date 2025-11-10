@@ -11,8 +11,7 @@ interface PaymentMethodStatusCellProps {
 export const PaymentMethodStatusCell = ({ item }: PaymentMethodStatusCellProps): JSX.Element => {
   const { translate } = useInternationalization()
 
-  // @ts-expect-error - delatedAt will be available when BE provides the status field
-  const isDeleted = !!item?.delatedAt
+  const isDeleted = !!item?.deletedAt
 
   const status = {
     type: isDeleted ? StatusType.disabled : StatusType.success,

@@ -59,7 +59,6 @@ describe('generatePaymentMethodsActions', () => {
 
     it('THEN disables set as default and delete actions when payment method is deleted', () => {
       const paymentMethod = createMockPaymentMethod({
-        // @ts-expect-error - deletedAt will be available when BE provides the status field
         deletedAt: '2024-01-01T00:00:00Z',
       })
       const actions = generatePaymentMethodsActions({

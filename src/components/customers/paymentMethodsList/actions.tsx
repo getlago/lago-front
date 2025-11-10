@@ -19,7 +19,6 @@ export const generatePaymentMethodsActions = ({
   setPaymentMethodAsDefault,
   onDeletePaymentMethod,
 }: GenerateActionColumnParams): ActionItem<PaymentMethodItem>[] => {
-  // @ts-expect-error - delatedAt will be available when BE provides the status field
   const { id, isDefault, deletedAt } = item
   const isDeleted = !!deletedAt
 
