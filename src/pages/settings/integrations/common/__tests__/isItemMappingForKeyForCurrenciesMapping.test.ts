@@ -4,11 +4,10 @@ import {
   ItemMappingPerBillingEntity,
 } from '~/pages/settings/integrations/common/types'
 
-import { isDefaultItemMappingForCurrenciesMapping } from '../isDefaultItemMappingForCurrenciesMapping'
-import { IntegrationItemData } from '../types'
+import { isItemMappingForKeyForCurrenciesMapping } from '../isItemMappingForKeyForCurrenciesMapping'
 
-describe('isDefaultItemMappingForCurrenciesMapping', () => {
-  const createMockItem = (mappingType: MappingTypeEnum): IntegrationItemData => ({
+describe('isItemMappingForKeyForCurrenciesMapping', () => {
+  const createMockItem = (mappingType: MappingTypeEnum) => ({
     id: 'test-item-id',
     icon: 'bank' as const,
     label: 'Test Item',
@@ -44,7 +43,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
     it('returns true when itemMapping has valid default currencies mapping', () => {
       const itemMapping = createMockItemMapping(validCurrenciesMapping)
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(true)
     })
@@ -55,7 +54,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         currencies: [],
       })
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(true)
     })
@@ -63,7 +62,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
     it('returns false when itemMapping is null', () => {
       const itemMapping = null as unknown as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -71,7 +70,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
     it('returns false when itemMapping is undefined', () => {
       const itemMapping = undefined as unknown as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -81,7 +80,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         someOtherProperty: 'value',
       } as unknown as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -89,7 +88,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
     it('returns false when itemMapping.default is null', () => {
       const itemMapping = createMockItemMapping(null)
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -99,7 +98,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         default: 'not-an-object',
       } as unknown as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -110,7 +109,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         someOtherProperty: 'value',
       })
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -121,7 +120,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         currencies: null as unknown as ItemMappingForCurrenciesMapping['currencies'],
       })
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(true)
     })
@@ -144,7 +143,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         const item = createMockItem(mappingType)
         const itemMapping = createMockItemMapping(validCurrenciesMapping)
 
-        const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+        const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
         expect(result).toBe(false)
       })
@@ -156,7 +155,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
       const item = createMockItem(MappingTypeEnum.Currencies)
       const itemMapping = createMockItemMapping(validCurrenciesMapping)
 
-      if (isDefaultItemMappingForCurrenciesMapping(item, itemMapping)) {
+      if (isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')) {
         // TypeScript should now know that itemMapping.default is ItemMappingForCurrenciesMapping
         expect(itemMapping.default.currencies).toBeDefined()
         expect(Array.isArray(itemMapping.default.currencies)).toBe(true)
@@ -171,7 +170,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
       const item = createMockItem(MappingTypeEnum.Currencies)
       const itemMapping = {} as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -182,7 +181,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         default: {},
       } as unknown as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -193,7 +192,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         default: [],
       } as unknown as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(false)
     })
@@ -217,7 +216,7 @@ describe('isDefaultItemMappingForCurrenciesMapping', () => {
         },
       } as ItemMappingPerBillingEntity
 
-      const result = isDefaultItemMappingForCurrenciesMapping(item, itemMapping)
+      const result = isItemMappingForKeyForCurrenciesMapping(item, itemMapping, 'default')
 
       expect(result).toBe(true)
       if (result) {

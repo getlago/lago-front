@@ -8,12 +8,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   type BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
+  isItemMappingForKeyForCurrenciesMapping,
   type ItemMappingPerBillingEntity,
 } from '~/pages/settings/integrations/common'
 
 import { findItemMapping } from './findItemMapping'
 import { generateItemMappingForAllBillingEntities } from './generateItemMappingForAllBillingEntities'
-import { isDefaultItemMappingForCurrenciesMapping } from './isDefaultItemMappingForCurrenciesMapping'
 import { IntegrationItemData, IntegrationItemsTableProps } from './types'
 import { useGetStatusDetails } from './useGetStatusDetails'
 
@@ -128,7 +128,7 @@ const IntegrationItemsTable = ({
       itemMappings: itemMappingPerBillingEntity,
     }
 
-    if (isDefaultItemMappingForCurrenciesMapping(item, itemMappingPerBillingEntity)) {
+    if (isItemMappingForKeyForCurrenciesMapping(item, itemMappingPerBillingEntity, 'default')) {
       return () =>
         integrationMapItemDrawerRef.current?.openDrawer({
           ...props,
