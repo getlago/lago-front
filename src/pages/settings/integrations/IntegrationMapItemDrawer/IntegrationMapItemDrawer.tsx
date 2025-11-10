@@ -7,7 +7,10 @@ import { array } from 'yup'
 import { Drawer } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DEFAULT_MAPPING_KEY } from '~/pages/settings/integrations/common'
+import {
+  DEFAULT_MAPPING_KEY,
+  isItemMappingForKeyNotForCurrenciesMapping,
+} from '~/pages/settings/integrations/common'
 import { CreateUpdateDeleteSuccessAnswer } from '~/pages/settings/integrations/common/types'
 
 import { IntegrationMapItemDrawerProps } from './types'
@@ -55,11 +58,27 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
           const billingEntityKey = billingEntity.key || DEFAULT_MAPPING_KEY
           const inputValues = values[billingEntityKey]
 
-          const initialMapping = itemMappings[billingEntity.key || DEFAULT_MAPPING_KEY]
+          /**
+           * Using this typeguard just for good measure and typing. This scenario shouldn't really happen
+           */
+          if (
+            !isItemMappingForKeyNotForCurrenciesMapping(
+              {
+                mappingType: type,
+              },
+              itemMappings,
+              billingEntityKey,
+            )
+          ) {
+            return {
+              success: false,
+              reasons: ['Mapping type is not applicable for currencies mapping'],
+            }
+          }
 
           return await handleDataMutation(
             inputValues,
-            initialMapping,
+            itemMappings[billingEntityKey],
             type,
             integrationId,
             billingEntity,
