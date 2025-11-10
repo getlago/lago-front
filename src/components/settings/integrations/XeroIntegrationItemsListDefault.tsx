@@ -12,9 +12,8 @@ import {
   IntegrationItem,
   IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
+import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 import ErrorImage from '~/public/images/maneki/error.svg'
-
-import { XeroIntegrationMapItemDrawerRef } from './XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListDefault on CollectionMapping {
@@ -23,6 +22,7 @@ gql`
     externalId
     externalAccountCode
     externalName
+    billingEntityId
   }
 `
 
@@ -125,6 +125,7 @@ const XeroIntegrationItemsListDefault = ({
       integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Xero}
+      isLoading={isLoading}
     />
   )
 }

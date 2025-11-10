@@ -1,42 +1,89 @@
 import { Stack } from '@mui/material'
-import { Avatar, Icon, Typography } from 'lago-design-system'
+import { Avatar, Icon, Skeleton, Typography } from 'lago-design-system'
 
-import { Status, StatusType, Table, TableColumn } from '~/components/designSystem'
-import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
+import { Status, Table, TableColumn } from '~/components/designSystem'
+import { VoidReturningFunction } from '~/core/types/voidReturningFunction'
+import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { getMappingInfos, ItemMapping } from '~/pages/settings/integrations/common'
+import {
+  type BillingEntityForIntegrationMapping,
+  DEFAULT_MAPPING_KEY,
+  getMappingInfos,
+  type ItemMappingPerBillingEntity,
+} from '~/pages/settings/integrations/common'
 
+import { findItemMapping } from './findItemMapping'
+import { generateItemMappingForAllBillingEntities } from './generateItemMappingForAllBillingEntities'
 import { IntegrationItemData, IntegrationItemsTableProps } from './types'
+import { useGetStatusDetails } from './useGetStatusDetails'
+
+const COLUMN_MIN_WIDTH = 200
 
 const IntegrationItemsTable = ({
   integrationId,
   integrationMapItemDrawerRef,
   items,
   provider,
-  isLoading = false,
+  isLoading,
   firstColumnName,
 }: IntegrationItemsTableProps) => {
   const { translate } = useInternationalization()
 
-  const findItemMapping = (item: IntegrationItemData): ItemMapping | undefined => {
-    if (!item.integrationMappings || item.integrationMappings.length === 0) {
-      return undefined
+  const { data: billingEntitiesData, loading: isLoadingBillingEntities } =
+    useGetBillingEntitiesQuery()
+
+  const { getStatusDetails } = useGetStatusDetails()
+
+  const getBillingEntitiesColumn = () => {
+    const baseBillingEntities = [
+      {
+        id: null,
+        key: DEFAULT_MAPPING_KEY,
+        name: translate('text_6630e3210c13c500cd398e97'),
+      },
+    ]
+
+    if (
+      !billingEntitiesData ||
+      !billingEntitiesData.billingEntities ||
+      !billingEntitiesData.billingEntities.collection
+    ) {
+      return baseBillingEntities
     }
 
-    const itemMapping = item.integrationMappings?.find((mapping) => {
-      if ('mappingType' in mapping) {
-        return mapping.mappingType === item.mappingType
-      }
+    const billingEntities = billingEntitiesData.billingEntities.collection.map((billingEntity) => ({
+      id: billingEntity.id,
+      key: billingEntity.id,
+      name: billingEntity.name || billingEntity.code,
+    }))
 
-      if ('mappableType' in mapping) {
-        return mapping.mappableType === item.mappingType
-      }
-
-      return false
-    })
-
-    return itemMapping
+    return [...baseBillingEntities, ...billingEntities]
   }
+
+  const billingEntitiesColumns = getBillingEntitiesColumn()
+
+  const generateTableColumnDataFromBillingEntity = (
+    column: BillingEntityForIntegrationMapping,
+  ): TableColumn<IntegrationItemData> => ({
+    key: 'id',
+    title: column.name,
+    content: (item: IntegrationItemData) => {
+      if (isLoading || isLoadingBillingEntities) {
+        return (
+          <div className="flex h-full min-w-42 items-center justify-center">
+            <Skeleton className="w-full" variant="text" />
+          </div>
+        )
+      }
+      const itemMapping = findItemMapping(item, column.id)
+      const mappingInfos = getMappingInfos(itemMapping, provider)
+
+      const { type, label } = getStatusDetails(mappingInfos, column.id)
+
+      return <Status type={type} label={label} />
+    },
+    minWidth: COLUMN_MIN_WIDTH,
+  })
 
   const columns: Array<TableColumn<IntegrationItemData>> = [
     {
@@ -60,70 +107,32 @@ const IntegrationItemsTable = ({
           </Stack>
         )
       },
-      minWidth: 200,
+      minWidth: COLUMN_MIN_WIDTH,
       maxSpace: true,
     },
-    {
-      key: 'id',
-      title: translate('text_6630e3210c13c500cd398e97'),
-      content: (item: IntegrationItemData) => {
-        const itemMapping = findItemMapping(item)
-        const mappingInfos = getMappingInfos(itemMapping, provider)
-        const statusType = !!mappingInfos ? StatusType.success : StatusType.warning
-
-        const getStatusLabel = () => {
-          if (!mappingInfos) {
-            return translate('text_6630e3210c13c500cd398e9a')
-          }
-
-          if (!!mappingInfos && !mappingInfos.name) {
-            return translate('text_17272714562192y06u5okvo4')
-          }
-
-          return `${mappingInfos.name}${!!mappingInfos.id ? ` (${mappingInfos.id})` : ''} `
-        }
-
-        return <Status type={statusType} label={getStatusLabel()} />
-      },
-      minWidth: 200,
-    },
+    ...billingEntitiesColumns.map(generateTableColumnDataFromBillingEntity),
   ]
 
-  const getOnMappingClick = (itemMapping: ItemMapping | undefined, item: IntegrationItemData) => {
-    const sharedProps = {
+  const getOnMappingClick = (
+    item: IntegrationItemData,
+    itemMappingPerBillingEntity: ItemMappingPerBillingEntity,
+  ): VoidReturningFunction => {
+    const props = {
       integrationId,
       type: item.mappingType,
-      itemId: itemMapping?.id,
-      itemExternalId: itemMapping?.externalId,
-      itemExternalCode: itemMapping?.externalAccountCode || undefined,
-      itemExternalName: itemMapping?.externalName || undefined,
+      billingEntities: billingEntitiesColumns,
+      itemMappings: itemMappingPerBillingEntity,
     }
 
-    if (item.mappingType === MappingTypeEnum.Tax && itemMapping && 'taxCode' in itemMapping) {
-      return () =>
-        integrationMapItemDrawerRef.current?.openDrawer({
-          ...sharedProps,
-          taxCode: itemMapping?.taxCode,
-          taxNexus: itemMapping?.taxNexus,
-          taxType: itemMapping?.taxType,
-        })
-    }
-
-    if (Object.values(MappableTypeEnum).includes(item.mappingType as MappableTypeEnum)) {
-      return () =>
-        integrationMapItemDrawerRef.current?.openDrawer({
-          ...sharedProps,
-          lagoMappableId: item.id,
-          lagoMappableName: item.label,
-        })
-    }
-
-    return () => integrationMapItemDrawerRef.current?.openDrawer(sharedProps)
+    return () => integrationMapItemDrawerRef.current?.openDrawer(props)
   }
 
-  const handleRowActionClick = (item: IntegrationItemData) => {
-    const itemMapping = findItemMapping(item)
-    const onMappingClick = getOnMappingClick(itemMapping, item)
+  const handleRowActionClick = (item: IntegrationItemData): void => {
+    const itemMappingPerBillingEntities = generateItemMappingForAllBillingEntities(
+      item,
+      billingEntitiesColumns,
+    )
+    const onMappingClick = getOnMappingClick(item, itemMappingPerBillingEntities)
 
     onMappingClick()
   }
@@ -134,7 +143,7 @@ const IntegrationItemsTable = ({
       columns={columns}
       data={items}
       onRowActionClick={handleRowActionClick}
-      isLoading={isLoading}
+      isLoading={isLoading || isLoadingBillingEntities}
     />
   )
 }

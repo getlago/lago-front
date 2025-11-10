@@ -11,8 +11,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-
-import { XeroIntegrationMapItemDrawerRef } from './XeroIntegrationMapItemDrawer'
+import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListBillableMetrics on BillableMetric {
@@ -25,6 +24,7 @@ gql`
       externalAccountCode
       externalName
       mappableType
+      billingEntityId
     }
   }
 `
