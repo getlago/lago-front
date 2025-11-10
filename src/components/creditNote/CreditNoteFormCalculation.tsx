@@ -258,10 +258,12 @@ export const CreditNoteFormCalculation = ({
     )
 
     formikProps.setTouched({ payBack: true })
+
+    // NEVER watch formikProps as a dependency to avoid re-rendering loop: https://github.com/getlago/lago-front/pull/2689
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     canRefund,
     currencyPrecision,
-    formikProps,
     maxCreditableAmount,
     maxRefundableAmount,
     setPayBackValidation,
