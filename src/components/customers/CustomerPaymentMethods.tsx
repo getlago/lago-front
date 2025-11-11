@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { PaymentMethodsList } from '~/components/customers/paymentMethodsList'
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import {
   Alert,
@@ -14,6 +13,7 @@ import {
 } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { PaymentMethodsList } from '~/components/paymentMethodsList'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
