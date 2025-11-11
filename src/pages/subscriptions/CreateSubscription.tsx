@@ -242,6 +242,7 @@ const CreateSubscription = () => {
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const isResponsive = useMediaQuery(`(max-width:${BREAKPOINT_LG - 1}px)`)
   const hasAccessToFixedChargesFeature = isFeatureFlagActive(FeatureFlags.FIXED_CHARGES)
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -805,7 +806,9 @@ const CreateSubscription = () => {
                         </Card>
                       </div>
 
-                      <PaymentMethodsInvoiceSettings customer={customer} />
+                      {hasAccessToMultiPaymentFlow && (
+                        <PaymentMethodsInvoiceSettings customer={customer} />
+                      )}
 
                       {!isPremium && (
                         <Card className="flex-row items-center justify-between gap-3">

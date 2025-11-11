@@ -9595,20 +9595,6 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 
 export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
 
-export type SetPaymentMethodAsDefaultMutationVariables = Exact<{
-  input: SetAsDefaultInput;
-}>;
-
-
-export type SetPaymentMethodAsDefaultMutation = { __typename?: 'Mutation', setPaymentMethodAsDefault?: { __typename?: 'PaymentMethod', id: string } | null };
-
-export type DestroyPaymentMethodMutationVariables = Exact<{
-  input: DestroyPaymentMethodInput;
-}>;
-
-
-export type DestroyPaymentMethodMutation = { __typename?: 'Mutation', destroyPaymentMethod?: { __typename?: 'DestroyPaymentMethodPayload', id?: string | null } | null };
-
 export type TerminateCustomerSubscriptionMutationVariables = Exact<{
   input: TerminateSubscriptionInput;
 }>;
@@ -10120,6 +10106,20 @@ export type InvoiceForDetailsTableFooterFragment = { __typename?: 'Invoice', cou
 export type FeeForInvoiceFeeAdvanceDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
 
 export type FeeForInvoiceFeeArrearsDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
+
+export type SetPaymentMethodAsDefaultMutationVariables = Exact<{
+  input: SetAsDefaultInput;
+}>;
+
+
+export type SetPaymentMethodAsDefaultMutation = { __typename?: 'Mutation', setPaymentMethodAsDefault?: { __typename?: 'PaymentMethod', id: string } | null };
+
+export type DestroyPaymentMethodMutationVariables = Exact<{
+  input: DestroyPaymentMethodInput;
+}>;
+
+
+export type DestroyPaymentMethodMutation = { __typename?: 'Mutation', destroyPaymentMethod?: { __typename?: 'DestroyPaymentMethodPayload', id?: string | null } | null };
 
 export type PercentageChargeFragment = { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null };
 
@@ -21575,72 +21575,6 @@ export type GetCustomerSubscriptionForListQueryHookResult = ReturnType<typeof us
 export type GetCustomerSubscriptionForListLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForListLazyQuery>;
 export type GetCustomerSubscriptionForListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForListSuspenseQuery>;
 export type GetCustomerSubscriptionForListQueryResult = Apollo.QueryResult<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>;
-export const SetPaymentMethodAsDefaultDocument = gql`
-    mutation setPaymentMethodAsDefault($input: SetAsDefaultInput!) {
-  setPaymentMethodAsDefault(input: $input) {
-    id
-  }
-}
-    `;
-export type SetPaymentMethodAsDefaultMutationFn = Apollo.MutationFunction<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>;
-
-/**
- * __useSetPaymentMethodAsDefaultMutation__
- *
- * To run a mutation, you first call `useSetPaymentMethodAsDefaultMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetPaymentMethodAsDefaultMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [setPaymentMethodAsDefaultMutation, { data, loading, error }] = useSetPaymentMethodAsDefaultMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useSetPaymentMethodAsDefaultMutation(baseOptions?: Apollo.MutationHookOptions<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>(SetPaymentMethodAsDefaultDocument, options);
-      }
-export type SetPaymentMethodAsDefaultMutationHookResult = ReturnType<typeof useSetPaymentMethodAsDefaultMutation>;
-export type SetPaymentMethodAsDefaultMutationResult = Apollo.MutationResult<SetPaymentMethodAsDefaultMutation>;
-export type SetPaymentMethodAsDefaultMutationOptions = Apollo.BaseMutationOptions<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>;
-export const DestroyPaymentMethodDocument = gql`
-    mutation destroyPaymentMethod($input: DestroyPaymentMethodInput!) {
-  destroyPaymentMethod(input: $input) {
-    id
-  }
-}
-    `;
-export type DestroyPaymentMethodMutationFn = Apollo.MutationFunction<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>;
-
-/**
- * __useDestroyPaymentMethodMutation__
- *
- * To run a mutation, you first call `useDestroyPaymentMethodMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDestroyPaymentMethodMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [destroyPaymentMethodMutation, { data, loading, error }] = useDestroyPaymentMethodMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDestroyPaymentMethodMutation(baseOptions?: Apollo.MutationHookOptions<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>(DestroyPaymentMethodDocument, options);
-      }
-export type DestroyPaymentMethodMutationHookResult = ReturnType<typeof useDestroyPaymentMethodMutation>;
-export type DestroyPaymentMethodMutationResult = Apollo.MutationResult<DestroyPaymentMethodMutation>;
-export type DestroyPaymentMethodMutationOptions = Apollo.BaseMutationOptions<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>;
 export const TerminateCustomerSubscriptionDocument = gql`
     mutation terminateCustomerSubscription($input: TerminateSubscriptionInput!) {
   terminateSubscription(input: $input) {
@@ -23814,6 +23748,72 @@ export function useCreateAdjustedFeeMutation(baseOptions?: Apollo.MutationHookOp
 export type CreateAdjustedFeeMutationHookResult = ReturnType<typeof useCreateAdjustedFeeMutation>;
 export type CreateAdjustedFeeMutationResult = Apollo.MutationResult<CreateAdjustedFeeMutation>;
 export type CreateAdjustedFeeMutationOptions = Apollo.BaseMutationOptions<CreateAdjustedFeeMutation, CreateAdjustedFeeMutationVariables>;
+export const SetPaymentMethodAsDefaultDocument = gql`
+    mutation setPaymentMethodAsDefault($input: SetAsDefaultInput!) {
+  setPaymentMethodAsDefault(input: $input) {
+    id
+  }
+}
+    `;
+export type SetPaymentMethodAsDefaultMutationFn = Apollo.MutationFunction<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>;
+
+/**
+ * __useSetPaymentMethodAsDefaultMutation__
+ *
+ * To run a mutation, you first call `useSetPaymentMethodAsDefaultMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetPaymentMethodAsDefaultMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setPaymentMethodAsDefaultMutation, { data, loading, error }] = useSetPaymentMethodAsDefaultMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSetPaymentMethodAsDefaultMutation(baseOptions?: Apollo.MutationHookOptions<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>(SetPaymentMethodAsDefaultDocument, options);
+      }
+export type SetPaymentMethodAsDefaultMutationHookResult = ReturnType<typeof useSetPaymentMethodAsDefaultMutation>;
+export type SetPaymentMethodAsDefaultMutationResult = Apollo.MutationResult<SetPaymentMethodAsDefaultMutation>;
+export type SetPaymentMethodAsDefaultMutationOptions = Apollo.BaseMutationOptions<SetPaymentMethodAsDefaultMutation, SetPaymentMethodAsDefaultMutationVariables>;
+export const DestroyPaymentMethodDocument = gql`
+    mutation destroyPaymentMethod($input: DestroyPaymentMethodInput!) {
+  destroyPaymentMethod(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyPaymentMethodMutationFn = Apollo.MutationFunction<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>;
+
+/**
+ * __useDestroyPaymentMethodMutation__
+ *
+ * To run a mutation, you first call `useDestroyPaymentMethodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyPaymentMethodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyPaymentMethodMutation, { data, loading, error }] = useDestroyPaymentMethodMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyPaymentMethodMutation(baseOptions?: Apollo.MutationHookOptions<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>(DestroyPaymentMethodDocument, options);
+      }
+export type DestroyPaymentMethodMutationHookResult = ReturnType<typeof useDestroyPaymentMethodMutation>;
+export type DestroyPaymentMethodMutationResult = Apollo.MutationResult<DestroyPaymentMethodMutation>;
+export type DestroyPaymentMethodMutationOptions = Apollo.BaseMutationOptions<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>;
 export const GetTaxesForCommitmentsDocument = gql`
     query getTaxesForCommitments($limit: Int, $page: Int) {
   taxes(limit: $limit, page: $page) {
