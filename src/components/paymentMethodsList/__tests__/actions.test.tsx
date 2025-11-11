@@ -1,7 +1,6 @@
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-
-import { createMockPaymentMethod } from './factories/PaymentMethod.factory'
+import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 
 import { generatePaymentMethodsActions } from '../actions'
 

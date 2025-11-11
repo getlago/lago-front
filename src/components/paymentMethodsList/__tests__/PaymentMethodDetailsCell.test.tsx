@@ -1,9 +1,8 @@
 import { screen } from '@testing-library/react'
 
 import { ProviderTypeEnum } from '~/generated/graphql'
+import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { render } from '~/test-utils'
-
-import { createMockPaymentMethod } from './factories/PaymentMethod.factory'
 
 import { DEFAULT_BADGE_TEST_ID, PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
 
