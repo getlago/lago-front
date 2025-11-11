@@ -35,6 +35,7 @@ import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -474,7 +475,7 @@ const CreateSubscription = () => {
   ])
 
   // NOTE: useCallback here is needed
-  // is handles the case where the user clicks on the button while being focused on a plan's input
+  // It handles the case where the user clicks on the button while being focused on a plan's input
   const SubmitButton = useCallback(() => {
     const buttonLabel = () => {
       if (formType === FORM_TYPE_ENUM.creation) return translate('text_65118a52df984447c1869463')
@@ -803,6 +804,8 @@ const CreateSubscription = () => {
                           )}
                         </Card>
                       </div>
+
+                      <PaymentMethodsInvoiceSettings customer={customer} />
 
                       {!isPremium && (
                         <Card className="flex-row items-center justify-between gap-3">
