@@ -1,5 +1,5 @@
-import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { ProviderTypeEnum } from '~/generated/graphql'
+import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
 export const createMockPaymentMethod = (
   overrides: Partial<PaymentMethodItem> = {},

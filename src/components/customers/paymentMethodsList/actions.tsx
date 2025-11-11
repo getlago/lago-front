@@ -1,9 +1,9 @@
-import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { ActionItem } from '~/components/designSystem/Table'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { SetAsDefaultInput } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
+import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
 interface GenerateActionColumnParams {
   item: PaymentMethodItem

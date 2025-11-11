@@ -1,6 +1,6 @@
-import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { Status, StatusType } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
 interface PaymentMethodStatusCellProps {
   item: PaymentMethodItem

@@ -1,9 +1,9 @@
 import { Icon } from 'lago-design-system'
 
-import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { Chip, Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
 const OBFUSCATED_LAST4_PREFIX = '••••'
 

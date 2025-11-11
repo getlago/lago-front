@@ -1,17 +1,16 @@
 import { gql } from '@apollo/client'
 import { useCallback, useRef } from 'react'
 
-import { PaymentMethodItem } from '~/components/customers/paymentMethodsList/types'
 import { Table } from '~/components/designSystem/Table'
 import { addToast } from '~/core/apolloClient'
 import {
   DestroyPaymentMethodInput,
   SetAsDefaultInput,
   useDestroyPaymentMethodMutation,
-  usePaymentMethodsQuery,
   useSetPaymentMethodAsDefaultMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PaymentMethodItem, usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
 import {
   DeletePaymentMethodDialog,
@@ -20,26 +19,6 @@ import {
 import { usePaymentMethodsTableColumns } from './usePaymentMethodsTableColumns'
 
 gql`
-  query PaymentMethods($externalCustomerId: ID!) {
-    paymentMethods(externalCustomerId: $externalCustomerId, withDeleted: true) {
-      collection {
-        id
-        isDefault
-        paymentProviderCode
-        paymentProviderCustomerId
-        paymentProviderType
-        deletedAt
-        details {
-          brand
-          expirationYear
-          expirationMonth
-          last4
-          type
-        }
-      }
-    }
-  }
-
   mutation setPaymentMethodAsDefault($input: SetAsDefaultInput!) {
     setPaymentMethodAsDefault(input: $input) {
       id
@@ -68,13 +47,11 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
     useDestroyPaymentMethodMutation()
 
   const {
-    data,
-    error: hasErrorPaymentMethods,
     loading,
+    error: hasErrorPaymentMethods,
+    data: paymentMethodsList,
     refetch,
-  } = usePaymentMethodsQuery({
-    variables: { externalCustomerId },
-  })
+  } = usePaymentMethodsList({ externalCustomerId })
 
   const setPaymentMethodAsDefault = useCallback(
     async (input: SetAsDefaultInput): Promise<void> => {
@@ -110,7 +87,6 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
     onDeletePaymentMethod,
   })
 
-  const paymentMethods = data?.paymentMethods?.collection || []
   const hasError = hasErrorPaymentMethods || errorSetAsDefault || errorDestroyPaymentMethod
 
   return (
@@ -119,7 +95,7 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
         name="payment-methods-list"
         containerSize={0}
         rowSize={72}
-        data={paymentMethods}
+        data={paymentMethodsList}
         placeholder={{
           emptyState: {
             title: translate('text_17624373282988xkhppid3at'),

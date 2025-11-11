@@ -9595,13 +9595,6 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 
 export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
 
-export type PaymentMethodsQueryVariables = Exact<{
-  externalCustomerId: Scalars['ID']['input'];
-}>;
-
-
-export type PaymentMethodsQuery = { __typename?: 'Query', paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, deletedAt?: any | null, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } };
-
 export type SetPaymentMethodAsDefaultMutationVariables = Exact<{
   input: SetAsDefaultInput;
 }>;
@@ -11308,6 +11301,13 @@ export type UpdateSubscriptionMutationVariables = Exact<{
 
 
 export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string } } | null };
+
+export type PaymentMethodsQueryVariables = Exact<{
+  externalCustomerId: Scalars['ID']['input'];
+}>;
+
+
+export type PaymentMethodsQuery = { __typename?: 'Query', paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, deletedAt?: any | null, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } };
 
 export type DownloadPaymentReceiptMutationVariables = Exact<{
   input: DownloadPaymentReceiptInput;
@@ -21575,60 +21575,6 @@ export type GetCustomerSubscriptionForListQueryHookResult = ReturnType<typeof us
 export type GetCustomerSubscriptionForListLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForListLazyQuery>;
 export type GetCustomerSubscriptionForListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForListSuspenseQuery>;
 export type GetCustomerSubscriptionForListQueryResult = Apollo.QueryResult<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>;
-export const PaymentMethodsDocument = gql`
-    query PaymentMethods($externalCustomerId: ID!) {
-  paymentMethods(externalCustomerId: $externalCustomerId, withDeleted: true) {
-    collection {
-      id
-      isDefault
-      paymentProviderCode
-      paymentProviderCustomerId
-      paymentProviderType
-      deletedAt
-      details {
-        brand
-        expirationYear
-        expirationMonth
-        last4
-        type
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __usePaymentMethodsQuery__
- *
- * To run a query within a React component, call `usePaymentMethodsQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentMethodsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePaymentMethodsQuery({
- *   variables: {
- *      externalCustomerId: // value for 'externalCustomerId'
- *   },
- * });
- */
-export function usePaymentMethodsQuery(baseOptions: Apollo.QueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables> & ({ variables: PaymentMethodsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
-      }
-export function usePaymentMethodsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
-        }
-export function usePaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
-        }
-export type PaymentMethodsQueryHookResult = ReturnType<typeof usePaymentMethodsQuery>;
-export type PaymentMethodsLazyQueryHookResult = ReturnType<typeof usePaymentMethodsLazyQuery>;
-export type PaymentMethodsSuspenseQueryHookResult = ReturnType<typeof usePaymentMethodsSuspenseQuery>;
-export type PaymentMethodsQueryResult = Apollo.QueryResult<PaymentMethodsQuery, PaymentMethodsQueryVariables>;
 export const SetPaymentMethodAsDefaultDocument = gql`
     mutation setPaymentMethodAsDefault($input: SetAsDefaultInput!) {
   setPaymentMethodAsDefault(input: $input) {
@@ -28568,6 +28514,60 @@ export function useUpdateSubscriptionMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateSubscriptionMutationHookResult = ReturnType<typeof useUpdateSubscriptionMutation>;
 export type UpdateSubscriptionMutationResult = Apollo.MutationResult<UpdateSubscriptionMutation>;
 export type UpdateSubscriptionMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionMutation, UpdateSubscriptionMutationVariables>;
+export const PaymentMethodsDocument = gql`
+    query PaymentMethods($externalCustomerId: ID!) {
+  paymentMethods(externalCustomerId: $externalCustomerId, withDeleted: true) {
+    collection {
+      id
+      isDefault
+      paymentProviderCode
+      paymentProviderCustomerId
+      paymentProviderType
+      deletedAt
+      details {
+        brand
+        expirationYear
+        expirationMonth
+        last4
+        type
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __usePaymentMethodsQuery__
+ *
+ * To run a query within a React component, call `usePaymentMethodsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePaymentMethodsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePaymentMethodsQuery({
+ *   variables: {
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *   },
+ * });
+ */
+export function usePaymentMethodsQuery(baseOptions: Apollo.QueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables> & ({ variables: PaymentMethodsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
+      }
+export function usePaymentMethodsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
+        }
+export function usePaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
+        }
+export type PaymentMethodsQueryHookResult = ReturnType<typeof usePaymentMethodsQuery>;
+export type PaymentMethodsLazyQueryHookResult = ReturnType<typeof usePaymentMethodsLazyQuery>;
+export type PaymentMethodsSuspenseQueryHookResult = ReturnType<typeof usePaymentMethodsSuspenseQuery>;
+export type PaymentMethodsQueryResult = Apollo.QueryResult<PaymentMethodsQuery, PaymentMethodsQueryVariables>;
 export const DownloadPaymentReceiptDocument = gql`
     mutation downloadPaymentReceipt($input: DownloadPaymentReceiptInput!) {
   downloadPaymentReceipt(input: $input) {
