@@ -37,13 +37,7 @@ export const PaymentMethodsInvoiceSettings = ({ customer }: PaymentMethodsInvoic
           <Typography variant="caption" className="mb-4">
             {translate('text_1762862855282gldrtploh46')}
           </Typography>
-          <Button
-            startIcon="plus"
-            variant="inline"
-            // eslint-disable-next-line no-console
-            onClick={() => console.log(true)}
-            data-test="show-name"
-          >
+          <Button startIcon="plus" variant="inline" onClick={() => {}}>
             {translate('text_1762862908777d78m2z5d29a')}
           </Button>
         </div>

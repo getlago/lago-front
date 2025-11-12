@@ -59,8 +59,8 @@ export const formatPaymentMethodLabel = (
   const headerParts = buildHeaderParts(type, brand)
   const footerParts = buildFooterParts(paymentProviderType, paymentProviderCode)
 
-  const baseLabel = headerParts.join(' ')
-  const footerLabel = footerParts.join(' ')
+  const baseLabel = headerParts.join('')
+  const footerLabel = footerParts.join('')
 
   const labelText = isDefault
     ? `${baseLabel} (${translate('text_65281f686a80b400c8e2f6d1')})`

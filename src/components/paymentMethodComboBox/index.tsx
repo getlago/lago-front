@@ -38,10 +38,8 @@ export const PaymentMethodComboBox = ({
 
   const paymentMethodOptions = usePaymentMethodOptions(paymentMethodsList, translate)
 
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = usePaymentMethodDefaultSelection(
-    paymentMethodOptions,
-    paymentMethodsList,
-  )
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] =
+    usePaymentMethodDefaultSelection(paymentMethodOptions)
 
   const disabled = externalDisabled || paymentMethodsLoading || !!paymentMethodsError
 

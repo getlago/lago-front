@@ -10,6 +10,7 @@ export interface PaymentMethodOption {
   value: string
   label: string
   labelNode: React.ReactNode
+  isDefault?: boolean
 }
 
 export const usePaymentMethodOptions = (
@@ -50,6 +51,7 @@ export const usePaymentMethodOptions = (
                     footerText={formatted.footerText}
                   />
                 ),
+                isDefault: true,
               },
             ]
           })()
