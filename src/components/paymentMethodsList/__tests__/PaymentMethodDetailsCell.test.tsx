@@ -4,7 +4,11 @@ import { ProviderTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { render } from '~/test-utils'
 
-import { DEFAULT_BADGE_TEST_ID, PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
+import {
+  DEFAULT_BADGE_TEST_ID,
+  OBFUSCATED_LAST4_PREFIX,
+  PaymentMethodDetailsCell,
+} from '../PaymentMethodDetailsCell'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -30,7 +34,7 @@ describe('PaymentMethodDetailsCell', () => {
 
       expect(screen.getByText('card')).toBeInTheDocument()
       expect(screen.getByText('visa')).toBeInTheDocument()
-      expect(screen.getByText('•••• 4242')).toBeInTheDocument()
+      expect(screen.getByText(`${OBFUSCATED_LAST4_PREFIX} 4242`)).toBeInTheDocument()
     })
 
     it('THEN displays expiration date chip when expiration month and year are present', () => {

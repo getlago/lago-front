@@ -13,7 +13,7 @@ import {
 } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { PaymentMethodsList } from '~/components/paymentMethodsList'
+import { PaymentMethodsList } from '~/components/paymentMethodsList/PaymentMethodList'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -121,7 +121,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
           title={translate('text_1761914802986ww4ima0w9w9')}
           description={translate('text_1761914802986ipq0aot8fas')}
           onClose={() => {
-            if (error) {
+            if (!!error) {
               reset()
             }
           }}
@@ -164,7 +164,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
               }}
             />
 
-            {error && (
+            {!!error && (
               <Alert type="danger" className="mb-8" data-test={ERROR_ALERT_TEST_ID}>
                 {translate('text_1762182354095wfjiizpju0e')}
               </Alert>

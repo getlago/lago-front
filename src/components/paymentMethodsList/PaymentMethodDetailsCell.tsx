@@ -5,7 +5,7 @@ import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
-const OBFUSCATED_LAST4_PREFIX = '••••'
+export const OBFUSCATED_LAST4_PREFIX = '••••'
 
 export const DEFAULT_BADGE_TEST_ID = 'default-badge'
 
