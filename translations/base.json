@@ -3516,5 +3516,7 @@
   "text_17628623882713knw0jtohiw": "Invoice custom footer",
   "text_1762862855282gldrtploh46": "Review the invoice footer sections already defined at the customer or billing entity level. If needed, you can add a specific footer that will apply only to invoices from this subscription.",
   "text_1762862908777d78m2z5d29a": "Add an invoice custom footer",
-  "text_1762878214963uszdnhestt1": "Record a manual payment to track this transaction outside payment providers"
+  "text_1762878214963uszdnhestt1": "Record a manual payment to track this transaction outside payment providers",
+  "text_1762947620814hsqq7d88d7c": "Search and select an add-on",
+  "text_1762952250941g1m9u5hpclb": "No custom invoice footer created. Please add one in your settings."
 }

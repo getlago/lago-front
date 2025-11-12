@@ -1,4 +1,7 @@
-import { Button, Card, Typography } from '~/components/designSystem'
+import { useState } from 'react'
+
+import { Button, Card, Tooltip, Typography } from '~/components/designSystem'
+import { InvoiceCustomerFooterSelection } from '~/components/invoiceCustomerFooterSelection'
 import { PaymentMethodComboBox } from '~/components/paymentMethodComboBox'
 import { GetCustomerForCreateSubscriptionQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -9,6 +12,8 @@ interface PaymentMethodsInvoiceSettingsProps {
 
 export const PaymentMethodsInvoiceSettings = ({ customer }: PaymentMethodsInvoiceSettingsProps) => {
   const { translate } = useInternationalization()
+  const [shouldDisplayInvoiceCustomerFooterInput, setShouldDisplayInvoiceCustomerFooterInput] =
+    useState(false)
 
   if (!customer || !customer?.externalId) return null
 
@@ -37,9 +42,40 @@ export const PaymentMethodsInvoiceSettings = ({ customer }: PaymentMethodsInvoic
           <Typography variant="caption" className="mb-4">
             {translate('text_1762862855282gldrtploh46')}
           </Typography>
-          <Button startIcon="plus" variant="inline" onClick={() => {}}>
-            {translate('text_1762862908777d78m2z5d29a')}
-          </Button>
+          <div className="flex flex-col gap-4">
+            {!shouldDisplayInvoiceCustomerFooterInput ? (
+              <Button
+                fitContent
+                startIcon="plus"
+                variant="inline"
+                onClick={() => {
+                  setShouldDisplayInvoiceCustomerFooterInput(true)
+                }}
+              >
+                {translate('text_1762862908777d78m2z5d29a')}
+              </Button>
+            ) : (
+              <div className="flex items-center">
+                <div className="flex-1">
+                  <InvoiceCustomerFooterSelection
+                    externalCustomerId={customer.externalId}
+                    placeholder={translate('text_1762947620814hsqq7d88d7c')}
+                    emptyText={translate('text_1762952250941g1m9u5hpclb')}
+                  />
+                </div>
+
+                <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                  <Button
+                    icon="trash"
+                    variant="quaternary"
+                    onClick={() => {
+                      setShouldDisplayInvoiceCustomerFooterInput(false)
+                    }}
+                  />
+                </Tooltip>
+              </div>
+            )}
+          </div>
         </div>
       </Card>
     </div>
