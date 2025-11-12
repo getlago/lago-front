@@ -17,9 +17,8 @@
   },
   "packageRules": [
     {
-      "matchDepTypes": ["engines"],
-      "rangeStrategy": "replace",
-      "commitMessagePrefix": "chore(deps-engines):"
+      "matchPackageNames": ["node"],
+      "rangeStrategy": "bump"
     },
     {
       "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
