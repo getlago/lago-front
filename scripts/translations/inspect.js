@@ -98,7 +98,9 @@ async function extract(replaceMode) {
 
       throw Error
     } else {
-      console.info('\u001b[' + 32 + 'm' + '✔ All good' + '\u001b[0m')
+      console.info(
+        '\u001b[' + 32 + 'm' + '✔ No translations discrepancies found' + '\u001b[0m\n\n',
+      )
     }
   })
 }
