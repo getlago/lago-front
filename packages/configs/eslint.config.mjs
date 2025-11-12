@@ -9,6 +9,8 @@ import pluginTailwind from 'eslint-plugin-tailwindcss'
 import globals from 'globals'
 import pluginTypescriptEslint from 'typescript-eslint'
 
+import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
+
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
@@ -38,6 +40,11 @@ export default [
       import: fixupPluginRules(pluginImport),
       'jsx-a11y': pluginJsxA11y,
       'react-hooks': pluginReactHooks,
+      lago: {
+        rules: {
+          'no-formik-props-in-effect': noFormikPropsInEffect,
+        },
+      },
     },
     languageOptions: {
       parser: pluginTypescriptEslint.parser,
@@ -87,6 +94,7 @@ export default [
       ],
       '@typescript-eslint/no-unsafe-function-type': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
+      'lago/no-formik-props-in-effect': 'error',
     },
   },
   {

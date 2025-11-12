@@ -9,3 +9,7 @@ cypress/downloads
 node-jiti/
 v8-compile-cache*
 .idea/
+*.tsbuildinfo
+.eslintcache
+.prettiercache
+.vscode
