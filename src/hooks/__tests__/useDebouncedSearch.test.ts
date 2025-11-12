@@ -30,7 +30,7 @@ describe('useDebouncedSearch', () => {
     const { result, callback } = await prepare({ initialLoadingState: false })
 
     expect(result.current.isLoading).toBe(true)
-    expect(callback).toBeCalled()
+    expect(callback).toHaveBeenCalled()
     expect(callback).toHaveBeenCalledTimes(1)
   })
 
@@ -51,7 +51,7 @@ describe('useDebouncedSearch', () => {
     const { result, callback } = await prepare({ initialLoadingState: false })
 
     expect(result.current.isLoading).toBe(true)
-    expect(callback).toBeCalled()
+    expect(callback).toHaveBeenCalled()
     expect(callback).toHaveBeenCalledTimes(1)
 
     // Fast-forward until all timers have been executed
@@ -69,7 +69,7 @@ describe('useDebouncedSearch', () => {
     // As the value comes from initialLoadingState that cannot change in this context
 
     // Fast-forward until all timers have been executed
-    expect(callback).toBeCalled()
+    expect(callback).toHaveBeenCalled()
     expect(callback).toHaveBeenCalledTimes(2)
 
     // Fast-forward until all timers have been executed
