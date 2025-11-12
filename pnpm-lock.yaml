@@ -305,8 +305,8 @@ importers:
         specifier: 0.7.1
         version: 0.7.1(@trivago/prettier-plugin-sort-imports@5.2.2(prettier@3.6.2))(prettier@3.6.2)
       tailwind-merge:
-        specifier: 2.6.0
-        version: 2.6.0
+        specifier: 3.3.1
+        version: 3.3.1
       tailwindcss:
         specifier: 3.4.18
         version: 3.4.18(ts-node@10.9.2(@swc/core@1.13.5)(@swc/wasm@1.13.20)(@types/node@22.18.13)(typescript@5.9.3))
@@ -447,8 +447,8 @@ importers:
         specifier: 8.5.6
         version: 8.5.6
       tailwind-merge:
-        specifier: 2.6.0
-        version: 2.6.0
+        specifier: 3.3.1
+        version: 3.3.1
       tailwindcss:
         specifier: 3.4.18
         version: 3.4.18(ts-node@10.9.2(@swc/core@1.13.5)(@swc/wasm@1.13.20)(@types/node@22.18.13)(typescript@5.9.3))
@@ -7556,8 +7556,8 @@ packages:
     os: [darwin, linux, win32, freebsd, openbsd, netbsd, sunos, android]
     hasBin: true
 
-  tailwind-merge@2.6.0:
-    resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
+  tailwind-merge@3.3.1:
+    resolution: {integrity: sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==}
 
   tailwindcss@3.4.18:
     resolution: {integrity: sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ==}
@@ -16532,7 +16532,7 @@ snapshots:
 
   systeminformation@5.27.7: {}
 
-  tailwind-merge@2.6.0: {}
+  tailwind-merge@3.3.1: {}
 
   tailwindcss@3.4.18(ts-node@10.9.2(@swc/core@1.13.5)(@swc/wasm@1.13.20)(@types/node@22.18.13)(typescript@5.9.3)):
     dependencies:
