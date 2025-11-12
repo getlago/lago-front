@@ -356,8 +356,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     }
                   />
 
-                  {!!dunningCampaign && !customer?.excludeFromDunningCampaign ? (
-                    isDunningCampaignApplicable ? (
+                  {!!dunningCampaign &&
+                    !customer?.excludeFromDunningCampaign &&
+                    isDunningCampaignApplicable && (
                       <Table
                         name="customer-dunnings-settings"
                         containerSize={{ default: 0 }}
@@ -400,12 +401,17 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             : []),
                         ]}
                       />
-                    ) : (
+                    )}
+
+                  {!!dunningCampaign &&
+                    !customer?.excludeFromDunningCampaign &&
+                    !isDunningCampaignApplicable && (
                       <Typography variant="body" color="grey700">
                         {translate('text_17295411491091t7ii66l5ex')}
                       </Typography>
-                    )
-                  ) : (
+                    )}
+
+                  {(!dunningCampaign || customer?.excludeFromDunningCampaign) && (
                     <Typography variant="body" color="grey700">
                       {translate('text_1729541149109r8u8nlsu75e')}
                     </Typography>
@@ -603,11 +609,13 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   }
                 />
 
-                {customer?.skipInvoiceCustomSections ? (
+                {customer?.skipInvoiceCustomSections && (
                   <Typography variant="body" color="grey700">
                     {translate('text_1735223938916tlygbi5v0nd')}
                   </Typography>
-                ) : isInvoiceCustomSectionConfigurable ? (
+                )}
+
+                {!customer?.skipInvoiceCustomSections && isInvoiceCustomSectionConfigurable && (
                   <Table
                     name="customer-custom-sections-settings"
                     containerSize={{ default: 0 }}
@@ -627,7 +635,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       },
                     ]}
                   />
-                ) : (
+                )}
+
+                {!customer?.skipInvoiceCustomSections && !isInvoiceCustomSectionConfigurable && (
                   <Typography variant="body" color="grey700">
                     {translate('text_1735223938916wjmtgs2juy4')}
                   </Typography>
@@ -698,25 +708,35 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   }
                 />
 
-                <Typography variant="body" color="grey700">
-                  {typeof customer?.netPaymentTerm !== 'number'
-                    ? translate(
-                        'text_64c7a89b6c67eb6c98898241',
-                        {
-                          days: billingEntity?.netPaymentTerm,
-                        },
-                        billingEntity?.netPaymentTerm,
-                      )
-                    : customer?.netPaymentTerm === 0
-                      ? translate('text_64c7a89b6c67eb6c98898125')
-                      : translate(
-                          'text_64c7a89b6c67eb6c9889815f',
-                          {
-                            days: customer?.netPaymentTerm,
-                          },
-                          customer?.netPaymentTerm,
-                        )}
-                </Typography>
+                {typeof customer?.netPaymentTerm !== 'number' && (
+                  <Typography variant="body" color="grey700">
+                    {translate(
+                      'text_64c7a89b6c67eb6c98898241',
+                      {
+                        days: billingEntity?.netPaymentTerm,
+                      },
+                      billingEntity?.netPaymentTerm,
+                    )}
+                  </Typography>
+                )}
+
+                {typeof customer?.netPaymentTerm === 'number' && customer?.netPaymentTerm === 0 && (
+                  <Typography variant="body" color="grey700">
+                    {translate('text_64c7a89b6c67eb6c98898125')}
+                  </Typography>
+                )}
+
+                {typeof customer?.netPaymentTerm === 'number' && customer?.netPaymentTerm !== 0 && (
+                  <Typography variant="body" color="grey700">
+                    {translate(
+                      'text_64c7a89b6c67eb6c9889815f',
+                      {
+                        days: customer?.netPaymentTerm,
+                      },
+                      customer?.netPaymentTerm,
+                    )}
+                  </Typography>
+                )}
               </SettingsListItem>
 
               {/* Tax */}
