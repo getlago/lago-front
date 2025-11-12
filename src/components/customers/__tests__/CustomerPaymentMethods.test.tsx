@@ -28,7 +28,7 @@ jest.mock('~/core/utils/copyToClipboard', () => ({
   copyToClipboard: jest.fn(),
 }))
 
-jest.mock('~/components/paymentMethodsList', () => ({
+jest.mock('~/components/paymentMethodsList/PaymentMethodList', () => ({
   PaymentMethodsList: () => <div>Payment Methods List</div>,
 }))
 
