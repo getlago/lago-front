@@ -122,6 +122,7 @@ gql`
     configurableInvoiceCustomSections {
       id
       name
+      code
     }
     skipInvoiceCustomSections
   }
