@@ -46,7 +46,7 @@ export const getChargesComboboxDataFromInvoiceSubscription = ({
   chargesGroupLabel: string
   fixedChargesGroupLabel: string
   invoiceSubscription: InvoiceSubscriptionForCreateFeeDrawerFragment | undefined
-}): ComboBoxProps['data'] => {
+}): ComboboxDataGrouped[] => {
   if (!invoiceSubscription) return []
 
   const planUsageChargesWithoutAssociatedFees =
