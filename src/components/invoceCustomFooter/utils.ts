@@ -26,17 +26,3 @@ export const getIntersectionOfSections = (
 
   return sections1.filter((section) => sectionIds2.has(section.id))
 }
-
-/**
- * Adds new items to existing sections, avoiding duplicates based on id.
- * Only items that are not already present in existingSections will be added.
- */
-export const addItemsWithoutDuplicates = (
-  newItems: MappedInvoiceSection[],
-  existingSections: MappedInvoiceSection[],
-): MappedInvoiceSection[] => {
-  const selectedIds = new Set(existingSections.map((section) => section.id))
-  const uniqueNewItems = newItems.filter((item) => !selectedIds.has(item.id))
-
-  return [...uniqueNewItems, ...existingSections]
-}

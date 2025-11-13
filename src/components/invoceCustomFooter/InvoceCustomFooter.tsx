@@ -5,7 +5,6 @@ import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { InvoiceCustomerFooterSelection } from '~/components/invoceCustomFooter/InvoiceCustomerFooterSelection'
 import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
 import { useInvoiceCustomSectionsIntersection } from '~/components/invoceCustomFooter/useInvoiceCustomSectionsIntersection'
-import { addItemsWithoutDuplicates } from '~/components/invoceCustomFooter/utils'
 import {
   CustomerAppliedInvoiceCustomSectionsFragmentDoc,
   useGetCustomerAppliedInvoiceCustomSectionsQuery,
@@ -47,10 +46,14 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
     customerInvoiceSections: customerData?.customer?.configurableInvoiceCustomSections || [],
   })
 
-  const onChange = (items: MappedInvoiceSection[]) => {
-    const addedSections = addItemsWithoutDuplicates(items, selectedSections)
+  const onChange = (id: string) => {
+    const newSection = orgInvoiceSectionsData?.find((section) => section.id === id)
 
-    setSelectedSections(addedSections)
+    if (newSection) {
+      setSelectedSections([...selectedSections, { id: newSection.id, name: newSection.name }])
+    }
+
+    setShouldDisplayInvoiceCustomerFooterInput(false)
   }
 
   const handleRemoveSection = (sectionId: string) => {
@@ -106,6 +109,7 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
                 placeholder={translate('text_1762947620814hsqq7d88d7c')}
                 emptyText={translate('text_1762952250941g1m9u5hpclb')}
                 onChange={onChange}
+                selectedSections={selectedSections}
               />
             </div>
 

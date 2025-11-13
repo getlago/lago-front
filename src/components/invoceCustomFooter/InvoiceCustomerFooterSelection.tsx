@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
 
-import { BasicMultipleComboBoxData, MultipleComboBox } from '~/components/form'
+import { Typography } from '~/components/designSystem'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
 import { InvoiceCustomSection } from '~/hooks/useInvoiceCustomSections'
 
 interface InvoiceCustomerFooterSelectionProps {
-  onChange?: (items: MappedInvoiceSection[]) => void
+  onChange?: (id: string) => void
   label?: string
   placeholder?: string
   emptyText?: string
@@ -14,9 +15,8 @@ interface InvoiceCustomerFooterSelectionProps {
   name?: string
   loading?: boolean
   data: InvoiceCustomSection[]
+  selectedSections: MappedInvoiceSection[]
 }
-
-type MultipleComboBoxOption = Pick<BasicMultipleComboBoxData, 'value' | 'label'>
 
 export const InvoiceCustomerFooterSelection = ({
   loading,
@@ -27,40 +27,47 @@ export const InvoiceCustomerFooterSelection = ({
   className,
   disabled: externalDisabled = false,
   name = 'selectPaymentMethod',
+  selectedSections,
   onChange,
 }: InvoiceCustomerFooterSelectionProps) => {
-  const options = useMemo(() => {
-    return data.map<MultipleComboBoxOption>((section) => ({
-      label: section.name,
-      value: section.id,
-    }))
-  }, [data])
-
-  const handleChange = (selectedSections: MultipleComboBoxOption[]) => {
-    const mapOptionsToCustomerInvoiceSections = selectedSections.map<MappedInvoiceSection>(
-      (section) => ({
-        id: section.value,
-        name: section.label || '',
-      }),
-    )
-
-    onChange?.(mapOptionsToCustomerInvoiceSections)
+  const handleChange = (id: string) => {
+    onChange?.(id)
   }
 
+  const options = useMemo(() => {
+    if (!data) return []
+
+    const selectedSectionIds = selectedSections.map((section) => section.id)
+
+    return data.map(({ id, name: itemName }) => {
+      const disabled = selectedSectionIds.includes(id)
+
+      return {
+        label: itemName,
+        labelNode: (
+          <ComboboxItem>
+            <Typography variant="body" color="grey700" noWrap>
+              {itemName}
+            </Typography>
+          </ComboboxItem>
+        ),
+        value: id,
+        disabled,
+      }
+    })
+  }, [data, selectedSections])
+
   return (
-    <MultipleComboBox
+    <ComboBox
       className={className}
       name={name}
       data={options}
       label={label}
       placeholder={placeholder}
       emptyText={emptyText}
-      value={[]}
       onChange={(item) => handleChange(item)}
       disabled={externalDisabled || loading}
       sortValues={false}
-      hideTags={false}
-      forcePopupIcon
     />
   )
 }

@@ -1,10 +1,6 @@
 import { createInvoiceCustomSection } from './factories/invoiceCustomSectionFactory'
 
-import {
-  addItemsWithoutDuplicates,
-  getIntersectionOfSections,
-  mapItemsToCustomerInvoiceSections,
-} from '../utils'
+import { getIntersectionOfSections, mapItemsToCustomerInvoiceSections } from '../utils'
 
 describe('mapItemsToCustomerInvoiceSections', () => {
   it('should map InvoiceCustomSection items to MappedInvoiceSection format and discard other fields', () => {
@@ -84,84 +80,5 @@ describe('getIntersectionOfSections', () => {
     const result = getIntersectionOfSections(sections, sections)
 
     expect(result).toEqual(sections)
-  })
-})
-
-describe('addItemsWithoutDuplicates', () => {
-  it('should add new items that are not already present', () => {
-    const newItems = [
-      { id: 'section-3', name: 'Section 3' },
-      { id: 'section-4', name: 'Section 4' },
-    ]
-    const existingSections = [
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-2', name: 'Section 2' },
-    ]
-
-    const result = addItemsWithoutDuplicates(newItems, existingSections)
-
-    expect(result).toEqual([
-      { id: 'section-3', name: 'Section 3' },
-      { id: 'section-4', name: 'Section 4' },
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-2', name: 'Section 2' },
-    ])
-  })
-
-  it('should not add items that already exist in existingSections', () => {
-    const newItems = [
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-3', name: 'Section 3' },
-    ]
-    const existingSections = [
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-2', name: 'Section 2' },
-    ]
-
-    const result = addItemsWithoutDuplicates(newItems, existingSections)
-
-    expect(result).toEqual([
-      { id: 'section-3', name: 'Section 3' },
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-2', name: 'Section 2' },
-    ])
-    expect(result).toHaveLength(3)
-  })
-
-  it('should return existingSections when newItems is empty', () => {
-    const newItems: Array<{ id: string; name: string }> = []
-    const existingSections = [{ id: 'section-1', name: 'Section 1' }]
-
-    const result = addItemsWithoutDuplicates(newItems, existingSections)
-
-    expect(result).toEqual(existingSections)
-  })
-
-  it('should return newItems when existingSections is empty', () => {
-    const newItems = [
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-2', name: 'Section 2' },
-    ]
-    const existingSections: Array<{ id: string; name: string }> = []
-
-    const result = addItemsWithoutDuplicates(newItems, existingSections)
-
-    expect(result).toEqual(newItems)
-  })
-
-  it('should filter out all duplicates when all newItems already exist', () => {
-    const newItems = [
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-2', name: 'Section 2' },
-    ]
-    const existingSections = [
-      { id: 'section-1', name: 'Section 1' },
-      { id: 'section-2', name: 'Section 2' },
-    ]
-
-    const result = addItemsWithoutDuplicates(newItems, existingSections)
-
-    expect(result).toEqual(existingSections)
-    expect(result).toHaveLength(2)
   })
 })
