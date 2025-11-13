@@ -3,7 +3,6 @@ import { gql } from '@apollo/client'
 import {
   GetInvoiceCustomSectionsQuery,
   useGetInvoiceCustomSectionsLazyQuery,
-  useGetInvoiceCustomSectionsQuery,
 } from '~/generated/graphql'
 
 gql`
@@ -22,32 +21,11 @@ export type InvoiceCustomSection = NonNullable<
   GetInvoiceCustomSectionsQuery['invoiceCustomSections']
 >['collection'][number]
 
-interface UseInvoiceCustomSectionsReturn {
-  loading: boolean
-  error: boolean
-  data: InvoiceCustomSection[]
-}
-
 interface UseInvoiceCustomSectionsLazyReturn {
   getInvoiceCustomSections: ReturnType<typeof useGetInvoiceCustomSectionsLazyQuery>[0]
   loading: boolean
   error: boolean
   data: InvoiceCustomSection[]
-}
-
-/**
- * Hook to fetch invoice custom sections automatically on component mount.
- */
-export const useInvoiceCustomSections = (): UseInvoiceCustomSectionsReturn => {
-  const { data, loading, error } = useGetInvoiceCustomSectionsQuery()
-
-  const sections = data?.invoiceCustomSections?.collection || []
-
-  return {
-    loading,
-    error: !!error,
-    data: sections,
-  }
 }
 
 /**

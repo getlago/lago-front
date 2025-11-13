@@ -5,7 +5,7 @@ import React from 'react'
 import { GetInvoiceCustomSectionsDocument } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { useInvoiceCustomSections, useInvoiceCustomSectionsLazy } from '../useInvoiceCustomSections'
+import { useInvoiceCustomSectionsLazy } from '../useInvoiceCustomSections'
 
 const mockInvoiceCustomSectionsResponse = {
   invoiceCustomSections: {
@@ -25,33 +25,6 @@ const mockInvoiceCustomSectionsResponse = {
       },
     ],
   },
-}
-
-async function prepare({ mock }: { mock?: Record<string, unknown> } = {}) {
-  const mocks = [
-    {
-      request: {
-        query: GetInvoiceCustomSectionsDocument,
-        variables: {},
-      },
-      result: {
-        data: mock || mockInvoiceCustomSectionsResponse,
-      },
-    },
-  ]
-
-  const customWrapper = ({ children }: { children: React.ReactNode }) =>
-    AllTheProviders({
-      children,
-      mocks,
-      forceTypenames: true,
-    })
-
-  const { result } = renderHook(() => useInvoiceCustomSections(), {
-    wrapper: customWrapper,
-  })
-
-  return { result }
 }
 
 async function prepareLazy({ mock }: { mock?: Record<string, unknown> } = {}) {
@@ -80,42 +53,6 @@ async function prepareLazy({ mock }: { mock?: Record<string, unknown> } = {}) {
 
   return { result }
 }
-
-describe('useInvoiceCustomSections', () => {
-  describe('WHEN query succeeds', () => {
-    it('THEN returns invoice custom sections list with the right length', async () => {
-      const { result } = await prepare()
-
-      await act(() => wait(0))
-      expect(result.current.data).toHaveLength(2)
-    })
-
-    it('THEN returns empty array when data is null', async () => {
-      const { result } = await prepare({
-        mock: {
-          invoiceCustomSections: null,
-        },
-      })
-
-      await act(() => wait(0))
-      expect(result.current.data).toEqual([])
-    })
-
-    it('THEN returns empty array when collection is empty', async () => {
-      const { result } = await prepare({
-        mock: {
-          invoiceCustomSections: {
-            __typename: 'InvoiceCustomSectionCollection',
-            collection: [],
-          },
-        },
-      })
-
-      await act(() => wait(0))
-      expect(result.current.data).toEqual([])
-    })
-  })
-})
 
 describe('useInvoiceCustomSectionsLazy', () => {
   describe('WHEN query is triggered and succeeds', () => {

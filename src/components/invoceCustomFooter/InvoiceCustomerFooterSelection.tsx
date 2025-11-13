@@ -3,41 +3,46 @@ import { useMemo } from 'react'
 import { Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
-import { InvoiceCustomSection } from '~/hooks/useInvoiceCustomSections'
+import { mapItemsToCustomerInvoiceSection } from '~/components/invoceCustomFooter/utils'
+import { useInvoiceCustomSectionsLazy } from '~/hooks/useInvoiceCustomSections'
 
 interface InvoiceCustomerFooterSelectionProps {
-  onChange?: (id: string) => void
+  onChange?: (item: MappedInvoiceSection) => void
   label?: string
   placeholder?: string
   emptyText?: string
   className?: string
   disabled?: boolean
   name?: string
-  loading?: boolean
-  data: InvoiceCustomSection[]
-  selectedSections: MappedInvoiceSection[]
+  selectedItems?: MappedInvoiceSection[]
 }
 
 export const InvoiceCustomerFooterSelection = ({
-  loading,
-  data,
   label = '',
   placeholder,
   emptyText,
   className,
   disabled: externalDisabled = false,
   name = 'selectPaymentMethod',
-  selectedSections,
+  selectedItems = [],
   onChange,
 }: InvoiceCustomerFooterSelectionProps) => {
+  const { getInvoiceCustomSections, data, loading } = useInvoiceCustomSectionsLazy()
+
   const handleChange = (id: string) => {
-    onChange?.(id)
+    const item = data?.find((section) => section.id === id)
+
+    if (item) {
+      const mappedItem = mapItemsToCustomerInvoiceSection(item)
+
+      onChange?.(mappedItem)
+    }
   }
 
   const options = useMemo(() => {
     if (!data) return []
 
-    const selectedSectionIds = selectedSections.map((section) => section.id)
+    const selectedSectionIds = selectedItems.map((section) => section.id)
 
     return data.map(({ id, name: itemName }) => {
       const disabled = selectedSectionIds.includes(id)
@@ -55,10 +60,12 @@ export const InvoiceCustomerFooterSelection = ({
         disabled,
       }
     })
-  }, [data, selectedSections])
+  }, [data, selectedItems])
 
   return (
     <ComboBox
+      onOpen={async () => await getInvoiceCustomSections()}
+      loading={loading}
       className={className}
       name={name}
       data={options}
