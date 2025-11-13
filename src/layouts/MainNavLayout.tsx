@@ -1,5 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
+import { captureException } from '@sentry/react'
 import { Avatar, ConditionalWrapper, Icon, IconName, Spinner, Tooltip } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -102,6 +103,7 @@ const MainNavLayout = () => {
   const navigate = useNavigate()
   const client = useApolloClient()
   const [open, setOpen] = useState(false)
+  const [isSwitchingOrg, setIsSwitchingOrg] = useState(false)
   const { currentUser, loading: currentUserLoading, refetchCurrentUserInfos } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const {
@@ -110,7 +112,10 @@ const MainNavLayout = () => {
     refetchOrganizationInfos,
   } = useOrganizationInfos()
   const { translate } = useInternationalization()
-  const { data, loading, error } = useSideNavInfosQuery()
+  const { data, loading } = useSideNavInfosQuery({
+    errorPolicy: 'all',
+    notifyOnNetworkStatusChange: true,
+  })
   const {
     openPanel: openInspector,
     closePanel: closeInspector,
@@ -129,6 +134,44 @@ const MainNavLayout = () => {
   }, [pathname, contentRef, state?.disableScrollTop])
 
   const canSeeReportsSection = hasPermissions(['analyticsView'])
+
+  /**
+   * Switches the current organization context.
+   *
+   * Operation sequence is critical:
+   * 1. Switch organization context (displays app-wide loading state)
+   * 2. Navigate to home route
+   * 3. Refetch organization and user info
+   *
+   * This order ensures the home page queries fire with the correct organization context.
+   * Navigating before refetching would cause home queries to execute with stale data,
+   * leading to incorrect redirects. The loading state during context switch provides
+   * a seamless UX without visible intermediate states.
+   */
+  const handleOrganizationSwitch = async (organizationId: string): Promise<void> => {
+    if (isSwitchingOrg) return
+
+    setIsSwitchingOrg(true)
+
+    try {
+      await switchCurrentOrganization(client, organizationId)
+
+      if (isInspectorOpen) closeInspector()
+
+      navigate(HOME_ROUTE)
+
+      const refetchPromises = [refetchOrganizationInfos(), refetchCurrentUserInfos()]
+
+      await Promise.allSettled(refetchPromises)
+    } catch (error) {
+      // Errors are automatically captured by Apollo's error link
+      // However the error details is not captured by Sentry, so we need to capture it manually.
+      // Prefer to be noisy and capture the error manually to be sure we don't miss anything. We can adjust this later.
+      captureException(error)
+    } finally {
+      setIsSwitchingOrg(false)
+    }
+  }
 
   return (
     <NavLayout.NavWrapper>
@@ -237,16 +280,10 @@ const MainNavLayout = () => {
                               size="small"
                               fullWidth
                               variant={id === organization?.id ? 'secondary' : 'quaternary'}
-                              disabled={!accessibleByCurrentSession}
+                              disabled={!accessibleByCurrentSession || isSwitchingOrg}
                               endIcon={accessibleByCurrentSession ? undefined : 'lock'}
                               onClick={async () => {
-                                await switchCurrentOrganization(client, id)
-                                isInspectorOpen && closeInspector()
-                                navigate(HOME_ROUTE)
-                                await Promise.all([
-                                  refetchOrganizationInfos(),
-                                  refetchCurrentUserInfos(),
-                                ])
+                                await handleOrganizationSwitch(id)
                                 closePopper()
                               }}
                             >
@@ -282,23 +319,22 @@ const MainNavLayout = () => {
                     >
                       {translate('text_623b497ad05b960101be3444')}
                     </Button>
-                    {data && !error && !loading ? (
-                      <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
-                        <a
-                          className="flex items-center gap-2 text-blue visited:text-blue"
-                          href={data?.currentVersion?.githubUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                        >
-                          {data?.currentVersion?.number}
-                          <Icon className="hover:cursor-pointer" name="outside" size="small" />
-                        </a>
-                      </div>
-                    ) : (
-                      <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
-                        <Skeleton variant="text" className="w-30" />
-                      </div>
-                    )}
+                    <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
+                      {loading && <Skeleton variant="text" className="w-30" />}
+                      {!loading &&
+                        !!data?.currentVersion?.githubUrl &&
+                        !!data?.currentVersion?.number && (
+                          <a
+                            className="flex items-center gap-2 text-blue visited:text-blue"
+                            href={data.currentVersion.githubUrl}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                          >
+                            {data.currentVersion.number}
+                            <Icon className="hover:cursor-pointer" name="outside" size="small" />
+                          </a>
+                        )}
+                    </div>
                   </div>
                 </MenuPopper>
               )}
