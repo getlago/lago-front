@@ -13,16 +13,3 @@ export const mapItemsToCustomerInvoiceSection = (
     name: item.name,
   }
 }
-
-/**
- * Returns the intersection of two InvoiceSection arrays based on their id.
- * Returns an empty array if there are no common elements.
- */
-export const getIntersectionOfSections = (
-  sections1: MappedInvoiceSection[],
-  sections2: MappedInvoiceSection[],
-): MappedInvoiceSection[] => {
-  const sectionIds2 = new Set(sections2.map((section) => section.id))
-
-  return sections1.filter((section) => sectionIds2.has(section.id))
-}
