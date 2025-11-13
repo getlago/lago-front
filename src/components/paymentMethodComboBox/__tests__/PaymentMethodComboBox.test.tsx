@@ -4,7 +4,7 @@ import { PaymentMethodsDocument } from '~/generated/graphql'
 import { createMockPaymentMethodsQueryResponse } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { render } from '~/test-utils'
 
-import { PaymentMethodComboBox } from '../index'
+import { PaymentMethodComboBox } from '../PaymentMethodComboBox'
 
 const EXTERNAL_CUSTOMER_ID = 'customer_ext_123'
 

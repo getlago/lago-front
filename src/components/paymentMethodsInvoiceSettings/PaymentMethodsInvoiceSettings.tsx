@@ -1,6 +1,6 @@
 import { Card, Typography } from '~/components/designSystem'
 import { InvoceCustomFooter } from '~/components/invoceCustomFooter/InvoceCustomFooter'
-import { PaymentMethodComboBox } from '~/components/paymentMethodComboBox'
+import { PaymentMethodComboBox } from '~/components/paymentMethodComboBox/PaymentMethodComboBox'
 import { GetCustomerForCreateSubscriptionQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

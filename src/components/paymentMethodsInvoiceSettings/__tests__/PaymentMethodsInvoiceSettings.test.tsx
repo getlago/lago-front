@@ -5,7 +5,7 @@ import { render } from '~/test-utils'
 
 import { PaymentMethodsInvoiceSettings } from '../PaymentMethodsInvoiceSettings'
 
-jest.mock('~/components/paymentMethodComboBox', () => ({
+jest.mock('~/components/paymentMethodComboBox/PaymentMethodComboBox', () => ({
   PaymentMethodComboBox: () => <div>PaymentMethodComboBox</div>,
 }))
 

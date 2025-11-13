@@ -8,6 +8,7 @@ const createMockOption = (value: string, isDefault?: boolean): PaymentMethodOpti
   label: `Payment Method ${value}`,
   labelNode: <div>{value}</div>,
   isDefault,
+  type: 'provider',
 })
 
 describe('usePaymentMethodSelection', () => {

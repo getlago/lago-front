@@ -2,13 +2,12 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
-import { usePaymentMethodOptions } from '../paymentMethodsInvoiceSettings/usePaymentMethodOptions'
-import { usePaymentMethodSelection } from '../paymentMethodsInvoiceSettings/usePaymentMethodSelection'
+import { usePaymentMethodOptions } from './usePaymentMethodOptions'
+import { usePaymentMethodSelection } from './usePaymentMethodSelection'
 
 interface PaymentMethodComboBoxProps {
   externalCustomerId: string
   value?: string
-  onChange?: (value: string) => void
   label?: string
   placeholder?: string
   emptyText?: string
@@ -41,6 +40,14 @@ export const PaymentMethodComboBox = ({
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] =
     usePaymentMethodSelection(paymentMethodOptions)
 
+  const onChange = (value: string) => {
+    const selectedPaymentMethod = paymentMethodOptions.find((option) => option.value === value)
+
+    if (selectedPaymentMethod) {
+      setSelectedPaymentMethodId(selectedPaymentMethod.value)
+    }
+  }
+
   const disabled = externalDisabled || paymentMethodsLoading || !!paymentMethodsError
 
   return (
@@ -52,7 +59,7 @@ export const PaymentMethodComboBox = ({
       placeholder={placeholder}
       emptyText={emptyText}
       value={selectedPaymentMethodId}
-      onChange={setSelectedPaymentMethodId}
+      onChange={onChange}
       loading={paymentMethodsLoading}
       disabled={disabled}
       sortValues={false}

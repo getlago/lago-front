@@ -76,6 +76,29 @@ describe('usePaymentMethodOptions', () => {
       expect(result.current[2].isDefault).toBeUndefined() // No default flag
       expect(result.current[3].value).toBe('manual') // Manual last
       expect(result.current[3].isDefault).toBeUndefined() // No default flag
+      expect(result.current[3].type).toBe('manual') // Manual type
+    })
+
+    it('THEN sets correct type for provider and manual options', () => {
+      const paymentMethods: PaymentMethodList = [
+        createMockPaymentMethod({
+          id: 'pm_001',
+          isDefault: false,
+          details: {
+            __typename: 'PaymentMethodDetails',
+            type: 'card',
+            brand: 'visa',
+            expirationYear: '2025',
+            expirationMonth: '12',
+            last4: '4242',
+          },
+        }),
+      ]
+
+      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods, mockTranslate))
+
+      expect(result.current[0].type).toBe('provider') // Provider payment method
+      expect(result.current[1].type).toBe('manual') // Manual option
     })
 
     it('THEN filters out deleted payment methods', () => {
