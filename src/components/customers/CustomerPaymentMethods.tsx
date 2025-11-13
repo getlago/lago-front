@@ -13,6 +13,7 @@ import {
 } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { PaymentMethodsList } from '~/components/paymentMethodsList/PaymentMethodList'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -30,6 +31,12 @@ export const GENERATE_CHECKOUT_URL_BUTTON_TEST_ID = 'generate-checkout-url-butto
 export const CANCEL_DIALOG_BUTTON_TEST_ID = 'cancel-dialog-button'
 export const ERROR_ALERT_TEST_ID = 'error-alert'
 export const CHECKOUT_URL_TEXT_TEST_ID = 'checkout-url-text'
+export const PAYMENT_METHODS_LIST_TEST_ID = 'payment-methods-list'
+
+const INELIGIBLE_PAYMENT_METHODS: ProviderPaymentMethodsEnum[] = [
+  ProviderPaymentMethodsEnum.CustomerBalance,
+  ProviderPaymentMethodsEnum.Crypto,
+]
 
 interface Props {
   customer: CustomerMainInfosFragment
@@ -46,6 +53,9 @@ gql`
 
 export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Props) => {
   const { translate } = useInternationalization()
+  const addPaymentDialogRef = useRef<DialogRef>(null)
+  const [selectedPaymentProvider, setSelectedPaymentProvider] = useState<string>('')
+
   const [generateCheckoutUrlMutation, { data, loading, error, reset }] =
     useGenerateCheckoutUrlMutation({
       variables: {
@@ -53,41 +63,41 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
       },
     })
 
-  const addPaymentDialogRef = useRef<DialogRef>(null)
+  const hasOnlyIneligiblePaymentMethods = useMemo(() => {
+    const linkedProviderCustomer = customer.providerCustomer
+    const availableProviderPaymentMethods = linkedProviderCustomer?.providerPaymentMethods
 
-  const [selectedPaymentProvider, setSelectedPaymentProvider] = useState<string>('')
+    if (!linkedProviderCustomer || !availableProviderPaymentMethods) return false
 
-  const customerAvailablePaymentMethods = customer?.providerCustomer?.providerPaymentMethods || []
-  const hasAtLeastOneAvailablePaymentMethod = customerAvailablePaymentMethods.length > 0
+    const canAddPaymentMethods = availableProviderPaymentMethods.some(
+      (method) => !INELIGIBLE_PAYMENT_METHODS.includes(method),
+    )
 
-  const ineligiblePaymentMethods = [
-    ProviderPaymentMethodsEnum.CustomerBalance,
-    ProviderPaymentMethodsEnum.Crypto,
-  ]
+    return (
+      !!linkedProviderCustomer &&
+      availableProviderPaymentMethods.length > 0 &&
+      !canAddPaymentMethods
+    )
+  }, [customer.providerCustomer])
 
-  const isCustomerEligibleForAddingPaymentMethods = customerAvailablePaymentMethods.some(
-    (method) => !ineligiblePaymentMethods.includes(method),
-  )
+  const paymentProviderOptions = useMemo(() => {
+    if (!linkedPaymentProvider) return []
 
-  const hasMissingConnectedPaymentProvider =
-    hasAtLeastOneAvailablePaymentMethod && !isCustomerEligibleForAddingPaymentMethods
-
-  const connectedPaymentProvidersData = useMemo(() => {
-    const mapOptions = linkedPaymentProvider ? [linkedPaymentProvider] : []
-
-    return mapOptions.map(({ code, name }) => ({
-      value: code,
-      label: name,
-    }))
+    return [
+      {
+        value: linkedPaymentProvider.code,
+        label: linkedPaymentProvider.name,
+      },
+    ]
   }, [linkedPaymentProvider])
 
-  const hasOneAvailableOption = connectedPaymentProvidersData.length === 1
+  const hasOneAvailableOption = paymentProviderOptions.length === 1
 
   useEffect(() => {
     if (hasOneAvailableOption) {
-      setSelectedPaymentProvider(connectedPaymentProvidersData[0].value)
+      setSelectedPaymentProvider(paymentProviderOptions[0].value)
     }
-  }, [connectedPaymentProvidersData, hasOneAvailableOption])
+  }, [hasOneAvailableOption, paymentProviderOptions])
 
   const checkoutUrl = data?.generateCheckoutUrl?.checkoutUrl || ''
 
@@ -100,24 +110,12 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
         action={{
           title: translate('text_1761914802986ww4ima0w9w9'),
           onClick: () => addPaymentDialogRef.current?.openDialog(),
-          isDisabled: hasMissingConnectedPaymentProvider,
+          isDisabled: hasOnlyIneligiblePaymentMethods,
           dataTest: ADD_PAYMENT_METHOD_TEST_ID,
         }}
       />
 
-      {!hasAtLeastOneAvailablePaymentMethod && (
-        <Typography color="grey500" data-test={EMPTY_STATE_TEST_ID}>
-          {translate('text_1761915128154gyls7eboz4s')}
-        </Typography>
-      )}
-
-      {hasMissingConnectedPaymentProvider && (
-        <Typography color="grey500" className="mb-4" data-test={INELIGIBLE_PAYMENT_METHODS_TEST_ID}>
-          {translate('text_17619148029863fx3w8kwfdp')}
-        </Typography>
-      )}
-
-      {!hasMissingConnectedPaymentProvider && (
+      {!hasOnlyIneligiblePaymentMethods && (
         <Dialog
           ref={addPaymentDialogRef}
           title={translate('text_1761914802986ww4ima0w9w9')}
@@ -155,7 +153,7 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
               disabled={hasOneAvailableOption}
               disableClearable={hasOneAvailableOption}
               name="selectPaymentProvider"
-              data={connectedPaymentProvidersData}
+              data={paymentProviderOptions}
               label={translate('text_634ea0ecc6147de10ddb6631')}
               placeholder={translate('text_1762173848714al2j36a59ce')}
               emptyText={translate('text_1762173891817jhfenej7eho')}
@@ -203,6 +201,18 @@ export const CustomerPaymentMethods = ({ customer, linkedPaymentProvider }: Prop
             )}
           </>
         </Dialog>
+      )}
+
+      {hasOnlyIneligiblePaymentMethods && (
+        <Typography color="grey500" className="mb-4" data-test={INELIGIBLE_PAYMENT_METHODS_TEST_ID}>
+          {translate('text_17619148029863fx3w8kwfdp')}
+        </Typography>
+      )}
+
+      {!hasOnlyIneligiblePaymentMethods && (
+        <div data-test={PAYMENT_METHODS_LIST_TEST_ID}>
+          <PaymentMethodsList externalCustomerId={customer.externalId} />
+        </div>
       )}
     </>
   )
