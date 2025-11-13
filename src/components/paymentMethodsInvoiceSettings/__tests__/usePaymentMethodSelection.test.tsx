@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 
-import { usePaymentMethodDefaultSelection } from '../usePaymentMethodDefaultSelection'
 import { PaymentMethodOption } from '../usePaymentMethodOptions'
+import { usePaymentMethodSelection } from '../usePaymentMethodSelection'
 
 const createMockOption = (value: string, isDefault?: boolean): PaymentMethodOption => ({
   value,
@@ -10,7 +10,7 @@ const createMockOption = (value: string, isDefault?: boolean): PaymentMethodOpti
   isDefault,
 })
 
-describe('usePaymentMethodDefaultSelection', () => {
+describe('usePaymentMethodSelection', () => {
   describe('WHEN default payment method exists', () => {
     it('THEN selects default payment method on initialization', async () => {
       const options: PaymentMethodOption[] = [
@@ -19,7 +19,7 @@ describe('usePaymentMethodDefaultSelection', () => {
         createMockOption('manual'),
       ]
 
-      const { result } = renderHook(() => usePaymentMethodDefaultSelection(options))
+      const { result } = renderHook(() => usePaymentMethodSelection(options))
 
       await waitFor(() => {
         expect(result.current[0]).toBe('pm_002')
@@ -35,7 +35,7 @@ describe('usePaymentMethodDefaultSelection', () => {
         createMockOption('manual'),
       ]
 
-      const { result } = renderHook(() => usePaymentMethodDefaultSelection(options))
+      const { result } = renderHook(() => usePaymentMethodSelection(options))
 
       await waitFor(() => {
         expect(result.current[0]).toBe('pm_001')

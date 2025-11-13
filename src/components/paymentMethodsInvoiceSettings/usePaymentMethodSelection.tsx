@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { PaymentMethodOption } from './usePaymentMethodOptions'
 
-export const usePaymentMethodDefaultSelection = (
+export const usePaymentMethodSelection = (
   paymentMethodOptions: PaymentMethodOption[],
 ): [string, (value: string) => void] => {
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string>('')

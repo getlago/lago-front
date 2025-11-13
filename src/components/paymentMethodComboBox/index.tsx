@@ -2,8 +2,8 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
-import { usePaymentMethodDefaultSelection } from '../paymentMethodsInvoiceSettings/usePaymentMethodDefaultSelection'
 import { usePaymentMethodOptions } from '../paymentMethodsInvoiceSettings/usePaymentMethodOptions'
+import { usePaymentMethodSelection } from '../paymentMethodsInvoiceSettings/usePaymentMethodSelection'
 
 interface PaymentMethodComboBoxProps {
   externalCustomerId: string
@@ -39,7 +39,7 @@ export const PaymentMethodComboBox = ({
   const paymentMethodOptions = usePaymentMethodOptions(paymentMethodsList, translate)
 
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] =
-    usePaymentMethodDefaultSelection(paymentMethodOptions)
+    usePaymentMethodSelection(paymentMethodOptions)
 
   const disabled = externalDisabled || paymentMethodsLoading || !!paymentMethodsError
 
