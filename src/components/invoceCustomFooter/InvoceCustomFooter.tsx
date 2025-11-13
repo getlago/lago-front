@@ -1,14 +1,11 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { InvoiceCustomerFooterSelection } from '~/components/invoceCustomFooter/InvoiceCustomerFooterSelection'
 import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
-import {
-  addItemsWithoutDuplicates,
-  getIntersectionOfSections,
-  mapItemsToCustomerInvoiceSections,
-} from '~/components/invoceCustomFooter/utils'
+import { useInvoiceCustomSectionsIntersection } from '~/components/invoceCustomFooter/useInvoiceCustomSectionsIntersection'
+import { addItemsWithoutDuplicates } from '~/components/invoceCustomFooter/utils'
 import {
   CustomerAppliedInvoiceCustomSectionsFragmentDoc,
   useGetCustomerAppliedInvoiceCustomSectionsQuery,
@@ -37,7 +34,7 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
   const [shouldDisplayInvoiceCustomerFooterInput, setShouldDisplayInvoiceCustomerFooterInput] =
     useState(false)
 
-  const { data: orgInvoiceSections, loading: isLoadingOrgInvoiceSections } =
+  const { data: orgInvoiceSectionsData, loading: isLoadingOrgInvoiceSections } =
     useInvoiceCustomSections()
 
   const { data: customerData } = useGetCustomerAppliedInvoiceCustomSectionsQuery({
@@ -45,9 +42,10 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
     skip: !customerId,
   })
 
-  const customerInvoiceSections = useMemo(() => {
-    return customerData?.customer?.configurableInvoiceCustomSections || []
-  }, [customerData?.customer?.configurableInvoiceCustomSections])
+  const { intersection, intersectionKey } = useInvoiceCustomSectionsIntersection({
+    orgInvoiceSections: orgInvoiceSectionsData || [],
+    customerInvoiceSections: customerData?.customer?.configurableInvoiceCustomSections || [],
+  })
 
   const onChange = (items: MappedInvoiceSection[]) => {
     const addedSections = addItemsWithoutDuplicates(items, selectedSections)
@@ -61,14 +59,11 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
     setSelectedSections(deletedSections)
   }
 
+  // Using intersectionKey (string) as dependency avoids infinite loops
   useEffect(() => {
-    const mappedOrgInvoiceSections = mapItemsToCustomerInvoiceSections(orgInvoiceSections)
-    const mappedCustomerInvoiceSections = mapItemsToCustomerInvoiceSections(customerInvoiceSections)
-
-    setSelectedSections(
-      getIntersectionOfSections(mappedOrgInvoiceSections, mappedCustomerInvoiceSections),
-    )
-  }, [customerInvoiceSections, orgInvoiceSections])
+    setSelectedSections(intersection)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intersectionKey])
 
   return (
     <div>
@@ -107,7 +102,7 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
             <div className="flex-1">
               <InvoiceCustomerFooterSelection
                 loading={isLoadingOrgInvoiceSections}
-                data={orgInvoiceSections}
+                data={orgInvoiceSectionsData || []}
                 placeholder={translate('text_1762947620814hsqq7d88d7c')}
                 emptyText={translate('text_1762952250941g1m9u5hpclb')}
                 onChange={onChange}

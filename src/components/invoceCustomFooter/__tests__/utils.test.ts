@@ -1,3 +1,5 @@
+import { createInvoiceCustomSection } from './factories/invoiceCustomSectionFactory'
+
 import {
   addItemsWithoutDuplicates,
   getIntersectionOfSections,
@@ -7,18 +9,8 @@ import {
 describe('mapItemsToCustomerInvoiceSections', () => {
   it('should map InvoiceCustomSection items to MappedInvoiceSection format and discard other fields', () => {
     const items = [
-      {
-        __typename: 'InvoiceCustomSection' as const,
-        id: 'section-1',
-        name: 'Section 1',
-        code: 'SECTION_1',
-      },
-      {
-        __typename: 'InvoiceCustomSection' as const,
-        id: 'section-2',
-        name: 'Section 2',
-        code: 'SECTION_2',
-      },
+      createInvoiceCustomSection({ id: 'section-1', name: 'Section 1', code: 'SECTION_1' }),
+      createInvoiceCustomSection({ id: 'section-2', name: 'Section 2', code: 'SECTION_2' }),
     ]
 
     const result = mapItemsToCustomerInvoiceSections(items)
