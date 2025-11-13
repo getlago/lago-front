@@ -5,6 +5,10 @@ import {
   invoiceSubThreeChargesMultipleFilters,
   invoiceSubTwoChargeOneFilter,
   invoiceSubTwoChargeOneFilterDefaultAlreadySelected,
+  invoiceSubWithAdjustedFeesTrue,
+  invoiceSubWithFiltersForOverride,
+  overrideFeesWithFilters,
+  overrideFeesWithMixedAdjustedStatus,
 } from './fixture'
 
 import {
@@ -18,7 +22,7 @@ describe('Invoices >  Details > Utils', () => {
       const result = getChargesComboboxDataFromInvoiceSubscription({
         chargesGroupLabel: 'Usage-based charges',
         fixedChargesGroupLabel: 'Fixed charges',
-        invoiceSubscription: undefined,
+        subscription: undefined,
       })
 
       expect(result).toEqual([])
@@ -28,7 +32,8 @@ describe('Invoices >  Details > Utils', () => {
       const result = getChargesComboboxDataFromInvoiceSubscription({
         chargesGroupLabel: 'Usage-based charges',
         fixedChargesGroupLabel: 'Fixed charges',
-        invoiceSubscription: invoiceSubTwoChargeOneFilter,
+        subscription: invoiceSubTwoChargeOneFilter,
+        overrideFees: invoiceSubTwoChargeOneFilter.fees,
       })
 
       expect(result).toEqual([
@@ -51,7 +56,8 @@ describe('Invoices >  Details > Utils', () => {
       const result = getChargesComboboxDataFromInvoiceSubscription({
         chargesGroupLabel: 'Usage-based charges',
         fixedChargesGroupLabel: 'Fixed charges',
-        invoiceSubscription: invoiceSubThreeChargesMultipleFilters,
+        subscription: invoiceSubThreeChargesMultipleFilters,
+        overrideFees: invoiceSubThreeChargesMultipleFilters.fees,
       })
 
       expect(result).toEqual([
@@ -80,7 +86,8 @@ describe('Invoices >  Details > Utils', () => {
       const result = getChargesComboboxDataFromInvoiceSubscription({
         chargesGroupLabel: 'Usage-based charges',
         fixedChargesGroupLabel: 'Fixed charges',
-        invoiceSubscription: invoiceSubAllFilterChargesSelected,
+        subscription: invoiceSubAllFilterChargesSelected,
+        overrideFees: invoiceSubAllFilterChargesSelected.fees,
       })
 
       expect(result).toEqual([
@@ -103,7 +110,8 @@ describe('Invoices >  Details > Utils', () => {
       const result = getChargesComboboxDataFromInvoiceSubscription({
         chargesGroupLabel: 'Usage-based charges',
         fixedChargesGroupLabel: 'Fixed charges',
-        invoiceSubscription: invoiceSubOnlyFixedCharges,
+        subscription: invoiceSubOnlyFixedCharges,
+        overrideFees: invoiceSubOnlyFixedCharges.fees,
       })
 
       expect(result).toEqual([
@@ -120,7 +128,8 @@ describe('Invoices >  Details > Utils', () => {
       const result = getChargesComboboxDataFromInvoiceSubscription({
         chargesGroupLabel: 'Usage-based charges',
         fixedChargesGroupLabel: 'Fixed charges',
-        invoiceSubscription: invoiceSubBothChargesAndFixedCharges,
+        subscription: invoiceSubBothChargesAndFixedCharges,
+        overrideFees: invoiceSubBothChargesAndFixedCharges.fees,
       })
 
       expect(result).toEqual([
@@ -138,7 +147,7 @@ describe('Invoices >  Details > Utils', () => {
     it('returns an empty array of no invoiceSubscription passed', () => {
       const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
         defaultFilterOptionLabel: 'defaultFilterOptionLabel',
-        invoiceSubscription: undefined,
+        subscription: undefined,
         selectedChargeId: 'selectedChargeId',
       })
 
@@ -148,7 +157,7 @@ describe('Invoices >  Details > Utils', () => {
     it('returns an empty array of no selectedChargeId passed', () => {
       const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
         defaultFilterOptionLabel: 'defaultFilterOptionLabel',
-        invoiceSubscription: invoiceSubTwoChargeOneFilter,
+        subscription: invoiceSubTwoChargeOneFilter,
         selectedChargeId: undefined,
       })
 
@@ -158,8 +167,9 @@ describe('Invoices >  Details > Utils', () => {
     it('returns correct Combobox Data Filters for two charges and one with filters', () => {
       const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
         defaultFilterOptionLabel: 'defaultFilterOptionLabel',
-        invoiceSubscription: invoiceSubTwoChargeOneFilter,
+        subscription: invoiceSubTwoChargeOneFilter,
         selectedChargeId: '5de3ebeb-1d6d-4aa1-8866-1fffc948224a',
+        overrideFees: invoiceSubTwoChargeOneFilter.fees,
       })
 
       expect(result).toEqual([
@@ -177,8 +187,9 @@ describe('Invoices >  Details > Utils', () => {
     it('returns correct Combobox Data Filters for two charges and one with filters while default filter already has a fee', () => {
       const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
         defaultFilterOptionLabel: 'defaultFilterOptionLabel',
-        invoiceSubscription: invoiceSubTwoChargeOneFilterDefaultAlreadySelected,
+        subscription: invoiceSubTwoChargeOneFilterDefaultAlreadySelected,
         selectedChargeId: '5de3ebeb-1d6d-4aa1-8866-1fffc948224a',
+        overrideFees: invoiceSubTwoChargeOneFilterDefaultAlreadySelected.fees,
       })
 
       expect(result).toEqual([
@@ -192,8 +203,9 @@ describe('Invoices >  Details > Utils', () => {
     it('returns correct Combobox Data Filters for 3 charges and one with multiple filters', () => {
       const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
         defaultFilterOptionLabel: 'defaultFilterOptionLabel',
-        invoiceSubscription: invoiceSubThreeChargesMultipleFilters,
+        subscription: invoiceSubThreeChargesMultipleFilters,
         selectedChargeId: '5de3ebeb-1d6d-4aa1-8866-1fffc948224a',
+        overrideFees: invoiceSubThreeChargesMultipleFilters.fees,
       })
 
       expect(result).toEqual([
@@ -211,11 +223,111 @@ describe('Invoices >  Details > Utils', () => {
     it('returns correct Combobox Data Filters if all charge with filter have fees', () => {
       const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
         defaultFilterOptionLabel: 'defaultFilterOptionLabel',
-        invoiceSubscription: invoiceSubAllFilterChargesSelected,
+        subscription: invoiceSubAllFilterChargesSelected,
         selectedChargeId: '332a641c-d82d-4c9e-bfbe-298b9fc2d1de',
+        overrideFees: invoiceSubAllFilterChargesSelected.fees,
       })
 
       expect(result).toEqual([])
+    })
+  })
+
+  describe('excludes charges with any fee regardless of adjustedFee status', () => {
+    describe('getChargesComboboxDataFromInvoiceSubscription', () => {
+      it('excludes all charges that have fees, regardless of adjustedFee status', () => {
+        const result = getChargesComboboxDataFromInvoiceSubscription({
+          chargesGroupLabel: 'Usage-based charges',
+          fixedChargesGroupLabel: 'Fixed charges',
+          subscription: invoiceSubWithAdjustedFeesTrue,
+          overrideFees: overrideFeesWithMixedAdjustedStatus,
+        })
+
+        // All charges with fees should be excluded, regardless of adjustedFee value
+        // All 4 charges have fees, so none should appear
+        expect(result).toEqual([])
+      })
+
+      it('allows all charges when overrideFees is empty array', () => {
+        const result = getChargesComboboxDataFromInvoiceSubscription({
+          chargesGroupLabel: 'Usage-based charges',
+          fixedChargesGroupLabel: 'Fixed charges',
+          subscription: invoiceSubWithAdjustedFeesTrue,
+          overrideFees: [],
+        })
+
+        // With empty overrideFees, all charges should be available
+        expect(result).toEqual([
+          {
+            description: 'adjusted_addon',
+            label: 'Adjusted Fixed Charge',
+            value: 'fixed-charge-adj-true',
+            group: 'Fixed charges',
+          },
+          {
+            description: 'not_adjusted_addon',
+            label: 'Not Adjusted Fixed Charge',
+            value: 'fixed-charge-not-adj',
+            group: 'Fixed charges',
+          },
+          {
+            description: 'adjusted_bm',
+            label: 'Adjusted Charge',
+            value: 'charge-adj-true-1',
+            group: 'Usage-based charges',
+          },
+          {
+            description: 'non_adjusted_bm',
+            label: 'Non-Adjusted Charge',
+            value: 'charge-adj-true-2',
+            group: 'Usage-based charges',
+          },
+        ])
+      })
+    })
+
+    describe('getChargesFiltersComboboxDataFromInvoiceSubscription', () => {
+      it('excludes all filters that have fees, regardless of adjustedFee status', () => {
+        const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
+          defaultFilterOptionLabel: 'Default filter',
+          subscription: invoiceSubWithFiltersForOverride,
+          selectedChargeId: 'charge-with-filters-override',
+          overrideFees: overrideFeesWithFilters,
+        })
+
+        // Both filters have fees, so neither should appear
+        // Default filter should appear since there's no fee for it
+        expect(result).toEqual([
+          {
+            label: 'Default filter',
+            value: '__ALL_FILTER_VALUES__',
+          },
+        ])
+      })
+
+      it('allows all filters when overrideFees is empty array', () => {
+        const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
+          defaultFilterOptionLabel: 'Default filter',
+          subscription: invoiceSubWithFiltersForOverride,
+          selectedChargeId: 'charge-with-filters-override',
+          overrideFees: [],
+        })
+
+        // With empty overrideFees, all filters should be available
+        expect(result).toEqual([
+          {
+            label: 'Default filter',
+            value: '__ALL_FILTER_VALUES__',
+          },
+          {
+            label: 'payment_type • us',
+            value: 'filter-1-override',
+          },
+          {
+            label: 'payment_type • eu',
+            value: 'filter-2-override',
+          },
+        ])
+      })
     })
   })
 })
