@@ -270,11 +270,14 @@ const AddFee = ({
         variant="quaternary"
         startIcon="plus"
         onClick={() => {
-          editFeeDrawerRef?.current?.openDrawer({
-            invoiceId,
-            invoiceSubscriptionId,
-            onAdd,
-          })
+          if (onAdd && invoiceSubscriptionId) {
+            editFeeDrawerRef?.current?.openDrawer({
+              mode: 'regenerate',
+              invoiceId,
+              invoiceSubscriptionId,
+              onAdd,
+            })
+          }
         }}
       >
         {translate('text_17506785063889sphu20u9eh')}
@@ -463,6 +466,7 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  subscriptionId={subscriptionId}
                   onAdd={onAdd}
                   onDelete={onDelete}
                   fees={fees}
@@ -477,6 +481,7 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  subscriptionId={subscriptionId}
                   onAdd={onAdd}
                   onDelete={onDelete}
                   fees={fees}
@@ -517,6 +522,7 @@ export const InvoiceDetailsTable = memo(
                             hasTaxProviderError={hasTaxProviderError}
                             onAdd={onAdd}
                             onDelete={onDelete}
+                            invoiceSubscriptionId={subscriptionId}
                           />
                         ))}
                     {!hasOldZeroFeeManagement &&
@@ -531,7 +537,8 @@ export const InvoiceDetailsTable = memo(
                                 size="small"
                                 startIcon={'plus'}
                                 onClick={() =>
-                                  editFeeDrawerRef.current?.openDrawer({
+                                  editFeeDrawerRef?.current?.openDrawer({
+                                    mode: 'add',
                                     invoiceId: subscription.metadata.invoiceId,
                                     invoiceSubscriptionId: subscriptionId,
                                   })
