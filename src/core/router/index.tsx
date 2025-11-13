@@ -24,6 +24,8 @@ const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillab
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
+const FormTest = lazyLoad(() => import('~/pages/__devOnly/FormTest'))
+const FormTestReactHook = lazyLoad(() => import('~/pages/__devOnly/FormTestReactHook'))
 
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
@@ -36,6 +38,10 @@ export const ERROR_404_ROUTE = '/404'
 // Route Available only on dev mode
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
 export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
+export const ONLY_DEV_FORM_TEST_ROUTE = `/form-test`
+export const ONLY_DEV_FORM_TEST_TAB_ROUTE = `${ONLY_DEV_FORM_TEST_ROUTE}/:tab`
+export const ONLY_DEV_REACT_FORM_TEST_ROUTE = `/react-form-test`
+export const ONLY_DEV_REACT_FORM_TEST_TAB_ROUTE = `${ONLY_DEV_REACT_FORM_TEST_ROUTE}/:tab`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -90,6 +96,14 @@ export const routes: CustomRouteObject[] = [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
               element: <DesignSystem />,
+            },
+            {
+              path: [ONLY_DEV_FORM_TEST_ROUTE, ONLY_DEV_FORM_TEST_TAB_ROUTE],
+              element: <FormTest />,
+            },
+            {
+              path: [ONLY_DEV_REACT_FORM_TEST_ROUTE, ONLY_DEV_REACT_FORM_TEST_TAB_ROUTE],
+              element: <FormTestReactHook />,
             },
           ]
         : []),
