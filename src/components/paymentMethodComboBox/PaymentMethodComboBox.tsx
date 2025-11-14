@@ -1,9 +1,13 @@
+import { FormikProps } from 'formik'
+import { useMemo } from 'react'
+
 import { ComboBox } from '~/components/form'
+import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
+import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 
 import { usePaymentMethodOptions } from './usePaymentMethodOptions'
-import { usePaymentMethodSelection } from './usePaymentMethodSelection'
 
 interface PaymentMethodComboBoxProps {
   externalCustomerId: string
@@ -14,6 +18,7 @@ interface PaymentMethodComboBoxProps {
   className?: string
   disabled?: boolean
   name?: string
+  formikProps: FormikProps<SubscriptionFormInput>
 }
 
 export const PaymentMethodComboBox = ({
@@ -24,6 +29,7 @@ export const PaymentMethodComboBox = ({
   className,
   disabled: externalDisabled = false,
   name = 'selectPaymentMethod',
+  formikProps,
 }: PaymentMethodComboBoxProps) => {
   const { translate } = useInternationalization()
 
@@ -37,15 +43,27 @@ export const PaymentMethodComboBox = ({
 
   const paymentMethodOptions = usePaymentMethodOptions(paymentMethodsList, translate)
 
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] =
-    usePaymentMethodSelection(paymentMethodOptions)
+  const comboboxValue = useMemo(() => {
+    const paymentMethod = formikProps.values.paymentMethod
+
+    if (paymentMethod?.paymentMethodId) {
+      return paymentMethod.paymentMethodId
+    }
+
+    if (paymentMethod?.paymentMethodType === PaymentMethodTypeEnum.Manual) {
+      return 'manual'
+    }
+
+    return ''
+  }, [formikProps.values.paymentMethod])
 
   const onChange = (value: string) => {
     const selectedPaymentMethod = paymentMethodOptions.find((option) => option.value === value)
 
-    if (selectedPaymentMethod) {
-      setSelectedPaymentMethodId(selectedPaymentMethod.value)
-    }
+    formikProps.setFieldValue('paymentMethod', {
+      paymentMethodId: selectedPaymentMethod?.value || undefined,
+      paymentMethodType: selectedPaymentMethod?.type || undefined,
+    })
   }
 
   const disabled = externalDisabled || paymentMethodsLoading || !!paymentMethodsError
@@ -58,7 +76,7 @@ export const PaymentMethodComboBox = ({
       label={label}
       placeholder={placeholder}
       emptyText={emptyText}
-      value={selectedPaymentMethodId}
+      value={comboboxValue}
       onChange={onChange}
       loading={paymentMethodsLoading}
       disabled={disabled}

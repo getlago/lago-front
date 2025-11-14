@@ -58,7 +58,6 @@ import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
-  CreateSubscriptionInput,
   FeatureEntitlementForPlanFragmentDoc,
   PlanInterval,
   StatusTypeEnum,
@@ -76,6 +75,8 @@ import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
 import { BREAKPOINT_LG, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
+
+import { SubscriptionFormInput } from './types'
 
 const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
   switch (planInterval) {
@@ -129,6 +130,10 @@ gql`
       periodEndDate
       status
       startedAt
+      paymentMethod {
+        paymentMethodId
+        paymentMethodType
+      }
       plan {
         id
         parent {
@@ -265,7 +270,7 @@ const CreateSubscription = () => {
 
   const { onSave, formType } = useAddSubscription({ existingSubscription: subscription })
 
-  const subscriptionFormikProps = useFormik<Omit<CreateSubscriptionInput, 'customerId'>>({
+  const subscriptionFormikProps = useFormik<SubscriptionFormInput>({
     initialValues: {
       planId: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.plan?.id || '' : '',
       name: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.name || '' : '',
@@ -273,6 +278,7 @@ const CreateSubscription = () => {
       subscriptionAt: subscription?.subscriptionAt || currentDateRef?.current,
       endingAt: subscription?.endingAt || undefined,
       billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
+      paymentMethod: subscription?.paymentMethod,
     },
     validationSchema: object().shape({
       planId: string().required(''),
@@ -807,7 +813,10 @@ const CreateSubscription = () => {
                       </div>
 
                       {hasAccessToMultiPaymentFlow && (
-                        <PaymentMethodsInvoiceSettings customer={customer} />
+                        <PaymentMethodsInvoiceSettings
+                          customer={customer}
+                          formikProps={subscriptionFormikProps}
+                        />
                       )}
 
                       {!isPremium && (
