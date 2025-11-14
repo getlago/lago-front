@@ -6,12 +6,16 @@ import { PaymentMethodItem, PaymentMethodList } from '~/hooks/customer/usePaymen
 import { PaymentMethodLabelNode } from './PaymentMethodLabelNode'
 import { formatPaymentMethodLabel } from './utils'
 
+export enum PaymentMethodTypeEnum {
+  Provider = 'provider',
+  Manual = 'manual',
+}
 export interface PaymentMethodOption {
   value: string
   label: string
   labelNode: React.ReactNode
   isDefault?: boolean
-  type: 'provider' | 'manual'
+  type: PaymentMethodTypeEnum
 }
 
 const mapPaymentMethodItemToOption = (
@@ -23,7 +27,7 @@ const mapPaymentMethodItemToOption = (
   return {
     value: paymentMethod.id,
     label: formatted.label,
-    type: 'provider',
+    type: PaymentMethodTypeEnum.Provider,
     labelNode: (
       <PaymentMethodLabelNode headerText={formatted.headerText} footerText={formatted.footerText} />
     ),
@@ -39,7 +43,7 @@ export const usePaymentMethodOptions = (
     const manualOption: PaymentMethodOption = {
       value: 'manual',
       label: translate('text_173799550683709p2rqkoqd5'),
-      type: 'manual',
+      type: PaymentMethodTypeEnum.Manual,
       labelNode: (
         <PaymentMethodLabelNode
           headerText={translate('text_173799550683709p2rqkoqd5')}
