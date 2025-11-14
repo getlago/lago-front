@@ -4,7 +4,7 @@ import { Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
 import { mapItemsToCustomerInvoiceSection } from '~/components/invoceCustomFooter/utils'
-import { InvoiceCustomSection } from '~/hooks/useInvoiceCustomSections'
+import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 
 interface InvoiceCustomerFooterSelectionProps {
   onChange?: (item: MappedInvoiceSection) => void
@@ -14,9 +14,7 @@ interface InvoiceCustomerFooterSelectionProps {
   className?: string
   disabled?: boolean
   name?: string
-  loading?: boolean
-  orgInvoiceCustomSections?: InvoiceCustomSection[]
-  invoiceCustomSectionsSelected?: MappedInvoiceSection[]
+  invoiceCustomSelected?: MappedInvoiceSection[]
 }
 
 export const InvoiceCustomerFooterSelection = ({
@@ -26,11 +24,11 @@ export const InvoiceCustomerFooterSelection = ({
   className,
   disabled: externalDisabled = false,
   name = 'selectPaymentMethod',
+  invoiceCustomSelected = [],
   onChange,
-  orgInvoiceCustomSections,
-  invoiceCustomSectionsSelected = [],
-  loading,
 }: InvoiceCustomerFooterSelectionProps) => {
+  const { data: orgInvoiceCustomSections, loading } = useInvoiceCustomSections()
+
   const handleChange = (id: string) => {
     const item = orgInvoiceCustomSections?.find((section) => section.id === id)
 
@@ -44,10 +42,10 @@ export const InvoiceCustomerFooterSelection = ({
   const options = useMemo(() => {
     if (!orgInvoiceCustomSections) return []
 
-    const selectedSectionIds = invoiceCustomSectionsSelected.map((section) => section.id)
+    const selectedSectionIds = new Set(invoiceCustomSelected.map((section) => section.id))
 
     return orgInvoiceCustomSections.map(({ id, name: itemName }) => {
-      const disabled = selectedSectionIds.includes(id)
+      const disabled = selectedSectionIds.has(id)
 
       return {
         label: itemName,
@@ -62,7 +60,7 @@ export const InvoiceCustomerFooterSelection = ({
         disabled,
       }
     })
-  }, [orgInvoiceCustomSections, invoiceCustomSectionsSelected])
+  }, [orgInvoiceCustomSections, invoiceCustomSelected])
 
   return (
     <ComboBox
