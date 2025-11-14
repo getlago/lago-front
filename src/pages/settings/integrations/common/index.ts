@@ -2,6 +2,8 @@ export { isItemMapping } from './isItemMapping'
 export { getMappingInfos } from './getMappingInfos'
 export { isDefaultMappingInMappableContext } from './isDefaultMappingInMappableContext'
 export { handleIntegrationMappingCreateUpdateDelete } from './handleIntegrationMappingCreateUpdateDelete'
+export { isItemMappingForKeyForCurrenciesMapping } from './isItemMappingForKeyForCurrenciesMapping'
+export { isItemMappingForKeyNotForCurrenciesMapping } from './isItemMappingForKeyNotForCurrenciesMapping'
 export type {
   MappableIntegrationProvider,
   ItemMapping,

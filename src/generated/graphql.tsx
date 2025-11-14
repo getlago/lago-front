@@ -840,8 +840,9 @@ export type ChargeUsage = {
 export type CollectionMapping = {
   __typename?: 'CollectionMapping';
   billingEntityId?: Maybe<Scalars['ID']['output']>;
+  currencies?: Maybe<Array<CurrencyMappingItem>>;
   externalAccountCode?: Maybe<Scalars['String']['output']>;
-  externalId: Scalars['String']['output'];
+  externalId?: Maybe<Scalars['String']['output']>;
   externalName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationId: Scalars['ID']['output'];
@@ -1765,8 +1766,9 @@ export type CreateIntegrationCollectionMappingInput = {
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  currencies?: InputMaybe<Array<CurrencyMappingItemInput>>;
   externalAccountCode?: InputMaybe<Scalars['String']['input']>;
-  externalId: Scalars['String']['input'];
+  externalId?: InputMaybe<Scalars['String']['input']>;
   externalName?: InputMaybe<Scalars['String']['input']>;
   integrationId: Scalars['ID']['input'];
   mappingType: MappingTypeEnum;
@@ -2394,6 +2396,17 @@ export enum CurrencyEnum {
   /** Zambian Kwacha */
   Zmw = 'ZMW'
 }
+
+export type CurrencyMappingItem = {
+  __typename?: 'CurrencyMappingItem';
+  currencyCode: CurrencyEnum;
+  currencyExternalCode: Scalars['String']['output'];
+};
+
+export type CurrencyMappingItemInput = {
+  currencyCode: CurrencyEnum;
+  currencyExternalCode: Scalars['String']['input'];
+};
 
 /** Current Organization Type */
 export type CurrentOrganization = {
@@ -4297,6 +4310,7 @@ export enum MappingTypeEnum {
   Account = 'account',
   Coupon = 'coupon',
   CreditNote = 'credit_note',
+  Currencies = 'currencies',
   FallbackItem = 'fallback_item',
   MinimumCommitment = 'minimum_commitment',
   PrepaidCredit = 'prepaid_credit',
@@ -8231,6 +8245,7 @@ export type UpdateHubspotIntegrationInput = {
 export type UpdateIntegrationCollectionMappingInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  currencies?: InputMaybe<Array<CurrencyMappingItemInput>>;
   externalAccountCode?: InputMaybe<Scalars['String']['input']>;
   externalId?: InputMaybe<Scalars['String']['input']>;
   externalName?: InputMaybe<Scalars['String']['input']>;
@@ -10643,7 +10658,7 @@ export type GetAnrokIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAnrokIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
+export type GetAnrokIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForAnrokItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10669,7 +10684,7 @@ export type AnrokIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id
 
 export type AnrokIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type AnrokIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+export type AnrokIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
 
 export type AnrokIntegrationSettingsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any, hasMappingsConfigured?: boolean | null, failedInvoicesCount?: number | null };
 
@@ -10711,7 +10726,7 @@ export type GetAvalaraIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
+export type GetAvalaraIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForAvalaraItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10737,7 +10752,7 @@ export type AvalaraIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', 
 
 export type AvalaraIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type AvalaraIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+export type AvalaraIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
 
 export type AvalaraIntegrationSettingsFragment = { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string };
 
@@ -10859,7 +10874,7 @@ export type GetNetsuiteIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetNetsuiteIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null }> } | null };
+export type GetNetsuiteIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForNetsuiteItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10885,7 +10900,7 @@ export type NetsuiteIntegrationItemsListAddonsFragment = { __typename?: 'AddOn',
 
 export type NetsuiteIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type NetsuiteIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null };
+export type NetsuiteIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null };
 
 export type NetsuiteIntegrationSettingsFragment = { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -10921,7 +10936,7 @@ export type GetXeroIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetXeroIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
+export type GetXeroIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForXeroItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10947,7 +10962,7 @@ export type XeroIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id:
 
 export type XeroIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type XeroIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+export type XeroIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
 
 export type XeroIntegrationSettingsFragment = { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -13100,7 +13115,7 @@ export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?
 
 export type AnrokIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type AnrokIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AnrokIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type AnrokIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13109,7 +13124,7 @@ export type CreateAnrokIntegrationCollectionMappingMutationVariables = Exact<{
 }>;
 
 
-export type CreateAnrokIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateAnrokIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateAnrokIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -13148,7 +13163,7 @@ export type DeleteAnrokIntegrationMappingMutation = { __typename?: 'Mutation', d
 
 export type AvalaraIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type AvalaraIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AvalaraIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type AvalaraIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13157,7 +13172,7 @@ export type CreateAvalaraIntegrationCollectionMappingMutationVariables = Exact<{
 }>;
 
 
-export type CreateAvalaraIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateAvalaraIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateAvalaraIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -13194,7 +13209,37 @@ export type DeleteAvalaraIntegrationMappingMutationVariables = Exact<{
 
 export type DeleteAvalaraIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
 
-export type NetsuiteIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type NetsuiteIntegrationAdditionalItemsListFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, currencies?: Array<{ __typename?: 'CurrencyMappingItem', currencyCode: CurrencyEnum, currencyExternalCode: string }> | null };
+
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, currencies?: Array<{ __typename?: 'CurrencyMappingItem', currencyCode: CurrencyEnum, currencyExternalCode: string }> | null }> } | null };
+
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationVariables = Exact<{
+  input: CreateIntegrationCollectionMappingInput;
+}>;
+
+
+export type CreateNetsuiteIntegrationCurrenciesMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, currencies?: Array<{ __typename?: 'CurrencyMappingItem', currencyCode: CurrencyEnum, currencyExternalCode: string }> | null } | null };
+
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables = Exact<{
+  input: UpdateIntegrationCollectionMappingInput;
+}>;
+
+
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutation = { __typename?: 'Mutation', updateIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string } | null };
+
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables = Exact<{
+  input: DestroyIntegrationCollectionMappingInput;
+}>;
+
+
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutation = { __typename?: 'Mutation', destroyIntegrationCollectionMapping?: { __typename?: 'DestroyIntegrationCollectionMappingPayload', id?: string | null } | null };
+
+export type NetsuiteIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type NetsuiteIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13203,7 +13248,7 @@ export type CreateNetsuiteIntegrationCollectionMappingMutationVariables = Exact<
 }>;
 
 
-export type CreateNetsuiteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateNetsuiteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateNetsuiteIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -13242,7 +13287,7 @@ export type DeleteNetsuiteIntegrationMappingMutation = { __typename?: 'Mutation'
 
 export type XeroIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type XeroIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type XeroIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type XeroIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13276,7 +13321,7 @@ export type CreateXeroIntegrationCollectionMappingMutationVariables = Exact<{
 }>;
 
 
-export type CreateXeroIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateXeroIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateXeroIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -17662,6 +17707,16 @@ export const AvalaraIntegrationMapItemDrawerCollectionItemFragmentDoc = gql`
   externalId
   externalName
   externalAccountCode
+}
+    `;
+export const NetsuiteIntegrationAdditionalItemsListFragmentDoc = gql`
+    fragment NetsuiteIntegrationAdditionalItemsList on CollectionMapping {
+  id
+  mappingType
+  currencies {
+    currencyCode
+    currencyExternalCode
+  }
 }
     `;
 export const NetsuiteIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
@@ -36384,6 +36439,149 @@ export function useDeleteAvalaraIntegrationMappingMutation(baseOptions?: Apollo.
 export type DeleteAvalaraIntegrationMappingMutationHookResult = ReturnType<typeof useDeleteAvalaraIntegrationMappingMutation>;
 export type DeleteAvalaraIntegrationMappingMutationResult = Apollo.MutationResult<DeleteAvalaraIntegrationMappingMutation>;
 export type DeleteAvalaraIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteAvalaraIntegrationMappingMutation, DeleteAvalaraIntegrationMappingMutationVariables>;
+export const GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument = gql`
+    query getNetsuiteIntegrationCollectionCurrenciesMappings($integrationId: ID!) {
+  integrationCollectionMappings(integrationId: $integrationId) {
+    collection {
+      id
+      ...NetsuiteIntegrationAdditionalItemsList
+    }
+  }
+}
+    ${NetsuiteIntegrationAdditionalItemsListFragmentDoc}`;
+
+/**
+ * __useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery__
+ *
+ * To run a query within a React component, call `useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables> & ({ variables: GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
+      }
+export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
+        }
+export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
+        }
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery>;
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionCurrenciesMappingsLazyQuery>;
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQuery>;
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>;
+export const CreateNetsuiteIntegrationCurrenciesMappingDocument = gql`
+    mutation createNetsuiteIntegrationCurrenciesMapping($input: CreateIntegrationCollectionMappingInput!) {
+  createIntegrationCollectionMapping(input: $input) {
+    id
+    ...NetsuiteIntegrationAdditionalItemsList
+  }
+}
+    ${NetsuiteIntegrationAdditionalItemsListFragmentDoc}`;
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationFn = Apollo.MutationFunction<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+
+/**
+ * __useCreateNetsuiteIntegrationCurrenciesMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateNetsuiteIntegrationCurrenciesMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNetsuiteIntegrationCurrenciesMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNetsuiteIntegrationCurrenciesMappingMutation, { data, loading, error }] = useCreateNetsuiteIntegrationCurrenciesMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateNetsuiteIntegrationCurrenciesMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>(CreateNetsuiteIntegrationCurrenciesMappingDocument, options);
+      }
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationHookResult = ReturnType<typeof useCreateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationResult = Apollo.MutationResult<CreateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationOptions = Apollo.BaseMutationOptions<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+export const UpdateNetsuiteIntegrationCurrenciesMappingDocument = gql`
+    mutation updateNetsuiteIntegrationCurrenciesMapping($input: UpdateIntegrationCollectionMappingInput!) {
+  updateIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationFn = Apollo.MutationFunction<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+
+/**
+ * __useUpdateNetsuiteIntegrationCurrenciesMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateNetsuiteIntegrationCurrenciesMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNetsuiteIntegrationCurrenciesMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNetsuiteIntegrationCurrenciesMappingMutation, { data, loading, error }] = useUpdateNetsuiteIntegrationCurrenciesMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateNetsuiteIntegrationCurrenciesMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>(UpdateNetsuiteIntegrationCurrenciesMappingDocument, options);
+      }
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationHookResult = ReturnType<typeof useUpdateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationResult = Apollo.MutationResult<UpdateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationOptions = Apollo.BaseMutationOptions<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+export const DeleteNetsuiteIntegrationCurrenciesMappingDocument = gql`
+    mutation deleteNetsuiteIntegrationCurrenciesMapping($input: DestroyIntegrationCollectionMappingInput!) {
+  destroyIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationFn = Apollo.MutationFunction<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+
+/**
+ * __useDeleteNetsuiteIntegrationCurrenciesMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteNetsuiteIntegrationCurrenciesMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteNetsuiteIntegrationCurrenciesMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteNetsuiteIntegrationCurrenciesMappingMutation, { data, loading, error }] = useDeleteNetsuiteIntegrationCurrenciesMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteNetsuiteIntegrationCurrenciesMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>(DeleteNetsuiteIntegrationCurrenciesMappingDocument, options);
+      }
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationHookResult = ReturnType<typeof useDeleteNetsuiteIntegrationCurrenciesMappingMutation>;
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationResult = Apollo.MutationResult<DeleteNetsuiteIntegrationCurrenciesMappingMutation>;
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationOptions = Apollo.BaseMutationOptions<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>;
 export const CreateNetsuiteIntegrationCollectionMappingDocument = gql`
     mutation createNetsuiteIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {

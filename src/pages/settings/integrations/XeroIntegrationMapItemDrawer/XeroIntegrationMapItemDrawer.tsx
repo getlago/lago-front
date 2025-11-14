@@ -8,6 +8,7 @@ import {
   BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
   handleIntegrationMappingCreateUpdateDelete,
+  isItemMappingForKeyNotForCurrenciesMapping,
   ItemMappingForMappable,
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
@@ -58,6 +59,16 @@ export const XeroIntegrationMapItemDrawer = forwardRef<XeroIntegrationMapItemDra
       return localData.billingEntities.reduce(
         (acc: FormValuesType, billingEntity: BillingEntityForIntegrationMapping) => {
           const billingEntityKey = billingEntity.key || DEFAULT_MAPPING_KEY
+
+          if (
+            !isItemMappingForKeyNotForCurrenciesMapping(
+              localData,
+              localData.itemMappings,
+              billingEntityKey,
+            )
+          ) {
+            return acc
+          }
 
           if (
             !localData.itemMappings[billingEntityKey].itemExternalId ||

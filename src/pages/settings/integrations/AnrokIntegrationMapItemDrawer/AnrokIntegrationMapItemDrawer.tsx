@@ -8,6 +8,7 @@ import {
   BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
   handleIntegrationMappingCreateUpdateDelete,
+  isItemMappingForKeyNotForCurrenciesMapping,
   ItemMappingForMappable,
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
@@ -57,6 +58,16 @@ export const AnrokIntegrationMapItemDrawer = forwardRef<AnrokIntegrationMapItemD
       return localData.billingEntities.reduce(
         (acc: FormValuesType, billingEntity: BillingEntityForIntegrationMapping) => {
           const billingEntityKey = billingEntity.key || DEFAULT_MAPPING_KEY
+
+          if (
+            !isItemMappingForKeyNotForCurrenciesMapping(
+              localData,
+              localData.itemMappings,
+              billingEntityKey,
+            )
+          ) {
+            return acc
+          }
 
           acc[billingEntityKey] = {
             externalId: localData.itemMappings[billingEntityKey].itemExternalId || '',

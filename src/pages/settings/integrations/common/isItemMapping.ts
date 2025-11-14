@@ -1,3 +1,5 @@
+import { NetsuiteIntegrationAdditionalItemsListFragment } from '~/generated/graphql'
+
 import { ItemMapping } from './types'
 
 /**
@@ -6,7 +8,9 @@ import { ItemMapping } from './types'
  * @param item unknown
  * @returns boolean
  */
-export const isItemMapping = (item: unknown): item is ItemMapping => {
+export const isItemMapping = (
+  item: unknown,
+): item is Exclude<ItemMapping, NetsuiteIntegrationAdditionalItemsListFragment> => {
   return (
     typeof item === 'object' &&
     item !== null &&

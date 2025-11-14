@@ -7,9 +7,11 @@ import {
   type ItemMappingForTaxMapping,
   type ItemMappingPerBillingEntity,
 } from '~/pages/settings/integrations/common'
+import { ItemMappingForCurrenciesMapping } from '~/pages/settings/integrations/common/types'
 import type { IntegrationItemData } from '~/pages/settings/integrations/IntegrationItem'
 
 import { findItemMapping } from './findItemMapping'
+import { isNetsuiteIntegrationAdditionalItemsListFragment } from './isNetsuiteIntegrationAdditionalItemsListFragment'
 
 export const generateItemMappingForAllBillingEntities = (
   item: IntegrationItemData,
@@ -19,6 +21,16 @@ export const generateItemMappingForAllBillingEntities = (
     const billingEntityId = billingEntity.id || DEFAULT_MAPPING_KEY
 
     const itemMapping = findItemMapping(item, billingEntity.id)
+
+    if (!itemMapping && item.mappingType === MappingTypeEnum.Currencies) {
+      const itemToAdd: ItemMappingForCurrenciesMapping = {
+        itemId: null,
+        currencies: [],
+      }
+
+      acc[billingEntityId] = itemToAdd
+      return acc
+    }
 
     if (!itemMapping && item.mappingType === MappingTypeEnum.Tax) {
       const itemToAdd: ItemMappingForTaxMapping = {
@@ -64,10 +76,20 @@ export const generateItemMappingForAllBillingEntities = (
       return acc
     }
 
+    if (isNetsuiteIntegrationAdditionalItemsListFragment(item, itemMapping)) {
+      const itemToAdd: ItemMappingForCurrenciesMapping = {
+        itemId: itemMapping.id,
+        currencies: itemMapping.currencies || [],
+      }
+
+      acc[billingEntityId] = itemToAdd
+      return acc
+    }
+
     if (item.mappingType === MappingTypeEnum.Tax && itemMapping && 'taxCode' in itemMapping) {
       const itemToAdd: ItemMappingForTaxMapping = {
         itemId: itemMapping.id,
-        itemExternalId: itemMapping.externalId,
+        itemExternalId: itemMapping.externalId || null,
         itemExternalName: itemMapping.externalName || undefined,
         itemExternalCode: itemMapping.externalAccountCode || undefined,
         taxCode: itemMapping.taxCode || null,
@@ -82,7 +104,7 @@ export const generateItemMappingForAllBillingEntities = (
     if (Object.values(MappableTypeEnum).includes(item.mappingType as MappableTypeEnum)) {
       const itemToAdd: ItemMappingForMappable = {
         itemId: itemMapping.id,
-        itemExternalId: itemMapping.externalId,
+        itemExternalId: itemMapping.externalId || null,
         itemExternalName: itemMapping.externalName || undefined,
         itemExternalCode: itemMapping.externalAccountCode || undefined,
         lagoMappableId: item.id,
@@ -95,7 +117,7 @@ export const generateItemMappingForAllBillingEntities = (
 
     acc[billingEntityId] = {
       itemId: itemMapping.id,
-      itemExternalId: itemMapping.externalId,
+      itemExternalId: itemMapping.externalId || null,
       itemExternalName: itemMapping.externalName || undefined,
       itemExternalCode: itemMapping.externalAccountCode || undefined,
     }
