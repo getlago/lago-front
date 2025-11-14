@@ -75,7 +75,8 @@ export const MultipleComboBox = ({
         },
         /* Fix the placement of the adornment elements */
         '& .MuiAutocomplete-endAdornment': {
-          top: 'calc(50% - 12px)',
+          top: '50%',
+          transform: 'translateY(-50%)',
 
           '& .MuiButtonBase-root': {
             height: '24px',

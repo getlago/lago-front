@@ -39,6 +39,7 @@ type UsePaymentMethodsList = (args: { externalCustomerId: string }) => UsePaymen
 export const usePaymentMethodsList: UsePaymentMethodsList = ({ externalCustomerId }) => {
   const { data, loading, error, refetch } = usePaymentMethodsQuery({
     variables: { externalCustomerId },
+    skip: !externalCustomerId,
   })
 
   return {
