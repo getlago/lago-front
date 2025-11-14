@@ -21,6 +21,11 @@ gql`
   ${CustomerAppliedInvoiceCustomSectionsFragmentDoc}
 `
 
+export const ADD_BUTTON = 'invoice-custom-footer-add-button'
+export const CANCEL_BUTTON = 'invoice-custom-footer-cancel-button'
+export const DELETE_SECTION_CHIP = (sectionId: string) =>
+  `invoice-custom-footer-delete-section-${sectionId}`
+
 interface InvoceCustomFooterProps {
   customerId: string
 }
@@ -77,7 +82,12 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
         {invoiceCustomSelected.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {invoiceCustomSelected.map((section) => (
-              <Chip key={section.id} label={section.name} onDelete={() => onDelete(section)} />
+              <Chip
+                key={section.id}
+                label={section.name}
+                data-test={DELETE_SECTION_CHIP(section.id)}
+                onDelete={() => onDelete(section)}
+              />
             ))}
           </div>
         )}
@@ -87,6 +97,7 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
             fitContent
             startIcon="plus"
             variant="inline"
+            data-test={ADD_BUTTON}
             onClick={() => {
               setShouldDisplayCombobox(true)
             }}
@@ -108,6 +119,7 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
               <Button
                 icon="trash"
                 variant="quaternary"
+                data-test={CANCEL_BUTTON}
                 onClick={() => {
                   setShouldDisplayCombobox(false)
                 }}
