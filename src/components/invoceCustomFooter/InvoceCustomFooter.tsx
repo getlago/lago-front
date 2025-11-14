@@ -9,6 +9,7 @@ import {
   useGetCustomerAppliedInvoiceCustomSectionsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 
 gql`
   query getCustomerAppliedInvoiceCustomSections($id: ID!) {
@@ -27,38 +28,44 @@ interface InvoceCustomFooterProps {
 
 export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
   const { translate } = useInternationalization()
-  const [selectedItems, setSelectedItems] = useState<MappedInvoiceSection[]>([])
+  const [invoiceCustomSectionsSelected, setInvoiceCustomSectionsSelected] = useState<
+    MappedInvoiceSection[]
+  >([])
   const [shouldDisplayCombobox, setShouldDisplayCombobox] = useState(false)
 
-  const { data: customerData } = useGetCustomerAppliedInvoiceCustomSectionsQuery({
-    variables: { id: customerId },
-    skip: !customerId,
-  })
+  const { data: orgInvoiceCustomSections, loading: isLoadingOrgInvoiceCustomSections } =
+    useInvoiceCustomSections()
+
+  const { data: customerData, loading: isLoadingCustomerData } =
+    useGetCustomerAppliedInvoiceCustomSectionsQuery({
+      variables: { id: customerId },
+      skip: !customerId,
+    })
 
   const onChange = (item: MappedInvoiceSection) => {
-    const isItemAlreadySelected = selectedItems.find(({ id }) => id === item.id)
+    const isItemAlreadySelected = invoiceCustomSectionsSelected.find(({ id }) => id === item.id)
 
     if (!isItemAlreadySelected) {
-      setSelectedItems([...selectedItems, item])
+      setInvoiceCustomSectionsSelected([...invoiceCustomSectionsSelected, item])
     }
 
     setShouldDisplayCombobox(false)
   }
 
   const handleRemoveSection = (itemId: string) => {
-    const itemsWithoutRemovedItem = selectedItems.filter(({ id }) => id !== itemId)
+    const itemsWithoutRemovedItem = invoiceCustomSectionsSelected.filter(({ id }) => id !== itemId)
 
-    setSelectedItems(itemsWithoutRemovedItem)
+    setInvoiceCustomSectionsSelected(itemsWithoutRemovedItem)
   }
 
-  // This represents the initial state of the selectedItems state
+  // This represents the initial state of the invoiceCustomSectionsSelected state
   // when the customer InvoiceCustomSections are loaded
   useEffect(() => {
-    const customerSections = customerData?.customer?.configurableInvoiceCustomSections
+    const cusInvoiceCustomSections = customerData?.customer?.configurableInvoiceCustomSections
 
-    if (!customerSections?.length) return
+    if (!cusInvoiceCustomSections?.length) return
 
-    setSelectedItems(customerSections)
+    setInvoiceCustomSectionsSelected(cusInvoiceCustomSections)
   }, [customerData?.customer?.configurableInvoiceCustomSections])
 
   return (
@@ -70,9 +77,9 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
         {translate('text_1762862855282gldrtploh46')}
       </Typography>
       <div className="flex flex-col gap-4">
-        {selectedItems.length > 0 && (
+        {invoiceCustomSectionsSelected.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {selectedItems.map((section) => (
+            {invoiceCustomSectionsSelected.map((section) => (
               <Chip
                 key={section.id}
                 label={section.name}
@@ -100,7 +107,9 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
                 placeholder={translate('text_1762947620814hsqq7d88d7c')}
                 emptyText={translate('text_1762952250941g1m9u5hpclb')}
                 onChange={onChange}
-                selectedItems={selectedItems}
+                invoiceCustomSectionsSelected={invoiceCustomSectionsSelected}
+                orgInvoiceCustomSections={orgInvoiceCustomSections}
+                loading={isLoadingOrgInvoiceCustomSections || isLoadingCustomerData}
               />
             </div>
 

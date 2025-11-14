@@ -4,7 +4,7 @@ import { Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
 import { mapItemsToCustomerInvoiceSection } from '~/components/invoceCustomFooter/utils'
-import { useInvoiceCustomSectionsLazy } from '~/hooks/useInvoiceCustomSections'
+import { InvoiceCustomSection } from '~/hooks/useInvoiceCustomSections'
 
 interface InvoiceCustomerFooterSelectionProps {
   onChange?: (item: MappedInvoiceSection) => void
@@ -14,7 +14,9 @@ interface InvoiceCustomerFooterSelectionProps {
   className?: string
   disabled?: boolean
   name?: string
-  selectedItems?: MappedInvoiceSection[]
+  loading?: boolean
+  orgInvoiceCustomSections?: InvoiceCustomSection[]
+  invoiceCustomSectionsSelected?: MappedInvoiceSection[]
 }
 
 export const InvoiceCustomerFooterSelection = ({
@@ -24,13 +26,13 @@ export const InvoiceCustomerFooterSelection = ({
   className,
   disabled: externalDisabled = false,
   name = 'selectPaymentMethod',
-  selectedItems = [],
   onChange,
+  orgInvoiceCustomSections,
+  invoiceCustomSectionsSelected = [],
+  loading,
 }: InvoiceCustomerFooterSelectionProps) => {
-  const { getInvoiceCustomSections, data, loading } = useInvoiceCustomSectionsLazy()
-
   const handleChange = (id: string) => {
-    const item = data?.find((section) => section.id === id)
+    const item = orgInvoiceCustomSections?.find((section) => section.id === id)
 
     if (item) {
       const mappedItem = mapItemsToCustomerInvoiceSection(item)
@@ -40,11 +42,11 @@ export const InvoiceCustomerFooterSelection = ({
   }
 
   const options = useMemo(() => {
-    if (!data) return []
+    if (!orgInvoiceCustomSections) return []
 
-    const selectedSectionIds = selectedItems.map((section) => section.id)
+    const selectedSectionIds = invoiceCustomSectionsSelected.map((section) => section.id)
 
-    return data.map(({ id, name: itemName }) => {
+    return orgInvoiceCustomSections.map(({ id, name: itemName }) => {
       const disabled = selectedSectionIds.includes(id)
 
       return {
@@ -60,11 +62,10 @@ export const InvoiceCustomerFooterSelection = ({
         disabled,
       }
     })
-  }, [data, selectedItems])
+  }, [orgInvoiceCustomSections, invoiceCustomSectionsSelected])
 
   return (
     <ComboBox
-      onOpen={async () => await getInvoiceCustomSections()}
       loading={loading}
       className={className}
       name={name}
