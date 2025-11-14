@@ -313,10 +313,6 @@ export const fixedChargeSchema = array().of(
         test: (value) => !isNaN(Number(value || 0)),
         message: 'text_624ea7c29103fd010732ab7d',
       })
-      .test({
-        test: (value) => Number(value || 0) > 0,
-        message: 'text_624ea7c29103fd010732ab7d',
-      })
       .required(''),
   }),
 )

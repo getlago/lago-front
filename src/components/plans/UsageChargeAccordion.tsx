@@ -340,14 +340,15 @@ export const UsageChargeAccordion = memo(
                 )}
               />
 
-              <RemoveChargeButton
-                isInSubscriptionForm={isInSubscriptionForm}
-                isUsedInSubscription={isUsedInSubscription}
-                removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-                existingCharges={formikProps.values.charges}
-                chargeToRemoveIndex={index}
-                onDeleteCharge={(charges) => formikProps.setFieldValue('charges', charges)}
-              />
+              {!isInSubscriptionForm && (
+                <RemoveChargeButton
+                  isUsedInSubscription={isUsedInSubscription}
+                  removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                  existingCharges={formikProps.values.charges}
+                  chargeToRemoveIndex={index}
+                  onDeleteCharge={(charges) => formikProps.setFieldValue('charges', charges)}
+                />
+              )}
             </div>
           </div>
         }
