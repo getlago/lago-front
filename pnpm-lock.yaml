@@ -290,8 +290,8 @@ importers:
         specifier: 17.3.0
         version: 17.3.0(@babel/preset-env@7.28.5(@babel/core@7.28.4))
       npm-run-all2:
-        specifier: 5.0.0
-        version: 5.0.0
+        specifier: 5.0.2
+        version: 5.0.2
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -6196,8 +6196,8 @@ packages:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
 
-  npm-run-all2@5.0.0:
-    resolution: {integrity: sha512-twczQhEpj55UROtg0Xz0nzn83TanS5Re12g5g1hcdnyAhlWOt9VNHdSHf2Z6MO3/wOVqy9tEdi0ruJt5NnMgmw==}
+  npm-run-all2@5.0.2:
+    resolution: {integrity: sha512-S2G6FWZ3pNWAAKm2PFSOtEAG/N+XO/kz3+9l6V91IY+Y3XFSt7Lp7DV92KCgEboEW0hRTu0vFaMe4zXDZYaOyA==}
     engines: {node: '>= 10'}
     hasBin: true
 
@@ -14965,9 +14965,9 @@ snapshots:
 
   normalize-range@0.1.2: {}
 
-  npm-run-all2@5.0.0:
+  npm-run-all2@5.0.2:
     dependencies:
-      ansi-styles: 4.3.0
+      ansi-styles: 5.2.0
       cross-spawn: 7.0.6
       memorystream: 0.3.1
       minimatch: 3.1.2
