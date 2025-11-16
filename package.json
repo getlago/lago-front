@@ -58,7 +58,7 @@
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
-    "@trivago/prettier-plugin-sort-imports": "5.2.2",
+    "@trivago/prettier-plugin-sort-imports": "6.0.0",
     "@types/actioncable": "5.2.11",
     "@types/apollo-upload-client": "17.0.5",
     "@types/jest": "30.0.0",
