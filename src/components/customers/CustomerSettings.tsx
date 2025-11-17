@@ -243,6 +243,30 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
   const isInvoiceCustomSectionConfigurable = !!customer?.configurableInvoiceCustomSections?.length
 
+  const getNetPaymentTermText = (): string => {
+    if (typeof customer?.netPaymentTerm !== 'number') {
+      return translate(
+        'text_64c7a89b6c67eb6c98898241',
+        {
+          days: billingEntity?.netPaymentTerm,
+        },
+        billingEntity?.netPaymentTerm,
+      )
+    }
+
+    if (customer.netPaymentTerm === 0) {
+      return translate('text_64c7a89b6c67eb6c98898125')
+    }
+
+    return translate(
+      'text_64c7a89b6c67eb6c9889815f',
+      {
+        days: customer.netPaymentTerm,
+      },
+      customer.netPaymentTerm,
+    )
+  }
+
   return (
     <>
       <SettingsPaddedContainer className="max-w-full p-0 md:px-0">
@@ -709,35 +733,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   }
                 />
 
-                {typeof customer?.netPaymentTerm !== 'number' && (
-                  <Typography variant="body" color="grey700">
-                    {translate(
-                      'text_64c7a89b6c67eb6c98898241',
-                      {
-                        days: billingEntity?.netPaymentTerm,
-                      },
-                      billingEntity?.netPaymentTerm,
-                    )}
-                  </Typography>
-                )}
-
-                {typeof customer?.netPaymentTerm === 'number' && customer?.netPaymentTerm === 0 && (
-                  <Typography variant="body" color="grey700">
-                    {translate('text_64c7a89b6c67eb6c98898125')}
-                  </Typography>
-                )}
-
-                {typeof customer?.netPaymentTerm === 'number' && customer?.netPaymentTerm !== 0 && (
-                  <Typography variant="body" color="grey700">
-                    {translate(
-                      'text_64c7a89b6c67eb6c9889815f',
-                      {
-                        days: customer?.netPaymentTerm,
-                      },
-                      customer?.netPaymentTerm,
-                    )}
-                  </Typography>
-                )}
+                <Typography variant="body" color="grey700">
+                  {getNetPaymentTermText()}
+                </Typography>
               </SettingsListItem>
 
               {/* Tax */}

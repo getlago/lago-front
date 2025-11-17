@@ -58,8 +58,6 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
     setInvoiceCustomSelected(itemsWithoutRemovedItem)
   }
 
-  // This represents the InitialState of the invoiceCustomSelected state
-  // when users land on the view
   useEffect(() => {
     if (
       customer &&

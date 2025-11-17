@@ -1,12 +1,6 @@
+import { capitalizeWords } from '~/core/formats/capitalizeWords'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
-
-const capitalizeWords = (text: string): string => {
-  return text
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
-}
 
 const buildHeaderParts = (type?: string | null, brand?: string | null): string[] => {
   const parts: string[] = []
