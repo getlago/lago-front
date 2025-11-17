@@ -26,7 +26,7 @@
     "lint": "prettier --cache --check 'src/**/*.{ts,tsx,svg}' 'index.html' 'cypress/**/*.ts' && eslint --cache --cache-location .eslintcache .",
     "lint:fix": "prettier --write {src,cypress}/** index.html && eslint --fix .",
     "types": "node scripts/check-types.js",
-    "code:style": "run-p types translations:inspect translations:ensure-consistency",
+    "code:style": "run-p lint types translations:inspect translations:ensure-consistency",
     "codegen": "graphql-codegen --config codegen.yml -r dotenv/config",
     "codegen:watch": "graphql-codegen --config codegen.yml -r dotenv/config --watch",
     "test": "jest --config jest.config.ts",
