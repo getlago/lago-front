@@ -7477,7 +7477,6 @@ export type Subscription = {
   nextSubscriptionType?: Maybe<NextSubscriptionTypeEnum>;
   onTerminationCreditNote?: Maybe<OnTerminationCreditNoteEnum>;
   onTerminationInvoice: OnTerminationInvoiceEnum;
-  paymentMethod?: Maybe<SubscriptionPaymentMethod>;
   periodEndDate?: Maybe<Scalars['ISO8601Date']['output']>;
   plan: Plan;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -7530,12 +7529,6 @@ export type SubscriptionLifetimeUsage = {
   totalUsageAmountCents: Scalars['BigInt']['output'];
   totalUsageFromDatetime: Scalars['ISO8601DateTime']['output'];
   totalUsageToDatetime: Scalars['ISO8601DateTime']['output'];
-};
-
-export type SubscriptionPaymentMethod = {
-  __typename?: 'SubscriptionPaymentMethod';
-  paymentMethodId?: Maybe<Scalars['String']['output']>;
-  paymentMethodType: PaymentMethodTypeEnum;
 };
 
 export type Subsidiary = {
@@ -13431,7 +13424,7 @@ export type GetSubscriptionForCreateSubscriptionQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethod?: { __typename?: 'SubscriptionPaymentMethod', paymentMethodId?: string | null, paymentMethodType: PaymentMethodTypeEnum } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
 
 export type GetSubscriptionForDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -37148,10 +37141,6 @@ export const GetSubscriptionForCreateSubscriptionDocument = gql`
     periodEndDate
     status
     startedAt
-    paymentMethod {
-      paymentMethodId
-      paymentMethodType
-    }
     plan {
       id
       parent {

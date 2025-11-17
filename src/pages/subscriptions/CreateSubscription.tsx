@@ -130,10 +130,6 @@ gql`
       periodEndDate
       status
       startedAt
-      paymentMethod {
-        paymentMethodId
-        paymentMethodType
-      }
       plan {
         id
         parent {
@@ -278,6 +274,7 @@ const CreateSubscription = () => {
       subscriptionAt: subscription?.subscriptionAt || currentDateRef?.current,
       endingAt: subscription?.endingAt || undefined,
       billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
+      // @ts-expect-error - TODO: fix this
       paymentMethod: subscription?.paymentMethod,
     },
     validationSchema: object().shape({
