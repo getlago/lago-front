@@ -182,7 +182,9 @@ const PaymentDetails = () => {
 
   const { canDownloadPaymentReceipts, downloadPaymentReceipts, downloadPaymentXmlReceipts } =
     useDownloadPaymentReceipts()
-  const canDownloadXmlFile = canDownloadPaymentReceipts && !!payment?.paymentReceipt?.xmlUrl
+  const canDownloadXmlFile =
+    canDownloadPaymentReceipts &&
+    (!!payment?.paymentReceipt?.xmlUrl || !!payment?.customer?.billingEntity?.einvoicing)
 
   const goToPreviousRoute = useCallback(
     () =>
