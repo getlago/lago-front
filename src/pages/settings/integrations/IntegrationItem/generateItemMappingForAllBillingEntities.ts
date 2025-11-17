@@ -67,7 +67,7 @@ export const generateItemMappingForAllBillingEntities = (
     if (item.mappingType === MappingTypeEnum.Tax && itemMapping && 'taxCode' in itemMapping) {
       const itemToAdd: ItemMappingForTaxMapping = {
         itemId: itemMapping.id,
-        itemExternalId: itemMapping.externalId,
+        itemExternalId: itemMapping.externalId || null,
         itemExternalName: itemMapping.externalName || undefined,
         itemExternalCode: itemMapping.externalAccountCode || undefined,
         taxCode: itemMapping.taxCode || null,
@@ -82,7 +82,7 @@ export const generateItemMappingForAllBillingEntities = (
     if (Object.values(MappableTypeEnum).includes(item.mappingType as MappableTypeEnum)) {
       const itemToAdd: ItemMappingForMappable = {
         itemId: itemMapping.id,
-        itemExternalId: itemMapping.externalId,
+        itemExternalId: itemMapping.externalId || null,
         itemExternalName: itemMapping.externalName || undefined,
         itemExternalCode: itemMapping.externalAccountCode || undefined,
         lagoMappableId: item.id,
@@ -95,7 +95,7 @@ export const generateItemMappingForAllBillingEntities = (
 
     acc[billingEntityId] = {
       itemId: itemMapping.id,
-      itemExternalId: itemMapping.externalId,
+      itemExternalId: itemMapping.externalId || null,
       itemExternalName: itemMapping.externalName || undefined,
       itemExternalCode: itemMapping.externalAccountCode || undefined,
     }
