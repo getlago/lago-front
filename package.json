@@ -147,6 +147,7 @@
     "remark-gfm": "4.0.1",
     "sanitize-html": "2.17.0",
     "shiki": "3.15.0",
+    "@superset-ui/embedded-sdk": "0.2.0",
     "yup": "1.7.1"
   },
   "engines": {
