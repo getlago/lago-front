@@ -14,7 +14,7 @@ gql`
   mutation downloadInvoiceXml($input: DownloadXmlInvoiceInput!) {
     downloadInvoiceXml(input: $input) {
       id
-      fileUrl
+      xmlUrl
     }
   }
 `
@@ -31,9 +31,7 @@ export const useDownloadInvoice = () => {
   const [downloadInvoiceXml, { loading: loadingInvoiceXmlDownload }] =
     useDownloadInvoiceXmlMutation({
       onCompleted({ downloadInvoiceXml: downloadInvoiceDataXml }) {
-        /* TODO: Remove this line */
-        console.log('downloadInvoiceDataXml', downloadInvoiceDataXml)
-        handleDownloadFileWithCors(downloadInvoiceDataXml?.fileUrl)
+        handleDownloadFileWithCors(downloadInvoiceDataXml?.xmlUrl)
       },
     })
 

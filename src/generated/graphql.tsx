@@ -11402,7 +11402,7 @@ export type DownloadPaymentReceiptXmlMutationVariables = Exact<{
 }>;
 
 
-export type DownloadPaymentReceiptXmlMutation = { __typename?: 'Mutation', downloadXmlPaymentReceipt?: { __typename?: 'PaymentReceipt', id: string, fileUrl?: string | null } | null };
+export type DownloadPaymentReceiptXmlMutation = { __typename?: 'Mutation', downloadXmlPaymentReceipt?: { __typename?: 'PaymentReceipt', id: string, xmlUrl?: string | null } | null };
 
 export type GetCustomPricingUnitsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -12348,7 +12348,7 @@ export type DownloadCreditNoteXmlMutationVariables = Exact<{
 }>;
 
 
-export type DownloadCreditNoteXmlMutation = { __typename?: 'Mutation', downloadXmlCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
+export type DownloadCreditNoteXmlMutation = { __typename?: 'Mutation', downloadXmlCreditNote?: { __typename?: 'CreditNote', id: string, xmlUrl?: string | null } | null };
 
 export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -12447,7 +12447,7 @@ export type DownloadInvoiceXmlMutationVariables = Exact<{
 }>;
 
 
-export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
+export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, xmlUrl?: string | null } | null };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -28720,7 +28720,7 @@ export const DownloadPaymentReceiptXmlDocument = gql`
     mutation downloadPaymentReceiptXml($input: DownloadXMLPaymentReceiptInput!) {
   downloadXmlPaymentReceipt(input: $input) {
     id
-    fileUrl
+    xmlUrl
   }
 }
     `;
@@ -33347,7 +33347,7 @@ export const DownloadCreditNoteXmlDocument = gql`
     mutation downloadCreditNoteXml($input: DownloadXmlCreditNoteInput!) {
   downloadXmlCreditNote(input: $input) {
     id
-    fileUrl
+    xmlUrl
   }
 }
     `;
@@ -33839,7 +33839,7 @@ export const DownloadInvoiceXmlDocument = gql`
     mutation downloadInvoiceXml($input: DownloadXmlInvoiceInput!) {
   downloadInvoiceXml(input: $input) {
     id
-    fileUrl
+    xmlUrl
   }
 }
     `;

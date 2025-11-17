@@ -19,7 +19,7 @@ gql`
   mutation downloadPaymentReceiptXml($input: DownloadXMLPaymentReceiptInput!) {
     downloadXmlPaymentReceipt(input: $input) {
       id
-      fileUrl
+      xmlUrl
     }
   }
 `
@@ -27,7 +27,7 @@ gql`
 const useDownloadPaymentReceipts = () => {
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
-  const { handleDownloadFile } = useDownloadFile()
+  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
 
   const canDownloadPaymentReceipts =
     hasPermissions(['invoicesView']) &&
@@ -41,9 +41,7 @@ const useDownloadPaymentReceipts = () => {
 
   const [downloadReceiptXml] = useDownloadPaymentReceiptXmlMutation({
     onCompleted({ downloadXmlPaymentReceipt }) {
-      /* TODO: Remove this line */
-      console.log('downloadXmlPaymentReceipt', downloadXmlPaymentReceipt)
-      handleDownloadFile(downloadXmlPaymentReceipt?.fileUrl)
+      handleDownloadFileWithCors(downloadXmlPaymentReceipt?.xmlUrl)
     },
   })
 

@@ -17,13 +17,13 @@ gql`
   mutation downloadCreditNoteXml($input: DownloadXmlCreditNoteInput!) {
     downloadXmlCreditNote(input: $input) {
       id
-      fileUrl
+      xmlUrl
     }
   }
 `
 
 export const useDownloadCreditNote = () => {
-  const { handleDownloadFile } = useDownloadFile()
+  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
   const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
     useDownloadCreditNotePdfMutation({
       onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
@@ -34,9 +34,7 @@ export const useDownloadCreditNote = () => {
   const [downloadCreditNoteXml, { loading: loadingCreditNoteXmlDownload }] =
     useDownloadCreditNoteXmlMutation({
       onCompleted({ downloadXmlCreditNote }) {
-        /* TODO: Remove this line */
-        console.log('downloadXmlCreditNote', downloadXmlCreditNote)
-        handleDownloadFile(downloadXmlCreditNote?.fileUrl)
+        handleDownloadFileWithCors(downloadXmlCreditNote?.xmlUrl)
       },
     })
 

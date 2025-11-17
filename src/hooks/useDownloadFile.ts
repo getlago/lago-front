@@ -63,10 +63,10 @@ export const useDownloadFile = () => {
         myWindow?.focus()
 
         // Timeout so we can close the tab after the download is launched
-        // 200ms should be enough, and we don't want to keep the tab opened for too long
+        // 500ms should be enough, and we don't want to keep the tab opened for too long
         setTimeout(() => {
           myWindow?.close()
-        }, 400)
+        }, 500)
         return
       }
 
