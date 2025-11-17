@@ -1,8 +1,7 @@
 import { renderHook } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
-import { ALL_ANCHOR_VALUES } from '~/core/constants/issuingDatePolicy'
-import { ALL_ADJUSTMENT_VALUES } from '~/core/constants/issuingDatePolicy'
+import { ALL_ADJUSTMENT_VALUES, ALL_ANCHOR_VALUES } from '~/core/constants/issuingDatePolicy'
 import { intlFormatDateTime } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
