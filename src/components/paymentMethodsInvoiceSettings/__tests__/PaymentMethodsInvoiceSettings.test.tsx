@@ -11,7 +11,12 @@ jest.mock('~/components/paymentMethodComboBox/PaymentMethodComboBox', () => ({
   PaymentMethodComboBox: () => <div>PaymentMethodComboBox</div>,
 }))
 
-const mockFormikProps = {} as FormikProps<SubscriptionFormInput>
+const mockFormikProps = {
+  values: {
+    paymentMethod: undefined,
+  },
+  setFieldValue: jest.fn(),
+} as unknown as FormikProps<SubscriptionFormInput>
 
 describe('PaymentMethodsInvoiceSettings', () => {
   describe('WHEN customer is null or undefined', () => {

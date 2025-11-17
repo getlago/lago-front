@@ -1,25 +1,12 @@
-import { FormikProps } from 'formik'
 import { useMemo } from 'react'
 
 import { ComboBox } from '~/components/form'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
-import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 
+import { PaymentMethodComboBoxProps } from './types'
 import { usePaymentMethodOptions } from './usePaymentMethodOptions'
-
-interface PaymentMethodComboBoxProps {
-  externalCustomerId: string
-  value?: string
-  label?: string
-  placeholder?: string
-  emptyText?: string
-  className?: string
-  disabled?: boolean
-  name?: string
-  formikProps: FormikProps<SubscriptionFormInput>
-}
 
 export const PaymentMethodComboBox = ({
   externalCustomerId,
@@ -29,7 +16,8 @@ export const PaymentMethodComboBox = ({
   className,
   disabled: externalDisabled = false,
   name = 'selectPaymentMethod',
-  formikProps,
+  selectedPaymentMethod,
+  setSelectedPaymentMethod,
 }: PaymentMethodComboBoxProps) => {
   const { translate } = useInternationalization()
 
@@ -44,25 +32,25 @@ export const PaymentMethodComboBox = ({
   const paymentMethodOptions = usePaymentMethodOptions(paymentMethodsList, translate)
 
   const comboboxValue = useMemo(() => {
-    const paymentMethod = formikProps.values.paymentMethod
-
-    if (paymentMethod?.paymentMethodId) {
-      return paymentMethod.paymentMethodId
+    if (selectedPaymentMethod?.paymentMethodId) {
+      return selectedPaymentMethod.paymentMethodId
     }
 
-    if (paymentMethod?.paymentMethodType === PaymentMethodTypeEnum.Manual) {
+    if (selectedPaymentMethod?.paymentMethodType === PaymentMethodTypeEnum.Manual) {
       return 'manual'
     }
 
     return ''
-  }, [formikProps.values.paymentMethod])
+  }, [selectedPaymentMethod])
 
   const onChange = (value: string) => {
-    const selectedPaymentMethod = paymentMethodOptions.find((option) => option.value === value)
+    const selectedPaymentMethodOption = paymentMethodOptions.find(
+      (option) => option.value === value,
+    )
 
-    formikProps.setFieldValue('paymentMethod', {
-      paymentMethodId: selectedPaymentMethod?.value || undefined,
-      paymentMethodType: selectedPaymentMethod?.type || undefined,
+    setSelectedPaymentMethod({
+      paymentMethodId: selectedPaymentMethodOption?.value || undefined,
+      paymentMethodType: selectedPaymentMethodOption?.type || undefined,
     })
   }
 

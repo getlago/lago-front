@@ -32,11 +32,14 @@ export const PaymentMethodsInvoiceSettings = ({
             {translate('text_1762862363071z59xqjpg844')}
           </Typography>
           <PaymentMethodComboBox
+            selectedPaymentMethod={formikProps.values?.paymentMethod}
+            setSelectedPaymentMethod={(item) => {
+              formikProps.setFieldValue('paymentMethod', item)
+            }}
             externalCustomerId={customer.externalId}
             label={translate('text_17440371192353kif37ol194')}
             placeholder={translate('text_1762173848714al2j36a59ce')}
             emptyText={translate('text_1762173891817jhfenej7eho')}
-            formikProps={formikProps}
           />
         </div>
         <InvoceCustomFooter customerId={customer.id} />

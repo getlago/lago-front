@@ -1,10 +1,9 @@
 import { act, screen, waitFor } from '@testing-library/react'
-import { FormikProps, useFormik } from 'formik'
 
 import { ComboBox } from '~/components/form'
-import { BillingTimeEnum, PaymentMethodsDocument, PaymentMethodTypeEnum } from '~/generated/graphql'
+import { SelectedPaymentMethod } from '~/components/paymentMethodComboBox/types'
+import { PaymentMethodsDocument, PaymentMethodTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethodsQueryResponse } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
-import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 import { render } from '~/test-utils'
 
 import { PaymentMethodComboBox } from '../PaymentMethodComboBox'
@@ -26,23 +25,26 @@ const TestWrapper = ({
   initialPaymentMethod,
   children,
 }: {
-  initialPaymentMethod?: SubscriptionFormInput['paymentMethod']
-  children: (formikProps: FormikProps<SubscriptionFormInput>) => React.ReactNode
+  initialPaymentMethod?: SelectedPaymentMethod
+  children: (props: {
+    selectedPaymentMethod: SelectedPaymentMethod
+    setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
+  }) => React.ReactNode
 }) => {
-  const formikProps = useFormik<SubscriptionFormInput>({
-    initialValues: {
-      planId: '',
-      name: '',
-      externalId: '',
-      subscriptionAt: '',
-      endingAt: undefined,
-      billingTime: BillingTimeEnum.Calendar,
-      paymentMethod: initialPaymentMethod,
-    },
-    onSubmit: () => {},
+  let currentPaymentMethod: SelectedPaymentMethod = initialPaymentMethod
+
+  const setSelectedPaymentMethod = jest.fn((value: SelectedPaymentMethod) => {
+    currentPaymentMethod = value
   })
 
-  return <>{children(formikProps)}</>
+  return (
+    <>
+      {children({
+        selectedPaymentMethod: currentPaymentMethod,
+        setSelectedPaymentMethod,
+      })}
+    </>
+  )
 }
 
 describe('PaymentMethodComboBox', () => {
@@ -51,12 +53,13 @@ describe('PaymentMethodComboBox', () => {
       await act(() =>
         render(
           <TestWrapper>
-            {(formikProps) => (
+            {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
               <PaymentMethodComboBox
                 externalCustomerId={EXTERNAL_CUSTOMER_ID}
                 label="Payment Method"
                 disabled={true}
-                formikProps={formikProps}
+                selectedPaymentMethod={selectedPaymentMethod}
+                setSelectedPaymentMethod={setSelectedPaymentMethod}
               />
             )}
           </TestWrapper>,
@@ -72,7 +75,7 @@ describe('PaymentMethodComboBox', () => {
   })
 
   describe('WHEN handling combobox value', () => {
-    it('THEN sets value to paymentMethodId when paymentMethodId from formikProps is present', async () => {
+    it('THEN sets value to paymentMethodId when paymentMethodId from selectedPaymentMethod is present', async () => {
       const paymentMethodId = 'pm_123'
 
       await act(() =>
@@ -83,11 +86,12 @@ describe('PaymentMethodComboBox', () => {
               paymentMethodType: PaymentMethodTypeEnum.Provider,
             }}
           >
-            {(formikProps) => (
+            {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
               <PaymentMethodComboBox
                 externalCustomerId={EXTERNAL_CUSTOMER_ID}
                 label="Payment Method"
-                formikProps={formikProps}
+                selectedPaymentMethod={selectedPaymentMethod}
+                setSelectedPaymentMethod={setSelectedPaymentMethod}
               />
             )}
           </TestWrapper>,
@@ -101,10 +105,8 @@ describe('PaymentMethodComboBox', () => {
       })
     })
 
-    it('THEN sets value to "manual" when paymentMethodType is Manual without paymentMethodId from formikProps', async () => {
+    it('THEN sets value to "manual" when paymentMethodType is Manual without paymentMethodId from selectedPaymentMethod', async () => {
       const mockPaymentMethodsResponse = createMockPaymentMethodsQueryResponse()
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      let formikPropsRef: FormikProps<SubscriptionFormInput> | null = null
 
       await act(() =>
         render(
@@ -113,17 +115,14 @@ describe('PaymentMethodComboBox', () => {
               paymentMethodType: PaymentMethodTypeEnum.Manual,
             }}
           >
-            {(formikProps) => {
-              formikPropsRef = formikProps
-
-              return (
-                <PaymentMethodComboBox
-                  externalCustomerId={EXTERNAL_CUSTOMER_ID}
-                  label="Payment Method"
-                  formikProps={formikProps}
-                />
-              )
-            }}
+            {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
+              <PaymentMethodComboBox
+                externalCustomerId={EXTERNAL_CUSTOMER_ID}
+                label="Payment Method"
+                selectedPaymentMethod={selectedPaymentMethod}
+                setSelectedPaymentMethod={setSelectedPaymentMethod}
+              />
+            )}
           </TestWrapper>,
           {
             mocks: [
@@ -153,11 +152,12 @@ describe('PaymentMethodComboBox', () => {
       await act(() =>
         render(
           <TestWrapper>
-            {(formikProps) => (
+            {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
               <PaymentMethodComboBox
                 externalCustomerId={EXTERNAL_CUSTOMER_ID}
                 label="Payment Method"
-                formikProps={formikProps}
+                selectedPaymentMethod={selectedPaymentMethod}
+                setSelectedPaymentMethod={setSelectedPaymentMethod}
               />
             )}
           </TestWrapper>,
