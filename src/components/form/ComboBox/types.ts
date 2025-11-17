@@ -57,6 +57,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
     }>
   >
   containerClassName?: string
+  'data-test'?: string
 }
 
 interface GroupedComboboxProps extends Omit<BasicComboboxProps, 'data' | 'renderGroupHeader'> {
@@ -85,4 +86,5 @@ export type ComboBoxInputProps = Pick<
   searchQuery?: ReturnType<UseDebouncedSearch>['debouncedSearch']
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Omit<AutocompleteRenderInputParams, 'inputProps'> & { inputProps: any }
+  'data-test'?: string
 }

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import {
   DeleteCustomerDocumentLocaleDialog,
@@ -43,6 +43,10 @@ import {
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
 import {
+  EditCustomerIssuingDatePolicyDialog,
+  EditCustomerIssuingDatePolicyDialogRef,
+} from '~/components/customers/settings/EditCustomerIssuingDatePolicyDialog'
+import {
   Avatar,
   Button,
   Chip,
@@ -69,10 +73,18 @@ import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import {
+  INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
+  INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
+} from '~/core/constants/issuingDatePolicy'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
+  BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum,
+  BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum,
   CustomerForDeleteVatRateDialogFragmentDoc,
+  CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum,
+  CustomerSubscriptionInvoiceIssuingDateAnchorEnum,
   DeleteCustomerDocumentLocaleFragmentDoc,
   DeleteCustomerGracePeriodFragmentDoc,
   DeleteCustomerNetPaymentTermFragmentDoc,
@@ -80,6 +92,7 @@ import {
   EditCustomerDunningCampaignFragmentDoc,
   EditCustomerInvoiceCustomSectionFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
+  EditCustomerIssuingDatePolicyDialogFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
   PremiumIntegrationTypeEnum,
@@ -143,6 +156,8 @@ gql`
           id
           invoiceGracePeriod
           documentLocale
+          subscriptionInvoiceIssuingDateAdjustment
+          subscriptionInvoiceIssuingDateAnchor
         }
         appliedDunningCampaign {
           id
@@ -158,6 +173,8 @@ gql`
       billingConfiguration {
         id
         documentLocale
+        subscriptionInvoiceIssuingDateAdjustment
+        subscriptionInvoiceIssuingDateAnchor
       }
 
       ...CustomerAppliedTaxRatesForSettings
@@ -172,6 +189,7 @@ gql`
       ...DeleteCustomerDocumentLocale
       ...CustomerForDeleteVatRateDialog
       ...DeleteCustomerNetPaymentTerm
+      ...EditCustomerIssuingDatePolicyDialog
     }
   }
 
@@ -184,6 +202,7 @@ gql`
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
   ${DeleteCustomerNetPaymentTermFragmentDoc}
+  ${EditCustomerIssuingDatePolicyDialogFragmentDoc}
 `
 
 interface CustomerSettingsProps {
@@ -202,6 +221,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const customer = data?.customer
   const billingEntity = data?.customer?.billingEntity
   const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
+  const editIssuingDatePolicyDialogRef = useRef<EditCustomerIssuingDatePolicyDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
@@ -218,6 +238,58 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const deleteCustomerFinalizeZeroAmountInvoiceDialogRef =
     useRef<DeleteCustomerFinalizeZeroAmountInvoiceDialogRef>(null)
+
+  const { issuingDateAnchorSettingCopy, issuingDateAdjustmentSettingCopy } = useMemo(() => {
+    const hasUserDefinedAnchor =
+      !!customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor
+    const hasUserDefinedAdjustment =
+      !!customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment
+
+    const inheritCopy = translate('text_1763407743132k0lsbmuh6a1')
+
+    const customerAnchorCopy = translate(
+      INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
+        customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
+          CustomerSubscriptionInvoiceIssuingDateAnchorEnum.CurrentPeriodEnd
+      ],
+    )
+
+    const billingEntityAnchorCopy = translate(
+      INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
+        customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
+          BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum.CurrentPeriodEnd
+      ],
+    )
+
+    const billingEntityAdjustmentCopy = translate(
+      INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
+        customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
+          BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum.KeepAnchor
+      ],
+    )
+
+    const customerAdjustmentCopy = translate(
+      INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
+        customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
+          CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum.KeepAnchor
+      ],
+    )
+
+    return {
+      issuingDateAnchorSettingCopy: hasUserDefinedAnchor
+        ? customerAnchorCopy
+        : `${billingEntityAnchorCopy} ${inheritCopy}`,
+      issuingDateAdjustmentSettingCopy: hasUserDefinedAdjustment
+        ? customerAdjustmentCopy
+        : `${billingEntityAdjustmentCopy} ${inheritCopy}`,
+    }
+  }, [
+    customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment,
+    customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor,
+    customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment,
+    customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor,
+    translate,
+  ])
 
   if (!!error && !loading) {
     return (
@@ -739,6 +811,36 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 </Typography>
               </SettingsListItem>
 
+              {/* Issuing date policy */}
+              <SettingsListItem>
+                <SettingsListItemHeader
+                  label={translate('text_1763407530093r6zuzwr3x7p')}
+                  sublabel={translate('text_1763414803053xz3x7xjr3jf')}
+                  action={
+                    hasPermissions([
+                      'customerSettingsUpdateIssuingDateAnchor',
+                      'customerSettingsUpdateIssuingDateAdjustment',
+                    ]) ? (
+                      <Button
+                        variant="inline"
+                        disabled={loading}
+                        onClick={() => editIssuingDatePolicyDialogRef?.current?.openDialog()}
+                        data-test="add-issuing-date-policy-button"
+                      >
+                        {translate('text_645bb193927b375079d28ad2')}
+                      </Button>
+                    ) : undefined
+                  }
+                />
+
+                <div className="flex items-baseline gap-1">
+                  <Typography variant="body" color="grey700">
+                    <div>{issuingDateAnchorSettingCopy}</div>
+                    <div>{issuingDateAdjustmentSettingCopy}</div>
+                  </Typography>
+                </div>
+              </SettingsListItem>
+
               {/* Tax */}
               <SettingsListItem>
                 <SettingsListItemHeader
@@ -851,6 +953,11 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <EditCustomerDocumentLocaleDialog ref={editCustomerDocumentLocale} customer={customer} />
           <EditCustomerDunningCampaignDialog
             ref={editCustomerDunningCampaignDialogRef}
+            customer={customer}
+          />
+
+          <EditCustomerIssuingDatePolicyDialog
+            ref={editIssuingDatePolicyDialogRef}
             customer={customer}
           />
           <EditCustomerInvoiceCustomSectionsDialog
