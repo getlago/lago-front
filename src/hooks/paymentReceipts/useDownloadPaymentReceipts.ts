@@ -1,13 +1,23 @@
 import { gql } from '@apollo/client'
 
-import { PremiumIntegrationTypeEnum, useDownloadPaymentReceiptMutation } from '~/generated/graphql'
+import {
+  PremiumIntegrationTypeEnum,
+  useDownloadPaymentReceiptPdfMutation,
+  useDownloadPaymentReceiptXmlMutation,
+} from '~/generated/graphql'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
-  mutation downloadPaymentReceipt($input: DownloadPaymentReceiptInput!) {
+  mutation downloadPaymentReceiptPdf($input: DownloadPaymentReceiptInput!) {
     downloadPaymentReceipt(input: $input) {
+      id
+      fileUrl
+    }
+  }
+  mutation downloadPaymentReceiptXml($input: DownloadXMLPaymentReceiptInput!) {
+    downloadXmlPaymentReceipt(input: $input) {
       id
       fileUrl
     }
@@ -23,9 +33,17 @@ const useDownloadPaymentReceipts = () => {
     hasPermissions(['invoicesView']) &&
     hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.IssueReceipts)
 
-  const [downloadReceipt] = useDownloadPaymentReceiptMutation({
+  const [downloadReceipt] = useDownloadPaymentReceiptPdfMutation({
     onCompleted({ downloadPaymentReceipt }) {
       handleDownloadFile(downloadPaymentReceipt?.fileUrl)
+    },
+  })
+
+  const [downloadReceiptXml] = useDownloadPaymentReceiptXmlMutation({
+    onCompleted({ downloadXmlPaymentReceipt }) {
+      /* TODO: Remove this line */
+      console.log('downloadXmlPaymentReceipt', downloadXmlPaymentReceipt)
+      handleDownloadFile(downloadXmlPaymentReceipt?.fileUrl)
     },
   })
 
@@ -43,9 +61,24 @@ const useDownloadPaymentReceipts = () => {
     })
   }
 
+  const downloadPaymentXmlReceipts = ({ paymentReceiptId }: { paymentReceiptId?: string }) => {
+    if (!paymentReceiptId) {
+      return null
+    }
+
+    downloadReceiptXml({
+      variables: {
+        input: {
+          id: paymentReceiptId,
+        },
+      },
+    })
+  }
+
   return {
     canDownloadPaymentReceipts,
     downloadPaymentReceipts,
+    downloadPaymentXmlReceipts,
   }
 }
 

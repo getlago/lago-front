@@ -34,7 +34,6 @@ import {
   CreditNote,
   CurrencyEnum,
   CustomerForCreditNoteDetailsExternalSyncFragmentDoc,
-  useDownloadCreditNoteMutation,
   useGetCreditNoteForDetailsQuery,
   useRetryTaxReportingMutation,
   useSyncIntegrationCreditNoteMutation,
@@ -42,8 +41,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useDownloadCreditNote } from '~/pages/creditNoteDetails/common/useDownloadCreditNote'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -71,13 +70,6 @@ gql`
     }
   }
 
-  mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
-    downloadCreditNote(input: $input) {
-      id
-      fileUrl
-    }
-  }
-
   mutation syncIntegrationCreditNote($input: SyncIntegrationCreditNoteInput!) {
     syncIntegrationCreditNote(input: $input) {
       creditNoteId
@@ -101,19 +93,17 @@ const CreditNoteDetails = () => {
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { isPremium } = useCurrentUser()
 
-  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
+  const {
+    downloadCreditNote,
+    loadingCreditNoteDownload,
+    downloadCreditNoteXml,
+    loadingCreditNoteXmlDownload,
+  } = useDownloadCreditNote()
 
   const { data, loading, error } = useGetCreditNoteForDetailsQuery({
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
   })
-
-  const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
-    useDownloadCreditNoteMutation({
-      onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
-        handleDownloadFile(downloadCreditNoteData?.fileUrl)
-      },
-    })
 
   const [syncIntegrationCreditNote, { loading: loadingSyncIntegrationCreditNote }] =
     useSyncIntegrationCreditNoteMutation({
@@ -194,7 +184,7 @@ const CreditNoteDetails = () => {
   }, [creditNote, hasPermissions])
 
   const canDownloadXmlFile = useMemo(() => {
-    return creditNote?.billingEntity.einvoicing || creditNote?.xmlUrl
+    return creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
   }, [creditNote])
 
   return (
@@ -253,9 +243,11 @@ const CreditNoteDetails = () => {
                     <Button
                       variant="quaternary"
                       align="left"
-                      disabled={!!loadingCreditNoteDownload}
+                      disabled={!!loadingCreditNoteXmlDownload}
                       onClick={async () => {
-                        await handleDownloadFileWithCors(creditNote?.xmlUrl)
+                        await downloadCreditNoteXml({
+                          variables: { input: { id: creditNote?.id || '' } },
+                        })
                         closePopper()
                       }}
                     >
@@ -408,6 +400,7 @@ const CreditNoteDetails = () => {
                     <CreditNoteDetailsOverview
                       loadingCreditNoteDownload={loadingCreditNoteDownload}
                       downloadCreditNote={downloadCreditNote}
+                      downloadCreditNoteXml={downloadCreditNoteXml}
                     />
                   </DetailsPage.Container>
                 ),

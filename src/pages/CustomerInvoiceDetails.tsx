@@ -81,7 +81,6 @@ import {
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
   SalesforceIntegration,
   SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
-  useDownloadInvoiceMutation,
   useGeneratePaymentUrlMutation,
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
@@ -102,6 +101,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -248,13 +248,6 @@ gql`
     }
   }
 
-  mutation downloadInvoice($input: DownloadInvoiceInput!) {
-    downloadInvoice(input: $input) {
-      id
-      fileUrl
-    }
-  }
-
   mutation refreshInvoice($input: RefreshInvoiceInput!) {
     refreshInvoice(input: $input) {
       id
@@ -369,7 +362,7 @@ const CustomerInvoiceDetails = () => {
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
 
-  const { handleDownloadFile, handleDownloadFileWithCors, openNewTab } = useDownloadFile()
+  const { openNewTab } = useDownloadFile()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -531,11 +524,8 @@ const CustomerInvoiceDetails = () => {
       },
     })
 
-  const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
-    onCompleted({ downloadInvoice: downloadInvoiceData }) {
-      handleDownloadFile(downloadInvoiceData?.fileUrl)
-    },
-  })
+  const { downloadInvoice, loadingInvoiceDownload, downloadInvoiceXml, loadingInvoiceXmlDownload } =
+    useDownloadInvoice()
 
   const { data: integrationsData } = useIntegrationsListForCustomerInvoiceDetailsQuery({
     variables: { limit: 1000 },
@@ -659,6 +649,7 @@ const CustomerInvoiceDetails = () => {
         component: (
           <InvoiceOverview
             downloadInvoice={downloadInvoice}
+            downloadInvoiceXml={downloadInvoiceXml}
             hasError={hasError}
             hasTaxProviderError={!!hasTaxProviderError}
             invoice={data?.invoice as Invoice}
@@ -667,6 +658,7 @@ const CustomerInvoiceDetails = () => {
             fees={invoiceFees}
             invoiceSubscriptions={invoiceSubscriptions}
             loadingInvoiceDownload={loadingInvoiceDownload}
+            loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
             loadingRetryInvoice={loadingRetryInvoice}
             loadingRetryTaxProviderVoiding={loadingRetryTaxProviderVoiding}
@@ -761,6 +753,7 @@ const CustomerInvoiceDetails = () => {
     }
 
     return tabs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     translate,
     customerId,
@@ -803,7 +796,7 @@ const CustomerInvoiceDetails = () => {
   )
 
   const canDownloadXmlFile = useMemo(() => {
-    return invoice?.billingEntity.einvoicing || invoice?.xmlUrl
+    return invoice?.billingEntity.einvoicing || !!invoice?.xmlUrl
   }, [invoice])
 
   return (
@@ -907,9 +900,11 @@ const CustomerInvoiceDetails = () => {
                         <Button
                           variant="quaternary"
                           align="left"
-                          disabled={!!loadingInvoiceDownload}
+                          disabled={!!loadingInvoiceXmlDownload}
                           onClick={async () => {
-                            await handleDownloadFileWithCors(invoice.xmlUrl)
+                            await downloadInvoiceXml({
+                              variables: { input: { id: invoiceId || '' } },
+                            })
                             closePopper()
                           }}
                         >
@@ -1150,7 +1145,7 @@ const CustomerInvoiceDetails = () => {
           </Popper>
         )}
       </PageHeader.Wrapper>
-      {!!errorMessage ? (
+      {!!errorMessage && (
         <Alert fullWidth className="md:px-12" type="warning">
           <Stack>
             <Typography variant="body" color="grey700">
@@ -1160,7 +1155,8 @@ const CustomerInvoiceDetails = () => {
             <Typography variant="caption">{translate(errorMessage)}</Typography>
           </Stack>
         </Alert>
-      ) : taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
+      )}
+      {!errorMessage && taxStatus === InvoiceTaxStatusTypeEnum.Pending && (
         <Alert fullWidth className="md:px-12" type="info">
           <div className="flex flex-col">
             <Typography variant="body" color="grey700">
@@ -1172,7 +1168,7 @@ const CustomerInvoiceDetails = () => {
             </Typography>
           </div>
         </Alert>
-      ) : null}
+      )}
       {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}

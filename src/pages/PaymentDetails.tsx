@@ -48,7 +48,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -167,7 +166,6 @@ const PaymentDetails = () => {
   const { timezone } = useOrganizationInfos()
   const { customerId, paymentId } = useParams()
   const { goBack } = useLocationHistory()
-  const { handleDownloadFileWithCors } = useDownloadFile()
 
   const { data = {}, loading } = useGetPaymentDetailsQuery({
     variables: {
@@ -182,10 +180,9 @@ const PaymentDetails = () => {
   const requestPaymentInvoices = payable?.__typename === 'PaymentRequest' && payable?.invoices
   const invoices = payableInvoice || requestPaymentInvoices || []
 
-  const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
-  const canDownloadXmlFile =
-    canDownloadPaymentReceipts &&
-    (!!payment?.paymentReceipt?.xmlUrl || !!payment?.customer?.billingEntity?.einvoicing)
+  const { canDownloadPaymentReceipts, downloadPaymentReceipts, downloadPaymentXmlReceipts } =
+    useDownloadPaymentReceipts()
+  const canDownloadXmlFile = canDownloadPaymentReceipts && !!payment?.paymentReceipt?.xmlUrl
 
   const goToPreviousRoute = useCallback(
     () =>
@@ -295,7 +292,9 @@ const PaymentDetails = () => {
                     align="left"
                     disabled={!payment?.paymentReceipt?.id}
                     onClick={() => {
-                      handleDownloadFileWithCors(payment?.paymentReceipt?.xmlUrl)
+                      downloadPaymentXmlReceipts({
+                        paymentReceiptId: payment?.paymentReceipt?.id,
+                      })
 
                       closePopper()
                     }}
@@ -400,7 +399,9 @@ const PaymentDetails = () => {
                       variant="quaternary"
                       align="left"
                       onClick={async () => {
-                        await handleDownloadFileWithCors(payment?.paymentReceipt?.xmlUrl)
+                        await downloadPaymentXmlReceipts({
+                          paymentReceiptId: payment?.paymentReceipt?.id,
+                        })
                         closePopper()
                       }}
                     >

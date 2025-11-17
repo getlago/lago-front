@@ -21,10 +21,11 @@ import {
   CurrencyEnum,
   DownloadCreditNoteMutation,
   DownloadCreditNoteMutationVariables,
+  DownloadCreditNoteXmlMutation,
+  DownloadCreditNoteXmlMutationVariables,
   useGetCreditNoteForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import { SectionHeader } from '~/styles/customer'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
@@ -68,17 +69,20 @@ interface CreditNoteDetailsOverviewProps {
     DownloadCreditNoteMutation,
     DownloadCreditNoteMutationVariables
   >
+  downloadCreditNoteXml: MutationFunction<
+    DownloadCreditNoteXmlMutation,
+    DownloadCreditNoteXmlMutationVariables
+  >
 }
 
 export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
   loadingCreditNoteDownload,
   downloadCreditNote,
+  downloadCreditNoteXml,
 }) => {
   const { customerId, creditNoteId } = useParams()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-
-  const { handleDownloadFileWithCors } = useDownloadFile()
 
   const { data, loading, error } = useGetCreditNoteForDetailsOverviewQuery({
     variables: { id: creditNoteId as string },
@@ -99,7 +103,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
   }, [hasError, loading, hasPermissions])
 
   const canDownloadXmlFile = useMemo(() => {
-    return creditNote?.billingEntity.einvoicing || creditNote?.xmlUrl
+    return creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
   }, [creditNote])
 
   return (
@@ -146,7 +150,9 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                   variant="quaternary"
                   align="left"
                   onClick={async () => {
-                    await handleDownloadFileWithCors(creditNote?.xmlUrl)
+                    await downloadCreditNoteXml({
+                      variables: { input: { id: creditNote?.id || '' } },
+                    })
                     closePopper()
                   }}
                 >

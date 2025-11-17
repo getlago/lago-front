@@ -172,11 +172,13 @@ gql`
 interface InvoiceOverviewProps {
   customer?: CustomerForInvoiceOverviewFragment | null
   downloadInvoice: DownloadInvoiceItemMutationFn
+  downloadInvoiceXml: DownloadInvoiceItemMutationFn
   hasError: boolean
   hasTaxProviderError: boolean
   invoice: Invoice
   loading: boolean
   loadingInvoiceDownload: boolean
+  loadingInvoiceXmlDownload: boolean
   loadingRefreshInvoice: boolean
   loadingRetryInvoice: boolean
   loadingRetryTaxProviderVoiding: boolean
@@ -321,11 +323,13 @@ export const InvoiceQuickInfo = ({
 const InvoiceOverview = memo(
   ({
     downloadInvoice,
+    downloadInvoiceXml,
     hasError,
     hasTaxProviderError,
     invoice,
     loading,
     loadingInvoiceDownload,
+    loadingInvoiceXmlDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
     loadingRetryTaxProviderVoiding,
@@ -438,11 +442,13 @@ const InvoiceOverview = memo(
               loadingRefreshInvoice={loadingRefreshInvoice}
               loadingRetryInvoice={loadingRetryInvoice}
               loadingInvoiceDownload={loadingInvoiceDownload}
+              loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
               hasError={hasError}
               hasTaxProviderError={hasTaxProviderError}
               refreshInvoice={refreshInvoice}
               retryInvoice={retryInvoice}
               downloadInvoice={downloadInvoice}
+              downloadInvoiceXml={downloadInvoiceXml}
               finalizeInvoiceRef={finalizeInvoiceRef}
               goToPreviousRoute={goToPreviousRoute}
               invoiceId={invoiceId}

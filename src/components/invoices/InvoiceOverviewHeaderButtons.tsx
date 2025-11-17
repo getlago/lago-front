@@ -12,7 +12,6 @@ import {
   RetryInvoiceMutationFn,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { MenuPopper } from '~/styles'
 
 const { disablePdfGeneration } = envGlobalVar()
@@ -23,11 +22,13 @@ interface InvoiceOverviewHeaderButtonsProps {
   loadingRefreshInvoice: boolean
   loadingRetryInvoice: boolean
   loadingInvoiceDownload: boolean
+  loadingInvoiceXmlDownload: boolean
   hasError: boolean
   hasTaxProviderError: boolean
   refreshInvoice: RefreshInvoiceMutationFn
   retryInvoice: RetryInvoiceMutationFn
   downloadInvoice: DownloadInvoiceItemMutationFn
+  downloadInvoiceXml: DownloadInvoiceItemMutationFn
   finalizeInvoiceRef: RefObject<FinalizeInvoiceDialogRef>
   goToPreviousRoute?: () => void
   invoiceId?: string
@@ -39,21 +40,22 @@ export const InvoiceOverviewHeaderButtons = ({
   loadingRefreshInvoice,
   loadingRetryInvoice,
   loadingInvoiceDownload,
+  loadingInvoiceXmlDownload,
   hasError,
   hasTaxProviderError,
   refreshInvoice,
   retryInvoice,
   downloadInvoice,
+  downloadInvoiceXml,
   finalizeInvoiceRef,
   goToPreviousRoute,
   invoiceId,
 }: InvoiceOverviewHeaderButtonsProps) => {
   const { translate } = useInternationalization()
-  const { handleDownloadFileWithCors } = useDownloadFile()
 
   const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
   const canDownloadInvoice = !hasError && !loading && !disablePdfGeneration
-  const canDownloadXml = invoice?.billingEntity?.einvoicing || invoice?.xmlUrl
+  const canDownloadXml = invoice?.billingEntity?.einvoicing || !!invoice?.xmlUrl
 
   if (invoice?.status === InvoiceStatusTypeEnum.Draft) {
     return (
@@ -126,6 +128,7 @@ export const InvoiceOverviewHeaderButtons = ({
             <Button
               variant="quaternary"
               align="left"
+              disabled={loadingInvoiceDownload || isTaxStatusPending}
               onClick={async () => {
                 await downloadInvoice({
                   variables: { input: { id: invoiceId || '' } },
@@ -138,8 +141,11 @@ export const InvoiceOverviewHeaderButtons = ({
             <Button
               variant="quaternary"
               align="left"
+              disabled={loadingInvoiceXmlDownload || isTaxStatusPending}
               onClick={async () => {
-                await handleDownloadFileWithCors(invoice?.xmlUrl)
+                await downloadInvoiceXml({
+                  variables: { input: { id: invoiceId || '' } },
+                })
                 closePopper()
               }}
             >

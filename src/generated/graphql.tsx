@@ -11390,12 +11390,19 @@ export type PaymentMethodsQueryVariables = Exact<{
 
 export type PaymentMethodsQuery = { __typename?: 'Query', paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, deletedAt?: any | null, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } };
 
-export type DownloadPaymentReceiptMutationVariables = Exact<{
+export type DownloadPaymentReceiptPdfMutationVariables = Exact<{
   input: DownloadPaymentReceiptInput;
 }>;
 
 
-export type DownloadPaymentReceiptMutation = { __typename?: 'Mutation', downloadPaymentReceipt?: { __typename?: 'PaymentReceipt', id: string, fileUrl?: string | null } | null };
+export type DownloadPaymentReceiptPdfMutation = { __typename?: 'Mutation', downloadPaymentReceipt?: { __typename?: 'PaymentReceipt', id: string, fileUrl?: string | null } | null };
+
+export type DownloadPaymentReceiptXmlMutationVariables = Exact<{
+  input: DownloadXmlPaymentReceiptInput;
+}>;
+
+
+export type DownloadPaymentReceiptXmlMutation = { __typename?: 'Mutation', downloadXmlPaymentReceipt?: { __typename?: 'PaymentReceipt', id: string, fileUrl?: string | null } | null };
 
 export type GetCustomPricingUnitsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -12009,13 +12016,6 @@ export type IntegrationsListForCustomerInvoiceDetailsQuery = { __typename?: 'Que
       | { __typename?: 'XeroIntegration' }
     > } | null };
 
-export type DownloadInvoiceMutationVariables = Exact<{
-  input: DownloadInvoiceInput;
-}>;
-
-
-export type DownloadInvoiceMutation = { __typename?: 'Mutation', downloadInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
-
 export type RefreshInvoiceMutationVariables = Exact<{
   input: RefreshInvoiceInput;
 }>;
@@ -12336,6 +12336,20 @@ export type GoogleRegisterMutationVariables = Exact<{
 
 export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
+export type DownloadCreditNotePdfMutationVariables = Exact<{
+  input: DownloadCreditNoteInput;
+}>;
+
+
+export type DownloadCreditNotePdfMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
+
+export type DownloadCreditNoteXmlMutationVariables = Exact<{
+  input: DownloadXmlCreditNoteInput;
+}>;
+
+
+export type DownloadCreditNoteXmlMutation = { __typename?: 'Mutation', downloadXmlCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
+
 export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -12420,6 +12434,20 @@ export type GetForecastsQueryVariables = Exact<{
 
 
 export type GetForecastsQuery = { __typename?: 'Query', dataApiUsagesForecasted: { __typename?: 'DataApiUsageForecastedCollection', collection: Array<{ __typename?: 'DataApiUsageForecasted', amountCents: any, units: number, amountCentsForecastConservative: any, amountCentsForecastRealistic: any, amountCentsForecastOptimistic: any, unitsForecastConservative: number, unitsForecastRealistic: number, unitsForecastOptimistic: number, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any }> } };
+
+export type DownloadInvoicePdfMutationVariables = Exact<{
+  input: DownloadInvoiceInput;
+}>;
+
+
+export type DownloadInvoicePdfMutation = { __typename?: 'Mutation', downloadInvoice?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
+
+export type DownloadInvoiceXmlMutationVariables = Exact<{
+  input: DownloadXmlInvoiceInput;
+}>;
+
+
+export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, fileUrl?: string | null } | null };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -28654,40 +28682,74 @@ export type PaymentMethodsQueryHookResult = ReturnType<typeof usePaymentMethodsQ
 export type PaymentMethodsLazyQueryHookResult = ReturnType<typeof usePaymentMethodsLazyQuery>;
 export type PaymentMethodsSuspenseQueryHookResult = ReturnType<typeof usePaymentMethodsSuspenseQuery>;
 export type PaymentMethodsQueryResult = Apollo.QueryResult<PaymentMethodsQuery, PaymentMethodsQueryVariables>;
-export const DownloadPaymentReceiptDocument = gql`
-    mutation downloadPaymentReceipt($input: DownloadPaymentReceiptInput!) {
+export const DownloadPaymentReceiptPdfDocument = gql`
+    mutation downloadPaymentReceiptPdf($input: DownloadPaymentReceiptInput!) {
   downloadPaymentReceipt(input: $input) {
     id
     fileUrl
   }
 }
     `;
-export type DownloadPaymentReceiptMutationFn = Apollo.MutationFunction<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>;
+export type DownloadPaymentReceiptPdfMutationFn = Apollo.MutationFunction<DownloadPaymentReceiptPdfMutation, DownloadPaymentReceiptPdfMutationVariables>;
 
 /**
- * __useDownloadPaymentReceiptMutation__
+ * __useDownloadPaymentReceiptPdfMutation__
  *
- * To run a mutation, you first call `useDownloadPaymentReceiptMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDownloadPaymentReceiptMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDownloadPaymentReceiptPdfMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadPaymentReceiptPdfMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [downloadPaymentReceiptMutation, { data, loading, error }] = useDownloadPaymentReceiptMutation({
+ * const [downloadPaymentReceiptPdfMutation, { data, loading, error }] = useDownloadPaymentReceiptPdfMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useDownloadPaymentReceiptMutation(baseOptions?: Apollo.MutationHookOptions<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>) {
+export function useDownloadPaymentReceiptPdfMutation(baseOptions?: Apollo.MutationHookOptions<DownloadPaymentReceiptPdfMutation, DownloadPaymentReceiptPdfMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>(DownloadPaymentReceiptDocument, options);
+        return Apollo.useMutation<DownloadPaymentReceiptPdfMutation, DownloadPaymentReceiptPdfMutationVariables>(DownloadPaymentReceiptPdfDocument, options);
       }
-export type DownloadPaymentReceiptMutationHookResult = ReturnType<typeof useDownloadPaymentReceiptMutation>;
-export type DownloadPaymentReceiptMutationResult = Apollo.MutationResult<DownloadPaymentReceiptMutation>;
-export type DownloadPaymentReceiptMutationOptions = Apollo.BaseMutationOptions<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>;
+export type DownloadPaymentReceiptPdfMutationHookResult = ReturnType<typeof useDownloadPaymentReceiptPdfMutation>;
+export type DownloadPaymentReceiptPdfMutationResult = Apollo.MutationResult<DownloadPaymentReceiptPdfMutation>;
+export type DownloadPaymentReceiptPdfMutationOptions = Apollo.BaseMutationOptions<DownloadPaymentReceiptPdfMutation, DownloadPaymentReceiptPdfMutationVariables>;
+export const DownloadPaymentReceiptXmlDocument = gql`
+    mutation downloadPaymentReceiptXml($input: DownloadXMLPaymentReceiptInput!) {
+  downloadXmlPaymentReceipt(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadPaymentReceiptXmlMutationFn = Apollo.MutationFunction<DownloadPaymentReceiptXmlMutation, DownloadPaymentReceiptXmlMutationVariables>;
+
+/**
+ * __useDownloadPaymentReceiptXmlMutation__
+ *
+ * To run a mutation, you first call `useDownloadPaymentReceiptXmlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadPaymentReceiptXmlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadPaymentReceiptXmlMutation, { data, loading, error }] = useDownloadPaymentReceiptXmlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadPaymentReceiptXmlMutation(baseOptions?: Apollo.MutationHookOptions<DownloadPaymentReceiptXmlMutation, DownloadPaymentReceiptXmlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadPaymentReceiptXmlMutation, DownloadPaymentReceiptXmlMutationVariables>(DownloadPaymentReceiptXmlDocument, options);
+      }
+export type DownloadPaymentReceiptXmlMutationHookResult = ReturnType<typeof useDownloadPaymentReceiptXmlMutation>;
+export type DownloadPaymentReceiptXmlMutationResult = Apollo.MutationResult<DownloadPaymentReceiptXmlMutation>;
+export type DownloadPaymentReceiptXmlMutationOptions = Apollo.BaseMutationOptions<DownloadPaymentReceiptXmlMutation, DownloadPaymentReceiptXmlMutationVariables>;
 export const GetCustomPricingUnitsDocument = gql`
     query getCustomPricingUnits($limit: Int, $page: Int) {
   pricingUnits(limit: $limit, page: $page) {
@@ -31751,40 +31813,6 @@ export type IntegrationsListForCustomerInvoiceDetailsQueryHookResult = ReturnTyp
 export type IntegrationsListForCustomerInvoiceDetailsLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerInvoiceDetailsLazyQuery>;
 export type IntegrationsListForCustomerInvoiceDetailsSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerInvoiceDetailsSuspenseQuery>;
 export type IntegrationsListForCustomerInvoiceDetailsQueryResult = Apollo.QueryResult<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>;
-export const DownloadInvoiceDocument = gql`
-    mutation downloadInvoice($input: DownloadInvoiceInput!) {
-  downloadInvoice(input: $input) {
-    id
-    fileUrl
-  }
-}
-    `;
-export type DownloadInvoiceMutationFn = Apollo.MutationFunction<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>;
-
-/**
- * __useDownloadInvoiceMutation__
- *
- * To run a mutation, you first call `useDownloadInvoiceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDownloadInvoiceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [downloadInvoiceMutation, { data, loading, error }] = useDownloadInvoiceMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDownloadInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>(DownloadInvoiceDocument, options);
-      }
-export type DownloadInvoiceMutationHookResult = ReturnType<typeof useDownloadInvoiceMutation>;
-export type DownloadInvoiceMutationResult = Apollo.MutationResult<DownloadInvoiceMutation>;
-export type DownloadInvoiceMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceMutation, DownloadInvoiceMutationVariables>;
 export const RefreshInvoiceDocument = gql`
     mutation refreshInvoice($input: RefreshInvoiceInput!) {
   refreshInvoice(input: $input) {
@@ -33281,6 +33309,74 @@ export function useGoogleRegisterMutation(baseOptions?: Apollo.MutationHookOptio
 export type GoogleRegisterMutationHookResult = ReturnType<typeof useGoogleRegisterMutation>;
 export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterMutation>;
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
+export const DownloadCreditNotePdfDocument = gql`
+    mutation downloadCreditNotePdf($input: DownloadCreditNoteInput!) {
+  downloadCreditNote(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCreditNotePdfMutationFn = Apollo.MutationFunction<DownloadCreditNotePdfMutation, DownloadCreditNotePdfMutationVariables>;
+
+/**
+ * __useDownloadCreditNotePdfMutation__
+ *
+ * To run a mutation, you first call `useDownloadCreditNotePdfMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCreditNotePdfMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCreditNotePdfMutation, { data, loading, error }] = useDownloadCreditNotePdfMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCreditNotePdfMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNotePdfMutation, DownloadCreditNotePdfMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCreditNotePdfMutation, DownloadCreditNotePdfMutationVariables>(DownloadCreditNotePdfDocument, options);
+      }
+export type DownloadCreditNotePdfMutationHookResult = ReturnType<typeof useDownloadCreditNotePdfMutation>;
+export type DownloadCreditNotePdfMutationResult = Apollo.MutationResult<DownloadCreditNotePdfMutation>;
+export type DownloadCreditNotePdfMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNotePdfMutation, DownloadCreditNotePdfMutationVariables>;
+export const DownloadCreditNoteXmlDocument = gql`
+    mutation downloadCreditNoteXml($input: DownloadXmlCreditNoteInput!) {
+  downloadXmlCreditNote(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCreditNoteXmlMutationFn = Apollo.MutationFunction<DownloadCreditNoteXmlMutation, DownloadCreditNoteXmlMutationVariables>;
+
+/**
+ * __useDownloadCreditNoteXmlMutation__
+ *
+ * To run a mutation, you first call `useDownloadCreditNoteXmlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCreditNoteXmlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCreditNoteXmlMutation, { data, loading, error }] = useDownloadCreditNoteXmlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCreditNoteXmlMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteXmlMutation, DownloadCreditNoteXmlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCreditNoteXmlMutation, DownloadCreditNoteXmlMutationVariables>(DownloadCreditNoteXmlDocument, options);
+      }
+export type DownloadCreditNoteXmlMutationHookResult = ReturnType<typeof useDownloadCreditNoteXmlMutation>;
+export type DownloadCreditNoteXmlMutationResult = Apollo.MutationResult<DownloadCreditNoteXmlMutation>;
+export type DownloadCreditNoteXmlMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteXmlMutation, DownloadCreditNoteXmlMutationVariables>;
 export const GetPortalOrgaInfosDocument = gql`
     query getPortalOrgaInfos {
   customerPortalOrganization {
@@ -33705,6 +33801,74 @@ export type GetForecastsQueryHookResult = ReturnType<typeof useGetForecastsQuery
 export type GetForecastsLazyQueryHookResult = ReturnType<typeof useGetForecastsLazyQuery>;
 export type GetForecastsSuspenseQueryHookResult = ReturnType<typeof useGetForecastsSuspenseQuery>;
 export type GetForecastsQueryResult = Apollo.QueryResult<GetForecastsQuery, GetForecastsQueryVariables>;
+export const DownloadInvoicePdfDocument = gql`
+    mutation downloadInvoicePdf($input: DownloadInvoiceInput!) {
+  downloadInvoice(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadInvoicePdfMutationFn = Apollo.MutationFunction<DownloadInvoicePdfMutation, DownloadInvoicePdfMutationVariables>;
+
+/**
+ * __useDownloadInvoicePdfMutation__
+ *
+ * To run a mutation, you first call `useDownloadInvoicePdfMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadInvoicePdfMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadInvoicePdfMutation, { data, loading, error }] = useDownloadInvoicePdfMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadInvoicePdfMutation(baseOptions?: Apollo.MutationHookOptions<DownloadInvoicePdfMutation, DownloadInvoicePdfMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadInvoicePdfMutation, DownloadInvoicePdfMutationVariables>(DownloadInvoicePdfDocument, options);
+      }
+export type DownloadInvoicePdfMutationHookResult = ReturnType<typeof useDownloadInvoicePdfMutation>;
+export type DownloadInvoicePdfMutationResult = Apollo.MutationResult<DownloadInvoicePdfMutation>;
+export type DownloadInvoicePdfMutationOptions = Apollo.BaseMutationOptions<DownloadInvoicePdfMutation, DownloadInvoicePdfMutationVariables>;
+export const DownloadInvoiceXmlDocument = gql`
+    mutation downloadInvoiceXml($input: DownloadXmlInvoiceInput!) {
+  downloadInvoiceXml(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadInvoiceXmlMutationFn = Apollo.MutationFunction<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>;
+
+/**
+ * __useDownloadInvoiceXmlMutation__
+ *
+ * To run a mutation, you first call `useDownloadInvoiceXmlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadInvoiceXmlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadInvoiceXmlMutation, { data, loading, error }] = useDownloadInvoiceXmlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadInvoiceXmlMutation(baseOptions?: Apollo.MutationHookOptions<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>(DownloadInvoiceXmlDocument, options);
+      }
+export type DownloadInvoiceXmlMutationHookResult = ReturnType<typeof useDownloadInvoiceXmlMutation>;
+export type DownloadInvoiceXmlMutationResult = Apollo.MutationResult<DownloadInvoiceXmlMutation>;
+export type DownloadInvoiceXmlMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>;
 export const GetAdyenIntegrationsDetailsDocument = gql`
     query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
