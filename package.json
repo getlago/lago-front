@@ -21,7 +21,6 @@
     "postinstall": "pnpm run build:packages",
     "prebuild": "pnpm run build:packages",
     "build": "tsc && vite build",
-    "build:win": "tsc && vite build",
     "preview": "vite preview",
     "lint": "prettier --cache --check 'src/**/*.{ts,tsx,svg}' 'index.html' 'cypress/**/*.ts' && eslint --cache --cache-location .eslintcache .",
     "lint:fix": "prettier --write {src,cypress}/** index.html && eslint --fix .",
