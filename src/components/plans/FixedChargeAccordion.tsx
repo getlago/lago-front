@@ -263,14 +263,15 @@ export const FixedChargeAccordion = memo(
               )}
               <Chip label={intervalBadgeCopy} />
 
-              <RemoveChargeButton
-                isInSubscriptionForm={isInSubscriptionForm}
-                isUsedInSubscription={isUsedInSubscription}
-                removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-                existingCharges={formikProps.values.fixedCharges}
-                chargeToRemoveIndex={index}
-                onDeleteCharge={(charges) => formikProps.setFieldValue('fixedCharges', charges)}
-              />
+              {!isInSubscriptionForm && (
+                <RemoveChargeButton
+                  isUsedInSubscription={isUsedInSubscription}
+                  removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+                  existingCharges={formikProps.values.fixedCharges}
+                  chargeToRemoveIndex={index}
+                  onDeleteCharge={(charges) => formikProps.setFieldValue('fixedCharges', charges)}
+                />
+              )}
             </div>
           </div>
         }
