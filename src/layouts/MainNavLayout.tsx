@@ -22,6 +22,7 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
+  ANALYTIC_NEW_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -383,6 +384,13 @@ const MainNavLayout = () => {
                       match: [FORECASTS_ROUTE],
                       hidden: !hasPermissions(['analyticsView']),
                       extraComponent: <BadgeAI />,
+                    },
+                    {
+                      title: translate('text_1762346890583hgqcnuvj2rh'),
+                      icon: 'eye',
+                      link: ANALYTIC_NEW_ROUTE,
+                      match: [ANALYTIC_NEW_ROUTE],
+                      hidden: !hasPermissions(['analyticsView']),
                     },
                   ]}
                 />
