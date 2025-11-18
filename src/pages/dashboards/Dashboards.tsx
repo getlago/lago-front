@@ -1,50 +1,53 @@
+import { gql } from '@apollo/client'
 import { embedDashboard } from '@superset-ui/embedded-sdk'
-import { Typography } from 'lago-design-system'
+import { Skeleton, Typography } from 'lago-design-system'
 import { useEffect } from 'react'
 
+import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
 import { PageHeader } from '~/styles'
 
-const DASHBOARD_ID = ''
-const MOCK_GUEST_TOKEN = ''
+const SUPERSET_DOMAIN = 'http://localhost:8089'
 
-const fetchToken = async () => {
-  return MOCK_GUEST_TOKEN
-}
+gql`
+  query supersetDashboards {
+    supersetDashboards {
+      id
+      embeddedId
+      dashboardTitle
+      guestToken
+    }
+  }
+`
 
 const Dashboards = () => {
   const { translate } = useInternationalization()
 
+  const { data, loading } = useSupersetDashboardsQuery({})
+
   useEffect(() => {
-    const getToken = async () => {
-      const mountPoint = document.getElementById('superset')
+    const dashboard = data?.supersetDashboards?.[0]
+    const mountPoint = document.getElementById('superset')
 
-      if (!mountPoint) {
-        return
-      }
-
-      embedDashboard({
-        id: DASHBOARD_ID,
-        supersetDomain: 'http://localhost:8089',
-        mountPoint,
-        fetchGuestToken: fetchToken,
-        dashboardUiConfig: {
-          hideTitle: true,
-          filters: {
-            expanded: true,
-          },
-          urlParams: {
-            foo: 'value1',
-            bar: 'value2',
-          },
-        },
-        iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
-      })
+    if (loading || !dashboard || !mountPoint) {
+      return
     }
 
-    getToken()
-  }, [])
+    embedDashboard({
+      id: dashboard.embeddedId,
+      supersetDomain: SUPERSET_DOMAIN,
+      mountPoint,
+      fetchGuestToken: async () => dashboard.guestToken,
+      dashboardUiConfig: {
+        hideTitle: true,
+        filters: {
+          expanded: true,
+        },
+      },
+      iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
+    })
+  }, [loading, data?.supersetDashboards])
 
   return (
     <>
@@ -54,9 +57,19 @@ const Dashboards = () => {
         </Typography>
       </PageHeader.Wrapper>
 
-      <div className="height-minus-nav relative w-full">
-        <div id="superset" className="absolute inset-0 size-full"></div>
-      </div>
+      {loading && (
+        <div className="px-8">
+          <Skeleton variant="text" className="mb-5 w-70" />
+          <Skeleton variant="text" className="mb-4" />
+          <Skeleton variant="text" className="w-30" />
+        </div>
+      )}
+
+      {!loading && (
+        <div className="height-minus-nav relative w-full">
+          <div id="superset" className="absolute inset-0 size-full"></div>
+        </div>
+      )}
     </>
   )
 }
