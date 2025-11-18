@@ -1,26 +1,6 @@
-import { capitalizeWords } from '~/core/formats/capitalizeWords'
+import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
-
-const buildHeaderParts = (type?: string | null, brand?: string | null): string[] => {
-  const parts: string[] = []
-
-  if (type) {
-    parts.push(type.charAt(0).toUpperCase() + type.slice(1))
-  }
-
-  if (type && brand) {
-    parts.push(' - ')
-  }
-
-  if (brand) {
-    const normalizedBrand = brand.replace(/_/g, ' ')
-
-    parts.push(capitalizeWords(normalizedBrand))
-  }
-
-  return parts
-}
 
 const buildFooterParts = (
   paymentProviderType?: string | null,
@@ -50,10 +30,8 @@ export const formatPaymentMethodLabel = (
   const { details, isDefault, paymentProviderType, paymentProviderCode } = paymentMethod
   const { brand, type } = details || {}
 
-  const headerParts = buildHeaderParts(type, brand)
+  const baseLabel = formatPaymentMethodDetails({ type, brand })
   const footerParts = buildFooterParts(paymentProviderType, paymentProviderCode)
-
-  const baseLabel = headerParts.join('')
   const footerLabel = footerParts.join('')
 
   const labelText = isDefault

@@ -2,10 +2,9 @@ import { Icon } from 'lago-design-system'
 
 import { Chip, Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
-
-export const OBFUSCATED_LAST4_PREFIX = '••••'
 
 export const DEFAULT_BADGE_TEST_ID = 'default-badge'
 
@@ -15,6 +14,7 @@ interface PaymentMethodDetailsCellProps {
 
 export const PaymentMethodDetailsCell = ({ item }: PaymentMethodDetailsCellProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const formattedDetails = formatPaymentMethodDetails(item.details)
 
   return (
     <div className="flex items-center gap-3">
@@ -26,24 +26,9 @@ export const PaymentMethodDetailsCell = ({ item }: PaymentMethodDetailsCellProps
       <div className="flex flex-1 flex-col">
         <div className="flex items-center gap-1">
           {/* PAYMENT METHOD DETAILS */}
-          {item.details?.type && (
-            <Typography variant="body" className="capitalize text-grey-700">
-              {item.details.type}
-            </Typography>
-          )}
-          {item.details?.type && item.details?.brand && (
+          {formattedDetails && (
             <Typography variant="body" className="text-grey-700">
-              {' - '}
-            </Typography>
-          )}
-          {item.details?.brand && (
-            <Typography variant="body" className="capitalize text-grey-700">
-              {item.details.brand}
-            </Typography>
-          )}
-          {item.details?.last4 && (
-            <Typography variant="body" className="text-grey-700">
-              {OBFUSCATED_LAST4_PREFIX} {item.details.last4}
+              {formattedDetails}
             </Typography>
           )}
 
