@@ -133,18 +133,6 @@ gql`
       paymentMethodType
       paymentMethod {
         id
-        isDefault
-        paymentProviderCode
-        paymentProviderCustomerId
-        paymentProviderType
-        deletedAt
-        details {
-          brand
-          expirationYear
-          expirationMonth
-          last4
-          type
-        }
       }
       plan {
         id

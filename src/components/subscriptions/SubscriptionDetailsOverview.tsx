@@ -3,11 +3,13 @@ import { useParams } from 'react-router-dom'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
 
+import { PaymentInvoiceDetails } from './PaymentInvoiceDetails'
 import { SubscriptionInformations } from './SubscriptionInformations'
 
 gql`
@@ -17,6 +19,18 @@ gql`
       plan {
         id
       }
+      paymentMethodType
+      paymentMethod {
+        id
+        deletedAt
+        details {
+          brand
+          expirationYear
+          expirationMonth
+          last4
+          type
+        }
+      }
       ...SubscriptionForSubscriptionInformations
     }
   }
@@ -25,6 +39,7 @@ gql`
 `
 
 export const SubscriptionDetailsOverview = () => {
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
   const { subscriptionId } = useParams()
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsOverviewQuery({
@@ -45,6 +60,12 @@ export const SubscriptionDetailsOverview = () => {
   return (
     <div className="flex flex-col gap-12">
       <SubscriptionInformations subscription={subscription} />
+      {hasAccessToMultiPaymentFlow && (
+        <PaymentInvoiceDetails
+          paymentMethod={subscription?.paymentMethod}
+          paymentMethodType={subscription?.paymentMethodType}
+        />
+      )}
       <PlanDetailsOverview planId={subscription?.plan.id} showEntitlementSection={false} />
     </div>
   )

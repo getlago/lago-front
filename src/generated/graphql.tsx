@@ -857,8 +857,9 @@ export type ChargeUsage = {
 export type CollectionMapping = {
   __typename?: 'CollectionMapping';
   billingEntityId?: Maybe<Scalars['ID']['output']>;
+  currencies?: Maybe<Array<CurrencyMappingItem>>;
   externalAccountCode?: Maybe<Scalars['String']['output']>;
-  externalId: Scalars['String']['output'];
+  externalId?: Maybe<Scalars['String']['output']>;
   externalName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationId: Scalars['ID']['output'];
@@ -1782,8 +1783,9 @@ export type CreateIntegrationCollectionMappingInput = {
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  currencies?: InputMaybe<Array<CurrencyMappingItemInput>>;
   externalAccountCode?: InputMaybe<Scalars['String']['input']>;
-  externalId: Scalars['String']['input'];
+  externalId?: InputMaybe<Scalars['String']['input']>;
   externalName?: InputMaybe<Scalars['String']['input']>;
   integrationId: Scalars['ID']['input'];
   mappingType: MappingTypeEnum;
@@ -1860,6 +1862,7 @@ export type CreateOktaIntegrationInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   clientSecret: Scalars['String']['input'];
   domain: Scalars['String']['input'];
+  host?: InputMaybe<Scalars['String']['input']>;
   organizationName: Scalars['String']['input'];
 };
 
@@ -2414,6 +2417,17 @@ export enum CurrencyEnum {
   /** Zambian Kwacha */
   Zmw = 'ZMW'
 }
+
+export type CurrencyMappingItem = {
+  __typename?: 'CurrencyMappingItem';
+  currencyCode: CurrencyEnum;
+  currencyExternalCode: Scalars['String']['output'];
+};
+
+export type CurrencyMappingItemInput = {
+  currencyCode: CurrencyEnum;
+  currencyExternalCode: Scalars['String']['input'];
+};
 
 /** Current Organization Type */
 export type CurrentOrganization = {
@@ -4348,6 +4362,7 @@ export enum MappingTypeEnum {
   Account = 'account',
   Coupon = 'coupon',
   CreditNote = 'credit_note',
+  Currencies = 'currencies',
   FallbackItem = 'fallback_item',
   MinimumCommitment = 'minimum_commitment',
   PrepaidCredit = 'prepaid_credit',
@@ -8299,6 +8314,7 @@ export type UpdateHubspotIntegrationInput = {
 export type UpdateIntegrationCollectionMappingInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  currencies?: InputMaybe<Array<CurrencyMappingItemInput>>;
   externalAccountCode?: InputMaybe<Scalars['String']['input']>;
   externalId?: InputMaybe<Scalars['String']['input']>;
   externalName?: InputMaybe<Scalars['String']['input']>;
@@ -8397,6 +8413,7 @@ export type UpdateOktaIntegrationInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   clientSecret?: InputMaybe<Scalars['String']['input']>;
   domain?: InputMaybe<Scalars['String']['input']>;
+  host?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   organizationName?: InputMaybe<Scalars['String']['input']>;
 };
@@ -10713,7 +10730,7 @@ export type GetAnrokIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAnrokIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
+export type GetAnrokIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForAnrokItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10739,7 +10756,7 @@ export type AnrokIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id
 
 export type AnrokIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type AnrokIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+export type AnrokIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
 
 export type AnrokIntegrationSettingsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any, hasMappingsConfigured?: boolean | null, failedInvoicesCount?: number | null };
 
@@ -10781,7 +10798,7 @@ export type GetAvalaraIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
+export type GetAvalaraIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForAvalaraItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10807,7 +10824,7 @@ export type AvalaraIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', 
 
 export type AvalaraIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type AvalaraIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+export type AvalaraIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
 
 export type AvalaraIntegrationSettingsFragment = { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string };
 
@@ -10929,7 +10946,7 @@ export type GetNetsuiteIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetNetsuiteIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null }> } | null };
+export type GetNetsuiteIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForNetsuiteItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10955,7 +10972,7 @@ export type NetsuiteIntegrationItemsListAddonsFragment = { __typename?: 'AddOn',
 
 export type NetsuiteIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type NetsuiteIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null };
+export type NetsuiteIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null, billingEntityId?: string | null };
 
 export type NetsuiteIntegrationSettingsFragment = { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, hasMappingsConfigured?: boolean | null, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -10991,7 +11008,7 @@ export type GetXeroIntegrationCollectionMappingsQueryVariables = Exact<{
 }>;
 
 
-export type GetXeroIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
+export type GetXeroIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
 
 export type GetAddOnsForXeroItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -11017,7 +11034,7 @@ export type XeroIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id:
 
 export type XeroIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
-export type XeroIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+export type XeroIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
 
 export type XeroIntegrationSettingsFragment = { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -11242,7 +11259,7 @@ export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string } } | null };
+export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string, deletedAt?: any | null, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null } | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string } } | null };
 
 export type GetEntitlementsForSubscriptionDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -13175,7 +13192,7 @@ export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?
 
 export type AnrokIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type AnrokIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AnrokIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type AnrokIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13184,7 +13201,7 @@ export type CreateAnrokIntegrationCollectionMappingMutationVariables = Exact<{
 }>;
 
 
-export type CreateAnrokIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateAnrokIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateAnrokIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -13223,7 +13240,7 @@ export type DeleteAnrokIntegrationMappingMutation = { __typename?: 'Mutation', d
 
 export type AvalaraIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type AvalaraIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type AvalaraIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type AvalaraIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13232,7 +13249,7 @@ export type CreateAvalaraIntegrationCollectionMappingMutationVariables = Exact<{
 }>;
 
 
-export type CreateAvalaraIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateAvalaraIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateAvalaraIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -13269,7 +13286,7 @@ export type DeleteAvalaraIntegrationMappingMutationVariables = Exact<{
 
 export type DeleteAvalaraIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
 
-export type NetsuiteIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type NetsuiteIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type NetsuiteIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13278,7 +13295,7 @@ export type CreateNetsuiteIntegrationCollectionMappingMutationVariables = Exact<
 }>;
 
 
-export type CreateNetsuiteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateNetsuiteIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateNetsuiteIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -13317,7 +13334,7 @@ export type DeleteNetsuiteIntegrationMappingMutation = { __typename?: 'Mutation'
 
 export type XeroIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
-export type XeroIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+export type XeroIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type XeroIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
@@ -13351,7 +13368,7 @@ export type CreateXeroIntegrationCollectionMappingMutationVariables = Exact<{
 }>;
 
 
-export type CreateXeroIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+export type CreateXeroIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
 
 export type CreateXeroIntegrationMappingMutationVariables = Exact<{
   input: CreateIntegrationMappingInput;
@@ -13411,7 +13428,7 @@ export type GetSubscriptionForCreateSubscriptionQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, deletedAt?: any | null, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
 
 export type GetSubscriptionForDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -27968,6 +27985,18 @@ export const GetSubscriptionForDetailsOverviewDocument = gql`
     plan {
       id
     }
+    paymentMethodType
+    paymentMethod {
+      id
+      deletedAt
+      details {
+        brand
+        expirationYear
+        expirationMonth
+        last4
+        type
+      }
+    }
     ...SubscriptionForSubscriptionInformations
   }
 }
@@ -37131,18 +37160,6 @@ export const GetSubscriptionForCreateSubscriptionDocument = gql`
     paymentMethodType
     paymentMethod {
       id
-      isDefault
-      paymentProviderCode
-      paymentProviderCustomerId
-      paymentProviderType
-      deletedAt
-      details {
-        brand
-        expirationYear
-        expirationMonth
-        last4
-        type
-      }
     }
     plan {
       id
