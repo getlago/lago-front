@@ -130,6 +130,22 @@ gql`
       periodEndDate
       status
       startedAt
+      paymentMethodType
+      paymentMethod {
+        id
+        isDefault
+        paymentProviderCode
+        paymentProviderCustomerId
+        paymentProviderType
+        deletedAt
+        details {
+          brand
+          expirationYear
+          expirationMonth
+          last4
+          type
+        }
+      }
       plan {
         id
         parent {
@@ -274,8 +290,10 @@ const CreateSubscription = () => {
       subscriptionAt: subscription?.subscriptionAt || currentDateRef?.current,
       endingAt: subscription?.endingAt || undefined,
       billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
-      // @ts-expect-error - TODO: fix this
-      paymentMethod: subscription?.paymentMethod,
+      paymentMethod: {
+        paymentMethodType: subscription?.paymentMethodType,
+        paymentMethodId: subscription?.paymentMethod?.id,
+      },
     },
     validationSchema: object().shape({
       planId: string().required(''),

@@ -287,7 +287,12 @@ export const useAddSubscription: UseAddSubscription = ({
                       }),
                   name: name || undefined,
                   externalId: externalId || undefined,
-                  paymentMethod: paymentMethod || undefined,
+                  paymentMethod: paymentMethod
+                    ? {
+                        paymentMethodId: paymentMethod.paymentMethodId || undefined,
+                        paymentMethodType: paymentMethod.paymentMethodType || undefined,
+                      }
+                    : undefined,
                   ...values,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
@@ -303,7 +308,12 @@ export const useAddSubscription: UseAddSubscription = ({
                   subscriptionAt: updateSubscriptionAt,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name ?? undefined,
-                  paymentMethod: paymentMethod || undefined,
+                  paymentMethod: paymentMethod
+                    ? {
+                        paymentMethodId: paymentMethod.paymentMethodId,
+                        paymentMethodType: paymentMethod.paymentMethodType,
+                      }
+                    : undefined,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
                     : undefined,
