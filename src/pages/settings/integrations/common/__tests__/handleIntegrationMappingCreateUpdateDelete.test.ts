@@ -97,6 +97,34 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
       expect(result).toEqual({ success: true })
     })
 
+    it('should return success when initial data only contains lagoBillableId and lagoMappableName and no input values', async () => {
+      mockGetParametersFromProvider.mockReturnValue({
+        success: true,
+        parameters: {
+          externalId: undefined,
+          externalName: undefined,
+          externalAccountCode: undefined,
+        },
+      })
+
+      const result = await handleIntegrationMappingCreateUpdateDelete(
+        {},
+        {
+          lagoMappableId: 'mappable-123',
+          lagoMappableName: 'Test Mappable',
+          itemId: null,
+          itemExternalId: null,
+        },
+        MappingTypeEnum.Account,
+        mockIntegrationId,
+        mockFunctions,
+        mockBillingEntity,
+        IntegrationTypeEnum.Netsuite,
+      )
+
+      expect(result).toEqual({ success: true })
+    })
+
     it('should return success when no initial data and empty values for mappable', async () => {
       mockGetParametersFromProvider.mockReturnValue({
         success: true,

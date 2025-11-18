@@ -95,7 +95,12 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
 
   const hasInitialData =
     initialMapping &&
-    Object.values(initialMapping).some((value) => value !== null && value !== undefined)
+    Object.entries(initialMapping).some(([key, value]) => {
+      // Those are always given when working on billable metrics mapping or add ons mapping
+      if (key === 'lagoMappableId' || key === 'lagoMappableName') return false
+
+      return value !== null && value !== undefined
+    })
 
   const hasItemValues = getHasItemValues(parameters, integrationProvider, formType)
 
