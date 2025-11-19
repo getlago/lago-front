@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "sideEffects": false,
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.22.0",
   "changelog": {
     "repo": "git@gitlab.com:getlago/lago-front.git"
   },
@@ -110,14 +110,15 @@
   },
   "dependencies": {
     "@apollo/client": "3.14.0",
+    "@fragaria/address-formatter": "^6.6.1",
     "@llm-ui/code": "0.13.3",
     "@llm-ui/markdown": "0.13.3",
     "@llm-ui/react": "0.13.3",
-    "@fragaria/address-formatter": "6.6.1",
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
     "@nangohq/frontend": "0.69.9",
     "@sentry/react": "10.23.0",
+    "@tanstack/react-form": "^1.25.0",
     "@tanstack/react-virtual": "3.13.12",
     "ace-builds": "1.43.4",
     "actioncable": "5.2.8-1",
@@ -147,7 +148,8 @@
     "remark-gfm": "4.0.1",
     "sanitize-html": "2.17.0",
     "shiki": "3.15.0",
-    "yup": "1.7.1"
+    "yup": "1.7.1",
+    "zod": "^4.1.12"
   },
   "engines": {
     "node": ">=22"
