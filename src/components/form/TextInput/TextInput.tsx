@@ -185,6 +185,57 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       [onChange, beforeChangeFormatter],
     )
 
+    const getInputProps = () => {
+      if (cleanable && !!localValue) {
+        return {
+          endAdornment: (
+            <InputAdornment position="end">
+              <Button
+                size="small"
+                icon="close-circle-filled"
+                variant="quaternary"
+                onClick={() => onChange && onChange('', null)}
+              />
+            </InputAdornment>
+          ),
+        }
+      }
+
+      if (!cleanable && password && !!localValue) {
+        return {
+          endAdornment: (
+            <InputAdornment position="end">
+              <Tooltip
+                placement="top-end"
+                title={
+                  isVisible
+                    ? translate('text_620bc4d4269a55014d493f9e')
+                    : translate('text_620bc4d4269a55014d493f8f')
+                }
+              >
+                <Button
+                  size="small"
+                  icon={isVisible ? 'eye-hidden' : 'eye'}
+                  variant="quaternary"
+                  onClick={() => setIsVisible((prev) => !prev)}
+                />
+              </Tooltip>
+            </InputAdornment>
+          ),
+        }
+      }
+
+      return {}
+    }
+
+    const getInputType = () => {
+      if (password && !isVisible) {
+        return 'password'
+      }
+
+      return type !== 'number' ? type : 'text'
+    }
+
     return (
       <div className={tw('flex flex-col gap-1', className)}>
         {!!label && (
@@ -213,49 +264,14 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
           value={localValue}
           name={name}
           id={name}
-          type={password && !isVisible ? 'password' : type !== 'number' ? type : 'text'}
+          type={getInputType()}
           onChange={handleChange}
           variant="outlined"
           minRows={rows}
           maxRows={maxRows || rows}
           error={!!error}
           InputProps={{
-            ...(cleanable && !!localValue
-              ? {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Button
-                        size="small"
-                        icon="close-circle-filled"
-                        variant="quaternary"
-                        onClick={() => onChange && onChange('', null)}
-                      />
-                    </InputAdornment>
-                  ),
-                }
-              : password && !!localValue
-                ? {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Tooltip
-                          placement="top-end"
-                          title={
-                            isVisible
-                              ? translate('text_620bc4d4269a55014d493f9e')
-                              : translate('text_620bc4d4269a55014d493f8f')
-                          }
-                        >
-                          <Button
-                            size="small"
-                            icon={isVisible ? 'eye-hidden' : 'eye'}
-                            variant="quaternary"
-                            onClick={() => setIsVisible((prev) => !prev)}
-                          />
-                        </Tooltip>
-                      </InputAdornment>
-                    ),
-                  }
-                : {}),
+            ...getInputProps(),
             ...InputProps,
           }}
           sx={
