@@ -1,15 +1,25 @@
 import { gql } from '@apollo/client'
 
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
-import { PremiumIntegrationTypeEnum, useDownloadPaymentReceiptMutation } from '~/generated/graphql'
+import {
+  PremiumIntegrationTypeEnum,
+  useDownloadPaymentReceiptPdfMutation,
+  useDownloadPaymentReceiptXmlMutation,
+} from '~/generated/graphql'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
-  mutation downloadPaymentReceipt($input: DownloadPaymentReceiptInput!) {
+  mutation downloadPaymentReceiptPdf($input: DownloadPaymentReceiptInput!) {
     downloadPaymentReceipt(input: $input) {
       id
       fileUrl
+    }
+  }
+  mutation downloadPaymentReceiptXml($input: DownloadXMLPaymentReceiptInput!) {
+    downloadXmlPaymentReceipt(input: $input) {
+      id
+      xmlUrl
     }
   }
 `
@@ -17,14 +27,21 @@ gql`
 const useDownloadPaymentReceipts = () => {
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
+  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
 
   const canDownloadPaymentReceipts =
     hasPermissions(['invoicesView']) &&
     hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.IssueReceipts)
 
-  const [downloadReceipt] = useDownloadPaymentReceiptMutation({
+  const [downloadReceipt] = useDownloadPaymentReceiptPdfMutation({
     onCompleted({ downloadPaymentReceipt }) {
       handleDownloadFile(downloadPaymentReceipt?.fileUrl)
+    },
+  })
+
+  const [downloadReceiptXml] = useDownloadPaymentReceiptXmlMutation({
+    onCompleted({ downloadXmlPaymentReceipt }) {
+      handleDownloadFileWithCors(downloadXmlPaymentReceipt?.xmlUrl)
     },
   })
 
@@ -42,9 +59,24 @@ const useDownloadPaymentReceipts = () => {
     })
   }
 
+  const downloadPaymentXmlReceipts = ({ paymentReceiptId }: { paymentReceiptId?: string }) => {
+    if (!paymentReceiptId) {
+      return null
+    }
+
+    downloadReceiptXml({
+      variables: {
+        input: {
+          id: paymentReceiptId,
+        },
+      },
+    })
+  }
+
   return {
     canDownloadPaymentReceipts,
     downloadPaymentReceipts,
+    downloadPaymentXmlReceipts,
   }
 }
 

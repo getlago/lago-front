@@ -48,7 +48,6 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
@@ -65,6 +64,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 
@@ -91,6 +91,8 @@ const InvoicesList = ({
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
+  const { handleDownloadFile, openNewTab } = useDownloadFile()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
