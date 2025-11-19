@@ -317,7 +317,7 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
                         syncWithProvider: checked,
                       }
 
-                      if (!isEdition && checked) {
+                      if (checked) {
                         newHubspotIntegrationObject.externalCustomerId = ''
                       }
 

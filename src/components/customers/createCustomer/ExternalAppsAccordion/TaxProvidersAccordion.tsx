@@ -232,7 +232,7 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
                     syncWithProvider: checked,
                   }
 
-                  if (!isEdition && checked) {
+                  if (checked) {
                     newAnrokIntegrationObject.externalCustomerId = ''
                   }
 
