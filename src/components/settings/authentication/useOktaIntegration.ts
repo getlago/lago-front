@@ -3,6 +3,7 @@ import { useFormik } from 'formik'
 import { object, string } from 'yup'
 
 import { addToast } from '~/core/apolloClient'
+import { validateHostWithoutProtocol } from '~/core/utils/validateHostWithoutProtocol'
 import {
   AddOktaIntegrationDialogFragment,
   CreateOktaIntegrationInput,
@@ -19,6 +20,7 @@ gql`
     clientId
     clientSecret
     organizationName
+    host
     ...DeleteOktaIntegrationDialog
   }
 
@@ -39,6 +41,14 @@ gql`
 
 const oktaIntegrationSchema = object().shape({
   domain: string().domain('text_664c732c264d7eed1c74fe03').required(''),
+  host: string()
+    .nullable()
+    .test('host', 'text_664c732c264d7eed1c74fdd3', (value) => {
+      if (!value || value.trim() === '') {
+        return true
+      }
+      return validateHostWithoutProtocol(value)
+    }),
   clientId: string().required(''),
   clientSecret: string().required(''),
   organizationName: string().required(''),
@@ -84,6 +94,7 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
   const formikProps = useFormik<CreateOktaIntegrationInput>({
     initialValues: {
       domain: initialValues?.domain || '',
+      host: initialValues?.host || '',
       clientId: initialValues?.clientId || '',
       clientSecret: initialValues?.clientSecret || '',
       organizationName: initialValues?.organizationName || '',

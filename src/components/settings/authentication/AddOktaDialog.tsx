@@ -119,6 +119,12 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
           />
           <TextInputField
             formikProps={formikProps}
+            name="host"
+            label={translate('text_664c732c264d7eed1c74fdd0')}
+            placeholder={translate('text_664c732c264d7eed1c74fdd1')}
+          />
+          <TextInputField
+            formikProps={formikProps}
             name="clientId"
             label={translate('text_664c732c264d7eed1c74fda6')}
             placeholder={translate('text_664c732c264d7eed1c74fdac')}
