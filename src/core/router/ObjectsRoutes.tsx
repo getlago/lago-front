@@ -16,7 +16,7 @@ const FeaturesList = lazyLoad(() => import('~/pages/features/FeaturesList'))
 // Creation
 const ApiKeysForm = lazyLoad(() => import('~/pages/developers/ApiKeysForm'))
 const CreateBillableMetric = lazyLoad(() => import('~/pages/CreateBillableMetric'))
-const CreateCustomer = lazyLoad(() => import('~/pages/CreateCustomer'))
+const CreateCustomer = lazyLoad(() => import('~/pages/createCustomers/CreateCustomer'))
 const CreatePlan = lazyLoad(() => import('~/pages/CreatePlan'))
 const CreateTax = lazyLoad(() => import('~/pages/CreateTax'))
 const CreateInvoice = lazyLoad(() => import('~/pages/CreateInvoice'))
