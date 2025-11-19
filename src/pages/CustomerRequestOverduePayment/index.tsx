@@ -87,6 +87,10 @@ const CustomerRequestOverduePayment: FC = () => {
     error,
   } = useGetRequestOverduePaymentInfosQuery({
     variables: { id: customerId ?? '' },
+    context: {
+      // if BE throws 405 error (InvoicesNotOverdue), we silently catch it
+      silentErrorCodes: [LagoApiError.InvoicesNotOverdue],
+    },
   })
 
   const hasDunningIntegration = !!isPremium
@@ -159,6 +163,17 @@ const CustomerRequestOverduePayment: FC = () => {
     () => {
       if (hasDefinedGQLError('NotFound', error, 'customer')) {
         navigate(ERROR_404_ROUTE)
+      }
+
+      if (hasDefinedGQLError('InvoicesNotOverdue', error)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1763545922743q5ic2kklick',
+        })
+
+        // when user lands on the view and BE throws 405 error (InvoicesNotOverdue)
+        // we redirect to customer details
+        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
