@@ -1771,7 +1771,7 @@
   "text_62f272a7a60b4d7fadad911a": "No name",
   "text_624efab67eb2570101d117be": "Customer name",
   "text_624efab67eb2570101d117c6": "Type a name",
-  "text_624efab67eb2570101d117ce": "Customer external ID",
+  "text_624efab67eb2570101d117ce": "Customer external ID (required)",
   "text_624efab67eb2570101d117d6": "Type an external ID",
   "text_6250304370f0f700a8fdc27d": "Customer details",
   "text_6250304370f0f700a8fdc283": "External ID",
@@ -2157,7 +2157,7 @@
   "text_64d27292062d9600b089aacb": "The calculated value is not reset to 0, it is persistent over all billable periods",
   "text_64d272b4df12dc008076e232": "The calculated value is reset to 0 at the beginning of each period",
   "text_651a8ab50fd34e005d1c1dc7": "customer",
-  "text_651fd3f644384c00999fbd81": "External Salesforce Id (optional)",
+  "text_651fd3f644384c00999fbd81": "External Salesforce Id",
   "text_651fd408a57493006d00504e": "Type an external Salesforce Id",
   "text_651fd41846f44c0064408b07": "Enter an existing Salesforce Account ID to link this customer with a Salesforce Account",
   "text_651fd42936a03200c126c683": "External Salesforce Id",
@@ -3572,5 +3572,6 @@
   "text_176466851340792f3wzvqvb8": "Edit Metadata",
   "text_17646706795118k0wulsr7oq": "Metadata will be linked to the credit note object payload but won’t appear on the generated pdf file.",
   "text_1764684767320qeu0x6az165": "Save edits",
-  "text_17647718978181hu15vk5h86": "Metadata successfully edited on credit note"
+  "text_17647718978181hu15vk5h86": "Metadata successfully edited on credit note",
+  "text_1763633700902rull0etxlje": "External ID is required"
 }
