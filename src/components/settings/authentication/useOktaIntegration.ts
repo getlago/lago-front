@@ -3,7 +3,6 @@ import { useFormik } from 'formik'
 import { object, string } from 'yup'
 
 import { addToast } from '~/core/apolloClient'
-import { validateHostWithoutProtocol } from '~/core/utils/validateHostWithoutProtocol'
 import {
   AddOktaIntegrationDialogFragment,
   CreateOktaIntegrationInput,
@@ -39,20 +38,14 @@ gql`
   ${DeleteOktaIntegrationDialogFragmentDoc}
 `
 
-const oktaIntegrationSchema = object().shape({
-  domain: string().domain('text_664c732c264d7eed1c74fe03').required(''),
-  host: string()
-    .nullable()
-    .test('host', 'text_664c732c264d7eed1c74fdd3', (value) => {
-      if (!value || value.trim() === '') {
-        return true
-      }
-      return validateHostWithoutProtocol(value)
-    }),
-  clientId: string().required(''),
-  clientSecret: string().required(''),
-  organizationName: string().required(''),
-})
+export const getOktaIntegrationSchema = () =>
+  object().shape({
+    domain: string().domain('text_664c732c264d7eed1c74fe03').required(''),
+    host: string().host('text_664c732c264d7eed1c74fdd3'),
+    clientId: string().required(''),
+    clientSecret: string().required(''),
+    organizationName: string().required(''),
+  })
 
 export interface UseOktaIntegrationProps {
   initialValues?: AddOktaIntegrationDialogFragment
@@ -99,7 +92,7 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
       clientSecret: initialValues?.clientSecret || '',
       organizationName: initialValues?.organizationName || '',
     },
-    validationSchema: oktaIntegrationSchema,
+    validationSchema: getOktaIntegrationSchema(),
     onSubmit: async (values) => {
       if (isEdition) {
         await updateIntegration({
