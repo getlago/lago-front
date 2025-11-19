@@ -131,6 +131,25 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
   const isPrepaidCreditsInvoice = creditNote?.invoice?.invoiceType === InvoiceTypeEnum.Credit
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
+  const getFeeDescription = (item: CreditNoteItem, invoiceDisplayName: string) => {
+    if (item?.fee?.feeType === FeeTypesEnum.AddOn) {
+      return translate('text_6388baa2e514213fed583611', {
+        name: item.fee.invoiceName || item?.fee?.itemName,
+      })
+    }
+
+    if (item?.fee?.feeType === FeeTypesEnum.Commitment) {
+      return item.fee.invoiceName || 'Minimum commitment - True up'
+    }
+
+    return composeMultipleValuesWithSepator([
+      item.fee?.invoiceName || item?.fee?.charge?.billableMetric.name || invoiceDisplayName,
+      composeGroupedByDisplayName(item?.fee?.groupedBy),
+      composeChargeFilterDisplayName(item.fee.chargeFilter),
+      item?.fee?.trueUpParentFee?.id ? ` - ${translate('text_64463aaa34904c00a23be4f7')}` : '',
+    ])
+  }
+
   return (
     <CreditNoteTableSection>
       {groupedData.map((groupSubscriptionItem, i) => {
@@ -180,22 +199,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
                               </Typography>
                             ) : (
                               <Typography variant="bodyHl" color="grey700">
-                                {item?.fee?.feeType === FeeTypesEnum.AddOn
-                                  ? translate('text_6388baa2e514213fed583611', {
-                                      name: item.fee.invoiceName || item?.fee?.itemName,
-                                    })
-                                  : item?.fee?.feeType === FeeTypesEnum.Commitment
-                                    ? item.fee.invoiceName || 'Minimum commitment - True up'
-                                    : composeMultipleValuesWithSepator([
-                                        item.fee?.invoiceName ||
-                                          item?.fee?.charge?.billableMetric.name ||
-                                          invoiceDisplayName,
-                                        composeGroupedByDisplayName(item?.fee?.groupedBy),
-                                        composeChargeFilterDisplayName(item.fee.chargeFilter),
-                                        item?.fee?.trueUpParentFee?.id
-                                          ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
-                                          : '',
-                                      ])}
+                                {getFeeDescription(item, invoiceDisplayName)}
                               </Typography>
                             )}
                           </td>
