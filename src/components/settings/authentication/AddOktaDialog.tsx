@@ -24,6 +24,8 @@ export interface AddOktaDialogRef {
   closeDialog: () => unknown
 }
 
+export const SUBMIT_BUTTON_TEST_ID = 'add-okta-dialog-submit-button'
+
 export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
@@ -98,6 +100,7 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
                 variant="primary"
                 disabled={!formikProps.isValid || !formikProps.dirty}
                 onClick={formikProps.submitForm}
+                data-test={SUBMIT_BUTTON_TEST_ID}
               >
                 {translate(
                   isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_664c732c264d7eed1c74fdcb',

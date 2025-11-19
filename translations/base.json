@@ -3539,6 +3539,6 @@
   "text_6630e5923500e7015f190641": "Lago item mapping successfully updated",
   "text_664c732c264d7eed1c74fdd0": "Host (optional)",
   "text_1763560144639jp40amfwhn5": "Host",
-  "text_664c732c264d7eed1c74fdd1": "e.g. example.com",
+  "text_664c732c264d7eed1c74fdd1": "Type your host",
   "text_664c732c264d7eed1c74fdd3": "Invalid host format. Do not include http:// or https://"
 }
