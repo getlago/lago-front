@@ -3525,5 +3525,16 @@
   "text_1760447853022hb1hdiprvet": "Download Invoice as XML file",
   "text_1760517105743y1n6z2u1063": "Something went wrong with your download. Please try again later or contact support if the problem persists.",
   "text_1762529003426q0xqqentmsc": "Download receipt as PDF",
-  "text_17625290034260szr7wfl8cs": "Downoad receipt as XML"
+  "text_17625290034260szr7wfl8cs": "Downoad receipt as XML",
+  "text_1762436248915jmmwifqjtqd": "Additional mappings",
+  "text_1762439590827he1a1nohrjo": "Currencies mapping",
+  "text_1762439590827dkj9145egub": "For all currencies",
+  "text_1762447116967mm930ergbsm": "Define a currency mapping",
+  "text_1762447116967j8jesn54y68": "Set a currency mapping at the organization level. Ensure it aligns with your NetSuite currency list.",
+  "text_1762447672902pzry6bl0qnj": "Currency mapping",
+  "text_1762447672902fngpnyhdc9x": "Values defined here will apply to all billing entities.",
+  "text_1762447693332s34s28y76vs": "Add currency mapping",
+  "text_1762497490412zk5srhy8fqp": "Type a NetSuite currency code",
+  "text_6630e5923500e7015f19063e": "Lago item mapping successfully deleted",
+  "text_6630e5923500e7015f190641": "Lago item mapping successfully updated"
 }

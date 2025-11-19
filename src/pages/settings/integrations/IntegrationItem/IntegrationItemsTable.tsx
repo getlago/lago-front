@@ -8,7 +8,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   type BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
-  getMappingInfos,
+  isItemMappingForKeyForCurrenciesMapping,
   type ItemMappingPerBillingEntity,
 } from '~/pages/settings/integrations/common'
 
@@ -26,6 +26,7 @@ const IntegrationItemsTable = ({
   provider,
   isLoading,
   firstColumnName,
+  displayBillingEntities = true,
 }: IntegrationItemsTableProps) => {
   const { translate } = useInternationalization()
 
@@ -42,6 +43,10 @@ const IntegrationItemsTable = ({
         name: translate('text_6630e3210c13c500cd398e97'),
       },
     ]
+
+    if (!displayBillingEntities) {
+      return baseBillingEntities
+    }
 
     if (
       !billingEntitiesData ||
@@ -75,10 +80,9 @@ const IntegrationItemsTable = ({
           </div>
         )
       }
-      const itemMapping = findItemMapping(item, column.id)
-      const mappingInfos = getMappingInfos(itemMapping, provider)
 
-      const { type, label } = getStatusDetails(mappingInfos, column.id)
+      const itemMapping = findItemMapping(item, column.id)
+      const { type, label } = getStatusDetails(item, column.id, itemMapping, provider)
 
       return <Status type={type} label={label} />
     },
@@ -122,6 +126,15 @@ const IntegrationItemsTable = ({
       type: item.mappingType,
       billingEntities: billingEntitiesColumns,
       itemMappings: itemMappingPerBillingEntity,
+    }
+
+    if (isItemMappingForKeyForCurrenciesMapping(item, itemMappingPerBillingEntity, 'default')) {
+      return () =>
+        integrationMapItemDrawerRef.current?.openDrawer({
+          ...props,
+          itemId: itemMappingPerBillingEntity.default.itemId || undefined,
+          mappings: itemMappingPerBillingEntity.default.currencies || [],
+        })
     }
 
     return () => integrationMapItemDrawerRef.current?.openDrawer(props)

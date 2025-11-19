@@ -1,13 +1,44 @@
 import { StatusType } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  getMappingInfos,
+  ItemMapping,
+  MappableIntegrationProvider,
+} from '~/pages/settings/integrations/common'
+
+import { isNetsuiteIntegrationAdditionalItemsListFragment } from './isNetsuiteIntegrationAdditionalItemsListFragment'
+import { IntegrationItemData } from './types'
 
 export const useGetStatusDetails = () => {
   const { translate } = useInternationalization()
 
   const getStatusDetails = (
-    mappingInfos: { id: string | undefined; name: string } | undefined,
+    item: IntegrationItemData,
     columnId: string | null,
+    itemMapping: ItemMapping | undefined,
+    provider: MappableIntegrationProvider,
   ): { type: StatusType; label: string } => {
+    const mappingInfos = getMappingInfos(itemMapping, provider)
+
+    const isNetsuiteCurrenciesMapping = isNetsuiteIntegrationAdditionalItemsListFragment(
+      item,
+      itemMapping,
+    )
+
+    if (isNetsuiteCurrenciesMapping) {
+      if (!itemMapping.currencies || itemMapping.currencies.length === 0) {
+        return {
+          type: StatusType.warning,
+          label: translate('text_6630e3210c13c500cd398e9a'),
+        }
+      }
+
+      return {
+        type: StatusType.success,
+        label: translate('text_17272714562192y06u5okvo4'),
+      }
+    }
+
     // No mapping info for a billing entity
     if (!mappingInfos) {
       if (columnId !== null) {

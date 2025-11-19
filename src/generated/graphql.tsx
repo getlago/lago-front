@@ -13307,6 +13307,36 @@ export type DeleteAvalaraIntegrationMappingMutationVariables = Exact<{
 
 export type DeleteAvalaraIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
 
+export type NetsuiteIntegrationAdditionalItemsListFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, currencies?: Array<{ __typename?: 'CurrencyMappingItem', currencyCode: CurrencyEnum, currencyExternalCode: string }> | null };
+
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, currencies?: Array<{ __typename?: 'CurrencyMappingItem', currencyCode: CurrencyEnum, currencyExternalCode: string }> | null }> } | null };
+
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationVariables = Exact<{
+  input: CreateIntegrationCollectionMappingInput;
+}>;
+
+
+export type CreateNetsuiteIntegrationCurrenciesMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, currencies?: Array<{ __typename?: 'CurrencyMappingItem', currencyCode: CurrencyEnum, currencyExternalCode: string }> | null } | null };
+
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables = Exact<{
+  input: UpdateIntegrationCollectionMappingInput;
+}>;
+
+
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutation = { __typename?: 'Mutation', updateIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string } | null };
+
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables = Exact<{
+  input: DestroyIntegrationCollectionMappingInput;
+}>;
+
+
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutation = { __typename?: 'Mutation', destroyIntegrationCollectionMapping?: { __typename?: 'DestroyIntegrationCollectionMappingPayload', id?: string | null } | null };
+
 export type NetsuiteIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
 
 export type NetsuiteIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
@@ -17781,6 +17811,16 @@ export const AvalaraIntegrationMapItemDrawerCollectionItemFragmentDoc = gql`
   externalId
   externalName
   externalAccountCode
+}
+    `;
+export const NetsuiteIntegrationAdditionalItemsListFragmentDoc = gql`
+    fragment NetsuiteIntegrationAdditionalItemsList on CollectionMapping {
+  id
+  mappingType
+  currencies {
+    currencyCode
+    currencyExternalCode
+  }
 }
     `;
 export const NetsuiteIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
@@ -36649,6 +36689,149 @@ export function useDeleteAvalaraIntegrationMappingMutation(baseOptions?: Apollo.
 export type DeleteAvalaraIntegrationMappingMutationHookResult = ReturnType<typeof useDeleteAvalaraIntegrationMappingMutation>;
 export type DeleteAvalaraIntegrationMappingMutationResult = Apollo.MutationResult<DeleteAvalaraIntegrationMappingMutation>;
 export type DeleteAvalaraIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteAvalaraIntegrationMappingMutation, DeleteAvalaraIntegrationMappingMutationVariables>;
+export const GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument = gql`
+    query getNetsuiteIntegrationCollectionCurrenciesMappings($integrationId: ID!) {
+  integrationCollectionMappings(integrationId: $integrationId) {
+    collection {
+      id
+      ...NetsuiteIntegrationAdditionalItemsList
+    }
+  }
+}
+    ${NetsuiteIntegrationAdditionalItemsListFragmentDoc}`;
+
+/**
+ * __useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery__
+ *
+ * To run a query within a React component, call `useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables> & ({ variables: GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
+      }
+export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
+        }
+export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
+        }
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionCurrenciesMappingsQuery>;
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionCurrenciesMappingsLazyQuery>;
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQuery>;
+export type GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>;
+export const CreateNetsuiteIntegrationCurrenciesMappingDocument = gql`
+    mutation createNetsuiteIntegrationCurrenciesMapping($input: CreateIntegrationCollectionMappingInput!) {
+  createIntegrationCollectionMapping(input: $input) {
+    id
+    ...NetsuiteIntegrationAdditionalItemsList
+  }
+}
+    ${NetsuiteIntegrationAdditionalItemsListFragmentDoc}`;
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationFn = Apollo.MutationFunction<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+
+/**
+ * __useCreateNetsuiteIntegrationCurrenciesMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateNetsuiteIntegrationCurrenciesMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNetsuiteIntegrationCurrenciesMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNetsuiteIntegrationCurrenciesMappingMutation, { data, loading, error }] = useCreateNetsuiteIntegrationCurrenciesMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateNetsuiteIntegrationCurrenciesMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>(CreateNetsuiteIntegrationCurrenciesMappingDocument, options);
+      }
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationHookResult = ReturnType<typeof useCreateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationResult = Apollo.MutationResult<CreateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type CreateNetsuiteIntegrationCurrenciesMappingMutationOptions = Apollo.BaseMutationOptions<CreateNetsuiteIntegrationCurrenciesMappingMutation, CreateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+export const UpdateNetsuiteIntegrationCurrenciesMappingDocument = gql`
+    mutation updateNetsuiteIntegrationCurrenciesMapping($input: UpdateIntegrationCollectionMappingInput!) {
+  updateIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationFn = Apollo.MutationFunction<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+
+/**
+ * __useUpdateNetsuiteIntegrationCurrenciesMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateNetsuiteIntegrationCurrenciesMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNetsuiteIntegrationCurrenciesMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNetsuiteIntegrationCurrenciesMappingMutation, { data, loading, error }] = useUpdateNetsuiteIntegrationCurrenciesMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateNetsuiteIntegrationCurrenciesMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>(UpdateNetsuiteIntegrationCurrenciesMappingDocument, options);
+      }
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationHookResult = ReturnType<typeof useUpdateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationResult = Apollo.MutationResult<UpdateNetsuiteIntegrationCurrenciesMappingMutation>;
+export type UpdateNetsuiteIntegrationCurrenciesMappingMutationOptions = Apollo.BaseMutationOptions<UpdateNetsuiteIntegrationCurrenciesMappingMutation, UpdateNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+export const DeleteNetsuiteIntegrationCurrenciesMappingDocument = gql`
+    mutation deleteNetsuiteIntegrationCurrenciesMapping($input: DestroyIntegrationCollectionMappingInput!) {
+  destroyIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationFn = Apollo.MutationFunction<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>;
+
+/**
+ * __useDeleteNetsuiteIntegrationCurrenciesMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteNetsuiteIntegrationCurrenciesMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteNetsuiteIntegrationCurrenciesMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteNetsuiteIntegrationCurrenciesMappingMutation, { data, loading, error }] = useDeleteNetsuiteIntegrationCurrenciesMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteNetsuiteIntegrationCurrenciesMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>(DeleteNetsuiteIntegrationCurrenciesMappingDocument, options);
+      }
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationHookResult = ReturnType<typeof useDeleteNetsuiteIntegrationCurrenciesMappingMutation>;
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationResult = Apollo.MutationResult<DeleteNetsuiteIntegrationCurrenciesMappingMutation>;
+export type DeleteNetsuiteIntegrationCurrenciesMappingMutationOptions = Apollo.BaseMutationOptions<DeleteNetsuiteIntegrationCurrenciesMappingMutation, DeleteNetsuiteIntegrationCurrenciesMappingMutationVariables>;
 export const CreateNetsuiteIntegrationCollectionMappingDocument = gql`
     mutation createNetsuiteIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {
