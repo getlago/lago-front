@@ -45,6 +45,7 @@ interface SimpleButtonProps
   className?: string
   inheritColor?: boolean // This will only work for quaternary buttons
   fitContent?: boolean
+  type?: 'button' | 'submit' | 'reset'
 }
 interface ButtonIconProps
   extends Omit<SimpleButtonProps, 'icon' | 'size' | 'endIcon' | 'startIcon' | 'children'> {
@@ -135,6 +136,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       inheritColor,
       onClick,
+      type = 'button',
       ...props
     }: ButtonProps,
     ref,
@@ -196,6 +198,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disableElevation
         disableRipple
         disabled={disabled}
+        type={type}
         ref={ref}
         endIcon={
           localLoading && !icon && !startIcon ? (

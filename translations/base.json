@@ -1771,7 +1771,7 @@
   "text_62f272a7a60b4d7fadad911a": "No name",
   "text_624efab67eb2570101d117be": "Customer name",
   "text_624efab67eb2570101d117c6": "Type a name",
-  "text_624efab67eb2570101d117ce": "Customer external ID",
+  "text_624efab67eb2570101d117ce": "Customer external ID (required)",
   "text_624efab67eb2570101d117d6": "Type an external ID",
   "text_6250304370f0f700a8fdc27d": "Customer details",
   "text_6250304370f0f700a8fdc283": "External ID",
@@ -2157,7 +2157,7 @@
   "text_64d27292062d9600b089aacb": "The calculated value is not reset to 0, it is persistent over all billable periods",
   "text_64d272b4df12dc008076e232": "The calculated value is reset to 0 at the beginning of each period",
   "text_651a8ab50fd34e005d1c1dc7": "customer",
-  "text_651fd3f644384c00999fbd81": "External Salesforce Id (optional)",
+  "text_651fd3f644384c00999fbd81": "External Salesforce Id",
   "text_651fd408a57493006d00504e": "Type an external Salesforce Id",
   "text_651fd41846f44c0064408b07": "Enter an existing Salesforce Account ID to link this customer with a Salesforce Account",
   "text_651fd42936a03200c126c683": "External Salesforce Id",
@@ -3536,5 +3536,6 @@
   "text_1762447693332s34s28y76vs": "Add currency mapping",
   "text_1762497490412zk5srhy8fqp": "Type a NetSuite currency code",
   "text_6630e5923500e7015f19063e": "Lago item mapping successfully deleted",
-  "text_6630e5923500e7015f190641": "Lago item mapping successfully updated"
+  "text_6630e5923500e7015f190641": "Lago item mapping successfully updated",
+  "text_1763633700902rull0etxlje": "This value is required"
 }
