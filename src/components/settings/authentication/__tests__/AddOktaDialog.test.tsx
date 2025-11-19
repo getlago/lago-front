@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import {
   AddOktaDialog,
   AddOktaDialogRef,
-  SUBMIT_BUTTON_TEST_ID,
+  OKTA_INTEGRATION_SUBMIT_BTN,
 } from '~/components/settings/authentication/AddOktaDialog'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { CreateOktaIntegrationDocument } from '~/generated/graphql'
@@ -92,12 +92,12 @@ describe('AddOktaDialog', () => {
     await userEvent.type(screen.getByLabelText(/Okta organization name/i), 'org-name')
 
     await waitFor(() => {
-      const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
+      const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
       expect(submitButton).not.toBeDisabled()
     })
 
-    const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
+    const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
     await userEvent.click(submitButton)
 
@@ -116,7 +116,7 @@ describe('AddOktaDialog', () => {
     await userEvent.type(screen.getByLabelText(/Okta organization name/i), 'org-name')
 
     await waitFor(() => {
-      const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
+      const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
       expect(submitButton).toBeDisabled()
     })
@@ -155,12 +155,12 @@ describe('AddOktaDialog', () => {
     await userEvent.type(screen.getByLabelText(/Okta organization name/i), 'org-name')
 
     await waitFor(() => {
-      const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
+      const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
       expect(submitButton).not.toBeDisabled()
     })
 
-    const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
+    const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
     await userEvent.click(submitButton)
 
@@ -188,7 +188,7 @@ describe('AddOktaDialog', () => {
       }
 
       await waitFor(() => {
-        const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
+        const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
         expect(submitButton).toBeDisabled()
       })
