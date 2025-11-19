@@ -9,7 +9,12 @@ import {
   groupAndFormatFees,
   TExtendedRemainingFee,
 } from '~/core/formats/formatInvoiceItemsMap'
-import { FeeTypesEnum } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  ChargeModelEnum,
+  CurrencyEnum,
+  FeeTypesEnum,
+} from '~/generated/graphql'
 
 import {
   chargeZeroAmount,
@@ -441,18 +446,33 @@ describe('formatInvoiceItemsMap', () => {
             values: { tier: ['premium'] },
           },
           charge: {
+            id: 'charge-id',
+            payInAdvance: false,
+            invoiceDisplayName: null,
+            chargeModel: ChargeModelEnum.Standard,
+            minAmountCents: 0,
+            prorated: false,
             billableMetric: {
+              id: 'bm-id',
               name: 'API Calls Metric',
+              aggregationType: AggregationTypeEnum.CountAgg,
+              recurring: false,
             },
           },
           amountCents: 1500,
-        } as TExtendedRemainingFee
+          units: 1,
+          itemName: 'API Calls',
+          preciseUnitAmount: 1,
+          adjustedFee: false,
+          currency: CurrencyEnum.Usd,
+        } as unknown as TExtendedRemainingFee
 
         const result = _newDeepFormatFees([fee])
 
         expect(result).toHaveLength(1)
         expect(result[0].metadata.isTrueUpFee).toBe(true)
         expect(result[0].metadata.displayName).toBe('API Calls • US-East • premium - True-up')
+        expect(result[0].trueUpParentFee?.id).toBe('parent-fee-id')
       })
 
       it('should format true-up fee using billable metric name as fallback', () => {
@@ -474,6 +494,82 @@ describe('formatInvoiceItemsMap', () => {
         expect(result).toHaveLength(1)
         expect(result[0].metadata.isTrueUpFee).toBe(true)
         expect(result[0].metadata.displayName).toBe('Bandwidth Usage - True-up')
+        expect(result[0].trueUpParentFee?.id).toBe('parent-fee-id')
+      })
+
+      it('should NOT mark fee as true-up when trueUpParentFee is null', () => {
+        const fee = {
+          id: 'fee-normal',
+          feeType: FeeTypesEnum.Charge,
+          invoiceName: 'Normal Charge',
+          trueUpParentFee: null,
+          charge: {
+            id: 'charge-id',
+            payInAdvance: false,
+            invoiceDisplayName: null,
+            chargeModel: ChargeModelEnum.Standard,
+            minAmountCents: 0,
+            prorated: false,
+            billableMetric: {
+              id: 'bm-id',
+              name: 'Normal Metric',
+              aggregationType: AggregationTypeEnum.CountAgg,
+              recurring: false,
+            },
+          },
+          amountCents: 2000,
+          units: 1,
+          groupedBy: {},
+          itemName: 'Normal Charge',
+          preciseUnitAmount: 1,
+          adjustedFee: false,
+          currency: CurrencyEnum.Usd,
+        } as unknown as TExtendedRemainingFee
+
+        const result = _newDeepFormatFees([fee])
+
+        expect(result).toHaveLength(1)
+        expect(result[0].metadata.isTrueUpFee).toBeUndefined()
+        expect(result[0].metadata.isNormalFee).toBe(true)
+        expect(result[0].metadata.displayName).toBe('Normal Charge')
+        expect(result[0].trueUpParentFee).toBeNull()
+      })
+
+      it('should NOT mark fee as true-up when trueUpParentFee is undefined', () => {
+        const fee = {
+          id: 'fee-normal',
+          feeType: FeeTypesEnum.Charge,
+          invoiceName: 'Normal Charge',
+          charge: {
+            id: 'charge-id',
+            payInAdvance: false,
+            invoiceDisplayName: null,
+            chargeModel: ChargeModelEnum.Standard,
+            minAmountCents: 0,
+            prorated: false,
+            billableMetric: {
+              id: 'bm-id',
+              name: 'Normal Metric',
+              aggregationType: AggregationTypeEnum.CountAgg,
+              recurring: false,
+            },
+          },
+          amountCents: 2000,
+          units: 1,
+          groupedBy: {},
+          itemName: 'Normal Charge',
+          preciseUnitAmount: 1,
+          adjustedFee: false,
+          currency: CurrencyEnum.Usd,
+        } as unknown as TExtendedRemainingFee
+
+        const result = _newDeepFormatFees([fee])
+
+        expect(result).toHaveLength(1)
+        expect(result[0].metadata.isTrueUpFee).toBeUndefined()
+        expect(result[0].metadata.isNormalFee).toBe(true)
+        expect(result[0].metadata.displayName).toBe('Normal Charge')
+        expect(result[0].trueUpParentFee).toBeUndefined()
       })
     })
 
@@ -489,7 +585,13 @@ describe('formatInvoiceItemsMap', () => {
             values: { type: ['basic'] },
           },
           amountCents: 800,
-        } as TExtendedRemainingFee
+          units: 1,
+          groupedBy: {},
+          itemName: 'Filter Fee',
+          preciseUnitAmount: 1,
+          adjustedFee: false,
+          currency: CurrencyEnum.Usd,
+        } as unknown as TExtendedRemainingFee
 
         const result = _newDeepFormatFees([fee])
 
@@ -513,12 +615,26 @@ describe('formatInvoiceItemsMap', () => {
             values: { storage_type: ['ssd', 'nvme'] },
           },
           charge: {
+            id: 'charge-id',
+            payInAdvance: false,
+            invoiceDisplayName: null,
+            chargeModel: ChargeModelEnum.Standard,
+            minAmountCents: 0,
+            prorated: false,
             billableMetric: {
+              id: 'bm-id',
               name: 'Storage Metric',
+              aggregationType: AggregationTypeEnum.CountAgg,
+              recurring: false,
             },
           },
           amountCents: 1200,
-        } as TExtendedRemainingFee
+          units: 1,
+          itemName: 'Storage Usage',
+          preciseUnitAmount: 1,
+          adjustedFee: false,
+          currency: CurrencyEnum.Usd,
+        } as unknown as TExtendedRemainingFee
 
         const result = _newDeepFormatFees([fee])
 
@@ -685,12 +801,27 @@ describe('formatInvoiceItemsMap', () => {
             values: { key: ['value'] },
           },
           charge: {
+            id: 'charge-id',
+            payInAdvance: false,
+            invoiceDisplayName: null,
+            chargeModel: ChargeModelEnum.Standard,
+            minAmountCents: 0,
+            prorated: false,
             billableMetric: {
+              id: 'bm-id',
               name: 'Custom name',
+              aggregationType: AggregationTypeEnum.CountAgg,
+              recurring: false,
             },
           },
           amountCents: 700,
-        } as TExtendedRemainingFee
+          units: 1,
+          groupedBy: {},
+          itemName: 'Custom name',
+          preciseUnitAmount: 1,
+          adjustedFee: false,
+          currency: CurrencyEnum.Usd,
+        } as unknown as TExtendedRemainingFee
 
         // Test with fees in random order
         const result = _newDeepFormatFees([

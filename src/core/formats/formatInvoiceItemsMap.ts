@@ -2,7 +2,12 @@ import { gql } from '@apollo/client'
 
 import { InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
-import { Fee, FeeTypesEnum, InvoiceStatusTypeEnum, InvoiceSubscription } from '~/generated/graphql'
+import {
+  FeeTypesEnum,
+  InvoiceStatusTypeEnum,
+  InvoiceSubscription,
+  InvoiceSubscriptionForInvoiceDetailsTableFragment,
+} from '~/generated/graphql'
 
 gql`
   fragment InvoiceSubscriptionFormating on InvoiceSubscription {
@@ -14,6 +19,9 @@ gql`
     inAdvanceChargesToDatetime
     fees {
       id
+      trueUpParentFee {
+        id
+      }
       amountCents
       invoiceName
       invoiceDisplayName
@@ -57,7 +65,13 @@ gql`
     }
   }
 `
-export type TExtendedRemainingFee = Fee & {
+// Extract the Fee type from the fragment to ensure type safety
+// This ensures TypeScript will error if we try to access fields not included in the fragment
+type FeeFromFragment = NonNullable<
+  NonNullable<InvoiceSubscriptionForInvoiceDetailsTableFragment['fees']>[number]
+>
+
+export type TExtendedRemainingFee = FeeFromFragment & {
   metadata: {
     displayName: string
     isCommitmentFee?: boolean
