@@ -19,6 +19,11 @@ export default {
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
+  reporters: [
+    'default',
+    ['jest-junit', { outputDirectory: './TestResults', outputName: 'unit-junit.xml' }],
+  ],
+
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/types.{ts,tsx}',
@@ -29,7 +34,7 @@ export default {
     '!src/pages/__devOnly/*.{ts,tsx}',
   ],
   coverageReporters: ['text', 'lcov'],
-  collectCoverage: false, // set to true to collect coverage
+  collectCoverage: true,
   coverageThreshold: {
     global: {},
     'src/hooks/ui/useShortcuts.tsx': {
