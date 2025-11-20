@@ -1838,7 +1838,6 @@ export type CreateInvoiceInput = {
   currency?: InputMaybe<CurrencyEnum>;
   customerId: Scalars['ID']['input'];
   fees: Array<FeeInput>;
-  invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   voidedInvoiceId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -1920,7 +1919,6 @@ export type CreatePlanInput = {
   fixedCharges?: InputMaybe<Array<FixedChargeInput>>;
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Array<MetadataInput>>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
   name: Scalars['String']['input'];
   payInAdvance: Scalars['Boolean']['input'];
@@ -3643,7 +3641,6 @@ export type FetchDraftInvoiceTaxesInput = {
   currency?: InputMaybe<CurrencyEnum>;
   customerId: Scalars['ID']['input'];
   fees: Array<FeeInput>;
-  invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   voidedInvoiceId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -4056,6 +4053,7 @@ export enum InviteStatusTypeEnum {
 /** Invoice */
 export type Invoice = {
   __typename?: 'Invoice';
+  acceptNewFees: Scalars['Boolean']['output'];
   activityLogs?: Maybe<Array<ActivityLog>>;
   allChargesHaveFees: Scalars['Boolean']['output'];
   allFixedChargesHaveFees: Scalars['Boolean']['output'];
@@ -4241,9 +4239,13 @@ export type InvoiceSubscription = {
   chargesFromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
   chargesToDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
   fees?: Maybe<Array<Fee>>;
+  fixedChargesFromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  fixedChargesToDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
   fromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
   inAdvanceChargesFromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
   inAdvanceChargesToDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  inAdvanceFixedChargesFromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  inAdvanceFixedChargesToDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
   invoice: Invoice;
   subscription: Subscription;
   subscriptionAmountCents: Scalars['BigInt']['output'];
@@ -5982,7 +5984,6 @@ export type Plan = {
   interval: PlanInterval;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   isOverridden: Scalars['Boolean']['output'];
-  metadata?: Maybe<Array<ItemMetadata>>;
   minimumCommitment?: Maybe<Commitment>;
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
@@ -8526,7 +8527,6 @@ export type UpdatePlanInput = {
   id: Scalars['ID']['input'];
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Array<MetadataInput>>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
   name: Scalars['String']['input'];
   payInAdvance: Scalars['Boolean']['input'];
@@ -10096,7 +10096,7 @@ export type DisputeInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type DisputeInvoiceMutation = { __typename?: 'Mutation', loseInvoiceDispute?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type DisputeInvoiceMutation = { __typename?: 'Mutation', loseInvoiceDispute?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type TaxForInvoiceEditTaxDialogFragment = { __typename?: 'Tax', id: string, name: string, rate: number, code: string };
 
@@ -10117,7 +10117,7 @@ export type UpdateInvoicePaymentStatusMutationVariables = Exact<{
 }>;
 
 
-export type UpdateInvoicePaymentStatusMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type UpdateInvoicePaymentStatusMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type InvoiceForFinalizeInvoiceFragment = { __typename?: 'Invoice', id: string, issuingDate: any, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } };
 
@@ -10126,7 +10126,7 @@ export type FinalizeInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type FinalizeInvoiceMutation = { __typename?: 'Mutation', finalizeInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type FinalizeInvoiceMutation = { __typename?: 'Mutation', finalizeInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type InvoiceActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10179,7 +10179,7 @@ export type VoidInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type VoidInvoiceMutation = { __typename?: 'Mutation', voidInvoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type VoidInvoiceMutation = { __typename?: 'Mutation', voidInvoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type FeeForDeleteAdjustmentFeeDialogFragment = { __typename?: 'Fee', id: string };
 
@@ -10190,16 +10190,16 @@ export type DestroyAdjustedFeeMutationVariables = Exact<{
 
 export type DestroyAdjustedFeeMutation = { __typename?: 'Mutation', destroyAdjustedFee?: { __typename?: 'DestroyAdjustedFeePayload', id?: string | null } | null };
 
-export type InvoiceSubscriptionForCreateFeeDrawerFragment = { __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null };
+export type InvoiceSubscriptionForCreateFeeDrawerFragment = { __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null };
 
-export type FeeForEditfeeDrawerFragment = { __typename?: 'Fee', id: string, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, prorated: boolean } | null };
+export type FeeForEditfeeDrawerFragment = { __typename?: 'Fee', id: string, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, prorated: boolean } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null };
 
 export type GetInvoiceDetailsForCreateFeeDrawerQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
 }>;
 
 
-export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null }> | null } | null };
+export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null }> | null } | null };
 
 export type CreateAdjustedFeeMutationVariables = Exact<{
   input: CreateAdjustedFeeInput;
@@ -10208,13 +10208,13 @@ export type CreateAdjustedFeeMutationVariables = Exact<{
 
 export type CreateAdjustedFeeMutation = { __typename?: 'Mutation', createAdjustedFee?: { __typename?: 'Fee', id: string } | null };
 
-export type FeeForInvoiceDetailsTableFragment = { __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
+export type FeeForInvoiceDetailsTableFragment = { __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null };
 
-export type InvoiceSubscriptionForInvoiceDetailsTableFragment = { __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, acceptNewChargeFees: boolean, subscriptionAmountCents: any, invoice: { __typename?: 'Invoice', chargeAmountCents: any, progressiveBillingCreditAmountCents: any, id: string, status: InvoiceStatusTypeEnum }, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, billChargesMonthly?: boolean | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null };
+export type InvoiceSubscriptionForInvoiceDetailsTableFragment = { __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, acceptNewChargeFees: boolean, subscriptionAmountCents: any, invoice: { __typename?: 'Invoice', chargeAmountCents: any, progressiveBillingCreditAmountCents: any, id: string, status: InvoiceStatusTypeEnum }, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, billChargesMonthly?: boolean | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null }> | null };
 
-export type InvoiceForDetailsTableFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any, allChargesHaveFees: boolean, versionNumber: number, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
+export type InvoiceForDetailsTableFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
 
-export type FeeForInvoiceDetailsTableBodyLineFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
+export type FeeForInvoiceDetailsTableBodyLineFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null };
 
 export type FeeForInvoiceDetailsTableBodyLineGraduatedFragment = { __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: any | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null };
 
@@ -10228,9 +10228,9 @@ export type FeeForInvoiceDetailsTableBodyLineVolumeFragment = { __typename?: 'Fe
 
 export type InvoiceForDetailsTableFooterFragment = { __typename?: 'Invoice', couponsAmountCents: any, creditNotesAmountCents: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, versionNumber: number, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
 
-export type FeeForInvoiceFeeAdvanceDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
+export type FeeForInvoiceFeeAdvanceDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null };
 
-export type FeeForInvoiceFeeArrearsDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
+export type FeeForInvoiceFeeArrearsDetailsTableFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null };
 
 export type SetPaymentMethodAsDefaultMutationVariables = Exact<{
   input: SetAsDefaultInput;
@@ -11989,7 +11989,7 @@ export type GetCustomerInfosForDraftInvoicesListQueryVariables = Exact<{
 
 export type GetCustomerInfosForDraftInvoicesListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } | null, customerInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
 
-export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
+export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
 
 export type CustomerForInvoiceDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, paymentProvider?: ProviderTypeEnum | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', id: string, integrationId?: string | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', id: string, integrationId?: string | null } | null };
 
@@ -11998,21 +11998,21 @@ export type GetInvoiceDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type GetInvoiceFeesQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetInvoiceFeesQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null } | null };
+export type GetInvoiceFeesQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null }> | null } | null };
 
 export type GetInvoiceSubscriptionsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetInvoiceSubscriptionsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, acceptNewChargeFees: boolean, subscriptionAmountCents: any, invoice: { __typename?: 'Invoice', chargeAmountCents: any, progressiveBillingCreditAmountCents: any, id: string, status: InvoiceStatusTypeEnum }, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, billChargesMonthly?: boolean | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null }> | null } | null };
+export type GetInvoiceSubscriptionsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, acceptNewChargeFees: boolean, subscriptionAmountCents: any, invoice: { __typename?: 'Invoice', chargeAmountCents: any, progressiveBillingCreditAmountCents: any, id: string, status: InvoiceStatusTypeEnum }, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, billChargesMonthly?: boolean | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null }> | null }> | null } | null };
 
 export type GetInvoiceCustomerQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -12055,7 +12055,7 @@ export type RefreshInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type RefreshInvoiceMutation = { __typename?: 'Mutation', refreshInvoice?: { __typename?: 'Invoice', id: string, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, acceptNewChargeFees: boolean, subscriptionAmountCents: any, invoice: { __typename?: 'Invoice', chargeAmountCents: any, progressiveBillingCreditAmountCents: any, id: string, status: InvoiceStatusTypeEnum }, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, billChargesMonthly?: boolean | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null }> | null } | null };
+export type RefreshInvoiceMutation = { __typename?: 'Mutation', refreshInvoice?: { __typename?: 'Invoice', id: string, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, acceptNewChargeFees: boolean, subscriptionAmountCents: any, invoice: { __typename?: 'Invoice', chargeAmountCents: any, progressiveBillingCreditAmountCents: any, id: string, status: InvoiceStatusTypeEnum }, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, billChargesMonthly?: boolean | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null }> | null }> | null } | null };
 
 export type SyncIntegrationInvoiceMutationVariables = Exact<{
   input: SyncIntegrationInvoiceInput;
@@ -14794,6 +14794,8 @@ export const InvoiceSubscriptionForCreateFeeDrawerFragmentDoc = gql`
       fixedCharges {
         id
         invoiceDisplayName
+        chargeModel
+        prorated
         addOn {
           id
           name
@@ -14962,6 +14964,11 @@ export const FeeForEditfeeDrawerFragmentDoc = gql`
   id
   currency
   charge {
+    id
+    chargeModel
+    prorated
+  }
+  fixedCharge {
     id
     chargeModel
     prorated
@@ -17076,6 +17083,7 @@ export const InvoiceForDetailsTableFragmentDoc = gql`
   currency
   issuingDate
   allChargesHaveFees
+  allFixedChargesHaveFees
   versionNumber
   errorDetails {
     errorCode
@@ -18095,9 +18103,6 @@ export function useUserIdentifierLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<UserIdentifierQuery, UserIdentifierQueryVariables>(UserIdentifierDocument, options);
         }
-// @ts-ignore
-export function useUserIdentifierSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<UserIdentifierQuery, UserIdentifierQueryVariables>): Apollo.UseSuspenseQueryResult<UserIdentifierQuery, UserIdentifierQueryVariables>;
-export function useUserIdentifierSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<UserIdentifierQuery, UserIdentifierQueryVariables>): Apollo.UseSuspenseQueryResult<UserIdentifierQuery | undefined, UserIdentifierQueryVariables>;
 export function useUserIdentifierSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<UserIdentifierQuery, UserIdentifierQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<UserIdentifierQuery, UserIdentifierQueryVariables>(UserIdentifierDocument, options);
@@ -18176,9 +18181,6 @@ export function useGetAiConversationLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAiConversationQuery, GetAiConversationQueryVariables>(GetAiConversationDocument, options);
         }
-// @ts-ignore
-export function useGetAiConversationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAiConversationQuery, GetAiConversationQueryVariables>): Apollo.UseSuspenseQueryResult<GetAiConversationQuery, GetAiConversationQueryVariables>;
-export function useGetAiConversationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAiConversationQuery, GetAiConversationQueryVariables>): Apollo.UseSuspenseQueryResult<GetAiConversationQuery | undefined, GetAiConversationQueryVariables>;
 export function useGetAiConversationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAiConversationQuery, GetAiConversationQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAiConversationQuery, GetAiConversationQueryVariables>(GetAiConversationDocument, options);
@@ -18223,9 +18225,6 @@ export function useListAiConversationsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<ListAiConversationsQuery, ListAiConversationsQueryVariables>(ListAiConversationsDocument, options);
         }
-// @ts-ignore
-export function useListAiConversationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAiConversationsQuery, ListAiConversationsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAiConversationsQuery, ListAiConversationsQueryVariables>;
-export function useListAiConversationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAiConversationsQuery, ListAiConversationsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAiConversationsQuery | undefined, ListAiConversationsQueryVariables>;
 export function useListAiConversationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAiConversationsQuery, ListAiConversationsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<ListAiConversationsQuery, ListAiConversationsQueryVariables>(ListAiConversationsDocument, options);
@@ -18348,9 +18347,6 @@ export function useGetMrrPlanBreakdownLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>(GetMrrPlanBreakdownDocument, options);
         }
-// @ts-ignore
-export function useGetMrrPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>;
-export function useGetMrrPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetMrrPlanBreakdownQuery | undefined, GetMrrPlanBreakdownQueryVariables>;
 export function useGetMrrPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>(GetMrrPlanBreakdownDocument, options);
@@ -18413,9 +18409,6 @@ export function useGetMrrsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ge
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMrrsQuery, GetMrrsQueryVariables>(GetMrrsDocument, options);
         }
-// @ts-ignore
-export function useGetMrrsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMrrsQuery, GetMrrsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMrrsQuery, GetMrrsQueryVariables>;
-export function useGetMrrsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrsQuery, GetMrrsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMrrsQuery | undefined, GetMrrsQueryVariables>;
 export function useGetMrrsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrsQuery, GetMrrsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMrrsQuery, GetMrrsQueryVariables>(GetMrrsDocument, options);
@@ -18480,9 +18473,6 @@ export function useGetPrepaidCreditsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>(GetPrepaidCreditsDocument, options);
         }
-// @ts-ignore
-export function useGetPrepaidCreditsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>;
-export function useGetPrepaidCreditsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPrepaidCreditsQuery | undefined, GetPrepaidCreditsQueryVariables>;
 export function useGetPrepaidCreditsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>(GetPrepaidCreditsDocument, options);
@@ -18536,9 +18526,6 @@ export function useGetRevenueStreamsCustomerBreakdownLazyQuery(baseOptions?: Apo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>(GetRevenueStreamsCustomerBreakdownDocument, options);
         }
-// @ts-ignore
-export function useGetRevenueStreamsCustomerBreakdownSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>;
-export function useGetRevenueStreamsCustomerBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetRevenueStreamsCustomerBreakdownQuery | undefined, GetRevenueStreamsCustomerBreakdownQueryVariables>;
 export function useGetRevenueStreamsCustomerBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>(GetRevenueStreamsCustomerBreakdownDocument, options);
@@ -18596,9 +18583,6 @@ export function useGetRevenueStreamsPlanBreakdownLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>(GetRevenueStreamsPlanBreakdownDocument, options);
         }
-// @ts-ignore
-export function useGetRevenueStreamsPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>;
-export function useGetRevenueStreamsPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetRevenueStreamsPlanBreakdownQuery | undefined, GetRevenueStreamsPlanBreakdownQueryVariables>;
 export function useGetRevenueStreamsPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>(GetRevenueStreamsPlanBreakdownDocument, options);
@@ -18663,9 +18647,6 @@ export function useGetRevenueStreamsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>(GetRevenueStreamsDocument, options);
         }
-// @ts-ignore
-export function useGetRevenueStreamsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>;
-export function useGetRevenueStreamsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRevenueStreamsQuery | undefined, GetRevenueStreamsQueryVariables>;
 export function useGetRevenueStreamsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>(GetRevenueStreamsDocument, options);
@@ -18722,9 +18703,6 @@ export function useGetUsageBillableMetricLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>(GetUsageBillableMetricDocument, options);
         }
-// @ts-ignore
-export function useGetUsageBillableMetricSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>): Apollo.UseSuspenseQueryResult<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>;
-export function useGetUsageBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>): Apollo.UseSuspenseQueryResult<GetUsageBillableMetricQuery | undefined, GetUsageBillableMetricQueryVariables>;
 export function useGetUsageBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>(GetUsageBillableMetricDocument, options);
@@ -18793,9 +18771,6 @@ export function useGetUsageBreakdownLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>(GetUsageBreakdownDocument, options);
         }
-// @ts-ignore
-export function useGetUsageBreakdownSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>;
-export function useGetUsageBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>): Apollo.UseSuspenseQueryResult<GetUsageBreakdownQuery | undefined, GetUsageBreakdownQueryVariables>;
 export function useGetUsageBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>(GetUsageBreakdownDocument, options);
@@ -18863,9 +18838,6 @@ export function useGetUsageOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>(GetUsageOverviewDocument, options);
         }
-// @ts-ignore
-export function useGetUsageOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>;
-export function useGetUsageOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetUsageOverviewQuery | undefined, GetUsageOverviewQueryVariables>;
 export function useGetUsageOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>(GetUsageOverviewDocument, options);
@@ -18905,9 +18877,6 @@ export function useGetGoogleAuthUrlLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>(GetGoogleAuthUrlDocument, options);
         }
-// @ts-ignore
-export function useGetGoogleAuthUrlSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>): Apollo.UseSuspenseQueryResult<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>;
-export function useGetGoogleAuthUrlSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>): Apollo.UseSuspenseQueryResult<GetGoogleAuthUrlQuery | undefined, GetGoogleAuthUrlQueryVariables>;
 export function useGetGoogleAuthUrlSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>(GetGoogleAuthUrlDocument, options);
@@ -18962,9 +18931,6 @@ export function useBillableMetricActivityLogsLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>(BillableMetricActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useBillableMetricActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>;
-export function useBillableMetricActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<BillableMetricActivityLogsQuery | undefined, BillableMetricActivityLogsQueryVariables>;
 export function useBillableMetricActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>(BillableMetricActivityLogsDocument, options);
@@ -19006,9 +18972,6 @@ export function useGetBillableMetricForDetailsOverviewLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>(GetBillableMetricForDetailsOverviewDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>;
-export function useGetBillableMetricForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricForDetailsOverviewQuery | undefined, GetBillableMetricForDetailsOverviewQueryVariables>;
 export function useGetBillableMetricForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>(GetBillableMetricForDetailsOverviewDocument, options);
@@ -19049,9 +19012,6 @@ export function useGetBillableMetricToDeleteLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricToDeleteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>;
-export function useGetBillableMetricToDeleteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricToDeleteQuery | undefined, GetBillableMetricToDeleteQueryVariables>;
 export function useGetBillableMetricToDeleteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
@@ -19129,9 +19089,6 @@ export function useGetBillableMetricsForCouponsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>(GetBillableMetricsForCouponsDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricsForCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>;
-export function useGetBillableMetricsForCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForCouponsQuery | undefined, GetBillableMetricsForCouponsQueryVariables>;
 export function useGetBillableMetricsForCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>(GetBillableMetricsForCouponsDocument, options);
@@ -19176,9 +19133,6 @@ export function useGetPlansForCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>(GetPlansForCouponsDocument, options);
         }
-// @ts-ignore
-export function useGetPlansForCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>;
-export function useGetPlansForCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansForCouponsQuery | undefined, GetPlansForCouponsQueryVariables>;
 export function useGetPlansForCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>(GetPlansForCouponsDocument, options);
@@ -19233,9 +19187,6 @@ export function useCouponDetailsActivityLogsLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>(CouponDetailsActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useCouponDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>;
-export function useCouponDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CouponDetailsActivityLogsQuery | undefined, CouponDetailsActivityLogsQueryVariables>;
 export function useCouponDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>(CouponDetailsActivityLogsDocument, options);
@@ -19277,9 +19228,6 @@ export function useGetCouponForDetailsOverviewLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>(GetCouponForDetailsOverviewDocument, options);
         }
-// @ts-ignore
-export function useGetCouponForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>;
-export function useGetCouponForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponForDetailsOverviewQuery | undefined, GetCouponForDetailsOverviewQueryVariables>;
 export function useGetCouponForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>(GetCouponForDetailsOverviewDocument, options);
@@ -19320,9 +19268,6 @@ export function useGetCouponToDeleteLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>(GetCouponToDeleteDocument, options);
         }
-// @ts-ignore
-export function useGetCouponToDeleteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>;
-export function useGetCouponToDeleteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponToDeleteQuery | undefined, GetCouponToDeleteQueryVariables>;
 export function useGetCouponToDeleteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>(GetCouponToDeleteDocument, options);
@@ -19443,9 +19388,6 @@ export function useCreditNoteDetailsActivityLogsLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>(CreditNoteDetailsActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useCreditNoteDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>;
-export function useCreditNoteDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CreditNoteDetailsActivityLogsQuery | undefined, CreditNoteDetailsActivityLogsQueryVariables>;
 export function useCreditNoteDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>(CreditNoteDetailsActivityLogsDocument, options);
@@ -19492,9 +19434,6 @@ export function useGetCreditNoteForDetailsExternalSyncLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>(GetCreditNoteForDetailsExternalSyncDocument, options);
         }
-// @ts-ignore
-export function useGetCreditNoteForDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>;
-export function useGetCreditNoteForDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNoteForDetailsExternalSyncQuery | undefined, GetCreditNoteForDetailsExternalSyncQueryVariables>;
 export function useGetCreditNoteForDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>(GetCreditNoteForDetailsExternalSyncDocument, options);
@@ -19556,9 +19495,6 @@ export function useGetIntegrationsListForCreditNoteDetailsExternalSyncLazyQuery(
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>(GetIntegrationsListForCreditNoteDetailsExternalSyncDocument, options);
         }
-// @ts-ignore
-export function useGetIntegrationsListForCreditNoteDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>): Apollo.UseSuspenseQueryResult<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>;
-export function useGetIntegrationsListForCreditNoteDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>): Apollo.UseSuspenseQueryResult<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery | undefined, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>;
 export function useGetIntegrationsListForCreditNoteDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>(GetIntegrationsListForCreditNoteDetailsExternalSyncDocument, options);
@@ -19621,9 +19557,6 @@ export function useGetCreditNoteForDetailsOverviewLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>(GetCreditNoteForDetailsOverviewDocument, options);
         }
-// @ts-ignore
-export function useGetCreditNoteForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>;
-export function useGetCreditNoteForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNoteForDetailsOverviewQuery | undefined, GetCreditNoteForDetailsOverviewQueryVariables>;
 export function useGetCreditNoteForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>(GetCreditNoteForDetailsOverviewDocument, options);
@@ -19717,9 +19650,6 @@ export function useCreditNoteEstimateLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>(CreditNoteEstimateDocument, options);
         }
-// @ts-ignore
-export function useCreditNoteEstimateSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>): Apollo.UseSuspenseQueryResult<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>;
-export function useCreditNoteEstimateSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>): Apollo.UseSuspenseQueryResult<CreditNoteEstimateQuery | undefined, CreditNoteEstimateQueryVariables>;
 export function useCreditNoteEstimateSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>(CreditNoteEstimateDocument, options);
@@ -19781,9 +19711,6 @@ export function useGetPortalCustomerInfosLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
         }
-// @ts-ignore
-export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>;
-export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerInfosQuery | undefined, GetPortalCustomerInfosQueryVariables>;
 export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
@@ -19840,9 +19767,6 @@ export function useCustomerPortalInvoicesLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>(CustomerPortalInvoicesDocument, options);
         }
-// @ts-ignore
-export function useCustomerPortalInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>;
-export function useCustomerPortalInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPortalInvoicesQuery | undefined, CustomerPortalInvoicesQueryVariables>;
 export function useCustomerPortalInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>(CustomerPortalInvoicesDocument, options);
@@ -19921,9 +19845,6 @@ export function useGetCustomerPortalInvoicesCollectionLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>(GetCustomerPortalInvoicesCollectionDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerPortalInvoicesCollectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>;
-export function useGetCustomerPortalInvoicesCollectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalInvoicesCollectionQuery | undefined, GetCustomerPortalInvoicesCollectionQueryVariables>;
 export function useGetCustomerPortalInvoicesCollectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>(GetCustomerPortalInvoicesCollectionDocument, options);
@@ -19968,9 +19889,6 @@ export function useGetCustomerPortalOverdueBalancesLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>(GetCustomerPortalOverdueBalancesDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerPortalOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>;
-export function useGetCustomerPortalOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalOverdueBalancesQuery | undefined, GetCustomerPortalOverdueBalancesQueryVariables>;
 export function useGetCustomerPortalOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>(GetCustomerPortalOverdueBalancesDocument, options);
@@ -20010,9 +19928,6 @@ export function useGetCustomerPortalUserCurrencyLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>;
-export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalUserCurrencyQuery | undefined, GetCustomerPortalUserCurrencyQueryVariables>;
 export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
@@ -20064,9 +19979,6 @@ export function useGetPortalLocaleLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
         }
-// @ts-ignore
-export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>;
-export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalLocaleQuery | undefined, GetPortalLocaleQueryVariables>;
 export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
@@ -20141,9 +20053,6 @@ export function useGetSubscriptionForPortalLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>(GetSubscriptionForPortalDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionForPortalSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>;
-export function useGetSubscriptionForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForPortalQuery | undefined, GetSubscriptionForPortalQueryVariables>;
 export function useGetSubscriptionForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>(GetSubscriptionForPortalDocument, options);
@@ -20187,9 +20096,6 @@ export function useGetCustomerUsageForPortalLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>(GetCustomerUsageForPortalDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerUsageForPortalSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>;
-export function useGetCustomerUsageForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerUsageForPortalQuery | undefined, GetCustomerUsageForPortalQueryVariables>;
 export function useGetCustomerUsageForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>(GetCustomerUsageForPortalDocument, options);
@@ -20233,9 +20139,6 @@ export function useGetCustomerProjectedUsageForPortalLazyQuery(baseOptions?: Apo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>(GetCustomerProjectedUsageForPortalDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerProjectedUsageForPortalSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>;
-export function useGetCustomerProjectedUsageForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerProjectedUsageForPortalQuery | undefined, GetCustomerProjectedUsageForPortalQueryVariables>;
 export function useGetCustomerProjectedUsageForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerProjectedUsageForPortalQuery, GetCustomerProjectedUsageForPortalQueryVariables>(GetCustomerProjectedUsageForPortalDocument, options);
@@ -20279,9 +20182,6 @@ export function useGetPortalUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalUsageQuery, GetPortalUsageQueryVariables>(GetPortalUsageDocument, options);
         }
-// @ts-ignore
-export function useGetPortalUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalUsageQuery, GetPortalUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalUsageQuery, GetPortalUsageQueryVariables>;
-export function useGetPortalUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalUsageQuery, GetPortalUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalUsageQuery | undefined, GetPortalUsageQueryVariables>;
 export function useGetPortalUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalUsageQuery, GetPortalUsageQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalUsageQuery, GetPortalUsageQueryVariables>(GetPortalUsageDocument, options);
@@ -20327,9 +20227,6 @@ export function useCustomerPortalWalletLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomerPortalWalletQuery, CustomerPortalWalletQueryVariables>(CustomerPortalWalletDocument, options);
         }
-// @ts-ignore
-export function useCustomerPortalWalletSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerPortalWalletQuery, CustomerPortalWalletQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPortalWalletQuery, CustomerPortalWalletQueryVariables>;
-export function useCustomerPortalWalletSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPortalWalletQuery, CustomerPortalWalletQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPortalWalletQuery | undefined, CustomerPortalWalletQueryVariables>;
 export function useCustomerPortalWalletSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPortalWalletQuery, CustomerPortalWalletQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomerPortalWalletQuery, CustomerPortalWalletQueryVariables>(CustomerPortalWalletDocument, options);
@@ -20405,9 +20302,6 @@ export function useGetPortalCustomerDataLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
         }
-// @ts-ignore
-export function useGetPortalCustomerDataSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>;
-export function useGetPortalCustomerDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerDataQuery | undefined, GetPortalCustomerDataQueryVariables>;
 export function useGetPortalCustomerDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
@@ -20456,9 +20350,6 @@ export function useGetPortalWalletsLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>(GetPortalWalletsDocument, options);
         }
-// @ts-ignore
-export function useGetPortalWalletsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>;
-export function useGetPortalWalletsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalWalletsQuery | undefined, GetPortalWalletsQueryVariables>;
 export function useGetPortalWalletsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>(GetPortalWalletsDocument, options);
@@ -20524,9 +20415,6 @@ export function useGetCouponForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>(GetCouponForCustomerDocument, options);
         }
-// @ts-ignore
-export function useGetCouponForCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>;
-export function useGetCouponForCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponForCustomerQuery | undefined, GetCouponForCustomerQueryVariables>;
 export function useGetCouponForCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>(GetCouponForCustomerDocument, options);
@@ -20613,9 +20501,6 @@ export function useCustomerActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useCustomerActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>;
-export function useCustomerActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerActivityLogsQuery | undefined, CustomerActivityLogsQueryVariables>;
 export function useCustomerActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
@@ -20664,9 +20549,6 @@ export function useGetCustomerCreditNotesLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>(GetCustomerCreditNotesDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerCreditNotesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>;
-export function useGetCustomerCreditNotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerCreditNotesQuery | undefined, GetCustomerCreditNotesQueryVariables>;
 export function useGetCustomerCreditNotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>(GetCustomerCreditNotesDocument, options);
@@ -20744,9 +20626,6 @@ export function useIntegrationsListForCustomerMainInfosLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
         }
-// @ts-ignore
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery | undefined, IntegrationsListForCustomerMainInfosQueryVariables>;
 export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
@@ -20898,9 +20777,6 @@ export function useGetCustomerInvoicesLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>(GetCustomerInvoicesDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>;
-export function useGetCustomerInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInvoicesQuery | undefined, GetCustomerInvoicesQueryVariables>;
 export function useGetCustomerInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>(GetCustomerInvoicesDocument, options);
@@ -20972,9 +20848,6 @@ export function usePaymentProvidersListForCustomerMainInfosLazyQuery(baseOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
         }
-// @ts-ignore
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery | undefined, PaymentProvidersListForCustomerMainInfosQueryVariables>;
 export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
@@ -21103,9 +20976,6 @@ export function useGetCustomerSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>(GetCustomerSettingsDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>;
-export function useGetCustomerSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSettingsQuery | undefined, GetCustomerSettingsQueryVariables>;
 export function useGetCustomerSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>(GetCustomerSettingsDocument, options);
@@ -21392,9 +21262,6 @@ export function useGetApplicableDunningCampaignsLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>(GetApplicableDunningCampaignsDocument, options);
         }
-// @ts-ignore
-export function useGetApplicableDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>;
-export function useGetApplicableDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApplicableDunningCampaignsQuery | undefined, GetApplicableDunningCampaignsQueryVariables>;
 export function useGetApplicableDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>(GetApplicableDunningCampaignsDocument, options);
@@ -21551,9 +21418,6 @@ export function useGetTaxRatesForEditCustomerLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>(GetTaxRatesForEditCustomerDocument, options);
         }
-// @ts-ignore
-export function useGetTaxRatesForEditCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>;
-export function useGetTaxRatesForEditCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxRatesForEditCustomerQuery | undefined, GetTaxRatesForEditCustomerQueryVariables>;
 export function useGetTaxRatesForEditCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>(GetTaxRatesForEditCustomerDocument, options);
@@ -21664,9 +21528,6 @@ export function useGetCustomerCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>;
-export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerCouponsQuery | undefined, GetCustomerCouponsQueryVariables>;
 export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
@@ -21755,9 +21616,6 @@ export function useGetCustomerOverdueBalancesLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>;
-export function useGetCustomerOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerOverdueBalancesQuery | undefined, GetCustomerOverdueBalancesQueryVariables>;
 export function useGetCustomerOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
@@ -21809,9 +21667,6 @@ export function useGetCustomerGrossRevenuesLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>;
-export function useGetCustomerGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerGrossRevenuesQuery | undefined, GetCustomerGrossRevenuesQueryVariables>;
 export function useGetCustomerGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
@@ -21889,9 +21744,6 @@ export function useGetCustomerSubscriptionForListLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>(GetCustomerSubscriptionForListDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerSubscriptionForListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>;
-export function useGetCustomerSubscriptionForListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSubscriptionForListQuery | undefined, GetCustomerSubscriptionForListQueryVariables>;
 export function useGetCustomerSubscriptionForListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>(GetCustomerSubscriptionForListDocument, options);
@@ -22018,9 +21870,6 @@ export function useGetInvoicesForTerminationLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>(GetInvoicesForTerminationDocument, options);
         }
-// @ts-ignore
-export function useGetInvoicesForTerminationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>;
-export function useGetInvoicesForTerminationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoicesForTerminationQuery | undefined, GetInvoicesForTerminationQueryVariables>;
 export function useGetInvoicesForTerminationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>(GetInvoicesForTerminationDocument, options);
@@ -22063,9 +21912,6 @@ export function useGetCustomerSubscriptionForUsageLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>(GetCustomerSubscriptionForUsageDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerSubscriptionForUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>;
-export function useGetCustomerSubscriptionForUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSubscriptionForUsageQuery | undefined, GetCustomerSubscriptionForUsageQueryVariables>;
 export function useGetCustomerSubscriptionForUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>(GetCustomerSubscriptionForUsageDocument, options);
@@ -22108,9 +21954,6 @@ export function useGetApiKeyIdsForFilterItemApiKeyIdsLazyQuery(baseOptions?: Apo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>(GetApiKeyIdsForFilterItemApiKeyIdsDocument, options);
         }
-// @ts-ignore
-export function useGetApiKeyIdsForFilterItemApiKeyIdsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>;
-export function useGetApiKeyIdsForFilterItemApiKeyIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeyIdsForFilterItemApiKeyIdsQuery | undefined, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>;
 export function useGetApiKeyIdsForFilterItemApiKeyIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>(GetApiKeyIdsForFilterItemApiKeyIdsDocument, options);
@@ -22167,9 +22010,6 @@ export function useGetCustomersForFilterItemCustomerLazyQuery(baseOptions?: Apol
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>(GetCustomersForFilterItemCustomerDocument, options);
         }
-// @ts-ignore
-export function useGetCustomersForFilterItemCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>;
-export function useGetCustomersForFilterItemCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForFilterItemCustomerQuery | undefined, GetCustomersForFilterItemCustomerQueryVariables>;
 export function useGetCustomersForFilterItemCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>(GetCustomersForFilterItemCustomerDocument, options);
@@ -22219,9 +22059,6 @@ export function useGetInvoiceNumbersForFilterItemInvoiceNumbersLazyQuery(baseOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>(GetInvoiceNumbersForFilterItemInvoiceNumbersDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>;
-export function useGetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery | undefined, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>;
 export function useGetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>(GetInvoiceNumbersForFilterItemInvoiceNumbersDocument, options);
@@ -22272,9 +22109,6 @@ export function useGetPlansForFiltersItemPlanCodeLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>(GetPlansForFiltersItemPlanCodeDocument, options);
         }
-// @ts-ignore
-export function useGetPlansForFiltersItemPlanCodeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>;
-export function useGetPlansForFiltersItemPlanCodeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansForFiltersItemPlanCodeQuery | undefined, GetPlansForFiltersItemPlanCodeQueryVariables>;
 export function useGetPlansForFiltersItemPlanCodeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>(GetPlansForFiltersItemPlanCodeDocument, options);
@@ -22316,9 +22150,6 @@ export function useGetSingleActivityLogLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>(GetSingleActivityLogDocument, options);
         }
-// @ts-ignore
-export function useGetSingleActivityLogSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>;
-export function useGetSingleActivityLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleActivityLogQuery | undefined, GetSingleActivityLogQueryVariables>;
 export function useGetSingleActivityLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>(GetSingleActivityLogDocument, options);
@@ -22359,9 +22190,6 @@ export function useGetCustomerIdForActivityLogDetailsLazyQuery(baseOptions?: Apo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>(GetCustomerIdForActivityLogDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>;
-export function useGetCustomerIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerIdForActivityLogDetailsQuery | undefined, GetCustomerIdForActivityLogDetailsQueryVariables>;
 export function useGetCustomerIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>(GetCustomerIdForActivityLogDetailsDocument, options);
@@ -22402,9 +22230,6 @@ export function useGetSubscriptionIdForActivityLogDetailsLazyQuery(baseOptions?:
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>(GetSubscriptionIdForActivityLogDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>;
-export function useGetSubscriptionIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionIdForActivityLogDetailsQuery | undefined, GetSubscriptionIdForActivityLogDetailsQueryVariables>;
 export function useGetSubscriptionIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>(GetSubscriptionIdForActivityLogDetailsDocument, options);
@@ -22477,9 +22302,6 @@ export function useActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<ActivityLogsQuery, ActivityLogsQueryVariables>(ActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ActivityLogsQuery, ActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ActivityLogsQuery, ActivityLogsQueryVariables>;
-export function useActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ActivityLogsQuery, ActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ActivityLogsQuery | undefined, ActivityLogsQueryVariables>;
 export function useActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ActivityLogsQuery, ActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<ActivityLogsQuery, ActivityLogsQueryVariables>(ActivityLogsDocument, options);
@@ -22521,9 +22343,6 @@ export function useGetOrganizationInfosForApiKeyLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>(GetOrganizationInfosForApiKeyDocument, options);
         }
-// @ts-ignore
-export function useGetOrganizationInfosForApiKeySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>;
-export function useGetOrganizationInfosForApiKeySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationInfosForApiKeyQuery | undefined, GetOrganizationInfosForApiKeyQueryVariables>;
 export function useGetOrganizationInfosForApiKeySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>(GetOrganizationInfosForApiKeyDocument, options);
@@ -22580,9 +22399,6 @@ export function useGetApiKeysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetApiKeysQuery, GetApiKeysQueryVariables>(GetApiKeysDocument, options);
         }
-// @ts-ignore
-export function useGetApiKeysSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetApiKeysQuery, GetApiKeysQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeysQuery, GetApiKeysQueryVariables>;
-export function useGetApiKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeysQuery, GetApiKeysQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeysQuery | undefined, GetApiKeysQueryVariables>;
 export function useGetApiKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeysQuery, GetApiKeysQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetApiKeysQuery, GetApiKeysQueryVariables>(GetApiKeysDocument, options);
@@ -22624,9 +22440,6 @@ export function useGetApiKeyValueLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>(GetApiKeyValueDocument, options);
         }
-// @ts-ignore
-export function useGetApiKeyValueSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>;
-export function useGetApiKeyValueSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeyValueQuery | undefined, GetApiKeyValueQueryVariables>;
 export function useGetApiKeyValueSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>(GetApiKeyValueDocument, options);
@@ -22734,9 +22547,6 @@ export function useGetApiLogDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>(GetApiLogDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetApiLogDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>;
-export function useGetApiLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiLogDetailsQuery | undefined, GetApiLogDetailsQueryVariables>;
 export function useGetApiLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>(GetApiLogDetailsDocument, options);
@@ -22801,9 +22611,6 @@ export function useGetApiLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetApiLogsQuery, GetApiLogsQueryVariables>(GetApiLogsDocument, options);
         }
-// @ts-ignore
-export function useGetApiLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetApiLogsQuery, GetApiLogsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiLogsQuery, GetApiLogsQueryVariables>;
-export function useGetApiLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiLogsQuery, GetApiLogsQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiLogsQuery | undefined, GetApiLogsQueryVariables>;
 export function useGetApiLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiLogsQuery, GetApiLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetApiLogsQuery, GetApiLogsQueryVariables>(GetApiLogsDocument, options);
@@ -22845,9 +22652,6 @@ export function useGetSingleEventLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleEventQuery, GetSingleEventQueryVariables>(GetSingleEventDocument, options);
         }
-// @ts-ignore
-export function useGetSingleEventSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleEventQuery, GetSingleEventQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleEventQuery, GetSingleEventQueryVariables>;
-export function useGetSingleEventSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleEventQuery, GetSingleEventQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleEventQuery | undefined, GetSingleEventQueryVariables>;
 export function useGetSingleEventSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleEventQuery, GetSingleEventQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleEventQuery, GetSingleEventQueryVariables>(GetSingleEventDocument, options);
@@ -22895,9 +22699,6 @@ export function useEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Eve
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
         }
-// @ts-ignore
-export function useEventsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>): Apollo.UseSuspenseQueryResult<EventsQuery, EventsQueryVariables>;
-export function useEventsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>): Apollo.UseSuspenseQueryResult<EventsQuery | undefined, EventsQueryVariables>;
 export function useEventsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
@@ -23073,9 +22874,6 @@ export function useGetSingleWebhookLogLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>(GetSingleWebhookLogDocument, options);
         }
-// @ts-ignore
-export function useGetSingleWebhookLogSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>;
-export function useGetSingleWebhookLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleWebhookLogQuery | undefined, GetSingleWebhookLogQueryVariables>;
 export function useGetSingleWebhookLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>(GetSingleWebhookLogDocument, options);
@@ -23117,9 +22915,6 @@ export function useGetWebhookInformationsLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
         }
-// @ts-ignore
-export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>;
-export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookInformationsQuery | undefined, GetWebhookInformationsQueryVariables>;
 export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
@@ -23177,9 +22972,6 @@ export function useGetWebhookLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWebhookLogQuery, GetWebhookLogQueryVariables>(GetWebhookLogDocument, options);
         }
-// @ts-ignore
-export function useGetWebhookLogSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookLogQuery, GetWebhookLogQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookLogQuery, GetWebhookLogQueryVariables>;
-export function useGetWebhookLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookLogQuery, GetWebhookLogQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookLogQuery | undefined, GetWebhookLogQueryVariables>;
 export function useGetWebhookLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookLogQuery, GetWebhookLogQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWebhookLogQuery, GetWebhookLogQueryVariables>(GetWebhookLogDocument, options);
@@ -23220,9 +23012,6 @@ export function useGetOrganizationHmacDataLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
         }
-// @ts-ignore
-export function useGetOrganizationHmacDataSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>;
-export function useGetOrganizationHmacDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationHmacDataQuery | undefined, GetOrganizationHmacDataQueryVariables>;
 export function useGetOrganizationHmacDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
@@ -23267,9 +23056,6 @@ export function useGetWebhookListLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWebhookListQuery, GetWebhookListQueryVariables>(GetWebhookListDocument, options);
         }
-// @ts-ignore
-export function useGetWebhookListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookListQuery, GetWebhookListQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookListQuery, GetWebhookListQueryVariables>;
-export function useGetWebhookListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookListQuery, GetWebhookListQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookListQuery | undefined, GetWebhookListQueryVariables>;
 export function useGetWebhookListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookListQuery, GetWebhookListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWebhookListQuery, GetWebhookListQueryVariables>(GetWebhookListDocument, options);
@@ -23357,9 +23143,6 @@ export function useFeatureDetailsActivityLogsLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>(FeatureDetailsActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useFeatureDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>;
-export function useFeatureDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<FeatureDetailsActivityLogsQuery | undefined, FeatureDetailsActivityLogsQueryVariables>;
 export function useFeatureDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<FeatureDetailsActivityLogsQuery, FeatureDetailsActivityLogsQueryVariables>(FeatureDetailsActivityLogsDocument, options);
@@ -23400,9 +23183,6 @@ export function useGetFeatureForDetailsOverviewLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetFeatureForDetailsOverviewQuery, GetFeatureForDetailsOverviewQueryVariables>(GetFeatureForDetailsOverviewDocument, options);
         }
-// @ts-ignore
-export function useGetFeatureForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFeatureForDetailsOverviewQuery, GetFeatureForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureForDetailsOverviewQuery, GetFeatureForDetailsOverviewQueryVariables>;
-export function useGetFeatureForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureForDetailsOverviewQuery, GetFeatureForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureForDetailsOverviewQuery | undefined, GetFeatureForDetailsOverviewQueryVariables>;
 export function useGetFeatureForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureForDetailsOverviewQuery, GetFeatureForDetailsOverviewQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetFeatureForDetailsOverviewQuery, GetFeatureForDetailsOverviewQueryVariables>(GetFeatureForDetailsOverviewDocument, options);
@@ -23453,9 +23233,6 @@ export function useGetGrossRevenuesLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>(GetGrossRevenuesDocument, options);
         }
-// @ts-ignore
-export function useGetGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>): Apollo.UseSuspenseQueryResult<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>;
-export function useGetGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>): Apollo.UseSuspenseQueryResult<GetGrossRevenuesQuery | undefined, GetGrossRevenuesQueryVariables>;
 export function useGetGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>(GetGrossRevenuesDocument, options);
@@ -23502,9 +23279,6 @@ export function useGetInvoiceCollectionsLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceCollectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>;
-export function useGetInvoiceCollectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCollectionsQuery | undefined, GetInvoiceCollectionsQueryVariables>;
 export function useGetInvoiceCollectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
@@ -23549,9 +23323,6 @@ export function useGetMrrLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Get
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMrrQuery, GetMrrQueryVariables>(GetMrrDocument, options);
         }
-// @ts-ignore
-export function useGetMrrSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMrrQuery, GetMrrQueryVariables>): Apollo.UseSuspenseQueryResult<GetMrrQuery, GetMrrQueryVariables>;
-export function useGetMrrSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrQuery, GetMrrQueryVariables>): Apollo.UseSuspenseQueryResult<GetMrrQuery | undefined, GetMrrQueryVariables>;
 export function useGetMrrSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrQuery, GetMrrQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMrrQuery, GetMrrQueryVariables>(GetMrrDocument, options);
@@ -23603,9 +23374,6 @@ export function useGetOverdueLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
         }
-// @ts-ignore
-export function useGetOverdueSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>): Apollo.UseSuspenseQueryResult<GetOverdueQuery, GetOverdueQueryVariables>;
-export function useGetOverdueSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>): Apollo.UseSuspenseQueryResult<GetOverdueQuery | undefined, GetOverdueQueryVariables>;
 export function useGetOverdueSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
@@ -23651,9 +23419,6 @@ export function useGetInvoicedUsagesLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>(GetInvoicedUsagesDocument, options);
         }
-// @ts-ignore
-export function useGetInvoicedUsagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>;
-export function useGetInvoicedUsagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoicedUsagesQuery | undefined, GetInvoicedUsagesQueryVariables>;
 export function useGetInvoicedUsagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>(GetInvoicedUsagesDocument, options);
@@ -23729,9 +23494,6 @@ export function useGetInvoiceMetadataForEditionLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceMetadataForEditionQuery, GetInvoiceMetadataForEditionQueryVariables>(GetInvoiceMetadataForEditionDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceMetadataForEditionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceMetadataForEditionQuery, GetInvoiceMetadataForEditionQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceMetadataForEditionQuery, GetInvoiceMetadataForEditionQueryVariables>;
-export function useGetInvoiceMetadataForEditionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceMetadataForEditionQuery, GetInvoiceMetadataForEditionQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceMetadataForEditionQuery | undefined, GetInvoiceMetadataForEditionQueryVariables>;
 export function useGetInvoiceMetadataForEditionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceMetadataForEditionQuery, GetInvoiceMetadataForEditionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceMetadataForEditionQuery, GetInvoiceMetadataForEditionQueryVariables>(GetInvoiceMetadataForEditionDocument, options);
@@ -23815,9 +23577,6 @@ export function useGetTaxesForInvoiceEditTaxDialogLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>(GetTaxesForInvoiceEditTaxDialogDocument, options);
         }
-// @ts-ignore
-export function useGetTaxesForInvoiceEditTaxDialogSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>;
-export function useGetTaxesForInvoiceEditTaxDialogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForInvoiceEditTaxDialogQuery | undefined, GetTaxesForInvoiceEditTaxDialogQueryVariables>;
 export function useGetTaxesForInvoiceEditTaxDialogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>(GetTaxesForInvoiceEditTaxDialogDocument, options);
@@ -23944,9 +23703,6 @@ export function useInvoiceActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>(InvoiceActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useInvoiceActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>;
-export function useInvoiceActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<InvoiceActivityLogsQuery | undefined, InvoiceActivityLogsQueryVariables>;
 export function useInvoiceActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>(InvoiceActivityLogsDocument, options);
@@ -24005,9 +23761,6 @@ export function useGetInvoiceCreditNotesLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(GetInvoiceCreditNotesDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceCreditNotesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>;
-export function useGetInvoiceCreditNotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCreditNotesQuery | undefined, GetInvoiceCreditNotesQueryVariables>;
 export function useGetInvoiceCreditNotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(GetInvoiceCreditNotesDocument, options);
@@ -24055,9 +23808,6 @@ export function useGetInvoiceMetadatasLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceMetadatasQuery, GetInvoiceMetadatasQueryVariables>(GetInvoiceMetadatasDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceMetadatasSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceMetadatasQuery, GetInvoiceMetadatasQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceMetadatasQuery, GetInvoiceMetadatasQueryVariables>;
-export function useGetInvoiceMetadatasSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceMetadatasQuery, GetInvoiceMetadatasQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceMetadatasQuery | undefined, GetInvoiceMetadatasQueryVariables>;
 export function useGetInvoiceMetadatasSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceMetadatasQuery, GetInvoiceMetadatasQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceMetadatasQuery, GetInvoiceMetadatasQueryVariables>(GetInvoiceMetadatasDocument, options);
@@ -24171,9 +23921,6 @@ export function useGetInvoiceDetailsForCreateFeeDrawerLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceDetailsForCreateFeeDrawerQuery, GetInvoiceDetailsForCreateFeeDrawerQueryVariables>(GetInvoiceDetailsForCreateFeeDrawerDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceDetailsForCreateFeeDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsForCreateFeeDrawerQuery, GetInvoiceDetailsForCreateFeeDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceDetailsForCreateFeeDrawerQuery, GetInvoiceDetailsForCreateFeeDrawerQueryVariables>;
-export function useGetInvoiceDetailsForCreateFeeDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsForCreateFeeDrawerQuery, GetInvoiceDetailsForCreateFeeDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceDetailsForCreateFeeDrawerQuery | undefined, GetInvoiceDetailsForCreateFeeDrawerQueryVariables>;
 export function useGetInvoiceDetailsForCreateFeeDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsForCreateFeeDrawerQuery, GetInvoiceDetailsForCreateFeeDrawerQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceDetailsForCreateFeeDrawerQuery, GetInvoiceDetailsForCreateFeeDrawerQueryVariables>(GetInvoiceDetailsForCreateFeeDrawerDocument, options);
@@ -24321,9 +24068,6 @@ export function useGetTaxesForCommitmentsLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>(GetTaxesForCommitmentsDocument, options);
         }
-// @ts-ignore
-export function useGetTaxesForCommitmentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>;
-export function useGetTaxesForCommitmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForCommitmentsQuery | undefined, GetTaxesForCommitmentsQueryVariables>;
 export function useGetTaxesForCommitmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>(GetTaxesForCommitmentsDocument, options);
@@ -24404,9 +24148,6 @@ export function useGetFeaturesListForPlanSectionLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetFeaturesListForPlanSectionQuery, GetFeaturesListForPlanSectionQueryVariables>(GetFeaturesListForPlanSectionDocument, options);
         }
-// @ts-ignore
-export function useGetFeaturesListForPlanSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFeaturesListForPlanSectionQuery, GetFeaturesListForPlanSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeaturesListForPlanSectionQuery, GetFeaturesListForPlanSectionQueryVariables>;
-export function useGetFeaturesListForPlanSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeaturesListForPlanSectionQuery, GetFeaturesListForPlanSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeaturesListForPlanSectionQuery | undefined, GetFeaturesListForPlanSectionQueryVariables>;
 export function useGetFeaturesListForPlanSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeaturesListForPlanSectionQuery, GetFeaturesListForPlanSectionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetFeaturesListForPlanSectionQuery, GetFeaturesListForPlanSectionQueryVariables>(GetFeaturesListForPlanSectionDocument, options);
@@ -24447,9 +24188,6 @@ export function useGetFeatureDetailsForFeatureEntitlementPrivilegeSectionLazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery, GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables>(GetFeatureDetailsForFeatureEntitlementPrivilegeSectionDocument, options);
         }
-// @ts-ignore
-export function useGetFeatureDetailsForFeatureEntitlementPrivilegeSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery, GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery, GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables>;
-export function useGetFeatureDetailsForFeatureEntitlementPrivilegeSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery, GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery | undefined, GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables>;
 export function useGetFeatureDetailsForFeatureEntitlementPrivilegeSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery, GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery, GetFeatureDetailsForFeatureEntitlementPrivilegeSectionQueryVariables>(GetFeatureDetailsForFeatureEntitlementPrivilegeSectionDocument, options);
@@ -24499,9 +24237,6 @@ export function useGetTaxesForPlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>(GetTaxesForPlanDocument, options);
         }
-// @ts-ignore
-export function useGetTaxesForPlanSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>;
-export function useGetTaxesForPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForPlanQuery | undefined, GetTaxesForPlanQueryVariables>;
 export function useGetTaxesForPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>(GetTaxesForPlanDocument, options);
@@ -24552,9 +24287,6 @@ export function useGetMeteredBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>(GetMeteredBillableMetricsDocument, options);
         }
-// @ts-ignore
-export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>;
-export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMeteredBillableMetricsQuery | undefined, GetMeteredBillableMetricsQueryVariables>;
 export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>(GetMeteredBillableMetricsDocument, options);
@@ -24605,9 +24337,6 @@ export function useGetRecurringBillableMetricsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>(GetRecurringBillableMetricsDocument, options);
         }
-// @ts-ignore
-export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>;
-export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRecurringBillableMetricsQuery | undefined, GetRecurringBillableMetricsQueryVariables>;
 export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>(GetRecurringBillableMetricsDocument, options);
@@ -24662,9 +24391,6 @@ export function usePlanDetailsActivityLogsLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>(PlanDetailsActivityLogsDocument, options);
         }
-// @ts-ignore
-export function usePlanDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>;
-export function usePlanDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<PlanDetailsActivityLogsQuery | undefined, PlanDetailsActivityLogsQueryVariables>;
 export function usePlanDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>(PlanDetailsActivityLogsDocument, options);
@@ -24705,9 +24431,6 @@ export function useGetPlanForDetailsOverviewSectionLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
         }
-// @ts-ignore
-export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>;
-export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsOverviewSectionQuery | undefined, GetPlanForDetailsOverviewSectionQueryVariables>;
 export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
@@ -24771,9 +24494,6 @@ export function useGetSubscribtionsForPlanDetailsLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>(GetSubscribtionsForPlanDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetSubscribtionsForPlanDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>;
-export function useGetSubscribtionsForPlanDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscribtionsForPlanDetailsQuery | undefined, GetSubscribtionsForPlanDetailsQueryVariables>;
 export function useGetSubscribtionsForPlanDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>(GetSubscribtionsForPlanDetailsDocument, options);
@@ -24823,9 +24543,6 @@ export function useGetAddOnsForFixedChargesSectionLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForFixedChargesSectionQuery, GetAddOnsForFixedChargesSectionQueryVariables>(GetAddOnsForFixedChargesSectionDocument, options);
         }
-// @ts-ignore
-export function useGetAddOnsForFixedChargesSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForFixedChargesSectionQuery, GetAddOnsForFixedChargesSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForFixedChargesSectionQuery, GetAddOnsForFixedChargesSectionQueryVariables>;
-export function useGetAddOnsForFixedChargesSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForFixedChargesSectionQuery, GetAddOnsForFixedChargesSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForFixedChargesSectionQuery | undefined, GetAddOnsForFixedChargesSectionQueryVariables>;
 export function useGetAddOnsForFixedChargesSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForFixedChargesSectionQuery, GetAddOnsForFixedChargesSectionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForFixedChargesSectionQuery, GetAddOnsForFixedChargesSectionQueryVariables>(GetAddOnsForFixedChargesSectionDocument, options);
@@ -24997,9 +24714,6 @@ export function useGetOrganizationInfoForPreviewDunningCampaignLazyQuery(baseOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>(GetOrganizationInfoForPreviewDunningCampaignDocument, options);
         }
-// @ts-ignore
-export function useGetOrganizationInfoForPreviewDunningCampaignSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>;
-export function useGetOrganizationInfoForPreviewDunningCampaignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationInfoForPreviewDunningCampaignQuery | undefined, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>;
 export function useGetOrganizationInfoForPreviewDunningCampaignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>(GetOrganizationInfoForPreviewDunningCampaignDocument, options);
@@ -25091,9 +24805,6 @@ export function useGetProviderByCodeForAdyenLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>(GetProviderByCodeForAdyenDocument, options);
         }
-// @ts-ignore
-export function useGetProviderByCodeForAdyenSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>;
-export function useGetProviderByCodeForAdyenSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForAdyenQuery | undefined, GetProviderByCodeForAdyenQueryVariables>;
 export function useGetProviderByCodeForAdyenSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>(GetProviderByCodeForAdyenDocument, options);
@@ -25366,9 +25077,6 @@ export function useGetProviderByCodeForCashfreeLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForCashfreeQuery, GetProviderByCodeForCashfreeQueryVariables>(GetProviderByCodeForCashfreeDocument, options);
         }
-// @ts-ignore
-export function useGetProviderByCodeForCashfreeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForCashfreeQuery, GetProviderByCodeForCashfreeQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForCashfreeQuery, GetProviderByCodeForCashfreeQueryVariables>;
-export function useGetProviderByCodeForCashfreeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForCashfreeQuery, GetProviderByCodeForCashfreeQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForCashfreeQuery | undefined, GetProviderByCodeForCashfreeQueryVariables>;
 export function useGetProviderByCodeForCashfreeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForCashfreeQuery, GetProviderByCodeForCashfreeQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForCashfreeQuery, GetProviderByCodeForCashfreeQueryVariables>(GetProviderByCodeForCashfreeDocument, options);
@@ -25702,9 +25410,6 @@ export function useGetProviderByCodeForFlutterwaveLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>(GetProviderByCodeForFlutterwaveDocument, options);
         }
-// @ts-ignore
-export function useGetProviderByCodeForFlutterwaveSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>;
-export function useGetProviderByCodeForFlutterwaveSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForFlutterwaveQuery | undefined, GetProviderByCodeForFlutterwaveQueryVariables>;
 export function useGetProviderByCodeForFlutterwaveSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>(GetProviderByCodeForFlutterwaveDocument, options);
@@ -25830,9 +25535,6 @@ export function useGetProviderByCodeForGocardlessLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>(GetProviderByCodeForGocardlessDocument, options);
         }
-// @ts-ignore
-export function useGetProviderByCodeForGocardlessSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>;
-export function useGetProviderByCodeForGocardlessSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForGocardlessQuery | undefined, GetProviderByCodeForGocardlessQueryVariables>;
 export function useGetProviderByCodeForGocardlessSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>(GetProviderByCodeForGocardlessDocument, options);
@@ -25992,9 +25694,6 @@ export function useGetProviderByCodeForMoneyhashLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForMoneyhashQuery, GetProviderByCodeForMoneyhashQueryVariables>(GetProviderByCodeForMoneyhashDocument, options);
         }
-// @ts-ignore
-export function useGetProviderByCodeForMoneyhashSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForMoneyhashQuery, GetProviderByCodeForMoneyhashQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForMoneyhashQuery, GetProviderByCodeForMoneyhashQueryVariables>;
-export function useGetProviderByCodeForMoneyhashSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForMoneyhashQuery, GetProviderByCodeForMoneyhashQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForMoneyhashQuery | undefined, GetProviderByCodeForMoneyhashQueryVariables>;
 export function useGetProviderByCodeForMoneyhashSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForMoneyhashQuery, GetProviderByCodeForMoneyhashQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForMoneyhashQuery, GetProviderByCodeForMoneyhashQueryVariables>(GetProviderByCodeForMoneyhashDocument, options);
@@ -26256,9 +25955,6 @@ export function useGetProviderByCodeForStripeLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>(GetProviderByCodeForStripeDocument, options);
         }
-// @ts-ignore
-export function useGetProviderByCodeForStripeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>;
-export function useGetProviderByCodeForStripeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForStripeQuery | undefined, GetProviderByCodeForStripeQueryVariables>;
 export function useGetProviderByCodeForStripeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>(GetProviderByCodeForStripeDocument, options);
@@ -26440,9 +26136,6 @@ export function useGetAnrokIntegrationCollectionMappingsLazyQuery(baseOptions?: 
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
         }
-// @ts-ignore
-export function useGetAnrokIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>;
-export function useGetAnrokIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationCollectionMappingsQuery | undefined, GetAnrokIntegrationCollectionMappingsQueryVariables>;
 export function useGetAnrokIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
@@ -26493,9 +26186,6 @@ export function useGetAddOnsForAnrokItemsListLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetAddOnsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>;
-export function useGetAddOnsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForAnrokItemsListQuery | undefined, GetAddOnsForAnrokItemsListQueryVariables>;
 export function useGetAddOnsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
@@ -26546,9 +26236,6 @@ export function useGetBillableMetricsForAnrokItemsListLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>;
-export function useGetBillableMetricsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForAnrokItemsListQuery | undefined, GetBillableMetricsForAnrokItemsListQueryVariables>;
 export function useGetBillableMetricsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
@@ -26604,9 +26291,6 @@ export function useGetAnrokIntegrationsSettingsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
         }
-// @ts-ignore
-export function useGetAnrokIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>;
-export function useGetAnrokIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationsSettingsQuery | undefined, GetAnrokIntegrationsSettingsQueryVariables>;
 export function useGetAnrokIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
@@ -26685,9 +26369,6 @@ export function useGetAvalaraIntegrationCollectionMappingsLazyQuery(baseOptions?
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAvalaraIntegrationCollectionMappingsQuery, GetAvalaraIntegrationCollectionMappingsQueryVariables>(GetAvalaraIntegrationCollectionMappingsDocument, options);
         }
-// @ts-ignore
-export function useGetAvalaraIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationCollectionMappingsQuery, GetAvalaraIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationCollectionMappingsQuery, GetAvalaraIntegrationCollectionMappingsQueryVariables>;
-export function useGetAvalaraIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationCollectionMappingsQuery, GetAvalaraIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationCollectionMappingsQuery | undefined, GetAvalaraIntegrationCollectionMappingsQueryVariables>;
 export function useGetAvalaraIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationCollectionMappingsQuery, GetAvalaraIntegrationCollectionMappingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAvalaraIntegrationCollectionMappingsQuery, GetAvalaraIntegrationCollectionMappingsQueryVariables>(GetAvalaraIntegrationCollectionMappingsDocument, options);
@@ -26738,9 +26419,6 @@ export function useGetAddOnsForAvalaraItemsListLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForAvalaraItemsListQuery, GetAddOnsForAvalaraItemsListQueryVariables>(GetAddOnsForAvalaraItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetAddOnsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForAvalaraItemsListQuery, GetAddOnsForAvalaraItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForAvalaraItemsListQuery, GetAddOnsForAvalaraItemsListQueryVariables>;
-export function useGetAddOnsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForAvalaraItemsListQuery, GetAddOnsForAvalaraItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForAvalaraItemsListQuery | undefined, GetAddOnsForAvalaraItemsListQueryVariables>;
 export function useGetAddOnsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForAvalaraItemsListQuery, GetAddOnsForAvalaraItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForAvalaraItemsListQuery, GetAddOnsForAvalaraItemsListQueryVariables>(GetAddOnsForAvalaraItemsListDocument, options);
@@ -26791,9 +26469,6 @@ export function useGetBillableMetricsForAvalaraItemsListLazyQuery(baseOptions?: 
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForAvalaraItemsListQuery, GetBillableMetricsForAvalaraItemsListQueryVariables>(GetBillableMetricsForAvalaraItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAvalaraItemsListQuery, GetBillableMetricsForAvalaraItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForAvalaraItemsListQuery, GetBillableMetricsForAvalaraItemsListQueryVariables>;
-export function useGetBillableMetricsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAvalaraItemsListQuery, GetBillableMetricsForAvalaraItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForAvalaraItemsListQuery | undefined, GetBillableMetricsForAvalaraItemsListQueryVariables>;
 export function useGetBillableMetricsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAvalaraItemsListQuery, GetBillableMetricsForAvalaraItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForAvalaraItemsListQuery, GetBillableMetricsForAvalaraItemsListQueryVariables>(GetBillableMetricsForAvalaraItemsListDocument, options);
@@ -26849,9 +26524,6 @@ export function useGetAvalaraIntegrationSettingsLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>(GetAvalaraIntegrationSettingsDocument, options);
         }
-// @ts-ignore
-export function useGetAvalaraIntegrationSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>;
-export function useGetAvalaraIntegrationSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationSettingsQuery | undefined, GetAvalaraIntegrationSettingsQueryVariables>;
 export function useGetAvalaraIntegrationSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>(GetAvalaraIntegrationSettingsDocument, options);
@@ -27194,9 +26866,6 @@ export function useGetNetsuiteIntegrationCollectionMappingsLazyQuery(baseOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
         }
-// @ts-ignore
-export function useGetNetsuiteIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>;
-export function useGetNetsuiteIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationCollectionMappingsQuery | undefined, GetNetsuiteIntegrationCollectionMappingsQueryVariables>;
 export function useGetNetsuiteIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
@@ -27247,9 +26916,6 @@ export function useGetAddOnsForNetsuiteItemsListLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>(GetAddOnsForNetsuiteItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetAddOnsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>;
-export function useGetAddOnsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForNetsuiteItemsListQuery | undefined, GetAddOnsForNetsuiteItemsListQueryVariables>;
 export function useGetAddOnsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>(GetAddOnsForNetsuiteItemsListDocument, options);
@@ -27300,9 +26966,6 @@ export function useGetBillableMetricsForNetsuiteItemsListLazyQuery(baseOptions?:
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>(GetBillableMetricsForNetsuiteItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>;
-export function useGetBillableMetricsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForNetsuiteItemsListQuery | undefined, GetBillableMetricsForNetsuiteItemsListQueryVariables>;
 export function useGetBillableMetricsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>(GetBillableMetricsForNetsuiteItemsListDocument, options);
@@ -27359,9 +27022,6 @@ export function useGetNetsuiteIntegrationsSettingsLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
         }
-// @ts-ignore
-export function useGetNetsuiteIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>;
-export function useGetNetsuiteIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationsSettingsQuery | undefined, GetNetsuiteIntegrationsSettingsQueryVariables>;
 export function useGetNetsuiteIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
@@ -27405,9 +27065,6 @@ export function useGetXeroIntegrationCollectionMappingsLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>(GetXeroIntegrationCollectionMappingsDocument, options);
         }
-// @ts-ignore
-export function useGetXeroIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>;
-export function useGetXeroIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationCollectionMappingsQuery | undefined, GetXeroIntegrationCollectionMappingsQueryVariables>;
 export function useGetXeroIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>(GetXeroIntegrationCollectionMappingsDocument, options);
@@ -27458,9 +27115,6 @@ export function useGetAddOnsForXeroItemsListLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>(GetAddOnsForXeroItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetAddOnsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>;
-export function useGetAddOnsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForXeroItemsListQuery | undefined, GetAddOnsForXeroItemsListQueryVariables>;
 export function useGetAddOnsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>(GetAddOnsForXeroItemsListDocument, options);
@@ -27511,9 +27165,6 @@ export function useGetBillableMetricsForXeroItemsListLazyQuery(baseOptions?: Apo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>(GetBillableMetricsForXeroItemsListDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>;
-export function useGetBillableMetricsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForXeroItemsListQuery | undefined, GetBillableMetricsForXeroItemsListQueryVariables>;
 export function useGetBillableMetricsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>(GetBillableMetricsForXeroItemsListDocument, options);
@@ -27570,9 +27221,6 @@ export function useGetXeroIntegrationsSettingsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>(GetXeroIntegrationsSettingsDocument, options);
         }
-// @ts-ignore
-export function useGetXeroIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>;
-export function useGetXeroIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationsSettingsQuery | undefined, GetXeroIntegrationsSettingsQueryVariables>;
 export function useGetXeroIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>(GetXeroIntegrationsSettingsDocument, options);
@@ -27993,9 +27641,6 @@ export function useGetOrganizationCustomFooterForInvoiceLazyQuery(baseOptions?: 
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
         }
-// @ts-ignore
-export function useGetOrganizationCustomFooterForInvoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>;
-export function useGetOrganizationCustomFooterForInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationCustomFooterForInvoiceQuery | undefined, GetOrganizationCustomFooterForInvoiceQueryVariables>;
 export function useGetOrganizationCustomFooterForInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
@@ -28250,9 +27895,6 @@ export function useSubscriptionActivityLogsLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>(SubscriptionActivityLogsDocument, options);
         }
-// @ts-ignore
-export function useSubscriptionActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>;
-export function useSubscriptionActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<SubscriptionActivityLogsQuery | undefined, SubscriptionActivityLogsQueryVariables>;
 export function useSubscriptionActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>(SubscriptionActivityLogsDocument, options);
@@ -28304,9 +27946,6 @@ export function useGetAlertsOfSubscriptionLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAlertsOfSubscriptionQuery, GetAlertsOfSubscriptionQueryVariables>(GetAlertsOfSubscriptionDocument, options);
         }
-// @ts-ignore
-export function useGetAlertsOfSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAlertsOfSubscriptionQuery, GetAlertsOfSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAlertsOfSubscriptionQuery, GetAlertsOfSubscriptionQueryVariables>;
-export function useGetAlertsOfSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAlertsOfSubscriptionQuery, GetAlertsOfSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAlertsOfSubscriptionQuery | undefined, GetAlertsOfSubscriptionQueryVariables>;
 export function useGetAlertsOfSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAlertsOfSubscriptionQuery, GetAlertsOfSubscriptionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAlertsOfSubscriptionQuery, GetAlertsOfSubscriptionQueryVariables>(GetAlertsOfSubscriptionDocument, options);
@@ -28348,9 +27987,6 @@ export function useCustomerForSubscriptionUsageLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
         }
-// @ts-ignore
-export function useCustomerForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>;
-export function useCustomerForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerForSubscriptionUsageQuery | undefined, CustomerForSubscriptionUsageQueryVariables>;
 export function useCustomerForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
@@ -28402,9 +28038,6 @@ export function useSubscrptionForSubscriptionUsageLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
         }
-// @ts-ignore
-export function useSubscrptionForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>;
-export function useSubscrptionForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<SubscrptionForSubscriptionUsageQuery | undefined, SubscrptionForSubscriptionUsageQueryVariables>;
 export function useSubscrptionForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
@@ -28449,9 +28082,6 @@ export function useUsageForSubscriptionUsageLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
         }
-// @ts-ignore
-export function useUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>;
-export function useUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<UsageForSubscriptionUsageQuery | undefined, UsageForSubscriptionUsageQueryVariables>;
 export function useUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
@@ -28497,9 +28127,6 @@ export function useProjectedUsageForSubscriptionUsageLazyQuery(baseOptions?: Apo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>(ProjectedUsageForSubscriptionUsageDocument, options);
         }
-// @ts-ignore
-export function useProjectedUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>;
-export function useProjectedUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectedUsageForSubscriptionUsageQuery | undefined, ProjectedUsageForSubscriptionUsageQueryVariables>;
 export function useProjectedUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>(ProjectedUsageForSubscriptionUsageDocument, options);
@@ -28553,9 +28180,6 @@ export function useGetSubscriptionForDetailsOverviewLazyQuery(baseOptions?: Apol
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>;
-export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsOverviewQuery | undefined, GetSubscriptionForDetailsOverviewQueryVariables>;
 export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
@@ -28608,9 +28232,6 @@ export function useGetEntitlementsForSubscriptionDetailsLazyQuery(baseOptions?: 
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetEntitlementsForSubscriptionDetailsQuery, GetEntitlementsForSubscriptionDetailsQueryVariables>(GetEntitlementsForSubscriptionDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetEntitlementsForSubscriptionDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetEntitlementsForSubscriptionDetailsQuery, GetEntitlementsForSubscriptionDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetEntitlementsForSubscriptionDetailsQuery, GetEntitlementsForSubscriptionDetailsQueryVariables>;
-export function useGetEntitlementsForSubscriptionDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEntitlementsForSubscriptionDetailsQuery, GetEntitlementsForSubscriptionDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetEntitlementsForSubscriptionDetailsQuery | undefined, GetEntitlementsForSubscriptionDetailsQueryVariables>;
 export function useGetEntitlementsForSubscriptionDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEntitlementsForSubscriptionDetailsQuery, GetEntitlementsForSubscriptionDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetEntitlementsForSubscriptionDetailsQuery, GetEntitlementsForSubscriptionDetailsQueryVariables>(GetEntitlementsForSubscriptionDetailsDocument, options);
@@ -28652,9 +28273,6 @@ export function useGetSubscriptionForSubscriptionUsageLifetimeGraphLazyQuery(bas
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>;
-export function useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery | undefined, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>;
 export function useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
@@ -28697,9 +28315,6 @@ export function useGetCustomerFromSubscriptionLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>(GetCustomerFromSubscriptionDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerFromSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>;
-export function useGetCustomerFromSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerFromSubscriptionQuery | undefined, GetCustomerFromSubscriptionQueryVariables>;
 export function useGetCustomerFromSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>(GetCustomerFromSubscriptionDocument, options);
@@ -28815,9 +28430,6 @@ export function useGetTaxesForTaxesSelectorSectionLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForTaxesSelectorSectionQuery, GetTaxesForTaxesSelectorSectionQueryVariables>(GetTaxesForTaxesSelectorSectionDocument, options);
         }
-// @ts-ignore
-export function useGetTaxesForTaxesSelectorSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForTaxesSelectorSectionQuery, GetTaxesForTaxesSelectorSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForTaxesSelectorSectionQuery, GetTaxesForTaxesSelectorSectionQueryVariables>;
-export function useGetTaxesForTaxesSelectorSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForTaxesSelectorSectionQuery, GetTaxesForTaxesSelectorSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForTaxesSelectorSectionQuery | undefined, GetTaxesForTaxesSelectorSectionQueryVariables>;
 export function useGetTaxesForTaxesSelectorSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForTaxesSelectorSectionQuery, GetTaxesForTaxesSelectorSectionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForTaxesSelectorSectionQuery, GetTaxesForTaxesSelectorSectionQueryVariables>(GetTaxesForTaxesSelectorSectionDocument, options);
@@ -28867,9 +28479,6 @@ export function useGetCustomerWalletListLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>(GetCustomerWalletListDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerWalletListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>;
-export function useGetCustomerWalletListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerWalletListQuery | undefined, GetCustomerWalletListQueryVariables>;
 export function useGetCustomerWalletListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>(GetCustomerWalletListDocument, options);
@@ -28985,9 +28594,6 @@ export function useGetWalletTransactionDetailsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>(GetWalletTransactionDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetWalletTransactionDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>;
-export function useGetWalletTransactionDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletTransactionDetailsQuery | undefined, GetWalletTransactionDetailsQueryVariables>;
 export function useGetWalletTransactionDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>(GetWalletTransactionDetailsDocument, options);
@@ -29038,9 +28644,6 @@ export function useGetWalletTransactionsLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
         }
-// @ts-ignore
-export function useGetWalletTransactionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>;
-export function useGetWalletTransactionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletTransactionsQuery | undefined, GetWalletTransactionsQueryVariables>;
 export function useGetWalletTransactionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
@@ -29081,9 +28684,6 @@ export function useGetCurrentUserInfosForLoginLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>(GetCurrentUserInfosForLoginDocument, options);
         }
-// @ts-ignore
-export function useGetCurrentUserInfosForLoginSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>;
-export function useGetCurrentUserInfosForLoginSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserInfosForLoginQuery | undefined, GetCurrentUserInfosForLoginQueryVariables>;
 export function useGetCurrentUserInfosForLoginSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>(GetCurrentUserInfosForLoginDocument, options);
@@ -29260,9 +28860,6 @@ export function usePaymentMethodsLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
         }
-// @ts-ignore
-export function usePaymentMethodsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentMethodsQuery, PaymentMethodsQueryVariables>;
-export function usePaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentMethodsQuery | undefined, PaymentMethodsQueryVariables>;
 export function usePaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentMethodsQuery, PaymentMethodsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PaymentMethodsQuery, PaymentMethodsQueryVariables>(PaymentMethodsDocument, options);
@@ -29381,9 +28978,6 @@ export function useGetCustomPricingUnitsLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomPricingUnitsQuery, GetCustomPricingUnitsQueryVariables>(GetCustomPricingUnitsDocument, options);
         }
-// @ts-ignore
-export function useGetCustomPricingUnitsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomPricingUnitsQuery, GetCustomPricingUnitsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomPricingUnitsQuery, GetCustomPricingUnitsQueryVariables>;
-export function useGetCustomPricingUnitsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomPricingUnitsQuery, GetCustomPricingUnitsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomPricingUnitsQuery | undefined, GetCustomPricingUnitsQueryVariables>;
 export function useGetCustomPricingUnitsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomPricingUnitsQuery, GetCustomPricingUnitsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomPricingUnitsQuery, GetCustomPricingUnitsQueryVariables>(GetCustomPricingUnitsDocument, options);
@@ -29424,9 +29018,6 @@ export function useGetSinglePlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
         }
-// @ts-ignore
-export function useGetSinglePlanSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetSinglePlanQuery, GetSinglePlanQueryVariables>;
-export function useGetSinglePlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetSinglePlanQuery | undefined, GetSinglePlanQueryVariables>;
 export function useGetSinglePlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
@@ -29537,9 +29128,6 @@ export function useGetSingleAddOnLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>(GetSingleAddOnDocument, options);
         }
-// @ts-ignore
-export function useGetSingleAddOnSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>;
-export function useGetSingleAddOnSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleAddOnQuery | undefined, GetSingleAddOnQueryVariables>;
 export function useGetSingleAddOnSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>(GetSingleAddOnDocument, options);
@@ -29646,9 +29234,6 @@ export function useGetSingleBillableMetricLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
         }
-// @ts-ignore
-export function useGetSingleBillableMetricSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>;
-export function useGetSingleBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleBillableMetricQuery | undefined, GetSingleBillableMetricQueryVariables>;
 export function useGetSingleBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
@@ -29756,9 +29341,6 @@ export function useGetBillingEntitiesLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillingEntitiesQuery, GetBillingEntitiesQueryVariables>(GetBillingEntitiesDocument, options);
         }
-// @ts-ignore
-export function useGetBillingEntitiesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillingEntitiesQuery, GetBillingEntitiesQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntitiesQuery, GetBillingEntitiesQueryVariables>;
-export function useGetBillingEntitiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntitiesQuery, GetBillingEntitiesQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntitiesQuery | undefined, GetBillingEntitiesQueryVariables>;
 export function useGetBillingEntitiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntitiesQuery, GetBillingEntitiesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillingEntitiesQuery, GetBillingEntitiesQueryVariables>(GetBillingEntitiesDocument, options);
@@ -29799,9 +29381,6 @@ export function useGetBillingEntityLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillingEntityQuery, GetBillingEntityQueryVariables>(GetBillingEntityDocument, options);
         }
-// @ts-ignore
-export function useGetBillingEntitySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillingEntityQuery, GetBillingEntityQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntityQuery, GetBillingEntityQueryVariables>;
-export function useGetBillingEntitySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntityQuery, GetBillingEntityQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntityQuery | undefined, GetBillingEntityQueryVariables>;
 export function useGetBillingEntitySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntityQuery, GetBillingEntityQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillingEntityQuery, GetBillingEntityQueryVariables>(GetBillingEntityDocument, options);
@@ -29908,9 +29487,6 @@ export function useGetSingleCouponLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleCouponQuery, GetSingleCouponQueryVariables>(GetSingleCouponDocument, options);
         }
-// @ts-ignore
-export function useGetSingleCouponSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleCouponQuery, GetSingleCouponQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleCouponQuery, GetSingleCouponQueryVariables>;
-export function useGetSingleCouponSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCouponQuery, GetSingleCouponQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleCouponQuery | undefined, GetSingleCouponQueryVariables>;
 export function useGetSingleCouponSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCouponQuery, GetSingleCouponQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleCouponQuery, GetSingleCouponQueryVariables>(GetSingleCouponDocument, options);
@@ -30088,9 +29664,6 @@ export function useGetSingleCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleCustomerQuery, GetSingleCustomerQueryVariables>(GetSingleCustomerDocument, options);
         }
-// @ts-ignore
-export function useGetSingleCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleCustomerQuery, GetSingleCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleCustomerQuery, GetSingleCustomerQueryVariables>;
-export function useGetSingleCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCustomerQuery, GetSingleCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleCustomerQuery | undefined, GetSingleCustomerQueryVariables>;
 export function useGetSingleCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCustomerQuery, GetSingleCustomerQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleCustomerQuery, GetSingleCustomerQueryVariables>(GetSingleCustomerDocument, options);
@@ -30132,9 +29705,6 @@ export function useGetSingleCampaignLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>(GetSingleCampaignDocument, options);
         }
-// @ts-ignore
-export function useGetSingleCampaignSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>;
-export function useGetSingleCampaignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleCampaignQuery | undefined, GetSingleCampaignQueryVariables>;
 export function useGetSingleCampaignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>(GetSingleCampaignDocument, options);
@@ -30176,9 +29746,6 @@ export function useCreateDunningCampaignPaymentProviderLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
         }
-// @ts-ignore
-export function useCreateDunningCampaignPaymentProviderSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>): Apollo.UseSuspenseQueryResult<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>;
-export function useCreateDunningCampaignPaymentProviderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>): Apollo.UseSuspenseQueryResult<CreateDunningCampaignPaymentProviderQuery | undefined, CreateDunningCampaignPaymentProviderQueryVariables>;
 export function useCreateDunningCampaignPaymentProviderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
@@ -30288,9 +29855,6 @@ export function useGetSingleInvoiceCustomSectionLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>(GetSingleInvoiceCustomSectionDocument, options);
         }
-// @ts-ignore
-export function useGetSingleInvoiceCustomSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>;
-export function useGetSingleInvoiceCustomSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleInvoiceCustomSectionQuery | undefined, GetSingleInvoiceCustomSectionQueryVariables>;
 export function useGetSingleInvoiceCustomSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>(GetSingleInvoiceCustomSectionDocument, options);
@@ -30401,9 +29965,6 @@ export function useGetSingleTaxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleTaxQuery, GetSingleTaxQueryVariables>(GetSingleTaxDocument, options);
         }
-// @ts-ignore
-export function useGetSingleTaxSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleTaxQuery, GetSingleTaxQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleTaxQuery, GetSingleTaxQueryVariables>;
-export function useGetSingleTaxSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleTaxQuery, GetSingleTaxQueryVariables>): Apollo.UseSuspenseQueryResult<GetSingleTaxQuery | undefined, GetSingleTaxQueryVariables>;
 export function useGetSingleTaxSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleTaxQuery, GetSingleTaxQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleTaxQuery, GetSingleTaxQueryVariables>(GetSingleTaxDocument, options);
@@ -30510,9 +30071,6 @@ export function useGetCurrentUserInfosLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>(GetCurrentUserInfosDocument, options);
         }
-// @ts-ignore
-export function useGetCurrentUserInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>;
-export function useGetCurrentUserInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserInfosQuery | undefined, GetCurrentUserInfosQueryVariables>;
 export function useGetCurrentUserInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>(GetCurrentUserInfosDocument, options);
@@ -30554,9 +30112,6 @@ export function useGetCustomerInvoiceCustomSectionsLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>(GetCustomerInvoiceCustomSectionsDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>;
-export function useGetCustomerInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInvoiceCustomSectionsQuery | undefined, GetCustomerInvoiceCustomSectionsQueryVariables>;
 export function useGetCustomerInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>(GetCustomerInvoiceCustomSectionsDocument, options);
@@ -30636,9 +30191,6 @@ export function useGetTaxProviderPresenceLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>(GetTaxProviderPresenceDocument, options);
         }
-// @ts-ignore
-export function useGetTaxProviderPresenceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>;
-export function useGetTaxProviderPresenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxProviderPresenceQuery | undefined, GetTaxProviderPresenceQueryVariables>;
 export function useGetTaxProviderPresenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>(GetTaxProviderPresenceDocument, options);
@@ -30682,9 +30234,6 @@ export function useGetInvoiceCustomSectionsLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCustomSectionsQuery, GetInvoiceCustomSectionsQueryVariables>(GetInvoiceCustomSectionsDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCustomSectionsQuery, GetInvoiceCustomSectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCustomSectionsQuery, GetInvoiceCustomSectionsQueryVariables>;
-export function useGetInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCustomSectionsQuery, GetInvoiceCustomSectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCustomSectionsQuery | undefined, GetInvoiceCustomSectionsQueryVariables>;
 export function useGetInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCustomSectionsQuery, GetInvoiceCustomSectionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCustomSectionsQuery, GetInvoiceCustomSectionsQueryVariables>(GetInvoiceCustomSectionsDocument, options);
@@ -30727,9 +30276,6 @@ export function useGetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQuery(
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>(GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>;
-export function useGetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery | undefined, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>;
 export function useGetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>(GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument, options);
@@ -30769,9 +30315,6 @@ export function useGetOrganizationInfosLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>(GetOrganizationInfosDocument, options);
         }
-// @ts-ignore
-export function useGetOrganizationInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>;
-export function useGetOrganizationInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationInfosQuery | undefined, GetOrganizationInfosQueryVariables>;
 export function useGetOrganizationInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>(GetOrganizationInfosDocument, options);
@@ -30812,9 +30355,6 @@ export function useSideNavInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SideNavInfosQuery, SideNavInfosQueryVariables>(SideNavInfosDocument, options);
         }
-// @ts-ignore
-export function useSideNavInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SideNavInfosQuery, SideNavInfosQueryVariables>): Apollo.UseSuspenseQueryResult<SideNavInfosQuery, SideNavInfosQueryVariables>;
-export function useSideNavInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SideNavInfosQuery, SideNavInfosQueryVariables>): Apollo.UseSuspenseQueryResult<SideNavInfosQuery | undefined, SideNavInfosQueryVariables>;
 export function useSideNavInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SideNavInfosQuery, SideNavInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SideNavInfosQuery, SideNavInfosQueryVariables>(SideNavInfosDocument, options);
@@ -30865,9 +30405,6 @@ export function useGetAddOnForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetAddOnForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>;
-export function useGetAddOnForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnForDetailsQuery | undefined, GetAddOnForDetailsQueryVariables>;
 export function useGetAddOnForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
@@ -30917,9 +30454,6 @@ export function useAddOnsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Add
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AddOnsQuery, AddOnsQueryVariables>(AddOnsDocument, options);
         }
-// @ts-ignore
-export function useAddOnsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AddOnsQuery, AddOnsQueryVariables>): Apollo.UseSuspenseQueryResult<AddOnsQuery, AddOnsQueryVariables>;
-export function useAddOnsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AddOnsQuery, AddOnsQueryVariables>): Apollo.UseSuspenseQueryResult<AddOnsQuery | undefined, AddOnsQueryVariables>;
 export function useAddOnsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AddOnsQuery, AddOnsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AddOnsQuery, AddOnsQueryVariables>(AddOnsDocument, options);
@@ -30965,9 +30499,6 @@ export function useGetSubscriptionInfosLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionInfosQuery, GetSubscriptionInfosQueryVariables>(GetSubscriptionInfosDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionInfosQuery, GetSubscriptionInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionInfosQuery, GetSubscriptionInfosQueryVariables>;
-export function useGetSubscriptionInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionInfosQuery, GetSubscriptionInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionInfosQuery | undefined, GetSubscriptionInfosQueryVariables>;
 export function useGetSubscriptionInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionInfosQuery, GetSubscriptionInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionInfosQuery, GetSubscriptionInfosQueryVariables>(GetSubscriptionInfosDocument, options);
@@ -31021,9 +30552,6 @@ export function useGetSubscriptionAlertToEditLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionAlertToEditQuery, GetSubscriptionAlertToEditQueryVariables>(GetSubscriptionAlertToEditDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionAlertToEditSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionAlertToEditQuery, GetSubscriptionAlertToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionAlertToEditQuery, GetSubscriptionAlertToEditQueryVariables>;
-export function useGetSubscriptionAlertToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionAlertToEditQuery, GetSubscriptionAlertToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionAlertToEditQuery | undefined, GetSubscriptionAlertToEditQueryVariables>;
 export function useGetSubscriptionAlertToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionAlertToEditQuery, GetSubscriptionAlertToEditQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionAlertToEditQuery, GetSubscriptionAlertToEditQueryVariables>(GetSubscriptionAlertToEditDocument, options);
@@ -31069,9 +30597,6 @@ export function useGetExistingAlertsOfSubscriptionLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>(GetExistingAlertsOfSubscriptionDocument, options);
         }
-// @ts-ignore
-export function useGetExistingAlertsOfSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>;
-export function useGetExistingAlertsOfSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetExistingAlertsOfSubscriptionQuery | undefined, GetExistingAlertsOfSubscriptionQueryVariables>;
 export function useGetExistingAlertsOfSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>(GetExistingAlertsOfSubscriptionDocument, options);
@@ -31124,9 +30649,6 @@ export function useGetSubscriptionBillableMetricsLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>(GetSubscriptionBillableMetricsDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>;
-export function useGetSubscriptionBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionBillableMetricsQuery | undefined, GetSubscriptionBillableMetricsQueryVariables>;
 export function useGetSubscriptionBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>(GetSubscriptionBillableMetricsDocument, options);
@@ -31235,9 +30757,6 @@ export function useGetBillableMetricForHeaderDetailsLazyQuery(baseOptions?: Apol
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>(GetBillableMetricForHeaderDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricForHeaderDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>;
-export function useGetBillableMetricForHeaderDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricForHeaderDetailsQuery | undefined, GetBillableMetricForHeaderDetailsQueryVariables>;
 export function useGetBillableMetricForHeaderDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>(GetBillableMetricForHeaderDetailsDocument, options);
@@ -31286,9 +30805,6 @@ export function useBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
         }
-// @ts-ignore
-export function useBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<BillableMetricsQuery, BillableMetricsQueryVariables>;
-export function useBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<BillableMetricsQuery | undefined, BillableMetricsQueryVariables>;
 export function useBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
@@ -31334,9 +30850,6 @@ export function useGetCouponForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetCouponForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>;
-export function useGetCouponForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponForDetailsQuery | undefined, GetCouponForDetailsQueryVariables>;
 export function useGetCouponForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
@@ -31389,9 +30902,6 @@ export function useCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Co
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CouponsQuery, CouponsQueryVariables>(CouponsDocument, options);
         }
-// @ts-ignore
-export function useCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CouponsQuery, CouponsQueryVariables>): Apollo.UseSuspenseQueryResult<CouponsQuery, CouponsQueryVariables>;
-export function useCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CouponsQuery, CouponsQueryVariables>): Apollo.UseSuspenseQueryResult<CouponsQuery | undefined, CouponsQueryVariables>;
 export function useCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CouponsQuery, CouponsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CouponsQuery, CouponsQueryVariables>(CouponsDocument, options);
@@ -31485,9 +30995,6 @@ export function useGetInvoiceFeesForCreateInvoiceLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceFeesForCreateInvoiceQuery, GetInvoiceFeesForCreateInvoiceQueryVariables>(GetInvoiceFeesForCreateInvoiceDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceFeesForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceFeesForCreateInvoiceQuery, GetInvoiceFeesForCreateInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceFeesForCreateInvoiceQuery, GetInvoiceFeesForCreateInvoiceQueryVariables>;
-export function useGetInvoiceFeesForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceFeesForCreateInvoiceQuery, GetInvoiceFeesForCreateInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceFeesForCreateInvoiceQuery | undefined, GetInvoiceFeesForCreateInvoiceQueryVariables>;
 export function useGetInvoiceFeesForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceFeesForCreateInvoiceQuery, GetInvoiceFeesForCreateInvoiceQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceFeesForCreateInvoiceQuery, GetInvoiceFeesForCreateInvoiceQueryVariables>(GetInvoiceFeesForCreateInvoiceDocument, options);
@@ -31563,9 +31070,6 @@ export function useGetInfosForCreateInvoiceLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>(GetInfosForCreateInvoiceDocument, options);
         }
-// @ts-ignore
-export function useGetInfosForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>;
-export function useGetInfosForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetInfosForCreateInvoiceQuery | undefined, GetInfosForCreateInvoiceQueryVariables>;
 export function useGetInfosForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>(GetInfosForCreateInvoiceDocument, options);
@@ -31625,9 +31129,6 @@ export function useGetAddonListForInfoiceLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
         }
-// @ts-ignore
-export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>;
-export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddonListForInfoiceQuery | undefined, GetAddonListForInfoiceQueryVariables>;
 export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
@@ -31753,9 +31254,6 @@ export function useGetPayableInvoicesLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPayableInvoicesQuery, GetPayableInvoicesQueryVariables>(GetPayableInvoicesDocument, options);
         }
-// @ts-ignore
-export function useGetPayableInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPayableInvoicesQuery, GetPayableInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetPayableInvoicesQuery, GetPayableInvoicesQueryVariables>;
-export function useGetPayableInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPayableInvoicesQuery, GetPayableInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetPayableInvoicesQuery | undefined, GetPayableInvoicesQueryVariables>;
 export function useGetPayableInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPayableInvoicesQuery, GetPayableInvoicesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPayableInvoicesQuery, GetPayableInvoicesQueryVariables>(GetPayableInvoicesDocument, options);
@@ -31803,9 +31301,6 @@ export function useGetPayableInvoiceLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPayableInvoiceQuery, GetPayableInvoiceQueryVariables>(GetPayableInvoiceDocument, options);
         }
-// @ts-ignore
-export function useGetPayableInvoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPayableInvoiceQuery, GetPayableInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetPayableInvoiceQuery, GetPayableInvoiceQueryVariables>;
-export function useGetPayableInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPayableInvoiceQuery, GetPayableInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetPayableInvoiceQuery | undefined, GetPayableInvoiceQueryVariables>;
 export function useGetPayableInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPayableInvoiceQuery, GetPayableInvoiceQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPayableInvoiceQuery, GetPayableInvoiceQueryVariables>(GetPayableInvoiceDocument, options);
@@ -31909,9 +31404,6 @@ export function useGetCreditNotesListLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
         }
-// @ts-ignore
-export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>;
-export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNotesListQuery | undefined, GetCreditNotesListQueryVariables>;
 export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
@@ -31985,9 +31477,6 @@ export function useGetCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerQuery, GetCustomerQueryVariables>(GetCustomerDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerQuery, GetCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerQuery, GetCustomerQueryVariables>;
-export function useGetCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerQuery, GetCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerQuery | undefined, GetCustomerQueryVariables>;
 export function useGetCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerQuery, GetCustomerQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerQuery, GetCustomerQueryVariables>(GetCustomerDocument, options);
@@ -32071,9 +31560,6 @@ export function useGetCustomerDraftInvoicesLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>;
-export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerDraftInvoicesQuery | undefined, GetCustomerDraftInvoicesQueryVariables>;
 export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
@@ -32123,9 +31609,6 @@ export function useGetCustomerInfosForDraftInvoicesListLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>;
-export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInfosForDraftInvoicesListQuery | undefined, GetCustomerInfosForDraftInvoicesListQueryVariables>;
 export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
@@ -32167,9 +31650,6 @@ export function useGetInvoiceDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>(GetInvoiceDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>;
-export function useGetInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceDetailsQuery | undefined, GetInvoiceDetailsQueryVariables>;
 export function useGetInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>(GetInvoiceDetailsDocument, options);
@@ -32213,9 +31693,6 @@ export function useGetInvoiceFeesLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>(GetInvoiceFeesDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceFeesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>;
-export function useGetInvoiceFeesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceFeesQuery | undefined, GetInvoiceFeesQueryVariables>;
 export function useGetInvoiceFeesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>(GetInvoiceFeesDocument, options);
@@ -32259,9 +31736,6 @@ export function useGetInvoiceSubscriptionsLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceSubscriptionsQuery, GetInvoiceSubscriptionsQueryVariables>(GetInvoiceSubscriptionsDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceSubscriptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceSubscriptionsQuery, GetInvoiceSubscriptionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceSubscriptionsQuery, GetInvoiceSubscriptionsQueryVariables>;
-export function useGetInvoiceSubscriptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceSubscriptionsQuery, GetInvoiceSubscriptionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceSubscriptionsQuery | undefined, GetInvoiceSubscriptionsQueryVariables>;
 export function useGetInvoiceSubscriptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceSubscriptionsQuery, GetInvoiceSubscriptionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceSubscriptionsQuery, GetInvoiceSubscriptionsQueryVariables>(GetInvoiceSubscriptionsDocument, options);
@@ -32305,9 +31779,6 @@ export function useGetInvoiceCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCustomerQuery, GetInvoiceCustomerQueryVariables>(GetInvoiceCustomerDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCustomerQuery, GetInvoiceCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCustomerQuery, GetInvoiceCustomerQueryVariables>;
-export function useGetInvoiceCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCustomerQuery, GetInvoiceCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCustomerQuery | undefined, GetInvoiceCustomerQueryVariables>;
 export function useGetInvoiceCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCustomerQuery, GetInvoiceCustomerQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCustomerQuery, GetInvoiceCustomerQueryVariables>(GetInvoiceCustomerDocument, options);
@@ -32349,9 +31820,6 @@ export function useGetInvoiceNumberLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceNumberQuery, GetInvoiceNumberQueryVariables>(GetInvoiceNumberDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceNumberSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceNumberQuery, GetInvoiceNumberQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceNumberQuery, GetInvoiceNumberQueryVariables>;
-export function useGetInvoiceNumberSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceNumberQuery, GetInvoiceNumberQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceNumberQuery | undefined, GetInvoiceNumberQueryVariables>;
 export function useGetInvoiceNumberSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceNumberQuery, GetInvoiceNumberQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceNumberQuery, GetInvoiceNumberQueryVariables>(GetInvoiceNumberDocument, options);
@@ -32393,9 +31861,6 @@ export function useGetInvoiceStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>(GetInvoiceStatusDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceStatusSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>;
-export function useGetInvoiceStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceStatusQuery | undefined, GetInvoiceStatusQueryVariables>;
 export function useGetInvoiceStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>(GetInvoiceStatusDocument, options);
@@ -32460,9 +31925,6 @@ export function useIntegrationsListForCustomerInvoiceDetailsLazyQuery(baseOption
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>(IntegrationsListForCustomerInvoiceDetailsDocument, options);
         }
-// @ts-ignore
-export function useIntegrationsListForCustomerInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>;
-export function useIntegrationsListForCustomerInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerInvoiceDetailsQuery | undefined, IntegrationsListForCustomerInvoiceDetailsQueryVariables>;
 export function useIntegrationsListForCustomerInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>(IntegrationsListForCustomerInvoiceDetailsDocument, options);
@@ -32856,9 +32318,6 @@ export function useGetRequestOverduePaymentInfosLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
         }
-// @ts-ignore
-export function useGetRequestOverduePaymentInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>;
-export function useGetRequestOverduePaymentInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetRequestOverduePaymentInfosQuery | undefined, GetRequestOverduePaymentInfosQueryVariables>;
 export function useGetRequestOverduePaymentInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
@@ -32968,9 +32427,6 @@ export function useCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
         }
-// @ts-ignore
-export function useCustomersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>): Apollo.UseSuspenseQueryResult<CustomersQuery, CustomersQueryVariables>;
-export function useCustomersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>): Apollo.UseSuspenseQueryResult<CustomersQuery | undefined, CustomersQueryVariables>;
 export function useCustomersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
@@ -33016,9 +32472,6 @@ export function useGetinviteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
         }
-// @ts-ignore
-export function useGetinviteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetinviteQuery, GetinviteQueryVariables>): Apollo.UseSuspenseQueryResult<GetinviteQuery, GetinviteQueryVariables>;
-export function useGetinviteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetinviteQuery, GetinviteQueryVariables>): Apollo.UseSuspenseQueryResult<GetinviteQuery | undefined, GetinviteQueryVariables>;
 export function useGetinviteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
@@ -33233,9 +32686,6 @@ export function useGetInvoicesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoicesListQuery, GetInvoicesListQueryVariables>(GetInvoicesListDocument, options);
         }
-// @ts-ignore
-export function useGetInvoicesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoicesListQuery, GetInvoicesListQueryVariables>;
-export function useGetInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoicesListQuery | undefined, GetInvoicesListQueryVariables>;
 export function useGetInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoicesListQuery, GetInvoicesListQueryVariables>(GetInvoicesListDocument, options);
@@ -33382,9 +32832,6 @@ export function useGetPaymentDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>(GetPaymentDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetPaymentDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>;
-export function useGetPaymentDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPaymentDetailsQuery | undefined, GetPaymentDetailsQueryVariables>;
 export function useGetPaymentDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>(GetPaymentDetailsDocument, options);
@@ -33442,9 +32889,6 @@ export function useGetPaymentsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPaymentsListQuery, GetPaymentsListQueryVariables>(GetPaymentsListDocument, options);
         }
-// @ts-ignore
-export function useGetPaymentsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPaymentsListQuery, GetPaymentsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetPaymentsListQuery, GetPaymentsListQueryVariables>;
-export function useGetPaymentsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPaymentsListQuery, GetPaymentsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetPaymentsListQuery | undefined, GetPaymentsListQueryVariables>;
 export function useGetPaymentsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPaymentsListQuery, GetPaymentsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPaymentsListQuery, GetPaymentsListQueryVariables>(GetPaymentsListDocument, options);
@@ -33491,9 +32935,6 @@ export function useGetPlanForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>(GetPlanForDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>;
-export function useGetPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsQuery | undefined, GetPlanForDetailsQueryVariables>;
 export function useGetPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>(GetPlanForDetailsDocument, options);
@@ -33542,9 +32983,6 @@ export function usePlansLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Plan
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PlansQuery, PlansQueryVariables>(PlansDocument, options);
         }
-// @ts-ignore
-export function usePlansSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PlansQuery, PlansQueryVariables>): Apollo.UseSuspenseQueryResult<PlansQuery, PlansQueryVariables>;
-export function usePlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlansQuery, PlansQueryVariables>): Apollo.UseSuspenseQueryResult<PlansQuery | undefined, PlansQueryVariables>;
 export function usePlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlansQuery, PlansQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PlansQuery, PlansQueryVariables>(PlansDocument, options);
@@ -33606,9 +33044,6 @@ export function useGetSubscriptionsListLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>(GetSubscriptionsListDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>;
-export function useGetSubscriptionsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsListQuery | undefined, GetSubscriptionsListQueryVariables>;
 export function useGetSubscriptionsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>(GetSubscriptionsListDocument, options);
@@ -33661,9 +33096,6 @@ export function useGetInvoiceCollectionsForAnalyticsLazyQuery(baseOptions?: Apol
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>(GetInvoiceCollectionsForAnalyticsDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceCollectionsForAnalyticsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>;
-export function useGetInvoiceCollectionsForAnalyticsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCollectionsForAnalyticsQuery | undefined, GetInvoiceCollectionsForAnalyticsQueryVariables>;
 export function useGetInvoiceCollectionsForAnalyticsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>(GetInvoiceCollectionsForAnalyticsDocument, options);
@@ -33719,9 +33151,6 @@ export function useGetOverdueForAnalyticsLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>(GetOverdueForAnalyticsDocument, options);
         }
-// @ts-ignore
-export function useGetOverdueForAnalyticsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>;
-export function useGetOverdueForAnalyticsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOverdueForAnalyticsQuery | undefined, GetOverdueForAnalyticsQueryVariables>;
 export function useGetOverdueForAnalyticsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>(GetOverdueForAnalyticsDocument, options);
@@ -33898,9 +33327,6 @@ export function useGetPasswordResetLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPasswordResetQuery, GetPasswordResetQueryVariables>(GetPasswordResetDocument, options);
         }
-// @ts-ignore
-export function useGetPasswordResetSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPasswordResetQuery, GetPasswordResetQueryVariables>): Apollo.UseSuspenseQueryResult<GetPasswordResetQuery, GetPasswordResetQueryVariables>;
-export function useGetPasswordResetSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPasswordResetQuery, GetPasswordResetQueryVariables>): Apollo.UseSuspenseQueryResult<GetPasswordResetQuery | undefined, GetPasswordResetQueryVariables>;
 export function useGetPasswordResetSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPasswordResetQuery, GetPasswordResetQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPasswordResetQuery, GetPasswordResetQueryVariables>(GetPasswordResetDocument, options);
@@ -34040,9 +33466,6 @@ export function useGetInvoiceCreateCreditNoteLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>(GetInvoiceCreateCreditNoteDocument, options);
         }
-// @ts-ignore
-export function useGetInvoiceCreateCreditNoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>;
-export function useGetInvoiceCreateCreditNoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvoiceCreateCreditNoteQuery | undefined, GetInvoiceCreateCreditNoteQueryVariables>;
 export function useGetInvoiceCreateCreditNoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>(GetInvoiceCreateCreditNoteDocument, options);
@@ -34130,9 +33553,6 @@ export function useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery(ba
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
         }
-// @ts-ignore
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery | undefined, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
 export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
@@ -34188,9 +33608,6 @@ export function useGetCrmIntegrationsForExternalAppsAccordionLazyQuery(baseOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
         }
-// @ts-ignore
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery | undefined, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
 export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
@@ -34268,9 +33685,6 @@ export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
         }
-// @ts-ignore
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
 export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
@@ -34325,9 +33739,6 @@ export function useGetTaxIntegrationsForExternalAppsAccordionLazyQuery(baseOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
         }
-// @ts-ignore
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery | undefined, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
 export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
@@ -34371,9 +33782,6 @@ export function useSubsidiariesListForExternalAppsAccordionLazyQuery(baseOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
         }
-// @ts-ignore
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery | undefined, SubsidiariesListForExternalAppsAccordionQueryVariables>;
 export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
@@ -34435,9 +33843,6 @@ export function useGetCreditNoteForDetailsLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>(GetCreditNoteForDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetCreditNoteForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>;
-export function useGetCreditNoteForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCreditNoteForDetailsQuery | undefined, GetCreditNoteForDetailsQueryVariables>;
 export function useGetCreditNoteForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>(GetCreditNoteForDetailsDocument, options);
@@ -34647,9 +34052,6 @@ export function useGetPortalOrgaInfosLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
         }
-// @ts-ignore
-export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>;
-export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalOrgaInfosQuery | undefined, GetPortalOrgaInfosQueryVariables>;
 export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
@@ -34692,9 +34094,6 @@ export function useSupersetDashboardsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SupersetDashboardsQuery, SupersetDashboardsQueryVariables>(SupersetDashboardsDocument, options);
         }
-// @ts-ignore
-export function useSupersetDashboardsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SupersetDashboardsQuery, SupersetDashboardsQueryVariables>): Apollo.UseSuspenseQueryResult<SupersetDashboardsQuery, SupersetDashboardsQueryVariables>;
-export function useSupersetDashboardsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SupersetDashboardsQuery, SupersetDashboardsQueryVariables>): Apollo.UseSuspenseQueryResult<SupersetDashboardsQuery | undefined, SupersetDashboardsQueryVariables>;
 export function useSupersetDashboardsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SupersetDashboardsQuery, SupersetDashboardsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SupersetDashboardsQuery, SupersetDashboardsQueryVariables>(SupersetDashboardsDocument, options);
@@ -34738,9 +34137,6 @@ export function useGetApiKeyToEditLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetApiKeyToEditQuery, GetApiKeyToEditQueryVariables>(GetApiKeyToEditDocument, options);
         }
-// @ts-ignore
-export function useGetApiKeyToEditSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetApiKeyToEditQuery, GetApiKeyToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeyToEditQuery, GetApiKeyToEditQueryVariables>;
-export function useGetApiKeyToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyToEditQuery, GetApiKeyToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetApiKeyToEditQuery | undefined, GetApiKeyToEditQueryVariables>;
 export function useGetApiKeyToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyToEditQuery, GetApiKeyToEditQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetApiKeyToEditQuery, GetApiKeyToEditQueryVariables>(GetApiKeyToEditDocument, options);
@@ -34850,9 +34246,6 @@ export function useGetFeatureForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetFeatureForDetailsQuery, GetFeatureForDetailsQueryVariables>(GetFeatureForDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetFeatureForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFeatureForDetailsQuery, GetFeatureForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureForDetailsQuery, GetFeatureForDetailsQueryVariables>;
-export function useGetFeatureForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureForDetailsQuery, GetFeatureForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureForDetailsQuery | undefined, GetFeatureForDetailsQueryVariables>;
 export function useGetFeatureForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureForDetailsQuery, GetFeatureForDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetFeatureForDetailsQuery, GetFeatureForDetailsQueryVariables>(GetFeatureForDetailsDocument, options);
@@ -34893,9 +34286,6 @@ export function useGetFeatureLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetFeatureQuery, GetFeatureQueryVariables>(GetFeatureDocument, options);
         }
-// @ts-ignore
-export function useGetFeatureSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFeatureQuery, GetFeatureQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureQuery, GetFeatureQueryVariables>;
-export function useGetFeatureSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureQuery, GetFeatureQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeatureQuery | undefined, GetFeatureQueryVariables>;
 export function useGetFeatureSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeatureQuery, GetFeatureQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetFeatureQuery, GetFeatureQueryVariables>(GetFeatureDocument, options);
@@ -35010,9 +34400,6 @@ export function useGetFeaturesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetFeaturesListQuery, GetFeaturesListQueryVariables>(GetFeaturesListDocument, options);
         }
-// @ts-ignore
-export function useGetFeaturesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFeaturesListQuery, GetFeaturesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeaturesListQuery, GetFeaturesListQueryVariables>;
-export function useGetFeaturesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeaturesListQuery, GetFeaturesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetFeaturesListQuery | undefined, GetFeaturesListQueryVariables>;
 export function useGetFeaturesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFeaturesListQuery, GetFeaturesListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetFeaturesListQuery, GetFeaturesListQueryVariables>(GetFeaturesListDocument, options);
@@ -35089,9 +34476,6 @@ export function useGetForecastsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
         }
-// @ts-ignore
-export function useGetForecastsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>): Apollo.UseSuspenseQueryResult<GetForecastsQuery, GetForecastsQueryVariables>;
-export function useGetForecastsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>): Apollo.UseSuspenseQueryResult<GetForecastsQuery | undefined, GetForecastsQueryVariables>;
 export function useGetForecastsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetForecastsQuery, GetForecastsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetForecastsQuery, GetForecastsQueryVariables>(GetForecastsDocument, options);
@@ -35218,9 +34602,6 @@ export function useGetAdyenIntegrationsDetailsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetAdyenIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>;
-export function useGetAdyenIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdyenIntegrationsDetailsQuery | undefined, GetAdyenIntegrationsDetailsQueryVariables>;
 export function useGetAdyenIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
@@ -35271,9 +34652,6 @@ export function useGetAdyenIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>(GetAdyenIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetAdyenIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
-export function useGetAdyenIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdyenIntegrationsListQuery | undefined, GetAdyenIntegrationsListQueryVariables>;
 export function useGetAdyenIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>(GetAdyenIntegrationsListDocument, options);
@@ -35326,9 +34704,6 @@ export function useGetAnrokIntegrationsDetailsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetAnrokIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>;
-export function useGetAnrokIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationsDetailsQuery | undefined, GetAnrokIntegrationsDetailsQueryVariables>;
 export function useGetAnrokIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
@@ -35379,9 +34754,6 @@ export function useGetAnrokIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>(GetAnrokIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetAnrokIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>;
-export function useGetAnrokIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAnrokIntegrationsListQuery | undefined, GetAnrokIntegrationsListQueryVariables>;
 export function useGetAnrokIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>(GetAnrokIntegrationsListDocument, options);
@@ -35429,9 +34801,6 @@ export function useGetAuthIntegrationsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
         }
-// @ts-ignore
-export function useGetAuthIntegrationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>;
-export function useGetAuthIntegrationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAuthIntegrationsQuery | undefined, GetAuthIntegrationsQueryVariables>;
 export function useGetAuthIntegrationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
@@ -35478,9 +34847,6 @@ export function useGetOktaIntegrationLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
         }
-// @ts-ignore
-export function useGetOktaIntegrationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>): Apollo.UseSuspenseQueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
-export function useGetOktaIntegrationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>): Apollo.UseSuspenseQueryResult<GetOktaIntegrationQuery | undefined, GetOktaIntegrationQueryVariables>;
 export function useGetOktaIntegrationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
@@ -35567,9 +34933,6 @@ export function useGetAvalaraIntegrationsDetailsLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>(GetAvalaraIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetAvalaraIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>;
-export function useGetAvalaraIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationsDetailsQuery | undefined, GetAvalaraIntegrationsDetailsQueryVariables>;
 export function useGetAvalaraIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>(GetAvalaraIntegrationsDetailsDocument, options);
@@ -35620,9 +34983,6 @@ export function useGetAvalaraIntegrationsListLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>(GetAvalaraIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetAvalaraIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>;
-export function useGetAvalaraIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAvalaraIntegrationsListQuery | undefined, GetAvalaraIntegrationsListQueryVariables>;
 export function useGetAvalaraIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>(GetAvalaraIntegrationsListDocument, options);
@@ -35705,9 +35065,6 @@ export function useGetBillingEntitySettingsLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillingEntitySettingsQuery, GetBillingEntitySettingsQueryVariables>(GetBillingEntitySettingsDocument, options);
         }
-// @ts-ignore
-export function useGetBillingEntitySettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillingEntitySettingsQuery, GetBillingEntitySettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntitySettingsQuery, GetBillingEntitySettingsQueryVariables>;
-export function useGetBillingEntitySettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntitySettingsQuery, GetBillingEntitySettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntitySettingsQuery | undefined, GetBillingEntitySettingsQueryVariables>;
 export function useGetBillingEntitySettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntitySettingsQuery, GetBillingEntitySettingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillingEntitySettingsQuery, GetBillingEntitySettingsQueryVariables>(GetBillingEntitySettingsDocument, options);
@@ -35923,9 +35280,6 @@ export function useGetTaxesForApplyTaxLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForApplyTaxQuery, GetTaxesForApplyTaxQueryVariables>(GetTaxesForApplyTaxDocument, options);
         }
-// @ts-ignore
-export function useGetTaxesForApplyTaxSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForApplyTaxQuery, GetTaxesForApplyTaxQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForApplyTaxQuery, GetTaxesForApplyTaxQueryVariables>;
-export function useGetTaxesForApplyTaxSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForApplyTaxQuery, GetTaxesForApplyTaxQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForApplyTaxQuery | undefined, GetTaxesForApplyTaxQueryVariables>;
 export function useGetTaxesForApplyTaxSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForApplyTaxQuery, GetTaxesForApplyTaxQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForApplyTaxQuery, GetTaxesForApplyTaxQueryVariables>(GetTaxesForApplyTaxDocument, options);
@@ -36004,9 +35358,6 @@ export function useGetBillingEntityTaxesLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillingEntityTaxesQuery, GetBillingEntityTaxesQueryVariables>(GetBillingEntityTaxesDocument, options);
         }
-// @ts-ignore
-export function useGetBillingEntityTaxesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillingEntityTaxesQuery, GetBillingEntityTaxesQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntityTaxesQuery, GetBillingEntityTaxesQueryVariables>;
-export function useGetBillingEntityTaxesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntityTaxesQuery, GetBillingEntityTaxesQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntityTaxesQuery | undefined, GetBillingEntityTaxesQueryVariables>;
 export function useGetBillingEntityTaxesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntityTaxesQuery, GetBillingEntityTaxesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillingEntityTaxesQuery, GetBillingEntityTaxesQueryVariables>(GetBillingEntityTaxesDocument, options);
@@ -36096,9 +35447,6 @@ export function useGetCashfreeIntegrationsDetailsLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCashfreeIntegrationsDetailsQuery, GetCashfreeIntegrationsDetailsQueryVariables>(GetCashfreeIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetCashfreeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCashfreeIntegrationsDetailsQuery, GetCashfreeIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCashfreeIntegrationsDetailsQuery, GetCashfreeIntegrationsDetailsQueryVariables>;
-export function useGetCashfreeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCashfreeIntegrationsDetailsQuery, GetCashfreeIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCashfreeIntegrationsDetailsQuery | undefined, GetCashfreeIntegrationsDetailsQueryVariables>;
 export function useGetCashfreeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCashfreeIntegrationsDetailsQuery, GetCashfreeIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCashfreeIntegrationsDetailsQuery, GetCashfreeIntegrationsDetailsQueryVariables>(GetCashfreeIntegrationsDetailsDocument, options);
@@ -36149,9 +35497,6 @@ export function useGetCashfreeIntegrationsListLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCashfreeIntegrationsListQuery, GetCashfreeIntegrationsListQueryVariables>(GetCashfreeIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetCashfreeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCashfreeIntegrationsListQuery, GetCashfreeIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCashfreeIntegrationsListQuery, GetCashfreeIntegrationsListQueryVariables>;
-export function useGetCashfreeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCashfreeIntegrationsListQuery, GetCashfreeIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCashfreeIntegrationsListQuery | undefined, GetCashfreeIntegrationsListQueryVariables>;
 export function useGetCashfreeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCashfreeIntegrationsListQuery, GetCashfreeIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCashfreeIntegrationsListQuery, GetCashfreeIntegrationsListQueryVariables>(GetCashfreeIntegrationsListDocument, options);
@@ -36202,9 +35547,6 @@ export function useGetDunningCampaignsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>(GetDunningCampaignsDocument, options);
         }
-// @ts-ignore
-export function useGetDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>;
-export function useGetDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDunningCampaignsQuery | undefined, GetDunningCampaignsQueryVariables>;
 export function useGetDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>(GetDunningCampaignsDocument, options);
@@ -36291,9 +35633,6 @@ export function useFlutterwaveIntegrationDetailsLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>(FlutterwaveIntegrationDetailsDocument, options);
         }
-// @ts-ignore
-export function useFlutterwaveIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>;
-export function useFlutterwaveIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<FlutterwaveIntegrationDetailsQuery | undefined, FlutterwaveIntegrationDetailsQueryVariables>;
 export function useFlutterwaveIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>(FlutterwaveIntegrationDetailsDocument, options);
@@ -36342,9 +35681,6 @@ export function useGetFlutterwaveIntegrationsListLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>(GetFlutterwaveIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetFlutterwaveIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>;
-export function useGetFlutterwaveIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetFlutterwaveIntegrationsListQuery | undefined, GetFlutterwaveIntegrationsListQueryVariables>;
 export function useGetFlutterwaveIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>(GetFlutterwaveIntegrationsListDocument, options);
@@ -36401,9 +35737,6 @@ export function useGetGocardlessIntegrationsDetailsLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetGocardlessIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>;
-export function useGetGocardlessIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGocardlessIntegrationsDetailsQuery | undefined, GetGocardlessIntegrationsDetailsQueryVariables>;
 export function useGetGocardlessIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
@@ -36490,9 +35823,6 @@ export function useGetGocardlessIntegrationsListLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>(GetGocardlessIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetGocardlessIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>;
-export function useGetGocardlessIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetGocardlessIntegrationsListQuery | undefined, GetGocardlessIntegrationsListQueryVariables>;
 export function useGetGocardlessIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>(GetGocardlessIntegrationsListDocument, options);
@@ -36545,9 +35875,6 @@ export function useGetHubspotIntegrationsDetailsLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>(GetHubspotIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetHubspotIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>;
-export function useGetHubspotIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetHubspotIntegrationsDetailsQuery | undefined, GetHubspotIntegrationsDetailsQueryVariables>;
 export function useGetHubspotIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>(GetHubspotIntegrationsDetailsDocument, options);
@@ -36596,9 +35923,6 @@ export function useGetHubspotIntegrationsListLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>(GetHubspotIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetHubspotIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>;
-export function useGetHubspotIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetHubspotIntegrationsListQuery | undefined, GetHubspotIntegrationsListQueryVariables>;
 export function useGetHubspotIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>(GetHubspotIntegrationsListDocument, options);
@@ -36680,9 +36004,6 @@ export function useIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>(IntegrationsSettingDocument, options);
         }
-// @ts-ignore
-export function useIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>;
-export function useIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsSettingQuery | undefined, IntegrationsSettingQueryVariables>;
 export function useIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>(IntegrationsSettingDocument, options);
@@ -36724,9 +36045,6 @@ export function useGetSinglePricingUnitLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSinglePricingUnitQuery, GetSinglePricingUnitQueryVariables>(GetSinglePricingUnitDocument, options);
         }
-// @ts-ignore
-export function useGetSinglePricingUnitSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSinglePricingUnitQuery, GetSinglePricingUnitQueryVariables>): Apollo.UseSuspenseQueryResult<GetSinglePricingUnitQuery, GetSinglePricingUnitQueryVariables>;
-export function useGetSinglePricingUnitSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSinglePricingUnitQuery, GetSinglePricingUnitQueryVariables>): Apollo.UseSuspenseQueryResult<GetSinglePricingUnitQuery | undefined, GetSinglePricingUnitQueryVariables>;
 export function useGetSinglePricingUnitSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSinglePricingUnitQuery, GetSinglePricingUnitQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSinglePricingUnitQuery, GetSinglePricingUnitQueryVariables>(GetSinglePricingUnitDocument, options);
@@ -36845,9 +36163,6 @@ export function useGetOrganizationSettingsInvoiceSectionsLazyQuery(baseOptions?:
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationSettingsInvoiceSectionsQuery, GetOrganizationSettingsInvoiceSectionsQueryVariables>(GetOrganizationSettingsInvoiceSectionsDocument, options);
         }
-// @ts-ignore
-export function useGetOrganizationSettingsInvoiceSectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsInvoiceSectionsQuery, GetOrganizationSettingsInvoiceSectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationSettingsInvoiceSectionsQuery, GetOrganizationSettingsInvoiceSectionsQueryVariables>;
-export function useGetOrganizationSettingsInvoiceSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsInvoiceSectionsQuery, GetOrganizationSettingsInvoiceSectionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationSettingsInvoiceSectionsQuery | undefined, GetOrganizationSettingsInvoiceSectionsQueryVariables>;
 export function useGetOrganizationSettingsInvoiceSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsInvoiceSectionsQuery, GetOrganizationSettingsInvoiceSectionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationSettingsInvoiceSectionsQuery, GetOrganizationSettingsInvoiceSectionsQueryVariables>(GetOrganizationSettingsInvoiceSectionsDocument, options);
@@ -36897,9 +36212,6 @@ export function useGetOrganizationSettingsPricingUnitsLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationSettingsPricingUnitsQuery, GetOrganizationSettingsPricingUnitsQueryVariables>(GetOrganizationSettingsPricingUnitsDocument, options);
         }
-// @ts-ignore
-export function useGetOrganizationSettingsPricingUnitsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsPricingUnitsQuery, GetOrganizationSettingsPricingUnitsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationSettingsPricingUnitsQuery, GetOrganizationSettingsPricingUnitsQueryVariables>;
-export function useGetOrganizationSettingsPricingUnitsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsPricingUnitsQuery, GetOrganizationSettingsPricingUnitsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationSettingsPricingUnitsQuery | undefined, GetOrganizationSettingsPricingUnitsQueryVariables>;
 export function useGetOrganizationSettingsPricingUnitsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsPricingUnitsQuery, GetOrganizationSettingsPricingUnitsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationSettingsPricingUnitsQuery, GetOrganizationSettingsPricingUnitsQueryVariables>(GetOrganizationSettingsPricingUnitsDocument, options);
@@ -36944,9 +36256,6 @@ export function useGetTaxesForTaxManagementIntegrationDetailsPageLazyQuery(baseO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>(GetTaxesForTaxManagementIntegrationDetailsPageDocument, options);
         }
-// @ts-ignore
-export function useGetTaxesForTaxManagementIntegrationDetailsPageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>;
-export function useGetTaxesForTaxManagementIntegrationDetailsPageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesForTaxManagementIntegrationDetailsPageQuery | undefined, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>;
 export function useGetTaxesForTaxManagementIntegrationDetailsPageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>(GetTaxesForTaxManagementIntegrationDetailsPageDocument, options);
@@ -36995,9 +36304,6 @@ export function useGetInvitesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvitesQuery, GetInvitesQueryVariables>(GetInvitesDocument, options);
         }
-// @ts-ignore
-export function useGetInvitesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvitesQuery, GetInvitesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvitesQuery, GetInvitesQueryVariables>;
-export function useGetInvitesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvitesQuery, GetInvitesQueryVariables>): Apollo.UseSuspenseQueryResult<GetInvitesQuery | undefined, GetInvitesQueryVariables>;
 export function useGetInvitesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvitesQuery, GetInvitesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvitesQuery, GetInvitesQueryVariables>(GetInvitesDocument, options);
@@ -37047,9 +36353,6 @@ export function useGetMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMembersQuery, GetMembersQueryVariables>(GetMembersDocument, options);
         }
-// @ts-ignore
-export function useGetMembersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMembersQuery, GetMembersQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersQuery, GetMembersQueryVariables>;
-export function useGetMembersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersQuery, GetMembersQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersQuery | undefined, GetMembersQueryVariables>;
 export function useGetMembersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersQuery, GetMembersQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMembersQuery, GetMembersQueryVariables>(GetMembersDocument, options);
@@ -37108,9 +36411,6 @@ export function useGetMoneyhashIntegrationsDetailsLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>(GetMoneyhashIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetMoneyhashIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>;
-export function useGetMoneyhashIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMoneyhashIntegrationsDetailsQuery | undefined, GetMoneyhashIntegrationsDetailsQueryVariables>;
 export function useGetMoneyhashIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>(GetMoneyhashIntegrationsDetailsDocument, options);
@@ -37161,9 +36461,6 @@ export function useGetMoneyhashIntegrationsListLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMoneyhashIntegrationsListQuery, GetMoneyhashIntegrationsListQueryVariables>(GetMoneyhashIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetMoneyhashIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMoneyhashIntegrationsListQuery, GetMoneyhashIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetMoneyhashIntegrationsListQuery, GetMoneyhashIntegrationsListQueryVariables>;
-export function useGetMoneyhashIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMoneyhashIntegrationsListQuery, GetMoneyhashIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetMoneyhashIntegrationsListQuery | undefined, GetMoneyhashIntegrationsListQueryVariables>;
 export function useGetMoneyhashIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMoneyhashIntegrationsListQuery, GetMoneyhashIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMoneyhashIntegrationsListQuery, GetMoneyhashIntegrationsListQueryVariables>(GetMoneyhashIntegrationsListDocument, options);
@@ -37216,9 +36513,6 @@ export function useGetNetsuiteIntegrationsDetailsLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetNetsuiteIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>;
-export function useGetNetsuiteIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationsDetailsQuery | undefined, GetNetsuiteIntegrationsDetailsQueryVariables>;
 export function useGetNetsuiteIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
@@ -37269,9 +36563,6 @@ export function useGetNetsuiteIntegrationsListLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>(GetNetsuiteIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetNetsuiteIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>;
-export function useGetNetsuiteIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationsListQuery | undefined, GetNetsuiteIntegrationsListQueryVariables>;
 export function useGetNetsuiteIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>(GetNetsuiteIntegrationsListDocument, options);
@@ -37324,9 +36615,6 @@ export function useGetSalesforceIntegrationsDetailsLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>(GetSalesforceIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetSalesforceIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>;
-export function useGetSalesforceIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSalesforceIntegrationsDetailsQuery | undefined, GetSalesforceIntegrationsDetailsQueryVariables>;
 export function useGetSalesforceIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>(GetSalesforceIntegrationsDetailsDocument, options);
@@ -37375,9 +36663,6 @@ export function useGetSalesforceIntegrationsListLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>(GetSalesforceIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetSalesforceIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>;
-export function useGetSalesforceIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetSalesforceIntegrationsListQuery | undefined, GetSalesforceIntegrationsListQueryVariables>;
 export function useGetSalesforceIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>(GetSalesforceIntegrationsListDocument, options);
@@ -37436,9 +36721,6 @@ export function useGetStripeIntegrationsDetailsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetStripeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>;
-export function useGetStripeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetStripeIntegrationsDetailsQuery | undefined, GetStripeIntegrationsDetailsQueryVariables>;
 export function useGetStripeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
@@ -37489,9 +36771,6 @@ export function useGetStripeIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>(GetStripeIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetStripeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>;
-export function useGetStripeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetStripeIntegrationsListQuery | undefined, GetStripeIntegrationsListQueryVariables>;
 export function useGetStripeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>(GetStripeIntegrationsListDocument, options);
@@ -37540,9 +36819,6 @@ export function useGetTaxesSettingsInformationsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>(GetTaxesSettingsInformationsDocument, options);
         }
-// @ts-ignore
-export function useGetTaxesSettingsInformationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>;
-export function useGetTaxesSettingsInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxesSettingsInformationsQuery | undefined, GetTaxesSettingsInformationsQueryVariables>;
 export function useGetTaxesSettingsInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>(GetTaxesSettingsInformationsDocument, options);
@@ -37595,9 +36871,6 @@ export function useGetXeroIntegrationsDetailsLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>(GetXeroIntegrationsDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetXeroIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>;
-export function useGetXeroIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationsDetailsQuery | undefined, GetXeroIntegrationsDetailsQueryVariables>;
 export function useGetXeroIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>(GetXeroIntegrationsDetailsDocument, options);
@@ -37648,9 +36921,6 @@ export function useGetXeroIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>(GetXeroIntegrationsListDocument, options);
         }
-// @ts-ignore
-export function useGetXeroIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>;
-export function useGetXeroIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationsListQuery | undefined, GetXeroIntegrationsListQueryVariables>;
 export function useGetXeroIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>(GetXeroIntegrationsListDocument, options);
@@ -38094,9 +37364,6 @@ export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsLazyQuery(b
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
         }
-// @ts-ignore
-export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>;
-export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery | undefined, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>;
 export function useGetNetsuiteIntegrationCollectionCurrenciesMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationCollectionCurrenciesMappingsQuery, GetNetsuiteIntegrationCollectionCurrenciesMappingsQueryVariables>(GetNetsuiteIntegrationCollectionCurrenciesMappingsDocument, options);
@@ -38454,9 +37721,6 @@ export function useGetXeroIntegrationItemsLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>(GetXeroIntegrationItemsDocument, options);
         }
-// @ts-ignore
-export function useGetXeroIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>;
-export function useGetXeroIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>): Apollo.UseSuspenseQueryResult<GetXeroIntegrationItemsQuery | undefined, GetXeroIntegrationItemsQueryVariables>;
 export function useGetXeroIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>(GetXeroIntegrationItemsDocument, options);
@@ -38771,9 +38035,6 @@ export function useGetPlansLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<G
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlansQuery, GetPlansQueryVariables>(GetPlansDocument, options);
         }
-// @ts-ignore
-export function useGetPlansSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlansQuery, GetPlansQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansQuery, GetPlansQueryVariables>;
-export function useGetPlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansQuery, GetPlansQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansQuery | undefined, GetPlansQueryVariables>;
 export function useGetPlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansQuery, GetPlansQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlansQuery, GetPlansQueryVariables>(GetPlansDocument, options);
@@ -38818,9 +38079,6 @@ export function useGetCustomerForCreateSubscriptionLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>(GetCustomerForCreateSubscriptionDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>;
-export function useGetCustomerForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerForCreateSubscriptionQuery | undefined, GetCustomerForCreateSubscriptionQueryVariables>;
 export function useGetCustomerForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>(GetCustomerForCreateSubscriptionDocument, options);
@@ -38886,9 +38144,6 @@ export function useGetSubscriptionForCreateSubscriptionLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>(GetSubscriptionForCreateSubscriptionDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>;
-export function useGetSubscriptionForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForCreateSubscriptionQuery | undefined, GetSubscriptionForCreateSubscriptionQueryVariables>;
 export function useGetSubscriptionForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>(GetSubscriptionForCreateSubscriptionDocument, options);
@@ -38946,9 +38201,6 @@ export function useGetSubscriptionForDetailsLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>(GetSubscriptionForDetailsDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>;
-export function useGetSubscriptionForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsQuery | undefined, GetSubscriptionForDetailsQueryVariables>;
 export function useGetSubscriptionForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>(GetSubscriptionForDetailsDocument, options);
@@ -39015,9 +38267,6 @@ export function useGetSubscriptionDataForEntitlementFormLazyQuery(baseOptions?: 
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionDataForEntitlementFormQuery, GetSubscriptionDataForEntitlementFormQueryVariables>(GetSubscriptionDataForEntitlementFormDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionDataForEntitlementFormSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionDataForEntitlementFormQuery, GetSubscriptionDataForEntitlementFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionDataForEntitlementFormQuery, GetSubscriptionDataForEntitlementFormQueryVariables>;
-export function useGetSubscriptionDataForEntitlementFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionDataForEntitlementFormQuery, GetSubscriptionDataForEntitlementFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionDataForEntitlementFormQuery | undefined, GetSubscriptionDataForEntitlementFormQueryVariables>;
 export function useGetSubscriptionDataForEntitlementFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionDataForEntitlementFormQuery, GetSubscriptionDataForEntitlementFormQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionDataForEntitlementFormQuery, GetSubscriptionDataForEntitlementFormQueryVariables>(GetSubscriptionDataForEntitlementFormDocument, options);
@@ -39072,9 +38321,6 @@ export function useGetSubscriptionEntitlementToEditLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionEntitlementToEditQuery, GetSubscriptionEntitlementToEditQueryVariables>(GetSubscriptionEntitlementToEditDocument, options);
         }
-// @ts-ignore
-export function useGetSubscriptionEntitlementToEditSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionEntitlementToEditQuery, GetSubscriptionEntitlementToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionEntitlementToEditQuery, GetSubscriptionEntitlementToEditQueryVariables>;
-export function useGetSubscriptionEntitlementToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionEntitlementToEditQuery, GetSubscriptionEntitlementToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionEntitlementToEditQuery | undefined, GetSubscriptionEntitlementToEditQueryVariables>;
 export function useGetSubscriptionEntitlementToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionEntitlementToEditQuery, GetSubscriptionEntitlementToEditQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionEntitlementToEditQuery, GetSubscriptionEntitlementToEditQueryVariables>(GetSubscriptionEntitlementToEditDocument, options);
@@ -39151,9 +38397,6 @@ export function useGetCustomerInfosForWalletFormLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
         }
-// @ts-ignore
-export function useGetCustomerInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>;
-export function useGetCustomerInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInfosForWalletFormQuery | undefined, GetCustomerInfosForWalletFormQueryVariables>;
 export function useGetCustomerInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
@@ -39195,9 +38438,6 @@ export function useGetWalletInfosForWalletFormLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
         }
-// @ts-ignore
-export function useGetWalletInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>;
-export function useGetWalletInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletInfosForWalletFormQuery | undefined, GetWalletInfosForWalletFormQueryVariables>;
 export function useGetWalletInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
@@ -39309,9 +38549,6 @@ export function useGetWalletForTopUpLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>(GetWalletForTopUpDocument, options);
         }
-// @ts-ignore
-export function useGetWalletForTopUpSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>;
-export function useGetWalletForTopUpSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>): Apollo.UseSuspenseQueryResult<GetWalletForTopUpQuery | undefined, GetWalletForTopUpQueryVariables>;
 export function useGetWalletForTopUpSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>(GetWalletForTopUpDocument, options);
@@ -39359,9 +38596,6 @@ export function useGetBillableMetricsForWalletLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>(GetBillableMetricsForWalletDocument, options);
         }
-// @ts-ignore
-export function useGetBillableMetricsForWalletSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>;
-export function useGetBillableMetricsForWalletSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForWalletQuery | undefined, GetBillableMetricsForWalletQueryVariables>;
 export function useGetBillableMetricsForWalletSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>(GetBillableMetricsForWalletDocument, options);
