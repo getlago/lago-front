@@ -45,7 +45,7 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
         })
       }
     },
-    refetchQueries: ['getInvoiceSubscriptions'],
+    refetchQueries: ['getInvoiceSubscriptions', 'getInvoiceDetails'],
   })
 
   useImperativeHandle(ref, () => ({
