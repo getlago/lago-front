@@ -16,8 +16,8 @@ importers:
         specifier: 3.14.0
         version: 3.14.0(@types/react@18.3.26)(graphql-ws@5.16.0(graphql@16.12.0))(graphql@16.12.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@fragaria/address-formatter':
-        specifier: 6.6.1
-        version: 6.6.1
+        specifier: 6.7.1
+        version: 6.7.1
       '@llm-ui/code':
         specifier: 0.13.3
         version: 0.13.3(react@18.3.1)(shiki@3.15.0)
@@ -1848,8 +1848,8 @@ packages:
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
-  '@fragaria/address-formatter@6.6.1':
-    resolution: {integrity: sha512-cow1i8U2CspWf2skDBc6XgNX7uI14f+8CED97p9jc70VUgXjLc6dIcQNjawL1bkkxyRLS22b8I9dbj0nXex8ng==}
+  '@fragaria/address-formatter@6.7.1':
+    resolution: {integrity: sha512-ttCuFClh1dlZTljgkGvwGdUDHlq3WsfHi6S641uzjAY0S4NOrYksECqKW6J1JFbBhBcQRs+DO7ujA49A2sVA/Q==}
     engines: {node: '>=20.0.0'}
 
   '@graphql-codegen/add@6.0.0':
@@ -9651,7 +9651,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.9': {}
 
-  '@fragaria/address-formatter@6.6.1':
+  '@fragaria/address-formatter@6.7.1':
     dependencies:
       mustache: 4.2.0
 
