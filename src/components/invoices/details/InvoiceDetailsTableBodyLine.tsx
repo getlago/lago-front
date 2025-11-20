@@ -114,6 +114,7 @@ type InvoiceDetailsTableBodyLineProps = {
   hasTaxProviderError?: boolean
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
+  invoiceSubscriptionId?: string
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (
@@ -188,6 +189,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     hasTaxProviderError,
     onAdd,
     onDelete,
+    invoiceSubscriptionId,
   }: InvoiceDetailsTableBodyLineProps) => {
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
@@ -377,8 +379,22 @@ export const InvoiceDetailsTableBodyLine = memo(
                         onClick={() => {
                           if (isAdjustedFee) {
                             deleteAdjustedFeeDialogRef?.current?.openDialog({ fee, onDelete })
-                          } else {
-                            editFeeDrawerRef?.current?.openDrawer({ fee, invoiceId, onAdd })
+                          } else if (fee) {
+                            if (onAdd && invoiceSubscriptionId) {
+                              editFeeDrawerRef?.current?.openDrawer({
+                                mode: 'regenerate',
+                                invoiceId,
+                                invoiceSubscriptionId,
+                                fee,
+                                onAdd,
+                              })
+                            } else {
+                              editFeeDrawerRef?.current?.openDrawer({
+                                mode: 'edit',
+                                invoiceId,
+                                fee,
+                              })
+                            }
                           }
                           closePopper()
                         }}

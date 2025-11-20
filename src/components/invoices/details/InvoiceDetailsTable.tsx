@@ -133,6 +133,7 @@ gql`
     currency
     issuingDate
     allChargesHaveFees
+    allFixedChargesHaveFees
     versionNumber
     errorDetails {
       errorCode
@@ -263,25 +264,30 @@ const AddFee = ({
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   translate: TranslateFunc
   onAdd?: OnRegeneratedFeeAdd
-}) => (
-  <tr className="py-2 shadow-b">
-    <td>
-      <Button
-        variant="quaternary"
-        startIcon="plus"
-        onClick={() => {
-          editFeeDrawerRef?.current?.openDrawer({
-            invoiceId,
-            invoiceSubscriptionId,
-            onAdd,
-          })
-        }}
-      >
-        {translate('text_17506785063889sphu20u9eh')}
-      </Button>
-    </td>
-  </tr>
-)
+}) => {
+  return (
+    <tr className="py-2 shadow-b">
+      <td>
+        <Button
+          variant="quaternary"
+          startIcon="plus"
+          onClick={() => {
+            if (onAdd && invoiceSubscriptionId) {
+              editFeeDrawerRef?.current?.openDrawer({
+                mode: 'regenerate',
+                invoiceId,
+                invoiceSubscriptionId,
+                onAdd,
+              })
+            }
+          }}
+        >
+          {translate('text_17506785063889sphu20u9eh')}
+        </Button>
+      </td>
+    </tr>
+  )
+}
 
 export const InvoiceDetailsTable = memo(
   ({
@@ -463,6 +469,7 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  subscriptionId={subscriptionId}
                   onAdd={onAdd}
                   onDelete={onDelete}
                   fees={fees}
@@ -477,6 +484,7 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  subscriptionId={subscriptionId}
                   onAdd={onAdd}
                   onDelete={onDelete}
                   fees={fees}
@@ -486,6 +494,14 @@ export const InvoiceDetailsTable = memo(
               if (subscription.metadata.differentBoundariesForSubscriptionAndCharges) {
                 feesComponentsToRender.reverse()
               }
+
+              const canAnyChargeBeAdded =
+                !invoice.allChargesHaveFees || !invoice.allFixedChargesHaveFees
+              const showAddNewFeeButton =
+                !hasOldZeroFeeManagement &&
+                canAnyChargeBeAdded &&
+                subscription.metadata.acceptNewChargeFees &&
+                invoice.status === InvoiceStatusTypeEnum.Draft
 
               return (
                 <table key={`subscription-${subscriptionId}`}>
@@ -517,32 +533,31 @@ export const InvoiceDetailsTable = memo(
                             hasTaxProviderError={hasTaxProviderError}
                             onAdd={onAdd}
                             onDelete={onDelete}
+                            invoiceSubscriptionId={subscriptionId}
                           />
                         ))}
-                    {!hasOldZeroFeeManagement &&
-                      !invoice.allChargesHaveFees &&
-                      subscription.metadata.acceptNewChargeFees &&
-                      invoice.status === InvoiceStatusTypeEnum.Draft && (
-                        <tr>
-                          <td colSpan={6}>
-                            <div>
-                              <Button
-                                variant="quaternary"
-                                size="small"
-                                startIcon={'plus'}
-                                onClick={() =>
-                                  editFeeDrawerRef.current?.openDrawer({
-                                    invoiceId: subscription.metadata.invoiceId,
-                                    invoiceSubscriptionId: subscriptionId,
-                                  })
-                                }
-                              >
-                                {translate('text_1737709105343hobdiidr8r9')}
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
+                    {showAddNewFeeButton && (
+                      <tr>
+                        <td colSpan={6}>
+                          <div>
+                            <Button
+                              variant="quaternary"
+                              size="small"
+                              startIcon="plus"
+                              onClick={() =>
+                                editFeeDrawerRef?.current?.openDrawer({
+                                  mode: 'add',
+                                  invoiceId: subscription.metadata.invoiceId,
+                                  invoiceSubscriptionId: subscriptionId,
+                                })
+                              }
+                            >
+                              {translate('text_1737709105343hobdiidr8r9')}
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                     {!!onAdd && (
                       <AddFee
                         editFeeDrawerRef={editFeeDrawerRef}
