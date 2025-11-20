@@ -113,7 +113,7 @@
     "@llm-ui/code": "0.13.3",
     "@llm-ui/markdown": "0.13.3",
     "@llm-ui/react": "0.13.3",
-    "@fragaria/address-formatter": "6.6.1",
+    "@fragaria/address-formatter": "6.7.1",
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
     "@nangohq/frontend": "0.69.12",
