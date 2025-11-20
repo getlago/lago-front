@@ -1,4 +1,8 @@
-import { ChargeModelEnum, InvoiceSubscriptionForCreateFeeDrawerFragment } from '~/generated/graphql'
+import {
+  ChargeModelEnum,
+  FixedChargeChargeModelEnum,
+  InvoiceSubscriptionForCreateFeeDrawerFragment,
+} from '~/generated/graphql'
 
 export const invoiceSubTwoChargeOneFilter: InvoiceSubscriptionForCreateFeeDrawerFragment = {
   subscription: {
@@ -504,6 +508,8 @@ export const invoiceSubOnlyFixedCharges: InvoiceSubscriptionForCreateFeeDrawerFr
             name: 'Onboarding Setup',
             code: 'onboarding_setup',
           },
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          prorated: false,
         },
         {
           id: 'fc2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p',
@@ -513,6 +519,8 @@ export const invoiceSubOnlyFixedCharges: InvoiceSubscriptionForCreateFeeDrawerFr
             name: 'Monthly Support',
             code: 'monthly_support',
           },
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          prorated: false,
         },
       ],
     },
@@ -558,6 +566,8 @@ export const invoiceSubBothChargesAndFixedCharges: InvoiceSubscriptionForCreateF
             name: 'Premium Support',
             code: 'premium_support',
           },
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          prorated: false,
         },
         {
           id: 'fc4d5e6f-7g8h-9i0j-1k2l-3m4n5o6p7q8r',
@@ -567,6 +577,8 @@ export const invoiceSubBothChargesAndFixedCharges: InvoiceSubscriptionForCreateF
             name: 'Enterprise License',
             code: 'enterprise_license',
           },
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          prorated: false,
         },
       ],
     },
