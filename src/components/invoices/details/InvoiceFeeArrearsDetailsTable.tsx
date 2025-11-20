@@ -42,6 +42,7 @@ gql`
 
 interface InvoiceFeeArrearsDetailsTableProps {
   subscription: TSubscriptionDataForDisplay['subscription']
+  subscriptionId: string
   customer: Customer
   canHaveUnitPrice: boolean
   hasOldZeroFeeManagement: boolean
@@ -57,6 +58,7 @@ interface InvoiceFeeArrearsDetailsTableProps {
 export const InvoiceFeeArrearsDetailsTable = memo(
   ({
     subscription,
+    subscriptionId,
     customer,
     canHaveUnitPrice,
     hasOldZeroFeeManagement,
@@ -118,6 +120,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
                   isDraftInvoice={isDraftInvoice}
                   onAdd={onAdd}
                   onDelete={onDelete}
+                  invoiceSubscriptionId={subscriptionId}
                 />
               )
             })}
@@ -166,6 +169,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
                               isDraftInvoice={isDraftInvoice}
                               onAdd={onAdd}
                               onDelete={onDelete}
+                              invoiceSubscriptionId={subscriptionId}
                             />
                           )
                         })}
