@@ -29,7 +29,7 @@ export default {
     '!src/pages/__devOnly/*.{ts,tsx}',
   ],
   coverageReporters: ['text', 'lcov'],
-  collectCoverage: true,
+  collectCoverage: false, // set to true to collect coverage
   coverageThreshold: {
     global: {},
     'src/hooks/ui/useShortcuts.tsx': {
