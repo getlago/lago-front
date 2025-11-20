@@ -27,4 +27,4 @@ jobs:
 
       - name: Run tests
         run: |
-          pnpm run test
+          pnpm run test:coverage
