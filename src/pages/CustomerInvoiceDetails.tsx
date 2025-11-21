@@ -53,7 +53,6 @@ import {
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { handleDownloadFile, openNewTab } from '~/core/utils/downloadFiles'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -82,7 +81,6 @@ import {
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
   SalesforceIntegration,
   SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
-  useDownloadInvoiceMutation,
   useGeneratePaymentUrlMutation,
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
@@ -100,8 +98,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -248,13 +248,6 @@ gql`
     }
   }
 
-  mutation downloadInvoice($input: DownloadInvoiceInput!) {
-    downloadInvoice(input: $input) {
-      id
-      fileUrl
-    }
-  }
-
   mutation refreshInvoice($input: RefreshInvoiceInput!) {
     refreshInvoice(input: $input) {
       id
@@ -368,6 +361,8 @@ const CustomerInvoiceDetails = () => {
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+
+  const { openNewTab } = useDownloadFile()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -529,11 +524,8 @@ const CustomerInvoiceDetails = () => {
       },
     })
 
-  const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
-    onCompleted({ downloadInvoice: downloadInvoiceData }) {
-      handleDownloadFile(downloadInvoiceData?.fileUrl)
-    },
-  })
+  const { downloadInvoice, loadingInvoiceDownload, downloadInvoiceXml, loadingInvoiceXmlDownload } =
+    useDownloadInvoice()
 
   const { data: integrationsData } = useIntegrationsListForCustomerInvoiceDetailsQuery({
     variables: { limit: 1000 },
@@ -657,6 +649,7 @@ const CustomerInvoiceDetails = () => {
         component: (
           <InvoiceOverview
             downloadInvoice={downloadInvoice}
+            downloadInvoiceXml={downloadInvoiceXml}
             hasError={hasError}
             hasTaxProviderError={!!hasTaxProviderError}
             invoice={data?.invoice as Invoice}
@@ -665,6 +658,7 @@ const CustomerInvoiceDetails = () => {
             fees={invoiceFees}
             invoiceSubscriptions={invoiceSubscriptions}
             loadingInvoiceDownload={loadingInvoiceDownload}
+            loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
             loadingRetryInvoice={loadingRetryInvoice}
             loadingRetryTaxProviderVoiding={loadingRetryTaxProviderVoiding}
@@ -759,6 +753,7 @@ const CustomerInvoiceDetails = () => {
     }
 
     return tabs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     translate,
     customerId,
@@ -794,6 +789,16 @@ const CustomerInvoiceDetails = () => {
     canRecordPayment,
   ])
 
+  const canFinalize = useMemo(() => actions.canFinalize({ status }), [actions, status])
+  const canDownload = useMemo(
+    () => actions.canDownload({ status, taxStatus }),
+    [actions, status, taxStatus],
+  )
+
+  const canDownloadXmlFile = useMemo(() => {
+    return invoice?.billingEntity.einvoicing || !!invoice?.xmlUrl
+  }, [invoice])
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -817,7 +822,7 @@ const CustomerInvoiceDetails = () => {
             {({ closePopper }) => {
               return (
                 <MenuPopper>
-                  {hasTaxProviderError ? (
+                  {hasTaxProviderError && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -830,7 +835,8 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
-                  ) : actions.canFinalize({ status }) ? (
+                  )}
+                  {!hasTaxProviderError && canFinalize && (
                     <>
                       <Button
                         variant="quaternary"
@@ -856,7 +862,8 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : actions.canDownload({ status, taxStatus }) ? (
+                  )}
+                  {!hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -870,7 +877,41 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
-                  ) : null}
+                  )}
+                  {!hasTaxProviderError &&
+                    !canFinalize &&
+                    canDownload &&
+                    invoice &&
+                    canDownloadXmlFile && (
+                      <>
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          disabled={!!loadingInvoiceDownload}
+                          onClick={async () => {
+                            await downloadInvoice({
+                              variables: { input: { id: invoiceId || '' } },
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1760447853022ebd47gmqjmp')}
+                        </Button>
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          disabled={!!loadingInvoiceXmlDownload}
+                          onClick={async () => {
+                            await downloadInvoiceXml({
+                              variables: { input: { id: invoiceId || '' } },
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1760447853022hb1hdiprvet')}
+                        </Button>
+                      </>
+                    )}
                   {actions.canIssueCreditNote({ status }) && (
                     <>
                       {isPremium ? (
@@ -1104,7 +1145,7 @@ const CustomerInvoiceDetails = () => {
           </Popper>
         )}
       </PageHeader.Wrapper>
-      {!!errorMessage ? (
+      {!!errorMessage && (
         <Alert fullWidth className="md:px-12" type="warning">
           <Stack>
             <Typography variant="body" color="grey700">
@@ -1114,7 +1155,8 @@ const CustomerInvoiceDetails = () => {
             <Typography variant="caption">{translate(errorMessage)}</Typography>
           </Stack>
         </Alert>
-      ) : taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
+      )}
+      {!errorMessage && taxStatus === InvoiceTaxStatusTypeEnum.Pending && (
         <Alert fullWidth className="md:px-12" type="info">
           <div className="flex flex-col">
             <Typography variant="body" color="grey700">
@@ -1126,7 +1168,7 @@ const CustomerInvoiceDetails = () => {
             </Typography>
           </div>
         </Alert>
-      ) : null}
+      )}
       {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}

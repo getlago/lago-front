@@ -33,6 +33,7 @@ export const typeDefs = gql`
     payment_processor_is_currently_handling_payment
     plan_overlapping
     invoices_not_overdue
+    invoices_not_ready_for_payment_processing
 
     # Object not found
     missing_payment_provider_customer

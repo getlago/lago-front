@@ -13,6 +13,7 @@ import { BILLING_ENTITY_UPDATE_ROUTE } from '~/core/router'
 import { BillingEntity } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import { MANDATORY_EINVOICING_COUNTRIES } from '~/pages/settings/BillingEntity/const'
 
 type LogoProps = {
   name: string
@@ -68,11 +69,22 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
     state,
     country,
     isDefault,
+    einvoicing,
   } = billingEntity
 
   const loading = false
 
   const emptyPlaceholder = translate('text_1744030459568c0h1b5p25u6')
+
+  const getEinvoicingDisplayValue = (hasEinvoicing: boolean, billingCountry?: string | null) => {
+    if (!billingCountry || !MANDATORY_EINVOICING_COUNTRIES.includes(billingCountry)) {
+      return translate('text_1760346300860wjkllqkychx')
+    }
+
+    return hasEinvoicing
+      ? translate('text_1752158016615j1gk6ew4q3t')
+      : translate('text_1752157864305e5ihvtb7dys')
+  }
 
   const fields: SettingsField[] = [
     {
@@ -153,6 +165,12 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
       value: country ? CountryCodes[country] : null,
       emptyPlaceholder,
       fieldKey: 'country',
+    },
+    {
+      label: translate('text_1760101157939jviogsjfcsn'),
+      value: getEinvoicingDisplayValue(einvoicing, country),
+      emptyPlaceholder,
+      fieldKey: 'einvoicing',
     },
   ]
 

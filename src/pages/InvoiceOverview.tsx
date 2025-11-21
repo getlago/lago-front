@@ -81,6 +81,7 @@ gql`
     externalHubspotIntegrationId
     integrationSalesforceSyncable
     externalSalesforceIntegrationId
+    xmlUrl
     fees {
       id
       addOn {
@@ -116,6 +117,7 @@ gql`
     billingEntity {
       name
       code
+      einvoicing
     }
   }
 
@@ -170,11 +172,13 @@ gql`
 interface InvoiceOverviewProps {
   customer?: CustomerForInvoiceOverviewFragment | null
   downloadInvoice: DownloadInvoiceItemMutationFn
+  downloadInvoiceXml: DownloadInvoiceItemMutationFn
   hasError: boolean
   hasTaxProviderError: boolean
   invoice: Invoice
   loading: boolean
   loadingInvoiceDownload: boolean
+  loadingInvoiceXmlDownload: boolean
   loadingRefreshInvoice: boolean
   loadingRetryInvoice: boolean
   loadingRetryTaxProviderVoiding: boolean
@@ -319,11 +323,13 @@ export const InvoiceQuickInfo = ({
 const InvoiceOverview = memo(
   ({
     downloadInvoice,
+    downloadInvoiceXml,
     hasError,
     hasTaxProviderError,
     invoice,
     loading,
     loadingInvoiceDownload,
+    loadingInvoiceXmlDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
     loadingRetryTaxProviderVoiding,
@@ -346,6 +352,7 @@ const InvoiceOverview = memo(
     const { formattedDateWithTimezone } = useFormatterDateHelper()
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
+
     const billingEntity = invoice?.billingEntity
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
@@ -435,11 +442,13 @@ const InvoiceOverview = memo(
               loadingRefreshInvoice={loadingRefreshInvoice}
               loadingRetryInvoice={loadingRetryInvoice}
               loadingInvoiceDownload={loadingInvoiceDownload}
+              loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
               hasError={hasError}
               hasTaxProviderError={hasTaxProviderError}
               refreshInvoice={refreshInvoice}
               retryInvoice={retryInvoice}
               downloadInvoice={downloadInvoice}
+              downloadInvoiceXml={downloadInvoiceXml}
               finalizeInvoiceRef={finalizeInvoiceRef}
               goToPreviousRoute={goToPreviousRoute}
               invoiceId={invoiceId}

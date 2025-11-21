@@ -2,8 +2,8 @@ import { useFormik } from 'formik'
 import { useEffect, useRef } from 'react'
 import { object, string } from 'yup'
 
-import { Button, Typography } from '~/components/designSystem'
-import { ComboBoxField, TextInput, TextInputField } from '~/components/form'
+import { Alert, Button, Typography } from '~/components/designSystem'
+import { ComboBoxField, SwitchField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { LogoPicker } from '~/components/LogoPicker'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -14,6 +14,7 @@ import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CreateBillingEntityInput, UpdateBillingEntityInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useCreateEditBillingEntity from '~/hooks/useCreateEditBillingEntity'
+import { MANDATORY_EINVOICING_COUNTRIES } from '~/pages/settings/BillingEntity/const'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const BillingEntityCreateEdit = () => {
@@ -49,6 +50,7 @@ const BillingEntityCreateEdit = () => {
       state: billingEntity?.state || '',
       country: billingEntity?.country || undefined,
       logo: undefined,
+      einvoicing: billingEntity?.einvoicing || false,
     },
     validationSchema: object().shape({
       code: string().required(''),
@@ -62,6 +64,28 @@ const BillingEntityCreateEdit = () => {
       })
     },
   })
+
+  useEffect(() => {
+    if (
+      formikProps.values.country &&
+      MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country) &&
+      !formikProps.values.einvoicing
+    ) {
+      formikProps.setFieldValue('einvoicing', false)
+    }
+
+    if (
+      !formikProps.values.country ||
+      !MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country)
+    ) {
+      formikProps.setFieldValue('einvoicing', undefined)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.country])
+
+  const canDisplayEinvoicingField =
+    formikProps.values.country &&
+    MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country)
 
   return (
     <>
@@ -209,6 +233,37 @@ const BillingEntityCreateEdit = () => {
                         PopperProps={{ displayInDialog: true }}
                       />
                     </div>
+                  </div>
+                </section>
+
+                <section className="not-last-child:mb-6">
+                  <div className="not-last-child:mb-2">
+                    <Typography variant="subhead1">
+                      {translate('text_1760101157939jviogsjfcsn')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_1760101157939mnmlyzbp7ao')}
+                    </Typography>
+                  </div>
+                  <div className="mb-8 flex flex-col gap-6">
+                    {!canDisplayEinvoicingField ? (
+                      <Alert type="warning">
+                        <Typography
+                          className="word-break-word"
+                          color="textSecondary"
+                          html={translate('text_176010285376748i8jr0rwn2', {
+                            href: 'REPLACE_ME',
+                          })}
+                        />
+                      </Alert>
+                    ) : (
+                      <SwitchField
+                        formikProps={formikProps}
+                        name="einvoicing"
+                        label={translate('text_1760103938878g88itu3cdah')}
+                        subLabel={translate('text_1760103938878069h2vcfis3')}
+                      />
+                    )}
                   </div>
                 </section>
               </div>

@@ -8,6 +8,7 @@ import {
   BillingEntityForIntegrationMapping,
   DEFAULT_MAPPING_KEY,
   handleIntegrationMappingCreateUpdateDelete,
+  isItemMappingForKeyNotForCurrenciesMapping,
   ItemMappingForMappable,
   ItemMappingForNonTaxMapping,
   ItemMappingForTaxMapping,
@@ -61,6 +62,16 @@ export const NetsuiteIntegrationMapItemDrawer = forwardRef<NetsuiteIntegrationMa
       return localData.billingEntities.reduce(
         (acc: FormValuesType, billingEntity: BillingEntityForIntegrationMapping) => {
           const billingEntityKey = billingEntity.key || DEFAULT_MAPPING_KEY
+
+          if (
+            !isItemMappingForKeyNotForCurrenciesMapping(
+              localData,
+              localData.itemMappings,
+              billingEntityKey,
+            )
+          ) {
+            return acc
+          }
 
           acc[billingEntityKey] = {
             taxCode: isMappingInTaxContext(localData, billingEntityKey)

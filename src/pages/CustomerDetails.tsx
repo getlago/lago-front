@@ -43,7 +43,6 @@ import {
   CUSTOMERS_LIST_ROUTE,
   UPDATE_CUSTOMER_ROUTE,
 } from '~/core/router'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
@@ -53,6 +52,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDownloadFile } from '~/hooks/useDownloadFile'
+import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -94,6 +95,9 @@ gql`
   ${CustomerMainInfosFragmentDoc}
 `
 
+export const REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID = 'request-overdue-payment-button'
+export const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
+
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
@@ -103,6 +107,10 @@ const CustomerDetails = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { customerId, tab } = useParams()
+  const { handleDownloadFile } = useDownloadFile()
+
+  const { data: isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
+    useIsCustomerReadyForOverduePayment()
 
   const { data, loading, error } = useGetCustomerQuery({
     variables: { id: customerId as string },
@@ -176,7 +184,7 @@ const CustomerDetails = () => {
             <Popper
               PopperProps={{ placement: 'bottom-end' }}
               opener={
-                <Button endIcon="chevron-down" data-test="customer-actions">
+                <Button endIcon="chevron-down" data-test={CUSTOMER_ACTIONS_BUTTON_TEST_ID}>
                   {translate('text_626162c62f790600f850b6fe')}
                 </Button>
               }
@@ -187,6 +195,9 @@ const CustomerDetails = () => {
                     <Button
                       variant="quaternary"
                       align="left"
+                      disabled={
+                        isPaymentProcessingStatusLoading || !isCustomerReadyForOverduePayment
+                      }
                       onClick={() => {
                         navigate(
                           generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
@@ -195,6 +206,7 @@ const CustomerDetails = () => {
                         )
                         closePopper()
                       }}
+                      data-test={REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID}
                     >
                       {translate('text_66b25adfd834ed0104345eb7')}
                     </Button>

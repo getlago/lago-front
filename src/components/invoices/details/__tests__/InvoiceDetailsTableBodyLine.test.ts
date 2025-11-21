@@ -22,7 +22,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
     const fee = {
       amountCents: 100,
       amountCurrency: 'USD',
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee, isTrueUpFee: true })
 
     expect(result).toBe(false)
@@ -32,7 +32,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
     const fee = {
       amountCents: 100,
       amountCurrency: 'USD',
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee, canHaveUnitPrice: false })
 
     expect(result).toBe(false)
