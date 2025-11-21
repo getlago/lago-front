@@ -1,42 +1,34 @@
 import { createFormHook } from '@tanstack/react-form'
-import { Spinner } from 'lago-design-system'
-import { ComponentType, lazy, Suspense } from 'react'
+
+import { lazyComponent } from '~/core/utils/lazyComponent'
 
 import { fieldContext, formContext } from './formContext.ts'
 
-const CheckboxFieldLazy = lazy(
+const CheckboxField = lazyComponent(
   () => import('~/components/form/Checkbox/CheckboxFieldForTanstack.tsx'),
 )
-const ComboBoxFieldLazy = lazy(
+const ComboBoxField = lazyComponent(
   () => import('~/components/form/ComboBox/ComboBoxFieldForTanstack.tsx'),
 )
-const SubmitButtonLazy = lazy(() => import('~/components/form/SubmitButton/SubmitButtonField.tsx'))
-const SwitchFieldLazy = lazy(() => import('~/components/form/Switch/SwitchFieldForTanstack.tsx'))
-const TextInputFieldLazy = lazy(
+const SwitchField = lazyComponent(
+  () => import('~/components/form/Switch/SwitchFieldForTanstack.tsx'),
+)
+const TextInputField = lazyComponent(
   () => import('~/components/form/TextInput/TextInputFieldForTanstack.tsx'),
 )
-
-const withLazySuspense = <T extends Record<string, unknown>>(
-  LazyComponent: ComponentType<T>,
-): ComponentType<T> => {
-  const WrappedComponent = (props: T) => (
-    <Suspense fallback={<Spinner />}>
-      <LazyComponent {...props} />
-    </Suspense>
-  )
-
-  return WrappedComponent
-}
+const SubmitButton = lazyComponent(
+  () => import('~/components/form/SubmitButton/SubmitButtonField.tsx'),
+)
 
 export const { useAppForm, withForm, withFieldGroup } = createFormHook({
   fieldComponents: {
-    TextInputField: withLazySuspense(TextInputFieldLazy),
-    ComboBoxField: withLazySuspense(ComboBoxFieldLazy),
-    SwitchField: withLazySuspense(SwitchFieldLazy),
-    CheckboxField: withLazySuspense(CheckboxFieldLazy),
+    TextInputField,
+    ComboBoxField,
+    SwitchField,
+    CheckboxField,
   },
   formComponents: {
-    SubmitButton: withLazySuspense(SubmitButtonLazy),
+    SubmitButton,
   },
   fieldContext,
   formContext,
