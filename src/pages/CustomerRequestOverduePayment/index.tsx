@@ -14,7 +14,6 @@ import {
   CurrencyEnum,
   CustomerForDunningEmailFragmentDoc,
   CustomerForRequestOverduePaymentFormFragmentDoc,
-  InvoicesForDunningEmailFragmentDoc,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
   LagoApiError,
   LastPaymentRequestFragmentDoc,
@@ -24,6 +23,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import { PageHeader } from '~/styles'
 
@@ -32,6 +32,8 @@ import {
   CustomerRequestOverduePaymentForm,
   RequestPaymentForm,
 } from './components/RequestPaymentForm'
+
+export const SUBMIT_PAYMENT_REQUEST_TEST_ID = 'submit-payment-request'
 
 gql`
   query getRequestOverduePaymentInfos($id: ID!) {
@@ -55,13 +57,11 @@ gql`
 
     invoices(paymentOverdue:true, customerId: $id) {
       collection {
-        ...InvoicesForDunningEmail
         ...InvoicesForRequestOverduePaymentForm
       }
     }
 
     ${CustomerForDunningEmailFragmentDoc}
-    ${InvoicesForDunningEmailFragmentDoc}
     ${OrganizationForDunningEmailFragmentDoc}
     ${CustomerForRequestOverduePaymentFormFragmentDoc}
     ${InvoicesForRequestOverduePaymentFormFragmentDoc}
@@ -80,6 +80,8 @@ const CustomerRequestOverduePayment: FC = () => {
   const { customerId } = useParams()
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
+  const { data: isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
+    useIsCustomerReadyForOverduePayment()
 
   const {
     data: { customer, organization, paymentRequests, invoices } = {},
@@ -94,7 +96,10 @@ const CustomerRequestOverduePayment: FC = () => {
   const [paymentRequest, paymentRequestStatus] = useCreatePaymentRequestMutation({
     refetchQueries: ['getCustomerOverdueBalances'],
     context: {
-      silentErrorCodes: [LagoApiError.InvoicesNotOverdue],
+      silentErrorCodes: [
+        LagoApiError.InvoicesNotOverdue,
+        LagoApiError.InvoicesNotReadyForPaymentProcessing,
+      ],
     },
     onCompleted() {
       addToast({
@@ -112,8 +117,21 @@ const CustomerRequestOverduePayment: FC = () => {
         })
         paymentRequestStatus.client.refetchQueries({ include: ['getRequestOverduePaymentInfos'] })
       }
+
+      if (hasDefinedGQLError('InvoicesNotReadyForPaymentProcessing', mutationError)) {
+        handlePaymentNotReady()
+      }
     },
   })
+
+  const handlePaymentNotReady = () => {
+    addToast({
+      severity: 'danger',
+      translateKey: 'text_1763545922743q5ic2kklick',
+    })
+
+    navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
+  }
 
   const documentLocale =
     (customer?.billingConfiguration?.documentLocale as Locale) ||
@@ -174,6 +192,15 @@ const CustomerRequestOverduePayment: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [loading, totalAmount],
   )
+
+  useEffect(() => {
+    // Check and redirect if invoices are not ready for payment processing
+    // Runs when payment status changes (on mount and when dependencies update)
+    if (!isPaymentProcessingStatusLoading && !isCustomerReadyForOverduePayment) {
+      handlePaymentNotReady()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCustomerReadyForOverduePayment, isPaymentProcessingStatusLoading])
 
   return (
     <>
@@ -245,6 +272,7 @@ const CustomerRequestOverduePayment: FC = () => {
             variant="primary"
             size="large"
             onClick={formikProps.submitForm}
+            data-test={SUBMIT_PAYMENT_REQUEST_TEST_ID}
             disabled={!hasDunningIntegration || totalAmount === 0 || !formikProps.isValid}
           >
             {translate('text_66b258f62100490d0eb5caa2')}
