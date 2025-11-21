@@ -22,6 +22,10 @@ import {
   EditBillingEntityGracePeriodDialogRef,
 } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
 import {
+  EditBillingEntityInvoiceIssuingDatePolicyDialog,
+  EditBillingEntityInvoiceIssuingDatePolicyDialogRef,
+} from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
+import {
   EditBillingEntityInvoiceNumberingDialog,
   EditBillingEntityInvoiceNumberingDialogRef,
 } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
@@ -41,13 +45,20 @@ import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import {
+  INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
+  INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
+} from '~/core/constants/issuingDatePolicy'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import { getBillingEntityNumberPreview } from '~/core/utils/billingEntityNumberPreview'
 import {
   BillingEntity,
   BillingEntityDocumentNumberingEnum,
+  BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum,
+  BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum,
   DeleteCustomSectionFragmentDoc,
   EditBillingEntityDefaultCurrencyForDialogFragmentDoc,
+  EditBillingEntityInvoiceIssuingDatePolicyDialogFragmentDoc,
   EditBillingEntityInvoiceNumberingDialogFragmentDoc,
   EditBillingEntityInvoiceTemplateDialogFragmentDoc,
   EditBillingEntityNetPaymentTermForDialogFragmentDoc,
@@ -83,11 +94,14 @@ gql`
         invoiceGracePeriod
         invoiceFooter
         documentLocale
+        subscriptionInvoiceIssuingDateAdjustment
+        subscriptionInvoiceIssuingDateAnchor
       }
       ...EditBillingEntityInvoiceTemplateDialog
       ...EditBillingEntityNetPaymentTermForDialog
       ...EditBillingEntityDefaultCurrencyForDialog
       ...EditBillingEntityInvoiceNumberingDialog
+      ...EditBillingEntityInvoiceIssuingDatePolicyDialog
     }
 
     taxes(appliedToOrganization: $appliedToOrganization) {
@@ -115,6 +129,7 @@ gql`
   ${EditBillingEntityNetPaymentTermForDialogFragmentDoc}
   ${EditBillingEntityDefaultCurrencyForDialogFragmentDoc}
   ${EditBillingEntityInvoiceNumberingDialogFragmentDoc}
+  ${EditBillingEntityInvoiceIssuingDatePolicyDialogFragmentDoc}
 `
 
 const BillingEntityInvoiceSettings = () => {
@@ -125,6 +140,8 @@ const BillingEntityInvoiceSettings = () => {
 
   const editInvoiceTemplateDialogRef = useRef<EditBillingEntityInvoiceTemplateDialogRef>(null)
   const editInvoiceNumberingDialogRef = useRef<EditBillingEntityInvoiceNumberingDialogRef>(null)
+  const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
+    useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
   const editDefaultCurrencyDialogRef = useRef<EditDefaultCurrencyDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditBillingEntityDocumentLocaleDialogRef>(null)
@@ -328,6 +345,48 @@ const BillingEntityInvoiceSettings = () => {
           documentNumbering={billingEntity?.documentNumbering}
           documentNumberPrefix={billingEntity?.documentNumberPrefix}
           id={billingEntity?.id as string}
+        />
+      ),
+    },
+    {
+      id: 'invoice-settings-issuing_date-policy',
+      label: translate('text_1763407530093r6zuzwr3x7p'),
+      sublabel: translate('text_1763407530094ffluzv9nvij'),
+      action: (
+        <Button
+          variant="inline"
+          disabled={!canEditInvoiceSettings}
+          onClick={editBillingEntityInvoiceIssuingDatePolicyDialogRef?.current?.openDialog}
+        >
+          {translate('text_6380d7e60f081e5b777c4b24')}
+        </Button>
+      ),
+      content: (
+        <div className="flex items-baseline gap-1">
+          <Typography variant="body" color="grey700">
+            <div>
+              {translate(
+                INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
+                  billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
+                    BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum.CurrentPeriodEnd
+                ],
+              )}
+            </div>
+            <div>
+              {translate(
+                INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
+                  billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
+                    BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum.KeepAnchor
+                ],
+              )}
+            </div>
+          </Typography>
+        </div>
+      ),
+      dialog: (
+        <EditBillingEntityInvoiceIssuingDatePolicyDialog
+          ref={editBillingEntityInvoiceIssuingDatePolicyDialogRef}
+          billingEntity={billingEntity}
         />
       ),
     },

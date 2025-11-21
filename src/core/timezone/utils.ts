@@ -32,6 +32,8 @@ export const isSameDay = (a: DateTime, b: DateTime): boolean => {
 }
 
 export enum DateFormat {
+  /** Apr 18 */
+  DATE_MED_SHORT = 'DATE_MED_SHORT',
   /** Apr 18, 2025 */
   DATE_MED = 'DATE_MED',
   /** 4/18/2025 */
@@ -71,16 +73,21 @@ export enum TimezoneFormat {
 }
 
 const getDateString = (dateTime: DateTime, format: DateFormat) => {
-  if (format === 'DATE_MONTH_YEAR' || format === 'DATE_MED_SHORT_YEAR') {
+  if (format === DateFormat.DATE_MONTH_YEAR || format === DateFormat.DATE_MED_SHORT_YEAR) {
     return dateTime.toLocaleString({
       month: 'short',
-      ...(format === 'DATE_MONTH_YEAR' && {
+      ...(format === DateFormat.DATE_MONTH_YEAR && {
         year: 'numeric',
       }),
-      ...(format === 'DATE_MED_SHORT_YEAR' && {
+      ...(format === DateFormat.DATE_MED_SHORT_YEAR && {
         day: 'numeric',
         year: '2-digit',
       }),
+    })
+  } else if (format === DateFormat.DATE_MED_SHORT) {
+    return dateTime.toLocaleString({
+      month: 'short',
+      day: 'numeric',
     })
   }
   return dateTime.toLocaleString(DateTime[format])

@@ -42,6 +42,8 @@ gql`
       creditNotesView
       creditNotesVoid
       customerSettingsUpdateGracePeriod
+      # customerSettingsUpdateIssuingDatePolicyAnchor
+      # customerSettingsUpdateIssuingDatePolicyAdjustment
       customerSettingsUpdateLang
       customerSettingsUpdatePaymentTerms
       customerSettingsUpdateTaxRates
