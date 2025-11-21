@@ -4084,6 +4084,7 @@ export type Invoice = {
   payments?: Maybe<Array<Payment>>;
   prepaidCreditAmountCents: Scalars['BigInt']['output'];
   progressiveBillingCreditAmountCents: Scalars['BigInt']['output'];
+  readyForPaymentProcessing: Scalars['Boolean']['output'];
   refundableAmountCents: Scalars['BigInt']['output'];
   regeneratedInvoiceId?: Maybe<Scalars['String']['output']>;
   selfBilled: Scalars['Boolean']['output'];
@@ -4293,6 +4294,7 @@ export enum LagoApiError {
   InviteEmailMistmatch = 'invite_email_mistmatch',
   InviteNotFound = 'invite_not_found',
   InvoicesNotOverdue = 'invoices_not_overdue',
+  InvoicesNotReadyForPaymentProcessing = 'invoices_not_ready_for_payment_processing',
   LoginMethodNotAuthorized = 'login_method_not_authorized',
   MissingPaymentProviderCustomer = 'missing_payment_provider_customer',
   NotFound = 'not_found',
@@ -5590,6 +5592,7 @@ export type OktaIntegration = {
   clientSecret?: Maybe<Scalars['ObfuscatedString']['output']>;
   code: Scalars['String']['output'];
   domain: Scalars['String']['output'];
+  host?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organizationName: Scalars['String']['output'];
@@ -11687,6 +11690,13 @@ export type GetTaxProviderPresenceQuery = { __typename?: 'Query', integrations?:
       | { __typename?: 'SalesforceIntegration' }
       | { __typename?: 'XeroIntegration' }
     > } | null };
+
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', readyForPaymentProcessing: boolean }> } };
 
 export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
@@ -30092,6 +30102,48 @@ export type GetTaxProviderPresenceQueryHookResult = ReturnType<typeof useGetTaxP
 export type GetTaxProviderPresenceLazyQueryHookResult = ReturnType<typeof useGetTaxProviderPresenceLazyQuery>;
 export type GetTaxProviderPresenceSuspenseQueryHookResult = ReturnType<typeof useGetTaxProviderPresenceSuspenseQuery>;
 export type GetTaxProviderPresenceQueryResult = Apollo.QueryResult<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>;
+export const GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument = gql`
+    query getCustomerOverdueInvoicesReadyForPaymentProcessing($id: ID!) {
+  invoices(paymentOverdue: true, customerId: $id) {
+    collection {
+      readyForPaymentProcessing
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables> & ({ variables: GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>(GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument, options);
+      }
+export function useGetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>(GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument, options);
+        }
+export function useGetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>(GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument, options);
+        }
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryHookResult = ReturnType<typeof useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery>;
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQueryHookResult = ReturnType<typeof useGetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQuery>;
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQueryHookResult = ReturnType<typeof useGetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQuery>;
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryResult = Apollo.QueryResult<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>;
 export const GetOrganizationInfosDocument = gql`
     query getOrganizationInfos {
   organization {
@@ -32205,7 +32257,6 @@ export const GetRequestOverduePaymentInfosDocument = gql`
   }
   invoices(paymentOverdue: true, customerId: $id) {
     collection {
-      ...InvoicesForDunningEmail
       ...InvoicesForRequestOverduePaymentForm
     }
   }
@@ -32214,7 +32265,6 @@ export const GetRequestOverduePaymentInfosDocument = gql`
 ${CustomerForRequestOverduePaymentFormFragmentDoc}
 ${CustomerForDunningEmailFragmentDoc}
 ${LastPaymentRequestFragmentDoc}
-${InvoicesForDunningEmailFragmentDoc}
 ${InvoicesForRequestOverduePaymentFormFragmentDoc}`;
 
 /**
