@@ -8,8 +8,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
 import { PageHeader } from '~/styles'
 
-const SUPERSET_DOMAIN = 'http://localhost:8089'
-
 gql`
   query supersetDashboards {
     supersetDashboards {
@@ -17,6 +15,7 @@ gql`
       embeddedId
       dashboardTitle
       guestToken
+      supersetUrl
     }
   }
 `
@@ -36,7 +35,7 @@ const Dashboards = () => {
 
     embedDashboard({
       id: dashboard.embeddedId,
-      supersetDomain: SUPERSET_DOMAIN,
+      supersetDomain: dashboard.supersetUrl,
       mountPoint,
       fetchGuestToken: async () => dashboard.guestToken,
       dashboardUiConfig: {
@@ -58,7 +57,7 @@ const Dashboards = () => {
       </PageHeader.Wrapper>
 
       {loading && (
-        <div className="px-8">
+        <div className="mt-8 px-8">
           <Skeleton variant="text" className="mb-5 w-70" />
           <Skeleton variant="text" className="mb-4" />
           <Skeleton variant="text" className="w-30" />
