@@ -194,8 +194,8 @@ const CustomerRequestOverduePayment: FC = () => {
   )
 
   useEffect(() => {
-    // when user lands on this page
-    // redirect if invoices are not ready for payment processing
+    // Check and redirect if invoices are not ready for payment processing
+    // Runs when payment status changes (on mount and when dependencies update)
     if (!isPaymentProcessingStatusLoading && !isCustomerReadyForOverduePayment) {
       handlePaymentNotReady()
     }
