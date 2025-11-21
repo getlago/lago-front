@@ -1,17 +1,22 @@
 import { createFormHook } from '@tanstack/react-form'
-import { lazy } from 'react'
+
+import { dynamicImport } from '~/core/utils/dynamicImport.tsx'
 
 import { fieldContext, formContext } from './formContext.ts'
 
-/**
- * TODO: lazy import them once the routing is fixed.
- * We currently have a strange Suspense recursively called in RouteWrapper.tsx line 53
- */
-const CheckboxField = lazy(() => import('~/components/form/Checkbox/CheckboxFieldForTanstack.tsx'))
-const ComboBoxField = lazy(() => import('~/components/form/ComboBox/ComboBoxFieldForTanstack.tsx'))
-const SubmitButton = lazy(() => import('~/components/form/SubmitButton/SubmitButtonField.tsx'))
-const SwitchField = lazy(() => import('~/components/form/Switch/SwitchFieldForTanstack.tsx'))
-const TextInputField = lazy(
+const CheckboxField = dynamicImport(
+  () => import('~/components/form/Checkbox/CheckboxFieldForTanstack.tsx'),
+)
+const ComboBoxField = dynamicImport(
+  () => import('~/components/form/ComboBox/ComboBoxFieldForTanstack.tsx'),
+)
+const SubmitButton = dynamicImport(
+  () => import('~/components/form/SubmitButton/SubmitButtonField.tsx'),
+)
+const SwitchField = dynamicImport(
+  () => import('~/components/form/Switch/SwitchFieldForTanstack.tsx'),
+)
+const TextInputField = dynamicImport(
   () => import('~/components/form/TextInput/TextInputFieldForTanstack.tsx'),
 )
 
