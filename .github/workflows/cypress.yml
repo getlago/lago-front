@@ -80,7 +80,7 @@ jobs:
             cypress/e2e/t30-*
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: cypress-screenshots
@@ -88,7 +88,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload videos
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: cypress-videos
