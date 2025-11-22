@@ -32,7 +32,7 @@ jobs:
           pnpm run test:coverage
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+        uses: SonarSource/sonarqube-scan-action@40f5b61913e891f9d316696628698051136015be
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
