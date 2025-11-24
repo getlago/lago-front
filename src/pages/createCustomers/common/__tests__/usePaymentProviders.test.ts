@@ -114,9 +114,9 @@ describe('usePaymentProviders', () => {
       // After loading completes
       expect(result.current.isLoadingPaymentProviders).toBe(false)
       expect(result.current.paymentProviders).toBeDefined()
-      expect(result.current.paymentProviders?.collection).toHaveLength(6)
+      expect(result.current.paymentProviders?.paymentProviders?.collection).toHaveLength(6)
 
-      const collection = result.current.paymentProviders?.collection
+      const collection = result.current.paymentProviders?.paymentProviders?.collection
 
       expect(collection?.[0]).toEqual({
         __typename: 'StripeProvider',
@@ -150,7 +150,7 @@ describe('usePaymentProviders', () => {
       await act(() => wait(0))
 
       expect(result.current.isLoadingPaymentProviders).toBe(false)
-      expect(result.current.paymentProviders?.collection).toEqual([])
+      expect(result.current.paymentProviders?.paymentProviders?.collection).toEqual([])
     })
 
     it('should handle null paymentProviders', async () => {
@@ -163,7 +163,7 @@ describe('usePaymentProviders', () => {
       await act(() => wait(0))
 
       expect(result.current.isLoadingPaymentProviders).toBe(false)
-      expect(result.current.paymentProviders).toBeNull()
+      expect(result.current.paymentProviders?.paymentProviders).toBeNull()
     })
 
     it('should handle single provider type', async () => {
@@ -185,8 +185,8 @@ describe('usePaymentProviders', () => {
       await act(() => wait(0))
 
       expect(result.current.isLoadingPaymentProviders).toBe(false)
-      expect(result.current.paymentProviders?.collection).toHaveLength(1)
-      expect(result.current.paymentProviders?.collection?.[0]).toEqual({
+      expect(result.current.paymentProviders?.paymentProviders?.collection).toHaveLength(1)
+      expect(result.current.paymentProviders?.paymentProviders?.collection?.[0]).toEqual({
         __typename: 'StripeProvider',
         id: '1',
         name: 'Stripe Only',
@@ -199,7 +199,7 @@ describe('usePaymentProviders', () => {
 
       await act(() => wait(0))
 
-      const collection = result.current.paymentProviders?.collection
+      const collection = result.current.paymentProviders?.paymentProviders?.collection
       const providerTypes = collection?.map((provider) => provider.__typename)
 
       expect(providerTypes).toContain('StripeProvider')
@@ -406,7 +406,7 @@ describe('usePaymentProviders', () => {
 
       await act(() => wait(0))
 
-      const collection = result.current.paymentProviders?.collection
+      const collection = result.current.paymentProviders?.paymentProviders?.collection
 
       expect(collection).toHaveLength(2)
 
