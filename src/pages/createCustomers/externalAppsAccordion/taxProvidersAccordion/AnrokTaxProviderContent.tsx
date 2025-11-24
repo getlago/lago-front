@@ -3,7 +3,7 @@ import { useStore } from '@tanstack/react-form'
 import { AnrokIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 
 type AnrokTaxProviderContentProps = {
   hadInitialAnrokIntegrationCustomer: boolean

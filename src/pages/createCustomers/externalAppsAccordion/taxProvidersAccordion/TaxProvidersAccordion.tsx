@@ -14,7 +14,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { integrationTypeToTypename } from '~/pages/createCustomers/common/customerIntegrationConst'
 import { useTaxProviders } from '~/pages/createCustomers/common/useTaxProviders'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 import Anrok from '~/public/images/anrok.svg'
 import Avalara from '~/public/images/avalara.svg'
 

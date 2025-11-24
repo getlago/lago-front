@@ -1,24 +1,17 @@
 import {
-  AnrokIntegration,
-  AvalaraIntegration,
   CreateCustomerInput,
   CustomerAccountTypeEnum,
   GetAccountingIntegrationsForExternalAppsAccordionQuery,
   GetCrmIntegrationsForExternalAppsAccordionQuery,
   GetTaxIntegrationsForExternalAppsAccordionQuery,
-  HubspotIntegration,
-  IntegrationCustomerInput,
-  IntegrationTypeEnum,
-  NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
-  SalesforceIntegration,
   UpdateCustomerInput,
-  XeroIntegration,
 } from '~/generated/graphql'
-import { getAllIntegrationForAnIntegrationType } from '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType'
 
-import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
+import { getIntegrationCustomers } from './getIntegrationCustomers'
+
+import { CreateCustomerDefaultValues } from '../formInitialization/validationSchemaConst'
 
 type AdditionalData = {
   paymentProvider?: ProviderTypeEnum
@@ -48,108 +41,17 @@ export const mapFromFormToApi = (
     )
   }
 
-  const getIntegrationCustomers = (): Array<IntegrationCustomerInput> | undefined => {
-    const taxProviderCode = values.taxProviderCode
-    const accountingProviderCode = values.accountingProviderCode
-    const crmProviderCode = values.crmProviderCode
-
-    if (!taxProviderCode && !accountingProviderCode && !crmProviderCode) {
-      return undefined
-    }
-
-    // We need to do it this way because of strange typing coming from back
-    const taxIntegrations = [
-      ...(getAllIntegrationForAnIntegrationType<AnrokIntegration>({
-        integrationType: IntegrationTypeEnum.Anrok,
-        allIntegrationsData: taxProviders,
-      }) || []),
-      ...(getAllIntegrationForAnIntegrationType<AvalaraIntegration>({
-        integrationType: IntegrationTypeEnum.Avalara,
-        allIntegrationsData: taxProviders,
-      }) || []),
-    ]
-
-    const accountingIntegrations = [
-      ...(getAllIntegrationForAnIntegrationType<NetsuiteIntegration>({
-        integrationType: IntegrationTypeEnum.Netsuite,
-        allIntegrationsData: accountingProviders,
-      }) || []),
-      ...(getAllIntegrationForAnIntegrationType<XeroIntegration>({
-        integrationType: IntegrationTypeEnum.Xero,
-        allIntegrationsData: accountingProviders,
-      }) || []),
-    ]
-
-    const crmIntegrations = [
-      ...(getAllIntegrationForAnIntegrationType<HubspotIntegration>({
-        integrationType: IntegrationTypeEnum.Hubspot,
-        allIntegrationsData: crmProviders,
-      }) || []),
-      ...(getAllIntegrationForAnIntegrationType<SalesforceIntegration>({
-        integrationType: IntegrationTypeEnum.Salesforce,
-        allIntegrationsData: crmProviders,
-      }) || []),
-    ]
-
-    const taxProvider = taxIntegrations.find((integration) => integration.code === taxProviderCode)
-    const accountingProvider = accountingIntegrations.find(
-      (integration) => integration.code === accountingProviderCode,
-    )
-    const crmProvider = crmIntegrations.find((integration) => integration.code === crmProviderCode)
-
-    if (!taxProvider && !accountingProvider && !crmProvider) {
-      return undefined
-    }
-
-    const subsidiaryObject = values.accountingCustomer?.subsidiaryId
-      ? { subsidiaryId: values.accountingCustomer?.subsidiaryId }
-      : {}
-
-    const targetObject = values.crmCustomer?.targetedObject
-      ? { targetedObject: values.crmCustomer?.targetedObject }
-      : {}
-
-    return [
-      ...(taxProvider
-        ? [
-            {
-              integrationCode: taxProvider.code,
-              integrationType: taxProvider.__typename
-                ?.toLowerCase()
-                .replace('integration', '') as IntegrationTypeEnum,
-              syncWithProvider: values.taxCustomer?.syncWithProvider,
-              externalCustomerId: values.taxCustomer?.taxCustomerId,
-            },
-          ]
-        : []),
-      ...(accountingProvider
-        ? [
-            {
-              integrationCode: accountingProvider.code,
-              integrationType: accountingProvider.__typename
-                ?.toLowerCase()
-                .replace('integration', '') as IntegrationTypeEnum,
-              syncWithProvider: values.accountingCustomer?.syncWithProvider,
-              externalCustomerId: values.accountingCustomer?.accountingCustomerId,
-              ...subsidiaryObject,
-            },
-          ]
-        : []),
-      ...(crmProvider
-        ? [
-            {
-              integrationCode: crmProvider.code,
-              integrationType: crmProvider.__typename
-                ?.toLowerCase()
-                .replace('integration', '') as IntegrationTypeEnum,
-              syncWithProvider: values.crmCustomer?.syncWithProvider,
-              externalCustomerId: values.crmCustomer?.crmCustomerId,
-              ...targetObject,
-            },
-          ]
-        : []),
-    ]
-  }
+  const integrationCustomers = getIntegrationCustomers({
+    taxProviderCode: values.taxProviderCode,
+    accountingProviderCode: values.accountingProviderCode,
+    crmProviderCode: values.crmProviderCode,
+    taxProviders,
+    accountingProviders,
+    crmProviders,
+    accountingCustomer: values.accountingCustomer,
+    crmCustomer: values.crmCustomer,
+    taxCustomer: values.taxCustomer,
+  })
 
   return {
     email: formattedEmail,
@@ -187,6 +89,6 @@ export const mapFromFormToApi = (
       displayInInvoice: meta.displayInInvoice || false,
     })),
     billingEntityCode: values.billingEntityCode,
-    integrationCustomers: getIntegrationCustomers(),
+    integrationCustomers,
   }
 }
