@@ -133,6 +133,18 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
     }))
   }, [allCRMIntegrationsData])
 
+  const selectedIntegrationCode = useMemo(() => {
+    if (selectedHubspotIntegration && selectedHubspotIntegration.integrationCode) {
+      return selectedHubspotIntegration.integrationCode
+    }
+
+    if (selectedSalesforceIntegration && selectedSalesforceIntegration.integrationCode) {
+      return selectedSalesforceIntegration.integrationCode
+    }
+
+    return undefined
+  }, [selectedHubspotIntegration, selectedSalesforceIntegration])
+
   return (
     <div>
       <Typography variant="captionHl" color="grey700" className="mb-1">
@@ -187,13 +199,7 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
             placeholder={translate('text_66423cad72bbad009f2f5697')}
             emptyText={translate('text_6645daa0468420011304aded')}
             PopperProps={{ displayInDialog: true }}
-            value={
-              selectedHubspotIntegration
-                ? (selectedHubspotIntegration.integrationCode as string)
-                : selectedSalesforceIntegration
-                  ? (selectedSalesforceIntegration.integrationCode as string)
-                  : undefined
-            }
+            value={selectedIntegrationCode}
             onChange={(value) => {
               const localSelectedIntegration = connectedCRMIntegrationsData.find(
                 (data) => data.value === value,
@@ -317,7 +323,7 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
                         syncWithProvider: checked,
                       }
 
-                      if (!isEdition && checked) {
+                      if (checked) {
                         newHubspotIntegrationObject.externalCustomerId = ''
                       }
 

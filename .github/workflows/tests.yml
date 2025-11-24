@@ -1,17 +1,24 @@
 name: Tests
-
+permissions:
+  contents: read
+  
 on:
   pull_request:
     types: [opened, reopened, review_requested, ready_for_review, synchronize]
+  push:
+    branches:
+      - main
 
 jobs:
   run-tests:
-    if: github.event.pull_request.draft == false
+    if: github.event.pull_request.draft == false || github.event_name == 'push'
     name: Run tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -27,4 +34,28 @@ jobs:
 
       - name: Run tests
         run: |
-          pnpm run test
+          pnpm run test:coverage
+
+      - name: SonarQube Scan (Pull Request)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.pullrequest.branch=${{ github.head_ref }}
+            -Dsonar.pullrequest.base=${{ github.base_ref }}
+            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+
+      - name: SonarQube Scan (Main Branch)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.branch.name=main

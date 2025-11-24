@@ -259,7 +259,7 @@ export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps>
                     syncWithProvider: checked,
                   }
 
-                  if (!isEdition && checked) {
+                  if (checked) {
                     newNetsuiteIntegrationObject.externalCustomerId = ''
                     newNetsuiteIntegrationObject.subsidiaryId = ''
                   }
@@ -316,7 +316,7 @@ export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps>
                     syncWithProvider: checked,
                   }
 
-                  if (!isEdition && checked) {
+                  if (checked) {
                     newXeroIntegrationObject.externalCustomerId = ''
                   }
 
