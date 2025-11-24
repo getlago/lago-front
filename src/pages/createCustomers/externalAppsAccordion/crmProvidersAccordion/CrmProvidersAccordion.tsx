@@ -15,7 +15,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { integrationTypeToTypename } from '~/pages/createCustomers/common/customerIntegrationConst'
 import { useCrmProviders } from '~/pages/createCustomers/common/useCrmProviders'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 import Hubspot from '~/public/images/hubspot.svg'
 import Salesforce from '~/public/images/salesforce.svg'
 

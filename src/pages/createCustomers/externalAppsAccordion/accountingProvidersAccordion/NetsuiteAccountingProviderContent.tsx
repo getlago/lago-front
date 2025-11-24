@@ -6,7 +6,7 @@ import { NetsuiteIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { ExternalAppsAccordionLayout } from '~/pages/createCustomers/externalAppsAccordion/common/ExternalAppsAccordionLayout'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 
 import { useAccountingProvidersSubsidaries } from './useAccountingProvidersSubsidaries'
 
