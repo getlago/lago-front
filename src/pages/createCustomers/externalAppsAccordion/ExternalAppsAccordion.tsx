@@ -13,7 +13,7 @@ import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 import { MenuPopper } from '~/styles'
 
 import AccountingProvidersAccordion from './accountingProvidersAccordion/AccountingProvidersAccordion'

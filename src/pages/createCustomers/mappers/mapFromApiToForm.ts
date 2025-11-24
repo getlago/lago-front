@@ -7,7 +7,7 @@ import {
 
 import { BillingEntityItem } from './types'
 
-import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
+import { CreateCustomerDefaultValues } from '../formInitialization/validationSchemaConst'
 
 export const mapFromApiToForm = (
   customer: AddCustomerDrawerFragment | undefined,
