@@ -1,10 +1,13 @@
 import { useStore } from '@tanstack/react-form'
 
+import { getErrorToDisplay } from '~/core/form/getErrorToDisplay'
 import { useFieldContext } from '~/hooks/forms/formContext'
 
 import { Checkbox, CheckboxProps } from './Checkbox'
 
-const CheckboxField = (props: Omit<CheckboxProps, 'name' | 'value' | 'onChange' | 'error'>) => {
+const CheckboxField = (
+  props: Omit<CheckboxProps, 'name' | 'value' | 'onChange' | 'error'> & { dataTest?: string },
+) => {
   const field = useFieldContext<boolean>()
 
   const error = useStore(field.store, (state) => state.meta.errors)
@@ -12,9 +15,11 @@ const CheckboxField = (props: Omit<CheckboxProps, 'name' | 'value' | 'onChange' 
     .join('')
 
   const errorMap = useStore(field.store, (state) => state.meta.errorMap)
-  const errorsFromMap = Object.values(errorMap).filter(Boolean).join('')
-
-  const finalError = errorsFromMap || error
+  const finalError = getErrorToDisplay({
+    error,
+    errorMap,
+    noBoolean: true,
+  })
 
   return (
     <Checkbox
@@ -23,6 +28,7 @@ const CheckboxField = (props: Omit<CheckboxProps, 'name' | 'value' | 'onChange' 
       value={field.state.value}
       onChange={(_, newValue) => field.handleChange(newValue)}
       error={finalError}
+      data-test={props.dataTest}
     />
   )
 }

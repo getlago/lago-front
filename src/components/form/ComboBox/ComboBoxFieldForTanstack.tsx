@@ -1,5 +1,6 @@
 import { useStore } from '@tanstack/react-form'
 
+import { getErrorToDisplay } from '~/core/form/getErrorToDisplay'
 import { useFieldContext } from '~/hooks/forms/formContext'
 
 import { BasicComboBoxData, ComboBox, ComboboxDataGrouped, ComboBoxProps } from './'
@@ -8,7 +9,7 @@ const ComboBoxField = ({
   data,
   renderGroupHeader,
   ...props
-}: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'>) => {
+}: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'> & { dataTest?: string }) => {
   const field = useFieldContext<string>()
 
   const error = useStore(field.store, (state) => state.meta.errors)
@@ -16,9 +17,11 @@ const ComboBoxField = ({
     .join('')
 
   const errorMap = useStore(field.store, (state) => state.meta.errorMap)
-  const errorsFromMap = Object.values(errorMap).filter(Boolean).join('')
 
-  const finalError = errorsFromMap || error
+  const finalError = getErrorToDisplay({
+    error,
+    errorMap,
+  })
 
   return renderGroupHeader ? (
     <ComboBox
@@ -31,9 +34,11 @@ const ComboBoxField = ({
       }}
       value={field.state.value}
       error={finalError}
+      data-test={props.dataTest}
     />
   ) : (
     <ComboBox
+      {...props}
       data={data as BasicComboBoxData[]}
       name={field.name}
       onChange={(value) => {
@@ -41,7 +46,7 @@ const ComboBoxField = ({
       }}
       value={field.state.value}
       error={finalError}
-      {...props}
+      data-test={props.dataTest}
     />
   )
 }
