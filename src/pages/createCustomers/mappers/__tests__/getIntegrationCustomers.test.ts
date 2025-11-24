@@ -21,6 +21,7 @@ jest.mock('~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType'
 }))
 
 describe('getIntegrationCustomers', () => {
+  // Useful to specify return type or assert specific calls
   const getAllIntegrationForAnIntegrationTypeMock = jest.requireMock(
     '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType',
   ).getAllIntegrationForAnIntegrationType
