@@ -3,10 +3,10 @@ import { DrawerRef, Icon } from 'lago-design-system'
 import { RefObject, useCallback, useMemo, useRef } from 'react'
 import { ref } from 'yup'
 
-import { Button, Typography } from '~/components/designSystem'
+import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
+import { Button, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { PremiumIntegrationTypeEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -183,7 +183,7 @@ const CreateCustomer = () => {
             {translate('text_62e79671d23ae6ff149de968')}
           </Button>
           <form.AppForm>
-            <form.SubmitButton dataTest="submit-customer">
+            <form.SubmitButton dataTest={SUBMIT_CUSTOMER_DATA_TEST}>
               {getSubmitButtonText()}
             </form.SubmitButton>
           </form.AppForm>

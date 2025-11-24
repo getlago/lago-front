@@ -56,7 +56,7 @@ gql`
 `
 
 export const usePaymentProviders = () => {
-  const { data: { paymentProviders } = {}, loading: isLoadingPaymentProviders } =
+  const { data: paymentProviders, loading: isLoadingPaymentProviders } =
     usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
       variables: { limit: 1000 },
     })
@@ -64,7 +64,7 @@ export const usePaymentProviders = () => {
   const getPaymentProvider = (code: string | undefined) => {
     if (!code) return undefined
 
-    const provider = paymentProviders?.collection.find((p) => p.code === code)
+    const provider = paymentProviders?.paymentProviders?.collection.find((p) => p.code === code)
 
     if (!provider) return undefined
 

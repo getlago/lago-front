@@ -82,7 +82,7 @@ const MetadataAccordion = withForm({
                                 return translate('text_63fcc3218d35b9377840f5dd')
                               }
                               if (error === MetadataErrorsEnum.maxLength) {
-                                return translate('text_63fcc3218d35b9377840f5d9')
+                                return translate('text_63fcc3218d35b9377840f5d9', { max: 20 })
                               }
                               return undefined
                             }

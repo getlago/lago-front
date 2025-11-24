@@ -1,8 +1,7 @@
 import { useStore } from '@tanstack/react-form'
-import { Avatar } from 'lago-design-system'
 import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react'
 
-import { Accordion, Alert, Typography } from '~/components/designSystem'
+import { Accordion, Alert, Avatar, Typography } from '~/components/designSystem'
 import { ComboboxDataGrouped } from '~/components/form'
 import { ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION } from '~/core/constants/form'
 import { CurrencyEnum, ProviderPaymentMethodsEnum, ProviderTypeEnum } from '~/generated/graphql'
@@ -52,16 +51,16 @@ const PaymentProvidersAccordion = withForm({
     const paymentProvider = getPaymentProvider(paymentProviderCode)
     const currency = useStore(form.store, (state) => state.values.currency)
 
-    const selectedPaymentProvider = paymentProviders?.collection.find(
+    const selectedPaymentProvider = paymentProviders?.paymentProviders?.collection.find(
       (p) => p.code === paymentProviderCode,
     )
 
     const isSyncWithProviderDisabled = !!providerCustomer?.syncWithProvider
 
     const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
-      if (!paymentProviders?.collection.length) return []
+      if (!paymentProviders?.paymentProviders?.collection.length) return []
 
-      return paymentProviders?.collection.map((provider) => ({
+      return paymentProviders?.paymentProviders?.collection.map((provider) => ({
         value: provider.code,
         label: provider.name,
         group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
@@ -72,7 +71,7 @@ const PaymentProvidersAccordion = withForm({
           />
         ),
       }))
-    }, [paymentProviders?.collection])
+    }, [paymentProviders?.paymentProviders?.collection])
 
     const isSyncWithProviderSupported = useMemo(() => {
       if (!paymentProvider) return false

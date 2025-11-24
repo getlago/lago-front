@@ -1,7 +1,8 @@
 import { useStore } from '@tanstack/react-form'
-import { Accordion, Avatar, Typography } from 'lago-design-system'
+import { Typography } from 'lago-design-system'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
+import { Accordion, Avatar } from '~/components/designSystem'
 import { ComboboxDataGrouped } from '~/components/form'
 import { ADD_CUSTOMER_TAX_PROVIDER_ACCORDION } from '~/core/constants/form'
 import {
