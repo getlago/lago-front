@@ -6,12 +6,14 @@ describe('Create customer', () => {
   })
 
   it('should create customer', () => {
+    const randomNumber = Math.round(Math.random() * 1000)
+
     cy.get('[data-test="create-customer"]').click()
     cy.url().should('include', '/customer/create')
 
     cy.get('[data-test="submit-customer"]').should('be.disabled')
 
-    cy.get('input[name="externalId"]').type('id-george-de-la-jungle')
+    cy.get('input[name="externalId"]').type(`id-george-de-la-jungle-${randomNumber}`)
 
     cy.get('input[name="name"]').should('exist').type(customerName)
 
@@ -30,7 +32,9 @@ describe('Create customer', () => {
 
       cy.get('[data-test="create-customer"]').click()
       cy.get('input[name="name"]').type(randomId)
-      cy.get('[data-test="submit-customer"]').should('be.disabled')
+      cy.get('[data-test="submit-customer"]').click()
+      // Check validation for external ID
+      cy.get('[data-test="text-field-error"]').should('exist')
       cy.get('input[name="externalId"]').type(randomId)
       cy.get('[data-test="submit-customer"]').click()
       cy.url().should('include', '/customer/')

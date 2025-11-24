@@ -1,7 +1,12 @@
 import { Button, ButtonProps } from '~/components/designSystem'
 import { useFormContext } from '~/hooks/forms/formContext'
 
-const SubmitButtonField = ({ children, size, variant }: ButtonProps) => {
+const SubmitButtonField = ({
+  children,
+  size,
+  variant,
+  dataTest,
+}: ButtonProps & { dataTest?: string }) => {
   const form = useFormContext()
 
   return (
@@ -20,6 +25,7 @@ const SubmitButtonField = ({ children, size, variant }: ButtonProps) => {
           disabled={!canSubmit || isSubmitting || !isDirty || !isValid}
           loading={isSubmitting}
           type="submit"
+          data-test={dataTest}
         >
           {children}
         </Button>

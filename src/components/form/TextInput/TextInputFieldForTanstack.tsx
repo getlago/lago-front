@@ -1,5 +1,6 @@
 import { useStore } from '@tanstack/react-form'
 
+import { getErrorToDisplay } from '~/core/form/getErrorToDisplay'
 import { useFieldContext } from '~/hooks/forms/formContext'
 
 import { TextInput, TextInputProps } from './TextInput'
@@ -19,21 +20,13 @@ const TextInputField = ({
     .join('')
 
   const errorMap = useStore(field.store, (state) => state.meta.errorMap)
-  const errorsFromMap = Object.values(errorMap).filter(Boolean).join('')
 
-  const finalError = errorsFromMap || error
-
-  const getErrorToDisplay = () => {
-    if (silentError) {
-      return undefined
-    }
-
-    if (displayErrorText) {
-      return finalError
-    }
-
-    return !!finalError
-  }
+  const finalError = getErrorToDisplay({
+    error,
+    errorMap,
+    silentError,
+    displayErrorText,
+  })
 
   return (
     <TextInput
@@ -42,7 +35,7 @@ const TextInputField = ({
       value={field.state.value}
       onChange={(value) => field.handleChange(value)}
       onBlur={field.handleBlur}
-      error={getErrorToDisplay()}
+      error={finalError}
     />
   )
 }

@@ -184,7 +184,9 @@ const CreateCustomer = () => {
             {translate('text_62e79671d23ae6ff149de968')}
           </Button>
           <form.AppForm>
-            <form.SubmitButton>{getSubmitButtonText()}</form.SubmitButton>
+            <form.SubmitButton dataTest="submit-customer">
+              {getSubmitButtonText()}
+            </form.SubmitButton>
           </form.AppForm>
         </CenteredPage.StickyFooter>
       </form>

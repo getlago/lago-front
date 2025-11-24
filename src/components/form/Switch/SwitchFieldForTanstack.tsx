@@ -2,7 +2,9 @@ import { useFieldContext } from '~/hooks/forms/formContext'
 
 import { Switch, SwitchProps } from './Switch'
 
-const SwitchField = (props: Omit<SwitchProps, 'name' | 'checked' | 'onChange'>) => {
+const SwitchField = (
+  props: Omit<SwitchProps, 'name' | 'checked' | 'onChange'> & { dataTest?: string },
+) => {
   const field = useFieldContext<boolean>()
 
   return (
@@ -11,6 +13,7 @@ const SwitchField = (props: Omit<SwitchProps, 'name' | 'checked' | 'onChange'>) 
       name={field.name}
       checked={field.state.value}
       onChange={(value) => field.handleChange(value)}
+      data-test={props.dataTest}
     />
   )
 }
