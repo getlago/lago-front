@@ -28,6 +28,28 @@ export const mapFromApiToForm = (
     )
   }
 
+  const compareBillingAddressWithShippingAddress = () => {
+    if (!customer) return false
+    const billingAddress = [
+      customer.addressLine1,
+      customer.addressLine2,
+      customer.city,
+      customer.state,
+      customer.zipcode,
+      customer.country,
+    ]
+    const shippingAddress = [
+      customer.shippingAddress?.addressLine1,
+      customer.shippingAddress?.addressLine2,
+      customer.shippingAddress?.city,
+      customer.shippingAddress?.state,
+      customer.shippingAddress?.zipcode,
+      customer.shippingAddress?.country,
+    ]
+
+    return billingAddress.every((value, index) => value === shippingAddress[index])
+  }
+
   // Should only have one between xero and netsuite
   const accountingProvider =
     [customer?.xeroCustomer, customer?.netsuiteCustomer].find(Boolean) || undefined
@@ -63,6 +85,7 @@ export const mapFromApiToForm = (
       city: customer?.city ?? '',
       zipcode: customer?.zipcode ?? '',
     },
+    isShippingEqualBillingAddress: compareBillingAddressWithShippingAddress(),
     shippingAddress: {
       addressLine1: customer?.shippingAddress?.addressLine1 ?? '',
       addressLine2: customer?.shippingAddress?.addressLine2 ?? '',

@@ -1,8 +1,7 @@
 import { useStore } from '@tanstack/react-form'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { Accordion, Typography } from '~/components/designSystem'
-import { Checkbox } from '~/components/form'
 import { AddCustomerDrawerFragment, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
@@ -26,10 +25,11 @@ const BillingAccordion = withForm({
   render: function Render({ form, isEdition, customer }) {
     const { translate } = useInternationalization()
 
-    // TODO: Move to a form implemented switch
-    const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] = useState(false)
-
     const address = useStore(form.store, (state) => state.values.billingAddress)
+    const isShippingEqualBillingAddress = useStore(
+      form.store,
+      (state) => state.values.isShippingEqualBillingAddress,
+    )
 
     useEffect(() => {
       if (isShippingEqualBillingAddress) {
@@ -134,16 +134,17 @@ const BillingAccordion = withForm({
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_667d708c1359b49f5a5a8230')}
             </Typography>
-            <Checkbox
-              label={translate('text_667d708c1359b49f5a5a8234')}
-              value={isShippingEqualBillingAddress}
-              onChange={() => setIsShippingEqualBillingAddress((prev) => !prev)}
-            />
+            <form.AppField name="isShippingEqualBillingAddress">
+              {(field) => (
+                <field.CheckboxField label={translate('text_667d708c1359b49f5a5a8234')} />
+              )}
+            </form.AppField>
 
             <BillingFields
               form={form}
               // Put the fields in shippingAddress object
               fields="shippingAddress"
+              isDisabled={isShippingEqualBillingAddress}
             />
           </div>
         </div>

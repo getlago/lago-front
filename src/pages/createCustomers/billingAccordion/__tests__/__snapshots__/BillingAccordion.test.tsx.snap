@@ -205,7 +205,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":ra:"
+                            id=":r9:"
                             name="currency"
                             placeholder="Search or select a currency"
                             role="combobox"
@@ -811,7 +811,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":ro:"
+                              id=":rn:"
                               name="billingAddress.country"
                               placeholder="Search and select a country"
                               role="combobox"
@@ -894,8 +894,8 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                   </div>
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-undefined"
-                    for=":r9:"
+                    data-test="checkbox-isShippingEqualBillingAddress"
+                    for=":rp:"
                   >
                     <div
                       class="mx-0 flex items-start align-middle *:leading-7"
@@ -904,10 +904,10 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                         class="mr-3 inline-flex items-center pt-1"
                       >
                         <input
-                          aria-checked="false"
+                          aria-checked="mixed"
                           aria-labelledby="Use the same information from the billing address"
                           class="absolute m-0 size-0 p-0 opacity-0"
-                          id=":r9:"
+                          id=":rp:"
                           readonly=""
                           type="checkbox"
                         />
@@ -2114,7 +2114,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                   </div>
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-undefined"
+                    data-test="checkbox-isShippingEqualBillingAddress"
                     for=":r2f:"
                   >
                     <div
@@ -2124,7 +2124,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                         class="mr-3 inline-flex items-center pt-1"
                       >
                         <input
-                          aria-checked="false"
+                          aria-checked="mixed"
                           aria-labelledby="Use the same information from the billing address"
                           class="absolute m-0 size-0 p-0 opacity-0"
                           id=":r2f:"
@@ -3334,7 +3334,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                   </div>
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-undefined"
+                    data-test="checkbox-isShippingEqualBillingAddress"
                     for=":r1k:"
                   >
                     <div
@@ -3344,7 +3344,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                         class="mr-3 inline-flex items-center pt-1"
                       >
                         <input
-                          aria-checked="false"
+                          aria-checked="mixed"
                           aria-labelledby="Use the same information from the billing address"
                           class="absolute m-0 size-0 p-0 opacity-0"
                           id=":r1k:"

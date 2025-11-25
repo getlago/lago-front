@@ -7,6 +7,7 @@ import {
   CustomerTypeEnum,
   HubspotTargetedObjectsEnum,
   ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 
@@ -49,6 +50,7 @@ export const validationSchema = z.object({
       country: z.enum(CountryCode).nullable(),
     })
     .optional(),
+  isShippingEqualBillingAddress: z.boolean().optional(),
   shippingAddress: z
     .object({
       addressLine1: z.string(),
@@ -88,10 +90,25 @@ export const validationSchema = z.object({
   paymentProviderCustomer: z
     .object({
       providerCustomerId: z.string().optional(),
+      providerType: z.enum(ProviderTypeEnum).optional(),
       syncWithProvider: z.boolean().optional(),
       providerPaymentMethods: z
         .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
         .optional(),
+    })
+    .refine((data) => {
+      if (
+        data.providerType &&
+        [ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)
+      ) {
+        return true
+      }
+
+      if (!data.syncWithProvider) {
+        return !!data.providerCustomerId
+      }
+
+      return true
     })
     .optional(),
   metadata: zodMetadataSchema(),

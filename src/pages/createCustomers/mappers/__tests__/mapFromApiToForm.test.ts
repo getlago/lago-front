@@ -90,6 +90,7 @@ describe('mapFromApiToForm', () => {
           city: '',
           zipcode: '',
         },
+        isShippingEqualBillingAddress: false,
         shippingAddress: {
           addressLine1: '',
           addressLine2: '',
@@ -212,6 +213,7 @@ describe('mapFromApiToForm', () => {
           city: 'San Francisco',
           zipcode: '94105',
         },
+        isShippingEqualBillingAddress: false,
         shippingAddress: {
           addressLine1: '456 Oak Ave',
           addressLine2: 'Apt 2B',
@@ -278,6 +280,24 @@ describe('mapFromApiToForm', () => {
       const result = mapFromApiToForm(customerWithBillingEntity, mockDefaultBillingEntity)
 
       expect(result.billingEntityCode).toBe('custom-entity')
+    })
+
+    it('should set isShippingEqualBillingAddress to true when addresses match', () => {
+      const customerWithMatchingAddresses: AddCustomerDrawerFragment = {
+        ...mockCustomer,
+        shippingAddress: {
+          addressLine1: '123 Main St',
+          addressLine2: 'Suite 100',
+          city: 'San Francisco',
+          state: 'CA',
+          zipcode: '94105',
+          country: CountryCode.Us,
+        },
+      }
+
+      const result = mapFromApiToForm(customerWithMatchingAddresses, mockDefaultBillingEntity)
+
+      expect(result.isShippingEqualBillingAddress).toBe(true)
     })
   })
 
@@ -877,6 +897,7 @@ describe('mapFromApiToForm', () => {
           city: 'Paris',
           zipcode: '75001',
         },
+        isShippingEqualBillingAddress: false,
         shippingAddress: {
           addressLine1: '456 Shipping Ave',
           addressLine2: 'Warehouse B',
