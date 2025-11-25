@@ -23,7 +23,7 @@ type ExtractComponentProps<T> = T extends ComponentType<infer P> ? P : never
 export function lazyComponent<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
 ): ComponentType<ExtractComponentProps<T>> {
-  const LazyComponent = lazy(importFn) as LazyExoticComponent<T>
+  const LazyComponent = lazy(importFn)
 
   return withLazySuspense<ExtractComponentProps<T>>(LazyComponent)
 }
