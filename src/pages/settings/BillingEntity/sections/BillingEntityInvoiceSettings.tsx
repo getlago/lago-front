@@ -367,7 +367,7 @@ const BillingEntityInvoiceSettings = () => {
               {translate(
                 INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
                   billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
-                    BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum.CurrentPeriodEnd
+                    BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum.NextPeriodStart
                 ],
               )}
             </div>
@@ -375,7 +375,7 @@ const BillingEntityInvoiceSettings = () => {
               {translate(
                 INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
                   billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
-                    BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum.KeepAnchor
+                    BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum.AlignWithFinalizationDate
                 ],
               )}
             </div>
@@ -383,10 +383,14 @@ const BillingEntityInvoiceSettings = () => {
         </div>
       ),
       dialog: (
-        <EditBillingEntityInvoiceIssuingDatePolicyDialog
-          ref={editBillingEntityInvoiceIssuingDatePolicyDialogRef}
-          billingEntity={billingEntity}
-        />
+        <>
+          {!!billingEntity && (
+            <EditBillingEntityInvoiceIssuingDatePolicyDialog
+              ref={editBillingEntityInvoiceIssuingDatePolicyDialogRef}
+              billingEntity={billingEntity}
+            />
+          )}
+        </>
       ),
     },
     {
