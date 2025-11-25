@@ -1,7 +1,37 @@
 import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { forwardRef, ReactNode, useState } from 'react'
 
+import { palette } from '~/styles'
 import { tw } from '~/styles/utils'
+
+// Styled Tooltip with design system styles applied at component level
+const StyledTooltip = styled(MuiTooltip)({
+  // Target the tooltip slot directly
+  '& .MuiTooltip-tooltip': {
+    // Typography (caption style)
+    fontSize: '14px',
+    lineHeight: '24px',
+    letterSpacing: '-0.16px',
+    fontWeight: 400,
+    // Colors & spacing
+    backgroundColor: palette.grey[700],
+    padding: '12px 16px',
+  },
+  // Placement-specific margins using MUI's class modifiers
+  '& .MuiTooltip-tooltipPlacementBottom': {
+    marginTop: '8px',
+  },
+  '& .MuiTooltip-tooltipPlacementTop': {
+    marginBottom: '8px',
+  },
+  '& .MuiTooltip-tooltipPlacementLeft': {
+    marginRight: '8px',
+  },
+  '& .MuiTooltip-tooltipPlacementRight': {
+    marginLeft: '8px',
+  },
+})
 
 export interface TooltipProps
   extends Pick<
@@ -24,10 +54,10 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         onMouseEnter={() => !disableHoverListener && setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
-        <MuiTooltip
-          componentsProps={{
+        <StyledTooltip
+          slotProps={{
             tooltip: {
-              style: {
+              sx: {
                 maxWidth: maxWidth,
               },
             },
@@ -39,7 +69,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         >
           {/* eslint-disable-next-line */}
           <div onClick={() => setIsOpen(false)}>{children}</div>
-        </MuiTooltip>
+        </StyledTooltip>
       </div>
     )
   },
