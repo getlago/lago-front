@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { Alert, Chip } from 'lago-design-system'
+import { Chip } from 'lago-design-system'
 import { FC, useEffect, useMemo, useState } from 'react'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
