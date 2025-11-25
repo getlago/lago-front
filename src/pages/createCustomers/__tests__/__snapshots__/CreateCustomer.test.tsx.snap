@@ -1543,8 +1543,8 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                           </div>
                           <label
                             class="flex flex-col cursor-pointer"
-                            data-test="checkbox-undefined"
-                            for=":r5i:"
+                            data-test="checkbox-isShippingEqualBillingAddress"
+                            for=":r5p:"
                           >
                             <div
                               class="mx-0 flex items-start align-middle *:leading-7"
@@ -1556,7 +1556,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   aria-checked="false"
                                   aria-labelledby="Use the same information from the billing address"
                                   class="absolute m-0 size-0 p-0 opacity-0"
-                                  id=":r5i:"
+                                  id=":r5p:"
                                   readonly=""
                                   type="checkbox"
                                 />
@@ -1853,7 +1853,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                       autocapitalize="none"
                                       autocomplete="off"
                                       class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id=":r5o:"
+                                      id=":r5n:"
                                       name="shippingAddress.country"
                                       placeholder="Search and select a country"
                                       role="combobox"

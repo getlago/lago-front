@@ -3,10 +3,19 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 
+type BillingFieldsProps = {
+  isDisabled?: boolean
+}
+
+const defaultProps: BillingFieldsProps = {
+  isDisabled: false,
+}
+
 const BillingFields = withFieldGroup({
   // Used for typing validation. We only want the address part of the form
   defaultValues: { ...emptyCreateCustomerDefaultValues.shippingAddress },
-  render: function Render({ group }) {
+  props: defaultProps,
+  render: function Render({ group, isDisabled }) {
     const { translate } = useInternationalization()
 
     return (
@@ -15,6 +24,7 @@ const BillingFields = withFieldGroup({
           {(field) => (
             <field.TextInputField
               className="col-span-2"
+              disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e1d')}
               placeholder={translate('text_1735653854525cemtriccmuh')}
             />
@@ -24,6 +34,7 @@ const BillingFields = withFieldGroup({
           {(field) => (
             <field.TextInputField
               className="col-span-2"
+              disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e1f')}
               placeholder={translate('text_1735653854525dq6plq7exd3')}
             />
@@ -32,6 +43,7 @@ const BillingFields = withFieldGroup({
         <group.AppField name="zipcode">
           {(field) => (
             <field.TextInputField
+              disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e21')}
               placeholder={translate('text_1735654189136h4rgi3zdwaa')}
             />
@@ -40,6 +52,7 @@ const BillingFields = withFieldGroup({
         <group.AppField name="city">
           {(field) => (
             <field.TextInputField
+              disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e23')}
               placeholder={translate('text_1735654189136vn4mbzp4jhs')}
             />
@@ -49,6 +62,7 @@ const BillingFields = withFieldGroup({
           {(field) => (
             <field.TextInputField
               className="col-span-2"
+              disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e25')}
               placeholder={translate('text_173565418913690jb89ypb63')}
             />
@@ -58,6 +72,7 @@ const BillingFields = withFieldGroup({
           {(field) => (
             <field.ComboBoxField
               containerClassName="col-span-2"
+              disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e27')}
               data={countryDataForCombobox}
               placeholder={translate('text_1735654189136s548dkluunb')}

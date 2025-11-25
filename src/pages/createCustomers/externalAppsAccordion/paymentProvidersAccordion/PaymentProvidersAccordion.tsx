@@ -100,6 +100,12 @@ const PaymentProvidersAccordion = withForm({
       setShowPaymentSection(false)
     }
 
+    const handleChangePaymentProviderCode = (value: string | undefined) => {
+      const providerType = getPaymentProvider(value)
+
+      form.setFieldValue('paymentProviderCustomer.providerType', providerType)
+    }
+
     const getSyncWithProviderLabel = () => {
       const suffix = paymentProviderCode
         ? ` • ${
@@ -161,7 +167,12 @@ const PaymentProvidersAccordion = withForm({
               </Typography>
 
               {/* Select connected account */}
-              <form.AppField name="paymentProviderCode">
+              <form.AppField
+                name="paymentProviderCode"
+                listeners={{
+                  onChange: ({ value }) => handleChangePaymentProviderCode(value),
+                }}
+              >
                 {(field) => (
                   <field.ComboBoxField
                     data={connectedPaymentProvidersData}
