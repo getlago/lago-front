@@ -92,7 +92,10 @@ const CreateCustomer = () => {
         form.setErrorMap({
           onDynamic: {
             fields: {
-              externalId: 'text_626162c62f790600f850b728',
+              externalId: {
+                message: 'text_626162c62f790600f850b728',
+                path: ['externalId'],
+              },
             },
           },
         })
