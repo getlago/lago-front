@@ -74,27 +74,64 @@ describe('useIssuingDatePolicy', () => {
       description: string
       anchor: (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES]
       adjustment: (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES]
-      gracePeriod: number
+      gracePeriod: number | undefined
       expectedDate: (params: { periodEndDate: DateTime; finalizationDate: DateTime }) => DateTime
     }
 
     const scenarios: Scenario[] = [
+      // Test for: Current period end anchor + keep anchor returns period end date
       {
-        description: 'Current period end anchor + keep anchor returns period end date',
+        description:
+          'Current period end anchor + keep anchor returns period end date (gracePeriod = 3)',
         anchor: ALL_ANCHOR_VALUES.CurrentPeriodEnd,
         adjustment: ALL_ADJUSTMENT_VALUES.KeepAnchor,
         gracePeriod: 3,
         expectedDate: ({ periodEndDate: scenarioPeriodEndDate }) => scenarioPeriodEndDate,
       },
       {
-        description: 'Current period end anchor + align with finalization uses finalization date',
+        description:
+          'Current period end anchor + keep anchor returns period end date (gracePeriod = 0)',
+        anchor: ALL_ANCHOR_VALUES.CurrentPeriodEnd,
+        adjustment: ALL_ADJUSTMENT_VALUES.KeepAnchor,
+        gracePeriod: 0,
+        expectedDate: ({ periodEndDate: scenarioPeriodEndDate }) => scenarioPeriodEndDate,
+      },
+      {
+        description:
+          'Current period end anchor + keep anchor returns period end date (gracePeriod = undefined)',
+        anchor: ALL_ANCHOR_VALUES.CurrentPeriodEnd,
+        adjustment: ALL_ADJUSTMENT_VALUES.KeepAnchor,
+        gracePeriod: undefined,
+        expectedDate: ({ periodEndDate: scenarioPeriodEndDate }) => scenarioPeriodEndDate,
+      },
+      // Test for: Current period end anchor + align with finalization uses finalization date
+      {
+        description:
+          'Current period end anchor + align with finalization uses finalization date (gracePeriod = 4)',
         anchor: ALL_ANCHOR_VALUES.CurrentPeriodEnd,
         adjustment: ALL_ADJUSTMENT_VALUES.AlignWithFinalizationDate,
         gracePeriod: 4,
         expectedDate: ({ finalizationDate: scenarioFinalizationDate }) => scenarioFinalizationDate,
       },
       {
-        description: 'Next period start anchor + keep anchor offsets to next day',
+        description:
+          'Current period end anchor + align with finalization uses finalization date (gracePeriod = 0)',
+        anchor: ALL_ANCHOR_VALUES.CurrentPeriodEnd,
+        adjustment: ALL_ADJUSTMENT_VALUES.AlignWithFinalizationDate,
+        gracePeriod: 0,
+        expectedDate: ({ finalizationDate: scenarioFinalizationDate }) => scenarioFinalizationDate,
+      },
+      {
+        description:
+          'Current period end anchor + align with finalization uses finalization date (gracePeriod = undefined)',
+        anchor: ALL_ANCHOR_VALUES.CurrentPeriodEnd,
+        adjustment: ALL_ADJUSTMENT_VALUES.AlignWithFinalizationDate,
+        gracePeriod: undefined,
+        expectedDate: ({ finalizationDate: scenarioFinalizationDate }) => scenarioFinalizationDate,
+      },
+      // Test for: Next period start anchor + keep anchor offsets to next day
+      {
+        description: 'Next period start anchor + keep anchor offsets to next day (gracePeriod = 2)',
         anchor: ALL_ANCHOR_VALUES.NextPeriodStart,
         adjustment: ALL_ADJUSTMENT_VALUES.KeepAnchor,
         gracePeriod: 2,
@@ -102,11 +139,47 @@ describe('useIssuingDatePolicy', () => {
           scenarioPeriodEndDate.plus({ days: 1 }),
       },
       {
+        description: 'Next period start anchor + keep anchor offsets to next day (gracePeriod = 0)',
+        anchor: ALL_ANCHOR_VALUES.NextPeriodStart,
+        adjustment: ALL_ADJUSTMENT_VALUES.KeepAnchor,
+        gracePeriod: 0,
+        expectedDate: ({ periodEndDate: scenarioPeriodEndDate }) =>
+          scenarioPeriodEndDate.plus({ days: 1 }),
+      },
+      {
         description:
-          'Next period start anchor + align with finalization offsets finalization by one day',
+          'Next period start anchor + keep anchor offsets to next day (gracePeriod = undefined)',
+        anchor: ALL_ANCHOR_VALUES.NextPeriodStart,
+        adjustment: ALL_ADJUSTMENT_VALUES.KeepAnchor,
+        gracePeriod: undefined,
+        expectedDate: ({ periodEndDate: scenarioPeriodEndDate }) =>
+          scenarioPeriodEndDate.plus({ days: 1 }),
+      },
+      // Test for: Next period start anchor + align with finalization offsets finalization by one day
+      {
+        description:
+          'Next period start anchor + align with finalization offsets finalization by one day (gracePeriod = 5)',
         anchor: ALL_ANCHOR_VALUES.NextPeriodStart,
         adjustment: ALL_ADJUSTMENT_VALUES.AlignWithFinalizationDate,
         gracePeriod: 5,
+        expectedDate: ({ finalizationDate: scenarioFinalizationDate }) =>
+          scenarioFinalizationDate.plus({ days: 1 }),
+      },
+      {
+        description:
+          'Next period start anchor + align with finalization offsets finalization by one day (gracePeriod = 0)',
+        anchor: ALL_ANCHOR_VALUES.NextPeriodStart,
+        adjustment: ALL_ADJUSTMENT_VALUES.AlignWithFinalizationDate,
+        gracePeriod: 0,
+        expectedDate: ({ finalizationDate: scenarioFinalizationDate }) =>
+          scenarioFinalizationDate.plus({ days: 1 }),
+      },
+      {
+        description:
+          'Next period start anchor + align with finalization offsets finalization by one day (gracePeriod = undefined)',
+        anchor: ALL_ANCHOR_VALUES.NextPeriodStart,
+        adjustment: ALL_ADJUSTMENT_VALUES.AlignWithFinalizationDate,
+        gracePeriod: undefined,
         expectedDate: ({ finalizationDate: scenarioFinalizationDate }) =>
           scenarioFinalizationDate.plus({ days: 1 }),
       },
@@ -119,7 +192,7 @@ describe('useIssuingDatePolicy', () => {
       intlFormatDateTimeMock.mockClear()
 
       const finalizationDate = periodEndDate.plus({
-        days: gracePeriod || 1,
+        days: gracePeriod,
       })
       const expectedIssuingDate = expectedDate({ periodEndDate, finalizationDate })
       const creationDate = periodEndDate.plus({ days: 1 })
@@ -160,10 +233,10 @@ describe('useIssuingDatePolicy', () => {
       intlFormatDateTimeMock.mockClear()
 
       const gracePeriod = undefined
-      const finalizationDate = periodEndDate.plus({
-        days: gracePeriod || 1,
-      })
+      // When gracePeriod is undefined, finalizationDate = periodEndDate (no days added)
+      const finalizationDate = periodEndDate
       const creationDate = periodEndDate.plus({ days: 1 })
+      // Defaults: NextPeriodStart + AlignWithFinalizationDate = finalizationDate.plus({ days: 1 })
       const expectedIssuingDate = finalizationDate.plus({ days: 1 })
 
       const info = result.current.getIssuingDateInfoForAlert({

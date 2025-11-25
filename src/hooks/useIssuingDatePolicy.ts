@@ -162,7 +162,9 @@ export const useIssuingDatePolicy: UseIssuingDatePolicyProps = () => {
     const periodStartDate = DateTime.local().startOf('year').startOf('month').startOf('day')
     const periodEndDate = periodStartDate.endOf('month')
     const creationDate = periodEndDate.plus({ days: 1 })
-    const finalizationDate = periodEndDate.plus({ days: gracePeriod || 1 })
+    const finalizationDate = !!gracePeriod
+      ? periodEndDate.plus({ days: gracePeriod })
+      : periodEndDate
     const expectedIssuingDate = getExpectedIssuingDateFromMatrix({
       periodEndDate,
       finalizationDate,

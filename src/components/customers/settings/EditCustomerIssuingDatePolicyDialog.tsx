@@ -32,7 +32,7 @@ gql`
   }
 `
 type EditCustomerIssuingDatePolicyDialogProps = {
-  customer?: EditCustomerIssuingDatePolicyDialogFragment | null
+  customer: EditCustomerIssuingDatePolicyDialogFragment
 }
 export type EditCustomerIssuingDatePolicyDialogRef = DialogRef
 
@@ -44,19 +44,19 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
 
   const [updateCustomerIssuingDatePolicy] = useUpdateCustomerIssuingDatePolicyMutation({
     onCompleted(res) {
-      if (res?.updateCustomer) {
-        const isDeleting =
-          !formikProps.values.subscriptionInvoiceIssuingDateAdjustment &&
-          !formikProps.values.subscriptionInvoiceIssuingDateAnchor
-        const translateKey = isDeleting
-          ? 'text_1763407386499oel0dxfrp8i'
-          : 'text_1763407386500wkf13gr42tj'
+      if (!res?.updateCustomer) return
 
-        addToast({
-          severity: 'success',
-          translateKey,
-        })
-      }
+      const isDeleting =
+        !formikProps.values.subscriptionInvoiceIssuingDateAdjustment &&
+        !formikProps.values.subscriptionInvoiceIssuingDateAnchor
+      const translateKey = isDeleting
+        ? 'text_1763407386499oel0dxfrp8i'
+        : 'text_1763407386500wkf13gr42tj'
+
+      addToast({
+        severity: 'success',
+        translateKey,
+      })
     },
     refetchQueries: ['getCustomerSettings'],
   })
@@ -64,9 +64,9 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
   const formikProps = useFormik({
     initialValues: {
       subscriptionInvoiceIssuingDateAdjustment:
-        customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment || undefined,
+        customer.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment || undefined,
       subscriptionInvoiceIssuingDateAnchor:
-        customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor || undefined,
+        customer.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor || undefined,
     },
     validationSchema: object().shape({
       subscriptionInvoiceIssuingDateAdjustment: string().nullable(),
@@ -78,8 +78,8 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
       await updateCustomerIssuingDatePolicy({
         variables: {
           input: {
-            id: customer?.id || '',
-            externalId: customer?.externalId || '',
+            id: customer.id,
+            externalId: customer.externalId,
             billingConfiguration: {
               subscriptionInvoiceIssuingDateAdjustment:
                 values.subscriptionInvoiceIssuingDateAdjustment,
@@ -92,7 +92,7 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
   })
 
   const { descriptionCopyAsHtml, expectedIssuingDateCopy } = getIssuingDateInfoForAlert({
-    gracePeriod: customer?.invoiceGracePeriod || 0,
+    gracePeriod: customer.invoiceGracePeriod || 0,
     subscriptionInvoiceIssuingDateAdjustment: formikProps.values
       .subscriptionInvoiceIssuingDateAdjustment as
       | (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES]

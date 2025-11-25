@@ -250,28 +250,28 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     const customerAnchorCopy = translate(
       INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
         customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
-          CustomerSubscriptionInvoiceIssuingDateAnchorEnum.CurrentPeriodEnd
+          CustomerSubscriptionInvoiceIssuingDateAnchorEnum.NextPeriodStart
       ],
     )
 
     const billingEntityAnchorCopy = translate(
       INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
         customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
-          BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum.CurrentPeriodEnd
+          BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum.NextPeriodStart
       ],
     )
 
     const billingEntityAdjustmentCopy = translate(
       INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
         customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
-          BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum.KeepAnchor
+          BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum.AlignWithFinalizationDate
       ],
     )
 
     const customerAdjustmentCopy = translate(
       INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
         customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
-          CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum.KeepAnchor
+          CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum.AlignWithFinalizationDate
       ],
     )
 
@@ -316,27 +316,93 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
   const isInvoiceCustomSectionConfigurable = !!customer?.configurableInvoiceCustomSections?.length
 
-  const getNetPaymentTermText = (): string => {
-    if (typeof customer?.netPaymentTerm !== 'number') {
+  function getNetPaymentTermCopy(
+    customerNetPaymentTerm: number | null | undefined,
+    billingEntityNetPaymentTerm: number,
+  ): string {
+    const isCustomerNetPaymentTermDefined = typeof customerNetPaymentTerm === 'number'
+
+    if (!isCustomerNetPaymentTermDefined) {
       return translate(
         'text_64c7a89b6c67eb6c98898241',
         {
-          days: billingEntity?.netPaymentTerm,
+          days: billingEntityNetPaymentTerm ?? 0,
         },
-        billingEntity?.netPaymentTerm,
+        billingEntityNetPaymentTerm ?? 0,
       )
     }
 
-    if (customer.netPaymentTerm === 0) {
+    if (customerNetPaymentTerm === 0) {
       return translate('text_64c7a89b6c67eb6c98898125')
     }
 
     return translate(
       'text_64c7a89b6c67eb6c9889815f',
       {
-        days: customer.netPaymentTerm,
+        days: customerNetPaymentTerm,
       },
-      customer.netPaymentTerm,
+      customerNetPaymentTerm,
+    )
+  }
+
+  function getDunningCampaignContent(): React.ReactNode {
+    if (!dunningCampaign || customer?.excludeFromDunningCampaign) {
+      return (
+        <Typography variant="body" color="grey700">
+          {translate('text_1729541149109r8u8nlsu75e')}
+        </Typography>
+      )
+    }
+
+    if (!isDunningCampaignApplicable) {
+      return (
+        <Typography variant="body" color="grey700">
+          {translate('text_17295411491091t7ii66l5ex')}
+        </Typography>
+      )
+    }
+
+    return (
+      <Table
+        name="customer-dunnings-settings"
+        containerSize={{ default: 0 }}
+        rowSize={72}
+        isLoading={loading}
+        data={[dunningCampaign]}
+        columns={[
+          {
+            key: 'name',
+            title: translate('text_1729542024833rpf3nsekh42'),
+            maxSpace: true,
+            content: ({ name, code }) => (
+              <div className="flex flex-1 items-center gap-3" data-test={code}>
+                <Avatar size="big" variant="connector">
+                  <Icon size="medium" name="coin-dollar" color="dark" />
+                </Avatar>
+                <div>
+                  <Typography color="textSecondary" variant="bodyHl" noWrap>
+                    {name}
+                  </Typography>
+                  <Typography variant="caption" noWrap>
+                    {code}
+                  </Typography>
+                </div>
+              </div>
+            ),
+          },
+          ...(!customer?.appliedDunningCampaign
+            ? [
+                {
+                  key: 'appliedToOrganization',
+                  title: translate('text_63ac86d797f728a87b2f9fa7'),
+                  content: () => <Chip label={translate('text_1729542098338prhjz7s29kt')} />,
+                } as TableColumn<{
+                  appliedToOrganization: boolean
+                }>,
+              ]
+            : []),
+        ]}
+      />
     )
   }
 
@@ -454,66 +520,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     }
                   />
 
-                  {!!dunningCampaign &&
-                    !customer?.excludeFromDunningCampaign &&
-                    isDunningCampaignApplicable && (
-                      <Table
-                        name="customer-dunnings-settings"
-                        containerSize={{ default: 0 }}
-                        rowSize={72}
-                        isLoading={loading}
-                        data={[dunningCampaign]}
-                        columns={[
-                          {
-                            key: 'name',
-                            title: translate('text_1729542024833rpf3nsekh42'),
-                            maxSpace: true,
-                            content: ({ name, code }) => (
-                              <div className="flex flex-1 items-center gap-3" data-test={code}>
-                                <Avatar size="big" variant="connector">
-                                  <Icon size="medium" name="coin-dollar" color="dark" />
-                                </Avatar>
-                                <div>
-                                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                                    {name}
-                                  </Typography>
-                                  <Typography variant="caption" noWrap>
-                                    {code}
-                                  </Typography>
-                                </div>
-                              </div>
-                            ),
-                          },
-                          ...(!customer?.appliedDunningCampaign
-                            ? [
-                                {
-                                  key: 'appliedToOrganization',
-                                  title: translate('text_63ac86d797f728a87b2f9fa7'),
-                                  content: () => (
-                                    <Chip label={translate('text_1729542098338prhjz7s29kt')} />
-                                  ),
-                                } as TableColumn<{
-                                  appliedToOrganization: boolean
-                                }>,
-                              ]
-                            : []),
-                        ]}
-                      />
-                    )}
-
-                  {!!dunningCampaign &&
-                    !customer?.excludeFromDunningCampaign &&
-                    !isDunningCampaignApplicable && (
-                      <Typography variant="body" color="grey700">
-                        {translate('text_17295411491091t7ii66l5ex')}
-                      </Typography>
-                    )}
-
-                  {(!dunningCampaign || customer?.excludeFromDunningCampaign) && (
-                    <Typography variant="body" color="grey700">
-                      {translate('text_1729541149109r8u8nlsu75e')}
-                    </Typography>
-                  )}
+                  {getDunningCampaignContent()}
                 </SettingsListItem>
               )}
 
@@ -712,7 +719,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     {translate('text_1735223938916tlygbi5v0nd')}
                   </Typography>
                 )}
-
                 {!customer?.skipInvoiceCustomSections && isInvoiceCustomSectionConfigurable && (
                   <Table
                     name="customer-custom-sections-settings"
@@ -734,7 +740,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     ]}
                   />
                 )}
-
                 {!customer?.skipInvoiceCustomSections && !isInvoiceCustomSectionConfigurable && (
                   <Typography variant="body" color="grey700">
                     {translate('text_1735223938916wjmtgs2juy4')}
@@ -807,7 +812,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 />
 
                 <Typography variant="body" color="grey700">
-                  {getNetPaymentTermText()}
+                  {getNetPaymentTermCopy(
+                    customer?.netPaymentTerm,
+                    billingEntity?.netPaymentTerm || 0,
+                  )}
                 </Typography>
               </SettingsListItem>
 

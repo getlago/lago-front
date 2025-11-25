@@ -33,7 +33,7 @@ gql`
   }
 `
 type EditBillingEntityInvoiceIssuingDatePolicyDialogProps = {
-  billingEntity?: EditBillingEntityInvoiceIssuingDatePolicyDialogFragment | null
+  billingEntity: EditBillingEntityInvoiceIssuingDatePolicyDialogFragment
 }
 export type EditBillingEntityInvoiceIssuingDatePolicyDialogRef = DialogRef
 
@@ -46,19 +46,12 @@ export const EditBillingEntityInvoiceIssuingDatePolicyDialog = forwardRef<
   const [updateBillingEntityInvoiceIssuingDatePolicy] =
     useUpdateBillingEntityInvoiceIssuingDatePolicyMutation({
       onCompleted(res) {
-        if (res?.updateBillingEntity) {
-          const isDeleting =
-            !formikProps.values.subscriptionInvoiceIssuingDateAdjustment &&
-            !formikProps.values.subscriptionInvoiceIssuingDateAnchor
-          const translateKey = isDeleting
-            ? 'text_1763407386499oel0dxfrp8i'
-            : 'text_1763407386500wkf13gr42tj'
+        if (!res?.updateBillingEntity) return
 
-          addToast({
-            severity: 'success',
-            translateKey,
-          })
-        }
+        addToast({
+          severity: 'success',
+          translateKey: 'text_1763407386500wkf13gr42tj',
+        })
       },
       refetchQueries: ['getBillingEntitySettings'],
     })
@@ -66,9 +59,9 @@ export const EditBillingEntityInvoiceIssuingDatePolicyDialog = forwardRef<
   const formikProps = useFormik({
     initialValues: {
       subscriptionInvoiceIssuingDateAdjustment:
-        billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment,
+        billingEntity.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment,
       subscriptionInvoiceIssuingDateAnchor:
-        billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor,
+        billingEntity.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor,
     },
     validationSchema: object().shape({
       subscriptionInvoiceIssuingDateAdjustment: string().nullable(),
@@ -80,7 +73,7 @@ export const EditBillingEntityInvoiceIssuingDatePolicyDialog = forwardRef<
       await updateBillingEntityInvoiceIssuingDatePolicy({
         variables: {
           input: {
-            id: billingEntity?.id || '',
+            id: billingEntity.id,
             billingConfiguration: {
               subscriptionInvoiceIssuingDateAdjustment:
                 values.subscriptionInvoiceIssuingDateAdjustment ||
@@ -96,7 +89,7 @@ export const EditBillingEntityInvoiceIssuingDatePolicyDialog = forwardRef<
   })
 
   const { descriptionCopyAsHtml, expectedIssuingDateCopy } = getIssuingDateInfoForAlert({
-    gracePeriod: billingEntity?.billingConfiguration?.invoiceGracePeriod,
+    gracePeriod: billingEntity.billingConfiguration?.invoiceGracePeriod,
     subscriptionInvoiceIssuingDateAdjustment: formikProps.values
       .subscriptionInvoiceIssuingDateAdjustment as
       | (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES]

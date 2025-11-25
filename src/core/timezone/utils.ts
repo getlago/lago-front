@@ -73,23 +73,28 @@ export enum TimezoneFormat {
 }
 
 const getDateString = (dateTime: DateTime, format: DateFormat) => {
-  if (format === DateFormat.DATE_MONTH_YEAR || format === DateFormat.DATE_MED_SHORT_YEAR) {
+  if (format === DateFormat.DATE_MONTH_YEAR) {
     return dateTime.toLocaleString({
       month: 'short',
-      ...(format === DateFormat.DATE_MONTH_YEAR && {
-        year: 'numeric',
-      }),
-      ...(format === DateFormat.DATE_MED_SHORT_YEAR && {
-        day: 'numeric',
-        year: '2-digit',
-      }),
+      year: 'numeric',
     })
-  } else if (format === DateFormat.DATE_MED_SHORT) {
+  }
+
+  if (format === DateFormat.DATE_MED_SHORT_YEAR) {
+    return dateTime.toLocaleString({
+      day: 'numeric',
+      month: 'short',
+      year: '2-digit',
+    })
+  }
+
+  if (format === DateFormat.DATE_MED_SHORT) {
     return dateTime.toLocaleString({
       month: 'short',
       day: 'numeric',
     })
   }
+
   return dateTime.toLocaleString(DateTime[format])
 }
 const getTimezoneString = (dateTime: DateTime, timezone: TimezoneEnum, format: TimezoneFormat) => {
