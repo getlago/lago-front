@@ -16,8 +16,7 @@ const StripePaymentProviderContent = withForm({
     )
 
     const paymentMethods = paymentProviderCustomer?.providerPaymentMethods || {}
-    const isPaymentMethodUnique =
-      Object.values(paymentMethods).filter((value) => value).length === 1
+    const isPaymentMethodUnique = Object.values(paymentMethods).filter(Boolean).length === 1
     const isBankTransferEnabled = paymentMethods[ProviderPaymentMethodsEnum.CustomerBalance]
 
     const handleCardOnChange = (checked: boolean | undefined) => {

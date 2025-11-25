@@ -57,7 +57,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         <div
           class="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
         >
-          <div
+          <button
             class="flex items-center justify-between"
           >
             <div
@@ -136,7 +136,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                 fill="#FFAB00"
               />
             </svg>
-          </div>
+          </button>
           <div
             class="flex flex-col gap-6"
           >
@@ -2143,7 +2143,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         <div
           class="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
         >
-          <div
+          <button
             class="flex items-center justify-between"
           >
             <div
@@ -2222,7 +2222,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                 fill="#FFAB00"
               />
             </svg>
-          </div>
+          </button>
           <div
             class="flex flex-col gap-6"
           >
@@ -3129,7 +3129,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         <div
           class="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
         >
-          <div
+          <button
             class="flex items-center justify-between"
           >
             <div
@@ -3208,7 +3208,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                 fill="#FFAB00"
               />
             </svg>
-          </div>
+          </button>
           <div
             class="flex flex-col gap-6"
           >
@@ -4115,7 +4115,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         <div
           class="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
         >
-          <div
+          <button
             class="flex items-center justify-between"
           >
             <div
@@ -4194,7 +4194,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                 fill="#FFAB00"
               />
             </svg>
-          </div>
+          </button>
           <div
             class="flex flex-col gap-6"
           >
@@ -5098,7 +5098,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         <div
           class="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
         >
-          <div
+          <button
             class="flex items-center justify-between"
           >
             <div
@@ -5177,7 +5177,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                 fill="#FFAB00"
               />
             </svg>
-          </div>
+          </button>
           <div
             class="flex flex-col gap-6"
           >
@@ -6030,7 +6030,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
         <div
           class="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
         >
-          <div
+          <button
             class="flex items-center justify-between"
           >
             <div
@@ -6109,7 +6109,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                 fill="#FFAB00"
               />
             </svg>
-          </div>
+          </button>
           <div
             class="flex flex-col gap-6"
           >

@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { useMemo } from 'react'
 
+import { Alert } from '~/components/designSystem'
 import { BasicComboBoxData } from '~/components/form'
 import { NetsuiteIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -101,28 +102,9 @@ const NetsuiteAccountingProviderContent = withForm({
             )}
           </form.AppField>
         )}
-        {/*                 
-                
-
-  
-
-                {!!selectedNetsuiteIntegration?.syncWithProvider && (
-                  <>
-                    <ComboBoxField
-                      name={`${netsuiteIntegrationPointerInIntegrationCustomer}.subsidiaryId`}
-                      data={connectedIntegrationSubsidiaries}
-                      disabled={hadInitialNetsuiteIntegrationCustomer}
-                      label={translate('text_66423cad72bbad009f2f56a0')}
-                      placeholder={translate('text_66423cad72bbad009f2f56a2')}
-                      PopperProps={{ displayInDialog: true }}
-                      formikProps={formikProps}
-                    />
-
-                    {isEdition && !hadInitialNetsuiteIntegrationCustomer && (
-                      <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>
-                    )}
-                  </>
-                )} */}
+        {isEdition && !hadInitialNetsuiteIntegrationCustomer && (
+          <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>
+        )}
       </>
     )
   },

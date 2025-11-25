@@ -15,9 +15,9 @@ export const mapFromApiToForm = (
 ): CreateCustomerDefaultValues => {
   const getCustomerProviderMethod = () => {
     if (!customer?.providerCustomer?.providerPaymentMethods?.length) {
-      return customer?.currency !== CurrencyEnum.Eur
-        ? { [ProviderPaymentMethodsEnum.Card]: true }
-        : { [ProviderPaymentMethodsEnum.Card]: true, [ProviderPaymentMethodsEnum.SepaDebit]: true }
+      return customer?.currency === CurrencyEnum.Eur
+        ? { [ProviderPaymentMethodsEnum.Card]: true, [ProviderPaymentMethodsEnum.SepaDebit]: true }
+        : { [ProviderPaymentMethodsEnum.Card]: true }
     }
     return customer?.providerCustomer?.providerPaymentMethods.reduce(
       (acc, method) => {
@@ -30,15 +30,15 @@ export const mapFromApiToForm = (
 
   // Should only have one between xero and netsuite
   const accountingProvider =
-    [customer?.xeroCustomer, customer?.netsuiteCustomer].filter(Boolean)[0] || undefined
+    [customer?.xeroCustomer, customer?.netsuiteCustomer].find(Boolean) || undefined
 
   // Should only have one between hubspot and salesforce
   const crmProvider =
-    [customer?.hubspotCustomer, customer?.salesforceCustomer].filter(Boolean)[0] || undefined
+    [customer?.hubspotCustomer, customer?.salesforceCustomer].find(Boolean) || undefined
 
   // Should only have one between anrok and avalara
   const taxProvider =
-    [customer?.anrokCustomer, customer?.avalaraCustomer].filter(Boolean)[0] || undefined
+    [customer?.anrokCustomer, customer?.avalaraCustomer].find(Boolean) || undefined
 
   return {
     customerType: customer?.customerType ?? undefined,
