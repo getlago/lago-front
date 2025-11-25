@@ -22,7 +22,7 @@ import { usePaymentProviders } from './common/usePaymentProviders'
 import { useTaxProviders } from './common/useTaxProviders'
 import CustomerInformation from './customerInformation/CustomerInformation'
 import ExternalAppsAccordion from './externalAppsAccordion/ExternalAppsAccordion'
-import { validationSchema } from './formInitialization/validationSchema'
+import { validationSchema } from './formInitialization/validationSchemaConst'
 import { mapFromApiToForm } from './mappers/mapFromApiToForm'
 import { mapFromFormToApi } from './mappers/mapFromFormToApi'
 import MetadataAccordion from './metadataAccordion/MetadataAccordion'
@@ -70,7 +70,6 @@ const CreateCustomer = () => {
       onDynamic: validationSchema,
     },
     onSubmit: async ({ value }) => {
-      // isPartner is only used for display purpose and should not be sent to API
       const formattedValues = mapFromFormToApi(value, {
         paymentProvider: getPaymentProvider(value.paymentProviderCode),
         taxProviders,
@@ -184,7 +183,9 @@ const CreateCustomer = () => {
             {translate('text_62e79671d23ae6ff149de968')}
           </Button>
           <form.AppForm>
-            <form.SubmitButton>{getSubmitButtonText()}</form.SubmitButton>
+            <form.SubmitButton dataTest="submit-customer">
+              {getSubmitButtonText()}
+            </form.SubmitButton>
           </form.AppForm>
         </CenteredPage.StickyFooter>
       </form>

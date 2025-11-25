@@ -9,7 +9,7 @@ import {
 } from '~/formValidation/metadataSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 import { tw } from '~/styles/utils'
 
 const MAX_METADATA_COUNT = 5
@@ -156,9 +156,9 @@ const MetadataAccordion = withForm({
                   variant="inline"
                   disabled={(metadata?.length || 0) >= MAX_METADATA_COUNT}
                   onClick={addMetadata}
-                  data-test="add-fixed-fee"
+                  data-test="add-metadata-button"
                 >
-                  {translate('text_63fcc3218d35b9377840f5bb')}
+                  {translate('text_6405cac5c833dcf18cad0196')}
                 </Button>
               </div>
             )

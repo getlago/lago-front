@@ -1,7 +1,7 @@
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
 
 const BillingFields = withFieldGroup({
   // Used for typing validation. We only want the address part of the form
