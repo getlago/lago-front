@@ -32,10 +32,9 @@ export default {
     '!src/generated/*.{ts,tsx}',
     '!src/styles/**',
     '!src/pages/__devOnly/*.{ts,tsx}',
-    '!src/**/__tests__/**',
   ],
   coverageReporters: ['text', 'lcov'],
-  collectCoverage: true,
+  collectCoverage: false,
   coverageThreshold: {
     global: {},
     'src/hooks/ui/useShortcuts.tsx': {

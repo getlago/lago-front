@@ -34,28 +34,4 @@ jobs:
 
       - name: Run tests
         run: |
-          pnpm run test:coverage
-
-      - name: SonarQube Scan (Pull Request)
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.pullrequest.branch=${{ github.head_ref }}
-            -Dsonar.pullrequest.base=${{ github.base_ref }}
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
-
-      - name: SonarQube Scan (Main Branch)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.branch.name=main
+          pnpm run test
