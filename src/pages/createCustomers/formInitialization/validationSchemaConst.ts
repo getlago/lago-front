@@ -10,6 +10,19 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 
+const emails = z.custom<string>((val) => {
+  if (typeof val !== 'string') return false
+  const separatedEmails = val.split(',').map((mail) => mail.trim())
+
+  try {
+    z.array(z.email()).parse(separatedEmails)
+  } catch {
+    return false
+  }
+
+  return true
+}, 'text_620bc4d4269a55014d493fc3')
+
 export const validationSchema = z.object({
   customerType: z.enum(CustomerTypeEnum).optional(),
   isPartner: z.boolean().optional(),
@@ -25,7 +38,7 @@ export const validationSchema = z.object({
   taxIdentificationNumber: z.string().optional(),
   currency: z.enum(CurrencyEnum).optional(),
   phone: z.string().optional(),
-  email: z.email('text_620bc4d4269a55014d493fc3').optional(),
+  email: emails.optional(),
   billingAddress: z
     .object({
       addressLine1: z.string(),

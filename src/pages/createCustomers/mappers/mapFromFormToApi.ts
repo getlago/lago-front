@@ -90,5 +90,6 @@ export const mapFromFormToApi = (
     })),
     billingEntityCode: values.billingEntityCode,
     integrationCustomers,
+    taxIdentificationNumber: values.taxIdentificationNumber,
   }
 }

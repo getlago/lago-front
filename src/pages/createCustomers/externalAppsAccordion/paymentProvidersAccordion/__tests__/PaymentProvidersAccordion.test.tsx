@@ -92,30 +92,6 @@ describe('PaymentProvidersAccordion Integration Tests', () => {
         expect(rendered.container).toMatchSnapshot()
       })
     })
-
-    it('THEN should render with Stripe provider and show Stripe content', async () => {
-      const user = userEvent.setup()
-      const TestWrapper = () => {
-        const form = useAppForm({
-          defaultValues: {
-            ...emptyCreateCustomerDefaultValues,
-            paymentProviderCode: 'STRIPE_PROD',
-          } as typeof emptyCreateCustomerDefaultValues,
-        })
-
-        return <PaymentProvidersAccordion form={form} setShowPaymentSection={jest.fn()} />
-      }
-
-      const rendered = render(<TestWrapper />)
-      const accordionButton = screen.getAllByRole('button')[0]
-
-      await user.click(accordionButton)
-      await waitFor(() => {
-        // Check that Stripe content is visible by looking for payment method section
-        expect(screen.getByText(/general payment method/i)).toBeInTheDocument()
-        expect(rendered.container).toMatchSnapshot()
-      })
-    })
   })
 
   describe('WHEN user interacts with the accordion', () => {

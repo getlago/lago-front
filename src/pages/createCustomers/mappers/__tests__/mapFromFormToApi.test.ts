@@ -134,6 +134,7 @@ describe('mapFromFormToApi', () => {
         metadata: [],
         billingEntityCode: undefined,
         integrationCustomers: undefined,
+        taxIdentificationNumber: '',
       })
     })
 
