@@ -287,7 +287,7 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
       jest-junit:
-        specifier: ^16.0.0
+        specifier: 16.0.0
         version: 16.0.0
       jscodeshift:
         specifier: 17.3.0
