@@ -1,0 +1,459 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render a matching snapshot 1`] = `
+<div>
+  <div
+    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+  >
+    <div
+      class="flex flex-col gap-1 group/combobox-input"
+    >
+      <div
+        class="flex items-center gap-1"
+      >
+        <label
+          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          data-test="captionHl"
+          for="crmCustomer.targetedObject"
+        >
+          Targeted HubSpot object
+        </label>
+      </div>
+      <div
+        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      >
+        <div
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+        >
+          <input
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-invalid="false"
+            autocapitalize="none"
+            autocomplete="off"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+            id=":r6:"
+            name="crmCustomer.targetedObject"
+            role="combobox"
+            spellcheck="false"
+            type="text"
+            value=""
+          />
+          <div
+            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+          >
+            <button
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-vigpug-MuiButtonBase-root-MuiButton-root"
+              data-test="button"
+              tabindex="0"
+              type="button"
+            >
+              <svg
+                class="text-inherit size-4 min-w-4"
+                data-test="chevron-up-down/medium"
+                fill="currentColor"
+                title="chevron-up-down/medium"
+                viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clip-rule="evenodd"
+                  d="M4.295 12.71C4.19976 12.6169 4.12408 12.5056 4.07241 12.3829C4.02074 12.2601 3.99413 12.1282 3.99413 11.995C3.99413 11.8618 4.02074 11.7299 4.07241 11.6071C4.12408 11.4844 4.19976 11.3731 4.295 11.28C4.48215 11.0953 4.73453 10.9917 4.9975 10.9917C5.26047 10.9917 5.51285 11.0953 5.7 11.28L8 13.905L10.3 11.27C10.4872 11.0853 10.7395 10.9817 11.0025 10.9817C11.2655 10.9817 11.5179 11.0853 11.705 11.27C11.8002 11.3631 11.8759 11.4744 11.9276 11.5971C11.9793 11.7199 12.0059 11.8518 12.0059 11.985C12.0059 12.1182 11.9793 12.2501 11.9276 12.3729C11.8759 12.4956 11.8002 12.6069 11.705 12.7L9.255 15.34L9.06 15.55C8.77875 15.8309 8.3975 15.9887 8 15.9887C7.6025 15.9887 7.22125 15.8309 6.94 15.55L4.295 12.71ZM11.705 3.29C11.8002 3.38313 11.8759 3.49436 11.9276 3.61714C11.9793 3.73992 12.0059 3.87179 12.0059 4.005C12.0059 4.13821 11.9793 4.27008 11.9276 4.39287C11.8759 4.51565 11.8002 4.62687 11.705 4.72C11.5179 4.90474 11.2655 5.00832 11.0025 5.00832C10.7395 5.00832 10.4872 4.90474 10.3 4.72L8 2.095L5.7 4.73C5.51285 4.91474 5.26047 5.01832 4.9975 5.01832C4.73453 5.01832 4.48215 4.91474 4.295 4.73C4.19976 4.63687 4.12408 4.52565 4.07241 4.40286C4.02074 4.28008 3.99413 4.14821 3.99413 4.015C3.99413 3.88179 4.02074 3.74992 4.07241 3.62714C4.12408 3.50436 4.19976 3.39313 4.295 3.3L6.745 0.660002L6.94 0.450002C7.22125 0.169101 7.6025 0.011322 8 0.011322C8.3975 0.011322 8.77875 0.169101 9.06 0.450002L11.705 3.29Z"
+                  fill-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+          <fieldset
+            aria-hidden="true"
+            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          >
+            <legend
+              class="css-1whs34k-MuiNotchedOutlined-root"
+            >
+              <span
+                class="notranslate"
+              >
+                ​
+              </span>
+            </legend>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render in edition mode 1`] = `
+<div>
+  <div
+    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+  >
+    <div
+      class="flex flex-col gap-1 group/combobox-input"
+    >
+      <div
+        class="flex items-center gap-1"
+      >
+        <label
+          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          data-test="captionHl"
+          for="crmCustomer.targetedObject"
+        >
+          Targeted HubSpot object
+        </label>
+      </div>
+      <div
+        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      >
+        <div
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+        >
+          <input
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-invalid="false"
+            autocapitalize="none"
+            autocomplete="off"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+            id=":re:"
+            name="crmCustomer.targetedObject"
+            role="combobox"
+            spellcheck="false"
+            type="text"
+            value=""
+          />
+          <div
+            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+          >
+            <button
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-vigpug-MuiButtonBase-root-MuiButton-root"
+              data-test="button"
+              tabindex="0"
+              type="button"
+            >
+              <svg
+                class="text-inherit size-4 min-w-4"
+                data-test="chevron-up-down/medium"
+                fill="currentColor"
+                title="chevron-up-down/medium"
+                viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clip-rule="evenodd"
+                  d="M4.295 12.71C4.19976 12.6169 4.12408 12.5056 4.07241 12.3829C4.02074 12.2601 3.99413 12.1282 3.99413 11.995C3.99413 11.8618 4.02074 11.7299 4.07241 11.6071C4.12408 11.4844 4.19976 11.3731 4.295 11.28C4.48215 11.0953 4.73453 10.9917 4.9975 10.9917C5.26047 10.9917 5.51285 11.0953 5.7 11.28L8 13.905L10.3 11.27C10.4872 11.0853 10.7395 10.9817 11.0025 10.9817C11.2655 10.9817 11.5179 11.0853 11.705 11.27C11.8002 11.3631 11.8759 11.4744 11.9276 11.5971C11.9793 11.7199 12.0059 11.8518 12.0059 11.985C12.0059 12.1182 11.9793 12.2501 11.9276 12.3729C11.8759 12.4956 11.8002 12.6069 11.705 12.7L9.255 15.34L9.06 15.55C8.77875 15.8309 8.3975 15.9887 8 15.9887C7.6025 15.9887 7.22125 15.8309 6.94 15.55L4.295 12.71ZM11.705 3.29C11.8002 3.38313 11.8759 3.49436 11.9276 3.61714C11.9793 3.73992 12.0059 3.87179 12.0059 4.005C12.0059 4.13821 11.9793 4.27008 11.9276 4.39287C11.8759 4.51565 11.8002 4.62687 11.705 4.72C11.5179 4.90474 11.2655 5.00832 11.0025 5.00832C10.7395 5.00832 10.4872 4.90474 10.3 4.72L8 2.095L5.7 4.73C5.51285 4.91474 5.26047 5.01832 4.9975 5.01832C4.73453 5.01832 4.48215 4.91474 4.295 4.73C4.19976 4.63687 4.12408 4.52565 4.07241 4.40286C4.02074 4.28008 3.99413 4.14821 3.99413 4.015C3.99413 3.88179 4.02074 3.74992 4.07241 3.62714C4.12408 3.50436 4.19976 3.39313 4.295 3.3L6.745 0.660002L6.94 0.450002C7.22125 0.169101 7.6025 0.011322 8 0.011322C8.3975 0.011322 8.77875 0.169101 9.06 0.450002L11.705 3.29Z"
+                  fill-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+          <fieldset
+            aria-hidden="true"
+            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          >
+            <legend
+              class="css-1whs34k-MuiNotchedOutlined-root"
+            >
+              <span
+                class="notranslate"
+              >
+                ​
+              </span>
+            </legend>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render with Hubspot integration data 1`] = `
+<div>
+  <div
+    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+  >
+    <div
+      class="flex flex-col gap-1 group/combobox-input"
+    >
+      <div
+        class="flex items-center gap-1"
+      >
+        <label
+          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          data-test="captionHl"
+          for="crmCustomer.targetedObject"
+        >
+          Targeted HubSpot object
+        </label>
+      </div>
+      <div
+        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      >
+        <div
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+        >
+          <input
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-invalid="false"
+            autocapitalize="none"
+            autocomplete="off"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+            id=":ra:"
+            name="crmCustomer.targetedObject"
+            role="combobox"
+            spellcheck="false"
+            type="text"
+            value=""
+          />
+          <div
+            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+          >
+            <button
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-vigpug-MuiButtonBase-root-MuiButton-root"
+              data-test="button"
+              tabindex="0"
+              type="button"
+            >
+              <svg
+                class="text-inherit size-4 min-w-4"
+                data-test="chevron-up-down/medium"
+                fill="currentColor"
+                title="chevron-up-down/medium"
+                viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clip-rule="evenodd"
+                  d="M4.295 12.71C4.19976 12.6169 4.12408 12.5056 4.07241 12.3829C4.02074 12.2601 3.99413 12.1282 3.99413 11.995C3.99413 11.8618 4.02074 11.7299 4.07241 11.6071C4.12408 11.4844 4.19976 11.3731 4.295 11.28C4.48215 11.0953 4.73453 10.9917 4.9975 10.9917C5.26047 10.9917 5.51285 11.0953 5.7 11.28L8 13.905L10.3 11.27C10.4872 11.0853 10.7395 10.9817 11.0025 10.9817C11.2655 10.9817 11.5179 11.0853 11.705 11.27C11.8002 11.3631 11.8759 11.4744 11.9276 11.5971C11.9793 11.7199 12.0059 11.8518 12.0059 11.985C12.0059 12.1182 11.9793 12.2501 11.9276 12.3729C11.8759 12.4956 11.8002 12.6069 11.705 12.7L9.255 15.34L9.06 15.55C8.77875 15.8309 8.3975 15.9887 8 15.9887C7.6025 15.9887 7.22125 15.8309 6.94 15.55L4.295 12.71ZM11.705 3.29C11.8002 3.38313 11.8759 3.49436 11.9276 3.61714C11.9793 3.73992 12.0059 3.87179 12.0059 4.005C12.0059 4.13821 11.9793 4.27008 11.9276 4.39287C11.8759 4.51565 11.8002 4.62687 11.705 4.72C11.5179 4.90474 11.2655 5.00832 11.0025 5.00832C10.7395 5.00832 10.4872 4.90474 10.3 4.72L8 2.095L5.7 4.73C5.51285 4.91474 5.26047 5.01832 4.9975 5.01832C4.73453 5.01832 4.48215 4.91474 4.295 4.73C4.19976 4.63687 4.12408 4.52565 4.07241 4.40286C4.02074 4.28008 3.99413 4.14821 3.99413 4.015C3.99413 3.88179 4.02074 3.74992 4.07241 3.62714C4.12408 3.50436 4.19976 3.39313 4.295 3.3L6.745 0.660002L6.94 0.450002C7.22125 0.169101 7.6025 0.011322 8 0.011322C8.3975 0.011322 8.77875 0.169101 9.06 0.450002L11.705 3.29Z"
+                  fill-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+          <fieldset
+            aria-hidden="true"
+            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          >
+            <legend
+              class="css-1whs34k-MuiNotchedOutlined-root"
+            >
+              <span
+                class="notranslate"
+              >
+                ​
+              </span>
+            </legend>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render with initial integration customer 1`] = `
+<div>
+  <div
+    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+  >
+    <div
+      class="flex flex-col gap-1 group/combobox-input"
+    >
+      <div
+        class="flex items-center gap-1"
+      >
+        <label
+          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          data-test="captionHl"
+          for="crmCustomer.targetedObject"
+        >
+          Targeted HubSpot object
+        </label>
+      </div>
+      <div
+        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      >
+        <div
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+        >
+          <input
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-invalid="false"
+            autocapitalize="none"
+            autocomplete="off"
+            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+            disabled=""
+            id=":ri:"
+            name="crmCustomer.targetedObject"
+            role="combobox"
+            spellcheck="false"
+            type="text"
+            value=""
+          />
+          <div
+            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+          >
+            <button
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-vigpug-MuiButtonBase-root-MuiButton-root"
+              data-test="button"
+              tabindex="0"
+              type="button"
+            >
+              <svg
+                class="text-inherit size-4 min-w-4"
+                data-test="chevron-up-down/medium"
+                fill="currentColor"
+                title="chevron-up-down/medium"
+                viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clip-rule="evenodd"
+                  d="M4.295 12.71C4.19976 12.6169 4.12408 12.5056 4.07241 12.3829C4.02074 12.2601 3.99413 12.1282 3.99413 11.995C3.99413 11.8618 4.02074 11.7299 4.07241 11.6071C4.12408 11.4844 4.19976 11.3731 4.295 11.28C4.48215 11.0953 4.73453 10.9917 4.9975 10.9917C5.26047 10.9917 5.51285 11.0953 5.7 11.28L8 13.905L10.3 11.27C10.4872 11.0853 10.7395 10.9817 11.0025 10.9817C11.2655 10.9817 11.5179 11.0853 11.705 11.27C11.8002 11.3631 11.8759 11.4744 11.9276 11.5971C11.9793 11.7199 12.0059 11.8518 12.0059 11.985C12.0059 12.1182 11.9793 12.2501 11.9276 12.3729C11.8759 12.4956 11.8002 12.6069 11.705 12.7L9.255 15.34L9.06 15.55C8.77875 15.8309 8.3975 15.9887 8 15.9887C7.6025 15.9887 7.22125 15.8309 6.94 15.55L4.295 12.71ZM11.705 3.29C11.8002 3.38313 11.8759 3.49436 11.9276 3.61714C11.9793 3.73992 12.0059 3.87179 12.0059 4.005C12.0059 4.13821 11.9793 4.27008 11.9276 4.39287C11.8759 4.51565 11.8002 4.62687 11.705 4.72C11.5179 4.90474 11.2655 5.00832 11.0025 5.00832C10.7395 5.00832 10.4872 4.90474 10.3 4.72L8 2.095L5.7 4.73C5.51285 4.91474 5.26047 5.01832 4.9975 5.01832C4.73453 5.01832 4.48215 4.91474 4.295 4.73C4.19976 4.63687 4.12408 4.52565 4.07241 4.40286C4.02074 4.28008 3.99413 4.14821 3.99413 4.015C3.99413 3.88179 4.02074 3.74992 4.07241 3.62714C4.12408 3.50436 4.19976 3.39313 4.295 3.3L6.745 0.660002L6.94 0.450002C7.22125 0.169101 7.6025 0.011322 8 0.011322C8.3975 0.011322 8.77875 0.169101 9.06 0.450002L11.705 3.29Z"
+                  fill-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+          <fieldset
+            aria-hidden="true"
+            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          >
+            <legend
+              class="css-1whs34k-MuiNotchedOutlined-root"
+            >
+              <span
+                class="notranslate"
+              >
+                ​
+              </span>
+            </legend>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with form fields THEN should display fields when targeted object is pre-selected 1`] = `
+<div>
+  <div
+    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+  >
+    <div
+      class="flex flex-col gap-1 group/combobox-input"
+    >
+      <div
+        class="flex items-center gap-1"
+      >
+        <label
+          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          data-test="captionHl"
+          for="crmCustomer.targetedObject"
+        >
+          Targeted HubSpot object
+        </label>
+      </div>
+      <div
+        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      >
+        <div
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+        >
+          <input
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-invalid="false"
+            autocapitalize="none"
+            autocomplete="off"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+            id=":rq:"
+            name="crmCustomer.targetedObject"
+            role="combobox"
+            spellcheck="false"
+            type="text"
+            value="HubSpot Companies"
+          />
+          <div
+            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+          >
+            <button
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-vigpug-MuiButtonBase-root-MuiButton-root"
+              data-test="button"
+              tabindex="0"
+              type="button"
+            >
+              <svg
+                class="text-inherit size-4 min-w-4"
+                data-test="chevron-up-down/medium"
+                fill="currentColor"
+                title="chevron-up-down/medium"
+                viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clip-rule="evenodd"
+                  d="M4.295 12.71C4.19976 12.6169 4.12408 12.5056 4.07241 12.3829C4.02074 12.2601 3.99413 12.1282 3.99413 11.995C3.99413 11.8618 4.02074 11.7299 4.07241 11.6071C4.12408 11.4844 4.19976 11.3731 4.295 11.28C4.48215 11.0953 4.73453 10.9917 4.9975 10.9917C5.26047 10.9917 5.51285 11.0953 5.7 11.28L8 13.905L10.3 11.27C10.4872 11.0853 10.7395 10.9817 11.0025 10.9817C11.2655 10.9817 11.5179 11.0853 11.705 11.27C11.8002 11.3631 11.8759 11.4744 11.9276 11.5971C11.9793 11.7199 12.0059 11.8518 12.0059 11.985C12.0059 12.1182 11.9793 12.2501 11.9276 12.3729C11.8759 12.4956 11.8002 12.6069 11.705 12.7L9.255 15.34L9.06 15.55C8.77875 15.8309 8.3975 15.9887 8 15.9887C7.6025 15.9887 7.22125 15.8309 6.94 15.55L4.295 12.71ZM11.705 3.29C11.8002 3.38313 11.8759 3.49436 11.9276 3.61714C11.9793 3.73992 12.0059 3.87179 12.0059 4.005C12.0059 4.13821 11.9793 4.27008 11.9276 4.39287C11.8759 4.51565 11.8002 4.62687 11.705 4.72C11.5179 4.90474 11.2655 5.00832 11.0025 5.00832C10.7395 5.00832 10.4872 4.90474 10.3 4.72L8 2.095L5.7 4.73C5.51285 4.91474 5.26047 5.01832 4.9975 5.01832C4.73453 5.01832 4.48215 4.91474 4.295 4.73C4.19976 4.63687 4.12408 4.52565 4.07241 4.40286C4.02074 4.28008 3.99413 4.14821 3.99413 4.015C3.99413 3.88179 4.02074 3.74992 4.07241 3.62714C4.12408 3.50436 4.19976 3.39313 4.295 3.3L6.745 0.660002L6.94 0.450002C7.22125 0.169101 7.6025 0.011322 8 0.011322C8.3975 0.011322 8.77875 0.169101 9.06 0.450002L11.705 3.29Z"
+                  fill-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+          <fieldset
+            aria-hidden="true"
+            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          >
+            <legend
+              class="css-1whs34k-MuiNotchedOutlined-root"
+            >
+              <span
+                class="notranslate"
+              >
+                ​
+              </span>
+            </legend>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="flex size-full items-center justify-center"
+  >
+    <svg
+      class="animate-spin text-purple-600 size-6 min-w-6"
+      data-test="processing/large"
+      fill="currentColor"
+      title="processing/large"
+      viewBox="0 0 16 16"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M16 8C16 10.1217 15.1571 12.1566 13.6569 13.6569C12.1566 15.1571 10.1217 16 8 16C5.87827 16 3.84344 15.1571 2.34315 13.6569C0.842855 12.1566 0 10.1217 0 8C0 7.73478 0.105357 7.48043 0.292893 7.29289C0.48043 7.10536 0.734784 7 1 7C1.26522 7 1.51957 7.10536 1.70711 7.29289C1.89464 7.48043 2 7.73478 2 8C2 9.18669 2.35189 10.3467 3.01118 11.3334C3.67047 12.3201 4.60754 13.0892 5.7039 13.5433C6.80026 13.9974 8.00666 14.1162 9.17054 13.8847C10.3344 13.6532 11.4035 13.0818 12.2426 12.2426C13.0818 11.4035 13.6532 10.3344 13.8847 9.17054C14.1162 8.00666 13.9974 6.80026 13.5433 5.7039C13.0892 4.60754 12.3201 3.67047 11.3334 3.01118C10.3467 2.35189 9.18669 2 8 2C7.73478 2 7.48043 1.89464 7.29289 1.70711C7.10536 1.51957 7 1.26522 7 1C7 0.734784 7.10536 0.48043 7.29289 0.292893C7.48043 0.105357 7.73478 0 8 0C10.1217 0 12.1566 0.842855 13.6569 2.34315C15.1571 3.84344 16 5.87827 16 8Z"
+      />
+    </svg>
+  </div>
+  <div
+    class="flex size-full items-center justify-center"
+  >
+    <svg
+      class="animate-spin text-purple-600 size-6 min-w-6"
+      data-test="processing/large"
+      fill="currentColor"
+      title="processing/large"
+      viewBox="0 0 16 16"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M16 8C16 10.1217 15.1571 12.1566 13.6569 13.6569C12.1566 15.1571 10.1217 16 8 16C5.87827 16 3.84344 15.1571 2.34315 13.6569C0.842855 12.1566 0 10.1217 0 8C0 7.73478 0.105357 7.48043 0.292893 7.29289C0.48043 7.10536 0.734784 7 1 7C1.26522 7 1.51957 7.10536 1.70711 7.29289C1.89464 7.48043 2 7.73478 2 8C2 9.18669 2.35189 10.3467 3.01118 11.3334C3.67047 12.3201 4.60754 13.0892 5.7039 13.5433C6.80026 13.9974 8.00666 14.1162 9.17054 13.8847C10.3344 13.6532 11.4035 13.0818 12.2426 12.2426C13.0818 11.4035 13.6532 10.3344 13.8847 9.17054C14.1162 8.00666 13.9974 6.80026 13.5433 5.7039C13.0892 4.60754 12.3201 3.67047 11.3334 3.01118C10.3467 2.35189 9.18669 2 8 2C7.73478 2 7.48043 1.89464 7.29289 1.70711C7.10536 1.51957 7 1.26522 7 1C7 0.734784 7.10536 0.48043 7.29289 0.292893C7.48043 0.105357 7.73478 0 8 0C10.1217 0 12.1566 0.842855 13.6569 2.34315C15.1571 3.84344 16 5.87827 16 8Z"
+      />
+    </svg>
+  </div>
+</div>
+`;

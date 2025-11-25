@@ -1,6 +1,9 @@
 import { gql } from '@apollo/client'
 
-import { useGetTaxIntegrationsForExternalAppsAccordionQuery } from '~/generated/graphql'
+import {
+  GetTaxIntegrationsForExternalAppsAccordionQuery,
+  useGetTaxIntegrationsForExternalAppsAccordionQuery,
+} from '~/generated/graphql'
 
 gql`
   query getTaxIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
@@ -23,7 +26,10 @@ gql`
   }
 `
 
-export const useTaxProviders = () => {
+export const useTaxProviders = (): {
+  taxProviders: GetTaxIntegrationsForExternalAppsAccordionQuery | undefined
+  isLoadingTaxProviders: boolean
+} => {
   const { data: taxProviders, loading: isLoadingTaxProviders } =
     useGetTaxIntegrationsForExternalAppsAccordionQuery({
       variables: { limit: 1000 },

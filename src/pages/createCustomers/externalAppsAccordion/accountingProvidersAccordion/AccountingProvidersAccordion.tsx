@@ -72,22 +72,20 @@ const AccountingProvidersAccordion = withForm({
     })
 
     const getSelectedIntegration = () => {
+      const netsuite = allNetsuiteIntegrations || []
+      const xero = allXeroIntegrations || []
+
       if (hadInitialNetsuiteIntegrationCustomer) {
-        return allNetsuiteIntegrations?.find(
-          (integration) => integration.code === accountingProviderCode,
-        )
+        return netsuite.find((integration) => integration.code === accountingProviderCode)
       }
 
       if (hadInitialXeroIntegrationCustomer) {
-        return allXeroIntegrations?.find(
-          (integration) => integration.code === accountingProviderCode,
-        )
+        return xero.find((integration) => integration.code === accountingProviderCode)
       }
 
       return (
-        [...(allNetsuiteIntegrations || []), ...(allXeroIntegrations || [])].find(
-          (integration) => integration.code === accountingProviderCode,
-        ) || undefined
+        [...netsuite, ...xero].find((integration) => integration.code === accountingProviderCode) ||
+        undefined
       )
     }
 

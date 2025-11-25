@@ -30,7 +30,7 @@ export const getAllIntegrationForAnIntegrationType = <T extends SupportedIntegra
     | GetAccountingIntegrationsForExternalAppsAccordionQuery
     | GetTaxIntegrationsForExternalAppsAccordionQuery
     | GetCrmIntegrationsForExternalAppsAccordionQuery
-}) => {
+}): T[] | undefined => {
   // Get all integrations of the same type
   return allIntegrationsData?.integrations?.collection.filter(
     (i) => i.__typename === integrationTypeToTypename[integrationType],

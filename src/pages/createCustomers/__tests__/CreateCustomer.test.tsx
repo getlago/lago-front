@@ -2,13 +2,9 @@ import { RenderOptions, render as rtlRender, screen, waitFor } from '@testing-li
 import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
-import { initializeYup } from '~/formValidation/initializeYup'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import CreateCustomer from '../CreateCustomer'
-
-// Initialize form validation
-initializeYup()
 
 // Custom render function for CreateCustomer component (create mode)
 const renderCreateCustomer = (

@@ -1,6 +1,9 @@
 import { gql } from '@apollo/client'
 
-import { useGetAccountingIntegrationsForExternalAppsAccordionQuery } from '~/generated/graphql'
+import {
+  GetAccountingIntegrationsForExternalAppsAccordionQuery,
+  useGetAccountingIntegrationsForExternalAppsAccordionQuery,
+} from '~/generated/graphql'
 
 gql`
   query getAccountingIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
@@ -23,7 +26,10 @@ gql`
   }
 `
 
-export const useAccountingProviders = () => {
+export const useAccountingProviders = (): {
+  accountingProviders: GetAccountingIntegrationsForExternalAppsAccordionQuery | undefined
+  isLoadingAccountProviders: boolean
+} => {
   const { data: accountingProviders, loading: isLoadingAccountProviders } =
     useGetAccountingIntegrationsForExternalAppsAccordionQuery({
       variables: { limit: 1000 },
