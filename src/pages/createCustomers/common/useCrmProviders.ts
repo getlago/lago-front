@@ -1,6 +1,9 @@
 import { gql } from '@apollo/client'
 
-import { useGetCrmIntegrationsForExternalAppsAccordionQuery } from '~/generated/graphql'
+import {
+  GetCrmIntegrationsForExternalAppsAccordionQuery,
+  useGetCrmIntegrationsForExternalAppsAccordionQuery,
+} from '~/generated/graphql'
 
 gql`
   query getCrmIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
@@ -24,7 +27,10 @@ gql`
   }
 `
 
-export const useCrmProviders = () => {
+export const useCrmProviders = (): {
+  crmProviders: GetCrmIntegrationsForExternalAppsAccordionQuery | undefined
+  isLoadingCrmProviders: boolean
+} => {
   const { data: crmProviders, loading: isLoadingCrmProviders } =
     useGetCrmIntegrationsForExternalAppsAccordionQuery({
       variables: { limit: 1000 },

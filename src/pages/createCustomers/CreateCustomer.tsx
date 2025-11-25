@@ -148,7 +148,20 @@ const CreateCustomer = () => {
             </div>
 
             <div className="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
-              {!hasAccessToRevenueShare ? (
+              {hasAccessToRevenueShare ? (
+                <div className="flex items-center justify-between">
+                  <form.AppField name="isPartner">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_173832066416253fgbilrnae')}
+                        subLabel={translate('text_173832066416219scp0nqeo8')}
+                        labelPosition="right"
+                        disabled={!canEditAccountType}
+                      />
+                    )}
+                  </form.AppField>
+                </div>
+              ) : (
                 <button
                   className="flex items-center justify-between"
                   onClick={() => {
@@ -167,19 +180,6 @@ const CreateCustomer = () => {
                   </form.AppField>
                   <Icon name="sparkles" />
                 </button>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <form.AppField name="isPartner">
-                    {(field) => (
-                      <field.SwitchField
-                        label={translate('text_173832066416253fgbilrnae')}
-                        subLabel={translate('text_173832066416219scp0nqeo8')}
-                        labelPosition="right"
-                        disabled={!canEditAccountType}
-                      />
-                    )}
-                  </form.AppField>
-                </div>
               )}
 
               <CustomerInformation

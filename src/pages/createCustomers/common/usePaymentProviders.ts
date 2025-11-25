@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 
 import {
+  PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery,
   ProviderTypeEnum,
   usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery,
 } from '~/generated/graphql'
@@ -55,13 +56,17 @@ gql`
   }
 `
 
-export const usePaymentProviders = () => {
+export const usePaymentProviders = (): {
+  paymentProviders: PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined
+  isLoadingPaymentProviders: boolean
+  getPaymentProvider: (code: string | undefined) => ProviderTypeEnum | undefined
+} => {
   const { data: paymentProviders, loading: isLoadingPaymentProviders } =
     usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
       variables: { limit: 1000 },
     })
 
-  const getPaymentProvider = (code: string | undefined) => {
+  const getPaymentProvider = (code: string | undefined): ProviderTypeEnum | undefined => {
     if (!code) return undefined
 
     const provider = paymentProviders?.paymentProviders?.collection.find((p) => p.code === code)

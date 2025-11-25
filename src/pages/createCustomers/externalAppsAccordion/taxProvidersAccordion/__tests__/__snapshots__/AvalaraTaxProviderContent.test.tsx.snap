@@ -1,0 +1,403 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`AvalaraTaxProviderContent Integration Tests WHEN rendering the component THEN should render a matching snapshot 1`] = `
+<div>
+  <div
+    class="flex flex-col gap-1"
+  >
+    <div
+      class="flex items-center gap-1"
+    >
+      <label
+        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        data-test="captionHl"
+        for="taxCustomer.taxCustomerId"
+      >
+        Avalara customer code
+      </label>
+    </div>
+    <div
+      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+    >
+      <div
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+      >
+        <input
+          aria-invalid="false"
+          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          id="taxCustomer.taxCustomerId"
+          name="taxCustomer.taxCustomerId"
+          placeholder="Type an Avalara customer code"
+          type="text"
+          value=""
+        />
+        <fieldset
+          aria-hidden="true"
+          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+        >
+          <legend
+            class="css-1whs34k-MuiNotchedOutlined-root"
+          >
+            <span
+              class="notranslate"
+            >
+              ​
+            </span>
+          </legend>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  <label
+    class="flex flex-col cursor-pointer"
+    data-test="checkbox-taxCustomer.syncWithProvider"
+    for=":r7:"
+  >
+    <div
+      class="mx-0 flex items-start align-middle *:leading-7"
+    >
+      <div
+        class="mr-3 inline-flex items-center pt-1"
+      >
+        <input
+          aria-checked="false"
+          aria-labelledby="Create automatically this customer in Avalara"
+          class="absolute m-0 size-0 p-0 opacity-0"
+          id=":r7:"
+          readonly=""
+          type="checkbox"
+        />
+        <svg
+          aria-hidden="true"
+          class="text-white hover:text-grey-200 active:text-grey-300"
+          fill="none"
+          height="16"
+          viewBox="0 0 16 16"
+          width="16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect
+            fill="currentColor"
+            height="15"
+            rx="3.5"
+            stroke="#8C95A6"
+            width="15"
+            x="0.5"
+            y="0.5"
+          />
+        </svg>
+      </div>
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          data-test="body"
+        >
+          Create automatically this customer in Avalara
+        </div>
+      </div>
+    </div>
+  </label>
+</div>
+`;
+
+exports[`AvalaraTaxProviderContent Integration Tests WHEN rendering the component THEN should render in edition mode 1`] = `
+<div>
+  <div
+    class="flex flex-col gap-1"
+  >
+    <div
+      class="flex items-center gap-1"
+    >
+      <label
+        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        data-test="captionHl"
+        for="taxCustomer.taxCustomerId"
+      >
+        Avalara customer code
+      </label>
+    </div>
+    <div
+      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+    >
+      <div
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+      >
+        <input
+          aria-invalid="false"
+          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          id="taxCustomer.taxCustomerId"
+          name="taxCustomer.taxCustomerId"
+          placeholder="Type an Avalara customer code"
+          type="text"
+          value=""
+        />
+        <fieldset
+          aria-hidden="true"
+          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+        >
+          <legend
+            class="css-1whs34k-MuiNotchedOutlined-root"
+          >
+            <span
+              class="notranslate"
+            >
+              ​
+            </span>
+          </legend>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  <label
+    class="flex flex-col cursor-pointer"
+    data-test="checkbox-taxCustomer.syncWithProvider"
+    for=":rf:"
+  >
+    <div
+      class="mx-0 flex items-start align-middle *:leading-7"
+    >
+      <div
+        class="mr-3 inline-flex items-center pt-1"
+      >
+        <input
+          aria-checked="false"
+          aria-labelledby="Create automatically this customer in Test Avalara Integration"
+          class="absolute m-0 size-0 p-0 opacity-0"
+          id=":rf:"
+          readonly=""
+          type="checkbox"
+        />
+        <svg
+          aria-hidden="true"
+          class="text-white hover:text-grey-200 active:text-grey-300"
+          fill="none"
+          height="16"
+          viewBox="0 0 16 16"
+          width="16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect
+            fill="currentColor"
+            height="15"
+            rx="3.5"
+            stroke="#8C95A6"
+            width="15"
+            x="0.5"
+            y="0.5"
+          />
+        </svg>
+      </div>
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          data-test="body"
+        >
+          Create automatically this customer in Test Avalara Integration
+        </div>
+      </div>
+    </div>
+  </label>
+</div>
+`;
+
+exports[`AvalaraTaxProviderContent Integration Tests WHEN rendering the component THEN should render with Avalara integration data 1`] = `
+<div>
+  <div
+    class="flex flex-col gap-1"
+  >
+    <div
+      class="flex items-center gap-1"
+    >
+      <label
+        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        data-test="captionHl"
+        for="taxCustomer.taxCustomerId"
+      >
+        Avalara customer code
+      </label>
+    </div>
+    <div
+      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+    >
+      <div
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+      >
+        <input
+          aria-invalid="false"
+          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          id="taxCustomer.taxCustomerId"
+          name="taxCustomer.taxCustomerId"
+          placeholder="Type an Avalara customer code"
+          type="text"
+          value=""
+        />
+        <fieldset
+          aria-hidden="true"
+          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+        >
+          <legend
+            class="css-1whs34k-MuiNotchedOutlined-root"
+          >
+            <span
+              class="notranslate"
+            >
+              ​
+            </span>
+          </legend>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  <label
+    class="flex flex-col cursor-pointer"
+    data-test="checkbox-taxCustomer.syncWithProvider"
+    for=":rb:"
+  >
+    <div
+      class="mx-0 flex items-start align-middle *:leading-7"
+    >
+      <div
+        class="mr-3 inline-flex items-center pt-1"
+      >
+        <input
+          aria-checked="false"
+          aria-labelledby="Create automatically this customer in Test Avalara Integration"
+          class="absolute m-0 size-0 p-0 opacity-0"
+          id=":rb:"
+          readonly=""
+          type="checkbox"
+        />
+        <svg
+          aria-hidden="true"
+          class="text-white hover:text-grey-200 active:text-grey-300"
+          fill="none"
+          height="16"
+          viewBox="0 0 16 16"
+          width="16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect
+            fill="currentColor"
+            height="15"
+            rx="3.5"
+            stroke="#8C95A6"
+            width="15"
+            x="0.5"
+            y="0.5"
+          />
+        </svg>
+      </div>
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          data-test="body"
+        >
+          Create automatically this customer in Test Avalara Integration
+        </div>
+      </div>
+    </div>
+  </label>
+</div>
+`;
+
+exports[`AvalaraTaxProviderContent Integration Tests WHEN rendering the component THEN should render with initial integration customer 1`] = `
+<div>
+  <div
+    class="flex flex-col gap-1"
+  >
+    <div
+      class="flex items-center gap-1"
+    >
+      <label
+        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        data-test="captionHl"
+        for="taxCustomer.taxCustomerId"
+      >
+        Avalara customer code
+      </label>
+    </div>
+    <div
+      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+    >
+      <div
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+      >
+        <input
+          aria-invalid="false"
+          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          disabled=""
+          id="taxCustomer.taxCustomerId"
+          name="taxCustomer.taxCustomerId"
+          placeholder="Type an Avalara customer code"
+          type="text"
+          value=""
+        />
+        <fieldset
+          aria-hidden="true"
+          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+        >
+          <legend
+            class="css-1whs34k-MuiNotchedOutlined-root"
+          >
+            <span
+              class="notranslate"
+            >
+              ​
+            </span>
+          </legend>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  <label
+    class="flex flex-col"
+    data-test="checkbox-taxCustomer.syncWithProvider"
+    for=":rj:"
+  >
+    <div
+      class="mx-0 flex items-start align-middle *:leading-7"
+    >
+      <div
+        class="mr-3 inline-flex items-center pt-1"
+      >
+        <input
+          aria-checked="false"
+          aria-labelledby="Create automatically this customer in Test Avalara Integration"
+          class="absolute m-0 size-0 p-0 opacity-0"
+          disabled=""
+          id=":rj:"
+          readonly=""
+          type="checkbox"
+        />
+        <svg
+          aria-hidden="true"
+          class="text-white hover:text-grey-200 active:text-grey-300"
+          fill="none"
+          height="16"
+          viewBox="0 0 16 16"
+          width="16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect
+            fill="currentColor"
+            height="15"
+            rx="3.5"
+            stroke="#8C95A6"
+            width="15"
+            x="0.5"
+            y="0.5"
+          />
+        </svg>
+      </div>
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1lkb4zy-MuiTypography-root"
+          data-test="body"
+        >
+          Create automatically this customer in Test Avalara Integration
+        </div>
+      </div>
+    </div>
+  </label>
+</div>
+`;
