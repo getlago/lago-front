@@ -1,4 +1,4 @@
-import { ComponentType, lazy, LazyExoticComponent } from 'react'
+import { ComponentType, lazy } from 'react'
 
 import { withLazySuspense } from '~/HOC/withLazySuspense'
 
