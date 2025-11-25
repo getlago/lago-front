@@ -40,6 +40,88 @@ const MetadataAccordion = withForm({
       })
     }
 
+    const displaySubfield = (id: string | undefined, index: number) => {
+      return (
+        <React.Fragment key={`metadata-item-${id || index}`}>
+          <form.AppField name={`metadata[${index}].key`}>
+            {(subField) => {
+              const error = getMetadataError(subField.state.meta.errors)
+
+              const hasCustomError = Object.keys(MetadataErrorsEnum).includes(error)
+
+              const getTitle = () => {
+                if (error === MetadataErrorsEnum.uniqueness) {
+                  return translate('text_63fcc3218d35b9377840f5dd')
+                }
+                if (error === MetadataErrorsEnum.maxLength) {
+                  return translate('text_63fcc3218d35b9377840f5d9', { max: 20 })
+                }
+                return undefined
+              }
+
+              return (
+                <Tooltip
+                  placement="top-end"
+                  title={getTitle()}
+                  disableHoverListener={!hasCustomError}
+                >
+                  <subField.TextInputField
+                    silentError={!hasCustomError}
+                    placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                    displayErrorText={false}
+                  />
+                </Tooltip>
+              )
+            }}
+          </form.AppField>
+          <form.AppField name={`metadata[${index}].value`}>
+            {(subField) => {
+              const error = getMetadataError(subField.state.meta.errors)
+              const hasCustomError = Object.keys(MetadataErrorsEnum).includes(error)
+
+              const getTitle = () => {
+                if (error === MetadataErrorsEnum.maxLength) {
+                  return translate('text_63fcc3218d35b9377840f5e5', {
+                    max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                  })
+                }
+                return undefined
+              }
+
+              return (
+                <Tooltip
+                  placement="top-end"
+                  title={getTitle()}
+                  disableHoverListener={!hasCustomError}
+                >
+                  <subField.TextInputField
+                    silentError={!hasCustomError}
+                    placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                    displayErrorText={false}
+                  />
+                </Tooltip>
+              )
+            }}
+          </form.AppField>
+          <form.AppField name={`metadata[${index}].displayInInvoice`}>
+            {(subField) => <subField.SwitchField />}
+          </form.AppField>
+          <Tooltip
+            className="flex items-center"
+            placement="top-end"
+            title={translate('text_63fcc3218d35b9377840f5e1')}
+          >
+            <Button
+              variant="quaternary"
+              size="small"
+              icon="trash"
+              onClick={() => removeMetadata(index)}
+            />
+          </Tooltip>
+        </React.Fragment>
+      )
+    }
+
     return (
       <Accordion
         variant="borderless"
@@ -68,87 +150,7 @@ const MetadataAccordion = withForm({
                   </div>
                 )}
                 <div className={gridClassName}>
-                  {field.state.value.map(({ id }, index) => {
-                    return (
-                      <React.Fragment key={`metadata-item-${id || index}`}>
-                        <form.AppField name={`metadata[${index}].key`}>
-                          {(subField) => {
-                            const error = getMetadataError(subField.state.meta.errors)
-
-                            const hasCustomError = Object.keys(MetadataErrorsEnum).includes(error)
-
-                            const getTitle = () => {
-                              if (error === MetadataErrorsEnum.uniqueness) {
-                                return translate('text_63fcc3218d35b9377840f5dd')
-                              }
-                              if (error === MetadataErrorsEnum.maxLength) {
-                                return translate('text_63fcc3218d35b9377840f5d9', { max: 20 })
-                              }
-                              return undefined
-                            }
-
-                            return (
-                              <Tooltip
-                                placement="top-end"
-                                title={getTitle()}
-                                disableHoverListener={!hasCustomError}
-                              >
-                                <subField.TextInputField
-                                  silentError={!hasCustomError}
-                                  placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-                                  displayErrorText={false}
-                                />
-                              </Tooltip>
-                            )
-                          }}
-                        </form.AppField>
-                        <form.AppField name={`metadata[${index}].value`}>
-                          {(subField) => {
-                            const error = getMetadataError(subField.state.meta.errors)
-                            const hasCustomError = Object.keys(MetadataErrorsEnum).includes(error)
-
-                            const getTitle = () => {
-                              if (error === MetadataErrorsEnum.maxLength) {
-                                return translate('text_63fcc3218d35b9377840f5e5', {
-                                  max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
-                                })
-                              }
-                              return undefined
-                            }
-
-                            return (
-                              <Tooltip
-                                placement="top-end"
-                                title={getTitle()}
-                                disableHoverListener={!hasCustomError}
-                              >
-                                <subField.TextInputField
-                                  silentError={!hasCustomError}
-                                  placeholder={translate('text_63fcc3218d35b9377840f5af')}
-                                  displayErrorText={false}
-                                />
-                              </Tooltip>
-                            )
-                          }}
-                        </form.AppField>
-                        <form.AppField name={`metadata[${index}].displayInInvoice`}>
-                          {(subField) => <subField.SwitchField />}
-                        </form.AppField>
-                        <Tooltip
-                          className="flex items-center"
-                          placement="top-end"
-                          title={translate('text_63fcc3218d35b9377840f5e1')}
-                        >
-                          <Button
-                            variant="quaternary"
-                            size="small"
-                            icon="trash"
-                            onClick={() => removeMetadata(index)}
-                          />
-                        </Tooltip>
-                      </React.Fragment>
-                    )
-                  })}
+                  {field.state.value.map(({ id }, index) => displaySubfield(id, index))}
                 </div>
                 <Button
                   className={tw({ 'mt-4': metadata.length > 0 })}

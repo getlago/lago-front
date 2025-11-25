@@ -49,11 +49,18 @@ const CreateCustomer = () => {
   const billingEntitiesList = useMemo(
     () =>
       billingEntitiesData?.billingEntities?.collection
-        ?.map((billingEntity) => ({
-          label: `${billingEntity.name || billingEntity.code}${billingEntity.isDefault ? ` (${translate('text_1744018116743pwoqp40bkhp')})` : ''}`,
-          value: billingEntity.code,
-          isDefault: billingEntity.isDefault,
-        }))
+        ?.map((billingEntity) => {
+          const isDefaultString = billingEntity.isDefault
+            ? ` (${translate('text_1744018116743pwoqp40bkhp')})`
+            : ''
+          const label = `${billingEntity.name || billingEntity.code}${isDefaultString}`
+
+          return {
+            label,
+            value: billingEntity.code,
+            isDefault: billingEntity.isDefault,
+          }
+        })
         .sort((a) => (a.isDefault ? -1 : 1)) || [],
     [billingEntitiesData, translate],
   )
@@ -141,28 +148,39 @@ const CreateCustomer = () => {
             </div>
 
             <div className="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
-              {/* eslint-disable-next-line */}
-              <div
-                className="flex items-center justify-between"
-                onClick={() => {
-                  if (!hasAccessToRevenueShare) {
+              {!hasAccessToRevenueShare ? (
+                <button
+                  className="flex items-center justify-between"
+                  onClick={() => {
                     premiumWarningDialogRef.current?.openDialog()
-                  }
-                }}
-              >
-                <form.AppField name="isPartner">
-                  {(field) => (
-                    <field.SwitchField
-                      label={translate('text_173832066416253fgbilrnae')}
-                      subLabel={translate('text_173832066416219scp0nqeo8')}
-                      labelPosition="right"
-                      disabled={!canEditAccountType}
-                    />
-                  )}
-                </form.AppField>
-
-                {!hasAccessToRevenueShare && <Icon name="sparkles" />}
-              </div>
+                  }}
+                >
+                  <form.AppField name="isPartner">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_173832066416253fgbilrnae')}
+                        subLabel={translate('text_173832066416219scp0nqeo8')}
+                        labelPosition="right"
+                        disabled={!canEditAccountType}
+                      />
+                    )}
+                  </form.AppField>
+                  <Icon name="sparkles" />
+                </button>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <form.AppField name="isPartner">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_173832066416253fgbilrnae')}
+                        subLabel={translate('text_173832066416219scp0nqeo8')}
+                        labelPosition="right"
+                        disabled={!canEditAccountType}
+                      />
+                    )}
+                  </form.AppField>
+                </div>
+              )}
 
               <CustomerInformation
                 form={form}
