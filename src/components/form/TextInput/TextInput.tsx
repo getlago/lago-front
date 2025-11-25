@@ -233,7 +233,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         return 'password'
       }
 
-      return type !== 'number' ? type : 'text'
+      return type === 'number' ? 'text' : type
     }
 
     return (

@@ -89,13 +89,13 @@ const PaymentProvidersAccordion = withForm({
       form.setFieldValue('paymentProviderCustomer.syncWithProvider', false)
       form.setFieldValue(
         'paymentProviderCustomer.providerPaymentMethods',
-        currency !== CurrencyEnum.Eur
+        currency === CurrencyEnum.Eur
           ? {
               [ProviderPaymentMethodsEnum.Card]: true,
+              [ProviderPaymentMethodsEnum.SepaDebit]: true,
             }
           : {
               [ProviderPaymentMethodsEnum.Card]: true,
-              [ProviderPaymentMethodsEnum.SepaDebit]: true,
             },
       )
       setShowPaymentSection(false)
