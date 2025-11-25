@@ -67,7 +67,7 @@ export const zodMetadataSchema = (valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEF
         key: z
           .string()
           .refine((value) => !!value)
-          .refine((value) => value.length <= valueMaxLength, {
+          .refine((value) => value.length <= METADATA_KEY_MAX_LENGTH, {
             message: MetadataErrorsEnum.maxLength,
           }),
         value: z

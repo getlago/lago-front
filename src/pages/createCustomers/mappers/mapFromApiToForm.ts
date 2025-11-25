@@ -100,7 +100,12 @@ export const mapFromApiToForm = (
       syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
       providerPaymentMethods: getCustomerProviderMethod(),
     },
-    metadata: customer?.metadata?.map((meta) => ({ key: meta.key, value: meta.value })) ?? [],
+    metadata:
+      customer?.metadata?.map((meta) => ({
+        key: meta.key,
+        value: meta.value,
+        displayInInvoice: meta.displayInInvoice ?? false,
+      })) ?? [],
     billingEntityCode: customer?.billingEntity?.code ?? defaultBillingEntity?.value ?? undefined,
   }
 }
