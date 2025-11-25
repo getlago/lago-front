@@ -32,11 +32,13 @@ const renderCreateCustomer = (
 
 describe('CreateCustomer Integration Tests', () => {
   describe('WHEN rendering the component', () => {
-    it('THEN should render without crashing', () => {
+    it('THEN should render without crashing', async () => {
       renderCreateCustomer(<CreateCustomer />)
 
       // Basic smoke test - component should render without errors
-      expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      })
     })
 
     it('THEN should render a matching snapshot', () => {
@@ -47,11 +49,13 @@ describe('CreateCustomer Integration Tests', () => {
   })
 
   describe('WHEN checking form structure', () => {
-    it('THEN should display key form elements', () => {
+    it('THEN should display key form elements', async () => {
       renderCreateCustomer(<CreateCustomer />)
 
       // Check for main form elements
-      expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      })
       expect(
         screen.getByRole('textbox', { name: 'Customer external ID (required)' }),
       ).toBeInTheDocument()
@@ -100,11 +104,11 @@ describe('CreateCustomer Integration Tests', () => {
   })
 
   describe('WHEN checking form validation structure', () => {
-    it('THEN should have form validation in place', () => {
+    it('THEN should have form validation in place', async () => {
       renderCreateCustomer(<CreateCustomer />)
 
       // Basic validation check - submit button should be disabled initially
-      const submitButton = screen.getByTestId('submit-customer')
+      const submitButton = await screen.findByTestId('submit-customer')
       const externalIdField = screen.getByLabelText(/customer external id/i)
 
       expect(submitButton).toBeDisabled()
@@ -199,42 +203,50 @@ describe('CreateCustomer Integration Tests', () => {
   })
 
   describe('WHEN checking navigation elements', () => {
-    it('THEN should display navigation buttons', () => {
+    it('THEN should display navigation buttons', async () => {
       renderCreateCustomer(<CreateCustomer />)
 
       // Check for navigation/action buttons
-      expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      })
     })
   })
 
   describe('WHEN checking form sections are present', () => {
-    it('THEN should display key form elements', () => {
+    it('THEN should display key form elements', async () => {
       renderCreateCustomer(<CreateCustomer />)
 
       // Verify major sections are present
-      expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      })
       expect(screen.getByTestId('headline')).toHaveTextContent('Create a customer')
       expect(screen.getByRole('button', { name: /create customer/i })).toBeInTheDocument()
     })
   })
 
   describe('WHEN checking loading states', () => {
-    it('THEN should handle loading states gracefully', () => {
+    it('THEN should handle loading states gracefully', async () => {
       renderCreateCustomer(<CreateCustomer />)
 
       // Basic loading state check
-      expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      })
       // Component should render without loading indicators initially
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
     })
   })
 
   describe('WHEN checking component accessibility', () => {
-    it('THEN should have proper ARIA labels and roles', () => {
+    it('THEN should have proper ARIA labels and roles', async () => {
       renderCreateCustomer(<CreateCustomer />)
 
       // Check for proper accessibility attributes
-      expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+      })
       expect(screen.getByLabelText(/customer external id/i)).toHaveAttribute(
         'aria-invalid',
         'false',
