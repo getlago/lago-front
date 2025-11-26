@@ -84,8 +84,10 @@ const PaymentProvidersAccordion = withForm({
     }, [paymentProvider])
 
     const handleDeletePaymentProvider = () => {
+      form.setFieldValue('paymentProviderCode', undefined)
       form.setFieldValue('paymentProviderCustomer.providerCustomerId', '')
       form.setFieldValue('paymentProviderCustomer.syncWithProvider', false)
+      form.setFieldValue('paymentProviderCustomer.providerType', undefined)
       form.setFieldValue(
         'paymentProviderCustomer.providerPaymentMethods',
         currency === CurrencyEnum.Eur
