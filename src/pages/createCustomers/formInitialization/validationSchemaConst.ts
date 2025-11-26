@@ -96,27 +96,24 @@ export const validationSchema = z.object({
         .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
         .optional(),
     })
-    .refine(
-      (data) => {
-        if (!data) return true
+    .refine((data) => {
+      if (!data) return true
 
-        // Means we didn't choose any payment provider
-        if (!data.providerType) {
-          return true
-        }
-
-        if ([ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)) {
-          return true
-        }
-
-        if (!data.syncWithProvider) {
-          return !!data.providerCustomerId
-        }
-
+      // Means we didn't choose any payment provider
+      if (!data.providerType) {
         return true
-      },
-      { message: 'LOL' },
-    )
+      }
+
+      if ([ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)) {
+        return true
+      }
+
+      if (!data.syncWithProvider) {
+        return !!data.providerCustomerId
+      }
+
+      return true
+    })
     .optional(),
   metadata: zodMetadataSchema(),
   billingEntityCode: z.string().optional(),

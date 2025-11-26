@@ -1,7 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { DrawerRef, Icon } from 'lago-design-system'
-import { RefObject, useCallback, useMemo, useRef } from 'react'
-import { ref } from 'yup'
+import { Icon } from 'lago-design-system'
+import { useCallback, useMemo, useRef } from 'react'
 
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
@@ -99,10 +98,10 @@ const CreateCustomer = () => {
             },
           },
         })
-      } else {
-        ;(ref as unknown as RefObject<DrawerRef>)?.current?.closeDrawer()
-        !isEdition && form.reset()
+        return
       }
+
+      !isEdition && form.reset()
     },
   })
 
