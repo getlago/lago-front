@@ -102,7 +102,7 @@ const NetsuiteAccountingProviderContent = withForm({
             )}
           </form.AppField>
         )}
-        {isEdition && !hadInitialNetsuiteIntegrationCustomer && (
+        {syncWithProvider && isEdition && !hadInitialNetsuiteIntegrationCustomer && (
           <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>
         )}
       </>

@@ -208,7 +208,9 @@ describe('NetsuiteAccountingProviderContent Integration Tests', () => {
       expect(renderer.container).toMatchSnapshot()
     })
 
-    it('THEN should show info alert in edition mode', () => {
+    it('THEN should show info alert in edition mode and with sync mode active', async () => {
+      const user = userEvent.setup()
+
       render(
         <TestNetsuiteAccountingProviderContentWrapper
           isEdition={true}
@@ -217,10 +219,19 @@ describe('NetsuiteAccountingProviderContent Integration Tests', () => {
         />,
       )
 
-      // Should show info alert in edition mode with the correct text
-      expect(
-        screen.getByText('This customer will be created to NetSuite after editing in Lago'),
-      ).toBeInTheDocument()
+      const syncCheckbox = screen.getByRole('checkbox')
+
+      expect(syncCheckbox).not.toBeChecked()
+
+      await user.click(syncCheckbox)
+      expect(syncCheckbox).toBeChecked()
+
+      await waitFor(() => {
+        // Should show info alert in edition mode with the correct text
+        expect(
+          screen.getByText('This customer will be created to NetSuite after editing in Lago'),
+        ).toBeInTheDocument()
+      })
     })
   })
 

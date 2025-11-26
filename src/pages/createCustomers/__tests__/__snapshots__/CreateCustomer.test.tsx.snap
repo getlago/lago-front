@@ -59,6 +59,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         >
           <button
             class="flex items-center justify-between"
+            type="button"
           >
             <div
               class="h-[initial] p-0 flex items-center flex-row cursor-text"
@@ -2145,6 +2146,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         >
           <button
             class="flex items-center justify-between"
+            type="button"
           >
             <div
               class="h-[initial] p-0 flex items-center flex-row cursor-text"
@@ -3131,6 +3133,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         >
           <button
             class="flex items-center justify-between"
+            type="button"
           >
             <div
               class="h-[initial] p-0 flex items-center flex-row cursor-text"
@@ -4117,6 +4120,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         >
           <button
             class="flex items-center justify-between"
+            type="button"
           >
             <div
               class="h-[initial] p-0 flex items-center flex-row cursor-text"
@@ -5100,6 +5104,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         >
           <button
             class="flex items-center justify-between"
+            type="button"
           >
             <div
               class="h-[initial] p-0 flex items-center flex-row cursor-text"
@@ -6032,6 +6037,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
         >
           <button
             class="flex items-center justify-between"
+            type="button"
           >
             <div
               class="h-[initial] p-0 flex items-center flex-row cursor-text"
