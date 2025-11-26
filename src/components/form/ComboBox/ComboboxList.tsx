@@ -30,7 +30,7 @@ export const ComboboxListItem = ({
 }: { className?: string } & PropsWithChildren & ComboBoxVirtualizedListProps) => (
   <div
     className={tw(
-      'my-1',
+      'mb-2 mt-2',
       {
         'not-last:mx-2': virtualized,
         'not-last:mx-0': !virtualized,
