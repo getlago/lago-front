@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import {
   Avatar,
   Button,
-  Chip,
   ConditionalWrapper,
   Icon,
   Popper,
@@ -13,6 +12,7 @@ import {
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
+import { Chip } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
