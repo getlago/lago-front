@@ -6,6 +6,7 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ActivityLogsTableDataFragmentDoc,
+  LagoApiError,
   ResourceTypeEnum,
   useBillableMetricActivityLogsQuery,
 } from '~/generated/graphql'
@@ -60,6 +61,9 @@ export const BillableMetricDetailsActivityLogs = ({
       resourceIds: [billableMetricId],
       limit: 20,
     },
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
     skip: !canViewLogs,
   })
 
@@ -85,7 +89,7 @@ export const BillableMetricDetailsActivityLogs = ({
           <ActivityLogsTable
             containerSize={4}
             data={data?.activityLogs?.collection ?? []}
-            hasError={!!error}
+            error={error}
             isLoading={loading}
             refetch={refetch}
             onRowActionLink={(row) => {

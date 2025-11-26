@@ -4286,6 +4286,7 @@ export enum LagoApiError {
   DomainNotConfigured = 'domain_not_configured',
   EmailAlreadyUsed = 'email_already_used',
   ExpiredJwtToken = 'expired_jwt_token',
+  FeatureUnavailable = 'feature_unavailable',
   Forbidden = 'forbidden',
   GoogleAuthMissingSetup = 'google_auth_missing_setup',
   GoogleLoginMethodNotAuthorized = 'google_login_method_not_authorized',

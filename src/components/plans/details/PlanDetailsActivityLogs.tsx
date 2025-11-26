@@ -6,6 +6,7 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ActivityLogsTableDataFragmentDoc,
+  LagoApiError,
   ResourceTypeEnum,
   usePlanDetailsActivityLogsQuery,
 } from '~/generated/graphql'
@@ -58,6 +59,9 @@ export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps
       resourceIds: [planId],
       limit: 20,
     },
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
     skip: !canViewLogs,
   })
 
@@ -84,7 +88,7 @@ export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps
             <ActivityLogsTable
               containerSize={4}
               data={data?.activityLogs?.collection ?? []}
-              hasError={!!error}
+              error={error}
               isLoading={loading}
               refetch={refetch}
               onRowActionLink={(row) => {

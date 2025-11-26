@@ -34,8 +34,8 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
     >
       <Table
         data={data?.activityLogs?.collection ?? []}
-        hasError={!!error}
         isLoading={loading}
+        error={error}
         refetch={refetch}
         onRowActionLink={({ activityId }) => {
           if (getCurrentBreakpoint() === 'sm') {
