@@ -32,6 +32,10 @@ const AUTH_ERRORS = [
   LagoApiError.Unauthorized,
 ]
 
+const FEATURE_ERRORS = {
+  featureUnavailable: 'feature_unavailable',
+} as const
+
 const TIMEOUT = 300000 // 5 minutes timeout
 const { apiUrl, appVersion } = envGlobalVar()
 
@@ -108,7 +112,7 @@ export const initializeApolloClient = async () => {
     const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
     // Silent auth and permissions related errors by default
-    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
+    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden, FEATURE_ERRORS.featureUnavailable)
 
     if (graphQLErrors) {
       graphQLErrors.forEach((value) => {
@@ -145,6 +149,13 @@ export const initializeApolloClient = async () => {
           addToast({
             severity: 'danger',
             translateKey: 'text_622f7a3dc32ce100c46a5154',
+          })
+        }
+
+        if (!silentError && extensions?.code === FEATURE_ERRORS.featureUnavailable) {
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_1764173599248crllj6h1tg9',
           })
         }
 
