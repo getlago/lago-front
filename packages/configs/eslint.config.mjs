@@ -69,6 +69,7 @@ export default [
       'no-extra-boolean-cast': 'off',
       'no-nested-ternary': 'warn',
       'no-unneeded-ternary': 'warn',
+      'no-duplicate-imports': 'error',
 
       // Plugins
       'import/order': [

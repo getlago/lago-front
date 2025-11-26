@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 
-import { ActionItem } from '~/components/designSystem/Table'
-import { TableColumn } from '~/components/designSystem/Table'
+import { type ActionItem, TableColumn } from '~/components/designSystem/Table'
 import { SetAsDefaultInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'

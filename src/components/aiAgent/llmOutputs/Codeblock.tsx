@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
-import type { CodeToHtmlOptions } from '@llm-ui/code'
-import { loadHighlighter, useCodeBlockToHtml } from '@llm-ui/code'
+import { CodeToHtmlOptions, loadHighlighter, useCodeBlockToHtml } from '@llm-ui/code'
 import { type LLMOutputComponent } from '@llm-ui/react'
 import parseHtml from 'html-react-parser'
 import { bundledLanguages, createHighlighter } from 'shiki/bundle/web'

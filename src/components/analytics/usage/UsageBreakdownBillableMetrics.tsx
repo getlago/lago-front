@@ -1,8 +1,7 @@
 import { GenericPlaceholder, Icon, Skeleton, Typography } from 'lago-design-system'
 import _groupBy from 'lodash/groupBy'
 import { useMemo } from 'react'
-import { generatePath, Link } from 'react-router-dom'
-import { useSearchParams } from 'react-router-dom'
+import { generatePath, Link, useSearchParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { formatUsageData } from '~/components/analytics/usage/utils'

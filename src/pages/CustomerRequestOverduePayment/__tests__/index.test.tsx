@@ -8,8 +8,7 @@ import { LagoApiError } from '~/generated/graphql'
 import * as useIsCustomerReadyForOverduePaymentModule from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { render } from '~/test-utils'
 
-import CustomerRequestOverduePayment from '../index'
-import { SUBMIT_PAYMENT_REQUEST_TEST_ID } from '../index'
+import CustomerRequestOverduePayment, { SUBMIT_PAYMENT_REQUEST_TEST_ID } from '../index'
 
 initializeYup()
 
