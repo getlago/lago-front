@@ -1,15 +1,9 @@
 import { gql } from '@apollo/client'
-import {
-  Avatar,
-  AvatarConnectorVariant,
-  AvatarSize,
-  Icon,
-  Skeleton,
-  Typography,
-} from 'lago-design-system'
+import { Avatar, AvatarConnectorVariant, AvatarSize, Icon, Typography } from 'lago-design-system'
 
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import { getConnectedIntegrations } from '~/components/customers/utils'
+import { Skeleton } from '~/components/designSystem'
 import { InfoRow } from '~/components/InfoRow'
 import { InlineLink } from '~/components/InlineLink'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'

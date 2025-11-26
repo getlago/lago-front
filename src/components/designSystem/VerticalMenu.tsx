@@ -1,14 +1,12 @@
-import { Icon, IconName, Skeleton } from 'lago-design-system'
+import { Icon, IconName } from 'lago-design-system'
 import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
+import { Button, Chip, Skeleton, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'
-import { Chip } from './Chip'
-import { Typography } from './Typography'
 
 interface VerticalMenuProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'children'> {
   link?: string

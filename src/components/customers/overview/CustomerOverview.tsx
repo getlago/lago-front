@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { Skeleton } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC, useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Alert, Typography } from '~/components/designSystem'
+import { Alert, Skeleton, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
