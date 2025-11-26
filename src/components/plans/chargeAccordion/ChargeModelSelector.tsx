@@ -1,5 +1,4 @@
-import { Alert } from 'lago-design-system'
-
+import { Alert } from '~/components/designSystem'
 import { BasicComboBoxData, ComboBox } from '~/components/form'
 import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
 import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'

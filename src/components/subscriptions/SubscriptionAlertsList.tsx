@@ -9,13 +9,12 @@ import {
   DeleteAlertDialogRef,
 } from '~/components/subscriptions/alerts/DeleteAlertDialog'
 import {
+  CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
   CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
   UPDATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
   UPDATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
 } from '~/core/router/ObjectsRoutes'
-import { CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE } from '~/core/router/ObjectsRoutes'
-import { intlFormatDateTime } from '~/core/timezone/utils'
-import { DateFormat } from '~/core/timezone/utils'
+import { DateFormat, intlFormatDateTime } from '~/core/timezone/utils'
 import { useGetAlertsOfSubscriptionQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
