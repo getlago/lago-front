@@ -122,6 +122,7 @@ export const mapFromApiToForm = (
       providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? '',
       syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
       providerPaymentMethods: getCustomerProviderMethod(),
+      providerType: customer?.paymentProvider ?? undefined,
     },
     metadata:
       customer?.metadata?.map((meta) => ({
