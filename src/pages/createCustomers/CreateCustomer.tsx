@@ -165,6 +165,7 @@ const CreateCustomer = () => {
                 </div>
               ) : (
                 <button
+                  type="button"
                   className="flex items-center justify-between"
                   onClick={() => {
                     premiumWarningDialogRef.current?.openDialog()

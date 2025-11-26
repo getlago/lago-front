@@ -47,7 +47,7 @@ const TaxProvidersAccordion = withForm({
 
     const taxProviderCode = useStore(form.store, (state) => state.values.taxProviderCode)
 
-    const taxCustomers = [customer?.xeroCustomer, customer?.netsuiteCustomer].filter(Boolean)
+    const taxCustomers = [customer?.anrokCustomer, customer?.avalaraCustomer].filter(Boolean)
 
     const {
       hadInitialIntegrationCustomer: hadInitialAnrokIntegrationCustomer,
