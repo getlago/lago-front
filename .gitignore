@@ -12,5 +12,5 @@ v8-compile-cache*
 *.tsbuildinfo
 .eslintcache
 .prettiercache
-.vscode
+/.vscode
 TestResults/
