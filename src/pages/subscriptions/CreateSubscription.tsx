@@ -815,11 +815,17 @@ const CreateSubscription = () => {
                         </Card>
                       </div>
 
-                      {hasAccessToMultiPaymentFlow && (
-                        <PaymentMethodsInvoiceSettings
-                          customer={customer}
-                          formikProps={subscriptionFormikProps}
-                        />
+                      {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
+                        <div className="not-last-child:mb-8">
+                          <Typography variant="headline">
+                            {translate('text_1762862388271au34vz50g8i')}
+                          </Typography>
+                          <PaymentMethodsInvoiceSettings
+                            customer={customer}
+                            formikProps={subscriptionFormikProps}
+                            viewType="subscription"
+                          />
+                        </div>
                       )}
 
                       {!isPremium && (

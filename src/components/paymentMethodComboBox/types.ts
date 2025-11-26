@@ -13,4 +13,6 @@ export interface PaymentMethodComboBoxProps {
   name?: string
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
+  title: string
+  description: string
 }

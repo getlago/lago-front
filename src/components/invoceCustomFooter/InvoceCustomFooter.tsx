@@ -28,9 +28,11 @@ export const DELETE_SECTION_CHIP = (sectionId: string) =>
 
 interface InvoceCustomFooterProps {
   customerId: string
+  title: string
+  description: string
 }
 
-export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
+export const InvoceCustomFooter = ({ customerId, title, description }: InvoceCustomFooterProps) => {
   const { translate } = useInternationalization()
   const [invoiceCustomSelected, setInvoiceCustomSelected] = useState<MappedInvoiceSection[]>([])
   const [shouldDisplayCombobox, setShouldDisplayCombobox] = useState(false)
@@ -70,12 +72,16 @@ export const InvoceCustomFooter = ({ customerId }: InvoceCustomFooterProps) => {
 
   return (
     <div>
-      <Typography variant="captionHl" color="textSecondary">
-        {translate('text_17628623882713knw0jtohiw')}
-      </Typography>
-      <Typography variant="caption" className="mb-4">
-        {translate('text_1762862855282gldrtploh46')}
-      </Typography>
+      {title && (
+        <Typography variant="captionHl" color="textSecondary">
+          {title}
+        </Typography>
+      )}
+      {description && (
+        <Typography variant="caption" className="mb-4">
+          {description}
+        </Typography>
+      )}
       <div className="flex flex-col gap-4">
         {invoiceCustomSelected.length > 0 && (
           <div className="flex flex-wrap gap-2">

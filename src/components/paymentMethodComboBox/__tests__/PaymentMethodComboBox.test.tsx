@@ -56,7 +56,8 @@ describe('PaymentMethodComboBox', () => {
             {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
               <PaymentMethodComboBox
                 externalCustomerId={EXTERNAL_CUSTOMER_ID}
-                label="Payment Method"
+                title="Payment Method"
+                description="Select a payment method"
                 disabled={true}
                 selectedPaymentMethod={selectedPaymentMethod}
                 setSelectedPaymentMethod={setSelectedPaymentMethod}
@@ -89,7 +90,8 @@ describe('PaymentMethodComboBox', () => {
             {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
               <PaymentMethodComboBox
                 externalCustomerId={EXTERNAL_CUSTOMER_ID}
-                label="Payment Method"
+                title="Payment Method"
+                description="Select a payment method"
                 selectedPaymentMethod={selectedPaymentMethod}
                 setSelectedPaymentMethod={setSelectedPaymentMethod}
               />
@@ -118,7 +120,8 @@ describe('PaymentMethodComboBox', () => {
             {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
               <PaymentMethodComboBox
                 externalCustomerId={EXTERNAL_CUSTOMER_ID}
-                label="Payment Method"
+                title="Payment Method"
+                description="Select a payment method"
                 selectedPaymentMethod={selectedPaymentMethod}
                 setSelectedPaymentMethod={setSelectedPaymentMethod}
               />
@@ -155,7 +158,8 @@ describe('PaymentMethodComboBox', () => {
             {({ selectedPaymentMethod, setSelectedPaymentMethod }) => (
               <PaymentMethodComboBox
                 externalCustomerId={EXTERNAL_CUSTOMER_ID}
-                label="Payment Method"
+                title="Payment Method"
+                description="Select a payment method"
                 selectedPaymentMethod={selectedPaymentMethod}
                 setSelectedPaymentMethod={setSelectedPaymentMethod}
               />

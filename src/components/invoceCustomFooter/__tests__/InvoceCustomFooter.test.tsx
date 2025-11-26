@@ -73,7 +73,13 @@ describe('InvoceCustomFooter', () => {
         error: undefined,
       } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
 
-      render(<InvoceCustomFooter customerId="customer-1" />)
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Test Title"
+          description="Test Description"
+        />,
+      )
 
       await waitFor(() => {
         expect(screen.getByText('Section 1')).toBeInTheDocument()
@@ -97,7 +103,13 @@ describe('InvoceCustomFooter', () => {
         error: undefined,
       } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
 
-      render(<InvoceCustomFooter customerId="customer-1" />)
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Test Title"
+          description="Test Description"
+        />,
+      )
 
       await waitFor(() => {
         expect(screen.queryByText('Section 1')).not.toBeInTheDocument()
@@ -107,7 +119,13 @@ describe('InvoceCustomFooter', () => {
 
   describe('WHEN toggling combobox visibility', () => {
     it('THEN shows combobox when add button is clicked', async () => {
-      render(<InvoceCustomFooter customerId="customer-1" />)
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Test Title"
+          description="Test Description"
+        />,
+      )
 
       const addButton = screen.getByTestId(ADD_BUTTON)
 
@@ -119,7 +137,13 @@ describe('InvoceCustomFooter', () => {
     })
 
     it('THEN hides combobox when cancel button is clicked', async () => {
-      render(<InvoceCustomFooter customerId="customer-1" />)
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Test Title"
+          description="Test Description"
+        />,
+      )
 
       const addButton = screen.getByTestId(ADD_BUTTON)
 
@@ -141,7 +165,13 @@ describe('InvoceCustomFooter', () => {
 
   describe('WHEN selecting a section', () => {
     it('THEN adds section to selected list and hides combobox', async () => {
-      render(<InvoceCustomFooter customerId="customer-1" />)
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Test Title"
+          description="Test Description"
+        />,
+      )
 
       const addButton = screen.getByTestId(ADD_BUTTON)
 
@@ -177,7 +207,13 @@ describe('InvoceCustomFooter', () => {
         error: undefined,
       } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
 
-      render(<InvoceCustomFooter customerId="customer-1" />)
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Test Title"
+          description="Test Description"
+        />,
+      )
 
       await waitFor(() => {
         expect(screen.getByText('Section 1')).toBeInTheDocument()
@@ -222,7 +258,13 @@ describe('InvoceCustomFooter', () => {
         error: undefined,
       } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
 
-      render(<InvoceCustomFooter customerId="customer-1" />)
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Test Title"
+          description="Test Description"
+        />,
+      )
 
       await waitFor(() => {
         expect(screen.getByText('Section 1')).toBeInTheDocument()

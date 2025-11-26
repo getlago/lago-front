@@ -8,11 +8,12 @@ import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { PaymentMethodComboBoxProps } from './types'
 import { usePaymentMethodOptions } from './usePaymentMethodOptions'
 
+import { Typography } from '../designSystem'
+
 export const PaymentMethodComboBox = ({
   externalCustomerId,
-  label,
-  placeholder,
-  emptyText,
+  title,
+  description,
   className,
   disabled: externalDisabled = false,
   name = 'selectPaymentMethod',
@@ -57,18 +58,30 @@ export const PaymentMethodComboBox = ({
   const disabled = externalDisabled || paymentMethodsLoading || !!paymentMethodsError
 
   return (
-    <ComboBox
-      className={className}
-      name={name}
-      data={paymentMethodOptions}
-      label={label}
-      placeholder={placeholder}
-      emptyText={emptyText}
-      value={comboboxValue}
-      onChange={onChange}
-      loading={paymentMethodsLoading}
-      disabled={disabled}
-      sortValues={false}
-    />
+    <div>
+      {title && (
+        <Typography variant="captionHl" color="textSecondary">
+          {title}
+        </Typography>
+      )}
+      {description && (
+        <Typography variant="caption" className="mb-3">
+          {description}
+        </Typography>
+      )}
+
+      <ComboBox
+        className={className}
+        name={name}
+        data={paymentMethodOptions}
+        placeholder={translate('text_1762173848714al2j36a59ce')}
+        emptyText={translate('text_1762173891817jhfenej7eho')}
+        value={comboboxValue}
+        onChange={onChange}
+        loading={paymentMethodsLoading}
+        disabled={disabled}
+        sortValues={false}
+      />
+    </div>
   )
 }
