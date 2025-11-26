@@ -4,6 +4,7 @@ import {
   CurrencyEnum,
   CustomerAccountTypeEnum,
   CustomerTypeEnum,
+  HubspotTargetedObjectsEnum,
   ProviderPaymentMethodsEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
@@ -548,6 +549,7 @@ describe('mapFromApiToForm', () => {
           integrationCode: 'hubspot_1',
           externalCustomerId: 'hubspot-123',
           syncWithProvider: true,
+          targetedObject: HubspotTargetedObjectsEnum.Contacts,
         },
       }
 
@@ -557,6 +559,7 @@ describe('mapFromApiToForm', () => {
       expect(result.crmCustomer).toEqual({
         crmCustomerId: 'hubspot-123',
         syncWithProvider: true,
+        targetedObject: HubspotTargetedObjectsEnum.Contacts,
       })
     })
 

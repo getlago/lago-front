@@ -62,6 +62,14 @@ export const mapFromApiToForm = (
   const taxProvider =
     [customer?.anrokCustomer, customer?.avalaraCustomer].find(Boolean) || undefined
 
+  const getTargetedObject = () => {
+    if (!crmProvider) return undefined
+    if ('targetedObject' in crmProvider) {
+      return crmProvider.targetedObject ?? undefined
+    }
+    return undefined
+  }
+
   return {
     customerType: customer?.customerType ?? undefined,
     // is partner is only used for display purpose and should not be sent to API
@@ -111,6 +119,7 @@ export const mapFromApiToForm = (
     crmCustomer: {
       crmCustomerId: crmProvider?.externalCustomerId ?? '',
       syncWithProvider: crmProvider?.syncWithProvider ?? false,
+      targetedObject: getTargetedObject(),
     },
     taxProviderCode: taxProvider?.integrationCode ?? '',
     taxCustomer: {
