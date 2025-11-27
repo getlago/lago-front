@@ -146,17 +146,21 @@ const TestAccountingProvidersAccordionWrapper = ({
 
 describe('AccountingProvidersAccordion Integration Tests', () => {
   describe('WHEN rendering the component', () => {
-    it('THEN should render without crashing', () => {
+    it('THEN should render without crashing', async () => {
       const { container } = render(<TestAccountingProvidersAccordionWrapper />)
 
       // Check that the component rendered
-      expect(container.firstChild).toBeInTheDocument()
+      await waitFor(() => {
+        expect(container.firstChild).toBeInTheDocument()
+      })
     })
 
-    it('THEN should render a matching snapshot', () => {
+    it('THEN should render a matching snapshot', async () => {
       const rendered = render(<TestAccountingProvidersAccordionWrapper />)
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
     it('THEN should render a matching snapshot after expansion', async () => {
@@ -245,7 +249,7 @@ describe('AccountingProvidersAccordion Integration Tests', () => {
       })
     })
 
-    it('THEN should handle props correctly', () => {
+    it('THEN should handle props correctly', async () => {
       const mockSetShowAccountingSection = jest.fn()
 
       render(
@@ -254,38 +258,14 @@ describe('AccountingProvidersAccordion Integration Tests', () => {
         />,
       )
 
-      // Component should render without crashing with the mock function
-      expect(screen.getByText('Select a connection')).toBeInTheDocument()
-      // Check that we have buttons for expand/collapse and delete functionality
-      expect(screen.getAllByRole('button')).toHaveLength(3)
-      // Verify the mock function was passed as prop
-      expect(mockSetShowAccountingSection).toBeDefined()
-    })
-  })
-
-  describe('WHEN deleting accounting provider', () => {
-    it('THEN should call setShowAccountingSection when delete is triggered', async () => {
-      const mockSetShowAccountingSection = jest.fn()
-
-      render(
-        <TestAccountingProvidersAccordionWrapper
-          setShowAccountingSection={mockSetShowAccountingSection}
-        />,
-      )
-
-      // The delete functionality would be tested through user interactions
-      // This test ensures the prop is properly passed
-      expect(mockSetShowAccountingSection).toBeDefined()
-    })
-  })
-
-  describe('WHEN loading accounting providers', () => {
-    it('THEN should show loading state', () => {
-      // This would require mocking the loading state
-      const renderer = render(<TestAccountingProvidersAccordionWrapper />)
-
-      // Component should render even during loading
-      expect(renderer.container.firstChild).toBeInTheDocument()
+      await waitFor(() => {
+        // Component should render without crashing with the mock function
+        expect(screen.getByText('Select a connection')).toBeInTheDocument()
+        // Check that we have buttons for expand/collapse and delete functionality
+        expect(screen.getAllByRole('button')).toHaveLength(3)
+        // Verify the mock function was passed as prop
+        expect(mockSetShowAccountingSection).toBeDefined()
+      })
     })
   })
 })

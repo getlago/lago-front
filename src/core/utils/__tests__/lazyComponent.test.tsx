@@ -3,12 +3,17 @@ import '@testing-library/jest-dom'
 import { screen, waitFor } from '@testing-library/react'
 import { ComponentType } from 'react'
 
+import { Skeleton } from '~/components/designSystem'
 import { render } from '~/test-utils'
 
 import { lazyComponent } from '../lazyComponent'
 
 jest.mock('lago-design-system', () => ({
   Spinner: () => <div data-test="spinner">Loading...</div>,
+}))
+
+jest.mock('~/components/designSystem', () => ({
+  Skeleton: () => <div data-test="skeleton">Loading...</div>,
 }))
 
 describe('lazyComponent', () => {
@@ -94,5 +99,29 @@ describe('lazyComponent', () => {
     expect(screen.getByText('Component 1')).toBeInTheDocument()
     expect(screen.getByText('Component 2')).toBeInTheDocument()
     expect(screen.getByText('Component 3')).toBeInTheDocument()
+  })
+
+  it('should display Skeleton when specified', async () => {
+    const TestComponent: ComponentType<{ title: string }> = ({ title }) => (
+      <div data-test="test-component">{title}</div>
+    )
+
+    const LazyTestComponent = lazyComponent(
+      () =>
+        Promise.resolve({
+          default: TestComponent,
+        }),
+      <Skeleton className="w-22" variant="text" />,
+    )
+
+    render(<LazyTestComponent title="Test Title" />)
+
+    expect(screen.getByTestId('skeleton')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('test-component')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Test Title')).toBeInTheDocument()
   })
 })

@@ -42,10 +42,12 @@ const TestStripePaymentProviderContentWrapper = ({
 
 describe('StripePaymentProviderContent Integration Tests', () => {
   describe('WHEN rendering the component', () => {
-    it('THEN should render without crashing', () => {
+    it('THEN should render without crashing', async () => {
       const { container } = render(<TestStripePaymentProviderContentWrapper />)
 
-      expect(container.firstChild).toBeInTheDocument()
+      await waitFor(() => {
+        expect(container.firstChild).toBeInTheDocument()
+      })
     })
 
     it('THEN should render a matching snapshot', () => {
@@ -267,7 +269,7 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       const linkCheckbox = screen.getByRole('checkbox', { name: /link/i })
       const sepaCheckbox = screen.getByRole('checkbox', { name: /sepa/i })
 
-      expect(cardCheckbox).toBeDisabled()
+      expect(cardCheckbox).toBeEnabled()
       expect(linkCheckbox).toBeDisabled()
       expect(sepaCheckbox).toBeDisabled()
     })
@@ -317,14 +319,30 @@ describe('StripePaymentProviderContent Integration Tests', () => {
         expect(cardCheckbox).not.toBeChecked()
       })
 
+      // Then check card
+      await user.click(cardCheckbox)
+      await waitFor(() => {
+        expect(cardCheckbox).toBeChecked()
+      })
+
       // Then check customer balance
       await user.click(customerBalanceCheckbox)
       await waitFor(() => {
         expect(customerBalanceCheckbox).toBeChecked()
       })
 
-      // Verify that card is now disabled
-      expect(cardCheckbox).toBeDisabled()
+      // Verify that card is still enabled but unchecked
+      expect(cardCheckbox).toBeEnabled()
+      expect(cardCheckbox).not.toBeChecked()
+
+      // Then check card again
+      await user.click(cardCheckbox)
+      await waitFor(() => {
+        expect(cardCheckbox).toBeChecked()
+      })
+
+      expect(customerBalanceCheckbox).toBeEnabled()
+      expect(customerBalanceCheckbox).not.toBeChecked()
     })
 
     it('THEN should handle card unchecking and link dependency', async () => {

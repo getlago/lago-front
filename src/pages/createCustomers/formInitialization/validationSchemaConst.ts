@@ -216,6 +216,34 @@ export const validationSchema = z.object({
         path: ['providerCustomerId'],
       },
     )
+    .refine(
+      (data) => {
+        if (!data) return true
+
+        // Means we didn't choose any payment provider
+        if (!data.providerType) {
+          return true
+        }
+
+        if (data.providerType !== ProviderTypeEnum.Stripe) {
+          return true
+        }
+
+        if (!data.providerPaymentMethods) {
+          return false
+        }
+
+        const atLeastOneEnabled = Object.values(data.providerPaymentMethods).some(
+          (isEnabled) => isEnabled,
+        )
+
+        return atLeastOneEnabled
+      },
+      {
+        message: 'text_1764259518524a0hr3z00m7r',
+        path: ['providerPaymentMethods', 'card'],
+      },
+    )
     .optional(),
   metadata: zodMetadataSchema(),
   billingEntityCode: z.string().optional(),
