@@ -1084,7 +1084,7 @@
   "text_63246f875e2228ab7b63dd1f": "Ao se cadastrar, você concorda com nossos <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/terms-of-service\">Termos de Serviço</a> e <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/privacy-policy\">Política de Privacidade</a>.",
   "text_63246f875e2228ab7b63dd02": "Sua senha é segura e está tudo pronto!",
   "text_63246f875e2228ab7b63dcf4": "Convite da organização inválido",
-  "text_63246f875e2228ab7b63dcfe": "Parece que o link que você está usando не é válido. Por favor, entre em contato com um membro da organização para que eles possam convidá-lo novamente.",
+  "text_63246f875e2228ab7b63dcfe": "Este link de convite não é válido ou já foi aceito. Por favor, entre em contato com um membro da organização se você precisar de um novo convite.",
   "text_660bf95c75dd928ced0ecb04": "Crie sua organização",
   "text_660bf95c75dd928ced0ecb08": "Esta informação não poderá ser editada no futuro.",
   "text_660bf95c75dd928ced0ecb25": "Desculpe, o Google Connect não está configurado em suas variáveis de ambiente. Por favor, <a rel=\"noopener noreferrer external\" target=\"_blank\" href=\"{{href}}\">leia a documentação</a>.",
