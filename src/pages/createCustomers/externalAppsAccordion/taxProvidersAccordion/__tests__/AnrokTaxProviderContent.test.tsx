@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { AnrokIntegration } from '~/generated/graphql'
@@ -43,11 +43,13 @@ const TestAnrokTaxProviderContentWrapper = ({
 
 describe('AnrokTaxProviderContent Integration Tests', () => {
   describe('WHEN rendering the component', () => {
-    it('THEN should render without crashing', () => {
+    it('THEN should render without crashing', async () => {
       const { container } = render(<TestAnrokTaxProviderContentWrapper />)
 
       // Check that the component rendered
-      expect(container.firstChild).toBeInTheDocument()
+      await waitFor(() => {
+        expect(container.firstChild).toBeInTheDocument()
+      })
     })
 
     it('THEN should render a matching snapshot', () => {

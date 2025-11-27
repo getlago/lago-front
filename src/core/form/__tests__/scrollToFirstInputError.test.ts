@@ -42,6 +42,7 @@ describe('scrollToFirstInputError', () => {
     })
 
     it('scrolls to and focuses the first input with an error', () => {
+      jest.useFakeTimers()
       const errorMap = {
         lastName: 'Last name is required',
         email: 'Invalid email format',
@@ -55,15 +56,19 @@ describe('scrollToFirstInputError', () => {
         behavior: 'smooth',
         block: 'center',
       })
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
 
       // Verify it's the lastName input that got focused
       const lastNameInput = document.querySelector('input[name="lastName"]')
 
       expect(lastNameInput).toBeTruthy()
+      jest.useRealTimers()
     })
 
     it('scrolls to the first input when only one has an error', () => {
+      jest.useFakeTimers()
       const errorMap = {
         email: 'Email is required',
       }
@@ -75,10 +80,14 @@ describe('scrollToFirstInputError', () => {
         behavior: 'smooth',
         block: 'center',
       })
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
 
     it('scrolls to the first input in DOM order when multiple errors exist', () => {
+      jest.useFakeTimers()
       const errorMap = {
         phone: 'Phone number is invalid',
         firstName: 'First name is required',
@@ -89,7 +98,10 @@ describe('scrollToFirstInputError', () => {
 
       // Should focus the first input in DOM order that has an error (firstName)
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
 
     it('does nothing when no inputs have errors', () => {
@@ -114,6 +126,7 @@ describe('scrollToFirstInputError', () => {
     })
 
     it('treats falsy error values as no error', () => {
+      jest.useFakeTimers()
       const errorMap = {
         firstName: null,
         lastName: undefined,
@@ -126,10 +139,14 @@ describe('scrollToFirstInputError', () => {
 
       // Should only focus on the input with a truthy error (phone input with validError)
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
 
     it('handles complex error objects', () => {
+      jest.useFakeTimers()
       const errorMap = {
         firstName: { message: 'Required field' },
         lastName: ['Multiple', 'errors'],
@@ -140,7 +157,10 @@ describe('scrollToFirstInputError', () => {
 
       // All these error values are truthy, so should focus first input (firstName)
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
   })
 
@@ -217,6 +237,7 @@ describe('scrollToFirstInputError', () => {
     })
 
     it('handles inputs with different types', () => {
+      jest.useFakeTimers()
       const errorMap = {
         field2: 'Hidden field error',
         field3: 'Checkbox error',
@@ -226,10 +247,14 @@ describe('scrollToFirstInputError', () => {
 
       // Should focus the first input with error (field2 - hidden input)
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
 
     it('handles inputs with empty or missing name attributes', () => {
+      jest.useFakeTimers()
       const errorMap = {
         '': 'Error for empty name',
         undefined: 'Error for undefined name',
@@ -239,10 +264,14 @@ describe('scrollToFirstInputError', () => {
 
       // Should focus input with empty name attribute if it matches
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
 
     it('handles form ID with special characters', () => {
+      jest.useFakeTimers()
       document.body.innerHTML = `
         <form id="special-form-123_test">
           <input name="testField" type="text" />
@@ -256,7 +285,10 @@ describe('scrollToFirstInputError', () => {
       scrollToFirstInputError('special-form-123_test', errorMap)
 
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+
+      jest.advanceTimersByTime(300)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
   })
 
@@ -270,6 +302,7 @@ describe('scrollToFirstInputError', () => {
     })
 
     it('calls scrollIntoView with correct parameters', () => {
+      jest.useFakeTimers()
       const errorMap = { testInput: 'Test error' }
 
       scrollToFirstInputError('interaction-form', errorMap)
@@ -278,22 +311,27 @@ describe('scrollToFirstInputError', () => {
         behavior: 'smooth',
         block: 'center',
       })
+      jest.useRealTimers()
     })
 
     it('handles focus throwing an error gracefully', () => {
+      jest.useFakeTimers()
       mockFocus.mockImplementation(() => {
         throw new Error('Focus failed')
       })
 
       const errorMap = { testInput: 'Test error' }
 
-      // Should not throw an error until focus is called
+      scrollToFirstInputError('interaction-form', errorMap)
+      expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+
+      // Should throw when the timeout completes
       expect(() => {
-        scrollToFirstInputError('interaction-form', errorMap)
+        jest.advanceTimersByTime(300)
       }).toThrow('Focus failed')
 
-      expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
       expect(mockFocus).toHaveBeenCalledTimes(1)
+      jest.useRealTimers()
     })
 
     it('handles scrollIntoView throwing an error gracefully', () => {

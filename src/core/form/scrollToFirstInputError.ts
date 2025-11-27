@@ -1,8 +1,8 @@
 export const scrollToFirstInputError = (formId: string, errorMap: Record<string, unknown>) => {
-  const inputs = Array.from(
+  const inputs: HTMLInputElement[] = Array.from(
     // Must match the selector used in your form
     document.querySelectorAll(`#${formId} input`),
-  ) as HTMLInputElement[]
+  )
 
   const firstInput = inputs.find((input) => {
     const fieldErrors = errorMap[input.name]
@@ -12,6 +12,9 @@ export const scrollToFirstInputError = (formId: string, errorMap: Record<string,
 
   if (firstInput) {
     firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    firstInput.focus()
+    // Timeout just to ensure scrolling has finished
+    setTimeout(() => {
+      firstInput.focus()
+    }, 300)
   }
 }

@@ -68,7 +68,6 @@ const StripePaymentProviderContent = withForm({
                 <field.CheckboxField
                   label={translate('text_64aeb7b998c4322918c84208')}
                   sublabel={translate('text_65e1f90471bc198c0c934d86')}
-                  disabled={isBankTransferEnabled}
                 />
               )}
             </form.AppField>
@@ -78,9 +77,7 @@ const StripePaymentProviderContent = withForm({
                 <field.CheckboxField
                   label={translate('text_6686b316b672a6e75a29eea0')}
                   sublabel={translate('text_6686b316b672a6e75a29eea2')}
-                  disabled={
-                    isBankTransferEnabled || !paymentMethods[ProviderPaymentMethodsEnum.Card]
-                  }
+                  disabled={!paymentMethods[ProviderPaymentMethodsEnum.Card]}
                 />
               )}
             </form.AppField>

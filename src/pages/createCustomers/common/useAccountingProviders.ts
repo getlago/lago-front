@@ -46,7 +46,7 @@ export const useAccountingProviders = (): {
       (p) => 'code' in p && p.code === code,
     )
 
-    if (!provider || !provider.__typename) return undefined
+    if (!provider?.__typename) return undefined
 
     return provider.__typename.toLocaleLowerCase().replace('integration', '') as IntegrationTypeEnum
   }

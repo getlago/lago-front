@@ -43,11 +43,13 @@ const TestHubspotCrmProviderContentWrapper = ({
 
 describe('HubspotCrmProviderContent Integration Tests', () => {
   describe('WHEN rendering the component', () => {
-    it('THEN should render without crashing', () => {
+    it('THEN should render without crashing', async () => {
       const { container } = render(<TestHubspotCrmProviderContentWrapper />)
 
-      // Check that the component rendered
-      expect(container.firstChild).toBeInTheDocument()
+      await waitFor(() => {
+        // Check that the component rendered
+        expect(container.firstChild).toBeInTheDocument()
+      })
     })
 
     it('THEN should render a matching snapshot', () => {

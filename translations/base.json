@@ -3577,5 +3577,6 @@
   "text_1764236242615sfcc7546vv8": "Customer ID is needed",
   "text_1764239804026ca61hwr3pp9": "URL is not in a valid format",
   "text_1764249459826j3tkbn7s5ca": "Subsidiary is needed for automatic synchronization",
-  "text_1764249563018adc7qy057at": "Please select a targeted object"
+  "text_1764249563018adc7qy057at": "Please select a targeted object",
+  "text_1764259518524a0hr3z00m7r": "At least one payment method is required"
 }

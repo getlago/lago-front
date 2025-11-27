@@ -574,7 +574,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         class="grid grid-cols-2 gap-4"
       >
         <label
-          class="flex flex-col"
+          class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
           for=":r10:"
         >
@@ -588,7 +588,6 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="Card"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                disabled=""
                 id=":r10:"
                 readonly=""
                 type="checkbox"
@@ -615,13 +614,13 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
             </div>
             <div>
               <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1lkb4zy-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
                 data-test="body"
               >
                 Card
               </div>
               <div
-                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-1p7gn6j-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
                 data-test="caption"
               >
                 For all currencies
