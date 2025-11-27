@@ -109,7 +109,7 @@ const CustomerDetails = () => {
   const { customerId, tab } = useParams()
   const { handleDownloadFile } = useDownloadFile()
 
-  const { data: isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
+  const { isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
     useIsCustomerReadyForOverduePayment()
 
   const { data, loading, error } = useGetCustomerQuery({

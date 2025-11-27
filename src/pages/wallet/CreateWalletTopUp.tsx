@@ -93,12 +93,14 @@ const CreateWalletTopUp = () => {
 
   const fetchedWalletId = walletId === CREATE_ACTIVE_WALLET_TOP_UP_ID ? activeWallet?.id : walletId
 
-  const { data: { wallet } = {}, loading } = useGetWalletForTopUpQuery({
+  const { data, loading } = useGetWalletForTopUpQuery({
     variables: {
       walletId: fetchedWalletId as string,
     },
     skip: !fetchedWalletId,
   })
+
+  const wallet = data?.wallet
 
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 

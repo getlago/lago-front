@@ -147,7 +147,7 @@ describe('CustomerRequestOverduePayment', () => {
       jest
         .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
         .mockReturnValue({
-          data: false,
+          isCustomerReadyForOverduePayment: false,
           loading: false,
           error: undefined,
         })
