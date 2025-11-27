@@ -6,6 +6,7 @@ import { Button, Typography, WarningDialog, WarningDialogRef } from '~/component
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { PremiumIntegrationTypeEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -102,6 +103,9 @@ const CreateCustomer = () => {
 
       !isEdition && form.reset()
     },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError('create-customer', formApi.state.errorMap.onDynamic || {})
+    },
   })
 
   const handleAbort = useCallback(() => {
@@ -121,7 +125,7 @@ const CreateCustomer = () => {
 
   return (
     <CenteredPage.Wrapper>
-      <form onSubmit={handleSubmit}>
+      <form id="create-customer" onSubmit={handleSubmit}>
         <CenteredPage.Header>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
             {isEdition
