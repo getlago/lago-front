@@ -294,13 +294,14 @@ describe('useTaxProviders', () => {
   })
 
   describe('return value structure', () => {
-    it('should return an object with taxProviders and isLoadingTaxProviders', async () => {
+    it('should return an object with taxProviders and isLoadingTaxProviders and getTaxProviderFromCode', async () => {
       const { result } = await prepare()
 
       expect(typeof result.current).toBe('object')
       expect('taxProviders' in result.current).toBe(true)
       expect('isLoadingTaxProviders' in result.current).toBe(true)
-      expect(Object.keys(result.current)).toHaveLength(2)
+      expect('getTaxProviderFromCode' in result.current).toBe(true)
+      expect(Object.keys(result.current)).toHaveLength(3)
 
       await act(() => wait(0))
 
@@ -368,6 +369,322 @@ describe('useTaxProviders', () => {
       expect(avalaraIntegration.id).toBe('avalara-1')
       expect(avalaraIntegration.code).toBe('AVALARA_MAIN')
       expect(avalaraIntegration.name).toBe('Avalara Main Account')
+    })
+  })
+
+  describe('getTaxProviderFromCode', () => {
+    describe('when data is loaded', () => {
+      it('should return correct provider type for Anrok integration', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('anrok-prod')
+
+        expect(providerType).toBe('anrok')
+      })
+
+      it('should return correct provider type for Avalara integration', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('avalara-main')
+
+        expect(providerType).toBe('avalara')
+      })
+
+      it('should return undefined for non-existent code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('non-existent-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined for undefined code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode(undefined)
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined for empty string code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle case sensitivity correctly', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        // Test with different case
+        const upperCaseResult = result.current.getTaxProviderFromCode('ANROK-PROD')
+        const lowerCaseResult = result.current.getTaxProviderFromCode('anrok-prod')
+
+        expect(upperCaseResult).toBeUndefined()
+        expect(lowerCaseResult).toBe('anrok')
+      })
+
+      it('should find correct provider among multiple integrations', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        // Test all three integrations from default mock data
+        expect(result.current.getTaxProviderFromCode('anrok-prod')).toBe('anrok')
+        expect(result.current.getTaxProviderFromCode('avalara-main')).toBe('avalara')
+        expect(result.current.getTaxProviderFromCode('anrok-sandbox')).toBe('anrok')
+      })
+
+      it('should return correct type when only one integration exists', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'AvalaraIntegration',
+                  id: '1',
+                  code: 'single-avalara',
+                  name: 'Single Avalara',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('single-avalara')
+
+        expect(providerType).toBe('avalara')
+      })
+
+      it('should handle custom integration codes correctly', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'AnrokIntegration',
+                  id: '1',
+                  code: 'custom-anrok-123',
+                  name: 'Custom Anrok',
+                },
+                {
+                  __typename: 'AvalaraIntegration',
+                  id: '2',
+                  code: 'my-avalara-integration',
+                  name: 'My Avalara Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        expect(result.current.getTaxProviderFromCode('custom-anrok-123')).toBe('anrok')
+        expect(result.current.getTaxProviderFromCode('my-avalara-integration')).toBe('avalara')
+        expect(result.current.getTaxProviderFromCode('wrong-code')).toBeUndefined()
+      })
+
+      it('should handle multiple integrations of the same type', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'AnrokIntegration',
+                  id: '1',
+                  code: 'anrok-prod',
+                  name: 'Anrok Production',
+                },
+                {
+                  __typename: 'AnrokIntegration',
+                  id: '2',
+                  code: 'anrok-dev',
+                  name: 'Anrok Development',
+                },
+                {
+                  __typename: 'AnrokIntegration',
+                  id: '3',
+                  code: 'anrok-staging',
+                  name: 'Anrok Staging',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        expect(result.current.getTaxProviderFromCode('anrok-prod')).toBe('anrok')
+        expect(result.current.getTaxProviderFromCode('anrok-dev')).toBe('anrok')
+        expect(result.current.getTaxProviderFromCode('anrok-staging')).toBe('anrok')
+      })
+    })
+
+    describe('when data is not loaded', () => {
+      it('should return undefined when data is still loading', async () => {
+        const { result } = await prepare()
+
+        // Before data is loaded
+        const providerType = result.current.getTaxProviderFromCode('anrok-prod')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when query failed', async () => {
+        const { result } = await prepare({ error: true })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('anrok-prod')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when integrations collection is empty', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when integrations is null', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: null,
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+    })
+
+    describe('edge cases', () => {
+      it('should handle integration without __typename', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  id: '1',
+                  code: 'no-typename',
+                  name: 'No Typename Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('no-typename')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle integration without code property', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'AnrokIntegration',
+                  id: '1',
+                  name: 'No Code Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getTaxProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle whitespace in codes', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'AnrokIntegration',
+                  id: '1',
+                  code: ' anrok-with-spaces ',
+                  name: 'Anrok with Spaces',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        // Exact match should work
+        expect(result.current.getTaxProviderFromCode(' anrok-with-spaces ')).toBe('anrok')
+
+        // Trimmed version should not match (demonstrates exact matching)
+        expect(result.current.getTaxProviderFromCode('anrok-with-spaces')).toBeUndefined()
+      })
+
+      it('should properly transform typename by removing "Integration" suffix', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'AnrokIntegration',
+                  id: '1',
+                  code: 'test-anrok',
+                  name: 'Test Anrok',
+                },
+                {
+                  __typename: 'AvalaraIntegration',
+                  id: '2',
+                  code: 'test-avalara',
+                  name: 'Test Avalara',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        // Should remove "Integration" and convert to lowercase
+        expect(result.current.getTaxProviderFromCode('test-anrok')).toBe('anrok')
+        expect(result.current.getTaxProviderFromCode('test-avalara')).toBe('avalara')
+      })
     })
   })
 })

@@ -277,18 +277,273 @@ describe('useAccountingProviders', () => {
   })
 
   describe('return value structure', () => {
-    it('should return an object with accountingProviders and isLoadingAccountProviders', async () => {
+    it('should return an object with accountingProviders and isLoadingAccountProviders and getAccountingProviderFromCode', async () => {
       const { result } = await prepare()
 
       expect(typeof result.current).toBe('object')
       expect('accountingProviders' in result.current).toBe(true)
       expect('isLoadingAccountProviders' in result.current).toBe(true)
-      expect(Object.keys(result.current)).toHaveLength(2)
+      expect('getAccountingProviderFromCode' in result.current).toBe(true)
+      expect(Object.keys(result.current)).toHaveLength(3)
 
       await act(() => wait(0))
 
       expect(typeof result.current.accountingProviders).toBe('object')
       expect(typeof result.current.isLoadingAccountProviders).toBe('boolean')
+    })
+  })
+
+  describe('getAccountingProviderFromCode', () => {
+    describe('when data is loaded', () => {
+      it('should return correct provider type for Netsuite integration', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('netsuite-prod')
+
+        expect(providerType).toBe('netsuite')
+      })
+
+      it('should return correct provider type for Xero integration', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('xero-main')
+
+        expect(providerType).toBe('xero')
+      })
+
+      it('should return undefined for non-existent code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('non-existent-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined for undefined code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode(undefined)
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined for empty string code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle case sensitivity correctly', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        // Test with different case
+        const upperCaseResult = result.current.getAccountingProviderFromCode('NETSUITE-PROD')
+        const lowerCaseResult = result.current.getAccountingProviderFromCode('netsuite-prod')
+
+        expect(upperCaseResult).toBeUndefined()
+        expect(lowerCaseResult).toBe('netsuite')
+      })
+
+      it('should find correct provider among multiple integrations', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        // Test all three integrations from default mock data
+        expect(result.current.getAccountingProviderFromCode('netsuite-prod')).toBe('netsuite')
+        expect(result.current.getAccountingProviderFromCode('xero-main')).toBe('xero')
+        expect(result.current.getAccountingProviderFromCode('netsuite-sandbox')).toBe('netsuite')
+      })
+
+      it('should return correct type when only one integration exists', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'XeroIntegration',
+                  id: '1',
+                  code: 'single-xero',
+                  name: 'Single Xero',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('single-xero')
+
+        expect(providerType).toBe('xero')
+      })
+
+      it('should handle custom integration codes correctly', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'NetsuiteIntegration',
+                  id: '1',
+                  code: 'custom-netsuite-123',
+                  name: 'Custom Netsuite',
+                },
+                {
+                  __typename: 'XeroIntegration',
+                  id: '2',
+                  code: 'my-xero-integration',
+                  name: 'My Xero Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        expect(result.current.getAccountingProviderFromCode('custom-netsuite-123')).toBe('netsuite')
+        expect(result.current.getAccountingProviderFromCode('my-xero-integration')).toBe('xero')
+        expect(result.current.getAccountingProviderFromCode('wrong-code')).toBeUndefined()
+      })
+    })
+
+    describe('when data is not loaded', () => {
+      it('should return undefined when data is still loading', async () => {
+        const { result } = await prepare()
+
+        // Before data is loaded
+        const providerType = result.current.getAccountingProviderFromCode('netsuite-prod')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when query failed', async () => {
+        const { result } = await prepare({ error: true })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('netsuite-prod')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when integrations collection is empty', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when integrations is null', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: null,
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+    })
+
+    describe('edge cases', () => {
+      it('should handle integration without __typename', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  id: '1',
+                  code: 'no-typename',
+                  name: 'No Typename Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('no-typename')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle integration without code property', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'NetsuiteIntegration',
+                  id: '1',
+                  name: 'No Code Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getAccountingProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle whitespace in codes', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'NetsuiteIntegration',
+                  id: '1',
+                  code: ' netsuite-with-spaces ',
+                  name: 'Netsuite with Spaces',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        // Exact match should work
+        expect(result.current.getAccountingProviderFromCode(' netsuite-with-spaces ')).toBe(
+          'netsuite',
+        )
+
+        // Trimmed version should not match (demonstrates exact matching)
+        expect(result.current.getAccountingProviderFromCode('netsuite-with-spaces')).toBeUndefined()
+      })
     })
   })
 

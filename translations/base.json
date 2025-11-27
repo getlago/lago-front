@@ -3575,5 +3575,7 @@
   "text_17647718978181hu15vk5h86": "Metadata successfully edited on credit note",
   "text_1763633700902rull0etxlje": "External ID is required",
   "text_1764236242615sfcc7546vv8": "Customer ID is needed",
-  "text_1764239804026ca61hwr3pp9": "URL is not in a valid format"
+  "text_1764239804026ca61hwr3pp9": "URL is not in a valid format",
+  "text_1764249459826j3tkbn7s5ca": "Subsidiary is needed for automatic synchronization",
+  "text_1764249563018adc7qy057at": "Please select a targeted object"
 }

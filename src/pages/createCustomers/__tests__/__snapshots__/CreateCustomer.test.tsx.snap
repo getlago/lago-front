@@ -5,7 +5,9 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
-    <form>
+    <form
+      id="create-customer"
+    >
       <header
         class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12"
       >
@@ -2091,7 +2093,9 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
-    <form>
+    <form
+      id="create-customer"
+    >
       <header
         class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12"
       >
@@ -3077,7 +3081,9 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
-    <form>
+    <form
+      id="create-customer"
+    >
       <header
         class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12"
       >
@@ -4063,7 +4069,9 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
-    <form>
+    <form
+      id="create-customer"
+    >
       <header
         class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12"
       >
@@ -5046,7 +5054,9 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
-    <form>
+    <form
+      id="create-customer"
+    >
       <header
         class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12"
       >
@@ -5978,7 +5988,9 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
-    <form>
+    <form
+      id="create-customer"
+    >
       <header
         class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12"
       >

@@ -42,7 +42,7 @@ const CrmProvidersAccordion = withForm({
   render: function Render({ form, setShowCrmSection, isEdition, customer }) {
     const { translate } = useInternationalization()
 
-    const { crmProviders, isLoadingCrmProviders } = useCrmProviders()
+    const { crmProviders, isLoadingCrmProviders, getCrmProviderFromCode } = useCrmProviders()
 
     const crmProviderCode = useStore(form.store, (state) => state.values.crmProviderCode)
     const syncWithProvider = useStore(
@@ -144,8 +144,15 @@ const CrmProvidersAccordion = withForm({
     const handleDeleteCrmProvider = () => {
       form.setFieldValue('crmProviderCode', '')
       form.setFieldValue('crmCustomer.crmCustomerId', '')
+      form.setFieldValue('crmCustomer.providerType', undefined)
       form.setFieldValue('crmCustomer.syncWithProvider', false)
       setShowCrmSection(false)
+    }
+
+    const handleChangeCrmProviderCode = (value: string | undefined) => {
+      const providerType = getCrmProviderFromCode(value)
+
+      form.setFieldValue('crmCustomer.providerType', providerType)
     }
 
     return (
@@ -172,7 +179,12 @@ const CrmProvidersAccordion = withForm({
             </Typography>
 
             {/* Select connected account */}
-            <form.AppField name="crmProviderCode">
+            <form.AppField
+              name="crmProviderCode"
+              listeners={{
+                onChange: ({ value }) => handleChangeCrmProviderCode(value),
+              }}
+            >
               {(field) => (
                 <field.ComboBoxField
                   disabled={
