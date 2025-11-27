@@ -63,7 +63,7 @@ export const validationSchema = z
       })
       .optional(),
     timezone: z.enum(TimezoneEnum).optional(),
-    url: z.url().optional(),
+    url: z.url('text_1764239804026ca61hwr3pp9').optional(),
     accountingProviderCode: z.string().optional(),
     accountingCustomer: z
       .object({
