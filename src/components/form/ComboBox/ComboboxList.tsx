@@ -30,7 +30,7 @@ export const ComboboxListItem = ({
 }: { className?: string } & PropsWithChildren & ComboBoxVirtualizedListProps) => (
   <div
     className={tw(
-      'mb-2 mt-2',
+      'my-2',
       {
         'not-last:mx-2': virtualized,
         'not-last:mx-0': !virtualized,
@@ -89,10 +89,10 @@ export const ComboboxList = forwardRef(
                       key={`${GROUP_ITEM_KEY}-${key}`}
                       data-type={GROUP_ITEM_KEY}
                       className={tw(
-                        'mx-0 my-1 flex h-11 w-[inherit] items-center bg-grey-100 px-6 py-0 shadow-[0px_-1px_0px_0px_#D9DEE7_inset,0px_-1px_0px_0px_#D9DEE7]',
+                        'mx-0 flex h-11 w-[inherit] items-center bg-grey-100 px-6 py-0 shadow-[0px_-1px_0px_0px_#D9DEE7_inset,0px_-1px_0px_0px_#D9DEE7]',
                         {
-                          '!mt-0': i === 0,
-                          'mb-1': virtualized,
+                          'mt-0': i === 0,
+                          'mt-2': i > 0,
                           'sticky top-0 z-toast': !virtualized,
                         },
                       )}
@@ -106,9 +106,6 @@ export const ComboboxList = forwardRef(
               ...(groupedBy[key] as ReactElement[]).map((item, j) => (
                 <ComboboxListItem
                   key={`combobox-list-item-${randomKey}-${i}-${j}`}
-                  className={tw({
-                    'mt-1': i === 0 && !isGrouped,
-                  })}
                   {...propsToForward}
                 >
                   {item}
@@ -120,7 +117,14 @@ export const ComboboxList = forwardRef(
     }, [isGrouped, renderGroupHeader, children, propsToForward, virtualized])
 
     return (
-      <div className="relative max-h-[inherit] overflow-auto pb-0" ref={ref} role="listbox">
+      <div
+        className={tw('relative max-h-[inherit] pb-0', {
+          'overflow-auto': !virtualized,
+          'overflow-visible': virtualized,
+        })}
+        ref={ref}
+        role="listbox"
+      >
         {virtualized ? (
           <ComboBoxVirtualizedList value={value} elements={htmlItems as ReactElement[]} />
         ) : (
