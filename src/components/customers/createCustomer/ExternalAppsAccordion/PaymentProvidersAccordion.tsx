@@ -93,11 +93,11 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
   setShowPaymentSection,
 }) => {
   const { translate } = useInternationalization()
-  const { data: { paymentProviders } = {}, loading } =
-    usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
-      variables: { limit: 1000 },
-    })
+  const { data, loading } = usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
+    variables: { limit: 1000 },
+  })
 
+  const paymentProviders = data?.paymentProviders
   const selectedPaymentProvider = paymentProviders?.collection.find(
     (p) => p.code === formikProps.values.paymentProviderCode,
   )

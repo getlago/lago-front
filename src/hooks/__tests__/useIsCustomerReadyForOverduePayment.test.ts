@@ -65,7 +65,7 @@ describe('useIsCustomerReadyForOverduePayment', () => {
       // Wait for the mock query to complete
       await act(() => wait(0))
 
-      expect(result.current.data).toBe(true)
+      expect(result.current.isCustomerReadyForOverduePayment).toBe(true)
     })
   })
 
@@ -82,16 +82,16 @@ describe('useIsCustomerReadyForOverduePayment', () => {
       // Wait for the mock query to complete
       await act(() => wait(0))
 
-      expect(result.current.data).toBe(false)
+      expect(result.current.isCustomerReadyForOverduePayment).toBe(false)
     })
   })
 
   describe('WHEN query is loading', () => {
-    it('THEN returns loading as true and data as false', async () => {
+    it('THEN returns loading as true and isCustomerReadyForOverduePayment as false', async () => {
       const { result } = await prepare({ delay: 100 })
 
       expect(result.current.loading).toBeTruthy()
-      expect(result.current.data).toBe(false)
+      expect(result.current.isCustomerReadyForOverduePayment).toBe(false)
     })
   })
 })

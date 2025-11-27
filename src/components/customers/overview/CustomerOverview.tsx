@@ -84,7 +84,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   const { customerId } = useParams()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const { data: isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
+  const { isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
     useIsCustomerReadyForOverduePayment()
 
   const currency = userCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
