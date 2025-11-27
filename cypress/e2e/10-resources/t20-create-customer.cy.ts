@@ -11,8 +11,6 @@ describe('Create customer', () => {
     cy.get('[data-test="create-customer"]').click()
     cy.url().should('include', '/customer/create')
 
-    cy.get('[data-test="submit-customer"]').should('be.disabled')
-
     cy.get('input[name="externalId"]').type(`id-george-de-la-jungle-${randomNumber}`)
 
     cy.get('input[name="name"]').should('exist').type(customerName)

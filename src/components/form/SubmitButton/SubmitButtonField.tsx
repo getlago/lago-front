@@ -14,15 +14,13 @@ const SubmitButtonField = ({
       selector={(state) => ({
         isSubmitting: state.isSubmitting,
         canSubmit: state.canSubmit,
-        isDirty: state.isDirty,
-        isValid: state.isValid,
       })}
     >
-      {({ isSubmitting, canSubmit, isDirty, isValid }) => (
+      {({ isSubmitting, canSubmit }) => (
         <Button
           size={size}
           variant={variant}
-          disabled={!canSubmit || isSubmitting || !isDirty || !isValid}
+          disabled={!canSubmit || isSubmitting}
           loading={isSubmitting}
           type="submit"
           data-test={dataTest}
