@@ -42,7 +42,8 @@ const AccountingProvidersAccordion = withForm({
   render: function Render({ form, isEdition, setShowAccountingSection, customer }) {
     const { translate } = useInternationalization()
 
-    const { accountingProviders, isLoadingAccountProviders } = useAccountingProviders()
+    const { accountingProviders, isLoadingAccountProviders, getAccountingProviderFromCode } =
+      useAccountingProviders()
 
     const accountingProviderCode = useStore(
       form.store,
@@ -145,8 +146,15 @@ const AccountingProvidersAccordion = withForm({
     const handleDeleteAccountingProvider = () => {
       form.setFieldValue('accountingProviderCode', '')
       form.setFieldValue('accountingCustomer.accountingCustomerId', '')
+      form.setFieldValue('accountingCustomer.providerType', undefined)
       form.setFieldValue('accountingCustomer.syncWithProvider', false)
       setShowAccountingSection(false)
+    }
+
+    const handleChangeAccountingProviderCode = (value: string | undefined) => {
+      const providerType = getAccountingProviderFromCode(value)
+
+      form.setFieldValue('accountingCustomer.providerType', providerType)
     }
 
     return (
@@ -173,7 +181,12 @@ const AccountingProvidersAccordion = withForm({
             </Typography>
 
             {/* Select Integration account */}
-            <form.AppField name="accountingProviderCode">
+            <form.AppField
+              name="accountingProviderCode"
+              listeners={{
+                onChange: ({ value }) => handleChangeAccountingProviderCode(value),
+              }}
+            >
               {(field) => (
                 <field.ComboBoxField
                   disabled={

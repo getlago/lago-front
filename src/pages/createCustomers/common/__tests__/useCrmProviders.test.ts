@@ -298,13 +298,14 @@ describe('useCrmProviders', () => {
   })
 
   describe('return value structure', () => {
-    it('should return an object with crmProviders and isLoadingCrmProviders', async () => {
+    it('should return an object with crmProviders and isLoadingCrmProviders and getCrmProviderFromCode', async () => {
       const { result } = await prepare()
 
       expect(typeof result.current).toBe('object')
       expect('crmProviders' in result.current).toBe(true)
       expect('isLoadingCrmProviders' in result.current).toBe(true)
-      expect(Object.keys(result.current)).toHaveLength(2)
+      expect('getCrmProviderFromCode' in result.current).toBe(true)
+      expect(Object.keys(result.current)).toHaveLength(3)
 
       await act(() => wait(0))
 
@@ -377,6 +378,316 @@ describe('useCrmProviders', () => {
       expect(salesforceIntegration.id).toBe('salesforce-1')
       expect(salesforceIntegration.code).toBe('SALESFORCE_MAIN')
       expect(salesforceIntegration.name).toBe('Salesforce Main Account')
+    })
+  })
+
+  describe('getCrmProviderFromCode', () => {
+    describe('when data is loaded', () => {
+      it('should return correct provider type for Hubspot integration', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('hubspot-main')
+
+        expect(providerType).toBe('hubspot')
+      })
+
+      it('should return correct provider type for Salesforce integration', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('salesforce-prod')
+
+        expect(providerType).toBe('salesforce')
+      })
+
+      it('should return undefined for non-existent code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('non-existent-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined for undefined code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode(undefined)
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined for empty string code', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle case sensitivity correctly', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        // Test with different case
+        const upperCaseResult = result.current.getCrmProviderFromCode('HUBSPOT-MAIN')
+        const lowerCaseResult = result.current.getCrmProviderFromCode('hubspot-main')
+
+        expect(upperCaseResult).toBeUndefined()
+        expect(lowerCaseResult).toBe('hubspot')
+      })
+
+      it('should find correct provider among multiple integrations', async () => {
+        const { result } = await prepare()
+
+        await act(() => wait(0))
+
+        // Test all three integrations from default mock data
+        expect(result.current.getCrmProviderFromCode('hubspot-main')).toBe('hubspot')
+        expect(result.current.getCrmProviderFromCode('salesforce-prod')).toBe('salesforce')
+        expect(result.current.getCrmProviderFromCode('hubspot-sandbox')).toBe('hubspot')
+      })
+
+      it('should return correct type when only one integration exists', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'SalesforceIntegration',
+                  id: '1',
+                  code: 'single-salesforce',
+                  name: 'Single Salesforce',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('single-salesforce')
+
+        expect(providerType).toBe('salesforce')
+      })
+
+      it('should handle custom integration codes correctly', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'HubspotIntegration',
+                  id: '1',
+                  code: 'custom-hubspot-123',
+                  name: 'Custom Hubspot',
+                  defaultTargetedObject: 'COMPANIES',
+                },
+                {
+                  __typename: 'SalesforceIntegration',
+                  id: '2',
+                  code: 'my-salesforce-integration',
+                  name: 'My Salesforce Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        expect(result.current.getCrmProviderFromCode('custom-hubspot-123')).toBe('hubspot')
+        expect(result.current.getCrmProviderFromCode('my-salesforce-integration')).toBe(
+          'salesforce',
+        )
+        expect(result.current.getCrmProviderFromCode('wrong-code')).toBeUndefined()
+      })
+
+      it('should work with Hubspot integrations having different defaultTargetedObject values', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'HubspotIntegration',
+                  id: '1',
+                  code: 'hubspot-companies',
+                  name: 'Hubspot for Companies',
+                  defaultTargetedObject: 'COMPANIES',
+                },
+                {
+                  __typename: 'HubspotIntegration',
+                  id: '2',
+                  code: 'hubspot-contacts',
+                  name: 'Hubspot for Contacts',
+                  defaultTargetedObject: 'CONTACTS',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        expect(result.current.getCrmProviderFromCode('hubspot-companies')).toBe('hubspot')
+        expect(result.current.getCrmProviderFromCode('hubspot-contacts')).toBe('hubspot')
+      })
+    })
+
+    describe('when data is not loaded', () => {
+      it('should return undefined when data is still loading', async () => {
+        const { result } = await prepare()
+
+        // Before data is loaded
+        const providerType = result.current.getCrmProviderFromCode('hubspot-main')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when query failed', async () => {
+        const { result } = await prepare({ error: true })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('hubspot-main')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when integrations collection is empty', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should return undefined when integrations is null', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: null,
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+    })
+
+    describe('edge cases', () => {
+      it('should handle integration without __typename', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  id: '1',
+                  code: 'no-typename',
+                  name: 'No Typename Integration',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('no-typename')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle integration without code property', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'HubspotIntegration',
+                  id: '1',
+                  name: 'No Code Integration',
+                  defaultTargetedObject: 'COMPANIES',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('any-code')
+
+        expect(providerType).toBeUndefined()
+      })
+
+      it('should handle whitespace in codes', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'HubspotIntegration',
+                  id: '1',
+                  code: ' hubspot-with-spaces ',
+                  name: 'Hubspot with Spaces',
+                  defaultTargetedObject: 'COMPANIES',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        // Exact match should work
+        expect(result.current.getCrmProviderFromCode(' hubspot-with-spaces ')).toBe('hubspot')
+
+        // Trimmed version should not match (demonstrates exact matching)
+        expect(result.current.getCrmProviderFromCode('hubspot-with-spaces')).toBeUndefined()
+      })
+
+      it('should handle Hubspot integration without defaultTargetedObject', async () => {
+        const { result } = await prepare({
+          mockData: {
+            integrations: {
+              collection: [
+                {
+                  __typename: 'HubspotIntegration',
+                  id: '1',
+                  code: 'hubspot-no-target',
+                  name: 'Hubspot No Target',
+                },
+              ],
+            },
+          },
+        })
+
+        await act(() => wait(0))
+
+        const providerType = result.current.getCrmProviderFromCode('hubspot-no-target')
+
+        expect(providerType).toBe('hubspot')
+      })
     })
   })
 })

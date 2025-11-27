@@ -6,6 +6,7 @@ import {
   CurrencyEnum,
   CustomerTypeEnum,
   HubspotTargetedObjectsEnum,
+  IntegrationTypeEnum,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   TimezoneEnum,
@@ -24,148 +25,201 @@ const emails = z.custom<string>((val) => {
   return true
 }, 'text_620bc4d4269a55014d493fc3')
 
-export const validationSchema = z
-  .object({
-    customerType: z.enum(CustomerTypeEnum).optional(),
-    isPartner: z.boolean().optional(),
-    name: z.string().optional(),
-    firstname: z.string().optional(),
-    lastname: z.string().optional(),
-    externalId: z.string().min(1, {
-      message: 'text_1763633700902rull0etxlje',
-    }),
-    externalSalesforceId: z.string().optional(),
-    legalName: z.string().optional(),
-    legalNumber: z.string().optional(),
-    taxIdentificationNumber: z.string().optional(),
-    currency: z.enum(CurrencyEnum).optional(),
-    phone: z.string().optional(),
-    email: emails.optional(),
-    billingAddress: z
-      .object({
-        addressLine1: z.string(),
-        addressLine2: z.string(),
-        city: z.string(),
-        state: z.string(),
-        zipcode: z.string(),
-        country: z.enum(CountryCode).nullable(),
-      })
-      .optional(),
-    isShippingEqualBillingAddress: z.boolean().optional(),
-    shippingAddress: z
-      .object({
-        addressLine1: z.string(),
-        addressLine2: z.string(),
-        city: z.string(),
-        state: z.string(),
-        zipcode: z.string(),
-        country: z.enum(CountryCode).nullable(),
-      })
-      .optional(),
-    timezone: z.enum(TimezoneEnum).optional(),
-    url: z.url('text_1764239804026ca61hwr3pp9').optional(),
-    accountingProviderCode: z.string().optional(),
-    accountingCustomer: z
-      .object({
-        accountingCustomerId: z.string().optional(),
-        syncWithProvider: z.boolean().optional(),
-        subsidiaryId: z.string().optional(),
-      })
-      .optional(),
-    taxProviderCode: z.string().optional(),
-    taxCustomer: z
-      .object({
-        taxCustomerId: z.string().optional(),
-        syncWithProvider: z.boolean().optional(),
-      })
-      .optional(),
-    crmProviderCode: z.string().optional(),
-    crmCustomer: z
-      .object({
-        crmCustomerId: z.string().optional(),
-        syncWithProvider: z.boolean().optional(),
-        targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
-      })
-      .optional(),
-    paymentProviderCode: z.string().optional(),
-    paymentProviderCustomer: z
-      .object({
-        providerCustomerId: z.string().optional(),
-        providerType: z.enum(ProviderTypeEnum).optional(),
-        syncWithProvider: z.boolean().optional(),
-        providerPaymentMethods: z
-          .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
-          .optional(),
-      })
-      .refine(
-        (data) => {
-          if (!data) return true
+export const validationSchema = z.object({
+  customerType: z.enum(CustomerTypeEnum).optional(),
+  isPartner: z.boolean().optional(),
+  name: z.string().optional(),
+  firstname: z.string().optional(),
+  lastname: z.string().optional(),
+  externalId: z.string().min(1, {
+    message: 'text_1763633700902rull0etxlje',
+  }),
+  externalSalesforceId: z.string().optional(),
+  legalName: z.string().optional(),
+  legalNumber: z.string().optional(),
+  taxIdentificationNumber: z.string().optional(),
+  currency: z.enum(CurrencyEnum).optional(),
+  phone: z.string().optional(),
+  email: emails.optional(),
+  billingAddress: z
+    .object({
+      addressLine1: z.string(),
+      addressLine2: z.string(),
+      city: z.string(),
+      state: z.string(),
+      zipcode: z.string(),
+      country: z.enum(CountryCode).nullable(),
+    })
+    .optional(),
+  isShippingEqualBillingAddress: z.boolean().optional(),
+  shippingAddress: z
+    .object({
+      addressLine1: z.string(),
+      addressLine2: z.string(),
+      city: z.string(),
+      state: z.string(),
+      zipcode: z.string(),
+      country: z.enum(CountryCode).nullable(),
+    })
+    .optional(),
+  timezone: z.enum(TimezoneEnum).optional(),
+  url: z.url('text_1764239804026ca61hwr3pp9').optional(),
+  accountingProviderCode: z.string().optional(),
+  accountingCustomer: z
+    .object({
+      accountingCustomerId: z.string().optional(),
+      syncWithProvider: z.boolean().optional(),
+      subsidiaryId: z.string().optional(),
+      providerType: z.enum(IntegrationTypeEnum).optional(),
+    })
+    .refine(
+      (data) => {
+        if (!data) return true
 
-          // Means we didn't choose any payment provider
-          if (!data.providerType) {
-            return true
-          }
-
-          if (
-            [ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)
-          ) {
-            return true
-          }
-
-          if (!data.syncWithProvider) {
-            return !!data.providerCustomerId && data.providerCustomerId.length > 0
-          }
-
+        // Means we didn't choose any accounting provider
+        if (!data.providerType) {
           return true
-        },
-        {
-          message: 'text_1764236242615sfcc7546vv8',
-          path: ['providerCustomerId'],
-        },
-      )
-      .optional(),
-    metadata: zodMetadataSchema(),
-    billingEntityCode: z.string().optional(),
-  })
-  .superRefine((value, ctx) => {
-    if (!value) return
+        }
 
-    if (
-      value.taxProviderCode &&
-      !value.taxCustomer?.syncWithProvider &&
-      !value.taxCustomer?.taxCustomerId
-    ) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'text_1764236242615sfcc7546vv8',
-        path: ['taxCustomer', 'taxCustomerId'],
-      })
-    }
+        if (!data.syncWithProvider) {
+          return !!data.accountingCustomerId
+        }
 
-    if (
-      value.accountingProviderCode &&
-      !value.accountingCustomer?.syncWithProvider &&
-      !value.accountingCustomer?.accountingCustomerId
-    ) {
-      ctx.addIssue({
-        code: 'custom',
+        return true
+      },
+      {
         message: 'text_1764236242615sfcc7546vv8',
-        path: ['accountingCustomer', 'accountingCustomerId'],
-      })
-    }
+        path: ['accountingCustomerId'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (!data) return true
 
-    if (
-      value.crmProviderCode &&
-      !value.crmCustomer?.syncWithProvider &&
-      !value.crmCustomer?.crmCustomerId
-    ) {
-      ctx.addIssue({
-        code: 'custom',
+        // Only NetSuite has subsidiaries for now
+        if (data.providerType !== IntegrationTypeEnum.Netsuite) {
+          return true
+        }
+
+        return !!data.subsidiaryId
+      },
+      {
+        message: 'text_1764249459826j3tkbn7s5ca',
+        path: ['subsidiaryId'],
+      },
+    )
+    .optional(),
+  taxProviderCode: z.string().optional(),
+  taxCustomer: z
+    .object({
+      taxCustomerId: z.string().optional(),
+      syncWithProvider: z.boolean().optional(),
+      providerType: z.enum(IntegrationTypeEnum).optional(),
+    })
+    .refine(
+      (data) => {
+        if (!data) return true
+
+        // Means we didn't choose any tax provider
+        if (!data.providerType) {
+          return true
+        }
+
+        if (!data.syncWithProvider) {
+          return !!data.taxCustomerId
+        }
+
+        return true
+      },
+      {
         message: 'text_1764236242615sfcc7546vv8',
-        path: ['crmCustomer', 'crmCustomerId'],
-      })
-    }
-  })
+        path: ['taxCustomerId'],
+      },
+    )
+    .optional(),
+  crmProviderCode: z.string().optional(),
+  crmCustomer: z
+    .object({
+      crmCustomerId: z.string().optional(),
+      syncWithProvider: z.boolean().optional(),
+      targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
+      providerType: z.enum(IntegrationTypeEnum).optional(),
+    })
+    .refine(
+      (data) => {
+        if (!data) return true
+
+        // Means we didn't choose any crm provider
+        if (!data.providerType) {
+          return true
+        }
+
+        if (!data.syncWithProvider) {
+          return !!data.crmCustomerId
+        }
+
+        return true
+      },
+      {
+        message: 'text_1764236242615sfcc7546vv8',
+        path: ['crmCustomerId'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (!data) return true
+
+        // Only Hubspot has targeted objects for now
+        if (data.providerType !== IntegrationTypeEnum.Hubspot) {
+          return true
+        }
+
+        return !!data.targetedObject
+      },
+      {
+        message: 'text_1764249563018adc7qy057at',
+        path: ['targetedObject'],
+      },
+    )
+    .optional(),
+  paymentProviderCode: z.string().optional(),
+  paymentProviderCustomer: z
+    .object({
+      providerCustomerId: z.string().optional(),
+      providerType: z.enum(ProviderTypeEnum).optional(),
+      syncWithProvider: z.boolean().optional(),
+      providerPaymentMethods: z
+        .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
+        .optional(),
+    })
+    .refine(
+      (data) => {
+        if (!data) return true
+
+        // Means we didn't choose any payment provider
+        if (!data.providerType) {
+          return true
+        }
+
+        if ([ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)) {
+          return true
+        }
+
+        if (!data.syncWithProvider) {
+          return !!data.providerCustomerId
+        }
+
+        return true
+      },
+      {
+        message: 'text_1764236242615sfcc7546vv8',
+        path: ['providerCustomerId'],
+      },
+    )
+    .optional(),
+  metadata: zodMetadataSchema(),
+  billingEntityCode: z.string().optional(),
+})
 
 export type CreateCustomerDefaultValues = z.infer<typeof validationSchema>
 
@@ -206,17 +260,20 @@ export const emptyCreateCustomerDefaultValues: CreateCustomerDefaultValues = {
   accountingCustomer: {
     accountingCustomerId: '',
     syncWithProvider: false,
+    providerType: undefined,
     subsidiaryId: '',
   },
   taxProviderCode: undefined,
   taxCustomer: {
     taxCustomerId: '',
+    providerType: undefined,
     syncWithProvider: false,
   },
   crmProviderCode: undefined,
   crmCustomer: {
     crmCustomerId: '',
     syncWithProvider: false,
+    providerType: undefined,
     targetedObject: undefined,
   },
   paymentProviderCode: undefined,

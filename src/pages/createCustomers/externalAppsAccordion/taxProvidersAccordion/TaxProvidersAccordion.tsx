@@ -43,7 +43,7 @@ const TaxProvidersAccordion = withForm({
   render: function Render({ form, setShowTaxSection, isEdition, customer }) {
     const { translate } = useInternationalization()
 
-    const { taxProviders, isLoadingTaxProviders } = useTaxProviders()
+    const { taxProviders, isLoadingTaxProviders, getTaxProviderFromCode } = useTaxProviders()
 
     const taxProviderCode = useStore(form.store, (state) => state.values.taxProviderCode)
 
@@ -139,8 +139,15 @@ const TaxProvidersAccordion = withForm({
     const handleDeleteTaxProvider = () => {
       form.setFieldValue('taxProviderCode', '')
       form.setFieldValue('taxCustomer.taxCustomerId', '')
+      form.setFieldValue('taxCustomer.providerType', undefined)
       form.setFieldValue('taxCustomer.syncWithProvider', false)
       setShowTaxSection(false)
+    }
+
+    const handleChangeTaxProviderCode = (value: string | undefined) => {
+      const providerType = getTaxProviderFromCode(value)
+
+      form.setFieldValue('taxCustomer.providerType', providerType)
     }
 
     return (
@@ -167,7 +174,12 @@ const TaxProvidersAccordion = withForm({
             </Typography>
 
             {/* Select connected account */}
-            <form.AppField name="taxProviderCode">
+            <form.AppField
+              name="taxProviderCode"
+              listeners={{
+                onChange: ({ value }) => handleChangeTaxProviderCode(value),
+              }}
+            >
               {(field) => (
                 <field.ComboBoxField
                   disabled={
