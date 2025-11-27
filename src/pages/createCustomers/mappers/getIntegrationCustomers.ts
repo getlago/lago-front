@@ -35,9 +35,9 @@ export const getIntegrationCustomers = ({
   accountingCustomer?: CreateCustomerDefaultValues['accountingCustomer']
   crmCustomer?: CreateCustomerDefaultValues['crmCustomer']
   taxCustomer?: CreateCustomerDefaultValues['taxCustomer']
-}): Array<IntegrationCustomerInput> | undefined => {
+}): Array<IntegrationCustomerInput> => {
   if (!taxProviderCode && !accountingProviderCode && !crmProviderCode) {
-    return undefined
+    return []
   }
 
   // We need to do it this way because of strange typing coming from back
@@ -81,7 +81,7 @@ export const getIntegrationCustomers = ({
   const crmProvider = crmIntegrations.find((integration) => integration.code === crmProviderCode)
 
   if (!taxProvider && !accountingProvider && !crmProvider) {
-    return undefined
+    return []
   }
 
   const subsidiaryObject = accountingCustomer?.subsidiaryId
