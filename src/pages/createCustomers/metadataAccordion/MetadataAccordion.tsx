@@ -9,7 +9,7 @@ import {
 } from '~/formValidation/metadataSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { tw } from '~/styles/utils'
 
 const MAX_METADATA_COUNT = 5

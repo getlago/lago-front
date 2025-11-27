@@ -11,7 +11,7 @@ import {
 
 import { getIntegrationCustomers } from './getIntegrationCustomers'
 
-import { CreateCustomerDefaultValues } from '../formInitialization/validationSchemaConst'
+import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
 
 type AdditionalData = {
   paymentProvider?: ProviderTypeEnum

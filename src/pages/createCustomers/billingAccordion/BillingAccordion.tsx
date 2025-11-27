@@ -5,7 +5,7 @@ import { Accordion, Typography } from '~/components/designSystem'
 import { AddCustomerDrawerFragment, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import BillingFields from './BillingFields'
 

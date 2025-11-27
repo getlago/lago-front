@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { AnrokIntegration } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import AnrokTaxProviderContent from '~/pages/createCustomers/externalAppsAccordion/taxProvidersAccordion/AnrokTaxProviderContent'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockAnrokIntegration: AnrokIntegration = {

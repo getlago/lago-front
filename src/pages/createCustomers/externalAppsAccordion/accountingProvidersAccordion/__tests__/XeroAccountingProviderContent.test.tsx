@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { XeroIntegration } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import XeroAccountingProviderContent from '~/pages/createCustomers/externalAppsAccordion/accountingProvidersAccordion/XeroAccountingProviderContent'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockXeroIntegration: XeroIntegration = {

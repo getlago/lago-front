@@ -9,7 +9,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import CustomerInformation from '~/pages/createCustomers/customerInformation/CustomerInformation'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockCustomer: AddCustomerDrawerFragment = {

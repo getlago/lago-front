@@ -8,7 +8,7 @@ import { CurrencyEnum, ProviderPaymentMethodsEnum, ProviderTypeEnum } from '~/ge
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { usePaymentProviders } from '~/pages/createCustomers/common/usePaymentProviders'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import Adyen from '~/public/images/adyen.svg'
 import Cashfree from '~/public/images/cashfree.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'

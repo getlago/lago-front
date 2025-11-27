@@ -3,7 +3,7 @@ import { useStore } from '@tanstack/react-form'
 import { AvalaraIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 type AvalaraTaxProviderContentProps = {
   hadInitialAvalaraIntegrationCustomer: boolean

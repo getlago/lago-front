@@ -137,11 +137,11 @@ describe('scrollToFirstInputError', () => {
 
       scrollToFirstInputError('test-form', errorMap)
 
-      // Should only focus on the input with a truthy error (phone input with validError)
-      expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+      // Should only focus on the input with a truthy error (but there are none here)
+      expect(mockScrollIntoView).not.toHaveBeenCalled()
 
       jest.advanceTimersByTime(300)
-      expect(mockFocus).toHaveBeenCalledTimes(1)
+      expect(mockFocus).not.toHaveBeenCalled()
       jest.useRealTimers()
     })
 

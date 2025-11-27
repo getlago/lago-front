@@ -1,7 +1,7 @@
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 type BillingFieldsProps = {
   isDisabled?: boolean

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { AvalaraIntegration } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import AvalaraTaxProviderContent from '~/pages/createCustomers/externalAppsAccordion/taxProvidersAccordion/AvalaraTaxProviderContent'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockAvalaraIntegration: AvalaraIntegration = {

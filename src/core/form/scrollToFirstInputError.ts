@@ -7,7 +7,7 @@ export const scrollToFirstInputError = (formId: string, errorMap: Record<string,
   const firstInput = inputs.find((input) => {
     const fieldErrors = errorMap[input.name]
 
-    return fieldErrors !== undefined && fieldErrors !== null && fieldErrors !== ''
+    return !!fieldErrors
   })
 
   if (firstInput) {

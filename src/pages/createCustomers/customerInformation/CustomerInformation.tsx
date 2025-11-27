@@ -7,7 +7,7 @@ import { AddCustomerDrawerFragment, CustomerTypeEnum, TimezoneEnum } from '~/gen
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import HelperText from './HelperText'
 

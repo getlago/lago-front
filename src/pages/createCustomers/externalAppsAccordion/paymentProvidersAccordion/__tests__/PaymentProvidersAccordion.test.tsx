@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { CurrencyEnum, ProviderPaymentMethodsEnum, ProviderTypeEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import PaymentProvidersAccordion from '~/pages/createCustomers/externalAppsAccordion/paymentProvidersAccordion/PaymentProvidersAccordion'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 // Mock the usePaymentProviders hook

@@ -233,9 +233,7 @@ export const validationSchema = z.object({
           return false
         }
 
-        const atLeastOneEnabled = Object.values(data.providerPaymentMethods).some(
-          (isEnabled) => isEnabled,
-        )
+        const atLeastOneEnabled = Object.values(data.providerPaymentMethods).some(Boolean)
 
         return atLeastOneEnabled
       },

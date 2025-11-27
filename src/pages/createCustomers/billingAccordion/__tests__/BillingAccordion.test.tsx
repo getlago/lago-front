@@ -9,7 +9,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import BillingAccordion from '~/pages/createCustomers/billingAccordion/BillingAccordion'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockCustomer: AddCustomerDrawerFragment = {

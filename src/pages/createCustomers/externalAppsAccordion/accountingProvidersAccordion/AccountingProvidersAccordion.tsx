@@ -14,7 +14,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { integrationTypeToTypename } from '~/pages/createCustomers/common/customerIntegrationConst'
 import { useAccountingProviders } from '~/pages/createCustomers/common/useAccountingProviders'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import Netsuite from '~/public/images/netsuite.svg'
 import Xero from '~/public/images/xero.svg'
 

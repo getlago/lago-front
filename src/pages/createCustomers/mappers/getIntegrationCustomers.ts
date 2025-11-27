@@ -13,7 +13,7 @@ import {
 } from '~/generated/graphql'
 import { getAllIntegrationForAnIntegrationType } from '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType'
 
-import { CreateCustomerDefaultValues } from '../formInitialization/validationSchemaConst'
+import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
 
 export const getIntegrationCustomers = ({
   taxProviderCode,
