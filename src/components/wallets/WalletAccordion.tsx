@@ -334,7 +334,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
             {!isPremium && (
               <div className="flex items-center justify-between gap-4 bg-grey-100 p-4 shadow-y">
                 <div>
-                  <div className="flex flex-row items-baseline gap-1">
+                  <div className="flex flex-row items-center gap-2">
                     <Typography variant="bodyHl" color="grey700">
                       {translate('text_65ae73ebe3a66bec2b91d721')}
                     </Typography>
