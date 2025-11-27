@@ -12,7 +12,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import CrmProvidersAccordion from '~/pages/createCustomers/externalAppsAccordion/crmProvidersAccordion/CrmProvidersAccordion'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 // Create mock constants for Jest mocks

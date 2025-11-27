@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { ProviderPaymentMethodsEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import StripePaymentProviderContent from '~/pages/createCustomers/externalAppsAccordion/paymentProvidersAccordion/StripePaymentProviderContent'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 // Create a test wrapper component that properly initializes the form

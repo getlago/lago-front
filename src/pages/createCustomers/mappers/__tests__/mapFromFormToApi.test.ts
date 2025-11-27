@@ -12,7 +12,7 @@ import {
 import {
   CreateCustomerDefaultValues,
   emptyCreateCustomerDefaultValues,
-} from '../../formInitialization/validationSchemaConst'
+} from '../../formInitialization/validationSchema'
 import { mapFromFormToApi } from '../mapFromFormToApi'
 
 // Mock the getIntegrationCustomers function

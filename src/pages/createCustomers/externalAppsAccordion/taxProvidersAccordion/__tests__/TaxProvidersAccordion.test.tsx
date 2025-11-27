@@ -11,7 +11,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import TaxProvidersAccordion from '~/pages/createCustomers/externalAppsAccordion/taxProvidersAccordion/TaxProvidersAccordion'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockCustomer: AddCustomerDrawerFragment = {

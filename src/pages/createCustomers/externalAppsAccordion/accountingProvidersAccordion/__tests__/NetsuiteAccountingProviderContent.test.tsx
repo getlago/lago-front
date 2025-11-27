@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { NetsuiteIntegration } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import NetsuiteAccountingProviderContent from '~/pages/createCustomers/externalAppsAccordion/accountingProvidersAccordion/NetsuiteAccountingProviderContent'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockNetsuiteIntegration: NetsuiteIntegration = {

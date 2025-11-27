@@ -11,7 +11,7 @@ import {
   SalesforceIntegration,
   XeroIntegration,
 } from '~/generated/graphql'
-import { CreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { CreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import { getIntegrationCustomers } from '../getIntegrationCustomers'
 

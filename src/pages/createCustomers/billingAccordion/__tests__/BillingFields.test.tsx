@@ -1,6 +1,6 @@
 import { useAppForm } from '~/hooks/forms/useAppform'
 import BillingFields from '~/pages/createCustomers/billingAccordion/BillingFields'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 // Create a test wrapper component that properly initializes the form

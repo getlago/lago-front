@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import MetadataAccordion from '~/pages/createCustomers/metadataAccordion/MetadataAccordion'
 import { render } from '~/test-utils'
 

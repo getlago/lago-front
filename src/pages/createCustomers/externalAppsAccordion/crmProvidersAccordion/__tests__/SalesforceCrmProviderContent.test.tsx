@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { SalesforceIntegration } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import SalesforceCrmProviderContent from '~/pages/createCustomers/externalAppsAccordion/crmProvidersAccordion/SalesforceCrmProviderContent'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockSalesforceIntegration: SalesforceIntegration = {

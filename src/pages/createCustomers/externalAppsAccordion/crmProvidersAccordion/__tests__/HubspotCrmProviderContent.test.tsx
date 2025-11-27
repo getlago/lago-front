@@ -3,7 +3,7 @@ import { screen, waitFor } from '@testing-library/react'
 import { HubspotIntegration, HubspotTargetedObjectsEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import HubspotCrmProviderContent from '~/pages/createCustomers/externalAppsAccordion/crmProvidersAccordion/HubspotCrmProviderContent'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchemaConst'
+import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 const mockHubspotIntegration: HubspotIntegration = {
