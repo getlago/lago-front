@@ -63,11 +63,11 @@ export const mapFromApiToForm = (
     [customer?.anrokCustomer, customer?.avalaraCustomer].find(Boolean) || undefined
 
   const getTargetedObject = () => {
-    if (!crmProvider) return undefined
+    if (!crmProvider) return {}
     if ('targetedObject' in crmProvider) {
-      return crmProvider.targetedObject ?? undefined
+      return crmProvider.targetedObject ? { targetedObject: crmProvider.targetedObject } : {}
     }
-    return undefined
+    return {}
   }
 
   return {
@@ -106,6 +106,7 @@ export const mapFromApiToForm = (
     url: customer?.url ?? undefined,
     accountingProviderCode: accountingProvider?.integrationCode ?? '',
     accountingCustomer: {
+      providerType: accountingProvider?.integrationType ?? undefined,
       accountingCustomerId: accountingProvider?.externalCustomerId ?? '',
       syncWithProvider: accountingProvider?.syncWithProvider ?? false,
       subsidiaryId:
@@ -119,12 +120,14 @@ export const mapFromApiToForm = (
     crmCustomer: {
       crmCustomerId: crmProvider?.externalCustomerId ?? '',
       syncWithProvider: crmProvider?.syncWithProvider ?? false,
-      targetedObject: getTargetedObject(),
+      providerType: crmProvider?.integrationType ?? undefined,
+      ...getTargetedObject(),
     },
     taxProviderCode: taxProvider?.integrationCode ?? '',
     taxCustomer: {
       taxCustomerId: taxProvider?.externalCustomerId ?? '',
       syncWithProvider: taxProvider?.syncWithProvider ?? false,
+      providerType: taxProvider?.integrationType ?? undefined,
     },
     paymentProviderCode: customer?.paymentProviderCode ?? '',
     paymentProviderCustomer: {

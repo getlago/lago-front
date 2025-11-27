@@ -5,6 +5,7 @@ import {
   CustomerAccountTypeEnum,
   CustomerTypeEnum,
   HubspotTargetedObjectsEnum,
+  IntegrationTypeEnum,
   ProviderPaymentMethodsEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
@@ -576,6 +577,7 @@ describe('mapFromApiToForm', () => {
           integrationCode: 'salesforce_1',
           externalCustomerId: 'salesforce-456',
           syncWithProvider: false,
+          integrationType: IntegrationTypeEnum.Salesforce,
         },
       }
 
@@ -585,6 +587,7 @@ describe('mapFromApiToForm', () => {
       expect(result.crmCustomer).toEqual({
         crmCustomerId: 'salesforce-456',
         syncWithProvider: false,
+        providerType: IntegrationTypeEnum.Salesforce,
       })
     })
 
