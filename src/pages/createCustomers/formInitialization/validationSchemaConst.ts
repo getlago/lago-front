@@ -24,100 +24,148 @@ const emails = z.custom<string>((val) => {
   return true
 }, 'text_620bc4d4269a55014d493fc3')
 
-export const validationSchema = z.object({
-  customerType: z.enum(CustomerTypeEnum).optional(),
-  isPartner: z.boolean().optional(),
-  name: z.string().optional(),
-  firstname: z.string().optional(),
-  lastname: z.string().optional(),
-  externalId: z.string().min(1, {
-    message: 'text_1763633700902rull0etxlje',
-  }),
-  externalSalesforceId: z.string().optional(),
-  legalName: z.string().optional(),
-  legalNumber: z.string().optional(),
-  taxIdentificationNumber: z.string().optional(),
-  currency: z.enum(CurrencyEnum).optional(),
-  phone: z.string().optional(),
-  email: emails.optional(),
-  billingAddress: z
-    .object({
-      addressLine1: z.string(),
-      addressLine2: z.string(),
-      city: z.string(),
-      state: z.string(),
-      zipcode: z.string(),
-      country: z.enum(CountryCode).nullable(),
-    })
-    .optional(),
-  isShippingEqualBillingAddress: z.boolean().optional(),
-  shippingAddress: z
-    .object({
-      addressLine1: z.string(),
-      addressLine2: z.string(),
-      city: z.string(),
-      state: z.string(),
-      zipcode: z.string(),
-      country: z.enum(CountryCode).nullable(),
-    })
-    .optional(),
-  timezone: z.enum(TimezoneEnum).optional(),
-  url: z.url().optional(),
-  accountingProviderCode: z.string().optional(),
-  accountingCustomer: z
-    .object({
-      accountingCustomerId: z.string().optional(),
-      syncWithProvider: z.boolean().optional(),
-      subsidiaryId: z.string().optional(),
-    })
-    .optional(),
-  taxProviderCode: z.string().optional(),
-  taxCustomer: z
-    .object({
-      taxCustomerId: z.string().optional(),
-      syncWithProvider: z.boolean().optional(),
-    })
-    .optional(),
-  crmProviderCode: z.string().optional(),
-  crmCustomer: z
-    .object({
-      crmCustomerId: z.string().optional(),
-      syncWithProvider: z.boolean().optional(),
-      targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
-    })
-    .optional(),
-  paymentProviderCode: z.string().optional(),
-  paymentProviderCustomer: z
-    .object({
-      providerCustomerId: z.string().optional(),
-      providerType: z.enum(ProviderTypeEnum).optional(),
-      syncWithProvider: z.boolean().optional(),
-      providerPaymentMethods: z
-        .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
-        .optional(),
-    })
-    .refine((data) => {
-      if (!data) return true
+export const validationSchema = z
+  .object({
+    customerType: z.enum(CustomerTypeEnum).optional(),
+    isPartner: z.boolean().optional(),
+    name: z.string().optional(),
+    firstname: z.string().optional(),
+    lastname: z.string().optional(),
+    externalId: z.string().min(1, {
+      message: 'text_1763633700902rull0etxlje',
+    }),
+    externalSalesforceId: z.string().optional(),
+    legalName: z.string().optional(),
+    legalNumber: z.string().optional(),
+    taxIdentificationNumber: z.string().optional(),
+    currency: z.enum(CurrencyEnum).optional(),
+    phone: z.string().optional(),
+    email: emails.optional(),
+    billingAddress: z
+      .object({
+        addressLine1: z.string(),
+        addressLine2: z.string(),
+        city: z.string(),
+        state: z.string(),
+        zipcode: z.string(),
+        country: z.enum(CountryCode).nullable(),
+      })
+      .optional(),
+    isShippingEqualBillingAddress: z.boolean().optional(),
+    shippingAddress: z
+      .object({
+        addressLine1: z.string(),
+        addressLine2: z.string(),
+        city: z.string(),
+        state: z.string(),
+        zipcode: z.string(),
+        country: z.enum(CountryCode).nullable(),
+      })
+      .optional(),
+    timezone: z.enum(TimezoneEnum).optional(),
+    url: z.url().optional(),
+    accountingProviderCode: z.string().optional(),
+    accountingCustomer: z
+      .object({
+        accountingCustomerId: z.string().optional(),
+        syncWithProvider: z.boolean().optional(),
+        subsidiaryId: z.string().optional(),
+      })
+      .optional(),
+    taxProviderCode: z.string().optional(),
+    taxCustomer: z
+      .object({
+        taxCustomerId: z.string().optional(),
+        syncWithProvider: z.boolean().optional(),
+      })
+      .optional(),
+    crmProviderCode: z.string().optional(),
+    crmCustomer: z
+      .object({
+        crmCustomerId: z.string().optional(),
+        syncWithProvider: z.boolean().optional(),
+        targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
+      })
+      .optional(),
+    paymentProviderCode: z.string().optional(),
+    paymentProviderCustomer: z
+      .object({
+        providerCustomerId: z.string().optional(),
+        providerType: z.enum(ProviderTypeEnum).optional(),
+        syncWithProvider: z.boolean().optional(),
+        providerPaymentMethods: z
+          .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
+          .optional(),
+      })
+      .refine(
+        (data) => {
+          if (!data) return true
 
-      // Means we didn't choose any payment provider
-      if (!data.providerType) {
-        return true
-      }
+          // Means we didn't choose any payment provider
+          if (!data.providerType) {
+            return true
+          }
 
-      if ([ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)) {
-        return true
-      }
+          if (
+            [ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)
+          ) {
+            return true
+          }
 
-      if (!data.syncWithProvider) {
-        return !!data.providerCustomerId
-      }
+          if (!data.syncWithProvider) {
+            return !!data.providerCustomerId && data.providerCustomerId.length > 0
+          }
 
-      return true
-    })
-    .optional(),
-  metadata: zodMetadataSchema(),
-  billingEntityCode: z.string().optional(),
-})
+          return true
+        },
+        {
+          message: 'text_1764236242615sfcc7546vv8',
+          path: ['providerCustomerId'],
+        },
+      )
+      .optional(),
+    metadata: zodMetadataSchema(),
+    billingEntityCode: z.string().optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (!value) return
+
+    if (
+      value.taxProviderCode &&
+      !value.taxCustomer?.syncWithProvider &&
+      !value.taxCustomer?.taxCustomerId
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1764236242615sfcc7546vv8',
+        path: ['taxCustomer', 'taxCustomerId'],
+      })
+    }
+
+    if (
+      value.accountingProviderCode &&
+      !value.accountingCustomer?.syncWithProvider &&
+      !value.accountingCustomer?.accountingCustomerId
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1764236242615sfcc7546vv8',
+        path: ['accountingCustomer', 'accountingCustomerId'],
+      })
+    }
+
+    if (
+      value.crmProviderCode &&
+      !value.crmCustomer?.syncWithProvider &&
+      !value.crmCustomer?.crmCustomerId
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1764236242615sfcc7546vv8',
+        path: ['crmCustomer', 'crmCustomerId'],
+      })
+    }
+  })
 
 export type CreateCustomerDefaultValues = z.infer<typeof validationSchema>
 
