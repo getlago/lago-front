@@ -34,7 +34,7 @@ describe('getIntegrationCustomers', () => {
     it('should return undefined', () => {
       const result = getIntegrationCustomers({})
 
-      expect(result).toBeUndefined()
+      expect(result).toEqual([])
     })
   })
 
@@ -44,31 +44,31 @@ describe('getIntegrationCustomers', () => {
       getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([])
     })
 
-    it('should return undefined when tax provider not found', () => {
+    it('should return empty array when tax provider not found', () => {
       const result = getIntegrationCustomers({
         taxProviderCode: 'non-existent-tax',
         taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
       })
 
-      expect(result).toBeUndefined()
+      expect(result).toEqual([])
     })
 
-    it('should return undefined when accounting provider not found', () => {
+    it('should return empty array when accounting provider not found', () => {
       const result = getIntegrationCustomers({
         accountingProviderCode: 'non-existent-accounting',
         accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
       })
 
-      expect(result).toBeUndefined()
+      expect(result).toEqual([])
     })
 
-    it('should return undefined when CRM provider not found', () => {
+    it('should return empty array when CRM provider not found', () => {
       const result = getIntegrationCustomers({
         crmProviderCode: 'non-existent-crm',
         crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
       })
 
-      expect(result).toBeUndefined()
+      expect(result).toEqual([])
     })
   })
 
