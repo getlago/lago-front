@@ -14,7 +14,7 @@ import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
-import { ActivityItemFragment, useActivityLogsQuery } from '~/generated/graphql'
+import { ActivityItemFragment, LagoApiError, useActivityLogsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
@@ -84,6 +84,9 @@ export const ActivityLogs = () => {
   const getActivityLogsResult = useActivityLogsQuery({
     variables: { limit: 20, ...filtersForActivityLogsQuery },
     notifyOnNetworkStatusChange: true,
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
   })
 
   const { data, loading, refetch } = getActivityLogsResult

@@ -1,8 +1,9 @@
-import { gql, QueryResult } from '@apollo/client'
+import { ApolloError, gql, QueryResult } from '@apollo/client'
 import { FC, useMemo } from 'react'
 
 import { formatActivityType, getActivityDescription } from '~/components/activityLogs/utils'
-import { Table, TableProps, Typography } from '~/components/designSystem'
+import { Table, TablePlaceholder, TableProps, Typography } from '~/components/designSystem'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { ActivityLogsTableDataFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -21,14 +22,15 @@ gql`
 interface ActivityLogsTableProps
   extends Pick<
     TableProps<ActivityLogsTableDataFragment>,
-    'data' | 'hasError' | 'isLoading' | 'containerSize' | 'onRowActionLink'
+    'data' | 'isLoading' | 'containerSize' | 'onRowActionLink'
   > {
   refetch: QueryResult['refetch']
+  error: ApolloError | undefined
 }
 
 export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
   data,
-  hasError,
+  error,
   isLoading,
   containerSize = 16,
   onRowActionLink,
@@ -36,6 +38,31 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
 }) => {
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
+
+  const tablePlaceholder: TablePlaceholder = useMemo(() => {
+    const placeholder: TablePlaceholder = {
+      emptyState: {
+        title: translate('text_1747314141347sfeoozf86o7'),
+        subtitle: translate('text_1747314141347gs3g2lpln2h'),
+      },
+    }
+
+    if (hasDefinedGQLError('FeatureUnavailable', error)) {
+      placeholder.errorState = {
+        title: translate('text_1747314141347qq6rasuxisl'),
+        subtitle: translate('text_1764181883406sg3ir0pbxkt'),
+      }
+    } else if (error) {
+      placeholder.errorState = {
+        title: translate('text_1747058197364dm3no1jnete'),
+        subtitle: translate('text_63e27c56dfe64b846474ef3b'),
+        buttonTitle: translate('text_63e27c56dfe64b846474ef3c'),
+        buttonAction: () => refetch(),
+      }
+    }
+
+    return placeholder
+  }, [error, refetch, translate])
 
   const logs = useMemo(() => {
     return data.map((log) => ({
@@ -51,7 +78,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
       containerSize={containerSize}
       rowSize={48}
       data={logs}
-      hasError={hasError}
+      hasError={!!error}
       isLoading={isLoading}
       onRowActionLink={onRowActionLink}
       columns={[
@@ -95,18 +122,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
           ),
         },
       ]}
-      placeholder={{
-        emptyState: {
-          title: translate('text_1747314141347sfeoozf86o7'),
-          subtitle: translate('text_1747314141347gs3g2lpln2h'),
-        },
-        errorState: {
-          title: translate('text_1747058197364dm3no1jnete'),
-          subtitle: translate('text_63e27c56dfe64b846474ef3b'),
-          buttonTitle: translate('text_63e27c56dfe64b846474ef3c'),
-          buttonAction: () => refetch(),
-        },
-      }}
+      placeholder={tablePlaceholder}
     />
   )
 }
