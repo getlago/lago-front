@@ -84,9 +84,12 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
       {!hasPremiumIntegration && (
         <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
           <Box>
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_1724345142892pcnx5m2k3r2')} <Icon name="sparkles" />
-            </Typography>
+            <div className="flex items-center gap-2">
+              <Typography variant="bodyHl" color="textSecondary">
+                {translate('text_1724345142892pcnx5m2k3r2')}
+              </Typography>
+              <Icon name="sparkles" />
+            </div>
             <Typography variant="caption">{translate('text_1724345142892ljzi79afhmc')}</Typography>
           </Box>
           <ButtonLink

@@ -312,7 +312,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
             {!isLoading && !hasProgressiveBillingPremiumIntegration && (
               <div className="flex flex-row items-center justify-between gap-4 rounded-sm bg-grey-100 px-6 py-4">
                 <div className="flex flex-col">
-                  <div className="flex flex-row items-center gap-1">
+                  <div className="flex flex-row items-center gap-2">
                     <Typography variant="bodyHl" color="grey700">
                       {translate('text_1724345142892pcnx5m2k3r2')}
                     </Typography>
