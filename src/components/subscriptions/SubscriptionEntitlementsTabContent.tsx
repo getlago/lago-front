@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Accordion, Button, Tooltip, Typography } from 'lago-design-system'
+import { Button, Tooltip, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { ChargeTable, Popper } from '~/components/designSystem'
+import { Accordion, ChargeTable, Popper } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getEntitlementFormattedValue } from '~/components/plans/utils'
 import {

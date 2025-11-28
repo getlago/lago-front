@@ -56,12 +56,44 @@ export const Accordion = ({
   const [isOpen, setIsOpen] = useState(initiallyOpen)
   const { translate } = useInternationalization()
 
-  const size = localSize ?? (variant === 'card' ? 'medium' : undefined)
+  const getSize = () => {
+    if (localSize) return localSize
+    if (variant === 'card') return AccordionSizeEnum.medium
+    return undefined
+  }
+
+  const size = getSize()
+
+  const getPadding = () => {
+    if (size === AccordionSizeEnum.medium) {
+      return theme.spacing(4)
+    }
+    if (size === AccordionSizeEnum.large) {
+      return theme.spacing(8)
+    }
+    return undefined
+  }
+
+  const getHeight = () => {
+    if (size === AccordionSizeEnum.medium) {
+      return NAV_HEIGHT
+    }
+    if (size === AccordionSizeEnum.large) {
+      return 92
+    }
+    return undefined
+  }
 
   return (
     <MuiAccordion
       id={id}
       expanded={isOpen}
+      slotProps={{
+        transition: {
+          unmountOnExit: true,
+          ...transitionProps,
+        },
+      }}
       className={tw(
         {
           'border border-solid border-grey-400': variant === 'card',
@@ -78,7 +110,6 @@ export const Accordion = ({
           if (expanded && !!onOpen) onOpen()
         }
       }}
-      TransitionProps={{ unmountOnExit: true, ...transitionProps }}
       {...props}
     >
       <AccordionSummary
@@ -96,19 +127,9 @@ export const Accordion = ({
         )}
         sx={{
           '& .MuiAccordionSummary-content': {
-            padding:
-              size === AccordionSizeEnum.medium
-                ? theme.spacing(4)
-                : size === AccordionSizeEnum.large
-                  ? theme.spacing(8)
-                  : undefined,
+            padding: getPadding(),
             alignItems: variant === 'borderless' ? 'baseline' : 'center',
-            height:
-              size === AccordionSizeEnum.medium
-                ? NAV_HEIGHT
-                : size === AccordionSizeEnum.large
-                  ? 92
-                  : undefined,
+            height: getHeight(),
           },
         }}
       >
