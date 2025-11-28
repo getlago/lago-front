@@ -1,19 +1,9 @@
-import { FormikProps } from 'formik'
-
 import { Card } from '~/components/designSystem'
 import { InvoceCustomFooter } from '~/components/invoceCustomFooter/InvoceCustomFooter'
-import { PaymentMethodComboBox } from '~/components/paymentMethodComboBox/PaymentMethodComboBox'
-import { GetCustomerForCreateSubscriptionQuery } from '~/generated/graphql'
+import { PaymentMethodSelection } from '~/components/paymentMethodSelection/PaymentMethodSelection'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 
-import { ViewTypeExtraPropsMap } from './types'
-
-interface PaymentMethodsInvoiceSettingsProps {
-  customer: GetCustomerForCreateSubscriptionQuery['customer']
-  formikProps: FormikProps<SubscriptionFormInput>
-  viewType: 'subscription'
-}
+import { PaymentMethodsInvoiceSettingsProps, ViewTypeExtraPropsMap } from './types'
 
 export const PaymentMethodsInvoiceSettings = ({
   customer,
@@ -30,13 +20,11 @@ export const PaymentMethodsInvoiceSettings = ({
 
   const extraProps: ViewTypeExtraPropsMap = {
     subscription: {
-      PaymentMethodComboBox: {
-        sectionName: translate('text_17641654835679kfg1k3bike'),
+      PaymentMethodSelection: {
         title: translate('text_17440371192353kif37ol194'),
         description: translate('text_1762862363071z59xqjpg844'),
       },
       InvoceCustomFooter: {
-        sectionName: translate('text_17641654835679kfg1k3bike'),
         title: translate('text_17628623882713knw0jtohiw'),
         description: translate('text_1762862855282gldrtploh46'),
       },
@@ -50,13 +38,14 @@ export const PaymentMethodsInvoiceSettings = ({
   return (
     <Card>
       {externalId && (
-        <PaymentMethodComboBox
+        <PaymentMethodSelection
+          viewType={viewType}
           externalCustomerId={externalId}
           selectedPaymentMethod={formikProps.values?.paymentMethod}
           setSelectedPaymentMethod={(item) => {
             formikProps.setFieldValue('paymentMethod', item)
           }}
-          {...currentExtraProps.PaymentMethodComboBox}
+          {...currentExtraProps.PaymentMethodSelection}
         />
       )}
       {id && <InvoceCustomFooter customerId={id} {...currentExtraProps.InvoceCustomFooter} />}

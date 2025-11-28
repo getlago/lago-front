@@ -13,8 +13,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-jest.mock('~/components/paymentMethodComboBox/PaymentMethodComboBox', () => ({
-  PaymentMethodComboBox: jest.fn(() => <div data-testid="payment-method-combobox" />),
+jest.mock('~/components/paymentMethodSelection/PaymentMethodSelection', () => ({
+  PaymentMethodSelection: jest.fn(() => <div data-testid="payment-method-selection" />),
 }))
 
 jest.mock('~/components/invoceCustomFooter/InvoceCustomFooter', () => ({
@@ -67,7 +67,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
   })
 
   describe('WHEN customer has valid id and externalId', () => {
-    it('THEN renders both PaymentMethodComboBox and InvoceCustomFooter', () => {
+    it('THEN renders both PaymentMethodSelection and InvoceCustomFooter', () => {
       const customer = {
         id: 'customer_id_123',
         externalId: 'customer_ext_123',
@@ -81,13 +81,15 @@ describe('PaymentMethodsInvoiceSettings', () => {
         />,
       )
 
-      expect(container.querySelector('[data-testid="payment-method-combobox"]')).toBeInTheDocument()
+      expect(
+        container.querySelector('[data-testid="payment-method-selection"]'),
+      ).toBeInTheDocument()
       expect(container.querySelector('[data-testid="invoice-custom-footer"]')).toBeInTheDocument()
     })
   })
 
   describe('WHEN customer has only externalId', () => {
-    it('THEN renders only PaymentMethodComboBox', () => {
+    it('THEN renders only PaymentMethodSelection', () => {
       const customer = {
         id: null,
         externalId: 'customer_ext_123',
@@ -101,7 +103,9 @@ describe('PaymentMethodsInvoiceSettings', () => {
         />,
       )
 
-      expect(container.querySelector('[data-testid="payment-method-combobox"]')).toBeInTheDocument()
+      expect(
+        container.querySelector('[data-testid="payment-method-selection"]'),
+      ).toBeInTheDocument()
       expect(
         container.querySelector('[data-testid="invoice-custom-footer"]'),
       ).not.toBeInTheDocument()
@@ -124,7 +128,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       )
 
       expect(
-        container.querySelector('[data-testid="payment-method-combobox"]'),
+        container.querySelector('[data-testid="payment-method-selection"]'),
       ).not.toBeInTheDocument()
       expect(container.querySelector('[data-testid="invoice-custom-footer"]')).toBeInTheDocument()
     })

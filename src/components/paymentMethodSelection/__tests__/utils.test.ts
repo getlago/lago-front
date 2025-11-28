@@ -1,7 +1,7 @@
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 
-import { formatPaymentMethodLabel } from '../../paymentMethodComboBox/utils'
+import { formatPaymentMethodLabel } from '../../paymentMethodSelection/utils'
 
 const mockTranslate = (): string => 'Default'
 

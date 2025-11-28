@@ -1,9 +1,21 @@
 import { screen } from '@testing-library/react'
 
-import { GetSubscriptionForDetailsOverviewQuery, PaymentMethodTypeEnum } from '~/generated/graphql'
+import { PaymentMethodTypeEnum } from '~/generated/graphql'
+import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { render } from '~/test-utils'
 
-import { PAYMENT_METHOD_TYPE, PaymentInvoiceDetails } from '../PaymentInvoiceDetails'
+import {
+  INHERITED_BADGE_TEST_ID,
+  MANUAL_PAYMENT_METHOD_TEST_ID,
+  PaymentInvoiceDetails,
+} from '../PaymentInvoiceDetails'
+
+const mockUsePaymentMethodsList = jest.fn(() => ({
+  data: [],
+  loading: false,
+  error: false,
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -11,92 +23,155 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-type PaymentMethod = NonNullable<
-  GetSubscriptionForDetailsOverviewQuery['subscription']
->['paymentMethod']
+jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
+  usePaymentMethodsList: (args: unknown) => mockUsePaymentMethodsList(args),
+}))
 
 describe('PaymentInvoiceDetails', () => {
+  beforeEach(() => {
+    mockUsePaymentMethodsList.mockReturnValue({
+      data: [],
+      loading: false,
+      error: false,
+    })
+  })
+
   describe('WHEN paymentMethod or details are not provided', () => {
-    it('THEN returns null when paymentMethodType is Provider', () => {
-      const { container } = render(
-        <PaymentInvoiceDetails
-          paymentMethod={undefined}
-          paymentMethodType={PaymentMethodTypeEnum.Provider}
-        />,
+    it('THEN shows manual payment method as fallback when paymentMethodType is Provider and no default exists', () => {
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+      }
+
+      render(
+        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
       )
 
-      expect(container.firstChild).toBeNull()
+      expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
     })
   })
 
   describe('WHEN paymentMethodType is Provider', () => {
     it('THEN renders formatted payment method details when present and not deleted', () => {
-      const paymentMethod: PaymentMethod = {
-        __typename: 'PaymentMethod',
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: 'payment-method-id',
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+      }
+
+      const mockPaymentMethodInList = createMockPaymentMethod({
         id: 'payment-method-id',
-        deletedAt: null,
         details: {
           __typename: 'PaymentMethodDetails',
-          type: 'card',
           brand: 'visa',
           last4: '4242',
+          type: 'card',
           expirationMonth: null,
           expirationYear: null,
         },
-      }
+      })
+
+      mockUsePaymentMethodsList.mockReturnValue({
+        data: [mockPaymentMethodInList],
+        loading: false,
+        error: false,
+      })
 
       render(
-        <PaymentInvoiceDetails
-          paymentMethod={paymentMethod}
-          paymentMethodType={PaymentMethodTypeEnum.Provider}
-        />,
+        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
       )
 
-      expect(
-        screen.getByTestId(PAYMENT_METHOD_TYPE(PaymentMethodTypeEnum.Provider)),
-      ).toBeInTheDocument()
+      // Verify the payment method details are displayed (formatted string)
+      expect(screen.getByText(/Card - Visa •••• 4242/i)).toBeInTheDocument()
     })
 
-    it('THEN does not render payment method details when deletedAt is present', () => {
-      const paymentMethod: PaymentMethod = {
-        __typename: 'PaymentMethod',
-        id: 'payment-method-id',
-        deletedAt: '2024-01-01T00:00:00Z',
-        details: {
-          __typename: 'PaymentMethodDetails',
-          type: 'card',
-          brand: 'visa',
-          last4: '4242',
-          expirationMonth: null,
-          expirationYear: null,
-        },
+    it('THEN shows manual payment method as fallback when paymentMethodId points to deleted payment method and no default exists', () => {
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: 'deleted-payment-method-id',
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
       }
 
       render(
-        <PaymentInvoiceDetails
-          paymentMethod={paymentMethod}
-          paymentMethodType={PaymentMethodTypeEnum.Provider}
-        />,
+        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
       )
 
-      expect(
-        screen.queryByTestId(PAYMENT_METHOD_TYPE(PaymentMethodTypeEnum.Provider)),
-      ).not.toBeInTheDocument()
+      expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
     })
   })
 
   describe('WHEN paymentMethodType is Manual', () => {
     it('THEN renders manual payment method type', () => {
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Manual,
+      }
+
+      render(
+        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
+      )
+
+      expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('WHEN payment method is inherited from customer', () => {
+    it('THEN shows inherited badge when using default payment method', () => {
+      const defaultPaymentMethod = createMockPaymentMethod({
+        id: 'default-pm-id',
+        isDefault: true,
+        details: {
+          __typename: 'PaymentMethodDetails',
+          brand: 'visa',
+          last4: '4242',
+          type: 'card',
+          expirationMonth: null,
+          expirationYear: null,
+        },
+      })
+
+      mockUsePaymentMethodsList.mockReturnValue({
+        data: [defaultPaymentMethod],
+        loading: false,
+        error: false,
+      })
+
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+      }
+
       render(
         <PaymentInvoiceDetails
-          paymentMethod={undefined}
-          paymentMethodType={PaymentMethodTypeEnum.Manual}
+          selectedPaymentMethod={selectedPaymentMethod}
+          externalCustomerId="customer-external-id"
         />,
       )
 
-      expect(
-        screen.getByTestId(PAYMENT_METHOD_TYPE(PaymentMethodTypeEnum.Manual)),
-      ).toBeInTheDocument()
+      // Verify the default payment method details are displayed
+      expect(screen.getByText(/Card - Visa •••• 4242/i)).toBeInTheDocument()
+      expect(screen.getByTestId(INHERITED_BADGE_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('THEN shows inherited badge when manual is inherited', () => {
+      mockUsePaymentMethodsList.mockReturnValue({
+        data: [],
+        loading: false,
+        error: false,
+      })
+
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+      }
+
+      render(
+        <PaymentInvoiceDetails
+          selectedPaymentMethod={selectedPaymentMethod}
+          externalCustomerId="customer-external-id"
+        />,
+      )
+
+      expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(INHERITED_BADGE_TEST_ID)).toBeInTheDocument()
     })
   })
 })

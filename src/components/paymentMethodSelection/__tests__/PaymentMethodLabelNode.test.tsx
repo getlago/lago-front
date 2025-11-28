@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 
 import { render } from '~/test-utils'
 
-import { PaymentMethodLabelNode } from '../../paymentMethodComboBox/PaymentMethodLabelNode'
+import { PaymentMethodLabelNode } from '../PaymentMethodLabelNode'
 
 describe('PaymentMethodLabelNode', () => {
   describe('WHEN rendering with headerText only', () => {

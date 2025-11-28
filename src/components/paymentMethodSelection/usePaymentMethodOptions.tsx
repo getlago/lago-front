@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react'
 
+import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem, PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
 import { PaymentMethodLabelNode } from './PaymentMethodLabelNode'
-import { formatPaymentMethodLabel } from './utils'
 
-export enum PaymentMethodTypeEnum {
-  Provider = 'provider',
-  Manual = 'manual',
-}
+import { formatPaymentMethodLabel } from '../paymentMethodSelection/utils'
+
 export interface PaymentMethodOption {
   value: string
   label: string
@@ -40,32 +38,15 @@ export const usePaymentMethodOptions = (
   translate: TranslateFunc,
 ): PaymentMethodOption[] => {
   return useMemo(() => {
-    const manualOption: PaymentMethodOption = {
-      value: 'manual',
-      label: translate('text_173799550683709p2rqkoqd5'),
-      type: PaymentMethodTypeEnum.Manual,
-      labelNode: (
-        <PaymentMethodLabelNode
-          headerText={translate('text_173799550683709p2rqkoqd5')}
-          footerText={translate('text_1762878214963uszdnhestt1')}
-        />
-      ),
-    }
-
-    if (!paymentMethodsList) return [manualOption]
+    if (!paymentMethodsList) return []
 
     const activePaymentMethods = paymentMethodsList.filter((pm) => !pm.deletedAt)
 
-    const orderedPaymentMethods: PaymentMethodOption[] = activePaymentMethods.reduce(
-      (acc, paymentMethod) => {
-        const option = mapPaymentMethodItemToOption(paymentMethod, translate)
+    return activePaymentMethods.reduce((acc, paymentMethod) => {
+      const option = mapPaymentMethodItemToOption(paymentMethod, translate)
 
-        // Insert default at the beginning of the options
-        return paymentMethod.isDefault ? [option, ...acc] : [...acc, option]
-      },
-      [] as PaymentMethodOption[],
-    )
-
-    return [...orderedPaymentMethods, manualOption]
+      // Insert default at the beginning of the options
+      return paymentMethod.isDefault ? [option, ...acc] : [...acc, option]
+    }, [] as PaymentMethodOption[])
   }, [paymentMethodsList, translate])
 }

@@ -9,6 +9,9 @@ import {
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
 
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { PaymentMethodTypeEnum } from '~/generated/graphql'
+
 import { PaymentInvoiceDetails } from './PaymentInvoiceDetails'
 import { SubscriptionInformations } from './SubscriptionInformations'
 
@@ -62,8 +65,11 @@ export const SubscriptionDetailsOverview = () => {
       <SubscriptionInformations subscription={subscription} />
       {hasAccessToMultiPaymentFlow && (
         <PaymentInvoiceDetails
-          paymentMethod={subscription?.paymentMethod}
-          paymentMethodType={subscription?.paymentMethodType}
+          selectedPaymentMethod={{
+            paymentMethodType: subscription?.paymentMethodType,
+            paymentMethodId: subscription?.paymentMethod?.id,
+          }}
+          externalCustomerId={subscription?.customer?.externalId}
         />
       )}
       <PlanDetailsOverview planId={subscription?.plan.id} showEntitlementSection={false} />
