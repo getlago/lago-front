@@ -6,4 +6,3 @@
 - Use existing design system components before creating new ones
 - Maintain consistent naming conventions (camelCase for variables, PascalCase for components)
 - Use proper error handling with Apollo Client error boundaries
-

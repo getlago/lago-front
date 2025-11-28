@@ -8,4 +8,3 @@
 - `pnpm lint:fix` - Fix code style issues
 - `pnpm codegen` - Generate GraphQL types (run after modifying schemas, queries, or fragments)
 - `pnpm translations:add` - Add new translation keys
-

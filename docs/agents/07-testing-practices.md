@@ -80,4 +80,3 @@ it('displays default badge', () => {
 - Type safety, easier refactoring, consistency, and semantic clarity
 
 **Note**: The project is configured to use `data-test` as the test ID attribute (configured in `src/test-utils.tsx`), so always use `data-test` instead of `data-testid`.
-

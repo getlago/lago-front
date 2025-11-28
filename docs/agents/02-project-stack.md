@@ -10,4 +10,3 @@
 - **Code Generation**: GraphQL Code Generator for type-safe queries
 - **Linting**: ESLint + Prettier with custom configs from `lago-configs`
 - **Note**: Avoid suggesting build scripts as the project runs in development mode
-

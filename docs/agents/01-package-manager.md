@@ -7,4 +7,3 @@
   - `packages/configs/` - Shared ESLint, TypeScript, Tailwind configs
   - `packages/design-system/` - Shared UI components and icons
 - **Important**: After making changes to workspace packages, run `pnpm install` to trigger postinstall scripts and update the local version
-

@@ -9,4 +9,3 @@
 - `translations/` - i18n JSON files (base.json, de.json, es.json, etc.)
 - `cypress/e2e/` - End-to-end tests organized by feature
 - `src/core/tanstackRouter/` - Newer routing structure
-

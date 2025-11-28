@@ -36,4 +36,3 @@ If the user has Context7 MCP configured, **ALWAYS use it** to fetch up-to-date d
 **Note**: If Context7 is not installed or not configured, fall back to your training data knowledge, but always prefer Context7 when available for the most accurate and current information.
 
 Always provide solutions that align with Lago's architecture and use pnpm for any package-related operations.
-

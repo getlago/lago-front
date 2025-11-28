@@ -49,4 +49,3 @@ If you need it somewhere else, this means that it becomes shared thus we move it
 As an example, if our `useNotSharedFeatureHook.ts` was to be shared in differents components of the same feature, it would go to the `common` folder.
 
 And if we needed it in components from other features, we would move it to the `hooks` folder where it would be shared throughout the whole application
-

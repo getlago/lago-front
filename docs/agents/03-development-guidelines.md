@@ -10,4 +10,3 @@
 - Store translations in `translations/base.json`
 - Use Apollo Client reactive variables for global state (`src/core/apolloClient/reactiveVars/`)
 - Follow the established serialization patterns in `src/core/serializers/`
-
