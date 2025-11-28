@@ -56,9 +56,7 @@ const XeroInput = ({
 
   const isAccountContext = formType === MappingTypeEnum.Account
 
-  const searchQuery = !isAccountContext
-    ? (getXeroIntegrationItems as unknown as ComboBoxProps['searchQuery'])
-    : undefined
+  const searchQuery = getXeroIntegrationItems as unknown as ComboBoxProps['searchQuery']
 
   const helperText =
     !isLoading && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
