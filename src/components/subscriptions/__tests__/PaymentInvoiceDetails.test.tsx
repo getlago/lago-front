@@ -1,8 +1,8 @@
 import { screen } from '@testing-library/react'
 
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
-import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { render } from '~/test-utils'
 
 import {
@@ -11,12 +11,6 @@ import {
   PaymentInvoiceDetails,
 } from '../PaymentInvoiceDetails'
 
-const mockUsePaymentMethodsList = jest.fn(() => ({
-  data: [],
-  loading: false,
-  error: false,
-}))
-
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -24,12 +18,18 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
-  usePaymentMethodsList: (args: unknown) => mockUsePaymentMethodsList(args),
+  usePaymentMethodsList: jest.fn(() => ({
+    data: [],
+    loading: false,
+    error: false,
+  })),
 }))
+
+const { usePaymentMethodsList } = jest.requireMock('~/hooks/customer/usePaymentMethodsList')
 
 describe('PaymentInvoiceDetails', () => {
   beforeEach(() => {
-    mockUsePaymentMethodsList.mockReturnValue({
+    ;(usePaymentMethodsList as jest.Mock).mockReturnValue({
       data: [],
       loading: false,
       error: false,
@@ -43,9 +43,7 @@ describe('PaymentInvoiceDetails', () => {
         paymentMethodType: PaymentMethodTypeEnum.Provider,
       }
 
-      render(
-        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
-      )
+      render(<PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />)
 
       expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
     })
@@ -70,15 +68,13 @@ describe('PaymentInvoiceDetails', () => {
         },
       })
 
-      mockUsePaymentMethodsList.mockReturnValue({
+      ;(usePaymentMethodsList as jest.Mock).mockReturnValue({
         data: [mockPaymentMethodInList],
         loading: false,
         error: false,
       })
 
-      render(
-        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
-      )
+      render(<PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />)
 
       // Verify the payment method details are displayed (formatted string)
       expect(screen.getByText(/Card - Visa •••• 4242/i)).toBeInTheDocument()
@@ -90,9 +86,7 @@ describe('PaymentInvoiceDetails', () => {
         paymentMethodType: PaymentMethodTypeEnum.Provider,
       }
 
-      render(
-        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
-      )
+      render(<PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />)
 
       expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
     })
@@ -105,9 +99,7 @@ describe('PaymentInvoiceDetails', () => {
         paymentMethodType: PaymentMethodTypeEnum.Manual,
       }
 
-      render(
-        <PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />,
-      )
+      render(<PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />)
 
       expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
     })
@@ -128,7 +120,7 @@ describe('PaymentInvoiceDetails', () => {
         },
       })
 
-      mockUsePaymentMethodsList.mockReturnValue({
+      ;(usePaymentMethodsList as jest.Mock).mockReturnValue({
         data: [defaultPaymentMethod],
         loading: false,
         error: false,
@@ -152,7 +144,7 @@ describe('PaymentInvoiceDetails', () => {
     })
 
     it('THEN shows inherited badge when manual is inherited', () => {
-      mockUsePaymentMethodsList.mockReturnValue({
+      ;(usePaymentMethodsList as jest.Mock).mockReturnValue({
         data: [],
         loading: false,
         error: false,

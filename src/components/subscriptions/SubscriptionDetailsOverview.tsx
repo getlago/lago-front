@@ -9,9 +9,6 @@ import {
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
 
-import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
-import { PaymentMethodTypeEnum } from '~/generated/graphql'
-
 import { PaymentInvoiceDetails } from './PaymentInvoiceDetails'
 import { SubscriptionInformations } from './SubscriptionInformations'
 
