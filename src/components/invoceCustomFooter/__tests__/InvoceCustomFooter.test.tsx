@@ -7,8 +7,12 @@ import { render } from '~/test-utils'
 
 import { createInvoiceCustomSection } from './factories/invoiceCustomSectionFactory'
 
-import { ADD_BUTTON, CANCEL_BUTTON, DELETE_SECTION_CHIP } from '../InvoceCustomFooter'
-import { InvoceCustomFooter } from '../InvoceCustomFooter'
+import {
+  ADD_BUTTON,
+  CANCEL_BUTTON,
+  DELETE_SECTION_CHIP,
+  InvoceCustomFooter,
+} from '../InvoceCustomFooter'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: jest.fn(),
