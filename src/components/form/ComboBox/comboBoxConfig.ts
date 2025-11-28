@@ -11,20 +11,25 @@ export const COMBOBOX_CONFIG = {
   // Max visible items before scrolling
   MAX_VISIBLE_ITEMS: 5,
 
-  // Margins and spacing (from ComboboxListItem)
-  // 8px spacing above and below items (my-2 = 8px top + 8px bottom = 16px total)
-  ITEM_MARGIN_TOP: 8,
-  ITEM_MARGIN_BOTTOM: 8,
+  // Margins and spacing (Item Groups pattern)
+  // Item Groups have 8px margin top/bottom (my-2)
+  // Items within groups have 4px gap between them (gap-1)
+  ITEM_GROUP_MARGIN_TOP: 8,
+  ITEM_GROUP_MARGIN_BOTTOM: 8,
+  GAP_BETWEEN_ITEMS: 4,
   LIST_PADDING: 4,
 
   /**
    * Calculate the max height for the listbox
    * Uses MUI's slotProps.listbox maxHeight
+   * Formula for 5 items in one group: 8 + (5 × 56) + (4 × 4) + 8 = 312px
    */
   getListboxMaxHeight(): number {
     return (
-      this.MAX_VISIBLE_ITEMS * (this.ITEM_HEIGHT + this.ITEM_MARGIN_TOP + this.ITEM_MARGIN_BOTTOM) +
-      this.LIST_PADDING
+      this.ITEM_GROUP_MARGIN_TOP +
+      this.MAX_VISIBLE_ITEMS * this.ITEM_HEIGHT +
+      (this.MAX_VISIBLE_ITEMS - 1) * this.GAP_BETWEEN_ITEMS +
+      this.ITEM_GROUP_MARGIN_BOTTOM
     )
   },
 } as const
