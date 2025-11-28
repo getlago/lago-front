@@ -82,10 +82,10 @@ export const useXeroIntegrationTitleAndDescriptionMapping = () => {
       case MappableTypeEnum.AddOn:
         return {
           title: translate('text_6668821d94e4da4dfd8b3820', {
+            integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             addOnName: isDefaultMappingInMappableContext(dataToTest)
               ? dataToTest.itemMappings.default.lagoMappableName
               : '',
-            integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
           }),
           description: translate('text_6668821d94e4da4dfd8b382c', {
             integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
@@ -94,10 +94,10 @@ export const useXeroIntegrationTitleAndDescriptionMapping = () => {
       case MappableTypeEnum.BillableMetric:
         return {
           title: translate('text_6668821d94e4da4dfd8b3824', {
+            integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
             billableMetricName: isDefaultMappingInMappableContext(dataToTest)
               ? dataToTest.itemMappings.default.lagoMappableName
               : '',
-            integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
           }),
           description: translate('text_6668821d94e4da4dfd8b3830', {
             integrationType: translate('text_6672ebb8b1b50be550eccaf8'),
