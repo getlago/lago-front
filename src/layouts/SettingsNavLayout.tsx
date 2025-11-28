@@ -1,5 +1,5 @@
 import { ClickAwayListener } from '@mui/material'
-import { ButtonLink, Skeleton } from 'lago-design-system'
+import { ButtonLink } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import {
   generatePath,
@@ -12,6 +12,7 @@ import {
 
 import {
   Button,
+  Skeleton,
   Typography,
   VerticalMenu,
   VerticalMenuSectionTitle,

@@ -1,5 +1,4 @@
-import { AutocompleteRenderInputParams } from '@mui/material'
-import { PopperProps as MuiPopperProps } from '@mui/material'
+import { AutocompleteRenderInputParams, PopperProps as MuiPopperProps } from '@mui/material'
 import { ReactNode } from 'react'
 
 import { TextInputProps } from '../TextInput'

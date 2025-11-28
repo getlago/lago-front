@@ -18,7 +18,7 @@ const mockHandleDownloadFile = jest.fn()
 
 jest.mock('~/hooks/useIsCustomerReadyForOverduePayment', () => ({
   useIsCustomerReadyForOverduePayment: jest.fn(() => ({
-    data: true,
+    isCustomerReadyForOverduePayment: true,
     loading: false,
     error: undefined,
   })),
@@ -95,51 +95,54 @@ describe('CustomerDetails', () => {
     it.each([
       {
         description: 'disabled when payment processing status is loading',
-        data: false,
+        isCustomerReadyForOverduePayment: false,
         loading: true,
         expectedDisabled: true,
       },
       {
         description: 'disabled when customer is not ready for overdue payment',
-        data: false,
+        isCustomerReadyForOverduePayment: false,
         loading: false,
         expectedDisabled: true,
       },
       {
         description: 'enabled when payment processing status is not loading and customer is ready',
-        data: true,
+        isCustomerReadyForOverduePayment: true,
         loading: false,
         expectedDisabled: false,
       },
-    ])('should be $description', async ({ data, loading, expectedDisabled }) => {
-      const user = userEvent.setup()
+    ])(
+      'should be $description',
+      async ({ isCustomerReadyForOverduePayment, loading, expectedDisabled }) => {
+        const user = userEvent.setup()
 
-      jest
-        .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
-        .mockReturnValue({
-          data,
-          loading,
-          error: undefined,
+        jest
+          .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
+          .mockReturnValue({
+            isCustomerReadyForOverduePayment,
+            loading,
+            error: undefined,
+          })
+
+        await act(async () => {
+          return render(<CustomerDetails />)
         })
 
-      await act(async () => {
-        return render(<CustomerDetails />)
-      })
+        // Open the actions menu
+        const actionsButton = screen.getByTestId(CUSTOMER_ACTIONS_BUTTON_TEST_ID)
 
-      // Open the actions menu
-      const actionsButton = screen.getByTestId(CUSTOMER_ACTIONS_BUTTON_TEST_ID)
+        await user.click(actionsButton)
 
-      await user.click(actionsButton)
+        await waitFor(() => {
+          const requestButton = screen.getByTestId(REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID)
 
-      await waitFor(() => {
-        const requestButton = screen.getByTestId(REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID)
-
-        if (expectedDisabled) {
-          expect(requestButton).toBeDisabled()
-        } else {
-          expect(requestButton).not.toBeDisabled()
-        }
-      })
-    })
+          if (expectedDisabled) {
+            expect(requestButton).toBeDisabled()
+          } else {
+            expect(requestButton).not.toBeDisabled()
+          }
+        })
+      },
+    )
   })
 })

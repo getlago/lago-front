@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { Button, Skeleton, Typography } from 'lago-design-system'
+import { Button, Typography } from 'lago-design-system'
 import { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { NavigationTab, TabManagedBy } from '~/components/designSystem'
+import { NavigationTab, Skeleton, TabManagedBy } from '~/components/designSystem'
 import { useGetApiLogDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'

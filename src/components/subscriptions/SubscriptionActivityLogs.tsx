@@ -7,6 +7,7 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ActivityLogsTableDataFragmentDoc,
+  LagoApiError,
   useSubscriptionActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -49,6 +50,9 @@ export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
       externalSubscriptionId: externalSubscriptionId,
       limit: 20,
     },
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
     skip: !canViewLogs,
   })
 
@@ -75,7 +79,7 @@ export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
             <ActivityLogsTable
               containerSize={4}
               data={data?.activityLogs?.collection ?? []}
-              hasError={!!error}
+              error={error}
               isLoading={loading}
               refetch={refetch}
               onRowActionLink={(row) => {

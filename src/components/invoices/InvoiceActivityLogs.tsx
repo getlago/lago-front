@@ -6,6 +6,7 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ActivityLogsTableDataFragmentDoc,
+  LagoApiError,
   ResourceTypeEnum,
   useInvoiceActivityLogsQuery,
 } from '~/generated/graphql'
@@ -58,6 +59,9 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
       resourceIds: [invoiceId],
       limit: 20,
     },
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
     skip: !canViewLogs,
   })
 
@@ -83,7 +87,7 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
           <ActivityLogsTable
             containerSize={4}
             data={data?.activityLogs?.collection ?? []}
-            hasError={!!error}
+            error={error}
             isLoading={loading}
             refetch={refetch}
             onRowActionLink={(row) => {

@@ -1076,7 +1076,7 @@
   "text_63246f875e2228ab7b63dd1f": "By signing up, you agree to our <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/terms-of-service\">Terms of Service</a> and <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/privacy-policy\">Privacy Policy</a>.",
   "text_63246f875e2228ab7b63dd02": "Your password is secure and you're all set!",
   "text_63246f875e2228ab7b63dcf4": "Organization invitation invalid",
-  "text_63246f875e2228ab7b63dcfe": "It looks like the link you’re using is not valid. Please contact a member of the organization so they can invite you again.",
+  "text_63246f875e2228ab7b63dcfe": "This invitation link is not valid or has already been accepted. Please contact a member of the organization if you need a new invitation.",
   "text_660bf95c75dd928ced0ecb04": "Create your organization",
   "text_660bf95c75dd928ced0ecb08": "This information won’t be editable in the future.",
   "text_660bf95c75dd928ced0ecb25": "Sorry, Google Connect is not configured in your environment variables. Please <a rel=\"noopener noreferrer external\" target=\"_blank\" href=\"{{href}}\">read the documentation</a>.",
@@ -1289,7 +1289,7 @@
   "text_66b4f00bd67ccc185ea75c70": "A request for payment was sent {{relativeDay}} at {{time}}",
   "text_66b9e095a7dc6c6d3dabeed4": "Payment requested successfully",
   "text_637f813d31381b1ed90ab315": "API Token",
-  "text_637f813d31381b1ed90ab30e": "This API secret key is used to connect Stripe to Lago, edit it to make a new connection",
+  "text_637f813d31381b1ed90ab30e": "Used to connect Stripe with Lago. To change it, create a new connection",
   "text_637f813d31381b1ed90ab2f6": "API keys & ID",
   "text_637f813d31381b1ed90ab300": "Find and manage all keys and lDs to connect Lago.",
   "text_637f813d31381b1ed90ab30a": "Copy key",
@@ -3547,5 +3547,10 @@
   "text_6630e5923500e7015f19063e": "Lago item mapping successfully deleted",
   "text_6630e5923500e7015f190641": "Lago item mapping successfully updated",
   "text_1763545922743q5ic2kklick": "The invoices will soon be able to accept payment.",
-  "text_17641654835679kfg1k3bike": "subscription"
+  "text_17641654835679kfg1k3bike": "subscription",
+  "text_1764107468210ibi78qsrukx": "Support 3DSecure",
+  "text_1764107468210lbhkj5no1vh": "If 3DSecure is required the invoice will stay pending until the customer completes the action.",
+  "text_1764160009979jzn4xunn1z8": "Yes",
+  "text_176416000997957yqelmt2m2": "No",
+  "text_1764181883406sg3ir0pbxkt": "It seems you don't have the permission to view activity logs. If you think this is an error contact an admin of your organization or Lago support."
 }

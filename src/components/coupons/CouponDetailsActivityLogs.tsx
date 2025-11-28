@@ -6,6 +6,7 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ActivityLogsTableDataFragmentDoc,
+  LagoApiError,
   ResourceTypeEnum,
   useCouponDetailsActivityLogsQuery,
 } from '~/generated/graphql'
@@ -58,6 +59,9 @@ export const CouponDetailsActivityLogs = ({ couponId }: CouponDetailsActivityLog
       resourceIds: [couponId],
       limit: 20,
     },
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
     skip: !canViewLogs,
   })
 
@@ -83,7 +87,7 @@ export const CouponDetailsActivityLogs = ({ couponId }: CouponDetailsActivityLog
           <ActivityLogsTable
             containerSize={4}
             data={data?.activityLogs?.collection ?? []}
-            hasError={!!error}
+            error={error}
             isLoading={loading}
             refetch={refetch}
             onRowActionLink={(row) => {

@@ -14,7 +14,7 @@ gql`
 `
 
 interface UseIsCustomerReadyForOverduePaymentReturn {
-  data: boolean
+  isCustomerReadyForOverduePayment: boolean
   error: ApolloError | undefined
   loading: boolean
 }
@@ -22,23 +22,21 @@ interface UseIsCustomerReadyForOverduePaymentReturn {
 export const useIsCustomerReadyForOverduePayment =
   (): UseIsCustomerReadyForOverduePaymentReturn => {
     const { customerId } = useParams()
-    const {
-      data: { invoices } = {},
-      loading,
-      error,
-    } = useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery({
+    const { data, loading, error } = useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery({
       variables: { id: customerId ?? '' },
       skip: !customerId,
       fetchPolicy: 'network-only',
     })
 
+    const invoices = data?.invoices
     const invoicesNotReadyForPaymentProcessing =
       invoices?.collection?.filter((invoice) => !invoice.readyForPaymentProcessing) || []
 
-    const data = !loading && !error && invoicesNotReadyForPaymentProcessing.length === 0
+    const isCustomerReadyForOverduePayment =
+      !loading && !error && invoicesNotReadyForPaymentProcessing.length === 0
 
     return {
-      data,
+      isCustomerReadyForOverduePayment,
       loading,
       error,
     }

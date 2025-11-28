@@ -98,7 +98,7 @@ const Invitation = () => {
   const oktaState = searchParams.get('oktaState') || ''
 
   const { data, error, loading } = useGetinviteQuery({
-    context: { silentErrorCodes: [LagoApiError.InviteNotFound] },
+    context: { silentErrorCodes: [LagoApiError.InviteNotFound, LagoApiError.NotFound] },
     variables: { token: token || '' },
     skip: !token || isAuthenticated, // We need to skip when authenticated to prevent an error flash on the form after submit
   })
@@ -312,6 +312,15 @@ const Invitation = () => {
           <>
             <Title>{translate('text_63246f875e2228ab7b63dcf4')}</Title>
             <Subtitle noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
+            <Button
+              fullWidth
+              variant="primary"
+              size="large"
+              onClick={() => window.location.assign(LOGIN_ROUTE)}
+              className="mt-6"
+            >
+              {translate('text_620bc4d4269a55014d493f6d')}
+            </Button>
           </>
         )}
         {!error && !!loading && (

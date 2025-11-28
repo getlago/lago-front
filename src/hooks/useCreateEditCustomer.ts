@@ -187,16 +187,14 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
   const navigate = useNavigate()
   const { customerId } = useParams<{ customerId: string }>()
 
-  const {
-    data: { customer } = {},
-    loading,
-    error,
-  } = useGetSingleCustomerQuery({
+  const { data, loading, error } = useGetSingleCustomerQuery({
     variables: {
       id: customerId as string,
     },
     skip: !customerId,
   })
+
+  const customer = data?.customer
 
   const goToCustomerInformationPage = (_customerId: string) =>
     navigate(

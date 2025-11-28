@@ -47,6 +47,7 @@ gql`
     name
     secretKey
     successRedirectUrl
+    supports3ds
   }
 
   query getStripeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
@@ -223,12 +224,17 @@ const StripeIntegrationDetails = () => {
                 label={translate('text_62b1edddbf5f461ab9712748')}
                 value={stripePaymentProvider?.secretKey ?? undefined}
               />
+              <IntegrationsPage.DetailsItem
+                icon="switch"
+                label={translate('text_1764107468210ibi78qsrukx')}
+                value={
+                  stripePaymentProvider?.supports3ds
+                    ? translate('text_1764160009979jzn4xunn1z8')
+                    : translate('text_176416000997957yqelmt2m2')
+                }
+              />
             </>
           )}
-
-          <Typography className="mt-3" variant="caption" color="grey600">
-            {translate('text_637f813d31381b1ed90ab30e')}
-          </Typography>
         </section>
 
         <section>

@@ -5,6 +5,7 @@ export const typeDefs = gql`
     internal_error
     unauthorized
     forbidden
+    feature_unavailable
     not_found
     unprocessable_entity
 
