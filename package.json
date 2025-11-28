@@ -37,6 +37,7 @@
     "translations:ensure-consistency": "node scripts/translations/ensure-translations-consistency",
     "codemod": "node scripts/codemod.js",
     "bundle-analyzer": "pnpx vite-bundle-analyzer",
+    "build:agents": "node scripts/build-agents-doc.cjs",
     "prepare": "husky"
   },
   "devDependencies": {
