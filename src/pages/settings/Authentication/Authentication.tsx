@@ -1,17 +1,9 @@
 import { gql } from '@apollo/client'
-import {
-  Avatar,
-  Button,
-  ConditionalWrapper,
-  Icon,
-  Popper,
-  Tooltip,
-  Typography,
-} from 'lago-design-system'
+import { Avatar, Button, ConditionalWrapper, Icon, Tooltip, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Chip, Selector } from '~/components/designSystem'
+import { Chip, Popper, Selector } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
