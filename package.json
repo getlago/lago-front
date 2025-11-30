@@ -130,7 +130,7 @@
     "formik": "2.4.9",
     "graphql": "16.12.0",
     "graphql-ruby-client": "1.14.8",
-    "html-react-parser": "5.2.8",
+    "html-react-parser": "5.2.10",
     "lago-configs": "workspace:*",
     "lago-design-system": "workspace:*",
     "lago-expression": "0.1.6",
