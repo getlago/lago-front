@@ -175,7 +175,7 @@ export const useIssuingDatePolicy: UseIssuingDatePolicyProps = () => {
     const descriptionCopyAsHtml = translate('text_1763407530094k0lsbmuh6a1', {
       periodStartDate: formatDate(periodStartDate),
       periodEndDate: formatDate(periodEndDate),
-      gracePeriod,
+      gracePeriod: gracePeriod || 0,
       creationDate: formatDate(creationDate),
       finalizationDate: formatDate(finalizationDate),
       expectedIssuingDate: formatDate(expectedIssuingDate),
