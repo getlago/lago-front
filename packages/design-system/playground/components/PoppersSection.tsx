@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { Button, Dialog, DialogRef, Drawer, Tooltip, Typography } from '~/components'
+import { Button, Dialog, DialogRef, Tooltip, Typography } from '~/components'
 
 export const PoppersSection = () => {
   const dialogRef = useRef<DialogRef>(null)
@@ -12,30 +12,6 @@ export const PoppersSection = () => {
       </Typography>
 
       <div className="flex flex-row gap-4">
-        <Drawer title="Imma supa drawa" opener={<Button>Drawer</Button>}>
-          <iframe
-            title="hey you"
-            src="https://giphy.com/embed/nNxT5qXR02FOM"
-            width="480"
-            height="399"
-            allowFullScreen
-          ></iframe>
-        </Drawer>
-
-        <Drawer
-          title="Imma supa drawa"
-          opener={<Button variant="tertiary">Drawer close with warning</Button>}
-          showCloseWarningDialog
-        >
-          <iframe
-            title="hey you"
-            src="https://giphy.com/embed/nNxT5qXR02FOM"
-            width="480"
-            height="399"
-            allowFullScreen
-          ></iframe>
-        </Drawer>
-
         <Button onClick={() => dialogRef.current?.openDialog()}>Dialog</Button>
         <Dialog
           ref={dialogRef}
