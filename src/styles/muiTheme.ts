@@ -447,15 +447,12 @@ export const theme = createTheme({
       styleOverrides: {
         paper: {
           padding: '8px important',
-          maxHeight: 320,
-          overflow: 'auto',
-          scrollBehavior: 'smooth',
+          overflow: 'visible',
         },
         loading: { padding: 0 },
         listbox: {
           display: 'flex',
           flexDirection: 'column',
-          gap: '4px',
           maxHeight: 'inherit',
           padding: 0,
         },
