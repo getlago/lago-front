@@ -201,7 +201,7 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={editDocumentLanguageDialogRef?.current?.openDialog}
+          onClick={() => editDocumentLanguageDialogRef?.current?.openDialog()}
         >
           {translate('text_63e51ef4985f0ebd75c212fc')}
         </Button>
@@ -279,7 +279,7 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={editInvoiceTemplateDialogRef?.current?.openDialog}
+          onClick={() => editInvoiceTemplateDialogRef?.current?.openDialog()}
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -316,7 +316,7 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={editInvoiceNumberingDialogRef?.current?.openDialog}
+          onClick={() => editInvoiceNumberingDialogRef?.current?.openDialog()}
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -355,7 +355,7 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={editBillingEntityInvoiceIssuingDatePolicyDialogRef?.current?.openDialog}
+          onClick={() => editBillingEntityInvoiceIssuingDatePolicyDialogRef?.current?.openDialog()}
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>

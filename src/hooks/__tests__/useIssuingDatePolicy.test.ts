@@ -195,7 +195,6 @@ describe('useIssuingDatePolicy', () => {
         days: gracePeriod,
       })
       const expectedIssuingDate = expectedDate({ periodEndDate, finalizationDate })
-      const creationDate = periodEndDate.plus({ days: 1 })
 
       const info = result.current.getIssuingDateInfoForAlert({
         gracePeriod,
@@ -212,8 +211,6 @@ describe('useIssuingDatePolicy', () => {
           periodStartDate: `formatted-${periodStartDate.toISO()}`,
           periodEndDate: `formatted-${periodEndDate.toISO()}`,
           gracePeriod: gracePeriod || 0,
-          creationDate: `formatted-${creationDate.toISO()}`,
-          finalizationDate: `formatted-${finalizationDate.toISO()}`,
           expectedIssuingDate: `formatted-${expectedIssuingDate.toISO()}`,
         }),
       )
@@ -235,7 +232,6 @@ describe('useIssuingDatePolicy', () => {
       const gracePeriod = undefined
       // When gracePeriod is undefined, finalizationDate = periodEndDate (no days added)
       const finalizationDate = periodEndDate
-      const creationDate = periodEndDate.plus({ days: 1 })
       // Defaults: NextPeriodStart + AlignWithFinalizationDate = finalizationDate.plus({ days: 1 })
       const expectedIssuingDate = finalizationDate.plus({ days: 1 })
 
@@ -254,8 +250,6 @@ describe('useIssuingDatePolicy', () => {
           periodStartDate: `formatted-${periodStartDate.toISO()}`,
           periodEndDate: `formatted-${periodEndDate.toISO()}`,
           gracePeriod: gracePeriod || 0,
-          creationDate: `formatted-${creationDate.toISO()}`,
-          finalizationDate: `formatted-${finalizationDate.toISO()}`,
           expectedIssuingDate: `formatted-${expectedIssuingDate.toISO()}`,
         }),
       )
