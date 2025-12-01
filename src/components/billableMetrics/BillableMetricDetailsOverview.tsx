@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Accordion, Typography } from 'lago-design-system'
+import { Typography } from 'lago-design-system'
 import { useParams } from 'react-router-dom'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { Chip } from '~/components/designSystem'
+import { Accordion, Chip } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   formatAggregationType,

@@ -1,10 +1,10 @@
 import { gql, MutationFunction } from '@apollo/client'
-import { Button, ConditionalWrapper, Popper, Typography } from 'lago-design-system'
+import { Button, ConditionalWrapper, Typography } from 'lago-design-system'
 import { FC, useMemo } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 
 import { CreditNoteDetailsOverviewTable } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
-import { Status } from '~/components/designSystem'
+import { Popper, Status } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { envGlobalVar } from '~/core/apolloClient'
 import {

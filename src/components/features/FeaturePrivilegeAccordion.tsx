@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { Accordion, Button, Tooltip, tw, Typography } from 'lago-design-system'
+import { Button, Tooltip, tw, Typography } from 'lago-design-system'
 import { useCallback, useId, useMemo, useState } from 'react'
 
-import { Chip } from '~/components/designSystem'
+import { Accordion, Chip } from '~/components/designSystem'
 import { ButtonSelector, MultipleComboBox, TextInput } from '~/components/form'
 import {
   getPrivilegeValueTypeTranslationKey,
