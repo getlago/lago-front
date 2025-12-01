@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import { Button, tw, Typography } from 'lago-design-system'
+import { tw, Typography } from 'lago-design-system'
 import { useId, useMemo, useState } from 'react'
 
-import { Chip, Tooltip } from '~/components/designSystem'
+import { Button, Chip, Tooltip } from '~/components/designSystem'
 import { MultipleComboBox } from '~/components/form'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
