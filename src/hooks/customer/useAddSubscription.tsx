@@ -17,7 +17,6 @@ import { serializePlanInput } from '~/core/serializers'
 import {
   BillingTimeEnum,
   CreateSubscriptionInput,
-  CustomerDetailsFragment,
   CustomerDetailsFragmentDoc,
   GetSubscriptionForCreateSubscriptionQuery,
   LagoApiError,
@@ -153,28 +152,6 @@ export const useAddSubscription: UseAddSubscription = ({
           )
         }
       }
-    },
-    update(cache, { data: updatedData }) {
-      if (!updatedData?.createSubscription) return
-
-      const cachedCustomerId = `Customer:${updatedData?.createSubscription.customer.id}`
-
-      const previousData: CustomerDetailsFragment | null = cache.readFragment({
-        id: cachedCustomerId,
-        fragment: CustomerDetailsFragmentDoc,
-        fragmentName: 'CustomerDetails',
-      })
-
-      cache.writeFragment({
-        id: cachedCustomerId,
-        fragment: CustomerDetailsFragmentDoc,
-        fragmentName: 'CustomerDetails',
-        data: {
-          ...previousData,
-          activeSubscriptionsCount:
-            updatedData.createSubscription.customer.activeSubscriptionsCount,
-        },
-      })
     },
     refetchQueries: ['getCustomerSubscriptionForList'],
   })

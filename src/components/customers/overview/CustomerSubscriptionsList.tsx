@@ -71,6 +71,7 @@ export const CustomerSubscriptionsList = () => {
   const { data, loading } = useGetCustomerSubscriptionForListQuery({
     variables: { id: customerId as string },
     skip: !customerId,
+    notifyOnNetworkStatusChange: true,
   })
   const subscriptions = data?.customer?.subscriptions as Subscription[]
   const hasNoSubscription = !subscriptions || !subscriptions.length
