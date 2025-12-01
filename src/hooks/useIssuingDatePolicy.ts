@@ -161,7 +161,6 @@ export const useIssuingDatePolicy: UseIssuingDatePolicyProps = () => {
   }: GetIssuingDateInfoForAlertProps) => {
     const periodStartDate = DateTime.local().startOf('year').startOf('month').startOf('day')
     const periodEndDate = periodStartDate.endOf('month')
-    const creationDate = periodEndDate.plus({ days: 1 })
     const finalizationDate = !!gracePeriod
       ? periodEndDate.plus({ days: gracePeriod })
       : periodEndDate
@@ -176,8 +175,6 @@ export const useIssuingDatePolicy: UseIssuingDatePolicyProps = () => {
       periodStartDate: formatDate(periodStartDate),
       periodEndDate: formatDate(periodEndDate),
       gracePeriod: gracePeriod || 0,
-      creationDate: formatDate(creationDate),
-      finalizationDate: formatDate(finalizationDate),
       expectedIssuingDate: formatDate(expectedIssuingDate),
     })
 

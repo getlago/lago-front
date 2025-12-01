@@ -3594,7 +3594,7 @@
   "text_1763407386500ut31bl1smol": "Select an issuing date adjustment",
   "text_1763407530093r6zuzwr3x7p": "Issuing date policy",
   "text_1763407530094ffluzv9nvij": "Issuing date policy regardless of when the invoice is finalized.",
-  "text_1763407530094k0lsbmuh6a1": "For a billing period from {{periodStartDate}} to {{periodEndDate}};\nwith a {{gracePeriod}}-day grace period;\nan invoice creation date of {{creationDate}}; and\nan invoice finalization date of {{finalizationDate}}.",
+  "text_1763407530094k0lsbmuh6a1": "For a billing period from {{periodStartDate}} to {{periodEndDate}};\nWith a {{gracePeriod}}-day grace period;",
   "text_1763407530094w9q8pwx1m0j": "The expected issuing date is {{expectedIssuingDate}}.",
   "text_1763407530094n4hrbk01j2h": "Issuing date at end of current billing cycle",
   "text_1763407733969w6qdmai4f88": "Issuing date at start of next billing cycle",
