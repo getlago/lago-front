@@ -25,6 +25,7 @@ import {
   FeeAmountDetails,
   FeeAppliedTax,
   FetchDraftInvoiceTaxesMutation,
+  FixedCharge,
   Invoice,
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
@@ -133,6 +134,7 @@ export type OnRegeneratedFeeAdd = (input: {
   units?: number | null
   amountDetails?: FeeAmountDetails | null
   charge?: Charge | null
+  fixedCharge?: FixedCharge | null
   chargeFilterId?: string | null
   invoiceSubscriptionId?: string | null
 }) => void
@@ -235,7 +237,9 @@ const CustomerInvoiceRegenerate = () => {
   })
 
   const [voidInvoice] = useVoidInvoiceMutation()
-  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
+  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation({
+    refetchQueries: ['getInvoiceFees'],
+  })
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
@@ -248,6 +252,7 @@ const CustomerInvoiceRegenerate = () => {
             unitPreciseAmount: input?.unitPreciseAmount,
             invoiceSubscriptionId: input?.invoiceSubscriptionId,
             chargeId: input?.charge?.id,
+            fixedChargeId: input?.fixedCharge?.id,
             chargeFilterId: input?.chargeFilterId,
             invoiceDisplayName: input?.invoiceDisplayName,
           }),
