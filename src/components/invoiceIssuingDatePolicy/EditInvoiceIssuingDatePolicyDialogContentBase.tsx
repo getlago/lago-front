@@ -1,7 +1,8 @@
 import { FormikProps, FormikValues } from 'formik'
-import { Alert, Button, Dialog, DialogRef, Typography } from 'lago-design-system'
+import { Button, Dialog, DialogRef, Typography } from 'lago-design-system'
 import { ForwardedRef, forwardRef } from 'react'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { ComboBoxField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useIssuingDatePolicy } from '~/hooks/useIssuingDatePolicy'
