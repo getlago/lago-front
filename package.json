@@ -118,7 +118,7 @@
     "@llm-ui/react": "0.13.3",
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
-    "@nangohq/frontend": "0.69.13",
+    "@nangohq/frontend": "0.69.14",
     "@sentry/react": "10.25.0",
     "@tanstack/react-virtual": "3.13.12",
     "ace-builds": "1.43.4",

@@ -34,8 +34,8 @@ importers:
         specifier: 6.20.2
         version: 6.20.2(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(dayjs@1.11.13)(luxon@3.7.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@nangohq/frontend':
-        specifier: 0.69.13
-        version: 0.69.13
+        specifier: 0.69.14
+        version: 0.69.14
       '@sentry/react':
         specifier: 10.25.0
         version: 10.25.0(react@18.3.1)
@@ -2677,11 +2677,11 @@ packages:
       moment-jalaali:
         optional: true
 
-  '@nangohq/frontend@0.69.13':
-    resolution: {integrity: sha512-mIjIoIIClkxEAVnKMXPCj+Hw2Y1qG4YOdPI/rs6WWz58MXLI8BebkwXevBQx76fZK8h+ptBI6Y7gm9vCv+OBFw==}
+  '@nangohq/frontend@0.69.14':
+    resolution: {integrity: sha512-ubwRrrgAhypCUbHxiXn5dno1PmZX7IrICbElHWNHMdkIcNmKmHyhbl/t4IG6uvTntbweRf3s+Za188qzidqNww==}
 
-  '@nangohq/types@0.69.13':
-    resolution: {integrity: sha512-JLLsNkj4Fb3tog3PHCh1M9yvj36W9Qd0W9TuxXcOiIWe1+/+I86YbzLcJ+RbbeHN4wo7rpO8aAbrMJdnGvB/oA==}
+  '@nangohq/types@0.69.14':
+    resolution: {integrity: sha512-ET97fxqxdRasUGkB6kPaJgi7CwqP7hLqCQ5z6j7hKRUH1AKOWo4rKV3t2Tcnpr/WSBUHQ27n04w3WWLDSQ06Qw==}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -11348,13 +11348,13 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@nangohq/frontend@0.69.13':
+  '@nangohq/frontend@0.69.14':
     dependencies:
-      '@nangohq/types': 0.69.13
+      '@nangohq/types': 0.69.14
     transitivePeerDependencies:
       - debug
 
-  '@nangohq/types@0.69.13':
+  '@nangohq/types@0.69.14':
     dependencies:
       axios: 1.12.0
       json-schema: 0.4.0
