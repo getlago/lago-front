@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { Button, Dialog, DialogRef, Drawer, Popper, Tooltip, Typography } from '~/components'
+import { Button, Dialog, DialogRef, Drawer, Tooltip, Typography } from '~/components'
 
 export const PoppersSection = () => {
   const dialogRef = useRef<DialogRef>(null)
@@ -65,28 +65,6 @@ export const PoppersSection = () => {
         <Tooltip placement="top-end" title="Hola muchacho 🥸!">
           <Button variant="secondary">Tooltip</Button>
         </Tooltip>
-
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={<Button variant="tertiary">Popper</Button>}
-        >
-          {({ closePopper }) => (
-            <div className="flex flex-col gap-1 p-2">
-              <Button startIcon="paperclip" variant="quaternary" align="left" fullWidth>
-                I&apos;m lazy
-              </Button>
-              <Button
-                startIcon="plug"
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => closePopper()}
-              >
-                I close the popper
-              </Button>
-            </div>
-          )}
-        </Popper>
       </div>
     </div>
   )

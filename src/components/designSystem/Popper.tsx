@@ -84,25 +84,38 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       closePopper: () => updateIsOpen(false),
     }))
 
+    const getOpener = () => {
+      if (typeof opener === 'function') {
+        return cloneElement(opener({ isOpen, onClick: toggle }), {
+          onClick: (e: MouseEvent<HTMLDivElement>) => {
+            const element = opener({ isOpen, onClick: toggle })
+
+            element?.props?.onClick && element.props.onClick(e)
+            // Only toggle if the event wasn't prevented
+            if (!e.isPropagationStopped()) {
+              toggle()
+            }
+          },
+          ref: openerRef,
+        })
+      }
+
+      if (!!opener) {
+        return cloneElement(opener, { onClick: toggle, ref: openerRef })
+      }
+
+      return null
+    }
+
+    const getMaxHeight = () => {
+      if (!maxHeight) return '90vh'
+      return typeof maxHeight === 'string' ? maxHeight : `${maxHeight}px`
+    }
+
     return (
       <ClickAwayListener onClickAway={onClickAwayProxy}>
         <div className={tw(className)}>
-          {typeof opener === 'function'
-            ? cloneElement(opener({ isOpen, onClick: toggle }), {
-                onClick: (e: MouseEvent<HTMLDivElement>) => {
-                  const element = opener({ isOpen, onClick: toggle })
-
-                  element?.props?.onClick && element.props.onClick(e)
-                  // Only toggle if the event wasn't prevented
-                  if (!e.isPropagationStopped()) {
-                    toggle()
-                  }
-                },
-                ref: openerRef,
-              })
-            : !!opener
-              ? cloneElement(opener, { onClick: toggle, ref: openerRef })
-              : null}
+          {getOpener()}
           <MuiPopper
             className={tw(displayInDialog ? 'z-dialog' : 'z-popper')}
             style={{ minWidth: `${minWidth ?? openerRef?.current?.offsetWidth ?? 0}px` }}
@@ -134,11 +147,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
                 'overflow-auto scroll-smooth rounded-xl border border-grey-200 bg-white shadow-md focus:outline-none not-last-child:mb-1',
               )}
               style={{
-                maxHeight: maxHeight
-                  ? typeof maxHeight === 'string'
-                    ? maxHeight
-                    : `${maxHeight}px`
-                  : '90vh',
+                maxHeight: getMaxHeight(),
               }}
             >
               {typeof children === 'function'
