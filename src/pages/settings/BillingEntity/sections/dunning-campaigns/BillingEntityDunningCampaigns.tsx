@@ -1,8 +1,8 @@
-import { Avatar, ButtonLink, Icon } from 'lago-design-system'
+import { Avatar, Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Button, ButtonLink, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   SettingsListItem,

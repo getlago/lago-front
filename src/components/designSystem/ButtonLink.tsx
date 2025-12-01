@@ -1,4 +1,4 @@
-import { IconName } from 'lago-design-system'
+import { IconName, SimpleButtonProps } from 'lago-design-system'
 import { forwardRef, MouseEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -65,14 +65,14 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
   ) => {
     const updatedButtonProps =
       type === ButtonLinkTypeEnum.tab
-        ? {
+        ? ({
             variant: active ? 'secondary' : 'quaternary',
             align: 'left',
             fullWidth: true,
             startIcon: icon,
             ...buttonProps,
-          }
-        : buttonProps || {}
+          } as SimpleButtonProps)
+        : ((buttonProps || {}) as SimpleButtonProps)
 
     const classNames = tw(
       {
@@ -111,7 +111,6 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           </Link>
         )}
       >
-        {/* @ts-expect-error Props spreading conflicts with ButtonProps interface */}
         <Button
           onClick={onClick}
           disabled={disabled}
