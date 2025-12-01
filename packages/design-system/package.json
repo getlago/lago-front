@@ -43,7 +43,7 @@
     "@svgr/core": "8.1.0",
     "@svgr/plugin-svgo": "8.1.0",
     "@svgr/plugin-jsx": "8.1.0",
-    "@types/lodash": "4.17.20",
+    "@types/lodash": "4.17.21",
     "@types/react": "18.3.27",
     "@types/react-dom": "18.3.7",
     "@types/react-router-dom": "5.3.3",
