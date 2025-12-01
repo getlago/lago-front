@@ -22,14 +22,6 @@ gql`
       paymentMethodType
       paymentMethod {
         id
-        deletedAt
-        details {
-          brand
-          expirationYear
-          expirationMonth
-          last4
-          type
-        }
       }
       ...SubscriptionForSubscriptionInformations
     }
