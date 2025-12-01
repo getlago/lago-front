@@ -4,352 +4,40 @@ You are an expert development assistant for the Lago billing system project. Alw
 
 ## CRITICAL: Package Manager & Workspace
 
-- **ALWAYS use `pnpm` for all package management tasks**
-- Use `pnpm install`, `pnpm add`, `pnpm run`, etc.
-- Never suggest npm or yarn commands
-- The project uses pnpm workspaces with packages in `packages/*`:
-  - `packages/configs/` - Shared ESLint, TypeScript, Tailwind configs
-  - `packages/design-system/` - Shared UI components and icons
-- **Important**: After making changes to workspace packages, run `pnpm install` to trigger postinstall scripts and update the local version
+- [Package Manager & Workspace](./agents/package-manager.md)
 
 ## Project Stack & Architecture
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI**: Material UI + TailwindCSS + Custom Design System based on MUI
-- **State**: Apollo Client (GraphQL) with reactive variables
-- **Forms**: Formik + Yup validation
-- **Routing**: React Router DOM + TanStack Router (newer routes)
-- **Testing**: Jest + Cypress + Testing Library
-- **Development**: Runs in Docker container in dev mode
-- **Code Generation**: GraphQL Code Generator for type-safe queries
-- **Linting**: ESLint + Prettier with custom configs from `lago-configs`
-- **Note**: Avoid suggesting build scripts as the project runs in development mode
+- [Project Stack & Architecture](./agents/project-stack.md)
 
 ## Development Guidelines
 
-- Follow TypeScript strict mode practices with path aliases (`~/*` maps to `src/*`)
-- Use existing design system components from `packages/design-system/`
-- Maintain consistent import order and file structure
-- Leverage existing hooks and utilities in `src/hooks/`
-- Write comprehensive tests for new features (Jest for unit, Cypress for e2e)
-- Use GraphQL queries/mutations for API calls (generated types in `src/generated/`)
-- **IMPORTANT**: After making any changes to GraphQL schemas, queries, or fragments, always run `pnpm codegen` to regenerate TypeScript types in `src/generated/`. This ensures type safety and enables IntelliSense for your GraphQL operations.
-- Store translations in `translations/base.json`
-- Use Apollo Client reactive variables for global state (`src/core/apolloClient/reactiveVars/`)
-- Follow the established serialization patterns in `src/core/serializers/`
+- [Development Guidelines](./agents/development-guidelines.md)
 
 ## File Structure & Conventions
 
-- `src/components/` - Feature components organized by domain
-- `packages/design-system/` - Shared UI components, icons, and themes
-- `src/core/` - Core utilities, serializers, constants, Apollo setup
-- `src/pages/` - Route components
-- `src/hooks/` - Custom React hooks
-- `src/generated/` - Auto-generated GraphQL types
-- `translations/` - i18n JSON files (base.json, de.json, es.json, etc.)
-- `cypress/e2e/` - End-to-end tests organized by feature
-- `src/core/tanstackRouter/` - Newer routing structure
+- [File Structure & Conventions](./agents/file-structure.md)
 
 ## Key Scripts & Commands
 
-- `pnpm dev` - Start development server
-- `pnpm test` - Run Jest tests
-- `pnpm test:e2e` - Run Cypress tests
-- `pnpm lint` - Check code style
-- `pnpm lint:fix` - Fix code style issues
-- `pnpm codegen` - Generate GraphQL types (run after modifying schemas, queries, or fragments)
-- `pnpm translations:add` - Add new translation keys
+- [Scripts & Commands](./agents/scripts-commands.md)
 
 ## Code Quality Standards
 
-- Use TypeScript strict mode with proper typing
-- Follow ESLint rules from `lago-configs` package
-- Write tests for new functionality
-- Use existing design system components before creating new ones
-- Maintain consistent naming conventions (camelCase for variables, PascalCase for components)
-- Use proper error handling with Apollo Client error boundaries
+- [Code Quality Standards](./agents/code-quality.md)
 
 ## Testing Best Practices
 
-### Using `data-test` Attributes with Constants
-
-**WHEN POSSIBILE** use constants for `data-test` attributes instead of hardcoded strings or, even worse, using translation label keys from `translations/base.json`. This ensures consistency, maintainability, prevents typos in tests, and prevents test failures when labels change but the software logic remains unchanged.
-
-**Pattern to Follow**:
-
-1. **Export test ID constants from the component file**:
-   - Define constants with the naming pattern: `{COMPONENT_NAME}_TEST_ID` or `{ELEMENT_DESCRIPTION}_TEST_ID`
-   - Use kebab-case for the constant value (e.g., `'default-badge'`, `'overdue-invoices-alert'`)
-
-2. **Use the constant in the component**:
-   - Apply the constant to the `data-test` attribute: `data-test={CONSTANT_NAME}`
-
-3. **Import and use the constant in tests**:
-   - Import the constant from the component file
-   - Use it with `getByTestId()` or `queryByTestId()` from Testing Library
-
-**Example**:
-
-```tsx
-// ❌ Bad - Hardcoded string in component
-export const PaymentMethodDetailsCell = ({ item }: Props): JSX.Element => {
-  return (
-    <Chip data-test="default-badge" label="Default" />
-  )
-}
-
-// ❌ Bad - Hardcoded string in test
-import { PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
-
-it('displays default badge', () => {
-  render(<PaymentMethodDetailsCell item={paymentMethod} />)
-  const badge = screen.getByTestId('default-badge') // Hardcoded string
-  expect(badge).toBeInTheDocument()
-})
-
-// ⚠️ Avoid - Using translation keys as test IDs (only if strictly necessary)
-import { PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
-
-it('displays default badge', () => {
-  render(<PaymentMethodDetailsCell item={paymentMethod} />)
-  // Avoid using translation keys as test IDs - prefer constants instead
-  // Only use this approach if strictly necessary and no better alternative exists
-  const badge = screen.getByTestId('text_17440321235444hcxi31f8j6')
-  expect(badge).toBeInTheDocument()
-})
-
-// ✅ Good - Constant exported from component
-export const DEFAULT_BADGE_TEST_ID = 'default-badge'
-
-export const PaymentMethodDetailsCell = ({ item }: Props): JSX.Element => {
-  return (
-    <Chip data-test={DEFAULT_BADGE_TEST_ID} label="Default" />
-  )
-}
-
-// ✅ Good - Constant imported and used in test
-import {
-  DEFAULT_BADGE_TEST_ID,
-  PaymentMethodDetailsCell,
-} from '../PaymentMethodDetailsCell'
-
-it('displays default badge', () => {
-  render(<PaymentMethodDetailsCell item={paymentMethod} />)
-  const badge = screen.getByTestId(DEFAULT_BADGE_TEST_ID)
-  expect(badge).toBeInTheDocument()
-})
-```
-
-**Why prefer constants**:
-
-- **Hardcoded strings**: Prone to typos, difficult to refactor, no type safety
-- **Translation keys**: Can change during refactoring, create coupling with i18n implementation, and cause test failures when labels change even if logic is unchanged
-- **Note**: Translation keys can be used if strictly necessary (e.g., legacy code), but constants are preferred
-
-**Benefits**:
-
-- Type safety, easier refactoring, consistency, and semantic clarity
-
-**Note**: The project is configured to use `data-test` as the test ID attribute (configured in `src/test-utils.tsx`), so always use `data-test` instead of `data-testid`.
+- [Testing Best Practices](./agents/testing-practices.md)
 
 ## TypeScript Conventions
 
-### Discriminated Unions Rather Than Conditional Props
+- [TypeScript Conventions](./agents/typescript-conventions.md)
 
-We prefer to have our props described with "discrimination" and prevent optional props overuse. Do it as much as possible as it helps understanding the logic of how props are used.
+## Folder Architecture
 
-```tsx
-// ❌ Bad - Optional props create ambiguity
-type Props = {
-  authenticated: boolean
-  level?: 'basic' | 'admin'
-}
-
-// ✅ Good - Discriminated union makes the relationship clear
-type Props =
-  | { authenticated: true; level: 'basic' | 'admin' }
-  | { authenticated: false };
-```
-
-### Explicit Function Return Types
-
-Always write the return type of a function explicitly. This improves code readability, helps catch errors early, and makes the codebase more maintainable.
-
-```tsx
-// ❌ Bad - Implicit return type
-const calculateTotal = (items: Item[]) => {
-  return items.reduce((sum, item) => sum + item.price, 0)
-}
-
-// ✅ Good - Explicit return type
-const calculateTotal = (items: Item[]): number => {
-  return items.reduce((sum, item) => sum + item.price, 0)
-}
-```
-
-### No Nested Ternary
-
-Prevent anything deeper than 2 levels.
-
-```tsx
-// ❌ Bad
-const role = isAdmin ? (isManager ? "Manager" : "Admin") : "User";
-
-// ✅ Good
-function getRole(): string {
-  if (!isAdmin) return "User"
-  if (isManager) return "Manager"
-
-  return "Admin"
-}
-
-const role = getRole()
-```
-
-### Prefer Early Returns
-
-Makes the code way more readable.
-
-```tsx
-// ❌ Bad
-function getStatus(user) {
-  let status;
-  if (user.isActive) {
-    if (user.isAdmin) {
-      status = "Admin";
-    } else {
-      status = "Active";
-    }
-  } else {
-    status = "Inactive";
-  }
-  return status;
-}
-
-// ✅ Good
-function getStatus(user) {
-  if (!user.isActive) return "Inactive";
-  if (user.isAdmin) return "Admin";
-  return "Active";
-}
-```
-
-### Prefer Logic Out of JSX
-
-Extract any logic above, when it starts to be complex.
-
-```tsx
-// ❌ Bad
-return (
-  <div>
-    {score > 80 ? "High" : score > 50 ? "Medium" : "Low"}
-  </div>
-);
-
-// ✅ Good
-let label;
-if (score > 80) {
-  label = "High";
-} else if (score > 50) {
-  label = "Medium";
-} else {
-  label = "Low";
-}
-
-return (
-  <div>
-    {label}
-  </div>
-);
-```
-
-## Folder architecture
-
-The folder architecture is a really hard and vast subject.
-
-Here at Lago, we try to keep the concepts as simple and straightforward as possible. This is why, we want our folder architecture to be simple to understand and to dive in
-
-The folders are created around the ideas of features. features that have finite scope and live around the page it presents its concepts.
-
-Here is how we structure our folders
-
-```tsx
-src/
-|-- components/
-|---- MySharedComponent/
-|------ MySharedComponent.tsx
-|------ types.ts
-|------ componentLogic.ts
-|------ __tests__/
-|-------- MySharedComponent.test.tsx
-|-------- componentLogic.test.ts
-|-- core/
-|---- sharedLogicFunction.ts
-|---- __tests__/
-|------ sharedLogicfunction.test.ts
-|-- hooks/
-|---- useSharedHook.ts
-|---- __tests__/
-|------ useSharedhook.test.ts
-|-- pages/
-|---- myFeature/
-|------ MyFeaturePage.ts
-|------ common/
-|-------- aLogicFunction.ts
-|-------- ASharedComponent.tsx
-|-------- __tests__/
-|---------- aLogicFunction.test.ts
-|---------- ASharedComponent.test.tsx
-|------ ANotSharedComponent/
-|-------- ANotSharedComponent.tsx
-|-------- useNotSharedFeatureHook.ts
-|-------- __tests__/
-|---------- ANotSharedComponent.test.tsx
-|---------- useNotSharedFeatureHook.test.ts
-```
-
-The idea behind this is simple: keep it as close to where it’s used as possible until you need it elsewhere.
-
-If you need it somewhere else, this means that it becomes shared thus we move it one folder up.
-As an example, if our `useNotSharedFeatureHook.ts` was to be shared in differents components of the same feature, it would go to the `common` folder.
-
-And if we needed it in components from other features, we would move it to the `hooks` folder where it would be shared throughout the whole application
+- [Folder Architecture](./agents/folder-architecture.md)
 
 ## Documentation & Library References
 
-### Using Context7 MCP (If Installed)
-
-If the user has Context7 MCP configured, **ALWAYS use it** to fetch up-to-date documentation for third-party libraries before making assumptions or using outdated knowledge:
-
-1. **When to Use Context7**:
-   - When working with React, TypeScript, Vite, Apollo Client, Formik, Yup, Material UI, or any npm package
-   - Before implementing features using external libraries
-   - When debugging library-specific issues
-   - When the user asks questions about library APIs or best practices
-
-2. **How to Use Context7**:
-   - First, resolve the library ID: Use `resolve-library-id` with the library name (e.g., "react", "apollo-client", "@mui/material")
-   - Then, fetch docs: Use `get-library-docs` with the resolved Context7-compatible library ID
-   - Optionally specify a `topic` to focus on specific features (e.g., "hooks", "routing", "forms")
-
-3. **Example Workflow**:
-
-   ```
-   User asks: "How do I use Apollo Client mutations?"
-
-   Step 1: resolve-library-id("apollo-client") → /apollographql/apollo-client
-   Step 2: get-library-docs("/apollographql/apollo-client", topic: "mutations")
-   Step 3: Use the fetched documentation to provide accurate, up-to-date guidance
-   ```
-
-4. **Key Libraries in This Project**:
-   - React 18: `/facebook/react` or `/facebook/react/v18.x.x`
-   - Apollo Client: `/apollographql/apollo-client`
-   - Material UI: `/mui/material-ui`
-   - Formik: `/jaredpalmer/formik`
-   - Vite: `/vitejs/vite`
-   - TypeScript: `/microsoft/TypeScript`
-
-**Note**: If Context7 is not installed or not configured, fall back to your training data knowledge, but always prefer Context7 when available for the most accurate and current information.
-
-Always provide solutions that align with Lago's architecture and use pnpm for any package-related operations.
+- [Documentation & Library References](./agents/documentation.md)
