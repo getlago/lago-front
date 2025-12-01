@@ -96,19 +96,7 @@ export const InvoceCustomFooter = ({ customerId, title, description }: InvoceCus
           </div>
         )}
 
-        {!shouldDisplayCombobox ? (
-          <Button
-            fitContent
-            startIcon="plus"
-            variant="inline"
-            data-test={ADD_BUTTON}
-            onClick={() => {
-              setShouldDisplayCombobox(true)
-            }}
-          >
-            {translate('text_1762862908777d78m2z5d29a')}
-          </Button>
-        ) : (
+        {shouldDisplayCombobox ? (
           <div className="flex items-center">
             <div className="flex-1">
               <InvoiceCustomerFooterSelection
@@ -130,6 +118,18 @@ export const InvoceCustomFooter = ({ customerId, title, description }: InvoceCus
               />
             </Tooltip>
           </div>
+        ) : (
+          <Button
+            fitContent
+            startIcon="plus"
+            variant="inline"
+            data-test={ADD_BUTTON}
+            onClick={() => {
+              setShouldDisplayCombobox(true)
+            }}
+          >
+            {translate('text_1762862908777d78m2z5d29a')}
+          </Button>
         )}
       </div>
     </div>
