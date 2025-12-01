@@ -1,4 +1,3 @@
-export * from './Accordion'
 export * from './AiBadge'
 export * from './Avatar'
 export * from './Button'
