@@ -1,8 +1,9 @@
 import { FormikErrors, useFormik } from 'formik'
-import { Button, Drawer, DrawerRef, Typography } from 'lago-design-system'
+import { Button, Typography } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { array, object, string } from 'yup'
 
+import { Drawer, DrawerRef } from '~/components/designSystem'
 import { MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import NetsuiteAdditionalMappingForm from '~/pages/settings/integrations/NetsuiteAdditionalMappings/NetsuiteAdditionalMappingForm'
@@ -102,7 +103,7 @@ export const NetsuiteAdditionalMappingDrawer = forwardRef<NetsuiteAdditionalMapp
           const answer = await createCollectionMapping({
             variables: {
               input: {
-                integrationId: localData?.integrationId as string,
+                integrationId: localData?.integrationId,
                 mappingType: localData?.type,
                 currencies: values.default,
               },
@@ -123,7 +124,7 @@ export const NetsuiteAdditionalMappingDrawer = forwardRef<NetsuiteAdditionalMapp
             variables: {
               input: {
                 id: localData?.itemId as string,
-                integrationId: localData?.integrationId as string,
+                integrationId: localData?.integrationId,
                 mappingType: localData?.type,
                 currencies: values.default,
               },
