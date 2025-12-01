@@ -211,7 +211,7 @@ describe('useIssuingDatePolicy', () => {
         expect.objectContaining({
           periodStartDate: `formatted-${periodStartDate.toISO()}`,
           periodEndDate: `formatted-${periodEndDate.toISO()}`,
-          gracePeriod,
+          gracePeriod: gracePeriod || 0,
           creationDate: `formatted-${creationDate.toISO()}`,
           finalizationDate: `formatted-${finalizationDate.toISO()}`,
           expectedIssuingDate: `formatted-${expectedIssuingDate.toISO()}`,
@@ -253,7 +253,7 @@ describe('useIssuingDatePolicy', () => {
         expect.objectContaining({
           periodStartDate: `formatted-${periodStartDate.toISO()}`,
           periodEndDate: `formatted-${periodEndDate.toISO()}`,
-          gracePeriod,
+          gracePeriod: gracePeriod || 0,
           creationDate: `formatted-${creationDate.toISO()}`,
           finalizationDate: `formatted-${finalizationDate.toISO()}`,
           expectedIssuingDate: `formatted-${expectedIssuingDate.toISO()}`,
