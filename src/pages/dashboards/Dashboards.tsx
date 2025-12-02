@@ -3,10 +3,13 @@ import { embedDashboard } from '@superset-ui/embedded-sdk'
 import { Skeleton, Typography } from 'lago-design-system'
 import { useEffect } from 'react'
 
+import { envGlobalVar } from '~/core/apolloClient'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
 import { PageHeader } from '~/styles'
+
+const { lagoSupersetUrl } = envGlobalVar()
 
 gql`
   query supersetDashboards {
@@ -26,7 +29,7 @@ const Dashboards = () => {
   const { data, loading } = useSupersetDashboardsQuery({})
 
   useEffect(() => {
-    const dashboard = data?.supersetDashboards?.[0]
+    const dashboard = data?.supersetDashboards?.find((d) => d.id === '1')
     const mountPoint = document.getElementById('superset')
 
     if (loading || !dashboard || !mountPoint) {
@@ -35,7 +38,7 @@ const Dashboards = () => {
 
     embedDashboard({
       id: dashboard.embeddedId,
-      supersetDomain: dashboard.supersetUrl,
+      supersetDomain: lagoSupersetUrl,
       mountPoint,
       fetchGuestToken: async () => dashboard.guestToken,
       dashboardUiConfig: {

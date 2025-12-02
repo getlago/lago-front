@@ -11,6 +11,7 @@ interface EnvGlobal {
   nangoPublicKey: string
   sentryDsn: string
   disablePdfGeneration: boolean
+  lagoSupersetUrl: string
 }
 
 const getApiUrl = () => {
@@ -29,4 +30,5 @@ export const envGlobalVar = makeVar<EnvGlobal>({
   sentryDsn: window.SENTRY_DSN || SENTRY_DSN,
   disablePdfGeneration:
     (window.LAGO_DISABLE_PDF_GENERATION || LAGO_DISABLE_PDF_GENERATION) === 'true',
+  lagoSupersetUrl: window.LAGO_SUPERSET_URL || LAGO_SUPERSET_URL,
 })
