@@ -53,23 +53,27 @@ describe('AvalaraTaxProviderContent Integration Tests', () => {
       })
     })
 
-    it('THEN should render a matching snapshot', () => {
+    it('THEN should render a matching snapshot', async () => {
       const rendered = render(<TestAvalaraTaxProviderContentWrapper />)
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with Avalara integration data', () => {
+    it('THEN should render with Avalara integration data', async () => {
       const rendered = render(
         <TestAvalaraTaxProviderContentWrapper
           selectedAvalaraIntegration={mockAvalaraIntegration}
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render in edition mode', () => {
+    it('THEN should render in edition mode', async () => {
       const rendered = render(
         <TestAvalaraTaxProviderContentWrapper
           isEdition={true}
@@ -77,10 +81,12 @@ describe('AvalaraTaxProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with initial integration customer', () => {
+    it('THEN should render with initial integration customer', async () => {
       const rendered = render(
         <TestAvalaraTaxProviderContentWrapper
           hadInitialAvalaraIntegrationCustomer={true}
@@ -88,7 +94,9 @@ describe('AvalaraTaxProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
   })
 

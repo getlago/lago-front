@@ -50,23 +50,27 @@ describe('SalesforceCrmProviderContent Integration Tests', () => {
       })
     })
 
-    it('THEN should render a matching snapshot', () => {
+    it('THEN should render a matching snapshot', async () => {
       const rendered = render(<TestSalesforceCrmProviderContentWrapper />)
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with Salesforce integration data', () => {
+    it('THEN should render with Salesforce integration data', async () => {
       const rendered = render(
         <TestSalesforceCrmProviderContentWrapper
           selectedSalesforceIntegration={mockSalesforceIntegration}
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render in edition mode', () => {
+    it('THEN should render in edition mode', async () => {
       const rendered = render(
         <TestSalesforceCrmProviderContentWrapper
           isEdition={true}
@@ -74,10 +78,12 @@ describe('SalesforceCrmProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with initial integration customer', () => {
+    it('THEN should render with initial integration customer', async () => {
       const rendered = render(
         <TestSalesforceCrmProviderContentWrapper
           hadInitialSalesforceIntegrationCustomer={true}
@@ -85,7 +91,9 @@ describe('SalesforceCrmProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
   })
 

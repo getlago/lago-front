@@ -52,21 +52,25 @@ describe('AnrokTaxProviderContent Integration Tests', () => {
       })
     })
 
-    it('THEN should render a matching snapshot', () => {
+    it('THEN should render a matching snapshot', async () => {
       const rendered = render(<TestAnrokTaxProviderContentWrapper />)
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with Anrok integration data', () => {
+    it('THEN should render with Anrok integration data', async () => {
       const rendered = render(
         <TestAnrokTaxProviderContentWrapper selectedAnrokIntegration={mockAnrokIntegration} />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render in edition mode', () => {
+    it('THEN should render in edition mode', async () => {
       const rendered = render(
         <TestAnrokTaxProviderContentWrapper
           isEdition={true}
@@ -74,10 +78,12 @@ describe('AnrokTaxProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with initial integration customer', () => {
+    it('THEN should render with initial integration customer', async () => {
       const rendered = render(
         <TestAnrokTaxProviderContentWrapper
           hadInitialAnrokIntegrationCustomer={true}
@@ -85,7 +91,9 @@ describe('AnrokTaxProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
   })
 
