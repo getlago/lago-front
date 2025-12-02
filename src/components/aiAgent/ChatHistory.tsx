@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
-import { Skeleton, Typography } from 'lago-design-system'
 import { DateTime } from 'luxon'
 
+import { Skeleton, Typography } from '~/components/designSystem'
 import { useGetAiConversationLazyQuery, useListAiConversationsQuery } from '~/generated/graphql'
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
