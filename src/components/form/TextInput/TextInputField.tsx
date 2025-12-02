@@ -28,6 +28,16 @@ export const TextInputField = memo(
     ) => {
       const { values, errors, touched, handleBlur, setFieldValue } = formikProps
 
+      let error = undefined
+
+      if (!silentError) {
+        if (displayErrorText) {
+          error = _get(touched, name) && (_get(errors, name) as string)
+        } else {
+          error = !!_get(errors, name)
+        }
+      }
+
       return (
         <TextInput
           name={name}
@@ -35,13 +45,7 @@ export const TextInputField = memo(
           ref={ref}
           onBlur={handleBlur}
           cleanable={cleanable}
-          error={
-            !silentError
-              ? displayErrorText
-                ? _get(touched, name) && (_get(errors, name) as string)
-                : !!_get(errors, name)
-              : undefined
-          }
+          error={error}
           onChange={(value: string | number | undefined) => {
             setFieldValue(name, value)
           }}
