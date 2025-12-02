@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
+import { zodMultipleEmails, zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
   CountryCode,
   CurrencyEnum,
@@ -11,19 +12,6 @@ import {
   ProviderTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
-
-const emails = z.custom<string>((val) => {
-  if (typeof val !== 'string') return false
-  const separatedEmails = val.split(',').map((mail) => mail.trim())
-
-  try {
-    z.array(z.email()).parse(separatedEmails)
-  } catch {
-    return false
-  }
-
-  return true
-}, 'text_620bc4d4269a55014d493fc3')
 
 export const validationSchema = z.object({
   customerType: z.enum(CustomerTypeEnum).optional(),
@@ -40,7 +28,7 @@ export const validationSchema = z.object({
   taxIdentificationNumber: z.string().optional(),
   currency: z.enum(CurrencyEnum).optional(),
   phone: z.string().optional(),
-  email: emails.optional(),
+  email: zodMultipleEmails.optional(),
   billingAddress: z
     .object({
       addressLine1: z.string(),
@@ -63,7 +51,8 @@ export const validationSchema = z.object({
     })
     .optional(),
   timezone: z.enum(TimezoneEnum).optional(),
-  url: z.url('text_1764239804026ca61hwr3pp9').optional(),
+  // Don't know why, just using zod.url().optional() gives an error if the field is emptied after submission
+  url: zodOptionalUrl.optional(),
   accountingProviderCode: z.string().optional(),
   accountingCustomer: z
     .object({
