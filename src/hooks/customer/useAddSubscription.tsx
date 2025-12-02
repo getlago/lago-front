@@ -221,12 +221,20 @@ export const useAddSubscription: UseAddSubscription = ({
         endingAt: subEndDate,
         planId,
         billingTime,
+        paymentMethod,
         ...values
       },
       { ...planValues },
       hasPlanBeingChangedFromInitial,
     ) => {
       const serializedPlanValues = serializePlanInput(planValues)
+
+      const parsedPaymentMethod = paymentMethod
+        ? {
+            paymentMethodId: paymentMethod?.paymentMethodId,
+            paymentMethodType: paymentMethod?.paymentMethodType,
+          }
+        : undefined
 
       const { errors } =
         formType === FORM_TYPE_ENUM.creation || formType === FORM_TYPE_ENUM.upgradeDowngrade
@@ -254,6 +262,7 @@ export const useAddSubscription: UseAddSubscription = ({
                       }),
                   name: name || undefined,
                   externalId: externalId || undefined,
+                  paymentMethod: parsedPaymentMethod,
                   ...values,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
@@ -273,6 +282,7 @@ export const useAddSubscription: UseAddSubscription = ({
                       : undefined,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name ?? undefined,
+                  paymentMethod: parsedPaymentMethod,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
                     : undefined,

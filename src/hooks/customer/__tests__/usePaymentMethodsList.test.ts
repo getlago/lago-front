@@ -17,14 +17,25 @@ type PrepareType = {
   mock?: Record<string, unknown>
   error?: boolean
   delay?: number
+  withDeleted?: boolean
 }
 
-async function prepare({ mock, error = false, delay = 0 }: PrepareType = {}) {
+async function prepare({ mock, error = false, delay = 0, withDeleted }: PrepareType = {}) {
+  const variables: { externalCustomerId: string; withDeleted?: boolean } = {
+    externalCustomerId: EXTERNAL_CUSTOMER_ID,
+  }
+
+  if (withDeleted !== undefined) {
+    variables.withDeleted = withDeleted
+  } else {
+    variables.withDeleted = true
+  }
+
   const mocks = [
     {
       request: {
         query: PaymentMethodsDocument,
-        variables: { externalCustomerId: EXTERNAL_CUSTOMER_ID },
+        variables,
       },
       result: error
         ? {
@@ -44,12 +55,17 @@ async function prepare({ mock, error = false, delay = 0 }: PrepareType = {}) {
       forceTypenames: true,
     })
 
-  const { result } = renderHook(
-    () => usePaymentMethodsList({ externalCustomerId: EXTERNAL_CUSTOMER_ID }),
-    {
-      wrapper: customWrapper,
-    },
-  )
+  const hookArgs: { externalCustomerId: string; withDeleted?: boolean } = {
+    externalCustomerId: EXTERNAL_CUSTOMER_ID,
+  }
+
+  if (withDeleted !== undefined) {
+    hookArgs.withDeleted = withDeleted
+  }
+
+  const { result } = renderHook(() => usePaymentMethodsList(hookArgs), {
+    wrapper: customWrapper,
+  })
 
   return { result }
 }
@@ -101,6 +117,44 @@ describe('usePaymentMethodsList', () => {
       expect(result.current.loading).toBeFalsy()
       expect(result.current.error).toBeTruthy()
       expect(result.current.data).toEqual([])
+    })
+  })
+
+  describe('WHEN withDeleted parameter is used', () => {
+    it('THEN uses withDeleted=true as default', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.loading).toBeTruthy()
+
+      await act(() => wait(0))
+
+      expect(result.current.loading).toBeFalsy()
+      expect(result.current.error).toBeFalsy()
+      expect(result.current.data).toHaveLength(2)
+    })
+
+    it('THEN works with withDeleted=true explicitly', async () => {
+      const { result } = await prepare({ withDeleted: true })
+
+      expect(result.current.loading).toBeTruthy()
+
+      await act(() => wait(0))
+
+      expect(result.current.loading).toBeFalsy()
+      expect(result.current.error).toBeFalsy()
+      expect(result.current.data).toHaveLength(2)
+    })
+
+    it('THEN works with withDeleted=false', async () => {
+      const { result } = await prepare({ withDeleted: false })
+
+      expect(result.current.loading).toBeTruthy()
+
+      await act(() => wait(0))
+
+      expect(result.current.loading).toBeFalsy()
+      expect(result.current.error).toBeFalsy()
+      expect(result.current.data).toHaveLength(2)
     })
   })
 })

@@ -35,6 +35,7 @@ import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -57,7 +58,6 @@ import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
-  CreateSubscriptionInput,
   FeatureEntitlementForPlanFragmentDoc,
   PlanInterval,
   StatusTypeEnum,
@@ -75,6 +75,8 @@ import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
 import { BREAKPOINT_LG, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
+
+import { SubscriptionFormInput } from './types'
 
 const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
   switch (planInterval) {
@@ -128,6 +130,10 @@ gql`
       periodEndDate
       status
       startedAt
+      paymentMethodType
+      paymentMethod {
+        id
+      }
       plan {
         id
         parent {
@@ -241,6 +247,7 @@ const CreateSubscription = () => {
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const isResponsive = useMediaQuery(`(max-width:${BREAKPOINT_LG - 1}px)`)
   const hasAccessToFixedChargesFeature = isFeatureFlagActive(FeatureFlags.FIXED_CHARGES)
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -263,7 +270,7 @@ const CreateSubscription = () => {
 
   const { onSave, formType } = useAddSubscription({ existingSubscription: subscription })
 
-  const subscriptionFormikProps = useFormik<Omit<CreateSubscriptionInput, 'customerId'>>({
+  const subscriptionFormikProps = useFormik<SubscriptionFormInput>({
     initialValues: {
       planId: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.plan?.id || '' : '',
       name: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.name || '' : '',
@@ -271,6 +278,10 @@ const CreateSubscription = () => {
       subscriptionAt: subscription?.subscriptionAt || currentDateRef?.current,
       endingAt: subscription?.endingAt || undefined,
       billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
+      paymentMethod: {
+        paymentMethodType: subscription?.paymentMethodType,
+        paymentMethodId: subscription?.paymentMethod?.id,
+      },
     },
     validationSchema: object().shape({
       planId: string().required(''),
@@ -474,7 +485,7 @@ const CreateSubscription = () => {
   ])
 
   // NOTE: useCallback here is needed
-  // is handles the case where the user clicks on the button while being focused on a plan's input
+  // It handles the case where the user clicks on the button while being focused on a plan's input
   const SubmitButton = useCallback(() => {
     const buttonLabel = () => {
       if (formType === FORM_TYPE_ENUM.creation) return translate('text_65118a52df984447c1869463')
@@ -803,6 +814,19 @@ const CreateSubscription = () => {
                           )}
                         </Card>
                       </div>
+
+                      {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
+                        <div className="not-last-child:mb-8">
+                          <Typography variant="headline">
+                            {translate('text_1762862388271au34vz50g8i')}
+                          </Typography>
+                          <PaymentMethodsInvoiceSettings
+                            customer={customer}
+                            formikProps={subscriptionFormikProps}
+                            viewType="subscription"
+                          />
+                        </div>
+                      )}
 
                       {!isPremium && (
                         <Card className="flex-row items-center justify-between gap-3">

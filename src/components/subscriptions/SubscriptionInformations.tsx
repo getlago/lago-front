@@ -34,6 +34,7 @@ gql`
       id
       name
       displayName
+      externalId
     }
     plan {
       id
