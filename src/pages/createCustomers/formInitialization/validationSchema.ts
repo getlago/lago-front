@@ -90,7 +90,7 @@ export const validationSchema = z.object({
           return true
         }
 
-        return !!data.subsidiaryId
+        return !!data.subsidiaryId || !data.syncWithProvider
       },
       {
         message: 'text_1764249459826j3tkbn7s5ca',
