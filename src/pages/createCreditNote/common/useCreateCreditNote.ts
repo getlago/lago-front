@@ -58,6 +58,24 @@ gql`
     }
   }
 
+  fragment CreateCreditNoteInvoice on Invoice {
+    id
+    currency
+    number
+    status
+    paymentStatus
+    creditableAmountCents
+    refundableAmountCents
+    subTotalIncludingTaxesAmountCents
+    availableToCreditAmountCents
+    totalPaidAmountCents
+    totalAmountCents
+    paymentDisputeLostAt
+    invoiceType
+    ...InvoiceForCreditNoteFormCalculation
+    ...InvoiceForCreditNoteFormCalculation
+  }
+
   fragment InvoiceCreateCreditNote on Invoice {
     id
     refundableAmountCents
@@ -140,7 +158,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
     onCompleted({ createCreditNote }) {
-      if (!!createCreditNote) {
+      if (createCreditNote) {
         addToast({
           severity: 'success',
           translateKey: 'text_63763e61409e0d55b268a590',
@@ -230,18 +248,15 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           )
           const newFees = []
 
-          for (let i = 0; i < (feesWithoutTrueUpOnes || []).length; i++) {
-            const currentFee = (feesWithoutTrueUpOnes || [])[i]
-
-            if (!currentFee?.trueUpFee?.id) {
-              newFees.push(currentFee)
-            } else {
+          for (const currentFee of feesWithoutTrueUpOnes || []) {
+            if (currentFee?.trueUpFee?.id) {
               const relatedTrueUpFee = unorderedData.find(
                 (fee) => fee.id === currentFee.trueUpFee?.id,
               )
 
+              newFees.push(currentFee, relatedTrueUpFee)
+            } else {
               newFees.push(currentFee)
-              newFees.push(relatedTrueUpFee)
             }
           }
 
@@ -266,7 +281,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           // either charge alone, group charge or true up fee
           if (fee?.feeType === FeeTypesEnum.Subscription) {
             return undefined
-          } else if (!!fee?.chargeFilter?.id) {
+          } else if (fee?.chargeFilter?.id) {
             return fee?.charge?.id
           }
 
@@ -309,7 +324,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
 
             return groupApp
           }
-          const feeGroup = groupedFees[groupKey] as InvoiceFeeFragment[]
+          const feeGroup = groupedFees[groupKey]
           const firstFee = groupedFees[groupKey][0]
 
           if (
@@ -345,7 +360,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             }
           }
 
-          const grouped = feeGroup.reduce((accFee, feeGrouped) => {
+          const regroupFees = (accFee: Record<string, FromFee>, feeGrouped: InvoiceFeeFragment) => {
             if (
               feeGrouped?.creditableAmountCents === '0' ||
               ![FeeTypesEnum.Charge, FeeTypesEnum.Subscription].includes(feeGrouped.feeType)
@@ -375,7 +390,9 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
                 appliedTaxes: feeGrouped?.appliedTaxes || [],
               },
             }
-          }, {})
+          }
+
+          const grouped = feeGroup.reduce(regroupFees, {})
 
           return Object.keys(grouped).length > 0
             ? {
