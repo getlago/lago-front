@@ -69,6 +69,11 @@ export type ActionItem<T> = {
 export type TableContainerSize = 0 | 4 | 16 | 48
 type RowSize = 48 | 72
 
+export type TablePlaceholder = {
+  emptyState?: Partial<GenericPlaceholderProps>
+  errorState?: Partial<GenericPlaceholderProps>
+}
+
 export interface TableProps<T> {
   name: string
   data: T[]
@@ -76,10 +81,7 @@ export interface TableProps<T> {
   isLoading?: boolean
   hasError?: boolean
   loadingRowCount?: number
-  placeholder?: {
-    emptyState?: Partial<GenericPlaceholderProps>
-    errorState?: Partial<GenericPlaceholderProps>
-  }
+  placeholder?: TablePlaceholder
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode

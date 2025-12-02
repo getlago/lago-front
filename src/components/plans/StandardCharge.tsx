@@ -1,13 +1,12 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { type FormikProps } from 'formik'
 import { memo, useCallback } from 'react'
 
 import { AmountInput } from '~/components/form'
 import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
-import { PropertiesInput } from '~/generated/graphql'
+import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { LocalChargeFilterInput, PlanFormInput } from './types'

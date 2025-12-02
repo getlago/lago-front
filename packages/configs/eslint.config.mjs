@@ -14,7 +14,15 @@ import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    ignores: ['**/dist/*', '.github/**/*', '**/globals.d.ts', '**/generated/**/*', 'cypress/**/*'],
+    ignores: [
+      '**/dist/*',
+      '.github/**/*',
+      '**/globals.d.ts',
+      '**/generated/**/*',
+      'cypress/**/*',
+      'coverage/**/*',
+      '**/node_modules/**/*',
+    ],
   },
 
   {
@@ -69,6 +77,7 @@ export default [
       'no-extra-boolean-cast': 'off',
       'no-nested-ternary': 'warn',
       'no-unneeded-ternary': 'warn',
+      'no-duplicate-imports': 'error',
 
       // Plugins
       'import/order': [

@@ -4,7 +4,11 @@ import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { ActivityLogsTableDataFragmentDoc, useCustomerActivityLogsQuery } from '~/generated/graphql'
+import {
+  ActivityLogsTableDataFragmentDoc,
+  LagoApiError,
+  useCustomerActivityLogsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -43,6 +47,9 @@ export const CustomerActivityLogs = ({ externalCustomerId }: CustomerActivityLog
       externalCustomerId: externalCustomerId,
       limit: 20,
     },
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
     skip: !canViewLogs,
   })
 
@@ -68,7 +75,7 @@ export const CustomerActivityLogs = ({ externalCustomerId }: CustomerActivityLog
           <ActivityLogsTable
             containerSize={4}
             data={data?.activityLogs?.collection ?? []}
-            hasError={!!error}
+            error={error}
             isLoading={loading}
             refetch={refetch}
             onRowActionLink={(row) => {

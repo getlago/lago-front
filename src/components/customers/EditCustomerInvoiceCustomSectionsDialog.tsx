@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { forwardRef } from 'react'
+import { forwardRef, useMemo } from 'react'
 import { array, mixed, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -11,9 +11,9 @@ import {
   EditCustomerInvoiceCustomSectionFragment,
   UpdateCustomerInput,
   useEditCustomerInvoiceCustomSectionMutation,
-  useGetInvoiceCustomSectionsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useInvoiceCustomSectionsLazy } from '~/hooks/useInvoiceCustomSections'
 
 gql`
   fragment EditCustomerInvoiceCustomSection on Customer {
@@ -25,16 +25,6 @@ gql`
     hasOverwrittenInvoiceCustomSectionsSelection
     skipInvoiceCustomSections
   }
-
-  query getInvoiceCustomSections {
-    invoiceCustomSections {
-      collection {
-        id
-        name
-        code
-      }
-    }
-  } 
 
   mutation editCustomerInvoiceCustomSection($input: UpdateCustomerInput!) {
     updateCustomer(input: $input) {
@@ -64,7 +54,16 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
 >(({ customer }: EditCustomerInvoiceCustomSectionsDialogProps, ref) => {
   const { translate } = useInternationalization()
 
-  const [getInvoiceCustomSections, { data }] = useGetInvoiceCustomSectionsLazyQuery()
+  const { getInvoiceCustomSections, data: invoiceCustomSections } = useInvoiceCustomSectionsLazy()
+
+  const options = useMemo(() => {
+    return invoiceCustomSections.map((section) => ({
+      labelNode: section.name,
+      label: section.name,
+      description: section.code,
+      value: section.id,
+    }))
+  }, [invoiceCustomSections])
 
   const [editCustomerDunningCampaignBehavior] = useEditCustomerInvoiceCustomSectionMutation({
     refetchQueries: ['getCustomerSettings'],
@@ -187,14 +186,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
             hideTags={false}
             forcePopupIcon
             name="configurableInvoiceCustomSectionIds"
-            data={
-              data?.invoiceCustomSections?.collection.map((section) => ({
-                labelNode: section.name,
-                label: section.name,
-                description: section.code,
-                value: section.id,
-              })) ?? []
-            }
+            data={options}
             onChange={(section) =>
               formikProps.setFieldValue(
                 'configurableInvoiceCustomSectionIds',
@@ -203,13 +195,11 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
             }
             value={
               formikProps.values.configurableInvoiceCustomSectionIds?.map((id) => {
-                const foundSection = data?.invoiceCustomSections?.collection.find(
-                  (section) => section.id === id,
-                )
+                const foundSection = options.find((section) => section.value === id)
 
                 return {
                   value: id,
-                  label: foundSection?.name,
+                  label: foundSection?.label,
                 }
               }) ?? []
             }

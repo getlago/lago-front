@@ -17,6 +17,7 @@ import {
   MultipleComboBoxProps,
 } from './types'
 
+import { COMBOBOX_CONFIG } from '../ComboBox/comboBoxConfig'
 import { TextInput } from '../TextInput'
 
 const DEFAULT_LIMIT_TAGS = 2
@@ -221,10 +222,15 @@ export const MultipleComboBox = ({
       ListboxComponent={
         MultipleComboBoxList as unknown as JSXElementConstructor<HTMLAttributes<HTMLElement>>
       }
-      ListboxProps={
-        // @ts-expect-error we're using props from MultipleComboBoxList which are not reccognized by the Autocomplete MUI component
-        { value, renderGroupHeader, virtualized }
-      }
+      ListboxProps={{
+        // @ts-expect-error we're using props from MultipleComboBoxList which are not recognized by the Autocomplete MUI component
+        value,
+        renderGroupHeader,
+        virtualized,
+        style: {
+          maxHeight: `${COMBOBOX_CONFIG.getListboxMaxHeight()}px`,
+        },
+      }}
       PopperComponent={MultipleComboBoxPopperFactory(PopperProps)}
       getOptionDisabled={(option) => !!option?.disabled}
       getOptionLabel={(option) => {

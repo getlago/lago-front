@@ -17,7 +17,6 @@ import { serializePlanInput } from '~/core/serializers'
 import {
   BillingTimeEnum,
   CreateSubscriptionInput,
-  CustomerDetailsFragment,
   CustomerDetailsFragmentDoc,
   GetSubscriptionForCreateSubscriptionQuery,
   LagoApiError,
@@ -154,28 +153,6 @@ export const useAddSubscription: UseAddSubscription = ({
         }
       }
     },
-    update(cache, { data: updatedData }) {
-      if (!updatedData?.createSubscription) return
-
-      const cachedCustomerId = `Customer:${updatedData?.createSubscription.customer.id}`
-
-      const previousData: CustomerDetailsFragment | null = cache.readFragment({
-        id: cachedCustomerId,
-        fragment: CustomerDetailsFragmentDoc,
-        fragmentName: 'CustomerDetails',
-      })
-
-      cache.writeFragment({
-        id: cachedCustomerId,
-        fragment: CustomerDetailsFragmentDoc,
-        fragmentName: 'CustomerDetails',
-        data: {
-          ...previousData,
-          activeSubscriptionsCount:
-            updatedData.createSubscription.customer.activeSubscriptionsCount,
-        },
-      })
-    },
     refetchQueries: ['getCustomerSubscriptionForList'],
   })
   const [update] = useUpdateSubscriptionMutation({
@@ -244,12 +221,20 @@ export const useAddSubscription: UseAddSubscription = ({
         endingAt: subEndDate,
         planId,
         billingTime,
+        paymentMethod,
         ...values
       },
       { ...planValues },
       hasPlanBeingChangedFromInitial,
     ) => {
       const serializedPlanValues = serializePlanInput(planValues)
+
+      const parsedPaymentMethod = paymentMethod
+        ? {
+            paymentMethodId: paymentMethod?.paymentMethodId,
+            paymentMethodType: paymentMethod?.paymentMethodType,
+          }
+        : undefined
 
       const { errors } =
         formType === FORM_TYPE_ENUM.creation || formType === FORM_TYPE_ENUM.upgradeDowngrade
@@ -277,6 +262,7 @@ export const useAddSubscription: UseAddSubscription = ({
                       }),
                   name: name || undefined,
                   externalId: externalId || undefined,
+                  paymentMethod: parsedPaymentMethod,
                   ...values,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
@@ -296,6 +282,7 @@ export const useAddSubscription: UseAddSubscription = ({
                       : undefined,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name ?? undefined,
+                  paymentMethod: parsedPaymentMethod,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
                     : undefined,

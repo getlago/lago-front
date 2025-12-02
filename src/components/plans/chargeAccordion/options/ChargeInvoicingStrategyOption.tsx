@@ -77,10 +77,12 @@ export const ChargeInvoicingStrategyOption: FC<ChargeInvoicingStrategyOptionProp
       {!isPremium && (
         <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
           <div>
-            <Typography className="flex items-center" variant="bodyHl" color="textSecondary">
-              {translate('text_6682c52081acea90520744d0')}
-              <Icon className="ml-2" name="sparkles" />
-            </Typography>
+            <div className="flex items-center gap-2">
+              <Typography variant="bodyHl" color="textSecondary">
+                {translate('text_6682c52081acea90520744d0')}
+              </Typography>
+              <Icon name="sparkles" />
+            </div>
 
             <Typography variant="caption">{translate('text_6682c52081acea90520744d2')}</Typography>
           </div>

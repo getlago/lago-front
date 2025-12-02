@@ -111,10 +111,12 @@ const CreatePayment = () => {
     },
   })
 
-  const { data: { invoice } = {}, loading: invoiceLoading } = useGetPayableInvoiceQuery({
+  const { data, loading: invoiceLoading } = useGetPayableInvoiceQuery({
     variables: { id: formikProps.values.invoiceId },
     skip: !formikProps.values.invoiceId,
   })
+
+  const invoice = data?.invoice
 
   useEffect(() => {
     if (invoice && invoice.invoiceType === InvoiceTypeEnum.Credit) {

@@ -99,42 +99,45 @@ describe('CustomerOverview', () => {
     it.each([
       {
         description: 'not displayed when payment processing status is loading',
-        data: false,
+        isCustomerReadyForOverduePayment: false,
         loading: true,
         expectedVisible: false,
       },
       {
         description: 'not displayed when data is not ready for overdue payment',
-        data: false,
+        isCustomerReadyForOverduePayment: false,
         loading: false,
         expectedVisible: false,
       },
       {
         description: 'displayed when payment processing status is not loading and data is ready',
-        data: true,
+        isCustomerReadyForOverduePayment: true,
         loading: false,
         expectedVisible: true,
       },
-    ])('should be $description', async ({ data, loading, expectedVisible }) => {
-      jest
-        .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
-        .mockReturnValue({
-          data,
-          loading,
-          error: undefined,
+    ])(
+      'should be $description',
+      async ({ isCustomerReadyForOverduePayment, loading, expectedVisible }) => {
+        jest
+          .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
+          .mockReturnValue({
+            isCustomerReadyForOverduePayment,
+            loading,
+            error: undefined,
+          })
+
+        await act(async () => {
+          return render(<CustomerOverview externalCustomerId="ext-123" />)
         })
 
-      await act(async () => {
-        return render(<CustomerOverview externalCustomerId="ext-123" />)
-      })
-
-      await waitFor(() => {
-        if (expectedVisible) {
-          expect(screen.getByTestId(OVERDUE_INVOICES_ALERT_TEST_ID)).toBeInTheDocument()
-        } else {
-          expect(screen.queryByTestId(OVERDUE_INVOICES_ALERT_TEST_ID)).not.toBeInTheDocument()
-        }
-      })
-    })
+        await waitFor(() => {
+          if (expectedVisible) {
+            expect(screen.getByTestId(OVERDUE_INVOICES_ALERT_TEST_ID)).toBeInTheDocument()
+          } else {
+            expect(screen.queryByTestId(OVERDUE_INVOICES_ALERT_TEST_ID)).not.toBeInTheDocument()
+          }
+        })
+      },
+    )
   })
 })

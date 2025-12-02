@@ -3,8 +3,8 @@ import { gql } from '@apollo/client'
 import { PaymentMethodsQuery, usePaymentMethodsQuery } from '~/generated/graphql'
 
 gql`
-  query PaymentMethods($externalCustomerId: ID!) {
-    paymentMethods(externalCustomerId: $externalCustomerId, withDeleted: true) {
+  query PaymentMethods($externalCustomerId: ID!, $withDeleted: Boolean) {
+    paymentMethods(externalCustomerId: $externalCustomerId, withDeleted: $withDeleted) {
       collection {
         id
         isDefault
@@ -34,11 +34,23 @@ interface UsePaymentMethodsListReturn {
   refetch: () => Promise<unknown>
 }
 
-type UsePaymentMethodsList = (args: { externalCustomerId: string }) => UsePaymentMethodsListReturn
+interface UsePaymentMethodsListArgs {
+  externalCustomerId: string
+  withDeleted?: boolean
+}
 
-export const usePaymentMethodsList: UsePaymentMethodsList = ({ externalCustomerId }) => {
+type UsePaymentMethodsList = (args: UsePaymentMethodsListArgs) => UsePaymentMethodsListReturn
+
+export const usePaymentMethodsList: UsePaymentMethodsList = ({
+  externalCustomerId,
+  withDeleted = true,
+}) => {
   const { data, loading, error, refetch } = usePaymentMethodsQuery({
-    variables: { externalCustomerId },
+    variables: {
+      externalCustomerId,
+      withDeleted,
+    },
+    skip: !externalCustomerId,
   })
 
   return {

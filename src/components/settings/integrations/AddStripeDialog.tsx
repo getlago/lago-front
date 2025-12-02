@@ -6,7 +6,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { TextInputField } from '~/components/form'
+import { SwitchField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { STRIPE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
@@ -29,6 +29,7 @@ gql`
     name
     code
     secretKey
+    supports3ds
   }
 
   query getProviderByCodeForStripe($code: String) {
@@ -130,6 +131,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
       secretKey: stripeProvider?.secretKey || '',
       code: stripeProvider?.code || '',
       name: stripeProvider?.name || '',
+      supports3ds: stripeProvider?.supports3ds || false,
     },
     validationSchema: object().shape({
       name: string(),
@@ -261,8 +263,16 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
         <TextInputField
           name="secretKey"
           disabled={isEdition}
+          description={isEdition ? translate('text_637f813d31381b1ed90ab30e') : undefined}
           label={translate('text_62b1edddbf5f461ab9712748')}
           placeholder={translate('text_62b1edddbf5f461ab9712756')}
+          formikProps={formikProps}
+        />
+
+        <SwitchField
+          name="supports3ds"
+          label={translate('text_1764107468210ibi78qsrukx')}
+          subLabel={translate('text_1764107468210lbhkj5no1vh')}
           formikProps={formikProps}
         />
       </div>

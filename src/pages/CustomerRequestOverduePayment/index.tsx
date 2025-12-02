@@ -80,16 +80,17 @@ const CustomerRequestOverduePayment: FC = () => {
   const { customerId } = useParams()
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
-  const { data: isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
+  const { isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
     useIsCustomerReadyForOverduePayment()
 
-  const {
-    data: { customer, organization, paymentRequests, invoices } = {},
-    loading,
-    error,
-  } = useGetRequestOverduePaymentInfosQuery({
+  const { data, loading, error } = useGetRequestOverduePaymentInfosQuery({
     variables: { id: customerId ?? '' },
   })
+
+  const customer = data?.customer
+  const organization = data?.organization
+  const paymentRequests = data?.paymentRequests
+  const invoices = data?.invoices
 
   const hasDunningIntegration = !!isPremium
 

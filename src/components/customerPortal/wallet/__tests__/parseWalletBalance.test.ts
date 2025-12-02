@@ -1,5 +1,8 @@
-import type { CustomerPortalWalletInfoFragment } from '~/generated/graphql'
-import { CurrencyEnum, WalletStatusEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  type CustomerPortalWalletInfoFragment,
+  WalletStatusEnum,
+} from '~/generated/graphql'
 
 import { parseWalletBalance } from '../WalletSection'
 
