@@ -341,6 +341,8 @@ describe('Popper', () => {
       const { container } = await act(() =>
         render(
           <Popper
+            // Disabled eslint rule for testing purposes
+            // eslint-disable-next-line tailwindcss/no-custom-classname
             className="custom-class"
             opener={<button data-test="opener-button">Click me</button>}
           >
