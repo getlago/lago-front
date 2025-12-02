@@ -121,6 +121,7 @@ describe('usePermissionsInvoiceActions', () => {
       appVersion: 'test',
       sentryDsn: 'test',
       nangoPublicKey: 'test',
+      lagoSupersetUrl: '',
     })
   })
 
@@ -202,6 +203,7 @@ describe('usePermissionsInvoiceActions', () => {
         appVersion: 'test',
         sentryDsn: 'test',
         nangoPublicKey: 'test',
+        lagoSupersetUrl: '',
       })
 
       // Create a new hook instance that will use the updated mock
