@@ -10145,7 +10145,7 @@ export type GetInvoiceMetadatasQuery = { __typename?: 'Query', invoice?: { __typ
 
 export type PaymentForPaymentsListFragment = { __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
     | { __typename?: 'Invoice', id: string, number: string, payableType: string }
-    | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }
+    | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, number: string }> }
   , customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null };
 
 export type InvoiceForVoidInvoiceDialogFragment = { __typename?: 'Invoice', id: string, number: string };
@@ -12257,7 +12257,7 @@ export type GetPaymentsListQueryVariables = Exact<{
 
 export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
         | { __typename?: 'Invoice', id: string, number: string, payableType: string }
-        | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }
+        | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, number: string }> }
       , customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
 
 export type GetPlanForDetailsQueryVariables = Exact<{
@@ -14586,6 +14586,7 @@ export const PaymentForPaymentsListFragmentDoc = gql`
       payableType
       invoices {
         id
+        number
       }
     }
   }
