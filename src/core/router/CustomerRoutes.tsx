@@ -16,8 +16,8 @@ const CustomerRequestOverduePayment = lazyLoad(
 const CustomerInvoiceVoid = lazyLoad(() => import(`~/pages/CustomerInvoiceVoid`))
 
 // Credit note related
-const CreateCreditNote = lazyLoad(() => import('~/pages/CreateCreditNote'))
-const CreditNoteDetails = lazyLoad(() => import('~/pages/CreditNoteDetails'))
+const CreateCreditNote = lazyLoad(() => import('~/pages/createCreditNote/CreateCreditNote'))
+const CreditNoteDetails = lazyLoad(() => import('~/pages/creditNoteDetails/CreditNoteDetails'))
 
 // ----------- Routes -----------
 export const CUSTOMERS_LIST_ROUTE = '/customers'

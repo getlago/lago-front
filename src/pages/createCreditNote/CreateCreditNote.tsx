@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -38,39 +37,19 @@ import {
   generateCreditFeesSchema,
   generateFeesSchema,
 } from '~/formValidation/feesSchema'
+import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
   CreditNoteReasonEnum,
   CurrencyEnum,
-  InvoiceForCreditNoteFormCalculationFragmentDoc,
   InvoiceTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
 import { PageHeader } from '~/styles'
 import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
-gql`
-  fragment CreateCreditNoteInvoice on Invoice {
-    id
-    currency
-    number
-    status
-    paymentStatus
-    creditableAmountCents
-    refundableAmountCents
-    subTotalIncludingTaxesAmountCents
-    availableToCreditAmountCents
-    totalPaidAmountCents
-    totalAmountCents
-    paymentDisputeLostAt
-    invoiceType
-    ...InvoiceForCreditNoteFormCalculation
-    ...InvoiceForCreditNoteFormCalculation
-  }
-
-  ${InvoiceForCreditNoteFormCalculationFragmentDoc}
-`
+import { useCreateCreditNote } from './common/useCreateCreditNote'
+import MetadataFormCard from './metadataForm/MetadataFormCard'
 
 export const CREDIT_NOTE_REASONS: { reason: CreditNoteReasonEnum; label: string }[] = [
   {
@@ -145,6 +124,7 @@ const CreateCreditNote = () => {
           ],
       creditAmount: undefined,
       refundAmount: undefined,
+      metadata: [],
     },
     validationSchema: object().shape({
       reason: string().required(''),
@@ -152,6 +132,7 @@ const CreateCreditNote = () => {
       addOnFee: addOnFeesValidation,
       creditFee: creditFeeValidation,
       payBack: payBackValidation,
+      metadata: metadataSchema(),
     }),
     onSubmit: async (values, formikBag) => {
       const answer = await onCreate(values as CreditNoteForm)
@@ -307,7 +288,7 @@ const CreateCreditNote = () => {
                     </div>
                   </div>
                   <div className="ml-auto">
-                    {!!invoice?.paymentDisputeLostAt ? (
+                    {invoice?.paymentDisputeLostAt ? (
                       <Status type={StatusType.danger} label="disputeLost" />
                     ) : (
                       <Status
@@ -413,6 +394,8 @@ const CreateCreditNote = () => {
                     />
                   )}
                 </Card>
+
+                <MetadataFormCard formikProps={formikProps} />
                 <div className="mb-20 px-8">
                   <Button
                     disabled={!formikProps.isValid || !formHasAtLeastOneFeeChecked}

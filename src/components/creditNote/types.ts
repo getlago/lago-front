@@ -45,6 +45,10 @@ export interface CreditNoteForm {
   fees?: FeesPerInvoice
   addOnFee?: FromFee[]
   creditFee?: FromFee[]
+  metadata: Array<{
+    key: string
+    value: string
+  }>
 }
 
 export enum CreditNoteFeeErrorEnum {
