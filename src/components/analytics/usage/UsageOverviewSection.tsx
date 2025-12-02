@@ -1,7 +1,8 @@
-import { Button, GenericPlaceholder, Icon, Tooltip, Typography } from 'lago-design-system'
+import { Button, GenericPlaceholder, Icon, Typography } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useUsageAnalyticsOverview } from '~/components/analytics/usage/useUsageAnalyticsOverview'
+import { Tooltip } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
   Filters,

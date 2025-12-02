@@ -1,8 +1,8 @@
 import { InputAdornment } from '@mui/material'
-import { Button, Tooltip, Typography } from 'lago-design-system'
+import { Button, Typography } from 'lago-design-system'
 import { useMemo } from 'react'
 
-import { ChargeTable } from '~/components/designSystem'
+import { ChargeTable, Tooltip } from '~/components/designSystem'
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'

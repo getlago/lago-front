@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Tooltip, Typography, WarningDialog, WarningDialogRef } from 'lago-design-system'
+import { Button, Typography, WarningDialog, WarningDialogRef } from 'lago-design-system'
 import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
-import { Alert } from '~/components/designSystem'
+import { Alert, Tooltip } from '~/components/designSystem'
 import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
