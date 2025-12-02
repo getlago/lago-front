@@ -265,7 +265,7 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
               autocapitalize="none"
               autocomplete="off"
               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":rg:"
+              id=":re:"
               name="billingAddress.country"
               placeholder="Search and select a country"
               role="combobox"

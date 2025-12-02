@@ -34,7 +34,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
-          for=":rc:"
+          for=":ra:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -47,7 +47,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="Card"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":rc:"
+                id=":ra:"
                 readonly=""
                 type="checkbox"
               />
@@ -107,7 +107,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
-          for=":rd:"
+          for=":rb:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -119,7 +119,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="Link"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":rd:"
+                id=":rb:"
                 readonly=""
                 type="checkbox"
               />
@@ -162,7 +162,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
-          for=":re:"
+          for=":rc:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -174,7 +174,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="Bank Transfers"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":re:"
+                id=":rc:"
                 readonly=""
                 type="checkbox"
               />
@@ -231,7 +231,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
-          for=":rf:"
+          for=":rd:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -243,7 +243,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="SEPA Direct Debit"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":rf:"
+                id=":rd:"
                 readonly=""
                 type="checkbox"
               />
@@ -286,7 +286,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
-          for=":rg:"
+          for=":re:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -298,7 +298,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="US Bank Account (ACH)"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":rg:"
+                id=":re:"
                 readonly=""
                 type="checkbox"
               />
@@ -341,7 +341,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
-          for=":rh:"
+          for=":rf:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -353,7 +353,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="BACS Debit"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":rh:"
+                id=":rf:"
                 readonly=""
                 type="checkbox"
               />
@@ -396,7 +396,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
-          for=":ri:"
+          for=":rg:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -408,7 +408,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="Boleto Payments"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":ri:"
+                id=":rg:"
                 readonly=""
                 type="checkbox"
               />
@@ -451,7 +451,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
-          for=":rj:"
+          for=":rh:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -463,7 +463,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="Crypto (Stablecoins)"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":rj:"
+                id=":rh:"
                 readonly=""
                 type="checkbox"
               />
@@ -576,7 +576,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
-          for=":r10:"
+          for=":rs:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -588,7 +588,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="false"
                 aria-labelledby="Card"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r10:"
+                id=":rs:"
                 readonly=""
                 type="checkbox"
               />
@@ -631,7 +631,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
-          for=":r11:"
+          for=":rt:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -644,7 +644,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="Link"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 disabled=""
-                id=":r11:"
+                id=":rt:"
                 readonly=""
                 type="checkbox"
               />
@@ -687,7 +687,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
-          for=":r12:"
+          for=":ru:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -700,7 +700,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="Bank Transfers"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r12:"
+                id=":ru:"
                 readonly=""
                 type="checkbox"
               />
@@ -774,7 +774,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
-          for=":r13:"
+          for=":rv:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -787,7 +787,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="SEPA Direct Debit"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 disabled=""
-                id=":r13:"
+                id=":rv:"
                 readonly=""
                 type="checkbox"
               />
@@ -830,7 +830,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
-          for=":r14:"
+          for=":r10:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -843,7 +843,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="US Bank Account (ACH)"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 disabled=""
-                id=":r14:"
+                id=":r10:"
                 readonly=""
                 type="checkbox"
               />
@@ -886,7 +886,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
-          for=":r15:"
+          for=":r11:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -899,7 +899,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="BACS Debit"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 disabled=""
-                id=":r15:"
+                id=":r11:"
                 readonly=""
                 type="checkbox"
               />
@@ -942,7 +942,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
-          for=":r16:"
+          for=":r12:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -955,7 +955,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="Boleto Payments"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 disabled=""
-                id=":r16:"
+                id=":r12:"
                 readonly=""
                 type="checkbox"
               />
@@ -998,7 +998,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
-          for=":r17:"
+          for=":r13:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1011,7 +1011,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="Crypto (Stablecoins)"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 disabled=""
-                id=":r17:"
+                id=":r13:"
                 readonly=""
                 type="checkbox"
               />
@@ -1124,7 +1124,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
-          for=":r1a:"
+          for=":r15:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1137,7 +1137,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="Card"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1a:"
+                id=":r15:"
                 readonly=""
                 type="checkbox"
               />
@@ -1197,7 +1197,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
-          for=":r1b:"
+          for=":r16:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1210,7 +1210,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="Link"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1b:"
+                id=":r16:"
                 readonly=""
                 type="checkbox"
               />
@@ -1270,7 +1270,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
-          for=":r1c:"
+          for=":r17:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1282,7 +1282,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="mixed"
                 aria-labelledby="Bank Transfers"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1c:"
+                id=":r17:"
                 readonly=""
                 type="checkbox"
               />
@@ -1339,7 +1339,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
-          for=":r1d:"
+          for=":r18:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1352,7 +1352,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-labelledby="SEPA Direct Debit"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1d:"
+                id=":r18:"
                 readonly=""
                 type="checkbox"
               />
@@ -1412,7 +1412,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
-          for=":r1e:"
+          for=":r19:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1424,7 +1424,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="mixed"
                 aria-labelledby="US Bank Account (ACH)"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1e:"
+                id=":r19:"
                 readonly=""
                 type="checkbox"
               />
@@ -1467,7 +1467,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
-          for=":r1f:"
+          for=":r1a:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1479,7 +1479,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="mixed"
                 aria-labelledby="BACS Debit"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1f:"
+                id=":r1a:"
                 readonly=""
                 type="checkbox"
               />
@@ -1522,7 +1522,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
-          for=":r1g:"
+          for=":r1b:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1534,7 +1534,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="mixed"
                 aria-labelledby="Boleto Payments"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1g:"
+                id=":r1b:"
                 readonly=""
                 type="checkbox"
               />
@@ -1577,7 +1577,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
-          for=":r1h:"
+          for=":r1c:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1589,7 +1589,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
                 aria-checked="mixed"
                 aria-labelledby="Crypto (Stablecoins)"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r1h:"
+                id=":r1c:"
                 readonly=""
                 type="checkbox"
               />
@@ -1702,7 +1702,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
-          for=":r6k:"
+          for=":r5u:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1715,7 +1715,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-labelledby="Card"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6k:"
+                id=":r5u:"
                 readonly=""
                 type="checkbox"
               />
@@ -1775,7 +1775,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
-          for=":r6l:"
+          for=":r5v:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1788,7 +1788,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-labelledby="Link"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6l:"
+                id=":r5v:"
                 readonly=""
                 type="checkbox"
               />
@@ -1848,7 +1848,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
-          for=":r6m:"
+          for=":r60:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1860,7 +1860,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-checked="mixed"
                 aria-labelledby="Bank Transfers"
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6m:"
+                id=":r60:"
                 readonly=""
                 type="checkbox"
               />
@@ -1917,7 +1917,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
-          for=":r6n:"
+          for=":r61:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -1930,7 +1930,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-labelledby="SEPA Direct Debit"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6n:"
+                id=":r61:"
                 readonly=""
                 type="checkbox"
               />
@@ -1990,7 +1990,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
-          for=":r6o:"
+          for=":r62:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -2003,7 +2003,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-labelledby="US Bank Account (ACH)"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6o:"
+                id=":r62:"
                 readonly=""
                 type="checkbox"
               />
@@ -2063,7 +2063,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
-          for=":r6p:"
+          for=":r63:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -2076,7 +2076,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-labelledby="BACS Debit"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6p:"
+                id=":r63:"
                 readonly=""
                 type="checkbox"
               />
@@ -2136,7 +2136,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
-          for=":r6q:"
+          for=":r64:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -2149,7 +2149,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-labelledby="Boleto Payments"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6q:"
+                id=":r64:"
                 readonly=""
                 type="checkbox"
               />
@@ -2209,7 +2209,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         <label
           class="flex flex-col cursor-pointer"
           data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
-          for=":r6r:"
+          for=":r65:"
         >
           <div
             class="mx-0 flex items-start align-middle *:leading-7"
@@ -2222,7 +2222,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
                 aria-labelledby="Crypto (Stablecoins)"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
-                id=":r6r:"
+                id=":r65:"
                 readonly=""
                 type="checkbox"
               />

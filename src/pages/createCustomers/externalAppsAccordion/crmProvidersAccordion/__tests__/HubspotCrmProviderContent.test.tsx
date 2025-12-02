@@ -52,23 +52,27 @@ describe('HubspotCrmProviderContent Integration Tests', () => {
       })
     })
 
-    it('THEN should render a matching snapshot', () => {
+    it('THEN should render a matching snapshot', async () => {
       const rendered = render(<TestHubspotCrmProviderContentWrapper />)
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with Hubspot integration data', () => {
+    it('THEN should render with Hubspot integration data', async () => {
       const rendered = render(
         <TestHubspotCrmProviderContentWrapper
           selectedHubspotIntegration={mockHubspotIntegration}
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render in edition mode', () => {
+    it('THEN should render in edition mode', async () => {
       const rendered = render(
         <TestHubspotCrmProviderContentWrapper
           isEdition={true}
@@ -76,10 +80,12 @@ describe('HubspotCrmProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
 
-    it('THEN should render with initial integration customer', () => {
+    it('THEN should render with initial integration customer', async () => {
       const rendered = render(
         <TestHubspotCrmProviderContentWrapper
           hadInitialHubspotIntegrationCustomer={true}
@@ -87,7 +93,9 @@ describe('HubspotCrmProviderContent Integration Tests', () => {
         />,
       )
 
-      expect(rendered.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(rendered.container).toMatchSnapshot()
+      })
     })
   })
 
@@ -122,7 +130,9 @@ describe('HubspotCrmProviderContent Integration Tests', () => {
 
       // Should display the targeted object combobox
       expect(screen.getByRole('combobox')).toBeInTheDocument()
-      expect(renderer.container).toMatchSnapshot()
+      await waitFor(() => {
+        expect(renderer.container).toMatchSnapshot()
+      })
 
       // Test that the targeted object field has the right value
       await waitFor(() => {
