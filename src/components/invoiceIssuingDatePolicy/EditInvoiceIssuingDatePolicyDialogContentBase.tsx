@@ -1,11 +1,12 @@
 import { FormikProps, FormikValues } from 'formik'
-import { Button, Dialog, DialogRef, Typography } from 'lago-design-system'
 import { ForwardedRef, forwardRef } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { ComboBoxField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useIssuingDatePolicy } from '~/hooks/useIssuingDatePolicy'
+
+import { Button, Dialog, DialogRef, Typography } from '../designSystem'
 
 export const EDIT_INVOICE_ISSUING_DATE_POLICY_DIALOG_TEST_ID =
   'edit-invoice-issuing-date-policy-dialog'
