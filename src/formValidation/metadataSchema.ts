@@ -11,6 +11,7 @@ export enum MetadataErrorsEnum {
 export const metadataSchema = ({
   valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFAULT,
   metadataKey = 'metadata',
+  keyMaxLength = METADATA_KEY_MAX_LENGTH,
 } = {}) =>
   array().of(
     object().shape({
@@ -32,7 +33,7 @@ export const metadataSchema = ({
             }
           }
 
-          if (value.length > METADATA_KEY_MAX_LENGTH) {
+          if (value.length > keyMaxLength) {
             return createError({
               path,
               message: MetadataErrorsEnum.maxLength,
