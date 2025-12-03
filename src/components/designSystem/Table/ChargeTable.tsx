@@ -1,12 +1,9 @@
 import _get from 'lodash/get'
 import { ReactNode } from 'react'
 
+import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
-
-import { Button } from '../Button'
-import { Tooltip } from '../Tooltip'
-import { Typography } from '../Typography'
 
 const CELL_HEIGHT = 'h-12'
 

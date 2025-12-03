@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
-import { Tooltip } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
