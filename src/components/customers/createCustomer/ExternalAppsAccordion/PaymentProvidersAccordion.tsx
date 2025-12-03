@@ -14,7 +14,7 @@ import {
   UpdateCustomerInput,
   usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Cashfree from '~/public/images/cashfree.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
@@ -23,8 +23,6 @@ import Moneyhash from '~/public/images/moneyhash.svg'
 import Stripe from '~/public/images/stripe.svg'
 
 import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
-
-type TranslateFunc = (key: string) => string
 
 export const getSyncLabel = (
   paymentProvider: ProviderTypeEnum | null | undefined,
