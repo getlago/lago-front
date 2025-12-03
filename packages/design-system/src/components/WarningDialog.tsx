@@ -3,10 +3,19 @@ import { forwardRef } from 'react'
 import { Button } from './Button'
 import { Dialog, DialogProps, DialogRef } from './Dialog'
 
+/**
+ * @deprecated This WarningDialogMode from lago-design-system package should not be used in the app.
+ * Please use the WarningDialogMode from ~/components/WarningDialog instead.
+ */
 export enum WarningDialogMode {
   info = 'info',
   danger = 'danger',
 }
+
+/**
+ * @deprecated This WarningDialogProps from lago-design-system package should not be used in the app.
+ * Please use the WarningDialog component from ~/components/WarningDialog instead.
+ */
 interface WarningDialogProps extends Omit<DialogProps, 'actions'> {
   onContinue?: () => unknown | Promise<unknown>
   onCancel?: () => unknown
@@ -16,8 +25,23 @@ interface WarningDialogProps extends Omit<DialogProps, 'actions'> {
   disableOnContinue?: boolean
 }
 
+/**
+ * @deprecated This WarningDialogRef from lago-design-system package should not be used in the app.
+ * Please use the WarningDialogRef from ~/components/WarningDialog instead.
+ */
 export type WarningDialogRef = DialogRef
 
+/**
+ * @deprecated This WarningDialog component from lago-design-system package should not be used in the app.
+ * Please use the WarningDialog component from ~/components/WarningDialog instead.
+ *
+ * @example
+ * // ❌ Don't use this
+ * import { WarningDialog } from 'lago-design-system'
+ *
+ * // ✅ Use this instead
+ * import { WarningDialog } from '~/components/WarningDialog'
+ */
 export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
   (
     {

@@ -1,3 +1,6 @@
+// This component is not used in the app anymore
+// Keeping it here as it's used in some packages/design-system components
+// Until they are not all used in the app anymore, it's easier to keep this one here and remove later
 import { Dialog as MuiDialog } from '@mui/material'
 import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from 'react'
 
@@ -5,6 +8,11 @@ import { tw } from '~/lib'
 
 import { Typography } from './Typography'
 
+/**
+ * @deprecated This Dialog component from lago-design-system package should not be used in the app.
+ * Please use the Dialog component from ~/components/designSystem instead.
+ * This component is only kept for internal lago-design-system package usage (e.g., WarningDialog).
+ */
 export interface DialogProps {
   actions: (args: { closeDialog: () => void }) => JSX.Element
   title: ReactNode
@@ -15,11 +23,27 @@ export interface DialogProps {
   onClose?: () => void
 }
 
+/**
+ * @deprecated This DialogRef from lago-design-system package should not be used in the app.
+ * Please use the DialogRef from ~/components/designSystem instead.
+ */
 export interface DialogRef {
   openDialog: () => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated This Dialog component from lago-design-system package should not be used in the app.
+ * Please use the Dialog component from ~/components/designSystem instead.
+ * This component is only kept for internal lago-design-system package usage (e.g., WarningDialog).
+ *
+ * @example
+ * // ❌ Don't use this
+ * import { Dialog } from 'lago-design-system'
+ *
+ * // ✅ Use this instead
+ * import { Dialog } from '~/components/designSystem'
+ */
 export const Dialog = forwardRef<DialogRef, DialogProps>(
   (
     { title, description, actions, children, onOpen, onClose, open = false, ...props }: DialogProps,

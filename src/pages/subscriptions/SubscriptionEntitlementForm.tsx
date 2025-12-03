@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Typography, WarningDialog, WarningDialogRef } from 'lago-design-system'
+import { Button, Typography } from 'lago-design-system'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
@@ -9,6 +9,7 @@ import { ChargeTable, Chip, Tooltip } from '~/components/designSystem'
 import { ComboBox, ComboBoxField, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PrivilegeValueInputComponent } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
