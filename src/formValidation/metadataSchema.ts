@@ -7,6 +7,7 @@ export const METADATA_KEY_MAX_LENGTH = 20
 export enum MetadataErrorsEnum {
   uniqueness = 'uniqueness',
   maxLength = 'maxLength',
+  required = 'required',
 }
 
 export const metadataSchema = ({
@@ -66,16 +67,12 @@ export const zodMetadataSchema = (valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEF
       z.object({
         key: z
           .string()
-          .refine((value) => !!value)
-          .refine((value) => value.length <= METADATA_KEY_MAX_LENGTH, {
-            message: MetadataErrorsEnum.maxLength,
-          }),
+          .refine((value) => !!value, MetadataErrorsEnum.required)
+          .refine((value) => value.length <= METADATA_KEY_MAX_LENGTH, MetadataErrorsEnum.maxLength),
         value: z
           .string()
-          .refine((value) => !!value)
-          .refine((value) => value.length <= valueMaxLength, {
-            message: MetadataErrorsEnum.maxLength,
-          }),
+          .refine((value) => !!value, MetadataErrorsEnum.required)
+          .refine((value) => value.length <= valueMaxLength, MetadataErrorsEnum.maxLength),
         displayInInvoice: z.boolean().optional(),
         id: z.string().optional(),
       }),

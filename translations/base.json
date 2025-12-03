@@ -3578,5 +3578,7 @@
   "text_1764239804026ca61hwr3pp9": "URL is not in a valid format",
   "text_1764249459826j3tkbn7s5ca": "Subsidiary is needed for automatic synchronization",
   "text_1764249563018adc7qy057at": "Please select a targeted object",
-  "text_1764259518524a0hr3z00m7r": "At least one payment method is required"
+  "text_1764259518524a0hr3z00m7r": "At least one payment method is required",
+  "text_1764753433918x3icklnboak": "Metadata key is required",
+  "text_1764753433918nlsnvdnwjmo": "Metadata value is required"
 }

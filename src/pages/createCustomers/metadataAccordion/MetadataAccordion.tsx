@@ -56,6 +56,9 @@ const MetadataAccordion = withForm({
                 if (error === MetadataErrorsEnum.maxLength) {
                   return translate('text_63fcc3218d35b9377840f5d9', { max: 20 })
                 }
+                if (error === MetadataErrorsEnum.required) {
+                  return translate('text_1764753433918x3icklnboak')
+                }
                 return undefined
               }
 
@@ -84,6 +87,9 @@ const MetadataAccordion = withForm({
                   return translate('text_63fcc3218d35b9377840f5e5', {
                     max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
                   })
+                }
+                if (error === MetadataErrorsEnum.required) {
+                  return translate('text_1764753433918nlsnvdnwjmo')
                 }
                 return undefined
               }
