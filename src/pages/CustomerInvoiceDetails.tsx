@@ -251,7 +251,12 @@ gql`
   mutation refreshInvoice($input: RefreshInvoiceInput!) {
     refreshInvoice(input: $input) {
       id
-      ...AllInvoiceDetailsForCustomerInvoiceDetails
+      fees {
+        ...FeeForInvoiceDetailsTable
+      }
+      invoiceSubscriptions {
+        ...InvoiceSubscriptionForInvoiceDetailsTable
+      }
     }
   }
 

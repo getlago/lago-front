@@ -1,9 +1,15 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { Tooltip } from 'lago-design-system'
 import { FC, useId, useMemo, useState } from 'react'
 
-import { Accordion, Alert, Button, ChargeTable, Typography } from '~/components/designSystem'
+import {
+  Accordion,
+  Alert,
+  Button,
+  ChargeTable,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { ComboBox, ComboboxItem, TextInput } from '~/components/form'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
