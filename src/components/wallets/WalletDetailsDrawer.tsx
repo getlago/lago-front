@@ -17,11 +17,11 @@ import {
   Button,
   Drawer,
   DrawerRef,
+  GenericPlaceholder,
   Skeleton,
   Status,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
 import {
   payablePaymentStatusMapping,

@@ -1,5 +1,4 @@
-import { GenericPlaceholder, GenericPlaceholderProps } from 'lago-design-system'
-
+import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 

@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogRef,
   Drawer,
+  GenericPlaceholder,
   HorizontalDataTable,
   NavigationTab,
   Popper,
@@ -42,7 +43,6 @@ import {
   TextInputField,
 } from '~/components/form'
 import { AmountInputField } from '~/components/form/AmountInput'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'

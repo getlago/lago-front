@@ -3,7 +3,12 @@ import { gql } from '@apollo/client'
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { usePrepaidCreditsAnalyticsOverview } from '~/components/analytics/prepaidCredits/usePrepaidCreditsAnalyticsOverview'
 import { toAmountCents } from '~/components/analytics/prepaidCredits/utils'
-import { Button, HorizontalDataTable, Typography } from '~/components/designSystem'
+import {
+  Button,
+  GenericPlaceholder,
+  HorizontalDataTable,
+  Typography,
+} from '~/components/designSystem'
 import {
   AvailableQuickFilters,
   Filters,
@@ -11,7 +16,6 @@ import {
 } from '~/components/designSystem/Filters'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'

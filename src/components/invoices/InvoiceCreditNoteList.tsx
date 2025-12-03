@@ -4,8 +4,13 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { Button, ButtonLink, Tooltip, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  Button,
+  ButtonLink,
+  GenericPlaceholder,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE } from '~/core/router'
 import {

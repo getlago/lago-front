@@ -1,6 +1,6 @@
-import { GenericPlaceholder } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 
+import { GenericPlaceholder } from '~/components/designSystem'
 import {
   IntegrationTypeEnum,
   MappingTypeEnum,

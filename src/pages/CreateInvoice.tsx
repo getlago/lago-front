@@ -12,6 +12,7 @@ import {
   Alert,
   Button,
   Card,
+  GenericPlaceholder,
   Popper,
   Skeleton,
   Tooltip,
@@ -20,7 +21,6 @@ import {
   WarningDialogRef,
 } from '~/components/designSystem'
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   EditFeeBillingPeriod,
   EditFeeBillingPeriodRef,

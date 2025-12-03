@@ -10,8 +10,14 @@ import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { Button, NavigationTab, Popper, Skeleton, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  Button,
+  GenericPlaceholder,
+  NavigationTab,
+  Popper,
+  Skeleton,
+  Typography,
+} from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {

@@ -24,12 +24,12 @@ import { computeCustomerInitials } from '~/components/customers/utils'
 import {
   Button,
   Chip,
+  GenericPlaceholder,
   NavigationTab,
   Popper,
   Skeleton,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'

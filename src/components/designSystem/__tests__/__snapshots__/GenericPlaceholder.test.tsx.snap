@@ -1,0 +1,168 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`GenericPlaceholder Snapshot Tests matches snapshot with ReactNode subtitle 1`] = `
+<div
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  data-test="empty-state"
+>
+  <div
+    data-test="generic-placeholder-image"
+  >
+    <img
+      alt="Test"
+      src="test.png"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+    data-test="generic-placeholder-subtitle"
+  >
+    <div>
+      <span>
+        Custom
+      </span>
+       
+      <strong>
+        subtitle
+      </strong>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`GenericPlaceholder Snapshot Tests matches snapshot with all props 1`] = `
+<div
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5 custom-class"
+  data-test="empty-state"
+>
+  <div
+    data-test="generic-placeholder-image"
+  >
+    <svg
+      data-test="error-icon"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-3 css-uvnpl0-MuiTypography-root"
+    data-test="generic-placeholder-title"
+  >
+    Error occurred
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
+    data-test="generic-placeholder-subtitle"
+  >
+    Something went wrong
+  </div>
+  <button
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
+    data-test="generic-placeholder-button"
+    tabindex="0"
+    type="button"
+  >
+    Retry
+  </button>
+</div>
+`;
+
+exports[`GenericPlaceholder Snapshot Tests matches snapshot with button 1`] = `
+<div
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  data-test="empty-state"
+>
+  <div
+    data-test="generic-placeholder-image"
+  >
+    <img
+      alt="Test"
+      src="test.png"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
+    data-test="generic-placeholder-subtitle"
+  >
+    Test subtitle
+  </div>
+  <button
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
+    data-test="generic-placeholder-button"
+    tabindex="0"
+    type="button"
+  >
+    Click me
+  </button>
+</div>
+`;
+
+exports[`GenericPlaceholder Snapshot Tests matches snapshot with minimal props 1`] = `
+<div
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  data-test="empty-state"
+>
+  <div
+    data-test="generic-placeholder-image"
+  >
+    <img
+      alt="Test"
+      src="test.png"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+    data-test="generic-placeholder-subtitle"
+  >
+    Test subtitle
+  </div>
+</div>
+`;
+
+exports[`GenericPlaceholder Snapshot Tests matches snapshot with noMargins 1`] = `
+<div
+  class="max-w-124 first:mb-3 [&>img]:size-10 [&>svg]:mb-5 m-0 p-0"
+  data-test="empty-state"
+>
+  <div
+    data-test="generic-placeholder-image"
+  >
+    <img
+      alt="Test"
+      src="test.png"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+    data-test="generic-placeholder-subtitle"
+  >
+    Test subtitle
+  </div>
+</div>
+`;
+
+exports[`GenericPlaceholder Snapshot Tests matches snapshot with title 1`] = `
+<div
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  data-test="empty-state"
+>
+  <div
+    data-test="generic-placeholder-image"
+  >
+    <img
+      alt="Test"
+      src="test.png"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-3 css-uvnpl0-MuiTypography-root"
+    data-test="generic-placeholder-title"
+  >
+    Test Title
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+    data-test="generic-placeholder-subtitle"
+  >
+    Test subtitle
+  </div>
+</div>
+`;

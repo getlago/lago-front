@@ -10,6 +10,7 @@ import {
 import {
   Alert,
   Button,
+  GenericPlaceholder,
   NavigationTab,
   Skeleton,
   Table,
@@ -17,7 +18,6 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
 import { LagoGQLError } from '~/core/apolloClient'
