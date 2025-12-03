@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CreditNoteDetailsMetadata snapshots matches snapshot with metadata 1`] = `
+<div>
+  <div>
+    <div
+      class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+      data-test="subhead1"
+    >
+      Metadata
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+        data-test="button"
+        tabindex="0"
+        type="button"
+      >
+        Edit
+      </button>
+    </div>
+    <div
+      class="mt-6"
+    >
+      <div
+        class="mb-2 flex gap-x-4"
+      >
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line w-58 css-11vl04s-MuiTypography-root"
+          data-test="body"
+        >
+          environment
+        </div>
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          data-test="body"
+        >
+          production
+        </div>
+      </div>
+      <div
+        class="mb-2 flex gap-x-4"
+      >
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line w-58 css-11vl04s-MuiTypography-root"
+          data-test="body"
+        >
+          version
+        </div>
+        <div
+          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          data-test="body"
+        >
+          2.0.0
+        </div>
+      </div>
+    </div>
+    <div
+      data-test="metadata-edit-drawer"
+    />
+  </div>
+</div>
+`;
+
+exports[`CreditNoteDetailsMetadata snapshots matches snapshot with no metadata 1`] = `
+<div>
+  <div>
+    <div
+      class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+      data-test="subhead1"
+    >
+      Metadata
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+        data-test="button"
+        tabindex="0"
+        type="button"
+      >
+        Edit
+      </button>
+    </div>
+    <div
+      class="mt-6"
+    >
+      <div
+        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        data-test="caption"
+      >
+        No metadata linked to this credit note
+      </div>
+    </div>
+    <div
+      data-test="metadata-edit-drawer"
+    />
+  </div>
+</div>
+`;

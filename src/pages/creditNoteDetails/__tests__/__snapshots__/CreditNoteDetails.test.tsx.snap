@@ -1,0 +1,699 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`CreditNoteDetails snapshots matches snapshot in error state 1`] = `
+<div>
+  <div
+    class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 pl-17 pr-4"
+  >
+    <div
+      class="flex items-center gap-4"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+        data-test="button"
+        tabindex="0"
+        type="button"
+      >
+        <svg
+          class="text-inherit size-4 min-w-4"
+          data-test="arrow-left/medium"
+          fill="currentColor"
+          title="arrow-left/medium"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.245 7.00001H15C15.2652 7.00001 15.5196 7.10537 15.7071 7.29291C15.8946 7.48044 16 7.7348 16 8.00001C16 8.26523 15.8946 8.51958 15.7071 8.70712C15.5196 8.89466 15.2652 9.00001 15 9.00001H3.25L5.75 11.295C5.93625 11.4824 6.04079 11.7358 6.04079 12C6.04079 12.2642 5.93625 12.5177 5.75 12.705C5.65679 12.801 5.54526 12.8774 5.42201 12.9295C5.29876 12.9816 5.16631 13.0085 5.0325 13.0085C4.89868 13.0085 4.76623 12.9816 4.64298 12.9295C4.51974 12.8774 4.40821 12.801 4.315 12.705L0.444997 9.06001C0.164096 8.77876 0.00631714 8.39751 0.00631714 8.00001C0.00631714 7.60251 0.164096 7.22126 0.444997 6.94001L4.295 3.29001C4.4866 3.10221 4.7442 2.99701 5.0125 2.99701C5.28079 2.99701 5.53839 3.10221 5.73 3.29001C5.82297 3.38289 5.89673 3.49317 5.94706 3.61457C5.99738 3.73597 6.02328 3.8661 6.02328 3.99751C6.02328 4.12893 5.99738 4.25906 5.94706 4.38045C5.89673 4.50185 5.82297 4.61214 5.73 4.70501L3.245 7.00001Z"
+          />
+        </svg>
+      </button>
+      <div
+        class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+        data-test="bodyHl"
+      />
+    </div>
+  </div>
+  <div
+    class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+    data-test="empty-state"
+  >
+    <svg
+      height="104"
+      width="136"
+    >
+      error.svg
+    </svg>
+    <div
+      class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-3 css-uvnpl0-MuiTypography-root"
+      data-test="subhead1"
+    >
+      Something went wrong
+    </div>
+    <div
+      class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
+      data-test="body"
+    >
+      Please refresh the page or contact us if the error persists.
+    </div>
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
+      data-test="button"
+      tabindex="0"
+      type="button"
+    >
+      Refresh the page
+    </button>
+  </div>
+</div>
+`;
+
+exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
+<div>
+  <div
+    class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 pl-17 pr-4"
+  >
+    <div
+      class="flex items-center gap-4"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+        data-test="button"
+        tabindex="0"
+        type="button"
+      >
+        <svg
+          class="text-inherit size-4 min-w-4"
+          data-test="arrow-left/medium"
+          fill="currentColor"
+          title="arrow-left/medium"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.245 7.00001H15C15.2652 7.00001 15.5196 7.10537 15.7071 7.29291C15.8946 7.48044 16 7.7348 16 8.00001C16 8.26523 15.8946 8.51958 15.7071 8.70712C15.5196 8.89466 15.2652 9.00001 15 9.00001H3.25L5.75 11.295C5.93625 11.4824 6.04079 11.7358 6.04079 12C6.04079 12.2642 5.93625 12.5177 5.75 12.705C5.65679 12.801 5.54526 12.8774 5.42201 12.9295C5.29876 12.9816 5.16631 13.0085 5.0325 13.0085C4.89868 13.0085 4.76623 12.9816 4.64298 12.9295C4.51974 12.8774 4.40821 12.801 4.315 12.705L0.444997 9.06001C0.164096 8.77876 0.00631714 8.39751 0.00631714 8.00001C0.00631714 7.60251 0.164096 7.22126 0.444997 6.94001L4.295 3.29001C4.4866 3.10221 4.7442 2.99701 5.0125 2.99701C5.28079 2.99701 5.53839 3.10221 5.73 3.29001C5.82297 3.38289 5.89673 3.49317 5.94706 3.61457C5.99738 3.73597 6.02328 3.8661 6.02328 3.99751C6.02328 4.12893 5.99738 4.25906 5.94706 4.38045C5.89673 4.50185 5.82297 4.61214 5.73 4.70501L3.245 7.00001Z"
+          />
+        </svg>
+      </button>
+      <div
+        class="flex max-w-full items-center h-6 w-30"
+      >
+        <div
+          class="animate-pulse bg-grey-100 h-3 rounded-3xl w-30"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    class="flex items-center gap-4 px-4 py-8 md:px-12 shadow-none shadow-inherit"
+  >
+    <div
+      class="animate-pulse bg-grey-100 w-16 min-w-16 h-16 rounded-xl"
+    />
+    <div
+      class="flex flex-col gap-1"
+    >
+      <div
+        class="flex max-w-full items-center h-6 mb-1 w-40"
+      >
+        <div
+          class="animate-pulse bg-grey-100 h-3 rounded-3xl mb-1 w-40"
+        />
+      </div>
+      <div
+        class="flex max-w-full items-center h-6 w-50"
+      >
+        <div
+          class="animate-pulse bg-grey-100 h-3 rounded-3xl w-50"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    class="flex flex-row shadow-b mx-12"
+  >
+    <div
+      class="MuiTabs-root w-full flex-1 items-center overflow-visible min-h-13 css-1e5y0we-MuiTabs-root"
+      role="navigation"
+    >
+      <div
+        class="MuiTabs-scrollableX MuiTabs-hideScrollbar css-oqr85h"
+        style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"
+      />
+      <div
+        class="MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-1uicv9e-MuiTabs-scroller"
+        style="margin-bottom: 0px;"
+      >
+        <div
+          aria-label="Navigation tab"
+          class="MuiTabs-flexContainer css-131tw69-MuiTabs-flexContainer"
+          role="tablist"
+        >
+          <button
+            aria-controls="simple-tabpanel-0"
+            aria-selected="true"
+            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            id="simple-tab-0"
+            role="tab"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+            >
+              Overview
+            </span>
+          </button>
+          <button
+            aria-controls="simple-tabpanel-1"
+            aria-selected="false"
+            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            id="simple-tab-1"
+            role="tab"
+            tabindex="-1"
+            type="button"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+            >
+              Activity logs
+            </span>
+          </button>
+        </div>
+        <span
+          class="MuiTabs-indicator css-9idi0b-MuiTabs-indicator"
+          style="left: 0px; width: 0px;"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    aria-labelledby="simple-tab-0"
+    id="simple-tabpanel-0"
+    role="tabpanel"
+  >
+    <div
+      class="box-content flex flex-col gap-12 px-4 pb-20 md:px-12 max-w-none"
+    >
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          data-test="subhead1"
+        >
+          Overview
+        </div>
+        <div
+          class="flex flex-row gap-8 py-6"
+        >
+          <div
+            class="flex flex-1 flex-col gap-2"
+          />
+          <div
+            class="flex flex-1 flex-col gap-2"
+          >
+            <div
+              class="flex items-start gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                data-test="caption"
+              >
+                Credit available
+              </div>
+              <div
+                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                data-test="body"
+              >
+                $0.00
+              </div>
+            </div>
+            <div
+              class="flex items-start gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                data-test="caption"
+              >
+                Credit status
+              </div>
+              <div
+                class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                data-test="status"
+              >
+                <div
+                  class="MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-1ycl6jq-MuiTypography-root"
+                  data-test="captionHl"
+                >
+                  Available
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section
+          class="[&>table]:w-full [&>table]:table-fixed [&>table]:border-collapse [&>.main-table:not(:first-child)]:mt-10 [&>table>thead>tr>th]:sticky [&>table>thead>tr>th]:top-[theme("spacing.nav")] [&>table>thead>tr>th]:z-10 [&>table>thead>tr>th]:box-border [&>table>thead>tr>th]:overflow-hidden [&>table>thead>tr>th]:bg-white [&>table>thead>tr>th]:py-8 [&>table>thead>tr>th]:pb-3 [&>table>thead>tr>th]:text-right [&>table>thead>tr>th]:shadow-b [&>table>thead>tr>th]:line-break-anywhere [&>table>thead>tr>th:not(:last-child)]:pr-3 [&>table>thead>tr>th:nth-child(1)]:w-[70%] [&>table>thead>tr>th:nth-child(1)]:text-left [&>table>thead>tr>th:nth-child(2)]:w-[10%] [&>table>thead>tr>th:nth-child(3)]:w-1/5 [&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td:not(:last-child)]:pr-3 [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere [&>table>tfoot>tr>td:nth-child(2)]:text-left [&>table>tfoot>tr>td:nth-child(2)]:shadow-b [&>table>tfoot>tr>td:nth-child(3)]:shadow-b [&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right [&>table>tfoot>tr>td:nth-child(1)]:w-[50%] [&>table>tfoot>tr>td:nth-child(2)]:w-[40%] [&>table>tfoot>tr>td:nth-child(3)]:w-[10%]"
+        >
+          <table>
+            <tfoot>
+              <tr>
+                <td />
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Credit subtotal (excl. tax)
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    data-test="body"
+                  >
+                    -
+                    $0.00
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td />
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Tax (0%)
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    data-test="body"
+                  >
+                    -
+                    $0.00
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td />
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Total credit
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    data-test="body"
+                  >
+                    -
+                    $0.00
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+      </div>
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          data-test="subhead1"
+        >
+          Metadata
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+            data-test="button"
+            tabindex="0"
+            type="button"
+          >
+            Edit
+          </button>
+        </div>
+        <div
+          class="mt-6"
+        >
+          <div
+            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            data-test="caption"
+          >
+            No metadata linked to this credit note
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-labelledby="simple-tab-1"
+    hidden=""
+    id="simple-tabpanel-1"
+    role="tabpanel"
+  />
+</div>
+`;
+
+exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] = `
+<div>
+  <div
+    class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 pl-17 pr-4"
+  >
+    <div
+      class="flex items-center gap-4"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+        data-test="button"
+        tabindex="0"
+        type="button"
+      >
+        <svg
+          class="text-inherit size-4 min-w-4"
+          data-test="arrow-left/medium"
+          fill="currentColor"
+          title="arrow-left/medium"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3.245 7.00001H15C15.2652 7.00001 15.5196 7.10537 15.7071 7.29291C15.8946 7.48044 16 7.7348 16 8.00001C16 8.26523 15.8946 8.51958 15.7071 8.70712C15.5196 8.89466 15.2652 9.00001 15 9.00001H3.25L5.75 11.295C5.93625 11.4824 6.04079 11.7358 6.04079 12C6.04079 12.2642 5.93625 12.5177 5.75 12.705C5.65679 12.801 5.54526 12.8774 5.42201 12.9295C5.29876 12.9816 5.16631 13.0085 5.0325 13.0085C4.89868 13.0085 4.76623 12.9816 4.64298 12.9295C4.51974 12.8774 4.40821 12.801 4.315 12.705L0.444997 9.06001C0.164096 8.77876 0.00631714 8.39751 0.00631714 8.00001C0.00631714 7.60251 0.164096 7.22126 0.444997 6.94001L4.295 3.29001C4.4866 3.10221 4.7442 2.99701 5.0125 2.99701C5.28079 2.99701 5.53839 3.10221 5.73 3.29001C5.82297 3.38289 5.89673 3.49317 5.94706 3.61457C5.99738 3.73597 6.02328 3.8661 6.02328 3.99751C6.02328 4.12893 5.99738 4.25906 5.94706 4.38045C5.89673 4.50185 5.82297 4.61214 5.73 4.70501L3.245 7.00001Z"
+          />
+        </svg>
+      </button>
+      <div
+        class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+        data-test="bodyHl"
+      >
+        CN-001
+      </div>
+    </div>
+    <div
+      class=""
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
+        data-test="button"
+        tabindex="0"
+        type="button"
+      >
+        Actions
+        <span
+          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-r64y3m-MuiButton-endIcon"
+        >
+          <svg
+            class="text-inherit size-4 min-w-4"
+            data-test="chevron-down/medium"
+            fill="currentColor"
+            title="chevron-down/medium"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15.71 3.795C15.6171 3.70202 15.5068 3.62826 15.3854 3.57794C15.264 3.52761 15.1339 3.50171 15.0025 3.50171C14.8711 3.50171 14.741 3.52761 14.6196 3.57794C14.4982 3.62826 14.3879 3.70202 14.295 3.795L8 10.27L1.705 3.795C1.51764 3.60874 1.26419 3.5042 1 3.5042C0.735815 3.5042 0.482363 3.60874 0.295001 3.795C0.199755 3.88813 0.124076 3.99935 0.0724084 4.12213C0.0207406 4.24492 -0.00587463 4.37678 -0.00587463 4.51C-0.00587463 4.64321 0.0207406 4.77508 0.0724084 4.89786C0.124076 5.02064 0.199755 5.13186 0.295001 5.225L6.94 12.055C7.22125 12.3359 7.6025 12.4937 8 12.4937C8.3975 12.4937 8.77875 12.3359 9.06 12.055L15.71 5.225C15.8052 5.13186 15.8809 5.02064 15.9326 4.89786C15.9843 4.77508 16.0109 4.64321 16.0109 4.51C16.0109 4.37678 15.9843 4.24492 15.9326 4.12213C15.8809 3.99935 15.8052 3.88813 15.71 3.795Z"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+  </div>
+  <div
+    class="flex items-center gap-4 px-4 py-8 md:px-12 shadow-none shadow-inherit"
+  >
+    <div
+      class="relative flex items-center justify-center [&>img]:size-full [&>img]:rounded-[inherit] [&>img]:object-cover w-16 min-w-16 h-16 rounded-xl bg-grey-100 text-grey-600"
+      data-test="connector/large"
+    >
+      <svg
+        class="text-grey-600 size-6 min-w-6"
+        data-test="document/large"
+        fill="currentColor"
+        title="document/large"
+        viewBox="0 0 16 16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          clip-rule="evenodd"
+          d="M2.64286 2V14H13.3582L13.3571 2H2.64286ZM4.78571 10H11.2143C11.8057 10 12.2857 10.447 12.2857 11C12.2857 11.553 11.8057 12 11.2143 12H4.78571C4.19428 12 3.71428 11.553 3.71428 11C3.71428 10.447 4.19428 10 4.78571 10ZM11.2143 7H4.78571C4.19428 7 3.71428 7.447 3.71428 8C3.71428 8.553 4.19428 9 4.78571 9H11.2143C11.8057 9 12.2857 8.553 12.2857 8C12.2857 7.447 11.8057 7 11.2143 7ZM9.07143 6H4.78571C4.19428 6 3.71428 5.553 3.71428 5C3.71428 4.447 4.19428 4 4.78571 4H9.07143C9.66286 4 10.1429 4.447 10.1429 5C10.1429 5.553 9.66286 6 9.07143 6ZM13.3571 0H2.64286C1.46107 0 0.5 0.897 0.5 2V14C0.5 15.103 1.46107 16 2.64286 16H13.3571C14.5389 16 15.5 15.103 15.5 14V2C15.5 0.897 14.5389 0 13.3571 0Z"
+          fill-rule="evenodd"
+        />
+      </svg>
+    </div>
+    <div
+      class="flex flex-col gap-1"
+    >
+      <div
+        class="flex flex-row gap-2"
+      >
+        <div
+          class="MuiTypography-root MuiTypography-headline whitespace-pre-line css-lh3wu3-MuiTypography-root"
+          data-test="headline"
+        >
+          CN-001
+        </div>
+      </div>
+      <div
+        class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+        data-test="body"
+      >
+        for $100.00 • credit-note-123
+      </div>
+    </div>
+  </div>
+  <div
+    class="flex flex-row shadow-b mx-12"
+  >
+    <div
+      class="MuiTabs-root w-full flex-1 items-center overflow-visible min-h-13 css-1e5y0we-MuiTabs-root"
+      role="navigation"
+    >
+      <div
+        class="MuiTabs-scrollableX MuiTabs-hideScrollbar css-oqr85h"
+        style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"
+      />
+      <div
+        class="MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-1uicv9e-MuiTabs-scroller"
+        style="margin-bottom: 0px;"
+      >
+        <div
+          aria-label="Navigation tab"
+          class="MuiTabs-flexContainer css-131tw69-MuiTabs-flexContainer"
+          role="tablist"
+        >
+          <button
+            aria-controls="simple-tabpanel-0"
+            aria-selected="true"
+            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            id="simple-tab-0"
+            role="tab"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+            >
+              Overview
+            </span>
+          </button>
+          <button
+            aria-controls="simple-tabpanel-1"
+            aria-selected="false"
+            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            id="simple-tab-1"
+            role="tab"
+            tabindex="-1"
+            type="button"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+            >
+              Activity logs
+            </span>
+          </button>
+        </div>
+        <span
+          class="MuiTabs-indicator css-9idi0b-MuiTabs-indicator"
+          style="left: 0px; width: 0px;"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    aria-labelledby="simple-tab-0"
+    id="simple-tabpanel-0"
+    role="tabpanel"
+  >
+    <div
+      class="box-content flex flex-col gap-12 px-4 pb-20 md:px-12 max-w-none"
+    >
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          data-test="subhead1"
+        >
+          Overview
+        </div>
+        <div
+          class="flex flex-row gap-8 py-6"
+        >
+          <div
+            class="flex flex-1 flex-col gap-2"
+          />
+          <div
+            class="flex flex-1 flex-col gap-2"
+          >
+            <div
+              class="flex items-start gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                data-test="caption"
+              >
+                Credit available
+              </div>
+              <div
+                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                data-test="body"
+              >
+                $0.00
+              </div>
+            </div>
+            <div
+              class="flex items-start gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                data-test="caption"
+              >
+                Credit status
+              </div>
+              <div
+                class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                data-test="status"
+              >
+                <div
+                  class="MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-1ycl6jq-MuiTypography-root"
+                  data-test="captionHl"
+                >
+                  Available
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section
+          class="[&>table]:w-full [&>table]:table-fixed [&>table]:border-collapse [&>.main-table:not(:first-child)]:mt-10 [&>table>thead>tr>th]:sticky [&>table>thead>tr>th]:top-[theme("spacing.nav")] [&>table>thead>tr>th]:z-10 [&>table>thead>tr>th]:box-border [&>table>thead>tr>th]:overflow-hidden [&>table>thead>tr>th]:bg-white [&>table>thead>tr>th]:py-8 [&>table>thead>tr>th]:pb-3 [&>table>thead>tr>th]:text-right [&>table>thead>tr>th]:shadow-b [&>table>thead>tr>th]:line-break-anywhere [&>table>thead>tr>th:not(:last-child)]:pr-3 [&>table>thead>tr>th:nth-child(1)]:w-[70%] [&>table>thead>tr>th:nth-child(1)]:text-left [&>table>thead>tr>th:nth-child(2)]:w-[10%] [&>table>thead>tr>th:nth-child(3)]:w-1/5 [&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td:not(:last-child)]:pr-3 [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere [&>table>tfoot>tr>td:nth-child(2)]:text-left [&>table>tfoot>tr>td:nth-child(2)]:shadow-b [&>table>tfoot>tr>td:nth-child(3)]:shadow-b [&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right [&>table>tfoot>tr>td:nth-child(1)]:w-[50%] [&>table>tfoot>tr>td:nth-child(2)]:w-[40%] [&>table>tfoot>tr>td:nth-child(3)]:w-[10%]"
+        >
+          <table>
+            <tfoot>
+              <tr>
+                <td />
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Credit subtotal (excl. tax)
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    data-test="body"
+                  >
+                    -
+                    $0.00
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td />
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Tax (0%)
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    data-test="body"
+                  >
+                    -
+                    $0.00
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td />
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Total credit
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    data-test="body"
+                  >
+                    -
+                    $0.00
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+      </div>
+      <div>
+        <div
+          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          data-test="subhead1"
+        >
+          Metadata
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+            data-test="button"
+            tabindex="0"
+            type="button"
+          >
+            Edit
+          </button>
+        </div>
+        <div
+          class="mt-6"
+        >
+          <div
+            class="mb-2 flex gap-x-4"
+          >
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line w-58 css-11vl04s-MuiTypography-root"
+              data-test="body"
+            >
+              test_key
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              test_value
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-labelledby="simple-tab-1"
+    hidden=""
+    id="simple-tabpanel-1"
+    role="tabpanel"
+  />
+</div>
+`;
