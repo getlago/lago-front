@@ -46,6 +46,8 @@ const CreateCustomer = () => {
   const { data: billingEntitiesData, loading: isLoadingBillingEntities } =
     useGetBillingEntitiesQuery()
 
+  const isFormReady = !isLoadingBillingEntities && !loading
+
   const billingEntitiesList = useMemo(
     () =>
       billingEntitiesData?.billingEntities?.collection
@@ -138,13 +140,13 @@ const CreateCustomer = () => {
           <Button variant="quaternary" icon="close" onClick={handleAbort} />
         </CenteredPage.Header>
 
-        {loading && (
+        {!isFormReady && (
           <CenteredPage.Container>
             <FormLoadingSkeleton id="create-customer" />
           </CenteredPage.Container>
         )}
 
-        {!loading && (
+        {isFormReady && (
           <CenteredPage.Container>
             <div className="not-last-child:mb-1">
               <Typography variant="headline" color="textSecondary">
