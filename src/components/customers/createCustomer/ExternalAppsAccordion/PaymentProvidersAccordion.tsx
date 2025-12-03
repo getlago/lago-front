@@ -24,6 +24,34 @@ import Stripe from '~/public/images/stripe.svg'
 
 import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
 
+type TranslateFunc = (key: string) => string
+
+export const getSyncLabel = (
+  paymentProvider: ProviderTypeEnum | null | undefined,
+  paymentProviderCode: string | null | undefined,
+  connectedPaymentProvidersData: ComboboxDataGrouped[],
+  translate: TranslateFunc,
+): string => {
+  const getSyncLabelByProvider = () => {
+    switch (paymentProvider) {
+      case ProviderTypeEnum.Gocardless:
+        return translate('text_635bdbda84c98758f9bba8aa')
+      case ProviderTypeEnum.Adyen:
+        return translate('text_645d0728ea0a5a7bbf76d5c7')
+      case ProviderTypeEnum.Moneyhash:
+        return translate('text_1733992108437qlovqhjhqj4')
+      default:
+        return translate('text_635bdbda84c98758f9bba89e')
+    }
+  }
+
+  const providerSuffix = paymentProviderCode
+    ? ` • ${connectedPaymentProvidersData.find((provider) => provider.value === paymentProviderCode)?.label || ''}`
+    : ''
+
+  return `${getSyncLabelByProvider()}${providerSuffix}`
+}
+
 gql`
   query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
     paymentProviders(limit: $limit) {
@@ -218,23 +246,12 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                 <Checkbox
                   name="providerCustomer.syncWithProvider"
                   value={!!formikProps.values.providerCustomer?.syncWithProvider}
-                  label={`${
-                    formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
-                      ? translate('text_635bdbda84c98758f9bba8aa')
-                      : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
-                        ? translate('text_645d0728ea0a5a7bbf76d5c7')
-                        : formikProps.values.paymentProvider === ProviderTypeEnum.Moneyhash
-                          ? translate('text_1733992108437qlovqhjhqj4')
-                          : translate('text_635bdbda84c98758f9bba89e')
-                  }${
-                    formikProps.values.paymentProviderCode
-                      ? ` • ${
-                          connectedPaymentProvidersData.find(
-                            (provider) => provider.value === formikProps.values.paymentProviderCode,
-                          )?.label
-                        }`
-                      : ''
-                  }`}
+                  label={getSyncLabel(
+                    formikProps.values.paymentProvider,
+                    formikProps.values.paymentProviderCode,
+                    connectedPaymentProvidersData,
+                    translate,
+                  )}
                   onChange={(e, checked) => {
                     const newProviderCustomer = { ...formikProps.values.providerCustomer }
 
