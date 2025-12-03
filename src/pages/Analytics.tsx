@@ -1,5 +1,4 @@
-import { Spinner } from 'lago-design-system'
-
+import { Spinner } from '~/components/designSystem'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import NewAnalytics from '~/pages/analytics/NewAnalytics'

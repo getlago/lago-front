@@ -1,7 +1,7 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
 import { captureException } from '@sentry/react'
-import { Avatar, ConditionalWrapper, Icon, IconName, Spinner } from 'lago-design-system'
+import { Avatar, ConditionalWrapper, Icon, IconName } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -9,6 +9,7 @@ import {
   Button,
   Popper,
   Skeleton,
+  Spinner,
   Tooltip,
   Typography,
   VerticalMenu,
