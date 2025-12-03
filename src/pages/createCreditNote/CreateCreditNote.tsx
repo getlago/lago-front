@@ -138,7 +138,15 @@ const CreateCreditNote = () => {
       }),
     }),
     onSubmit: async (values, formikBag) => {
-      const answer = await onCreate(values as CreditNoteForm)
+      const formattedValues = {
+        ...values,
+        metadata: (values.metadata || []).map((metadata) => ({
+          key: metadata.key,
+          value: metadata.value,
+        })),
+      } as CreditNoteForm
+
+      const answer = await onCreate(formattedValues)
 
       if (hasDefinedGQLError('DoesNotMatchItemAmounts', answer?.errors)) {
         formikBag.setErrors({

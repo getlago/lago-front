@@ -16,7 +16,9 @@ type UseEditCreditNoteReturn = {
 }
 
 export const useEditCreditNote = (): UseEditCreditNoteReturn => {
-  const [updateCreditNote, { loading: isUpdatingCreditNote }] = useEditCreditNoteMutation()
+  const [updateCreditNote, { loading: isUpdatingCreditNote }] = useEditCreditNoteMutation({
+    refetchQueries: ['getCreditNoteForDetails'],
+  })
 
   return {
     updateCreditNote,

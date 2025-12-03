@@ -4,6 +4,7 @@ import { object } from 'yup'
 
 import { CreditNoteForm } from '~/components/creditNote/types'
 import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { addToast } from '~/core/apolloClient'
 import { metadataSchema } from '~/formValidation/metadataSchema'
 import { GetCreditNoteForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -25,7 +26,7 @@ export const MetadataEditDrawer = forwardRef<MetadataEditDrawerRef>((_, ref) => 
   const drawerRef = useRef<DrawerRef>(null)
   const [localData, setLocalData] = useState<MetadataEditDrawerProps | undefined>(undefined)
 
-  const { isUpdatingCreditNote } = useEditCreditNote()
+  const { updateCreditNote, isUpdatingCreditNote } = useEditCreditNote()
 
   const formikProps = useFormik<Partial<CreditNoteForm>>({
     initialValues: {
@@ -41,19 +42,32 @@ export const MetadataEditDrawer = forwardRef<MetadataEditDrawerRef>((_, ref) => 
         valueMaxLength: 255,
       }),
     }),
-    onSubmit: async () => {
+    onSubmit: async (values) => {
       if (!localData?.creditNote) return
 
-      // const answer = await updateCreditNote({
-      //   variables: {
-      //     input: {
-      //       id: localData.creditNote.id || '',
-      //       metadata: values.metadata,
-      //       // This shouldn't be mandatory
-      //       refundStatus: localData.creditNote.refundStatus,
-      //     },
-      //   },
-      // })
+      const answer = await updateCreditNote({
+        variables: {
+          input: {
+            id: localData.creditNote.id || '',
+            metadata: (values.metadata || []).map((metadata) => ({
+              key: metadata.key,
+              value: metadata.value,
+            })),
+          },
+        },
+      })
+
+      const { errors } = answer
+
+      if (errors?.length) {
+        return
+      }
+
+      addToast({
+        message: translate('text_17647718978181hu15vk5h86'),
+        severity: 'success',
+      })
+      drawerRef.current?.closeDrawer()
     },
   })
 
