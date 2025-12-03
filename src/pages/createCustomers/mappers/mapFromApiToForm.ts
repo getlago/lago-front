@@ -138,6 +138,7 @@ export const mapFromApiToForm = (
     },
     metadata:
       customer?.metadata?.map((meta) => ({
+        id: meta.id,
         key: meta.key,
         value: meta.value,
         displayInInvoice: meta.displayInInvoice ?? false,

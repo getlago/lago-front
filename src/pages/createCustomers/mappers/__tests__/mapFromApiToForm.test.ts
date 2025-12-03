@@ -251,8 +251,8 @@ describe('mapFromApiToForm', () => {
           },
         },
         metadata: [
-          { key: 'department', value: 'engineering', displayInInvoice: true },
-          { key: 'priority', value: 'high', displayInInvoice: false },
+          { key: 'department', value: 'engineering', displayInInvoice: true, id: 'meta-1' },
+          { key: 'priority', value: 'high', displayInInvoice: false, id: 'meta-2' },
         ],
         billingEntityCode: 'default-entity',
       })
@@ -940,9 +940,9 @@ describe('mapFromApiToForm', () => {
           },
         },
         metadata: [
-          { key: 'segment', value: 'enterprise', displayInInvoice: true },
-          { key: 'region', value: 'europe', displayInInvoice: false },
-          { key: 'account_manager', value: 'alice.smith', displayInInvoice: false },
+          { key: 'segment', value: 'enterprise', displayInInvoice: true, id: 'meta-1' },
+          { key: 'region', value: 'europe', displayInInvoice: false, id: 'meta-2' },
+          { key: 'account_manager', value: 'alice.smith', displayInInvoice: false, id: 'meta-3' },
         ],
         billingEntityCode: 'complete-entity',
       })

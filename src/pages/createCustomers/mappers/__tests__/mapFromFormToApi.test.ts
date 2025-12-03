@@ -333,18 +333,18 @@ describe('mapFromFormToApi', () => {
       const formValues: CreateCustomerDefaultValues = {
         externalId: 'customer-123',
         metadata: [
-          { key: 'department', value: 'Engineering', displayInInvoice: true },
-          { key: 'project', value: 'Project X', displayInInvoice: false },
-          { key: 'manager', value: 'John Smith' }, // displayInInvoice undefined
+          { key: 'department', value: 'Engineering', displayInInvoice: true, id: 'meta-1' },
+          { key: 'project', value: 'Project X', displayInInvoice: false, id: 'meta-2' },
+          { key: 'manager', value: 'John Smith', displayInInvoice: false, id: 'meta-3' }, // displayInInvoice undefined
         ],
       }
 
       const result = mapFromFormToApi(formValues, {})
 
       expect(result.metadata).toEqual([
-        { key: 'department', value: 'Engineering', displayInInvoice: true },
-        { key: 'project', value: 'Project X', displayInInvoice: false },
-        { key: 'manager', value: 'John Smith', displayInInvoice: false },
+        { key: 'department', value: 'Engineering', displayInInvoice: true, id: 'meta-1' },
+        { key: 'project', value: 'Project X', displayInInvoice: false, id: 'meta-2' },
+        { key: 'manager', value: 'John Smith', displayInInvoice: false, id: 'meta-3' },
       ])
     })
 

@@ -84,6 +84,7 @@ export const mapFromFormToApi = (
       providerPaymentMethods: getProviderPaymentMethods(),
     },
     metadata: values.metadata?.map((meta) => ({
+      id: meta.id,
       key: meta.key,
       value: meta.value,
       displayInInvoice: meta.displayInInvoice || false,
