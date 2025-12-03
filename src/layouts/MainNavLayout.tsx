@@ -1,4 +1,4 @@
-import { gql, useApolloClient } from '@apollo/client'
+import { ApolloError, gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
 import { captureException } from '@sentry/react'
 import { Avatar, ConditionalWrapper, Icon, IconName, Spinner, Tooltip } from 'lago-design-system'
@@ -164,10 +164,16 @@ const MainNavLayout = () => {
 
       await Promise.allSettled(refetchPromises)
     } catch (error) {
-      // Errors are automatically captured by Apollo's error link
-      // However the error details is not captured by Sentry, so we need to capture it manually.
-      // Prefer to be noisy and capture the error manually to be sure we don't miss anything. We can adjust this later.
-      captureException(error)
+      // Apollo/GraphQL errors are automatically captured by the errorLink in apolloClient/init.ts
+      // Only capture non-Apollo errors manually to avoid duplicates
+      if (!(error instanceof ApolloError)) {
+        captureException(error, {
+          tags: {
+            errorType: 'OrganizationSwitchError',
+            component: 'MainNavLayout',
+          },
+        })
+      }
     } finally {
       setIsSwitchingOrg(false)
     }
