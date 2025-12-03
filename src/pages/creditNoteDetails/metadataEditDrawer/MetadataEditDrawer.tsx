@@ -48,7 +48,7 @@ export const MetadataEditDrawer = forwardRef<MetadataEditDrawerRef>((_, ref) => 
       const answer = await updateCreditNote({
         variables: {
           input: {
-            id: localData.creditNote.id || '',
+            id: localData.creditNote.id,
             metadata: (values.metadata || []).map((metadata) => ({
               key: metadata.key,
               value: metadata.value,

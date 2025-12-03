@@ -21,6 +21,8 @@ export type MetadataFormProps<T extends SupportedFormFormat = SupportedFormForma
   maxValueLength?: number
 }
 
+export const META_DATA_BUTTON_DATA_TEST_ID = 'add-metadata-button'
+
 const MAX_METADATA_COUNT = 50
 const METADATA_KEY_MAX_LENGTH_DEFAULT = 40
 const METADATA_VALUE_MAX_LENGTH_DEFAULT = 255
@@ -134,7 +136,7 @@ const MetadataForm = <T extends SupportedFormFormat>({
           variant="inline"
           disabled={(formikProps?.values?.metadata?.length || 0) >= maxMetadataCount}
           onClick={() => addMetadata()}
-          data-test="add-metadata-button"
+          data-test={META_DATA_BUTTON_DATA_TEST_ID}
         >
           {translate('text_63fcc3218d35b9377840f5bb')}
         </Button>

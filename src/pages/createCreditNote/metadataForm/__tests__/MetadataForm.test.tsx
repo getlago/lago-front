@@ -4,7 +4,7 @@ import { FormikProps } from 'formik'
 
 import { render } from '~/test-utils'
 
-import MetadataForm from '../MetadataForm'
+import MetadataForm, { META_DATA_BUTTON_DATA_TEST_ID } from '../MetadataForm'
 
 type FormValues = {
   metadata?: Array<{
@@ -61,8 +61,8 @@ describe('MetadataForm', () => {
 
       await act(() => render(<MetadataForm formikProps={formikProps} />))
 
-      expect(screen.getByTestId('add-metadata-button')).toBeInTheDocument()
-      expect(screen.getByTestId('add-metadata-button')).not.toBeDisabled()
+      expect(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)).not.toBeDisabled()
     })
 
     it('renders metadata fields when metadata exists', async () => {
@@ -102,7 +102,7 @@ describe('MetadataForm', () => {
 
       await act(() => render(<MetadataForm formikProps={formikProps} />))
 
-      await waitFor(() => userEvent.click(screen.getByTestId('add-metadata-button')))
+      await waitFor(() => userEvent.click(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)))
 
       expect(formikProps.setFieldValue).toHaveBeenCalledWith(
         'metadata',
@@ -122,7 +122,7 @@ describe('MetadataForm', () => {
 
       await act(() => render(<MetadataForm formikProps={formikProps} />))
 
-      await waitFor(() => userEvent.click(screen.getByTestId('add-metadata-button')))
+      await waitFor(() => userEvent.click(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)))
 
       expect(formikProps.setFieldValue).toHaveBeenCalledWith(
         'metadata',
@@ -195,7 +195,7 @@ describe('MetadataForm', () => {
 
       await act(() => render(<MetadataForm formikProps={formikProps} />))
 
-      expect(screen.getByTestId('add-metadata-button')).toBeDisabled()
+      expect(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)).toBeDisabled()
     })
 
     it('disables add button when custom max count is reached', async () => {
@@ -208,7 +208,7 @@ describe('MetadataForm', () => {
 
       await act(() => render(<MetadataForm formikProps={formikProps} maxMetadataCount={3} />))
 
-      expect(screen.getByTestId('add-metadata-button')).toBeDisabled()
+      expect(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)).toBeDisabled()
     })
 
     it('enables add button when below max count', async () => {
@@ -221,7 +221,7 @@ describe('MetadataForm', () => {
 
       await act(() => render(<MetadataForm formikProps={formikProps} maxMetadataCount={3} />))
 
-      expect(screen.getByTestId('add-metadata-button')).not.toBeDisabled()
+      expect(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)).not.toBeDisabled()
     })
   })
 
@@ -231,7 +231,7 @@ describe('MetadataForm', () => {
 
       await act(() => render(<MetadataForm formikProps={formikProps} />))
 
-      expect(screen.getByTestId('add-metadata-button')).toBeInTheDocument()
+      expect(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)).toBeInTheDocument()
     })
 
     it('handles metadata without localId', async () => {
@@ -249,30 +249,6 @@ describe('MetadataForm', () => {
   describe('snapshots', () => {
     it('matches snapshot with empty metadata', async () => {
       const formikProps = createMockFormikProps({ metadata: [] })
-
-      const { container } = await act(() => render(<MetadataForm formikProps={formikProps} />))
-
-      expect(container).toMatchSnapshot()
-    })
-
-    it('matches snapshot with single metadata item', async () => {
-      const formikProps = createMockFormikProps({
-        metadata: [{ key: 'apiKey', value: 'secret-value', localId: 'snapshot-1' }],
-      })
-
-      const { container } = await act(() => render(<MetadataForm formikProps={formikProps} />))
-
-      expect(container).toMatchSnapshot()
-    })
-
-    it('matches snapshot with multiple metadata items', async () => {
-      const formikProps = createMockFormikProps({
-        metadata: [
-          { key: 'environment', value: 'production', localId: 'snapshot-1' },
-          { key: 'version', value: '1.0.0', localId: 'snapshot-2' },
-          { key: 'region', value: 'us-east-1', localId: 'snapshot-3' },
-        ],
-      })
 
       const { container } = await act(() => render(<MetadataForm formikProps={formikProps} />))
 

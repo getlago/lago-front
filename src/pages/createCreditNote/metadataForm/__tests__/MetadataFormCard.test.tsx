@@ -3,6 +3,7 @@ import { FormikProps } from 'formik'
 
 import { render } from '~/test-utils'
 
+import { META_DATA_BUTTON_DATA_TEST_ID } from '../MetadataForm'
 import MetadataFormCard from '../MetadataFormCard'
 
 type FormValues = {
@@ -70,7 +71,7 @@ describe('MetadataFormCard', () => {
       await act(() => render(<MetadataFormCard formikProps={formikProps} />))
 
       // MetadataForm renders the add button
-      expect(screen.getByTestId('add-metadata-button')).toBeInTheDocument()
+      expect(screen.getByTestId(META_DATA_BUTTON_DATA_TEST_ID)).toBeInTheDocument()
     })
 
     it('passes formikProps to MetadataForm correctly', async () => {
