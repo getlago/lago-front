@@ -132,7 +132,10 @@ const CreateCreditNote = () => {
       addOnFee: addOnFeesValidation,
       creditFee: creditFeeValidation,
       payBack: payBackValidation,
-      metadata: metadataSchema(),
+      metadata: metadataSchema({
+        keyMaxLength: 40,
+        valueMaxLength: 255,
+      }),
     }),
     onSubmit: async (values, formikBag) => {
       const answer = await onCreate(values as CreditNoteForm)

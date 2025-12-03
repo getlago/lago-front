@@ -36,7 +36,10 @@ export const MetadataEditDrawer = forwardRef<MetadataEditDrawerRef>((_, ref) => 
     },
     enableReinitialize: true,
     validationSchema: object().shape({
-      metadata: metadataSchema(),
+      metadata: metadataSchema({
+        keyMaxLength: 40,
+        valueMaxLength: 255,
+      }),
     }),
     onSubmit: async () => {
       if (!localData?.creditNote) return

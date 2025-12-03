@@ -39,7 +39,7 @@ const CreditNoteDetailsMetadata = ({ creditNote }: CreditNotesDetailsMetadataPro
 
         {creditNote?.metadata?.map((metadata) => (
           <div key={metadata.key} className="mb-2 flex gap-x-4">
-            <Typography variant="caption" className="w-58" color="grey600">
+            <Typography variant="body" className="w-58" color="grey600">
               {metadata.key}
             </Typography>
             <Typography variant="body" color="grey700">

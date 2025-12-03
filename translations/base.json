@@ -455,7 +455,7 @@
   "text_63fcc3218d35b9377840f5af": "Enter a value",
   "text_63fcc3218d35b9377840f5b3": "Invoice",
   "text_63fcc3218d35b9377840f5bb": "Add new field",
-  "text_63fcc3218d35b9377840f5d9": "Key must be a string under 20 characters",
+  "text_63fcc3218d35b9377840f5d9": "Key must be a string under {{max}} characters",
   "text_63fcc3218d35b9377840f5dd": "Keys should be unique; please differentiate them to move forward.",
   "text_63fcc3218d35b9377840f5e1": "Remove metadata",
   "text_63fcc3218d35b9377840f5e5": "Value must be a string of {{max}} characters maximum",

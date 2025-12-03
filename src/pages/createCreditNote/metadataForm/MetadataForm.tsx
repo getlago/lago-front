@@ -1,7 +1,9 @@
 import { FormikProps } from 'formik'
+import _get from 'lodash/get'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
+import { MetadataErrorsEnum } from '~/formValidation/metadataSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type SupportedFormFormat = {
@@ -15,13 +17,19 @@ type SupportedFormFormat = {
 export type MetadataFormProps<T extends SupportedFormFormat = SupportedFormFormat> = {
   formikProps: FormikProps<T>
   maxMetadataCount?: number
+  maxKeyLength?: number
+  maxValueLength?: number
 }
 
-const MAX_METADATA_COUNT = 10
+const MAX_METADATA_COUNT = 50
+const METADATA_KEY_MAX_LENGTH_DEFAULT = 40
+const METADATA_VALUE_MAX_LENGTH_DEFAULT = 255
 
 const MetadataForm = <T extends SupportedFormFormat>({
   formikProps,
   maxMetadataCount = MAX_METADATA_COUNT,
+  maxKeyLength = METADATA_KEY_MAX_LENGTH_DEFAULT,
+  maxValueLength = METADATA_VALUE_MAX_LENGTH_DEFAULT,
 }: MetadataFormProps<T>) => {
   const { translate } = useInternationalization()
 
@@ -42,6 +50,32 @@ const MetadataForm = <T extends SupportedFormFormat>({
         localId: Date.now().toString(),
       },
     ])
+  }
+
+  const getKeyError = (index: number) => {
+    const metadataItemKeyError: string =
+      (_get(formikProps.errors, `metadata.${index}.key`) as string) ?? ''
+
+    if (metadataItemKeyError === MetadataErrorsEnum.uniqueness) {
+      return translate('text_63fcc3218d35b9377840f5dd')
+    } else if (metadataItemKeyError === MetadataErrorsEnum.maxLength) {
+      return translate('text_63fcc3218d35b9377840f5d9', { max: maxKeyLength })
+    }
+
+    return ''
+  }
+
+  const getValueError = (index: number) => {
+    const metadataItemKeyError: string =
+      (_get(formikProps.errors, `metadata.${index}.value`) as string) ?? ''
+
+    if (metadataItemKeyError === MetadataErrorsEnum.maxLength) {
+      return translate('text_63fcc3218d35b9377840f5e5', {
+        max: maxValueLength,
+      })
+    }
+
+    return ''
   }
 
   const gridClassName = 'grid grid-cols-[200px_1fr_24px] gap-x-3 '
@@ -67,14 +101,17 @@ const MetadataForm = <T extends SupportedFormFormat>({
                     name={`metadata.${index}.key`}
                     placeholder={translate('text_63fcc3218d35b9377840f5a7')}
                     formikProps={formikProps}
+                    error={getKeyError(index)}
                   />
                   <TextInputField
                     name={`metadata.${index}.value`}
                     placeholder={translate('text_63fcc3218d35b9377840f5af')}
                     formikProps={formikProps}
+                    error={getValueError(index)}
                   />
+                  {/* use mt-2 because we cannot align with flex since error messages are displayed under the input */}
                   <Tooltip
-                    className="flex items-center"
+                    className="mt-2 flex"
                     placement="top-end"
                     title={translate('text_63fcc3218d35b9377840f5e1')}
                   >

@@ -72,7 +72,7 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
                 if (metadataItemKeyError === MetadataErrorsEnum.uniqueness) {
                   keyErrorTitle = translate('text_63fcc3218d35b9377840f5dd')
                 } else if (metadataItemKeyError === MetadataErrorsEnum.maxLength) {
-                  keyErrorTitle = translate('text_63fcc3218d35b9377840f5d9')
+                  keyErrorTitle = translate('text_63fcc3218d35b9377840f5d9', { max: 20 })
                 }
 
                 return (
