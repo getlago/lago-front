@@ -5,11 +5,16 @@ import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
-import { ChargeTable, Chip, Tooltip } from '~/components/designSystem'
+import {
+  ChargeTable,
+  Chip,
+  Tooltip,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { ComboBox, ComboBoxField, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PrivilegeValueInputComponent } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,

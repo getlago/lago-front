@@ -10,13 +10,13 @@ import {
   DialogRef,
   Skeleton,
   Typography,
+  WarningDialog,
 } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddLagoTaxManagementDialog,
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
-import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'

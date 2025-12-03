@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem'
-import { WarningDialog } from '~/components/WarningDialog'
+import { DialogRef, WarningDialog } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import {

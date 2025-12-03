@@ -16,7 +16,16 @@ import {
   AddPlanToCouponDialogRef,
 } from '~/components/coupons/AddPlanToCouponDialog'
 import { CouponCodeSnippet } from '~/components/coupons/CouponCodeSnippet'
-import { Alert, Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Alert,
+  Button,
+  Card,
+  Skeleton,
+  Tooltip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import {
   AmountInputField,
   Checkbox,
@@ -25,7 +34,6 @@ import {
   TextInput,
   TextInputField,
 } from '~/components/form'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'

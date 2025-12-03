@@ -1,7 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem'
-import { WarningDialog } from '~/components/WarningDialog'
+import { DialogRef, WarningDialog } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type LocalData = { callback: () => void }
