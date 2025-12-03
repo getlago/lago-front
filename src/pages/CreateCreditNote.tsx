@@ -22,9 +22,10 @@ import {
   Status,
   StatusType,
   Typography,
+  WarningDialog,
+  WarningDialogRef,
 } from '~/components/designSystem'
 import { ComboBoxField, TextInputField } from '~/components/form'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'

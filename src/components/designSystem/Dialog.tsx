@@ -5,6 +5,10 @@ import { tw } from '~/styles/utils'
 
 import { Typography } from './Typography'
 
+// Test IDs
+export const DIALOG_TITLE_TEST_ID = 'dialog-title'
+export const DIALOG_DESCRIPTION_TEST_ID = 'dialog-description'
+
 export interface DialogProps {
   actions: (args: { closeDialog: () => void }) => JSX.Element
   title: ReactNode
@@ -79,13 +83,13 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           <Typography
             className={tw(!!description ? 'mb-3' : 'mb-8')}
             variant="headline"
-            data-test="dialog-title"
+            data-test={DIALOG_TITLE_TEST_ID}
           >
             {title}
           </Typography>
 
           {description && (
-            <Typography className="mb-8" data-test="dialog-description">
+            <Typography className="mb-8" data-test={DIALOG_DESCRIPTION_TEST_ID}>
               {description}
             </Typography>
           )}

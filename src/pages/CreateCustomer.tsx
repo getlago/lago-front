@@ -11,11 +11,16 @@ import {
   LocalCustomerMetadata,
   MetadataAccordion,
 } from '~/components/customers/createCustomer/MetadataAccordion'
-import { Button, DrawerRef, Typography } from '~/components/designSystem'
+import {
+  Button,
+  DrawerRef,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { SwitchField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { metadataSchema } from '~/formValidation/metadataSchema'
 import {

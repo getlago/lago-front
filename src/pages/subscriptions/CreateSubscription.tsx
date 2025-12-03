@@ -22,6 +22,8 @@ import {
   Skeleton,
   Tooltip,
   Typography,
+  WarningDialog,
+  WarningDialogRef,
 } from '~/components/designSystem'
 import {
   BasicComboBoxData,
@@ -45,7 +47,6 @@ import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {

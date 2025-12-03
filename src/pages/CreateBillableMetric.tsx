@@ -20,6 +20,8 @@ import {
   Skeleton,
   Tooltip,
   Typography,
+  WarningDialog,
+  WarningDialogRef,
 } from '~/components/designSystem'
 import {
   BasicMultipleComboBoxData,
@@ -31,7 +33,6 @@ import {
   TextInput,
   TextInputField,
 } from '~/components/form'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   formatAggregationType,
