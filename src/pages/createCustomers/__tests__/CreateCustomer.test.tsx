@@ -2,9 +2,117 @@ import { RenderOptions, render as rtlRender, screen, waitFor } from '@testing-li
 import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
+import {
+  GetAccountingIntegrationsForExternalAppsAccordionDocument,
+  GetBillingEntitiesDocument,
+  GetCrmIntegrationsForExternalAppsAccordionDocument,
+  GetTaxIntegrationsForExternalAppsAccordionDocument,
+  PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument,
+} from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import CreateCustomer from '../CreateCustomer'
+
+// Mock data for required queries
+const defaultMocks: TestMocksType = [
+  {
+    request: {
+      query: GetBillingEntitiesDocument,
+    },
+    result: {
+      data: {
+        billingEntities: {
+          __typename: 'BillingEntityCollection',
+          collection: [
+            {
+              __typename: 'BillingEntity',
+              id: '1',
+              code: 'default',
+              name: 'Default Entity',
+              isDefault: true,
+              documentNumbering: 'per_customer',
+              documentNumberPrefix: 'INV',
+              logoUrl: null,
+              legalName: null,
+              legalNumber: null,
+              taxIdentificationNumber: null,
+              email: null,
+              addressLine1: null,
+              addressLine2: null,
+              zipcode: null,
+              city: null,
+              state: null,
+              country: null,
+              emailSettings: [],
+              timezone: null,
+              defaultCurrency: 'USD',
+              euTaxManagement: false,
+              selectedInvoiceCustomSections: [],
+              appliedDunningCampaign: null,
+              einvoicing: false,
+            },
+          ],
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument,
+      variables: { limit: 1000 },
+    },
+    result: {
+      data: {
+        paymentProviders: {
+          __typename: 'PaymentProviderCollection',
+          collection: [],
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: GetTaxIntegrationsForExternalAppsAccordionDocument,
+      variables: { limit: 1000 },
+    },
+    result: {
+      data: {
+        integrations: {
+          __typename: 'IntegrationCollection',
+          collection: [],
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: GetAccountingIntegrationsForExternalAppsAccordionDocument,
+      variables: { limit: 1000 },
+    },
+    result: {
+      data: {
+        integrations: {
+          __typename: 'IntegrationCollection',
+          collection: [],
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: GetCrmIntegrationsForExternalAppsAccordionDocument,
+      variables: { limit: 1000 },
+    },
+    result: {
+      data: {
+        integrations: {
+          __typename: 'IntegrationCollection',
+          collection: [],
+        },
+      },
+    },
+  },
+]
 
 // Custom render function for CreateCustomer component (create mode)
 const renderCreateCustomer = (
@@ -18,13 +126,21 @@ const renderCreateCustomer = (
     wrapper: (props) => (
       <AllTheProviders
         {...props}
-        mocks={options?.mocks}
+        mocks={options?.mocks || defaultMocks}
         useParams={options?.useParams || {}} // Empty object for create mode
         forceTypenames={true}
       />
     ),
     ...options,
   })
+
+// Helper to wait for form to be ready (loading state finished)
+const waitForFormReady = async () => {
+  await waitFor(() => {
+    expect(screen.getByTestId('submit-customer')).toBeInTheDocument()
+    expect(screen.getByTestId('headline')).toHaveTextContent('Create a customer')
+  })
+}
 
 describe('CreateCustomer Integration Tests', () => {
   describe('WHEN rendering the component', () => {
@@ -37,9 +153,10 @@ describe('CreateCustomer Integration Tests', () => {
       })
     })
 
-    it('THEN should render a matching snapshot', () => {
+    it('THEN should render a matching snapshot', async () => {
       const rendered = renderCreateCustomer(<CreateCustomer />)
 
+      await waitForFormReady()
       expect(rendered.container).toMatchSnapshot()
     })
   })
@@ -56,8 +173,10 @@ describe('CreateCustomer Integration Tests', () => {
         screen.getByRole('textbox', { name: 'Customer external ID (required)' }),
       ).toBeInTheDocument()
     })
-    it('THEN should show customer information section', () => {
+    it('THEN should show customer information section', async () => {
       renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
 
       // Look for customer information fields
       expect(screen.getByLabelText(/customer external id/i)).toBeInTheDocument()
@@ -68,8 +187,10 @@ describe('CreateCustomer Integration Tests', () => {
   })
 
   describe('WHEN checking accordion sections', () => {
-    it('THEN should display billing information accordion', () => {
+    it('THEN should display billing information accordion', async () => {
       renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
 
       // Check for accordion structure
       expect(
@@ -80,16 +201,20 @@ describe('CreateCustomer Integration Tests', () => {
       ).toBeInTheDocument()
     })
 
-    it('THEN should display metadata accordion', () => {
+    it('THEN should display metadata accordion', async () => {
       renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
 
       // Check for metadata accordion
       expect(screen.getByRole('button', { name: /expand metadata/i })).toBeInTheDocument()
       expect(screen.getByText(/add metadata to the customer/i)).toBeInTheDocument()
     })
 
-    it('THEN should display external apps accordion', () => {
+    it('THEN should display external apps accordion', async () => {
       renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
 
       // Check for external apps accordion
       expect(
@@ -102,6 +227,8 @@ describe('CreateCustomer Integration Tests', () => {
   describe('WHEN checking form validation structure', () => {
     it('THEN should have form validation in place', async () => {
       renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
 
       // Basic validation check - submit button should be disabled initially
       const externalIdField = screen.getByLabelText(/customer external id/i)
@@ -116,6 +243,8 @@ describe('CreateCustomer Integration Tests', () => {
       const user = userEvent.setup()
       const rendered = renderCreateCustomer(<CreateCustomer />)
 
+      await waitForFormReady()
+
       const accordionButton = screen.getByRole('button', { name: /expand billing information/i })
 
       expect(accordionButton).toBeInTheDocument()
@@ -129,15 +258,16 @@ describe('CreateCustomer Integration Tests', () => {
         expect(screen.getAllByLabelText(/zip code/i)).toHaveLength(2) // Both billing and shipping zip codes
         // Check for country fields using text content instead of labelText since they might be select dropdowns
         expect(screen.getAllByText(/country/i)).toHaveLength(2) // Both billing and shipping
+        // Snapshot after expanding accordion
+        expect(rendered.container).toMatchSnapshot()
       })
-
-      // Snapshot after expanding accordion
-      expect(rendered.container).toMatchSnapshot()
     })
 
     it('THEN should handle expanded metadata accordion', async () => {
       const user = userEvent.setup()
       const rendered = renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
 
       const accordionButton = screen.getByRole('button', { name: /expand metadata/i })
 
@@ -163,6 +293,8 @@ describe('CreateCustomer Integration Tests', () => {
       const user = userEvent.setup()
       const rendered = renderCreateCustomer(<CreateCustomer />)
 
+      await waitForFormReady()
+
       const accordionButton = screen.getByRole('button', {
         name: /expand connect to external apps/i,
       })
@@ -187,8 +319,10 @@ describe('CreateCustomer Integration Tests', () => {
   })
 
   describe('WHEN checking premium features', () => {
-    it('THEN should handle partner account toggle visibility', () => {
+    it('THEN should handle partner account toggle visibility', async () => {
       renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
 
       // Check basic structure for premium features
       expect(screen.getByLabelText(/isPartner/i)).toBeInTheDocument()
