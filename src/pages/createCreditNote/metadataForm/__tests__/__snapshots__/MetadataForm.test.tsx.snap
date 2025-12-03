@@ -98,7 +98,7 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -221,7 +221,7 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -344,7 +344,7 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -467,7 +467,7 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -590,7 +590,7 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -780,7 +780,7 @@ exports[`MetadataForm snapshots matches snapshot with multiple metadata items 1`
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -903,7 +903,7 @@ exports[`MetadataForm snapshots matches snapshot with multiple metadata items 1`
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -1026,7 +1026,7 @@ exports[`MetadataForm snapshots matches snapshot with multiple metadata items 1`
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"
@@ -1184,7 +1184,7 @@ exports[`MetadataForm snapshots matches snapshot with single metadata item 1`] =
           </div>
         </div>
         <div
-          class="flex items-center"
+          class="mt-2 flex"
         >
           <div
             aria-label="Remove metadata"

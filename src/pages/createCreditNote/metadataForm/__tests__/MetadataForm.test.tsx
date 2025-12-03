@@ -185,8 +185,8 @@ describe('MetadataForm', () => {
   })
 
   describe('max metadata count', () => {
-    it('disables add button when default max count (10) is reached', async () => {
-      const metadata = Array.from({ length: 10 }, (_, i) => ({
+    it('disables add button when default max count (50) is reached', async () => {
+      const metadata = Array.from({ length: 50 }, (_, i) => ({
         key: `key${i}`,
         value: `value${i}`,
         localId: `${i}`,

@@ -168,7 +168,7 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
             </div>
           </div>
           <div
-            class="flex items-center"
+            class="mt-2 flex"
           >
             <div
               aria-label="Remove metadata"
@@ -291,7 +291,7 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
             </div>
           </div>
           <div
-            class="flex items-center"
+            class="mt-2 flex"
           >
             <div
               aria-label="Remove metadata"
