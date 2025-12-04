@@ -36,6 +36,7 @@ jobs:
           VERSION="${VERSION#v}"
           # Update package.json only for this build (does not commit)
           jq --arg version "$VERSION" '.version = $version' package.json > package.json.tmp && mv package.json.tmp package.json
+          echo "✅ package.json version updated. Current version: $(jq -r '.version' package.json)"
 
       - name: Docker Meta
         id: meta
