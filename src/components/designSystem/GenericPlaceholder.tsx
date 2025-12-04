@@ -37,7 +37,7 @@ export const GenericPlaceholder = ({
   return (
     <div
       className={tw(
-        'mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5',
+        'mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3',
         {
           'm-0': noMargins,
           'p-0': noMargins,
@@ -47,7 +47,13 @@ export const GenericPlaceholder = ({
       data-test={GENERIC_PLACEHOLDER_TEST_ID}
       {...props}
     >
-      <div data-test={GENERIC_PLACEHOLDER_IMAGE_TEST_ID}>{image}</div>
+      <div
+        className="mb-1 [&>img]:size-35 [&>svg]:size-35"
+        data-test={GENERIC_PLACEHOLDER_IMAGE_TEST_ID}
+      >
+        {image}
+      </div>
+
       {title && (
         <Typography
           className="mb-3"
