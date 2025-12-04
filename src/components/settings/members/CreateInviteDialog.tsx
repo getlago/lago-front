@@ -212,7 +212,12 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
               <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_63208c701ce25db781407475')}
               </Typography>
-              <Typography className="line-break-anywhere" variant="body" color="grey700">
+              <Typography
+                className="line-break-anywhere"
+                variant="body"
+                color="grey700"
+                data-test="invitation-url"
+              >
                 {invitationUrl}
               </Typography>
             </div>
