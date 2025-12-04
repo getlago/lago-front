@@ -118,9 +118,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      // Use 'hidden' source maps in production for security (not publicly accessible)
-      // but still available for Sentry
-      sourcemap: isProduction ? 'hidden' : true,
+      sourcemap: true,
       target: 'esnext',
       rollupOptions: {
         output: {
