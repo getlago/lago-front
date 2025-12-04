@@ -37,27 +37,31 @@ exports[`CreditNoteDetails snapshots matches snapshot in error state 1`] = `
     class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
     data-test="empty-state"
   >
-    <svg
-      height="104"
-      width="136"
+    <div
+      data-test="generic-placeholder-image"
     >
-      error.svg
-    </svg>
+      <svg
+        height="104"
+        width="136"
+      >
+        error.svg
+      </svg>
+    </div>
     <div
       class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-3 css-uvnpl0-MuiTypography-root"
-      data-test="subhead1"
+      data-test="generic-placeholder-title"
     >
       Something went wrong
     </div>
     <div
       class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
-      data-test="body"
+      data-test="generic-placeholder-subtitle"
     >
       Please refresh the page or contact us if the error persists.
     </div>
     <button
       class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
-      data-test="button"
+      data-test="generic-placeholder-button"
       tabindex="0"
       type="button"
     >
@@ -342,6 +346,9 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
           >
             No metadata linked to this credit note
           </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-[fit-content(100%)_1fr] gap-x-8 md:gap-y-2 [&>*:nth-child(odd):not(:first-child)]:mt-2 md:[&>*:nth-child(odd):not(:first-child)]:mt-0"
+          />
         </div>
       </div>
     </div>
@@ -670,10 +677,10 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
           class="mt-6"
         >
           <div
-            class="mb-2 flex gap-x-4"
+            class="grid grid-cols-1 md:grid-cols-[fit-content(100%)_1fr] gap-x-8 md:gap-y-2 [&>*:nth-child(odd):not(:first-child)]:mt-2 md:[&>*:nth-child(odd):not(:first-child)]:mt-0"
           >
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line w-58 css-11vl04s-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
               data-test="body"
             >
               test_key

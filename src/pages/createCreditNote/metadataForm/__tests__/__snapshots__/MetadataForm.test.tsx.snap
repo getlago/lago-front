@@ -135,22 +135,6 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
         class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
       >
         <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Key
-        </div>
-        <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Value
-        </div>
-      </div>
-      <div
-        class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
-      >
-        <div
           class="flex flex-col gap-1"
         >
           <div
@@ -254,22 +238,6 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
     <div
       class="flex flex-col gap-y-1"
     >
-      <div
-        class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
-      >
-        <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Key
-        </div>
-        <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Value
-        </div>
-      </div>
       <div
         class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
       >
@@ -381,22 +349,6 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
         class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
       >
         <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Key
-        </div>
-        <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Value
-        </div>
-      </div>
-      <div
-        class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
-      >
-        <div
           class="flex flex-col gap-1"
         >
           <div
@@ -500,22 +452,6 @@ exports[`MetadataForm snapshots matches snapshot with disabled add button at max
     <div
       class="flex flex-col gap-y-1"
     >
-      <div
-        class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
-      >
-        <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Key
-        </div>
-        <div
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
-          data-test="captionHl"
-        >
-          Value
-        </div>
-      </div>
       <div
         class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
       >
