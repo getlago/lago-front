@@ -1,4 +1,4 @@
-import { formataAnyToValueForChargeFormArrays } from '../utils'
+import { formataAnyToValueForChargeFormArrays, getTrialPeriod } from '../utils'
 
 describe('formattedToValue', () => {
   describe('when toValue is null', () => {
@@ -68,6 +68,62 @@ describe('formattedToValue', () => {
 
     it('handles decimal numbers when toValue <= fromValue', () => {
       expect(formataAnyToValueForChargeFormArrays(10.5, '11')).toBe('12')
+    })
+  })
+})
+
+describe('getTrialPeriod', () => {
+  describe('WHEN trialPeriod is null', () => {
+    it('THEN returns 0 when isEdition is true', () => {
+      const result = getTrialPeriod(null, true)
+
+      expect(result).toBe(0)
+    })
+
+    it('THEN returns undefined when isEdition is false', () => {
+      const result = getTrialPeriod(null, false)
+
+      expect(result).toBeUndefined()
+    })
+  })
+
+  describe('WHEN trialPeriod is undefined', () => {
+    it('THEN returns 0 when isEdition is true', () => {
+      const result = getTrialPeriod(undefined, true)
+
+      expect(result).toBe(0)
+    })
+
+    it('THEN returns undefined when isEdition is false', () => {
+      const result = getTrialPeriod(undefined, false)
+
+      expect(result).toBeUndefined()
+    })
+  })
+
+  describe('WHEN trialPeriod is a number', () => {
+    it('THEN returns the trialPeriod value when isEdition is true', () => {
+      const result = getTrialPeriod(30, true)
+
+      expect(result).toBe(30)
+    })
+
+    it('THEN returns the trialPeriod value when isEdition is false', () => {
+      const result = getTrialPeriod(30, false)
+
+      expect(result).toBe(30)
+    })
+
+    it('THEN returns 0 when trialPeriod is 0', () => {
+      const result = getTrialPeriod(0, true)
+
+      expect(result).toBe(0)
+    })
+
+    it('THEN returns positive numbers correctly', () => {
+      const result = getTrialPeriod(15, false)
+
+      expect(result).toBe(15)
     })
   })
 })

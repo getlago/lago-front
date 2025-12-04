@@ -306,6 +306,7 @@ describe('Accordion', () => {
 
     it('applies custom className', () => {
       const { container } = render(
+        // eslint-disable-next-line tailwindcss/no-custom-classname
         <Accordion className="custom-class" summary={<div>Test Summary</div>}>
           <div>Test Content</div>
         </Accordion>,
