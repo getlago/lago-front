@@ -8,3 +8,13 @@ export const formataAnyToValueForChargeFormArrays = (toValue: any, fromValue: st
 
   return String(toValue || 0)
 }
+
+export const getTrialPeriod = (
+  trialPeriod: number | null | undefined,
+  isEdition: boolean,
+): number | undefined => {
+  if (trialPeriod === null || trialPeriod === undefined) {
+    return isEdition ? 0 : undefined
+  }
+  return trialPeriod
+}

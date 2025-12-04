@@ -48,6 +48,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { getTrialPeriod } from '~/hooks/plans/utils'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 const DEBOUNCE_MS = window.Cypress ? 0 : 150
@@ -163,12 +164,7 @@ export const usePlanForm: ({
         ? ''
         : String(deserializeAmount(plan?.amountCents || 0, initialCurrency)),
       amountCurrency: initialCurrency,
-      trialPeriod:
-        plan?.trialPeriod === null || plan?.trialPeriod === undefined
-          ? isEdition
-            ? 0
-            : undefined
-          : plan?.trialPeriod,
+      trialPeriod: getTrialPeriod(plan?.trialPeriod, isEdition),
       billChargesMonthly: plan?.billChargesMonthly || false,
       billFixedChargesMonthly: plan?.billFixedChargesMonthly || false,
       minimumCommitment: !!plan?.minimumCommitment

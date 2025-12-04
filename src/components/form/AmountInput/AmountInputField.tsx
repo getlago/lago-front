@@ -6,6 +6,7 @@ import { forwardRef, memo } from 'react'
 import { CurrencyEnum } from '~/generated/graphql'
 
 import { AmountInput, AmountInputProps } from './AmountInput'
+import { getAmountInputError } from './utils'
 
 interface AmountInputFieldProps extends AmountInputProps {
   currency: CurrencyEnum
@@ -40,13 +41,7 @@ export const AmountInputField = memo(
           onBlur={handleBlur}
           cleanable={cleanable}
           inputProps={inputProps}
-          error={
-            !silentError
-              ? displayErrorText
-                ? _get(touched, name) && (_get(errors, name) as string)
-                : !!_get(errors, name)
-              : undefined
-          }
+          error={getAmountInputError(silentError, displayErrorText, touched, errors, name)}
           onChange={(value: string | number | undefined) => {
             setFieldValue(name, value)
           }}
