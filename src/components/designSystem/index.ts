@@ -1,4 +1,5 @@
 export * from './Accordion'
+export * from './AiBadge'
 export * from './Alert'
 export * from './Button'
 export * from './ButtonLink'

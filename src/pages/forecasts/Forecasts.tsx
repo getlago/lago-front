@@ -1,7 +1,7 @@
-import { AiBadge, Icon, tw, Typography } from 'lago-design-system'
+import { Icon, tw, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 
-import { Chip, Tooltip } from '~/components/designSystem'
+import { AiBadge, Chip, Tooltip } from '~/components/designSystem'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
