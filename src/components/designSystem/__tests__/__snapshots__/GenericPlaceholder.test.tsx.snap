@@ -2,10 +2,11 @@
 
 exports[`GenericPlaceholder Snapshot Tests matches snapshot with ReactNode subtitle 1`] = `
 <div
-  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3"
   data-test="empty-state"
 >
   <div
+    class="mb-1 [&>img]:size-35 [&>svg]:size-35"
     data-test="generic-placeholder-image"
   >
     <img
@@ -32,10 +33,11 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with ReactNode subti
 
 exports[`GenericPlaceholder Snapshot Tests matches snapshot with all props 1`] = `
 <div
-  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5 custom-class"
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 custom-class"
   data-test="empty-state"
 >
   <div
+    class="mb-1 [&>img]:size-35 [&>svg]:size-35"
     data-test="generic-placeholder-image"
   >
     <svg
@@ -67,10 +69,11 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with all props 1`] =
 
 exports[`GenericPlaceholder Snapshot Tests matches snapshot with button 1`] = `
 <div
-  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3"
   data-test="empty-state"
 >
   <div
+    class="mb-1 [&>img]:size-35 [&>svg]:size-35"
     data-test="generic-placeholder-image"
   >
     <img
@@ -97,10 +100,11 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with button 1`] = `
 
 exports[`GenericPlaceholder Snapshot Tests matches snapshot with minimal props 1`] = `
 <div
-  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3"
   data-test="empty-state"
 >
   <div
+    class="mb-1 [&>img]:size-35 [&>svg]:size-35"
     data-test="generic-placeholder-image"
   >
     <img
@@ -119,10 +123,11 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with minimal props 1
 
 exports[`GenericPlaceholder Snapshot Tests matches snapshot with noMargins 1`] = `
 <div
-  class="max-w-124 first:mb-3 [&>img]:size-10 [&>svg]:mb-5 m-0 p-0"
+  class="max-w-124 first:mb-3 m-0 p-0"
   data-test="empty-state"
 >
   <div
+    class="mb-1 [&>img]:size-35 [&>svg]:size-35"
     data-test="generic-placeholder-image"
   >
     <img
@@ -141,10 +146,11 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with noMargins 1`] =
 
 exports[`GenericPlaceholder Snapshot Tests matches snapshot with title 1`] = `
 <div
-  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3"
   data-test="empty-state"
 >
   <div
+    class="mb-1 [&>img]:size-35 [&>svg]:size-35"
     data-test="generic-placeholder-image"
   >
     <img
