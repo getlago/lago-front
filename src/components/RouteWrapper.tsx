@@ -1,7 +1,7 @@
-import { Spinner } from 'lago-design-system'
 import { ReactNode, Suspense, useEffect } from 'react'
 import { RouteObject, useLocation, useRoutes } from 'react-router-dom'
 
+import { Spinner } from '~/components/designSystem'
 import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { CustomRouteObject, routes } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'

@@ -4,9 +4,8 @@ import { useFormik } from 'formik'
 import { forwardRef } from 'react'
 import { number, object, string } from 'yup'
 
-import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { Button, Dialog, DialogRef, WarningDialogRef } from '~/components/designSystem'
 import { AmountInputField, TextInputField } from '~/components/form'
-import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {

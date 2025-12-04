@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem'
 import { DestroyPaymentMethodInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'

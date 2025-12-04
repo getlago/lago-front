@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
-import { DialogRef, Typography } from '~/components/designSystem'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { DialogRef, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import {
   DeleteCustomerDocumentLocaleFragment,

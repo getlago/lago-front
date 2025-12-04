@@ -16,6 +16,8 @@ import {
   Skeleton,
   Tooltip,
   Typography,
+  WarningDialog,
+  WarningDialogRef,
 } from '~/components/designSystem'
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -36,7 +38,6 @@ import {
   EditInvoiceItemTaxDialogRef,
 } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,

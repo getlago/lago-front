@@ -1,4 +1,4 @@
-import { Icon } from './Icon'
+import { Icon } from 'lago-design-system'
 
 export const Spinner = () => {
   return (

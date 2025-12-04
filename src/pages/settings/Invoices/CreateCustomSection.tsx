@@ -3,14 +3,19 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Button,
+  Tooltip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   PreviewCustomSectionDrawer,
   PreviewCustomSectionDrawerRef,
 } from '~/components/settings/invoices/PreviewCustomSectionDrawer'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { scrollToTop } from '~/core/utils/domUtils'

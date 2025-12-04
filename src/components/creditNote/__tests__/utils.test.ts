@@ -6,11 +6,12 @@ import {
 } from '~/components/creditNote/__tests__/fixtures'
 import { CreditNoteForm } from '~/components/creditNote/types'
 import {
+  createCreditNoteForInvoiceButtonProps,
   creditNoteFormCalculationCalculation,
   CreditNoteFormCalculationCalculationProps,
   creditNoteFormHasAtLeastOneFeeChecked,
 } from '~/components/creditNote/utils'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, InvoicePaymentStatusTypeEnum, InvoiceTypeEnum } from '~/generated/graphql'
 
 const prepare = ({
   addonFees = undefined,
@@ -534,6 +535,126 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
 
       // Should return false because creditFee takes precedence and none are checked
       expect(result).toBe(false)
+    })
+  })
+
+  describe('createCreditNoteForInvoiceButtonProps', () => {
+    describe('WHEN disabledIssueCreditNoteButton is true', () => {
+      it('THEN returns disabled button with unpaid label when payment is pending', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(true)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_17290829949642fgof01loxo')
+      })
+
+      it('THEN returns disabled button with unpaid label when payment failed', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(true)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_17290829949642fgof01loxo')
+      })
+
+      it('THEN returns disabled button with terminatedWallet label when invoice is credit type without active wallet', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          invoiceType: InvoiceTypeEnum.Credit,
+          associatedActiveWalletPresent: false,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(true)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
+      })
+
+      it('THEN returns disabled button with fullyCovered label when no other conditions match', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(true)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
+      })
+    })
+
+    describe('WHEN disabledIssueCreditNoteButton is false', () => {
+      it('THEN returns enabled button with false label when creditableAmountCents is not zero', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          creditableAmountCents: '1000',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(false)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe(false)
+      })
+
+      it('THEN returns enabled button with false label when refundableAmountCents is not zero', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          creditableAmountCents: '0',
+          refundableAmountCents: '500',
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(false)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe(false)
+      })
+
+      it('THEN returns enabled button with false label when both amounts are not zero', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          creditableAmountCents: '1000',
+          refundableAmountCents: '500',
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(false)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe(false)
+      })
+    })
+
+    describe('WHEN priority of disabled reasons', () => {
+      it('THEN prioritizes unpaid over terminatedWallet', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+          invoiceType: InvoiceTypeEnum.Credit,
+          associatedActiveWalletPresent: false,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_17290829949642fgof01loxo')
+      })
+
+      it('THEN prioritizes terminatedWallet over fullyCovered', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+          invoiceType: InvoiceTypeEnum.Credit,
+          associatedActiveWalletPresent: false,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
+      })
+    })
+
+    describe('WHEN invoice is credit type with active wallet', () => {
+      it('THEN does not return terminatedWallet reason', () => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          invoiceType: InvoiceTypeEnum.Credit,
+          associatedActiveWalletPresent: true,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+        })
+
+        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
+      })
     })
   })
 })

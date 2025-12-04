@@ -3,9 +3,8 @@ import { useFormik } from 'formik'
 import { Typography } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem'
+import { DialogRef, WarningDialog } from '~/components/designSystem'
 import { RadioGroupField, SwitchField } from '~/components/form'
-import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
