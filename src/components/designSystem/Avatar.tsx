@@ -1,11 +1,9 @@
 import { cva, cx, VariantProps } from 'class-variance-authority'
 import { colors } from 'lago-configs/tailwind'
+import { Icon, IconName, IconProps, Typography } from 'lago-design-system'
 import { FC, ReactNode } from 'react'
 
-import { tw } from '~/lib'
-
-import { Icon, IconName, IconProps } from './Icon'
-import { Typography } from './Typography'
+import { tw } from '~/styles/utils'
 
 export type AvatarSize = 'tiny' | 'small' | 'intermediate' | 'medium' | 'big' | 'large'
 export type AvatarUserCompanyVariant = 'user' | 'company'
@@ -49,7 +47,7 @@ const getBackgroundColorKey = (identifier?: string): keyof typeof colors.avatar 
 
   // Get the sum of the UTF-16 code for each char
   const charcodeSum = identifier.split('').reduce((acc, char) => {
-    acc = acc + char.charCodeAt(0)
+    acc = acc + (char.codePointAt(0) ?? 0)
     return acc
   }, 0)
 
@@ -126,7 +124,7 @@ export const Avatar = ({
   const getContent = () => {
     // Remove all non-alphanumeric characters
     const text = initials || identifier || ''
-    const sanitizedText = text.replace(/[^a-zA-Z0-9]/g, '')
+    const sanitizedText = text.replaceAll(/[^a-zA-Z0-9]/g, '')
 
     const cursor = size === 'small' || size === 'intermediate' ? 1 : 2
 

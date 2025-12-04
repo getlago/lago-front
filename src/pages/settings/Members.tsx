@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import {
   ActionItem,
+  Avatar,
   Button,
   Chip,
   InfiniteScroll,

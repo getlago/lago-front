@@ -1,8 +1,9 @@
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
+  Avatar,
   Button,
   ButtonLink,
   GenericPlaceholder,

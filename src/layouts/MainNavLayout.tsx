@@ -1,11 +1,12 @@
 import { ApolloError, gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
 import { captureException } from '@sentry/react'
-import { Avatar, ConditionalWrapper, Icon, IconName } from 'lago-design-system'
+import { ConditionalWrapper, Icon, IconName } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import {
+  Avatar,
   Button,
   Popper,
   Skeleton,

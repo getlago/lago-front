@@ -1,6 +1,6 @@
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import isEqual from 'lodash/isEqual'
 import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
@@ -18,6 +18,7 @@ import {
 import { CouponCodeSnippet } from '~/components/coupons/CouponCodeSnippet'
 import {
   Alert,
+  Avatar,
   Button,
   Card,
   Skeleton,

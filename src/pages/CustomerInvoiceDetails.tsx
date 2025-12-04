@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
   Alert,
+  Avatar,
   Button,
   GenericPlaceholder,
   NavigationTab,
