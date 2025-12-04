@@ -25,10 +25,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const port = env.PORT ? parseInt(env.PORT) : 8080
   const isProduction = mode === 'production'
-  const sentryOrg = env.SENTRY_ORG || 'lago'
-  const sentryProject = env.SENTRY_PROJECT || 'front'
-  const shouldUploadSourceMaps =
-    isProduction && env.SENTRY_AUTH_TOKEN && sentryOrg && sentryProject && env.SENTRY_DSN
+  const sentryAuthToken = env.SENTRY_AUTH_TOKEN
+  const sentryOrg = env.SENTRY_ORG
+  const sentryProject = env.SENTRY_PROJECT
+  const shouldUploadSourceMaps = isProduction && sentryAuthToken && sentryOrg && sentryProject
 
   const plugins = [
     react(),
@@ -69,7 +69,7 @@ export default defineConfig(({ mode }) => {
       sentryVitePlugin({
         org: sentryOrg,
         project: sentryProject,
-        authToken: env.SENTRY_AUTH_TOKEN,
+        authToken: sentryAuthToken,
         release: {
           name: version,
           // Automatically associate commits with releases
@@ -86,6 +86,18 @@ export default defineConfig(({ mode }) => {
         telemetry: false,
       }),
     )
+  } else if (isProduction) {
+    const missingVars: string[] = []
+
+    if (!sentryAuthToken) missingVars.push('SENTRY_AUTH_TOKEN')
+    if (!sentryOrg) missingVars.push('SENTRY_ORG')
+    if (!sentryProject) missingVars.push('SENTRY_PROJECT')
+
+    if (missingVars.length > 0) {
+      console.log(
+        `⚠ Sentry source maps upload skipped. Missing environment variables: ${missingVars.join(', ')}`,
+      )
+    }
   }
 
   return {

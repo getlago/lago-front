@@ -32,26 +32,6 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install
 
-      - name: Check Sentry environment variables
-        continue-on-error: true
-        env:
-          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: |
-          echo "Checking Sentry environment variables..."
-          MISSING_VARS=()
-
-          [ -z "$SENTRY_ORG" ] && MISSING_VARS+=("SENTRY_ORG")
-          [ -z "$SENTRY_PROJECT" ] && MISSING_VARS+=("SENTRY_PROJECT")
-          [ -z "$SENTRY_AUTH_TOKEN" ] && MISSING_VARS+=("SENTRY_AUTH_TOKEN")
-
-          if [ ${#MISSING_VARS[@]} -gt 0 ]; then
-            echo "⚠ Missing environment variables: ${MISSING_VARS[*]}"
-          else
-            echo "✓ All Sentry environment variables are set"
-          fi
-
       - name: Run tests
         run: |
           pnpm run test:coverage
