@@ -35,6 +35,7 @@ gql`
       name
       displayName
       externalId
+      deletedAt
     }
     plan {
       id
@@ -71,7 +72,14 @@ export const SubscriptionInformations = ({
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
-  const customerName = subscription?.customer?.displayName
+  const isCustomerDeleted = !!subscription?.customer?.deletedAt
+
+  const customerNameForDispay = [
+    subscription?.customer?.displayName || subscription?.customer?.externalId,
+    isCustomerDeleted ? translate('text_1764874328964clrgkmh7i9h') : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <section>
@@ -98,7 +106,7 @@ export const SubscriptionInformations = ({
               label: translate('text_65201c5a175a4b0238abf29a'),
               value: (
                 <ConditionalWrapper
-                  condition={!!subscription?.customer?.id}
+                  condition={!!subscription?.customer?.id && !isCustomerDeleted}
                   validWrapper={(children) => (
                     <Link
                       to={generatePath(CUSTOMER_DETAILS_ROUTE, {
@@ -110,7 +118,7 @@ export const SubscriptionInformations = ({
                   )}
                   invalidWrapper={(children) => <>{children}</>}
                 >
-                  {customerName}
+                  {customerNameForDispay}
                 </ConditionalWrapper>
               ),
             },
