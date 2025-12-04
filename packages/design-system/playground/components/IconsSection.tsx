@@ -1,4 +1,4 @@
-import { AiBadge, ALL_ICONS, Icon, IconName, Typography } from '~/components'
+import { ALL_ICONS, Icon, IconName, Typography } from '~/components'
 
 export const IconsSection = () => {
   return (
@@ -58,7 +58,6 @@ export const IconsSection = () => {
           <Typography className="mb-4" variant="subhead1">
             AI Badge
           </Typography>
-          <AiBadge />
         </section>
       </div>
     </div>
