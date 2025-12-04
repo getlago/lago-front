@@ -1,11 +1,11 @@
 import { InputAdornment } from '@mui/material'
 import { getIn, useFormik } from 'formik'
-import { Button, GenericPlaceholder, Typography } from 'lago-design-system'
+import { Button, Typography } from 'lago-design-system'
 import { generatePath, Link, useNavigate, useParams } from 'react-router-dom'
 import { array, number, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
-import { Alert, Status, Table } from '~/components/designSystem'
+import { Alert, GenericPlaceholder, Status, Table } from '~/components/designSystem'
 import { AmountInputField, RadioField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'

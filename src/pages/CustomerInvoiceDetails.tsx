@@ -8,6 +8,7 @@ import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/u
 import {
   Alert,
   Button,
+  GenericPlaceholder,
   NavigationTab,
   Popper,
   Skeleton,
@@ -15,7 +16,6 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
   DisputeInvoiceDialog,

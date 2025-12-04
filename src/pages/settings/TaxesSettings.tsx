@@ -7,11 +7,11 @@ import {
   ActionItem,
   Alert,
   Button,
+  GenericPlaceholder,
   InfiniteScroll,
   Table,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,

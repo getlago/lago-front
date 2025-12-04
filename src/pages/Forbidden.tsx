@@ -1,4 +1,4 @@
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { GenericPlaceholder } from '~/components/designSystem'
 import { HOME_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'

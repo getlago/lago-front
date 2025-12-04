@@ -1,11 +1,11 @@
-import { Button, GenericPlaceholder, tw } from 'lago-design-system'
+import { Button, tw } from 'lago-design-system'
 import { useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import { useUsageAnalyticsBillableMetric } from '~/components/analytics/usage/useUsageAnalyticsBillableMetric'
-import { HorizontalDataTable, Typography } from '~/components/designSystem'
+import { GenericPlaceholder, HorizontalDataTable, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
   Filters,

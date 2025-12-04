@@ -2,8 +2,13 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Tooltip, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  Button,
+  GenericPlaceholder,
+  InfiniteScroll,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'

@@ -1,6 +1,5 @@
 export * from './AiBadge'
 export * from './Avatar'
 export * from './Button'
-export * from './GenericPlaceholder'
 export * from './Icon'
 export * from './Typography'

@@ -45,13 +45,13 @@ import {
 import {
   Button,
   Chip,
+  GenericPlaceholder,
   Popper,
   Table,
   TableColumn,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   SettingsListItem,
   SettingsListItemHeader,

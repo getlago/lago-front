@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Button, GenericPlaceholder, Typography } from 'lago-design-system'
+import { Button, Typography } from 'lago-design-system'
 import { useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Alert } from '~/components/designSystem'
+import { Alert, GenericPlaceholder } from '~/components/designSystem'
 import {
   DeleteAdjustedFeeDialog,
   DeleteAdjustedFeeDialogRef,

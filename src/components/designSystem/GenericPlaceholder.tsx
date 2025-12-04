@@ -1,9 +1,14 @@
 import { ReactNode } from 'react'
 
-import { tw } from '~/lib'
+import { Button, ButtonVariant, Typography } from '~/components/designSystem'
+import { tw } from '~/styles/utils'
 
-import { Button, ButtonVariant } from './Button'
-import { Typography } from './Typography'
+// Test ID constants
+export const GENERIC_PLACEHOLDER_TEST_ID = 'empty-state'
+export const GENERIC_PLACEHOLDER_TITLE_TEST_ID = 'generic-placeholder-title'
+export const GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID = 'generic-placeholder-subtitle'
+export const GENERIC_PLACEHOLDER_IMAGE_TEST_ID = 'generic-placeholder-image'
+export const GENERIC_PLACEHOLDER_BUTTON_TEST_ID = 'generic-placeholder-button'
 
 export interface GenericPlaceholderProps {
   className?: string
@@ -39,12 +44,16 @@ export const GenericPlaceholder = ({
         },
         className,
       )}
-      data-test="empty-state"
+      data-test={GENERIC_PLACEHOLDER_TEST_ID}
       {...props}
     >
-      {image}
+      <div data-test={GENERIC_PLACEHOLDER_IMAGE_TEST_ID}>{image}</div>
       {title && (
-        <Typography className="mb-3" variant="subhead1">
+        <Typography
+          className="mb-3"
+          variant="subhead1"
+          data-test={GENERIC_PLACEHOLDER_TITLE_TEST_ID}
+        >
           {title}
         </Typography>
       )}
@@ -52,15 +61,22 @@ export const GenericPlaceholder = ({
         className={tw({
           'mb-5': hasButton,
         })}
+        data-test={GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID}
       >
         {subtitle}
       </Typography>
 
       {hasButton && (
-        <Button variant={buttonVariant} onClick={buttonAction}>
+        <Button
+          variant={buttonVariant}
+          onClick={buttonAction}
+          data-test={GENERIC_PLACEHOLDER_BUTTON_TEST_ID}
+        >
           {buttonTitle}
         </Button>
       )}
     </div>
   )
 }
+
+GenericPlaceholder.displayName = 'GenericPlaceholder'

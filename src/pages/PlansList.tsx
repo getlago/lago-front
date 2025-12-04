@@ -1,9 +1,15 @@
 import { gql } from '@apollo/client'
-import { Avatar, GenericPlaceholderProps, Icon, tw } from 'lago-design-system'
+import { Avatar, Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import {
+  ButtonLink,
+  GenericPlaceholderProps,
+  InfiniteScroll,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
