@@ -1,5 +1,10 @@
 FROM node:24.11.1-alpine AS build
 
+ARG SENTRY_DSN
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG SENTRY_AUTH_TOKEN
+
 WORKDIR /app
 
 RUN apk add python3 build-base && corepack enable && corepack prepare pnpm@latest --activate

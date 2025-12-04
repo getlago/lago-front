@@ -110,6 +110,11 @@ export const initializeApolloClient = async () => {
     // Silent auth and permissions related errors by default
     silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
 
+    // Get operation type (query/mutation/subscription) for better grouping in Sentry
+    const definition = getMainDefinition(operation.query)
+    const operationType =
+      definition.kind === 'OperationDefinition' ? definition.operation : 'unknown'
+
     if (graphQLErrors) {
       graphQLErrors.forEach((value) => {
         const { message, path, locations, extensions } = value
@@ -127,11 +132,18 @@ export const initializeApolloClient = async () => {
           !isUnauthorized &&
           message !== 'PersistedQueryNotFound'
         ) {
+          // Create proper Error object for better stack traces
+          const graphQLError = new Error(`GraphQL Error: ${message}`)
+
+          graphQLError.name = 'GraphQLError'
+
           // Capture in Sentry with operation details
-          captureException(message, {
+          captureException(graphQLError, {
             tags: {
               errorType: 'GraphQLError',
-              operationName: operation.operationName,
+              operation: operationType,
+              operationName: operation.operationName || 'unknown',
+              errorCode: typeof extensions?.code === 'string' ? extensions.code : 'unknown',
             },
             extra: {
               path,
@@ -139,6 +151,7 @@ export const initializeApolloClient = async () => {
               extensions,
               value,
               variables: operation.variables,
+              operationQuery: operation.query?.loc?.source?.body || 'unknown',
             },
           })
 

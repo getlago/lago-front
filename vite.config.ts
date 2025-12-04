@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 import react from '@vitejs/plugin-react-swc'
 import { resolve } from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
@@ -23,40 +24,72 @@ const titles: Record<string, string> = {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const port = env.PORT ? parseInt(env.PORT) : 8080
+  const isProduction = mode === 'production'
+  const sentryOrg = env.SENTRY_ORG || 'lago'
+  const sentryProject = env.SENTRY_PROJECT || 'front'
+  const shouldUploadSourceMaps =
+    isProduction && env.SENTRY_AUTH_TOKEN && sentryOrg && sentryProject && env.SENTRY_DSN
+
+  const plugins = [
+    react(),
+    wasm(),
+    topLevelAwait(),
+
+    svgr({
+      include: '**/*.svg',
+      svgrOptions: {
+        plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
+        svgoConfig: {
+          plugins: [
+            {
+              name: 'prefixIds',
+              params: {
+                prefixIds: false,
+                prefixClassNames: false,
+              },
+            },
+          ],
+        },
+      },
+    }),
+
+    createHtmlPlugin({
+      inject: {
+        data: {
+          title: titles[env.APP_ENV] || titles.production,
+          favicon: icons[env.APP_ENV] || icons.production,
+        },
+      },
+    }),
+  ]
+
+  // Add Sentry plugin only in production builds with required env vars
+  if (shouldUploadSourceMaps) {
+    plugins.push(
+      sentryVitePlugin({
+        org: sentryOrg,
+        project: sentryProject,
+        authToken: env.SENTRY_AUTH_TOKEN,
+        release: {
+          name: version,
+          // Automatically associate commits with releases
+          setCommits: {
+            auto: true,
+          },
+        },
+        // Upload source maps
+        sourcemaps: {
+          assets: './dist/**',
+          // Delete source maps after upload (for security)
+          filesToDeleteAfterUpload: './dist/**/*.map',
+        },
+        telemetry: false,
+      }),
+    )
+  }
 
   return {
-    plugins: [
-      react(),
-      wasm(),
-      topLevelAwait(),
-
-      svgr({
-        include: '**/*.svg',
-        svgrOptions: {
-          plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
-          svgoConfig: {
-            plugins: [
-              {
-                name: 'prefixIds',
-                params: {
-                  prefixIds: false,
-                  prefixClassNames: false,
-                },
-              },
-            ],
-          },
-        },
-      }),
-
-      createHtmlPlugin({
-        inject: {
-          data: {
-            title: titles[env.APP_ENV] || titles.production,
-            favicon: icons[env.APP_ENV] || icons.production,
-          },
-        },
-      }),
-    ],
+    plugins,
     define: {
       APP_ENV: JSON.stringify(env.APP_ENV),
       API_URL: JSON.stringify(env.API_URL),
