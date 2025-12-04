@@ -427,6 +427,29 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          ...typographyCaption,
+          backgroundColor: palette.grey[700],
+          padding: '12px 16px',
+        },
+        // MUI positions poppers using CSS, per position
+        // !important is ugly, but required
+        tooltipPlacementBottom: {
+          marginTop: '8px !important',
+        },
+        tooltipPlacementTop: {
+          marginBottom: '8px !important',
+        },
+        tooltipPlacementLeft: {
+          marginRight: '8px !important',
+        },
+        tooltipPlacementRight: {
+          marginLeft: '8px !important',
+        },
+      },
+    },
     MuiAccordion: {
       styleOverrides: {
         root: {
