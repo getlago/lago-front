@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import {
   SubscriptionUsageDetailDrawer,
   SubscriptionUsageDetailDrawerRef,
+  SubscriptionUsageDetailDrawerUsage,
 } from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
 import {
   Alert,
@@ -18,6 +19,7 @@ import {
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
 import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -25,7 +27,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
-  ChargeUsage,
   CurrencyEnum,
   CustomerForSubscriptionUsageQuery,
   CustomerProjectedUsageForUsageDetailsFragmentDoc,
@@ -34,7 +35,6 @@ import {
   GetCustomerUsageForPortalQuery,
   LagoApiError,
   PremiumIntegrationTypeEnum,
-  ProjectedChargeUsage,
   ProjectedUsageForSubscriptionUsageQuery,
   StatusTypeEnum,
   SubscrptionForSubscriptionUsageQuery,
@@ -288,6 +288,18 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
   const showProjected = activeTab === 1
 
+  const handleOpenUsageDetailDrawer = (row: SubscriptionUsageDetailDrawerUsage) => {
+    subscriptionUsageDetailDrawerRef.current?.openDrawer(
+      row,
+      async (forceProjected?: boolean) => {
+        const { data } = await refetchUsage(forceProjected)
+
+        return findChargeUsageByBillableMetricId(data, row.billableMetric.id)
+      },
+      activeTab,
+    )
+  }
+
   const TRANSLATION_MAP = showProjected
     ? {
         title: translate('text_1753095692838zn4t5a0wrg1'),
@@ -506,43 +518,11 @@ export const SubscriptionCurrentUsageTableComponent = ({
                               </Typography>
                               <button
                                 className="h-auto whitespace-nowrap rounded-none p-0 text-purple-600 hover:underline focus:underline"
-                                onClick={() => {
-                                  subscriptionUsageDetailDrawerRef.current?.openDrawer(
-                                    row as ChargeUsage & ProjectedChargeUsage,
-                                    async (forceProjected?: boolean) => {
-                                      const { data } = await refetchUsage(forceProjected)
-
-                                      let filtered = undefined
-
-                                      if ('customerPortalCustomerUsage' in data) {
-                                        filtered =
-                                          data?.customerPortalCustomerUsage.chargesUsage.find(
-                                            (usage) =>
-                                              usage.billableMetric.id === row.billableMetric.id,
-                                          ) as ChargeUsage | undefined
-                                      } else if ('customerUsage' in data) {
-                                        filtered = data?.customerUsage.chargesUsage.find(
-                                          (usage) =>
-                                            usage.billableMetric.id === row.billableMetric.id,
-                                        ) as ChargeUsage | undefined
-                                      } else if ('customerProjectedUsage' in data) {
-                                        filtered = data?.customerProjectedUsage.chargesUsage.find(
-                                          (usage) =>
-                                            usage.billableMetric.id === row.billableMetric.id,
-                                        ) as ChargeUsage | undefined
-                                      } else if ('customerPortalCustomerProjectedUsage' in data) {
-                                        filtered =
-                                          data?.customerPortalCustomerProjectedUsage.chargesUsage.find(
-                                            (usage) =>
-                                              usage.billableMetric.id === row.billableMetric.id,
-                                          ) as ChargeUsage | undefined
-                                      }
-
-                                      return filtered
-                                    },
-                                    activeTab,
+                                onClick={() =>
+                                  handleOpenUsageDetailDrawer(
+                                    row as SubscriptionUsageDetailDrawerUsage,
                                   )
-                                }}
+                                }
                               >
                                 {translate('text_1725983967306c736sdyjohn')}
                               </button>
