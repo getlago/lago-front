@@ -1,6 +1,8 @@
-import { Button, Icon, Typography } from 'lago-design-system'
+import { Icon, Typography } from 'lago-design-system'
 import { Duration } from 'luxon'
 import { ReactNode } from 'react'
+
+import { Button } from '~/components/designSystem'
 
 /**
  * Converts a number (in seconds) into a human-readable duration string

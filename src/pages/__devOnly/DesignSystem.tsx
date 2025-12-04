@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { useFormik } from 'formik'
-import { Avatar, AvatarBadge, Button, Icon, IconName } from 'lago-design-system'
+import { Avatar, AvatarBadge, Icon, IconName } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
@@ -10,6 +10,7 @@ import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateCon
 import {
   Accordion,
   Alert,
+  Button,
   ButtonLink,
   ChargeTable,
   Chip,

@@ -1,11 +1,11 @@
 import { FetchResult, gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Typography } from 'lago-design-system'
+import { Typography } from 'lago-design-system'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
-import { Tooltip, WarningDialog, WarningDialogRef } from '~/components/designSystem'
+import { Button, Tooltip, WarningDialog, WarningDialogRef } from '~/components/designSystem'
 import { FeaturePrivilegeAccordion } from '~/components/features/FeaturePrivilegeAccordion'
 import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'

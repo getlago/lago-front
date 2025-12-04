@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Typography } from 'lago-design-system'
+import { Typography } from 'lago-design-system'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
 import {
+  Button,
   ChargeTable,
   Chip,
   Tooltip,

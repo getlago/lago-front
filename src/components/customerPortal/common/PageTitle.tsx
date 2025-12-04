@@ -1,5 +1,4 @@
-import { Typography } from '~/components/designSystem'
-import { Button } from '~/components/designSystem/Button'
+import { Button, Typography } from '~/components/designSystem'
 
 const PageTitle = ({ title, goHome }: { title: string; goHome: () => void }) => {
   return (

@@ -1,7 +1,6 @@
-import { Button } from 'lago-design-system'
 import { RefObject } from 'react'
 
-import { Tooltip } from '~/components/designSystem'
+import { Button, Tooltip } from '~/components/designSystem'
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'
 import { useDuplicatePlanVar } from '~/core/apolloClient'

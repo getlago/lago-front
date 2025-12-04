@@ -1,9 +1,9 @@
-import { Button, Typography } from 'lago-design-system'
+import { Typography } from 'lago-design-system'
 import { useState } from 'react'
 
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import UsageBreakdownIndividualSection from '~/components/analytics/usage/UsageBreakdownIndividualSection'
-import { NavigationTab, TabManagedBy } from '~/components/designSystem'
+import { Button, NavigationTab, TabManagedBy } from '~/components/designSystem'
 import {
   UsageBreakdownMeteredAvailableFilters,
   UsageBreakdownRecurringAvailableFilters,

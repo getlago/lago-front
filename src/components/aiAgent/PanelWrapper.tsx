@@ -1,5 +1,6 @@
-import { Button, Typography } from 'lago-design-system'
+import { Typography } from 'lago-design-system'
 
+import { Button } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const AIWrapper = ({

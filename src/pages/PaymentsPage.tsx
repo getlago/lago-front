@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
-import { Button, Typography } from 'lago-design-system'
+import { Typography } from 'lago-design-system'
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Button } from '~/components/designSystem'
 import { PaymentsList } from '~/components/invoices/PaymentsList'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
