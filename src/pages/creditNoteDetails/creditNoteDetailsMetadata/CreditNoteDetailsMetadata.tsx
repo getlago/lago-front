@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { Fragment, useRef } from 'react'
 
 import { Button, Typography } from '~/components/designSystem'
 import { type GetCreditNoteForDetailsQuery } from '~/generated/graphql'
@@ -12,6 +12,9 @@ import { SectionHeader } from '~/styles/customer'
 type CreditNotesDetailsMetadataProps = {
   creditNote: GetCreditNoteForDetailsQuery['creditNote']
 }
+
+const GRID =
+  'grid grid-cols-1 md:grid-cols-[fit-content(100%)_1fr] gap-x-8 md:gap-y-2 [&>*:nth-child(odd):not(:first-child)]:mt-2 md:[&>*:nth-child(odd):not(:first-child)]:mt-0'
 
 const CreditNoteDetailsMetadata = ({ creditNote }: CreditNotesDetailsMetadataProps) => {
   const { translate } = useInternationalization()
@@ -37,16 +40,18 @@ const CreditNoteDetailsMetadata = ({ creditNote }: CreditNotesDetailsMetadataPro
           </Typography>
         )}
 
-        {creditNote?.metadata?.map((metadata) => (
-          <div key={metadata.key} className="mb-2 flex gap-x-4">
-            <Typography variant="body" className="w-58" color="grey600">
-              {metadata.key}
-            </Typography>
-            <Typography variant="body" color="grey700">
-              {metadata.value}
-            </Typography>
-          </div>
-        ))}
+        <div className={GRID}>
+          {creditNote?.metadata?.map((metadata) => (
+            <Fragment key={metadata.key}>
+              <Typography variant="body" color="grey600">
+                {metadata.key}
+              </Typography>
+              <Typography variant="body" color="grey700">
+                {metadata.value}
+              </Typography>
+            </Fragment>
+          ))}
+        </div>
       </div>
 
       <MetadataEditDrawer ref={metadataEditDrawerRef} />

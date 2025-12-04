@@ -89,14 +89,16 @@ const MetadataForm = <T extends SupportedFormFormat>({
           {formikProps?.values?.metadata?.map((metadata, index) => {
             return (
               <div className="flex flex-col gap-y-1" key={`metadata-${metadata.localId || index}`}>
-                <div className={gridClassName}>
-                  <Typography variant="captionHl" color="grey700">
-                    {translate('text_63fcc3218d35b9377840f5a3')}
-                  </Typography>
-                  <Typography variant="captionHl" color="grey700">
-                    {translate('text_63fcc3218d35b9377840f5ab')}
-                  </Typography>
-                </div>
+                {index === 0 && (
+                  <div className={gridClassName}>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3218d35b9377840f5a3')}
+                    </Typography>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3218d35b9377840f5ab')}
+                    </Typography>
+                  </div>
+                )}
 
                 <div className={gridClassName}>
                   <TextInputField
