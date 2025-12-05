@@ -1,6 +1,6 @@
-import { Spinner } from 'lago-design-system'
 import { ComponentType, lazy } from 'react'
 
+import { Spinner } from '~/components/designSystem'
 import { withLazySuspense } from '~/HOC/withLazySuspense'
 
 type ExtractComponentProps<T> = T extends ComponentType<infer P> ? P : never
