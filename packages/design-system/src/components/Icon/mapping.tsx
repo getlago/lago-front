@@ -59,6 +59,7 @@ import Google from '~/icons/google.svg'
 import Handle from '~/icons/handle.svg'
 import Hashtag from '~/icons/hashtag.svg'
 import Heart from '~/icons/heart.svg'
+import History from '~/icons/history.svg'
 import Id from '~/icons/id.svg'
 import InfoCircle from '~/icons/info-circle.svg'
 import Key from '~/icons/key.svg'
@@ -187,6 +188,7 @@ export const ALL_ICONS = {
   handle: Handle,
   hashtag: Hashtag,
   heart: Heart,
+  history: History,
   id: Id,
   'info-circle': InfoCircle,
   'keyboard-enter': KeyboardEnter,
