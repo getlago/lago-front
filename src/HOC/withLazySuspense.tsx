@@ -1,5 +1,6 @@
-import { Spinner } from 'lago-design-system'
 import { ComponentType, LazyExoticComponent, Suspense } from 'react'
+
+import { Spinner } from '~/components/designSystem'
 
 export const withLazySuspense = <T = Record<string, unknown>,>(
   LazyComponent:

@@ -8,12 +8,9 @@ import { render } from '~/test-utils'
 
 import { withLazySuspense } from '../withLazySuspense'
 
-jest.mock('lago-design-system', () => ({
-  Spinner: () => <div data-test="spinner">Loading...</div>,
-}))
-
 jest.mock('~/components/designSystem', () => ({
   Skeleton: () => <div data-test="skeleton">Loading...</div>,
+  Spinner: () => <div data-test="spinner">Loading...</div>,
 }))
 
 describe('withLazySuspense', () => {
