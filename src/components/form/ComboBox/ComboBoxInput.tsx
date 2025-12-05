@@ -23,6 +23,7 @@ export const ComboBoxInput = ({
   startAdornmentValue,
   hasValueSelected,
   variant = 'default',
+  'data-test': dataTest,
 }: ComboBoxInputProps) => {
   const { inputProps, InputProps, ...restParams } = params
 
@@ -43,6 +44,7 @@ export const ComboBoxInput = ({
       infoText={infoText}
       autoComplete="off"
       helperText={helperText}
+      data-test={dataTest}
       onBlur={() => {
         if (!hasValueSelected) {
           inputProps.onChange({ target: { value: '' } })

@@ -72,7 +72,7 @@ gql`
     invoiceType
     status
     taxStatus
-    issuingDate
+    expectedFinalizationDate
     externalIntegrationId
     taxProviderId
     taxProviderVoidable
@@ -520,8 +520,8 @@ const InvoiceOverview = memo(
                         ? 'text_1724170152395tr7v0f15xsv'
                         : 'text_63a41a8eabb9ae67047c1c0c',
                       {
-                        issuingDate: invoice?.issuingDate
-                          ? formattedDateWithTimezone(invoice?.issuingDate)
+                        expectedFinalizationDate: invoice?.expectedFinalizationDate
+                          ? formattedDateWithTimezone(invoice?.expectedFinalizationDate)
                           : '-',
                       },
                     )}

@@ -1339,7 +1339,7 @@
   "text_638f74bb4d41e3f1d020164b": "{{count}} rascunhos de faturas",
   "text_63a41a8eabb9ae67047c1c06": "Atualizar fatura",
   "text_63a41a8eabb9ae67047c1c08": "Finalizar fatura",
-  "text_63a41a8eabb9ae67047c1c0c": "Esta fatura está em modo de rascunho. Você tem até {{issuingDate}} para ajustá-la, ou pode finalizá-la manualmente agora.",
+  "text_63a41a8eabb9ae67047c1c0c": "Esta fatura está em modo de rascunho. Você tem até {{expectedFinalizationDate}} para ajustá-la, ou pode finalizá-la manualmente agora.",
   "text_63a41b3a01db40c7fff551e1": "Fatura finalizada com sucesso",
   "text_63a4269f72ead1bda4bed106": "Finalizar um rascunho de fatura",
   "text_63a4269f72ead1bda4bed108": "Você não poderá mais ajustar os itens, a fatura será gerada instantaneamente. Tem certeza? \n\nCaso contrário, a fatura será gerada automaticamente em {{issuingDate}}.",

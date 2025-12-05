@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import {
   DeleteCustomerDocumentLocaleDialog,
@@ -43,6 +43,10 @@ import {
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
 import {
+  EditCustomerIssuingDatePolicyDialog,
+  EditCustomerIssuingDatePolicyDialogRef,
+} from '~/components/customers/settings/EditCustomerIssuingDatePolicyDialog'
+import {
   Avatar,
   Button,
   Chip,
@@ -69,10 +73,18 @@ import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import {
+  INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
+  INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
+} from '~/core/constants/issuingDatePolicy'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
+  BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum,
+  BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum,
   CustomerForDeleteVatRateDialogFragmentDoc,
+  CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum,
+  CustomerSubscriptionInvoiceIssuingDateAnchorEnum,
   DeleteCustomerDocumentLocaleFragmentDoc,
   DeleteCustomerGracePeriodFragmentDoc,
   DeleteCustomerNetPaymentTermFragmentDoc,
@@ -80,6 +92,7 @@ import {
   EditCustomerDunningCampaignFragmentDoc,
   EditCustomerInvoiceCustomSectionFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
+  EditCustomerIssuingDatePolicyDialogFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
   PremiumIntegrationTypeEnum,
@@ -143,6 +156,8 @@ gql`
           id
           invoiceGracePeriod
           documentLocale
+          subscriptionInvoiceIssuingDateAdjustment
+          subscriptionInvoiceIssuingDateAnchor
         }
         appliedDunningCampaign {
           id
@@ -158,6 +173,8 @@ gql`
       billingConfiguration {
         id
         documentLocale
+        subscriptionInvoiceIssuingDateAdjustment
+        subscriptionInvoiceIssuingDateAnchor
       }
 
       ...CustomerAppliedTaxRatesForSettings
@@ -172,6 +189,7 @@ gql`
       ...DeleteCustomerDocumentLocale
       ...CustomerForDeleteVatRateDialog
       ...DeleteCustomerNetPaymentTerm
+      ...EditCustomerIssuingDatePolicyDialog
     }
   }
 
@@ -184,6 +202,7 @@ gql`
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
   ${DeleteCustomerNetPaymentTermFragmentDoc}
+  ${EditCustomerIssuingDatePolicyDialogFragmentDoc}
 `
 
 interface CustomerSettingsProps {
@@ -202,6 +221,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const customer = data?.customer
   const billingEntity = data?.customer?.billingEntity
   const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
+  const editIssuingDatePolicyDialogRef = useRef<EditCustomerIssuingDatePolicyDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
@@ -218,6 +238,58 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const deleteCustomerFinalizeZeroAmountInvoiceDialogRef =
     useRef<DeleteCustomerFinalizeZeroAmountInvoiceDialogRef>(null)
+
+  const { issuingDateAnchorSettingCopy, issuingDateAdjustmentSettingCopy } = useMemo(() => {
+    const hasUserDefinedAnchor =
+      !!customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor
+    const hasUserDefinedAdjustment =
+      !!customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment
+
+    const inheritCopy = translate('text_1763407743132k0lsbmuh6a1')
+
+    const customerAnchorCopy = translate(
+      INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
+        customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
+          CustomerSubscriptionInvoiceIssuingDateAnchorEnum.NextPeriodStart
+      ],
+    )
+
+    const billingEntityAnchorCopy = translate(
+      INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS[
+        customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ||
+          BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum.NextPeriodStart
+      ],
+    )
+
+    const billingEntityAdjustmentCopy = translate(
+      INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
+        customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
+          BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum.AlignWithFinalizationDate
+      ],
+    )
+
+    const customerAdjustmentCopy = translate(
+      INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS[
+        customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ||
+          CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum.AlignWithFinalizationDate
+      ],
+    )
+
+    return {
+      issuingDateAnchorSettingCopy: hasUserDefinedAnchor
+        ? customerAnchorCopy
+        : `${billingEntityAnchorCopy} ${inheritCopy}`,
+      issuingDateAdjustmentSettingCopy: hasUserDefinedAdjustment
+        ? customerAdjustmentCopy
+        : `${billingEntityAdjustmentCopy} ${inheritCopy}`,
+    }
+  }, [
+    customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment,
+    customer?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor,
+    customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment,
+    customer?.billingEntity?.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor,
+    translate,
+  ])
 
   if (!!error && !loading) {
     return (
@@ -244,27 +316,93 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
   const isInvoiceCustomSectionConfigurable = !!customer?.configurableInvoiceCustomSections?.length
 
-  const getNetPaymentTermText = (): string => {
-    if (typeof customer?.netPaymentTerm !== 'number') {
+  function getNetPaymentTermCopy(
+    customerNetPaymentTerm: number | null | undefined,
+    billingEntityNetPaymentTerm: number,
+  ): string {
+    const isCustomerNetPaymentTermDefined = typeof customerNetPaymentTerm === 'number'
+
+    if (!isCustomerNetPaymentTermDefined) {
       return translate(
         'text_64c7a89b6c67eb6c98898241',
         {
-          days: billingEntity?.netPaymentTerm,
+          days: billingEntityNetPaymentTerm ?? 0,
         },
-        billingEntity?.netPaymentTerm,
+        billingEntityNetPaymentTerm ?? 0,
       )
     }
 
-    if (customer.netPaymentTerm === 0) {
+    if (customerNetPaymentTerm === 0) {
       return translate('text_64c7a89b6c67eb6c98898125')
     }
 
     return translate(
       'text_64c7a89b6c67eb6c9889815f',
       {
-        days: customer.netPaymentTerm,
+        days: customerNetPaymentTerm,
       },
-      customer.netPaymentTerm,
+      customerNetPaymentTerm,
+    )
+  }
+
+  function getDunningCampaignContent(): React.ReactNode {
+    if (!dunningCampaign || customer?.excludeFromDunningCampaign) {
+      return (
+        <Typography variant="body" color="grey700">
+          {translate('text_1729541149109r8u8nlsu75e')}
+        </Typography>
+      )
+    }
+
+    if (!isDunningCampaignApplicable) {
+      return (
+        <Typography variant="body" color="grey700">
+          {translate('text_17295411491091t7ii66l5ex')}
+        </Typography>
+      )
+    }
+
+    return (
+      <Table
+        name="customer-dunnings-settings"
+        containerSize={{ default: 0 }}
+        rowSize={72}
+        isLoading={loading}
+        data={[dunningCampaign]}
+        columns={[
+          {
+            key: 'name',
+            title: translate('text_1729542024833rpf3nsekh42'),
+            maxSpace: true,
+            content: ({ name, code }) => (
+              <div className="flex flex-1 items-center gap-3" data-test={code}>
+                <Avatar size="big" variant="connector">
+                  <Icon size="medium" name="coin-dollar" color="dark" />
+                </Avatar>
+                <div>
+                  <Typography color="textSecondary" variant="bodyHl" noWrap>
+                    {name}
+                  </Typography>
+                  <Typography variant="caption" noWrap>
+                    {code}
+                  </Typography>
+                </div>
+              </div>
+            ),
+          },
+          ...(!customer?.appliedDunningCampaign
+            ? [
+                {
+                  key: 'appliedToOrganization',
+                  title: translate('text_63ac86d797f728a87b2f9fa7'),
+                  content: () => <Chip label={translate('text_1729542098338prhjz7s29kt')} />,
+                } as TableColumn<{
+                  appliedToOrganization: boolean
+                }>,
+              ]
+            : []),
+        ]}
+      />
     )
   }
 
@@ -382,66 +520,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     }
                   />
 
-                  {!!dunningCampaign &&
-                    !customer?.excludeFromDunningCampaign &&
-                    isDunningCampaignApplicable && (
-                      <Table
-                        name="customer-dunnings-settings"
-                        containerSize={{ default: 0 }}
-                        rowSize={72}
-                        isLoading={loading}
-                        data={[dunningCampaign]}
-                        columns={[
-                          {
-                            key: 'name',
-                            title: translate('text_1729542024833rpf3nsekh42'),
-                            maxSpace: true,
-                            content: ({ name, code }) => (
-                              <div className="flex flex-1 items-center gap-3" data-test={code}>
-                                <Avatar size="big" variant="connector">
-                                  <Icon size="medium" name="coin-dollar" color="dark" />
-                                </Avatar>
-                                <div>
-                                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                                    {name}
-                                  </Typography>
-                                  <Typography variant="caption" noWrap>
-                                    {code}
-                                  </Typography>
-                                </div>
-                              </div>
-                            ),
-                          },
-                          ...(!customer?.appliedDunningCampaign
-                            ? [
-                                {
-                                  key: 'appliedToOrganization',
-                                  title: translate('text_63ac86d797f728a87b2f9fa7'),
-                                  content: () => (
-                                    <Chip label={translate('text_1729542098338prhjz7s29kt')} />
-                                  ),
-                                } as TableColumn<{
-                                  appliedToOrganization: boolean
-                                }>,
-                              ]
-                            : []),
-                        ]}
-                      />
-                    )}
-
-                  {!!dunningCampaign &&
-                    !customer?.excludeFromDunningCampaign &&
-                    !isDunningCampaignApplicable && (
-                      <Typography variant="body" color="grey700">
-                        {translate('text_17295411491091t7ii66l5ex')}
-                      </Typography>
-                    )}
-
-                  {(!dunningCampaign || customer?.excludeFromDunningCampaign) && (
-                    <Typography variant="body" color="grey700">
-                      {translate('text_1729541149109r8u8nlsu75e')}
-                    </Typography>
-                  )}
+                  {getDunningCampaignContent()}
                 </SettingsListItem>
               )}
 
@@ -640,7 +719,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     {translate('text_1735223938916tlygbi5v0nd')}
                   </Typography>
                 )}
-
                 {!customer?.skipInvoiceCustomSections && isInvoiceCustomSectionConfigurable && (
                   <Table
                     name="customer-custom-sections-settings"
@@ -662,7 +740,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     ]}
                   />
                 )}
-
                 {!customer?.skipInvoiceCustomSections && !isInvoiceCustomSectionConfigurable && (
                   <Typography variant="body" color="grey700">
                     {translate('text_1735223938916wjmtgs2juy4')}
@@ -735,8 +812,41 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 />
 
                 <Typography variant="body" color="grey700">
-                  {getNetPaymentTermText()}
+                  {getNetPaymentTermCopy(
+                    customer?.netPaymentTerm,
+                    billingEntity?.netPaymentTerm || 0,
+                  )}
                 </Typography>
+              </SettingsListItem>
+
+              {/* Issuing date policy */}
+              <SettingsListItem>
+                <SettingsListItemHeader
+                  label={translate('text_1763407530093r6zuzwr3x7p')}
+                  sublabel={translate('text_1763414803053xz3x7xjr3jf')}
+                  action={
+                    hasPermissions([
+                      'customerSettingsUpdateIssuingDateAnchor',
+                      'customerSettingsUpdateIssuingDateAdjustment',
+                    ]) ? (
+                      <Button
+                        variant="inline"
+                        disabled={loading}
+                        onClick={() => editIssuingDatePolicyDialogRef?.current?.openDialog()}
+                        data-test="add-issuing-date-policy-button"
+                      >
+                        {translate('text_645bb193927b375079d28ad2')}
+                      </Button>
+                    ) : undefined
+                  }
+                />
+
+                <div className="flex items-baseline gap-1">
+                  <Typography variant="body" color="grey700">
+                    <div>{issuingDateAnchorSettingCopy}</div>
+                    <div>{issuingDateAdjustmentSettingCopy}</div>
+                  </Typography>
+                </div>
               </SettingsListItem>
 
               {/* Tax */}
@@ -851,6 +961,11 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <EditCustomerDocumentLocaleDialog ref={editCustomerDocumentLocale} customer={customer} />
           <EditCustomerDunningCampaignDialog
             ref={editCustomerDunningCampaignDialogRef}
+            customer={customer}
+          />
+
+          <EditCustomerIssuingDatePolicyDialog
+            ref={editIssuingDatePolicyDialogRef}
             customer={customer}
           />
           <EditCustomerInvoiceCustomSectionsDialog
