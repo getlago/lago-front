@@ -9,6 +9,7 @@ declare module 'yup' {
   > extends Schema<TType, TContext, TDefault, TFlags> {
     domain(message: string): this
     emails(message: string): this
+    host(message: string): this
   }
 }
 

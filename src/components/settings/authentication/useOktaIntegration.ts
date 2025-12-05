@@ -19,6 +19,7 @@ gql`
     clientId
     clientSecret
     organizationName
+    host
     ...DeleteOktaIntegrationDialog
   }
 
@@ -37,12 +38,14 @@ gql`
   ${DeleteOktaIntegrationDialogFragmentDoc}
 `
 
-const oktaIntegrationSchema = object().shape({
-  domain: string().domain('text_664c732c264d7eed1c74fe03').required(''),
-  clientId: string().required(''),
-  clientSecret: string().required(''),
-  organizationName: string().required(''),
-})
+export const getOktaIntegrationSchema = () =>
+  object().shape({
+    domain: string().domain('text_664c732c264d7eed1c74fe03').required(''),
+    host: string().host('text_664c732c264d7eed1c74fdd3'),
+    clientId: string().required(''),
+    clientSecret: string().required(''),
+    organizationName: string().required(''),
+  })
 
 export interface UseOktaIntegrationProps {
   initialValues?: AddOktaIntegrationDialogFragment
@@ -84,11 +87,12 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
   const formikProps = useFormik<CreateOktaIntegrationInput>({
     initialValues: {
       domain: initialValues?.domain || '',
+      host: initialValues?.host || '',
       clientId: initialValues?.clientId || '',
       clientSecret: initialValues?.clientSecret || '',
       organizationName: initialValues?.organizationName || '',
     },
-    validationSchema: oktaIntegrationSchema,
+    validationSchema: getOktaIntegrationSchema(),
     onSubmit: async (values) => {
       if (isEdition) {
         await updateIntegration({

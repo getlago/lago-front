@@ -32,6 +32,7 @@ gql`
     organizationName
     domain
     name
+    host
   }
 
   query GetOktaIntegration($id: ID) {
@@ -182,6 +183,11 @@ const OktaAuthenticationDetails = () => {
                   icon="globe"
                   label={translate('text_664c732c264d7eed1c74fd94')}
                   value={integration.domain}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="globe"
+                  label={translate('text_1763560144639jp40amfwhn5')}
+                  value={integration.host || 'N/A'}
                 />
                 <IntegrationsPage.DetailsItem
                   icon="key"
