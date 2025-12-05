@@ -1,9 +1,10 @@
 import { cva } from 'class-variance-authority'
-import { Avatar, Icon, IconName } from 'lago-design-system'
+import { Icon, IconName } from 'lago-design-system'
 import { ReactElement, useState } from 'react'
 
 import { tw } from '~/styles/utils'
 
+import { Avatar } from './Avatar'
 import { Typography } from './Typography'
 
 interface SelectorProps {
@@ -100,7 +101,7 @@ export const Selector = ({
       <div className="mr-3">
         {typeof icon === 'string' ? (
           <Avatar size="big" variant="connector">
-            <Icon color="dark" name={icon as IconName} />
+            <Icon color="dark" name={icon} />
           </Avatar>
         ) : (
           icon
@@ -124,7 +125,7 @@ export const Selector = ({
         </Typography>
       </div>
       {loading && <Icon animation="spin" color="primary" name="processing" />}
-      {!loading && typeof endIcon === 'string' && <Icon name={endIcon as IconName} color="dark" />}
+      {!loading && typeof endIcon === 'string' && <Icon name={endIcon} color="dark" />}
       {!loading && typeof endIcon !== 'string' && endIcon}
     </div>
   )

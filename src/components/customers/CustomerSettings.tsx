@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 
 import {
@@ -43,6 +43,7 @@ import {
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
 import {
+  Avatar,
   Button,
   Chip,
   GenericPlaceholder,

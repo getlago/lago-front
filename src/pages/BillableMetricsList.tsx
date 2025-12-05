@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon, tw } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -7,7 +7,7 @@ import {
   DeleteBillableMetricDialog,
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
-import { ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Avatar, ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {

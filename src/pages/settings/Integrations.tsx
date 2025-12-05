@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Alert, Chip, NavigationTab, Selector, Typography } from '~/components/designSystem'
+import { Alert, Avatar, Chip, NavigationTab, Selector, Typography } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,

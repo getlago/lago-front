@@ -1,8 +1,8 @@
 import { TypographyProps as MuiTypographyProps } from '@mui/material'
-import { Avatar, Icon, TypographyColor } from 'lago-design-system'
+import { Icon, TypographyColor } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Avatar, Typography } from '~/components/designSystem'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'

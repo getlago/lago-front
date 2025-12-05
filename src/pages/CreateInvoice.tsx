@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
-import { Avatar } from 'lago-design-system'
 import _get from 'lodash/get'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -10,6 +9,7 @@ import { array, number, object, string } from 'yup'
 
 import {
   Alert,
+  Avatar,
   Button,
   Card,
   GenericPlaceholder,
