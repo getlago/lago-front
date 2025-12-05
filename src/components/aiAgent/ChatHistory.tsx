@@ -93,7 +93,7 @@ export const ChatHistory = ({ hideHistory }: ChatHistoryProps) => {
               key={conversation.id}
               className={tw(
                 'flex items-center justify-between gap-2 py-3',
-                index === data?.aiConversations?.collection?.length - 1 ? '' : 'shadow-b',
+                index === (data?.aiConversations?.collection?.length || 0) - 1 ? '' : 'shadow-b',
               )}
             >
               <button
@@ -116,9 +116,9 @@ export const ChatHistory = ({ hideHistory }: ChatHistoryProps) => {
                     locale: 'en-US',
                     style: 'short',
                   })
-                  .replace('ago', '')
-                  .replace('.', '')
-                  .replace(' ', '')}
+                  ?.replace('ago', '')
+                  ?.replace('.', '')
+                  ?.replace(' ', '')}
               </Typography>
             </div>
           ))}
