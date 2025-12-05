@@ -1,7 +1,7 @@
 import { InputAdornment } from '@mui/material'
-import { Typography } from 'lago-design-system'
 import { useMemo } from 'react'
 
+import { Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem, TextInput } from '~/components/form'
 import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
 import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/types'

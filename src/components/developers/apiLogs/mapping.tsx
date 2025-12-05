@@ -1,5 +1,4 @@
-import { TypographyColor } from 'lago-design-system'
-
+import { TypographyColor } from '~/components/designSystem'
 import { HttpMethodEnum } from '~/generated/graphql'
 
 export const variantByHTTPMethod = (method: HttpMethodEnum): TypographyColor => {

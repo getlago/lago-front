@@ -1,6 +1,5 @@
-import { Typography } from 'lago-design-system'
-
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
+import { Typography } from '~/components/designSystem'
 import { InfoRow } from '~/components/InfoRow'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { getTimezoneConfig } from '~/core/timezone'

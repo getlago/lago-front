@@ -1,9 +1,11 @@
 import { cva, cx, VariantProps } from 'class-variance-authority'
 import { colors } from 'lago-configs/tailwind'
-import { Icon, IconName, IconProps, Typography } from 'lago-design-system'
+import { Icon, IconName, IconProps } from 'lago-design-system'
 import { FC, ReactNode } from 'react'
 
 import { tw } from '~/styles/utils'
+
+import { Typography } from './Typography'
 
 export type AvatarSize = 'tiny' | 'small' | 'intermediate' | 'medium' | 'big' | 'large'
 export type AvatarUserCompanyVariant = 'user' | 'company'

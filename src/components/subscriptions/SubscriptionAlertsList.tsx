@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Icon, Typography } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button, ButtonLink, Table } from '~/components/designSystem'
+import { Button, ButtonLink, Table, Typography } from '~/components/designSystem'
 import {
   DeleteAlertDialog,
   DeleteAlertDialogRef,

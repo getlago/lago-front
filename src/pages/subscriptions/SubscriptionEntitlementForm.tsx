@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Typography } from 'lago-design-system'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
@@ -10,6 +9,7 @@ import {
   ChargeTable,
   Chip,
   Tooltip,
+  Typography,
   WarningDialog,
   WarningDialogRef,
 } from '~/components/designSystem'

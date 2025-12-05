@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Icon, Typography } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useParams } from 'react-router-dom'
 
 import { formatCouponValue } from '~/components/coupons/utils'
-import { Card, Status } from '~/components/designSystem'
+import { Card, Status, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   getCouponFrequencyTranslationKey,

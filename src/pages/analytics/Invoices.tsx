@@ -1,9 +1,15 @@
 import { gql } from '@apollo/client'
-import { Icon, Typography } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import { Button, GenericPlaceholder, Skeleton, Tooltip } from '~/components/designSystem'
+import {
+  Button,
+  GenericPlaceholder,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import {
   AnalyticsInvoicesAvailableFilters,
   buildUrlForInvoicesWithFilters,

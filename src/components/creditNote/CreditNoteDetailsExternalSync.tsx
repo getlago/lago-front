@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Icon, Typography } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokCreditNoteUrl,
