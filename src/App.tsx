@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
+import { AiAgent } from '~/components/aiAgent/AiAgent'
 import { Spinner, ToastContainer } from '~/components/designSystem'
 import { DevtoolsErrorBoundary } from '~/components/developers/DevtoolsErrorBoundary'
 import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'

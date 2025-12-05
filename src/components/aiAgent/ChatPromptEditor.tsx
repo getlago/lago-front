@@ -38,7 +38,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
 
   return (
     <form
-      className="relative m-4 mt-0 flex w-[calc(100%-16px*2)] shrink-0 flex-col gap-4"
+      className="relative mx-6 mb-6 mt-0 flex w-[calc(100%-16px*3)] shrink-0 flex-col gap-4"
       onSubmit={formikProps.handleSubmit}
     >
       {state.messages.length > 0 && (
@@ -49,6 +49,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
         <TextInputField
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
+          className="rounded-xl bg-white"
           onKeyDown={handleKeyDown}
           multiline
           rows={1.5}
@@ -57,17 +58,23 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           formikProps={formikProps}
           placeholder={translate('text_1757417225851xkstj2u16q5')}
           inputProps={{
-            className: '!resize-none w-full !pr-9',
+            className: '!resize-none w-full !pr-9 !py-3',
           }}
           disabled={state.isLoading || state.isStreaming}
         />
 
         <button
           type="submit"
-          className="absolute right-4 top-3 flex size-6 items-center justify-center"
+          className={tw(
+            'absolute right-4 top-3 flex size-6 items-center justify-center rounded-lg bg-grey-100',
+            canSubmit && 'bg-blue-600',
+          )}
           disabled={!canSubmit}
         >
-          <Icon name="arrow-right" className={tw(!canSubmit ? 'text-grey-300' : 'text-grey-600')} />
+          <Icon
+            name="arrow-right"
+            className={tw('-rotate-90', !canSubmit ? 'text-grey-400' : 'text-white')}
+          />
         </button>
       </div>
     </form>
