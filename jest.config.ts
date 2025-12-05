@@ -45,6 +45,8 @@ export default {
 
   testEnvironment: 'jsdom',
 
+  // Load early setup for console suppression (runs before test framework and imports)
+  setupFiles: ['./jest-setup-early.ts'],
   // Load setup files before test execution
   setupFilesAfterEnv: ['./jest-setup.ts'],
 
