@@ -149,7 +149,6 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
 
   const formattedForecastsData = useMemo(() => {
     return formatForecastsData({
-      searchParams,
       data: forecastsData?.dataApiUsagesForecasted?.collection,
       defaultStaticDatePeriod: getDefaultStaticDateFilter(),
       defaultStaticTimeGranularity: getDefaultStaticTimeGranularityFilter(),
@@ -158,7 +157,6 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
     forecastsData?.dataApiUsagesForecasted?.collection,
-    searchParams,
   ])
 
   return {
