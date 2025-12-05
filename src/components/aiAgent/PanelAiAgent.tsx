@@ -69,15 +69,17 @@ export const PanelAiAgent = () => {
   const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-grey-100 shadow-l">
       {shouldDisplayWelcomeMessage && (
-        <div className="mb-4 mt-auto flex flex-col gap-4 px-4">
-          <Typography variant="headline" color="grey700">
-            {translate('text_1757417225851l83ffyzwk4g')}
-          </Typography>
-          <Typography variant="body" color="grey500">
-            {translate('text_1757417225851ylz6l7fwrg9')}
-          </Typography>
+        <div className="mb-6 mt-auto flex flex-col gap-6 px-6">
+          <div className="flex flex-col gap-1">
+            <Typography variant="headline" color="grey700">
+              {translate('text_1757417225851l83ffyzwk4g')}
+            </Typography>
+            <Typography variant="body" color="grey600">
+              {translate('text_1757417225851ylz6l7fwrg9')}
+            </Typography>
+          </div>
 
           <ChatShortcuts onSubmit={handleSubmit} />
         </div>
@@ -86,8 +88,6 @@ export const PanelAiAgent = () => {
       {!!state.messages.length && <ChatConversation subscription={subscription} />}
 
       <ChatPromptEditor onSubmit={handleSubmit} />
-
-      {!state.messages.length && <ChatHistory />}
     </div>
   )
 }
