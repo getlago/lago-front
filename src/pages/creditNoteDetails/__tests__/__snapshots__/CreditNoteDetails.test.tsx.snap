@@ -34,10 +34,11 @@ exports[`CreditNoteDetails snapshots matches snapshot in error state 1`] = `
     </div>
   </div>
   <div
-    class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5"
+    class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3"
     data-test="empty-state"
   >
     <div
+      class="mb-1 [&>img]:size-35 [&>svg]:size-35"
       data-test="generic-placeholder-image"
     >
       <svg
