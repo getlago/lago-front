@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
-import { Typography } from 'lago-design-system'
 import { useParams } from 'react-router-dom'
 
-import { Accordion } from '~/components/designSystem'
+import { Accordion, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getPrivilegeValueTypeTranslationKey } from '~/core/constants/form'
 import { PrivilegeValueTypeEnum, useGetFeatureForDetailsOverviewQuery } from '~/generated/graphql'

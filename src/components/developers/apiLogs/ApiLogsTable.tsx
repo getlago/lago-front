@@ -1,8 +1,7 @@
-import { Typography } from 'lago-design-system'
 import { FC, RefObject, useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll, Status, StatusType, Table } from '~/components/designSystem'
+import { InfiniteScroll, Status, StatusType, Table, Typography } from '~/components/designSystem'
 import { variantByHTTPMethod } from '~/components/developers/apiLogs/mapping'
 import { API_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { ListSectionRef } from '~/components/developers/LogsLayout'

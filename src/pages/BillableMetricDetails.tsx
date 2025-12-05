@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Typography } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -9,7 +8,7 @@ import {
   DeleteBillableMetricDialog,
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
-import { Button, NavigationTab, Popper, Skeleton } from '~/components/designSystem'
+import { Button, NavigationTab, Popper, Skeleton, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
