@@ -28,7 +28,9 @@ export default defineConfig(({ mode }) => {
   const sentryAuthToken = env.SENTRY_AUTH_TOKEN
   const sentryOrg = env.SENTRY_ORG
   const sentryProject = env.SENTRY_PROJECT
-  const shouldUploadSourceMaps = isProduction && sentryAuthToken && sentryOrg && sentryProject
+  const appVersion = env.APP_VERSION
+  const shouldUploadSourceMaps =
+    isProduction && sentryAuthToken && sentryOrg && sentryProject && appVersion
 
   const plugins = [
     react(),
@@ -71,7 +73,7 @@ export default defineConfig(({ mode }) => {
         project: sentryProject,
         authToken: sentryAuthToken,
         release: {
-          name: version,
+          name: appVersion,
           // Automatically associate commits with releases
           setCommits: {
             auto: true,
@@ -92,6 +94,7 @@ export default defineConfig(({ mode }) => {
     if (!sentryAuthToken) missingVars.push('SENTRY_AUTH_TOKEN')
     if (!sentryOrg) missingVars.push('SENTRY_ORG')
     if (!sentryProject) missingVars.push('SENTRY_PROJECT')
+    if (!appVersion) missingVars.push('APP_VERSION')
 
     if (missingVars.length > 0) {
       console.log(
@@ -106,7 +109,7 @@ export default defineConfig(({ mode }) => {
       APP_ENV: JSON.stringify(env.APP_ENV),
       API_URL: JSON.stringify(env.API_URL),
       DOMAIN: JSON.stringify(env.LAGO_DOMAIN),
-      APP_VERSION: JSON.stringify(version),
+      APP_VERSION: JSON.stringify(appVersion || version), // Fallback to package.json version when APP_VERSION env var is not set
       LAGO_OAUTH_PROXY_URL: JSON.stringify(env.LAGO_OAUTH_PROXY_URL),
       LAGO_DISABLE_SIGNUP: JSON.stringify(env.LAGO_DISABLE_SIGNUP),
       NANGO_PUBLIC_KEY: JSON.stringify(env.NANGO_PUBLIC_KEY),
