@@ -1,4 +1,5 @@
 import { array, object, string } from 'yup'
+import { z } from 'zod'
 
 export const METADATA_VALUE_MAX_LENGTH_DEFAULT = 100
 export const METADATA_KEY_MAX_LENGTH = 20
@@ -6,6 +7,7 @@ export const METADATA_KEY_MAX_LENGTH = 20
 export enum MetadataErrorsEnum {
   uniqueness = 'uniqueness',
   maxLength = 'maxLength',
+  required = 'required',
 }
 
 export const metadataSchema = ({
@@ -57,3 +59,41 @@ export const metadataSchema = ({
       }),
     }),
   )
+
+export const zodMetadataSchema = (valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFAULT) =>
+  z
+    .array(
+      z.object({
+        key: z
+          .string()
+          .refine((value) => !!value, MetadataErrorsEnum.required)
+          .refine((value) => value.length <= METADATA_KEY_MAX_LENGTH, MetadataErrorsEnum.maxLength),
+        value: z
+          .string()
+          .refine((value) => !!value, MetadataErrorsEnum.required)
+          .refine((value) => value.length <= valueMaxLength, MetadataErrorsEnum.maxLength),
+        displayInInvoice: z.boolean().optional(),
+        id: z.string().optional(),
+      }),
+    )
+    .superRefine((items, ctx) => {
+      const seen = new Map()
+
+      // check uniqueness on keys
+      items.forEach((item, idx) => {
+        if (seen.has(item.key)) {
+          ctx.addIssue({
+            code: 'custom',
+            message: MetadataErrorsEnum.uniqueness,
+            path: [idx, 'key'],
+          })
+          ctx.addIssue({
+            code: 'custom',
+            message: MetadataErrorsEnum.uniqueness,
+            path: [seen.get(item.key), 'key'],
+          })
+        } else {
+          seen.set(item.key, idx)
+        }
+      })
+    })

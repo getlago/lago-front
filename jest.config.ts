@@ -33,6 +33,7 @@ export default {
     '!src/styles/**',
     '!src/pages/__devOnly/*.{ts,tsx}',
     '!src/**/__tests__/**',
+    '!src/**/*Const.ts',
   ],
   coverageReporters: ['text', 'lcov'],
   collectCoverage: true,
