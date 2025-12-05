@@ -13,6 +13,8 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 // Import commands.js using ES2015 syntax:
+import cypress from 'cypress'
+
 import { userEmail, userPassword } from './reusableConstants'
 
 Cypress.Commands.add('login', (email = userEmail, password = userPassword) => {
@@ -22,6 +24,32 @@ Cypress.Commands.add('login', (email = userEmail, password = userPassword) => {
   cy.get('[data-test="submit"]').click()
   cy.url().should('be.equal', Cypress.config().baseUrl + '/')
 })
+
+Cypress.Commands.add('logout', () => {
+  cy.get('[data-test="side-nav-user-infos"]').click()
+  cy.get('[data-test="side-nav-logout"]').click()
+  cy.url().should('include', '/login')
+})
+
+Cypress.Commands.add(
+  'signup',
+  ({
+    organizationName,
+    email,
+    password,
+  }: {
+    organizationName: string
+    email: string
+    password: string
+  }) => {
+    cy.visit('sign-up')
+    cy.get('input[name="organizationName"]').type(organizationName)
+    cy.get('input[name="email"]').type(email)
+    cy.get('input[name="password"]').type(password)
+    cy.get('[data-test="submit-button"]').click()
+    cy.url().should('be.equal', Cypress.config().baseUrl + '/')
+  },
+)
 
 // https://docs.cypress.io/api/cypress-api/custom-commands#Overwrite-type-command
 // @ts-expect-error custom command

@@ -1,9 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
+import type { Location } from 'react-router-dom'
 
-import { locationHistoryVar } from '~/core/apolloClient'
+import { authTokenVar, locationHistoryVar } from '~/core/apolloClient'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
+const mockGetItemFromLS = jest.fn()
 
 const FALLBACK_URL = '/fallback'
 const MOCK_HISTORY_VAR = [
@@ -63,9 +65,94 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  getItemFromLS: () => mockGetItemFromLS(),
+}))
+
 describe('useLocationHistory()', () => {
   beforeEach(() => {
     mockNavigate.mockClear()
+    mockGetItemFromLS.mockClear()
+    authTokenVar(undefined)
+  })
+
+  describe('onRouteEnter()', () => {
+    const mockLocation: Location = {
+      pathname: '/customers/123',
+      search: '',
+      hash: '',
+      state: null,
+      key: 'test-key',
+    }
+
+    describe('when accessing a private route while not authenticated', () => {
+      beforeEach(() => {
+        authTokenVar(undefined)
+        mockGetItemFromLS.mockReturnValue('org-id-123')
+      })
+
+      it('should redirect to login with router state containing from location and orgId', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter({ private: true }, mockLocation)
+        })
+
+        expect(mockNavigate).toHaveBeenCalledWith('/login', {
+          state: {
+            from: mockLocation,
+            orgId: 'org-id-123',
+          },
+          replace: true,
+        })
+      })
+
+      it('should store null orgId when no organization is set', () => {
+        mockGetItemFromLS.mockReturnValue(null)
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter({ private: true }, mockLocation)
+        })
+
+        expect(mockNavigate).toHaveBeenCalledWith('/login', {
+          state: {
+            from: mockLocation,
+            orgId: null,
+          },
+          replace: true,
+        })
+      })
+    })
+
+    describe('when accessing an onlyPublic route while authenticated', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should redirect to home and preserve router state', () => {
+        const locationWithState: Location = {
+          ...mockLocation,
+          pathname: '/login',
+          state: {
+            from: { pathname: '/customers/123', search: '', hash: '', state: null, key: 'key' },
+            orgId: 'org-123',
+          },
+        }
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter({ onlyPublic: true }, locationWithState)
+        })
+
+        expect(mockNavigate).toHaveBeenCalledWith('/', {
+          state: locationWithState.state,
+          replace: true,
+        })
+      })
+    })
   })
 
   describe('goBack()', () => {
