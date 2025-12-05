@@ -26,7 +26,7 @@ const SentMessage = ({ children }: { children: ReactNode }) => {
   return (
     <Typography
       data-id="sent-message"
-      className="ml-7 whitespace-normal rounded-md border border-grey-300 bg-grey-100 px-3 py-2"
+      className="ml-7 whitespace-normal rounded-xl border border-grey-300 bg-white px-4 py-3"
       variant="captionHl"
       color="grey700"
     >

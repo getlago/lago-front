@@ -1,18 +1,26 @@
-import { Button, Typography } from '~/components/designSystem'
+import { Button, Chip, Typography } from '~/components/designSystem'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+type PanelWrapperProps = {
+  children: React.ReactNode
+  title: string
+  isBeta: boolean
+  showBackButton?: boolean
+  onBackButton?: () => void
+  showHistoryButton?: boolean
+  onShowHistory?: () => void
+}
 
 export const PanelWrapper = ({
   children,
   title,
   isBeta,
+  showBackButton,
   onBackButton,
-}: {
-  children: React.ReactNode
-  title: string
-  isBeta: boolean
-  onBackButton?: () => void
-}) => {
+  showHistoryButton,
+  onShowHistory,
+}: PanelWrapperProps) => {
   const { closePanel } = useAiAgent()
   const { translate } = useInternationalization()
 
@@ -20,19 +28,24 @@ export const PanelWrapper = ({
     <div>
       <div className="flex flex-row justify-between gap-4 px-6 py-5 shadow-b">
         <div className="flex flex-1 items-center gap-2 truncate">
-          {!!onBackButton && (
+          {!!showBackButton && (
             <Button size="small" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
           )}
           <Typography variant="bodyHl" className="!truncate" color="grey700">
             {title}
           </Typography>
           {isBeta && (
-            <Typography variant="noteHl" className="uppercase" noWrap color="warning700">
-              {translate('text_65d8d71a640c5400917f8a13')}
-            </Typography>
+            <Chip
+              className="bg-purple-100"
+              color="infoMain"
+              label={translate('text_65d8d71a640c5400917f8a13')}
+            />
           )}
         </div>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row items-center gap-3">
+          {showHistoryButton && (
+            <Button size="small" variant="quaternary" icon="history" onClick={onShowHistory} />
+          )}
           <Button size="small" variant="quaternary" icon="close" onClick={closePanel} />
         </div>
       </div>

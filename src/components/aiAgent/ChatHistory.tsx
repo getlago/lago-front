@@ -5,7 +5,7 @@ import { Skeleton, Typography } from '~/components/designSystem'
 import { useGetAiConversationLazyQuery, useListAiConversationsQuery } from '~/generated/graphql'
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 gql`
   query getAiConversation($id: ID!) {
@@ -30,9 +30,12 @@ gql`
   }
 `
 
-export const ChatHistory = () => {
+type ChatHistoryProps = {
+  hideHistory?: () => void
+}
+
+export const ChatHistory = ({ hideHistory }: ChatHistoryProps) => {
   const { setPreviousChatMessages } = useAiAgent()
-  const { translate } = useInternationalization()
 
   const [getAiConversation] = useGetAiConversationLazyQuery()
   const { data, loading, error } = useListAiConversationsQuery({
@@ -60,6 +63,8 @@ export const ChatHistory = () => {
         }
       })
 
+      hideHistory?.()
+
       setPreviousChatMessages({
         convId: singleConversationData?.aiConversation.id,
         messages: formattedMessages ?? [],
@@ -72,13 +77,7 @@ export const ChatHistory = () => {
   }
 
   return (
-    <div className="flex flex-col gap-1 p-4 pt-0">
-      {!!data?.aiConversations?.collection.length && (
-        <Typography variant="captionHl" color="grey700">
-          {translate('text_17574172258513wv8yozezoz')}
-        </Typography>
-      )}
-
+    <div className="flex h-full flex-col gap-1 bg-grey-100 p-4 pt-6">
       <div className="flex flex-col gap-1">
         {loading &&
           Array.from({ length: 3 }).map((_, index) => (
@@ -89,8 +88,14 @@ export const ChatHistory = () => {
           ))}
 
         {!loading &&
-          data?.aiConversations?.collection.map((conversation) => (
-            <div key={conversation.id} className="flex items-center justify-between gap-2">
+          data?.aiConversations?.collection.map((conversation, index) => (
+            <div
+              key={conversation.id}
+              className={tw(
+                'flex items-center justify-between gap-2 py-3',
+                index === data?.aiConversations?.collection?.length - 1 ? '' : 'shadow-b',
+              )}
+            >
               <button
                 onClick={() => handleGetAiConversation(conversation.id)}
                 className="text-left"
@@ -104,12 +109,16 @@ export const ChatHistory = () => {
                 noWrap
                 variant="caption"
                 color="grey600"
-                className="inline-block min-h-7 shrink-0 rounded-lg border border-grey-400 px-2"
+                className="inline-block min-h-7 shrink-0 rounded-lg border border-grey-400 bg-white px-2"
               >
-                {DateTime.fromISO(conversation.updatedAt).toRelative({
-                  locale: 'en-US',
-                  style: 'narrow',
-                })}
+                {DateTime.fromISO(conversation.updatedAt)
+                  .toRelative({
+                    locale: 'en-US',
+                    style: 'short',
+                  })
+                  .replace('ago', '')
+                  .replace('.', '')
+                  .replace(' ', '')}
               </Typography>
             </div>
           ))}

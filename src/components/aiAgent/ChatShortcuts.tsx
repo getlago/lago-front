@@ -1,5 +1,4 @@
-import { Button } from 'lago-design-system'
-
+import { Button } from '~/components/designSystem'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -47,6 +46,7 @@ export const ChatShortcuts = ({
     <div className="flex flex-wrap gap-2">
       {shortcuts.map((shortcut) => (
         <Button
+          className="bg-white"
           key={shortcut.id}
           variant="tertiary"
           size="small"
