@@ -486,7 +486,7 @@ const CreateWalletTopUp = () => {
                               (metadataItemKeyError === MetadataErrorsEnum.uniqueness &&
                                 translate('text_63fcc3218d35b9377840f5dd')) ||
                               (metadataItemKeyError === MetadataErrorsEnum.maxLength &&
-                                translate('text_63fcc3218d35b9377840f5d9'))
+                                translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
                             }
                             disableHoverListener={!hasCustomKeyError}
                           >

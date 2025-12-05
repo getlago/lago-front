@@ -39,6 +39,7 @@ describe('serializeCreditNoteInput()', () => {
               type: CreditTypeEnum.credit,
             },
           ],
+          metadata: [],
         },
         CurrencyEnum.Eur,
       )
@@ -55,6 +56,7 @@ describe('serializeCreditNoteInput()', () => {
             amountCents: 74,
           },
         ],
+        metadata: [],
       })
     })
   })
@@ -175,6 +177,7 @@ describe('serializeCreditNoteInput()', () => {
               type: CreditTypeEnum.credit,
             },
           ],
+          metadata: [],
         },
         CurrencyEnum.Eur,
       )
@@ -207,6 +210,7 @@ describe('serializeCreditNoteInput()', () => {
             amountCents: 16300,
           },
         ],
+        metadata: [],
       })
     })
   })
