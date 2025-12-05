@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useMediaQuery } from '@mui/material'
 import { useFormik } from 'formik'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -16,6 +16,7 @@ import { object, string } from 'yup'
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import {
   Alert,
+  Avatar,
   Button,
   Card,
   Selector,

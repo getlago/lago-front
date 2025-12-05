@@ -1,9 +1,16 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon, Typography } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { ActionItem, Button, InfiniteScroll, Table } from '~/components/designSystem'
+import {
+  ActionItem,
+  Avatar,
+  Button,
+  InfiniteScroll,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import {
   DeleteFeatureDialog,
   DeleteFeatureDialogRef,

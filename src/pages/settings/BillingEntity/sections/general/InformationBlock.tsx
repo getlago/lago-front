@@ -1,7 +1,6 @@
-import { Avatar } from 'lago-design-system'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Avatar, Button, Typography } from '~/components/designSystem'
 import {
   SettingsListItem,
   SettingsListItemHeader,

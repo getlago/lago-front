@@ -1,7 +1,7 @@
-import { Avatar, Icon, IconName } from 'lago-design-system'
+import { Icon, IconName } from 'lago-design-system'
 import { FC, PropsWithChildren, ReactNode } from 'react'
 
-import { Skeleton, Typography, TypographyProps } from '~/components/designSystem'
+import { Avatar, Skeleton, Typography, TypographyProps } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 const DetailsPageContainer: FC<PropsWithChildren<{ className?: string }>> = ({

@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
+  Avatar,
   Button,
   ButtonLink,
   GenericPlaceholder,
