@@ -26,8 +26,8 @@ export default defineConfig(({ mode }) => {
   const port = env.PORT ? parseInt(env.PORT) : 8080
   const isProduction = mode === 'production'
   const sentryAuthToken = env.SENTRY_AUTH_TOKEN
-  const sentryOrg = env.SENTRY_ORG
-  const sentryProject = env.SENTRY_PROJECT
+  const sentryOrg = env.SENTRY_ORG || 'lago'
+  const sentryProject = env.SENTRY_FRONT_PROJECT || 'front'
   const appVersion = env.APP_VERSION
   const shouldUploadSourceMaps =
     isProduction && sentryAuthToken && sentryOrg && sentryProject && appVersion
@@ -93,7 +93,7 @@ export default defineConfig(({ mode }) => {
 
     if (!sentryAuthToken) missingVars.push('SENTRY_AUTH_TOKEN')
     if (!sentryOrg) missingVars.push('SENTRY_ORG')
-    if (!sentryProject) missingVars.push('SENTRY_PROJECT')
+    if (!sentryProject) missingVars.push('SENTRY_FRONT_PROJECT')
     if (!appVersion) missingVars.push('APP_VERSION')
 
     if (missingVars.length > 0) {
