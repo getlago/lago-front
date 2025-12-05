@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Typography } from 'lago-design-system'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
-import { ChatHistory } from '~/components/aiAgent/ChatHistory'
 import { ChatPromptEditor } from '~/components/aiAgent/ChatPromptEditor'
 import { ChatShortcuts } from '~/components/aiAgent/ChatShortcuts'
 import {
