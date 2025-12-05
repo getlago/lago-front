@@ -25,6 +25,8 @@ enum ColorTypeEnum {
   grey500 = 'grey.500',
   grey400 = 'grey.400',
   info600 = 'info.600',
+  infoMain = 'info.main',
+  purple600 = 'purple.600',
   primary600 = 'primary.600',
   danger600 = 'error.600',
   warning700 = 'warning.700',
