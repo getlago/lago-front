@@ -7,7 +7,7 @@ import { DesktopDatePicker as MuiDatePicker } from '@mui/x-date-pickers/DesktopD
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Icon } from 'lago-design-system'
 import { DateTime, Settings } from 'luxon'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Button, Tooltip, Typography } from '~/components/designSystem'
@@ -68,15 +68,30 @@ export const DatePicker = ({
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
 
-  const [localDate, setLocalDate] = useState<DateTime | null>(
-    /**
-     * Date will be passed to the parent as ISO
-     * So we need to make sure to re-transform to DateTime for the component to read it
-     */
-    !!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null,
-  )
+  /**
+   * Date will be passed to the parent as ISO
+   * So we need to make sure to re-transform to DateTime for the component to read it
+   */
+  const getValueFormatted = useCallback(() => {
+    if (!value) return null
+
+    return typeof value === 'string' ? DateTime.fromISO(value) : value
+  }, [value])
+
+  const [localDate, setLocalDate] = useState<DateTime | null>(getValueFormatted())
 
   const isInvalid = !!localDate && !localDate.isValid
+
+  const getHelperText = useCallback(() => {
+    if (!!error || isInvalid) {
+      if (!showErrorInTooltip) {
+        return error || translate('text_62cd78ea9bff25e3391b2459')
+      }
+
+      return ''
+    }
+    return helperText
+  }, [error, helperText, isInvalid, showErrorInTooltip, translate])
 
   useEffect(() => {
     if (defaultZone) Settings.defaultZone = defaultZone
@@ -85,12 +100,13 @@ export const DatePicker = ({
       // Reset timezone to default
       if (defaultZone) Settings.defaultZone = getTimezoneConfig(organization?.timezone).name
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
-    setLocalDate(!!value ? (typeof value === 'string' ? DateTime.fromISO(value) : value) : null)
-  }, [value])
+    setLocalDate(getValueFormatted())
+  }, [getValueFormatted])
 
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
@@ -221,12 +237,7 @@ export const DatePicker = ({
               textField: {
                 placeholder: placeholder || translate('text_62cd78ea9bff25e3391b243d'),
                 error: !!error || isInvalid,
-                helperText:
-                  !!error || isInvalid
-                    ? showErrorInTooltip
-                      ? ''
-                      : error || translate('text_62cd78ea9bff25e3391b2459')
-                    : helperText,
+                helperText: getHelperText(),
               },
               openPickerButton: {
                 style: {
