@@ -46,7 +46,7 @@
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@eslint/compat": "1.4.1",
-    "@eslint/eslintrc": "3.3.1",
+    "@eslint/eslintrc": "3.3.3",
     "@eslint/js": "9.39.1",
     "@graphql-codegen/cli": "6.1.0",
     "@graphql-codegen/typescript": "5.0.5",
