@@ -28,11 +28,10 @@ gql`
 enum DATE_PICKER_ERROR_ENUM {
   invalid = 'invalid',
 }
-export interface DatePickerProps
-  extends Omit<
-    TextInputProps,
-    'label' | 'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
-  > {
+export interface DatePickerProps extends Omit<
+  TextInputProps,
+  'label' | 'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
+> {
   className?: string
   value?: string | DateTime | null
   placeholder?: string

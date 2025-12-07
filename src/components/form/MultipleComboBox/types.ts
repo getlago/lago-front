@@ -21,8 +21,10 @@ export interface MultipleComboBoxDataGrouped extends Omit<BasicMultipleComboBoxD
 
 export type MultipleComboBoxData = BasicMultipleComboBoxData | MultipleComboBoxDataGrouped
 
-interface BasicMultipleComboBoxProps
-  extends Omit<MultipleComboBoxInputProps, 'params' | 'searchQuery'> {
+interface BasicMultipleComboBoxProps extends Omit<
+  MultipleComboBoxInputProps,
+  'params' | 'searchQuery'
+> {
   disabled?: boolean
   freeSolo?: boolean
   showOptionsOnlyWhenTyping?: boolean
@@ -43,8 +45,10 @@ interface BasicMultipleComboBoxProps
   onChange: (value: (BasicMultipleComboBoxData | MultipleComboBoxDataGrouped)[]) => void
 }
 
-interface GroupedMultipleComboBoxProps
-  extends Omit<BasicMultipleComboBoxProps, 'data' | 'renderGroupHeader'> {
+interface GroupedMultipleComboBoxProps extends Omit<
+  BasicMultipleComboBoxProps,
+  'data' | 'renderGroupHeader'
+> {
   data: MultipleComboBoxDataGrouped[]
   renderGroupHeader?: Record<string, ReactNode>
 }

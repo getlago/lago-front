@@ -37,8 +37,10 @@ enum ColorTypeEnum {
 }
 
 export type TypographyColor = keyof typeof ColorTypeEnum
-export interface TypographyProps
-  extends Pick<MuiTypographyProps, 'variant' | 'children' | 'noWrap' | 'align' | 'sx' | 'onClick'> {
+export interface TypographyProps extends Pick<
+  MuiTypographyProps,
+  'variant' | 'children' | 'noWrap' | 'align' | 'sx' | 'onClick'
+> {
   className?: string
   component?: ElementType
   color?: TypographyColor

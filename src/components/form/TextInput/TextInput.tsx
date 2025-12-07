@@ -26,11 +26,10 @@ export enum ValueFormatter {
 }
 
 export type ValueFormatterType = keyof typeof ValueFormatter
-export interface TextInputProps
-  extends Omit<
-    MuiTextFieldProps,
-    'label' | 'variant' | 'error' | 'onChange' | 'margin' | 'hiddenLabel' | 'focused'
-  > {
+export interface TextInputProps extends Omit<
+  MuiTextFieldProps,
+  'label' | 'variant' | 'error' | 'onChange' | 'margin' | 'hiddenLabel' | 'focused'
+> {
   error?: string | boolean
   name?: string
   label?: string | ReactNode
