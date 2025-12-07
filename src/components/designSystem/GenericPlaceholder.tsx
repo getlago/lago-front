@@ -67,9 +67,10 @@ export const GenericPlaceholder = ({
         className={tw({
           'mb-5': hasButton,
         })}
+        html={typeof subtitle === 'string' ? subtitle : undefined}
         data-test={GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID}
       >
-        {subtitle}
+        {typeof subtitle === 'string' ? undefined : subtitle}
       </Typography>
 
       {hasButton && (

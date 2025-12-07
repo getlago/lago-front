@@ -1,5 +1,36 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`GenericPlaceholder Snapshot Tests matches snapshot with HTML markup in string subtitle 1`] = `
+<div
+  class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3"
+  data-test="empty-state"
+>
+  <div
+    class="mb-1 [&>img]:size-35 [&>svg]:size-35"
+    data-test="generic-placeholder-image"
+  >
+    <img
+      alt="Test"
+      src="test.png"
+    />
+  </div>
+  <div
+    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+    data-test="generic-placeholder-subtitle"
+  >
+    Text with 
+    <strong>
+      bold
+    </strong>
+     and 
+    <em>
+      italic
+    </em>
+     markup
+  </div>
+</div>
+`;
+
 exports[`GenericPlaceholder Snapshot Tests matches snapshot with ReactNode subtitle 1`] = `
 <div
   class="mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3"
@@ -54,7 +85,9 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with all props 1`] =
     class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
     data-test="generic-placeholder-subtitle"
   >
-    Something went wrong
+    <span>
+      Something went wrong
+    </span>
   </div>
   <button
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
@@ -85,7 +118,9 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with button 1`] = `
     class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
     data-test="generic-placeholder-subtitle"
   >
-    Test subtitle
+    <span>
+      Test subtitle
+    </span>
   </div>
   <button
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
@@ -116,7 +151,9 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with minimal props 1
     class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
     data-test="generic-placeholder-subtitle"
   >
-    Test subtitle
+    <span>
+      Test subtitle
+    </span>
   </div>
 </div>
 `;
@@ -139,7 +176,9 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with noMargins 1`] =
     class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
     data-test="generic-placeholder-subtitle"
   >
-    Test subtitle
+    <span>
+      Test subtitle
+    </span>
   </div>
 </div>
 `;
@@ -168,7 +207,9 @@ exports[`GenericPlaceholder Snapshot Tests matches snapshot with title 1`] = `
     class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
     data-test="generic-placeholder-subtitle"
   >
-    Test subtitle
+    <span>
+      Test subtitle
+    </span>
   </div>
 </div>
 `;

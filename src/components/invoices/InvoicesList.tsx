@@ -1,10 +1,11 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
+  GenericPlaceholderProps,
   InfiniteScroll,
   Status,
   StatusType,
@@ -16,12 +17,6 @@ import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
-  isDraftUrlParams,
-  isOutstandingUrlParams,
-  isPaymentDisputeLostUrlParams,
-  isPaymentOverdueUrlParams,
-  isSucceededUrlParams,
-  isVoidedUrlParams,
 } from '~/components/designSystem/Filters'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -31,6 +26,7 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -43,7 +39,6 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
-  INVOICE_SETTINGS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -144,6 +139,29 @@ const InvoicesList = ({
     },
   })
 
+  const emptyState = getEmptyStateConfig({
+    hasSearchTerm: !!variables?.searchTerm,
+    searchParams,
+    translate,
+  })
+
+  const errorState: Partial<GenericPlaceholderProps> = useMemo(() => {
+    if (variables?.searchTerm) {
+      return {
+        title: translate('text_623b53fea66c76017eaebb6e'),
+        subtitle: translate('text_63bab307a61c62af497e0599'),
+      }
+    }
+
+    return {
+      title: translate('text_63ac86d797f728a87b2f9fea'),
+      subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
+      buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
+      buttonAction: () => location.reload(),
+      buttonVariant: 'primary',
+    }
+  }, [variables?.searchTerm, translate])
+
   return (
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
@@ -214,13 +232,15 @@ const InvoicesList = ({
                       })
                     },
                   }
-                : actions.canFinalize(invoice)
-                  ? {
-                      startIcon: 'checkmark',
-                      title: translate('text_63a41a8eabb9ae67047c1c08'),
-                      onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
-                    }
-                  : null,
+                : null,
+
+              actions.canFinalize(invoice)
+                ? {
+                    startIcon: 'checkmark',
+                    title: translate('text_63a41a8eabb9ae67047c1c08'),
+                    onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
+                  }
+                : null,
               {
                 startIcon: 'duplicate',
                 title: translate('text_63ac86d897f728a87b2fa031'),
@@ -497,103 +517,8 @@ const InvoicesList = ({
             })
           }
           placeholder={{
-            errorState: variables?.searchTerm
-              ? {
-                  title: translate('text_623b53fea66c76017eaebb6e'),
-                  subtitle: translate('text_63bab307a61c62af497e0599'),
-                }
-              : {
-                  title: translate('text_63ac86d797f728a87b2f9fea'),
-                  subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
-                  buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
-                  buttonAction: () => location.reload(),
-                  buttonVariant: 'primary',
-                },
-            emptyState: variables?.searchTerm
-              ? {
-                  title: translate(
-                    isSucceededUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                      ? 'text_63c67d2913c20b8d7d05c44c'
-                      : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                        ? 'text_63c67d2913c20b8d7d05c442'
-                        : isOutstandingUrlParams({
-                              searchParams,
-                              prefix: INVOICE_LIST_FILTER_PREFIX,
-                            })
-                          ? 'text_63c67d8796db41749ada51ca'
-                          : isVoidedUrlParams({
-                                searchParams,
-                                prefix: INVOICE_LIST_FILTER_PREFIX,
-                              })
-                            ? 'text_65269cd46e7ec037a6823fd8'
-                            : 'text_63c67d2913c20b8d7d05c43e',
-                  ),
-                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
-                }
-              : {
-                  title: translate(
-                    isSucceededUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                      ? 'text_63b578e959c1366df5d14559'
-                      : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                        ? 'text_63b578e959c1366df5d1455b'
-                        : isOutstandingUrlParams({
-                              searchParams,
-                              prefix: INVOICE_LIST_FILTER_PREFIX,
-                            })
-                          ? 'text_63b578e959c1366df5d1456e'
-                          : isVoidedUrlParams({
-                                searchParams,
-                                prefix: INVOICE_LIST_FILTER_PREFIX,
-                              })
-                            ? 'text_65269cd46e7ec037a6823fd6'
-                            : isPaymentDisputeLostUrlParams({
-                                  searchParams,
-                                  prefix: INVOICE_LIST_FILTER_PREFIX,
-                                })
-                              ? 'text_66141e30699a0631f0b2ec7f'
-                              : isPaymentOverdueUrlParams({
-                                    searchParams,
-                                    prefix: INVOICE_LIST_FILTER_PREFIX,
-                                  })
-                                ? 'text_666c5b12fea4aa1e1b26bf70'
-                                : 'text_63b578e959c1366df5d14569',
-                  ),
-                  subtitle: isSucceededUrlParams({
-                    searchParams,
-                    prefix: INVOICE_LIST_FILTER_PREFIX,
-                  }) ? (
-                    translate('text_63b578e959c1366df5d1455f')
-                  ) : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ? (
-                    <Typography
-                      html={translate('text_63b578e959c1366df5d14566', {
-                        link: INVOICE_SETTINGS_ROUTE,
-                      })}
-                    />
-                  ) : isOutstandingUrlParams({
-                      searchParams,
-                      prefix: INVOICE_LIST_FILTER_PREFIX,
-                    }) ? (
-                    translate('text_63b578e959c1366df5d14570')
-                  ) : isVoidedUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ? (
-                    translate('text_65269cd46e7ec037a6823fda')
-                  ) : isPaymentDisputeLostUrlParams({
-                      searchParams,
-                      prefix: INVOICE_LIST_FILTER_PREFIX,
-                    }) ? (
-                    translate('text_66141e30699a0631f0b2ec87')
-                  ) : isPaymentOverdueUrlParams({
-                      searchParams,
-                      prefix: INVOICE_LIST_FILTER_PREFIX,
-                    }) ? (
-                    <Typography
-                      html={translate('text_666c5b12fea4aa1e1b26bf73', {
-                        link: INVOICE_SETTINGS_ROUTE,
-                      })}
-                    />
-                  ) : (
-                    translate('text_63b578e959c1366df5d1456d')
-                  ),
-                },
+            errorState,
+            emptyState,
           }}
         />
       </InfiniteScroll>
