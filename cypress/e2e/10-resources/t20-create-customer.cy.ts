@@ -1,3 +1,8 @@
+import {
+  CREATE_CUSTOMER_DATA_TEST,
+  SUBMIT_CUSTOMER_DATA_TEST,
+} from '~/components/customers/utils/dataTestConstants'
+
 import { customerName } from '../../support/reusableConstants'
 
 describe('Create customer', () => {
@@ -6,16 +11,16 @@ describe('Create customer', () => {
   })
 
   it('should create customer', () => {
-    cy.get('[data-test="create-customer"]').click()
+    cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
     cy.url().should('include', '/customer/create')
 
-    cy.get('[data-test="submit-customer"]').should('be.disabled')
+    cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).should('be.disabled')
 
     cy.get('input[name="externalId"]').type('id-george-de-la-jungle')
 
     cy.get('input[name="name"]').should('exist').type(customerName)
 
-    cy.get('[data-test="submit-customer"]').click()
+    cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
 
     cy.url().should('include', '/customer/')
 
@@ -28,11 +33,11 @@ describe('Create customer', () => {
       const randomNumber = Math.round(Math.random() * 1000)
       const randomId = `Customer ${randomNumber}`
 
-      cy.get('[data-test="create-customer"]').click()
+      cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
       cy.get('input[name="name"]').type(randomId)
-      cy.get('[data-test="submit-customer"]').should('be.disabled')
+      cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).should('be.disabled')
       cy.get('input[name="externalId"]').type(randomId)
-      cy.get('[data-test="submit-customer"]').click()
+      cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
       cy.url().should('include', '/customer/')
       cy.contains(randomId).should('exist')
 

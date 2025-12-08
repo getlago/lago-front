@@ -406,6 +406,7 @@ const CustomerDetails = () => {
                           customerTimezone={safeTimezone}
                         />
                       ),
+                      dataTest: 'wallet-tab',
                     },
                     {
                       title: translate('text_6553885df387fd0097fd7384'),
