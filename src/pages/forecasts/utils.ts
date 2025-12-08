@@ -21,14 +21,11 @@ export const formatForecastsData = ({
 }: {
   data: DataApiUsageForecasted[] | undefined
   defaultStaticDatePeriod: string
-  defaultStaticTimeGranularity: string
+  defaultStaticTimeGranularity: TimeGranularityEnum
 }): DataApiUsageForecasted[] => {
-  const datePeriod = defaultStaticDatePeriod
-  const timeGranularity = defaultStaticTimeGranularity
+  const [startDate, endDate] = defaultStaticDatePeriod.split(',')
 
-  const [startDate, endDate] = datePeriod.split(',')
-
-  const diffCursor = DIFF_CURSOR[timeGranularity as keyof typeof DIFF_CURSOR]
+  const diffCursor = DIFF_CURSOR[defaultStaticTimeGranularity as keyof typeof DIFF_CURSOR]
 
   const intervalData = Interval.fromDateTimes(
     DateTime.fromISO(startDate).startOf(diffCursor as DateTimeUnit),
@@ -43,18 +40,16 @@ export const formatForecastsData = ({
 
       const foundDataWithSamePeriod = data?.find((d) => d.startOfPeriodDt === start)
 
-      if (foundDataWithSamePeriod) {
-        const hasValue =
-          foundDataWithSamePeriod.amountCentsForecastConservative !== '0' &&
-          foundDataWithSamePeriod.amountCentsForecastRealistic !== '0' &&
-          foundDataWithSamePeriod.amountCentsForecastOptimistic !== '0'
-
-        if (hasValue) {
-          return foundDataWithSamePeriod
-        }
+      if (!foundDataWithSamePeriod) {
+        return null
       }
 
-      return null
+      const hasValue =
+        foundDataWithSamePeriod.amountCentsForecastConservative !== '0' ||
+        foundDataWithSamePeriod.amountCentsForecastRealistic !== '0' ||
+        foundDataWithSamePeriod.amountCentsForecastOptimistic !== '0'
+
+      return hasValue ? foundDataWithSamePeriod : null
     })
     .filter((dataItem) => !!dataItem)
 

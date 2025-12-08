@@ -105,7 +105,7 @@ export const useForecastsAnalyticsOverview = (): ForecastsAnalyticsOverviewRetur
     return `${now.startOf('day').toISO()},${now.plus({ month: 11 }).endOf('day').toISO()}`
   }, [])
 
-  const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
+  const getDefaultStaticTimeGranularityFilter = useCallback((): TimeGranularityEnum => {
     return TimeGranularityEnum.Monthly
   }, [])
 
