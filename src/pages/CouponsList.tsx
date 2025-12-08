@@ -198,7 +198,9 @@ const CouponsList = () => {
               {
                 startIcon: 'switch',
                 title: translate('text_62876a50ea3bba00b56d2cbc'),
-                onAction: () => terminateDialogRef.current?.openDialog(coupon),
+                onAction: () => {
+                  terminateDialogRef.current?.openDialog(coupon)
+                },
                 disabled: status === CouponStatusEnum.Terminated,
                 tooltip: translate('text_62878d88ea3bba00b56d33cf'),
                 tooltipListener: status !== CouponStatusEnum.Terminated,
@@ -206,7 +208,9 @@ const CouponsList = () => {
               {
                 startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),
-                onAction: () => deleteDialogRef.current?.openDialog({ couponId: id }),
+                onAction: () => {
+                  deleteDialogRef.current?.openDialog({ couponId: id })
+                },
               },
             ]
           }}

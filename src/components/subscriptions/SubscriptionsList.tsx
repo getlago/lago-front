@@ -214,13 +214,14 @@ const generateActionColumn = ({
         subscription.status === StatusTypeEnum.Pending
           ? translate('text_64a6d736c23125004817627f')
           : translate('text_62d904b97e690a881f2b867c'),
-      onAction: () =>
+      onAction: () => {
         terminateSubscriptionDialogRef?.current?.openDialog({
           id: subscription.id,
           name: subscription.name as string,
           status: subscription.status as StatusTypeEnum,
           payInAdvance: subscription.payInAdvance,
-        }),
+        })
+      },
     })
   }
 

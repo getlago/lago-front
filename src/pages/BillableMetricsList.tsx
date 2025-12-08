@@ -156,7 +156,9 @@ const BillableMetricsList = () => {
                 ? {
                     startIcon: 'trash',
                     title: translate('text_6256de3bba111e00b3bfa533'),
-                    onAction: () => deleteDialogRef.current?.openDialog({ billableMetricId: id }),
+                    onAction: () => {
+                      deleteDialogRef.current?.openDialog({ billableMetricId: id })
+                    },
                   }
                 : null,
             ]
