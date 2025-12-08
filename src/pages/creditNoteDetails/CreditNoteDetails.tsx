@@ -52,6 +52,8 @@ import { useDownloadCreditNote } from '~/pages/creditNoteDetails/common/useDownl
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 
+import CreditNoteDetailsMetadata from './creditNoteDetailsMetadata/CreditNoteDetailsMetadata'
+
 const { disablePdfGeneration } = envGlobalVar()
 
 gql`
@@ -67,6 +69,11 @@ gql`
       externalIntegrationId
       taxProviderId
       xmlUrl
+      refundStatus
+      metadata {
+        key
+        value
+      }
       billingEntity {
         einvoicing
       }
@@ -118,7 +125,7 @@ const CreditNoteDetails = () => {
         if (syncIntegrationCreditNoteResult?.creditNoteId) {
           addToast({
             severity: 'success',
-            translateKey: !!data?.creditNote?.customer.netsuiteCustomer
+            translateKey: data?.creditNote?.customer.netsuiteCustomer
               ? 'text_6655a88569eed300ee8c4d44'
               : 'text_17268445285571pwim3q27vl',
           })
@@ -151,7 +158,7 @@ const CreditNoteDetails = () => {
 
   const onGoBack = () => {
     goBack(
-      !!invoiceId
+      invoiceId
         ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
             customerId: customerId as string,
             invoiceId,
@@ -177,7 +184,7 @@ const CreditNoteDetails = () => {
       (!!creditNote?.taxProviderId || !!creditNote?.taxProviderSyncable),
   }
 
-  const canShowExternalSyncTab = Object.values(hasIntegration).some((value) => value)
+  const canShowExternalSyncTab = Object.values(hasIntegration).some(Boolean)
 
   const actions = useMemo(() => {
     return {
@@ -308,7 +315,7 @@ const CreditNoteDetails = () => {
                     }}
                   >
                     {translate(
-                      !!creditNote?.customer.netsuiteCustomer
+                      creditNote?.customer.netsuiteCustomer
                         ? 'text_665d742ee9853200e3a6be7f'
                         : 'text_66911d4b4b3c3e005c62ab49',
                     )}
@@ -408,6 +415,7 @@ const CreditNoteDetails = () => {
                       downloadCreditNote={downloadCreditNote}
                       downloadCreditNoteXml={downloadCreditNoteXml}
                     />
+                    <CreditNoteDetailsMetadata creditNote={creditNote} />
                   </DetailsPage.Container>
                 ),
               },

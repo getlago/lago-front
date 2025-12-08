@@ -455,7 +455,7 @@
   "text_63fcc3218d35b9377840f5af": "Enter a value",
   "text_63fcc3218d35b9377840f5b3": "Invoice",
   "text_63fcc3218d35b9377840f5bb": "Add new field",
-  "text_63fcc3218d35b9377840f5d9": "Key must be a string under 20 characters",
+  "text_63fcc3218d35b9377840f5d9": "Key must be a string under {{max}} characters",
   "text_63fcc3218d35b9377840f5dd": "Keys should be unique; please differentiate them to move forward.",
   "text_63fcc3218d35b9377840f5e1": "Remove metadata",
   "text_63fcc3218d35b9377840f5e5": "Value must be a string of {{max}} characters maximum",
@@ -3562,5 +3562,11 @@
   "text_1764327933607nrezuuiheuc": "subscription",
   "text_176432831893806loy6xo6qt": "No payment methods available",
   "text_176433192749240fjx4tced9": "Search and select a payment method",
-  "text_1764874328964clrgkmh7i9h": "(deleted)"
+  "text_1764874328964clrgkmh7i9h": "(deleted)",
+  "text_1764595550459v75grmg3do9": "Include metadata on this credit note",
+  "text_1764666863501j6vdc3bjjb9": "No metadata linked to this credit note",
+  "text_176466851340792f3wzvqvb8": "Edit Metadata",
+  "text_17646706795118k0wulsr7oq": "Metadata will be linked to the credit note object payload but won’t appear on the generated pdf file.",
+  "text_1764684767320qeu0x6az165": "Save edits",
+  "text_17647718978181hu15vk5h86": "Metadata successfully edited on credit note"
 }

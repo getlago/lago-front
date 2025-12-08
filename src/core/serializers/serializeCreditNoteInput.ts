@@ -18,7 +18,7 @@ export const serializeCreditNoteInput: (
   formValues: CreditNoteForm,
   currency: CurrencyEnum,
 ) => CreateCreditNoteInput = (invoiceId, formValues, currency) => {
-  const { reason, description, payBack, fees = [], addOnFee, creditFee } = formValues
+  const { reason, description, payBack, fees = [], addOnFee, creditFee, metadata } = formValues
 
   return {
     invoiceId: invoiceId as string,
@@ -99,5 +99,6 @@ export const serializeCreditNoteInput: (
         ]
       }, []),
     ],
+    metadata,
   }
 }
