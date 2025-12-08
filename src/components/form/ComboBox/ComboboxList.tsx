@@ -17,8 +17,10 @@ import { ComboBoxData, ComboBoxProps } from './types'
 
 const randomKey = Math.round(Math.random() * 100000)
 
-interface ComboBoxVirtualizedListProps
-  extends Pick<ComboBoxProps, 'value' | 'renderGroupHeader' | 'virtualized'> {
+interface ComboBoxVirtualizedListProps extends Pick<
+  ComboBoxProps,
+  'value' | 'renderGroupHeader' | 'virtualized'
+> {
   children: ReactNode
 }
 

@@ -3,11 +3,10 @@ import { forwardRef, ReactNode, useCallback, useState } from 'react'
 
 import { tw } from '~/styles/utils'
 
-export interface TooltipProps
-  extends Pick<
-    MuiTooltipProps,
-    'placement' | 'title' | 'onClose' | 'disableHoverListener' | 'PopperProps'
-  > {
+export interface TooltipProps extends Pick<
+  MuiTooltipProps,
+  'placement' | 'title' | 'onClose' | 'disableHoverListener' | 'PopperProps'
+> {
   children?: ReactNode
   className?: string
   maxWidth?: string
