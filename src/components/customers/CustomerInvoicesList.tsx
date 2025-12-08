@@ -83,6 +83,7 @@ gql`
       displayName
       applicableTimezone
       paymentProvider
+      hasActiveWallet
     }
     errorDetails {
       errorCode
@@ -431,10 +432,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 return {
                   startIcon: 'checkmark' as IconName,
                   title: translate('text_63a41a8eabb9ae67047c1c08'),
-                  onAction: (item) =>
+                  onAction: (item) => {
                     finalizeInvoiceRef.current?.openDialog(
                       item as InvoiceForFinalizeInvoiceFragment,
-                    ),
+                    )
+                  },
                 }
               }
 
@@ -522,7 +524,9 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'document',
                     endIcon: 'sparkles',
                     title: translate('text_636bdef6565341dcb9cfb127'),
-                    onAction: () => premiumWarningDialogRef.current?.openDialog(),
+                    onAction: () => {
+                      premiumWarningDialogRef.current?.openDialog()
+                    },
                   }
                 : null,
 
