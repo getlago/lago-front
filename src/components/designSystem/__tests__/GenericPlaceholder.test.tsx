@@ -46,7 +46,7 @@ describe('GenericPlaceholder', () => {
       expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TITLE_TEST_ID)).not.toBeInTheDocument()
     })
 
-    it('renders subtitle as string', () => {
+    it('renders subtitle as string using html prop', () => {
       render(
         <GenericPlaceholder
           subtitle="Simple subtitle text"
@@ -54,12 +54,14 @@ describe('GenericPlaceholder', () => {
         />,
       )
 
-      expect(screen.getByTestId(GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID)).toHaveTextContent(
-        'Simple subtitle text',
-      )
+      const subtitle = screen.getByTestId(GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID)
+
+      expect(subtitle).toHaveTextContent('Simple subtitle text')
+      // When subtitle is a string, it's rendered via html prop (dangerouslySetInnerHTML)
+      expect(subtitle.querySelector('span')).toBeInTheDocument()
     })
 
-    it('renders subtitle as ReactNode', () => {
+    it('renders subtitle as ReactNode using children prop', () => {
       render(
         <GenericPlaceholder
           subtitle={
@@ -71,8 +73,48 @@ describe('GenericPlaceholder', () => {
         />,
       )
 
+      // When subtitle is a ReactNode, it's rendered as children (not via html prop)
       expect(screen.getByTestId('custom-subtitle')).toBeInTheDocument()
       expect(screen.getByText('Custom subtitle')).toBeInTheDocument()
+    })
+
+    it('renders string subtitle with html prop and ReactNode subtitle with children', () => {
+      const { rerender } = render(
+        <GenericPlaceholder subtitle="String subtitle" image={<img src="test.png" alt="Test" />} />,
+      )
+
+      // String subtitle is rendered via html prop (wrapped in span)
+      let subtitle = screen.getByTestId(GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID)
+
+      expect(subtitle).toHaveTextContent('String subtitle')
+      expect(subtitle.querySelector('span')).toBeInTheDocument()
+
+      // ReactNode subtitle is rendered as children (not wrapped in extra span)
+      rerender(
+        <GenericPlaceholder
+          subtitle={<strong data-test="react-subtitle">ReactNode subtitle</strong>}
+          image={<img src="test.png" alt="Test" />}
+        />,
+      )
+
+      subtitle = screen.getByTestId(GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID)
+      expect(screen.getByTestId('react-subtitle')).toBeInTheDocument()
+      expect(subtitle).toHaveTextContent('ReactNode subtitle')
+    })
+
+    it('renders HTML markup in string subtitle via html prop', () => {
+      const htmlSubtitle = 'Text with <strong>bold</strong> and <em>italic</em> markup'
+
+      render(
+        <GenericPlaceholder subtitle={htmlSubtitle} image={<img src="test.png" alt="Test" />} />,
+      )
+
+      const subtitle = screen.getByTestId(GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID)
+
+      // The html prop allows rendering HTML tags from strings
+      expect(subtitle.querySelector('strong')).toBeInTheDocument()
+      expect(subtitle.querySelector('em')).toBeInTheDocument()
+      expect(subtitle).toHaveTextContent('Text with bold and italic markup')
     })
 
     it('renders image as ReactNode', () => {
@@ -395,6 +437,21 @@ describe('GenericPlaceholder', () => {
             <div>
               <span>Custom</span> <strong>subtitle</strong>
             </div>
+          }
+          image={<img src="test.png" alt="Test" />}
+        />,
+      )
+
+      expect(container.firstChild).toMatchSnapshot()
+    })
+
+    it('matches snapshot with HTML markup in string subtitle', () => {
+      const { container } = render(
+        <GenericPlaceholder
+          subtitle={
+            <>
+              Text with <strong>bold</strong> and <em>italic</em> markup
+            </>
           }
           image={<img src="test.png" alt="Test" />}
         />,
