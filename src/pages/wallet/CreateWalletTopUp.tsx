@@ -247,8 +247,8 @@ const CreateWalletTopUp = () => {
   }, [formikProps.dirty, navigateBack])
 
   const hasMinMax =
-    typeof wallet?.paidTopUpMinAmountCents !== 'undefined' ||
-    typeof wallet?.paidTopUpMaxAmountCents !== 'undefined'
+    (wallet?.paidTopUpMinAmountCents !== null && wallet?.paidTopUpMinAmountCents !== undefined) ||
+    (wallet?.paidTopUpMaxAmountCents !== null && wallet?.paidTopUpMaxAmountCents !== undefined)
 
   const paidCreditsError = topUpAmountError({
     rateAmount: wallet?.rateAmount?.toString(),

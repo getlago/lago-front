@@ -147,8 +147,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   })
 
   const hasMinMax =
-    typeof formikProps?.values?.paidTopUpMinAmountCents !== 'undefined' ||
-    typeof formikProps?.values?.paidTopUpMaxAmountCents !== 'undefined'
+    !!formikProps?.values?.paidTopUpMinAmountCents || !!formikProps?.values?.paidTopUpMaxAmountCents
 
   return (
     <>
@@ -334,21 +333,23 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
 
                   {formikProps.values.recurringTransactionRules?.[0].paidCredits && (
                     <>
-                      <Switch
-                        name="recurringTransactionRules.0.ignorePaidTopUpLimits"
-                        onChange={(value) => {
-                          formikProps.setFieldValue(
-                            'recurringTransactionRules.0.ignorePaidTopUpLimits',
-                            value,
-                          )
-                        }}
-                        checked={
-                          formikProps.values.recurringTransactionRules?.[0].ignorePaidTopUpLimits ||
-                          false
-                        }
-                        label={translate('text_1758285686646ty4gyil56oi')}
-                        subLabel={translate('text_1758285686647hxpjldry342')}
-                      />
+                      {hasMinMax && (
+                        <Switch
+                          name="recurringTransactionRules.0.ignorePaidTopUpLimits"
+                          onChange={(value) => {
+                            formikProps.setFieldValue(
+                              'recurringTransactionRules.0.ignorePaidTopUpLimits',
+                              value,
+                            )
+                          }}
+                          checked={
+                            formikProps.values.recurringTransactionRules?.[0]
+                              .ignorePaidTopUpLimits || false
+                          }
+                          label={translate('text_1758285686646ty4gyil56oi')}
+                          subLabel={translate('text_1758285686647hxpjldry342')}
+                        />
+                      )}
 
                       <Switch
                         name="recurringTransactionRules.0.invoiceRequiresSuccessfulPayment"
