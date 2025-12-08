@@ -201,7 +201,7 @@ const MainNavLayout = () => {
               opener={
                 <Button
                   className="max-w-[calc(240px-theme(space.8))] text-left *:first:mr-2"
-                  data-test="side-nav-name"
+                  data-test="side-nav-user-infos"
                   variant="quaternary"
                   size="small"
                   disabled={isLoading}
@@ -228,7 +228,12 @@ const MainNavLayout = () => {
                           initials={(organization?.name ?? 'Lago')[0]}
                         />
                       )}
-                      <Typography variant="caption" color="textSecondary" noWrap>
+                      <Typography
+                        noWrap
+                        color="textSecondary"
+                        data-test="side-nav-name"
+                        variant="caption"
+                      >
                         {organization?.name}
                       </Typography>
                     </>
@@ -324,6 +329,7 @@ const MainNavLayout = () => {
                       align="left"
                       size="small"
                       startIcon="logout"
+                      data-test="side-nav-logout"
                       onClick={async () => await logOut(client, true)}
                     >
                       {translate('text_623b497ad05b960101be3444')}
