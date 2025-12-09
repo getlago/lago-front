@@ -8,6 +8,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
 import { Spinner, ToastContainer } from '~/components/designSystem'
+import { DevtoolsErrorBoundary } from '~/components/developers/DevtoolsErrorBoundary'
 import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
@@ -121,7 +122,9 @@ const App = () => {
                       </div>
                     </Panel>
                     <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
-                      <DevtoolsView />
+                      <DevtoolsErrorBoundary>
+                        <DevtoolsView />
+                      </DevtoolsErrorBoundary>
                     </MemoryRouter>
                   </PanelGroup>
                 </AiAgentProvider>

@@ -82,8 +82,6 @@ export default defineConfig(({ mode }) => {
         // Upload source maps
         sourcemaps: {
           assets: './dist/**',
-          // Delete source maps after upload (for security)
-          filesToDeleteAfterUpload: './dist/**/*.map',
         },
         telemetry: false,
       }),
