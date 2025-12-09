@@ -64,7 +64,7 @@ type DataItem = {
 
 export type ActionItem<T> = {
   title: string | ReactNode
-  onAction: (item: T) => void
+  onAction: (item: T) => void | Promise<void>
   startIcon?: IconName
   endIcon?: IconName
   disabled?: boolean

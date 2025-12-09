@@ -5,6 +5,7 @@ import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
+  ActionItem,
   GenericPlaceholderProps,
   InfiniteScroll,
   Status,
@@ -57,7 +58,6 @@ import {
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -71,6 +71,8 @@ type TInvoiceListProps = {
   metadata: GetInvoicesListQuery['invoices']['metadata'] | undefined
   variables: LazyQueryHookOptions['variables'] | undefined
 }
+
+type InvoiceItem = GetInvoicesListQuery['invoices']['collection'][number]
 
 const InvoicesList = ({
   error,
@@ -92,10 +94,6 @@ const InvoicesList = ({
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
   )
-
-  const hasActiveWallet = useCustomerHasActiveWallet({
-    customerId: invoices?.[0]?.customer?.id,
-  })
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -162,6 +160,203 @@ const InvoicesList = ({
     }
   }, [variables?.searchTerm, translate])
 
+  const createRecordPaymentAction = (invoice: InvoiceItem): ActionItem<InvoiceItem> | null => {
+    if (!actions.canRecordPayment(invoice)) return null
+
+    return {
+      startIcon: 'receipt',
+      title: translate('text_1737471851634wpeojigr27w'),
+      endIcon: isPremium ? undefined : 'sparkles',
+      onAction: ({ id }) => {
+        if (isPremium) {
+          navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
+        } else {
+          premiumWarningDialogRef.current?.openDialog()
+        }
+      },
+    }
+  }
+
+  const createIssueCreditNoteAction = (
+    invoice: InvoiceItem,
+    isPartiallyPaid: boolean,
+    isDisabledIssueCreditNoteButton: boolean,
+    disabledIssueCreditNoteButtonLabel: string | false,
+  ): ActionItem<InvoiceItem> | null => {
+    if (!actions.canIssueCreditNote(invoice)) return null
+
+    if (!isPremium) {
+      return {
+        startIcon: 'document',
+        endIcon: 'sparkles',
+        title: translate('text_636bdef6565341dcb9cfb127'),
+        onAction: () => {
+          premiumWarningDialogRef.current?.openDialog()
+        },
+      }
+    }
+
+    return {
+      startIcon: 'document',
+      title: translate('text_636bdef6565341dcb9cfb127'),
+      disabled: isDisabledIssueCreditNoteButton,
+      onAction: () => {
+        navigate(
+          generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+            customerId: invoice?.customer?.id,
+            invoiceId: invoice.id,
+          }),
+        )
+      },
+      tooltip:
+        !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
+          ? translate(disabledIssueCreditNoteButtonLabel)
+          : undefined,
+    }
+  }
+
+  const getActionsForActionsColumn = ({
+    invoice,
+    hasActiveWallet,
+    isPartiallyPaid,
+    isDisabledIssueCreditNoteButton,
+    disabledIssueCreditNoteButtonLabel,
+  }: {
+    invoice: InvoiceItem
+    hasActiveWallet: boolean
+    isPartiallyPaid: boolean
+    isDisabledIssueCreditNoteButton: boolean
+    disabledIssueCreditNoteButtonLabel: string | false
+  }): Array<ActionItem<InvoiceItem>> => {
+    const downloadAction: ActionItem<InvoiceItem> | null = actions.canDownload(invoice)
+      ? {
+          startIcon: 'download',
+          title: translate('text_62b31e1f6a5b8b1b745ece42'),
+          onAction: async ({ id }) => {
+            await downloadInvoice({
+              variables: { input: { id } },
+            })
+          },
+        }
+      : null
+
+    const finalizeAction: ActionItem<InvoiceItem> | null =
+      !actions.canDownload(invoice) && actions.canFinalize(invoice)
+        ? {
+            startIcon: 'checkmark',
+            title: translate('text_63a41a8eabb9ae67047c1c08'),
+            onAction: (item) => {
+              finalizeInvoiceRef.current?.openDialog(item)
+            },
+          }
+        : null
+
+    const duplicateAction: ActionItem<InvoiceItem> = {
+      startIcon: 'duplicate',
+      title: translate('text_63ac86d897f728a87b2fa031'),
+      onAction: ({ id }) => {
+        copyToClipboard(id)
+        addToast({
+          severity: 'info',
+          translateKey: 'text_63ac86d897f728a87b2fa0b0',
+        })
+      },
+    }
+
+    const recordPaymentAction = createRecordPaymentAction(invoice)
+
+    const retryCollectAction: ActionItem<InvoiceItem> | null = actions.canRetryCollect(invoice)
+      ? {
+          startIcon: 'push',
+          title: translate('text_63ac86d897f728a87b2fa039'),
+          onAction: async ({ id }) => {
+            const { errors } = await retryCollect({
+              variables: {
+                input: {
+                  id,
+                },
+              },
+            })
+
+            if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+              addToast({
+                severity: 'info',
+                translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+              })
+            }
+          },
+        }
+      : null
+
+    const generatePaymentUrlAction: ActionItem<InvoiceItem> | null = actions.canGeneratePaymentUrl(
+      invoice,
+    )
+      ? {
+          startIcon: 'link',
+          title: translate('text_1753384709668qrxbzpbskn8'),
+          onAction: async ({ id }) => {
+            await generatePaymentUrl({ variables: { input: { invoiceId: id } } })
+          },
+        }
+      : null
+
+    const updatePaymentStatusAction: ActionItem<InvoiceItem> | null =
+      actions.canUpdatePaymentStatus(invoice)
+        ? {
+            startIcon: 'coin-dollar',
+            title: translate('text_63eba8c65a6c8043feee2a01'),
+            onAction: () => {
+              updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+            },
+          }
+        : null
+
+    const issueCreditNoteAction = createIssueCreditNoteAction(
+      invoice,
+      isPartiallyPaid,
+      isDisabledIssueCreditNoteButton,
+      disabledIssueCreditNoteButtonLabel,
+    )
+
+    const voidInvoiceAction: ActionItem<InvoiceItem> | null = actions.canVoid(invoice)
+      ? {
+          startIcon: 'stop',
+          title: translate('text_1750678506388d4fr5etxbhh'),
+          onAction: () =>
+            navigate(
+              generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                customerId: invoice?.customer?.id,
+                invoiceId: invoice.id,
+              }),
+            ),
+        }
+      : null
+
+    const regenerateAction: ActionItem<InvoiceItem> | null = actions.canRegenerate(
+      invoice,
+      hasActiveWallet,
+    )
+      ? {
+          startIcon: 'stop',
+          title: translate('text_1750678506388oynw9hd01l9'),
+          onAction: () => navigate(regeneratePath(invoice as Invoice)),
+        }
+      : null
+
+    return [
+      downloadAction,
+      finalizeAction,
+      duplicateAction,
+      recordPaymentAction,
+      retryCollectAction,
+      generatePaymentUrlAction,
+      updatePaymentStatusAction,
+      issueCreditNoteAction,
+      voidInvoiceAction,
+      regenerateAction,
+    ].filter(Boolean) as Array<ActionItem<InvoiceItem>>
+  }
+
   return (
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
@@ -221,150 +416,15 @@ const InvoicesList = ({
               Number(invoice.totalPaidAmountCents) > 0 &&
               Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
 
-            return [
-              actions.canDownload(invoice)
-                ? {
-                    startIcon: 'download',
-                    title: translate('text_62b31e1f6a5b8b1b745ece42'),
-                    onAction: async ({ id }) => {
-                      await downloadInvoice({
-                        variables: { input: { id } },
-                      })
-                    },
-                  }
-                : null,
+            const hasActiveWallet = invoice?.customer?.hasActiveWallet || false
 
-              actions.canFinalize(invoice)
-                ? {
-                    startIcon: 'checkmark',
-                    title: translate('text_63a41a8eabb9ae67047c1c08'),
-                    onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
-                  }
-                : null,
-              {
-                startIcon: 'duplicate',
-                title: translate('text_63ac86d897f728a87b2fa031'),
-                onAction: ({ id }) => {
-                  copyToClipboard(id)
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_63ac86d897f728a87b2fa0b0',
-                  })
-                },
-              },
-
-              actions.canRecordPayment(invoice)
-                ? {
-                    startIcon: 'receipt',
-                    title: translate('text_1737471851634wpeojigr27w'),
-
-                    endIcon: isPremium ? undefined : 'sparkles',
-                    onAction: ({ id }) => {
-                      if (isPremium) {
-                        navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
-                      } else {
-                        premiumWarningDialogRef.current?.openDialog()
-                      }
-                    },
-                  }
-                : null,
-
-              actions.canRetryCollect(invoice)
-                ? {
-                    startIcon: 'push',
-                    title: translate('text_63ac86d897f728a87b2fa039'),
-                    onAction: async ({ id }) => {
-                      const { errors } = await retryCollect({
-                        variables: {
-                          input: {
-                            id,
-                          },
-                        },
-                      })
-
-                      if (
-                        hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)
-                      ) {
-                        addToast({
-                          severity: 'info',
-                          translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                        })
-                      }
-                    },
-                  }
-                : null,
-
-              actions.canGeneratePaymentUrl(invoice)
-                ? {
-                    startIcon: 'link',
-                    title: translate('text_1753384709668qrxbzpbskn8'),
-                    onAction: async ({ id }) => {
-                      await generatePaymentUrl({ variables: { input: { invoiceId: id } } })
-                    },
-                  }
-                : null,
-
-              actions.canUpdatePaymentStatus(invoice)
-                ? {
-                    startIcon: 'coin-dollar',
-                    title: translate('text_63eba8c65a6c8043feee2a01'),
-                    onAction: () => {
-                      updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
-                    },
-                  }
-                : null,
-
-              actions.canIssueCreditNote(invoice) && !isPremium
-                ? {
-                    startIcon: 'document',
-                    endIcon: 'sparkles',
-                    title: translate('text_636bdef6565341dcb9cfb127'),
-                    onAction: () => premiumWarningDialogRef.current?.openDialog(),
-                  }
-                : null,
-
-              actions.canIssueCreditNote(invoice) && isPremium
-                ? {
-                    startIcon: 'document',
-                    title: translate('text_636bdef6565341dcb9cfb127'),
-                    disabled: disabledIssueCreditNoteButton,
-                    onAction: () => {
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      )
-                    },
-                    tooltip:
-                      !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
-                        ? translate(disabledIssueCreditNoteButtonLabel)
-                        : undefined,
-                  }
-                : null,
-
-              actions.canVoid(invoice)
-                ? {
-                    startIcon: 'stop',
-                    title: translate('text_1750678506388d4fr5etxbhh'),
-                    onAction: () =>
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      ),
-                  }
-                : null,
-
-              actions.canRegenerate(invoice, hasActiveWallet)
-                ? {
-                    startIcon: 'stop',
-                    title: translate('text_1750678506388oynw9hd01l9'),
-                    onAction: () => navigate(regeneratePath(invoice as Invoice)),
-                  }
-                : null,
-            ]
+            return getActionsForActionsColumn({
+              invoice,
+              hasActiveWallet,
+              isPartiallyPaid,
+              isDisabledIssueCreditNoteButton: disabledIssueCreditNoteButton,
+              disabledIssueCreditNoteButtonLabel,
+            })
           }}
           columns={[
             {

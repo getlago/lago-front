@@ -256,10 +256,11 @@ const InvoiceSections = () => {
                     {
                       startIcon: 'trash',
                       title: translate('text_1732638001460kdzkctjfegi'),
-                      onAction: () =>
+                      onAction: () => {
                         deleteCustomSectionDialogRef.current?.openDialog({
                           id: section.id,
-                        }),
+                        })
+                      },
                     },
                   ]}
                 />

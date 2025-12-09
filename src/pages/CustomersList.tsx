@@ -263,7 +263,9 @@ const CustomersList = () => {
                   ? {
                       startIcon: 'trash',
                       title: translate('text_6261640f28a49700f1290df5'),
-                      onAction: () => deleteDialogRef.current?.openDialog({ customer }),
+                      onAction: () => {
+                        deleteDialogRef.current?.openDialog({ customer })
+                      },
                     }
                   : null,
               ]

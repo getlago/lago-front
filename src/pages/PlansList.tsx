@@ -216,7 +216,9 @@ const PlansList = () => {
                   {
                     startIcon: 'trash',
                     title: translate('text_625fd39a15394c0117e7d794'),
-                    onAction: () => deleteDialogRef.current?.openDialog({ plan }),
+                    onAction: () => {
+                      deleteDialogRef.current?.openDialog({ plan })
+                    },
                   },
                 ]
               : undefined
