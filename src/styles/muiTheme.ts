@@ -457,6 +457,7 @@ export const theme = createTheme({
           flexDirection: 'column',
           maxHeight: 'inherit',
           padding: 0,
+          gap: '4px',
         },
         root: {
           '.MuiOutlinedInput-root': {
