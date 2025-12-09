@@ -78,7 +78,8 @@ export const zodMetadataSchema = (valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEF
       }),
     )
     .superRefine((items, ctx) => {
-      const seen = new Map()
+      const seen = new Map<string, number>()
+      const errorAdded = new Set<number>()
 
       // check uniqueness on keys
       items.forEach((item, idx) => {
@@ -88,11 +89,18 @@ export const zodMetadataSchema = (valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEF
             message: MetadataErrorsEnum.uniqueness,
             path: [idx, 'key'],
           })
-          ctx.addIssue({
-            code: 'custom',
-            message: MetadataErrorsEnum.uniqueness,
-            path: [seen.get(item.key), 'key'],
-          })
+          errorAdded.add(idx)
+
+          const firstIdx = seen.get(item.key)
+
+          if (firstIdx !== undefined && !errorAdded.has(firstIdx)) {
+            ctx.addIssue({
+              code: 'custom',
+              message: MetadataErrorsEnum.uniqueness,
+              path: [firstIdx, 'key'],
+            })
+            errorAdded.add(firstIdx)
+          }
         } else {
           seen.set(item.key, idx)
         }

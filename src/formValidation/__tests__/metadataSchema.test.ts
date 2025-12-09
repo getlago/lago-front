@@ -309,6 +309,33 @@ describe('metadataSchema', () => {
           expect(result.error.issues.some((issue) => issue.message === 'uniqueness')).toBeTruthy()
         }
       })
+
+      it('returns exactly one error per duplicate key when same key appears 3+ times', () => {
+        const values = [
+          { key: 'sameKey', value: 'value1' },
+          { key: 'sameKey', value: 'value2' },
+          { key: 'sameKey', value: 'value3' },
+        ]
+        const schema = zodMetadataSchema()
+        const result = schema.safeParse(values)
+
+        expect(result.success).toBeFalsy()
+        if (!result.success) {
+          const uniquenessIssues = result.error.issues.filter(
+            (issue) => issue.message === 'uniqueness',
+          )
+
+          // Should have exactly 3 errors (one per item), not more
+          expect(uniquenessIssues).toHaveLength(3)
+
+          // Each index should appear exactly once
+          const paths = uniquenessIssues.map((issue) => issue.path[0])
+
+          expect(paths.filter((p) => p === 0)).toHaveLength(1)
+          expect(paths.filter((p) => p === 1)).toHaveLength(1)
+          expect(paths.filter((p) => p === 2)).toHaveLength(1)
+        }
+      })
     })
 
     describe('valid', () => {
