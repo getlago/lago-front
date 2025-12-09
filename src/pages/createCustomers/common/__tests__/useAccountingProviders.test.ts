@@ -266,7 +266,7 @@ describe('useAccountingProviders', () => {
       expect(result.current.accountingProviders).toBeUndefined()
 
       // Before delay completes
-      await act(() => wait(50))
+      await act(() => wait(20))
       expect(result.current.isLoadingAccountProviders).toBe(true)
 
       // After delay completes
