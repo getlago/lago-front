@@ -63,7 +63,7 @@ export const AiAgent = () => {
             isBeta={shouldDisplayWelcomeMessage && !showHistory}
             showBackButton={!shouldDisplayWelcomeMessage || showHistory}
             onBackButton={onBackButton}
-            showHistoryButton={!showHistory}
+            showHistoryButton={shouldDisplayWelcomeMessage}
             onShowHistory={() => setShowHistory(true)}
           >
             {showHistory && <ChatHistory hideHistory={() => setShowHistory(false)} />}
