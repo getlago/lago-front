@@ -26,8 +26,8 @@ export const PanelWrapper = ({
 
   return (
     <div>
-      <div className="flex flex-row justify-between gap-4 px-6 py-5 shadow-b">
-        <div className="flex flex-1 items-center gap-2 truncate">
+      <div className="flex flex-row justify-between gap-4 px-6 py-4 shadow-b">
+        <div className="flex h-8 flex-1 items-center gap-2 truncate">
           {!!showBackButton && (
             <Button size="small" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
           )}
@@ -36,7 +36,7 @@ export const PanelWrapper = ({
           </Typography>
           {isBeta && (
             <Chip
-              className="bg-purple-100"
+              className="min-h-6 border-purple-200 bg-purple-100"
               color="infoMain"
               label={translate('text_65d8d71a640c5400917f8a13')}
             />

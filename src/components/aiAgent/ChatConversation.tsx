@@ -37,7 +37,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
   return (
     <div
       data-id="conversation-container"
-      className="flex h-full flex-1 flex-col gap-6 overflow-y-auto p-4 pt-6"
+      className="flex h-full flex-1 flex-col gap-6 overflow-y-auto p-6"
     >
       {state.messages.map((message) => {
         if (message.role === ChatRole.user) {
