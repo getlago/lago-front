@@ -18,7 +18,6 @@ import {
 } from '~/components/designSystem'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   ADD_ON_DETAILS_ROUTE,
