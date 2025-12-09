@@ -11,6 +11,7 @@ import {
   LocalCustomerMetadata,
   MetadataAccordion,
 } from '~/components/customers/createCustomer/MetadataAccordion'
+import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import {
   Button,
   DrawerRef,
@@ -368,7 +369,7 @@ const CreateCustomer = () => {
           loading={formikProps.isSubmitting}
           disabled={!formikProps.isValid || !formikProps.dirty}
           onClick={formikProps.submitForm}
-          data-test="submit-customer"
+          data-test={SUBMIT_CUSTOMER_DATA_TEST}
         >
           {isEdition
             ? translate('text_17295436903260tlyb1gp1i7')

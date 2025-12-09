@@ -16,6 +16,13 @@ import {
 } from '~/components/designSystem'
 import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  ADD_METADATA_DATA_TEST,
+  CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
+  IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
+  INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+  SUBMIT_WALLET_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -247,8 +254,8 @@ const CreateWalletTopUp = () => {
   }, [formikProps.dirty, navigateBack])
 
   const hasMinMax =
-    typeof wallet?.paidTopUpMinAmountCents !== 'undefined' ||
-    typeof wallet?.paidTopUpMaxAmountCents !== 'undefined'
+    (wallet?.paidTopUpMinAmountCents !== null && wallet?.paidTopUpMinAmountCents !== undefined) ||
+    (wallet?.paidTopUpMaxAmountCents !== null && wallet?.paidTopUpMaxAmountCents !== undefined)
 
   const paidCreditsError = topUpAmountError({
     rateAmount: wallet?.rateAmount?.toString(),
@@ -271,7 +278,7 @@ const CreateWalletTopUp = () => {
             variant="quaternary"
             icon="close"
             onClick={onAbort}
-            data-test="close-create-topup-button"
+            data-test={CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST}
           />
         </CenteredPage.Header>
 
@@ -395,6 +402,7 @@ const CreateWalletTopUp = () => {
                       name={'ignorePaidTopUpLimits'}
                       formikProps={formikProps}
                       label={translate('text_17587075291282to3nmogezj')}
+                      data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
                     />
                   )}
 
@@ -403,6 +411,7 @@ const CreateWalletTopUp = () => {
                     formikProps={formikProps}
                     label={translate('text_66a8aed1c3e07b277ec3990d')}
                     subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                    data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
                   />
                 </>
               )}
@@ -554,7 +563,7 @@ const CreateWalletTopUp = () => {
                         { key: '', value: '' },
                       ])
                     }
-                    data-test="add-metadata"
+                    data-test={ADD_METADATA_DATA_TEST}
                   >
                     {translate('text_63fcc3218d35b9377840f5bb')}
                   </Button>
@@ -573,7 +582,7 @@ const CreateWalletTopUp = () => {
             variant="primary"
             disabled={!formikProps.isValid || !formikProps.dirty}
             onClick={formikProps.submitForm}
-            data-test="submit-wallet"
+            data-test={SUBMIT_WALLET_DATA_TEST}
           >
             {translate('text_1741103892833yi7redcuhoc')}
           </Button>

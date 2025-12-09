@@ -11,6 +11,7 @@ import {
 } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
 import { CREATE_WALLET_ROUTE } from '~/core/router'
 import {
@@ -110,6 +111,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
                       }),
                     )
                   }
+                  data-test={CREATE_WALLET_DATA_TEST}
                 >
                   {translate('text_62d175066d2dbf1d50bc9382')}
                 </Button>

@@ -7,6 +7,10 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { Button, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import {
+  CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
+  SUBMIT_WALLET_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
@@ -406,7 +410,7 @@ const CreateWallet = () => {
             variant="quaternary"
             icon="close"
             onClick={onAbort}
-            data-test="close-create-wallet-button"
+            data-test={CLOSE_CREATE_WALLET_BUTTON_DATA_TEST}
           />
         </CenteredPage.Header>
 
@@ -461,7 +465,7 @@ const CreateWallet = () => {
             variant="primary"
             disabled={!formikProps.isValid}
             onClick={formikProps.submitForm}
-            data-test="submit-wallet"
+            data-test={SUBMIT_WALLET_DATA_TEST}
           >
             {translate(
               formType === FORM_TYPE_ENUM.edition

@@ -11,6 +11,12 @@ import {
   TextInput,
   TextInputField,
 } from '~/components/form'
+import {
+  ADD_MAX_TOPUP_OPTION_DATA_TEST,
+  ADD_MIN_MAX_AMOUNT_DATA_TEST,
+  ADD_MIN_TOPUP_OPTION_DATA_TEST,
+  SHOW_EXPIRATION_AT_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
@@ -161,7 +167,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             startIcon="plus"
             variant="inline"
             onClick={() => setShowExpirationDate(true)}
-            data-test="show-expiration-at"
+            data-test={SHOW_EXPIRATION_AT_DATA_TEST}
           >
             {translate('text_6560809c38fb9de88d8a517e')}
           </Button>
@@ -255,7 +261,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
               startIcon="plus"
               endIcon="chevron-down-filled"
               variant="inline"
-              data-test="add-min-max-amount"
+              data-test={ADD_MIN_MAX_AMOUNT_DATA_TEST}
               disabled={showMinTopUp && showMaxTopUp}
             >
               {translate('text_17582856866461p9g3nsnrgc')}
@@ -273,6 +279,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
                     closePopper()
                   }}
                   disabled={showMinTopUp}
+                  data-test={ADD_MIN_TOPUP_OPTION_DATA_TEST}
                 >
                   {translate('text_1758285847805xn6hdyurz3e')}
                 </Button>
@@ -283,6 +290,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
                     closePopper()
                   }}
                   disabled={showMaxTopUp}
+                  data-test={ADD_MAX_TOPUP_OPTION_DATA_TEST}
                 >
                   {translate('text_1758285847805k1uohu4vrov')}
                 </Button>
