@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -8,7 +7,8 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
-import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { CREATE_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
+import { Avatar, Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
@@ -143,9 +143,13 @@ const CustomersList = () => {
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63befc65efcd9374da45b801')}
+            data-test="search-customers"
           />
           {hasPermissions(['customersCreate']) && (
-            <Button data-test="create-customer" onClick={() => navigate(CREATE_CUSTOMER_ROUTE)}>
+            <Button
+              data-test={CREATE_CUSTOMER_DATA_TEST}
+              onClick={() => navigate(CREATE_CUSTOMER_ROUTE)}
+            >
               {translate('text_1734452833961s338w0x3b4s')}
             </Button>
           )}
@@ -264,7 +268,9 @@ const CustomersList = () => {
                   ? {
                       startIcon: 'trash',
                       title: translate('text_6261640f28a49700f1290df5'),
-                      onAction: () => deleteDialogRef.current?.openDialog({ customer }),
+                      onAction: () => {
+                        deleteDialogRef.current?.openDialog({ customer })
+                      },
                     }
                   : null,
               ]

@@ -120,6 +120,8 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
                     pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                     currencyDisplay: 'symbol',
                     currency,
+                    minimumFractionDigits: 2,
+                    maximumSignificantDigits: 6,
                   },
                 ),
                 perPackageSize: Number(amountDetails?.perPackageSize || 0),

@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Icon, tw, Typography } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll, Status, StatusType } from '~/components/designSystem'
+import { InfiniteScroll, Status, StatusType, Typography } from '~/components/designSystem'
 import {
   Filters,
   formatFiltersForSubscriptionQuery,

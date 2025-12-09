@@ -4,6 +4,7 @@ import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
+import { SHOW_LIMIT_INPUT_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME,
@@ -220,7 +221,7 @@ export const ScopeSection: FC<ScopeSectionProps> = ({ formikProps }) => {
                 selector: `.${SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
               })
             }}
-            data-test="show-limit-input"
+            data-test={SHOW_LIMIT_INPUT_DATA_TEST}
           >
             {translate('text_1748442650797pz30j2eeiv4')}
           </Button>

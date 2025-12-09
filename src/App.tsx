@@ -2,12 +2,12 @@ import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/cli
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
 import { StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { captureException } from '@sentry/react'
-import { DesignSystemProvider, Spinner } from 'lago-design-system'
 import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
-import { ToastContainer } from '~/components/designSystem/Toasts'
+import { Spinner, ToastContainer } from '~/components/designSystem'
+import { DevtoolsErrorBoundary } from '~/components/developers/DevtoolsErrorBoundary'
 import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
@@ -108,28 +108,28 @@ const App = () => {
     <ApolloProvider client={client}>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
-          <DesignSystemProvider>
-            <ErrorBoundary>
-              <DeveloperToolProvider>
-                <AiAgentProvider>
-                  <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                    <Panel id="app-panel" order={1}>
-                      <div className="h-full overflow-auto" data-app-wrapper>
-                        <BrowserRouter basename="/">
-                          <RouteWrapper />
-                        </BrowserRouter>
-                      </div>
-                    </Panel>
-                    <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+          <ErrorBoundary>
+            <DeveloperToolProvider>
+              <AiAgentProvider>
+                <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                  <Panel id="app-panel" order={1}>
+                    <div className="h-full overflow-auto" data-app-wrapper>
+                      <BrowserRouter basename="/">
+                        <RouteWrapper />
+                      </BrowserRouter>
+                    </div>
+                  </Panel>
+                  <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                    <DevtoolsErrorBoundary>
                       <DevtoolsView />
-                    </MemoryRouter>
-                  </PanelGroup>
-                </AiAgentProvider>
-              </DeveloperToolProvider>
-            </ErrorBoundary>
-            <UserIdentifier />
-            <ToastContainer />
-          </DesignSystemProvider>
+                    </DevtoolsErrorBoundary>
+                  </MemoryRouter>
+                </PanelGroup>
+              </AiAgentProvider>
+            </DeveloperToolProvider>
+          </ErrorBoundary>
+          <UserIdentifier />
+          <ToastContainer />
         </ThemeProvider>
       </StyledEngineProvider>
     </ApolloProvider>

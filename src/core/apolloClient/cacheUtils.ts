@@ -1,9 +1,6 @@
 import { ApolloClient, ApolloQueryResult, gql } from '@apollo/client'
 
-import {
-  LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
-  ORGANIZATION_LS_KEY_ID,
-} from '~/core/constants/localStorageKeys'
+import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import {
   CurrentUserFragmentDoc,
   GetCurrentUserInfosForLoginQuery,
@@ -130,9 +127,6 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
       } else {
         removeItemFromLS(ORGANIZATION_LS_KEY_ID)
       }
-    } else {
-      // If no organization have been found, any redirection logic should be prevented later
-      removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
     }
 
     // If still no organization, take the first one that is accessible by the current session
@@ -163,17 +157,18 @@ export const switchCurrentOrganization = async (
   client: ApolloClient<object>,
   organizationId: string,
 ) => {
-  // Removes cached data and prevents active queries re-fetch
+  // 1. Stop all active queries to prevent race conditions
+  client.stop()
+
+  // 2. Clear the cache BEFORE updating organization context
+  // This prevents queries from firing with new org ID against stale cache
   await client.clearStore()
 
-  // We should not be redirected to any route on orga switch, but rather bring to home (prevent )
-  removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
-
-  // Clear the devtools state
-  removeItemFromLS(DEVTOOL_AUTO_SAVE_KEY)
-
-  // Set the new organization id in local storage
+  // 3. NOW update the organization ID - safe because cache is cleared and queries are stopped
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
+
+  // 4. Clear other org-specific state
+  removeItemFromLS(DEVTOOL_AUTO_SAVE_KEY)
 }
 
 export const onAccessCustomerPortal = (token?: string) => {

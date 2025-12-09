@@ -10,8 +10,10 @@ import {
   MultipleComboBoxProps,
 } from './types'
 
-interface MultipleComboBoxFieldProps
-  extends Omit<MultipleComboBoxProps, 'onChange' | 'value' | 'name'> {
+interface MultipleComboBoxFieldProps extends Omit<
+  MultipleComboBoxProps,
+  'onChange' | 'value' | 'name'
+> {
   name: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>

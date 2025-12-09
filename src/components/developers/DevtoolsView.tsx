@@ -1,9 +1,8 @@
-import { Button, Tooltip } from 'lago-design-system'
 import { FC, useEffect } from 'react'
 import { Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { NavigationTab, TabManagedBy } from '~/components/designSystem'
+import { Button, NavigationTab, TabManagedBy, Tooltip } from '~/components/designSystem'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'

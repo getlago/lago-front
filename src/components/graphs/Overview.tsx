@@ -3,8 +3,7 @@ import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
 
-import { Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { GenericPlaceholder, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import {
   AnalyticsPeriodScopeEnum,
   TPeriodScopeTranslationLookupValue,

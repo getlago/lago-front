@@ -3,11 +3,18 @@ import { useFormik } from 'formik'
 import { useEffect, useRef, useState } from 'react'
 import { number, object, string } from 'yup'
 
-import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Button,
+  Card,
+  Skeleton,
+  Tooltip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { TextInput, TextInputField } from '~/components/form'
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'

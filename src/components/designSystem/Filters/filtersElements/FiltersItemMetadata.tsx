@@ -1,7 +1,7 @@
 import { useFormik } from 'formik'
-import { Button, Typography } from 'lago-design-system'
 import { useEffect } from 'react'
 
+import { Button, Typography } from '~/components/designSystem'
 import { FiltersFormValues } from '~/components/designSystem/Filters/types'
 import { formatMetadataFilter, parseMetadataFilter } from '~/components/designSystem/Filters/utils'
 import { TextInputField } from '~/components/form'

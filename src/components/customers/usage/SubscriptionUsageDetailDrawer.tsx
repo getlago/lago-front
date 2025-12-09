@@ -193,10 +193,12 @@ gql`
   }
 `
 
+export type SubscriptionUsageDetailDrawerUsage = ChargeUsage | ProjectedChargeUsage
+
 export interface SubscriptionUsageDetailDrawerRef {
   openDrawer: (
-    usage: ChargeUsage | ProjectedChargeUsage,
-    refreshUsage: () => Promise<ChargeUsage | ProjectedChargeUsage | undefined>,
+    usage: SubscriptionUsageDetailDrawerUsage,
+    refreshUsage: () => Promise<SubscriptionUsageDetailDrawerUsage | undefined>,
     defaultTab?: number,
   ) => unknown
   closeDialog: () => unknown
@@ -227,10 +229,10 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     ref,
   ) => {
     const drawerRef = useRef<DrawerRef>(null)
-    const [usage, setUsage] = useState<ChargeUsage | ProjectedChargeUsage>()
+    const [usage, setUsage] = useState<SubscriptionUsageDetailDrawerUsage>()
     const [refreshFunction, setRefreshFunction] =
       useState<
-        (forceProjected?: boolean) => Promise<ChargeUsage | ProjectedChargeUsage | undefined>
+        (forceProjected?: boolean) => Promise<SubscriptionUsageDetailDrawerUsage | undefined>
       >()
     const [activeTab, setActiveTab] = useState<number>(0)
     const [fetchedProjected, setFetchedProjected] = useState(false)

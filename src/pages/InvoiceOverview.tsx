@@ -4,8 +4,7 @@ import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
 import { generatePath, Link, LinkProps, useParams } from 'react-router-dom'
 
-import { Alert, Skeleton, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { Alert, GenericPlaceholder, Skeleton, Typography } from '~/components/designSystem'
 import {
   DeleteAdjustedFeeDialog,
   DeleteAdjustedFeeDialogRef,

@@ -52,7 +52,7 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
   })
   const formikProps = useFormik<Pick<UpdateCustomerInput, 'invoiceGracePeriod'>>({
     initialValues: {
-      invoiceGracePeriod,
+      invoiceGracePeriod: invoiceGracePeriod ?? 0,
     },
     validationSchema: object().shape({
       invoiceGracePeriod: number().required('').max(365, 'text_63bed78ae69de9cad5c348e4'),
@@ -115,4 +115,4 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
   )
 })
 
-EditCustomerInvoiceGracePeriodDialog.displayName = 'forwardRef'
+EditCustomerInvoiceGracePeriodDialog.displayName = 'EditCustomerInvoiceGracePeriodDialog'

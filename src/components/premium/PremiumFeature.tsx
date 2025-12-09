@@ -1,6 +1,7 @@
-import { Button, Icon, tw, Typography } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 
+import { Button, Typography } from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

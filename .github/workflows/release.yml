@@ -15,7 +15,7 @@ jobs:
       matrix:
         platform:
           - version: linux/amd64
-            runner: linux/amd64
+            runner: ubuntu-latest
           - version: linux/arm64
             runner: linux-arm64
     name: Build ${{ matrix.platform.version }} Image
@@ -27,7 +27,7 @@ jobs:
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
 
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Docker Meta
         id: meta

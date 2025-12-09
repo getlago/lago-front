@@ -12,6 +12,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { ActionItem } from '~/components/designSystem/Table'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -37,6 +38,7 @@ import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CurrencyEnum,
+  InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
@@ -81,6 +83,7 @@ gql`
       displayName
       applicableTimezone
       paymentProvider
+      hasActiveWallet
     }
     errorDetails {
       errorCode
@@ -411,24 +414,37 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               Number(invoice.totalPaidAmountCents) > 0 &&
               Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
 
+            const canDownloadOrFinalize = (): ActionItem<
+              InvoiceForInvoiceListFragment['collection'][number]
+            > | null => {
+              if (canDownload(invoice)) {
+                return {
+                  startIcon: 'download' as IconName,
+                  title: translate('text_62b31e1f6a5b8b1b745ece42'),
+                  onAction: async (item) => {
+                    await downloadInvoice({
+                      variables: { input: { id: item.id } },
+                    })
+                  },
+                }
+              }
+              if (canFinalize(invoice)) {
+                return {
+                  startIcon: 'checkmark' as IconName,
+                  title: translate('text_63a41a8eabb9ae67047c1c08'),
+                  onAction: (item) => {
+                    finalizeInvoiceRef.current?.openDialog(
+                      item as InvoiceForFinalizeInvoiceFragment,
+                    )
+                  },
+                }
+              }
+
+              return null
+            }
+
             return [
-              canDownload(invoice)
-                ? {
-                    startIcon: 'download',
-                    title: translate('text_62b31e1f6a5b8b1b745ece42'),
-                    onAction: async ({ id }) => {
-                      await downloadInvoice({
-                        variables: { input: { id } },
-                      })
-                    },
-                  }
-                : canFinalize(invoice)
-                  ? {
-                      startIcon: 'checkmark',
-                      title: translate('text_63a41a8eabb9ae67047c1c08'),
-                      onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
-                    }
-                  : null,
+              canDownloadOrFinalize(),
 
               {
                 startIcon: 'duplicate',
@@ -508,7 +524,9 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'document',
                     endIcon: 'sparkles',
                     title: translate('text_636bdef6565341dcb9cfb127'),
-                    onAction: () => premiumWarningDialogRef.current?.openDialog(),
+                    onAction: () => {
+                      premiumWarningDialogRef.current?.openDialog()
+                    },
                   }
                 : null,
 

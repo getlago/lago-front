@@ -2,10 +2,9 @@
 import '@testing-library/jest-dom'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Button } from 'lago-design-system'
 import React from 'react'
 
-import { Accordion } from '~/components/designSystem'
+import { Accordion, Button } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 

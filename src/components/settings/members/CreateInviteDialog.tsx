@@ -5,9 +5,14 @@ import { forwardRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
-import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import {
+  Button,
+  Dialog,
+  DialogRef,
+  GenericPlaceholder,
+  Typography,
+} from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { getRoleTranslationKey } from '~/core/constants/form'
 import { INVITATION_ROUTE } from '~/core/router'
@@ -207,7 +212,12 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
               <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_63208c701ce25db781407475')}
               </Typography>
-              <Typography className="line-break-anywhere" variant="body" color="grey700">
+              <Typography
+                className="line-break-anywhere"
+                variant="body"
+                color="grey700"
+                data-test="invitation-url"
+              >
                 {invitationUrl}
               </Typography>
             </div>

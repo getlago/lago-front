@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
 import { generatePath } from 'react-router-dom'
 
 import { computeCustomerInitials } from '~/components/customers/utils'
-import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Avatar, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'

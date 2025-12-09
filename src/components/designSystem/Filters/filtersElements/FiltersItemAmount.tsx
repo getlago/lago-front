@@ -1,7 +1,7 @@
 import { useFormik } from 'formik'
-import { Typography } from 'lago-design-system'
 import { useEffect } from 'react'
 
+import { Typography } from '~/components/designSystem'
 import {
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   AmountFilterInterval,

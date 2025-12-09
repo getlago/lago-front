@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useMediaQuery } from '@mui/material'
 import { useFormik } from 'formik'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -16,12 +16,15 @@ import { object, string } from 'yup'
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import {
   Alert,
+  Avatar,
   Button,
   Card,
   Selector,
   Skeleton,
   Tooltip,
   Typography,
+  WarningDialog,
+  WarningDialogRef,
 } from '~/components/designSystem'
 import {
   BasicComboBoxData,
@@ -45,7 +48,6 @@ import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {

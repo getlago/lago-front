@@ -2,8 +2,7 @@ import { gql } from '@apollo/client'
 import { FC, ReactNode, useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button, Skeleton, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { Button, GenericPlaceholder, Skeleton, Typography } from '~/components/designSystem'
 import {
   WalletDetailsDrawer,
   WalletDetailsDrawerRef,

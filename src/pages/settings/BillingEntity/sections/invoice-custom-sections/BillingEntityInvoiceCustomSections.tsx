@@ -1,8 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { Button, GenericPlaceholder, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
   SettingsListItem,
   SettingsListItemHeader,

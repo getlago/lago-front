@@ -2,11 +2,17 @@ import { useFormik } from 'formik'
 import { useEffect, useRef } from 'react'
 import { object, string } from 'yup'
 
-import { Alert, Button, Typography } from '~/components/designSystem'
+import {
+  Alert,
+  Button,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { ComboBoxField, SwitchField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { LogoPicker } from '~/components/LogoPicker'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { DOCUMENTATION_EINVOICING } from '~/core/constants/externalUrls'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { scrollToTop } from '~/core/utils/domUtils'
@@ -252,7 +258,7 @@ const BillingEntityCreateEdit = () => {
                           className="word-break-word"
                           color="textSecondary"
                           html={translate('text_176010285376748i8jr0rwn2', {
-                            href: 'REPLACE_ME',
+                            href: DOCUMENTATION_EINVOICING,
                           })}
                         />
                       </Alert>

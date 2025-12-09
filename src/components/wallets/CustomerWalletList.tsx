@@ -1,12 +1,17 @@
 import { gql } from '@apollo/client'
-import { Tooltip } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  Button,
+  GenericPlaceholder,
+  InfiniteScroll,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
 import { CREATE_WALLET_ROUTE } from '~/core/router'
 import {
@@ -106,6 +111,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
                       }),
                     )
                   }
+                  data-test={CREATE_WALLET_DATA_TEST}
                 >
                   {translate('text_62d175066d2dbf1d50bc9382')}
                 </Button>

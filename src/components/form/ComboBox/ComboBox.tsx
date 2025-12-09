@@ -6,6 +6,7 @@ import { Skeleton } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
+import { COMBOBOX_CONFIG } from './comboBoxConfig'
 import { ComboBoxInput } from './ComboBoxInput'
 import { ComboBoxItemWrapper } from './ComboBoxItemWrapper'
 import { ComboboxList } from './ComboboxList'
@@ -192,10 +193,15 @@ export const ComboBox = ({
       ListboxComponent={
         ComboboxList as unknown as JSXElementConstructor<HTMLAttributes<HTMLElement>>
       }
-      ListboxProps={
-        // @ts-expect-error we're using props from ComboboxList which are not reccognized by the Autocomplete MUI component
-        { value, renderGroupHeader, virtualized }
-      }
+      ListboxProps={{
+        // @ts-expect-error we're using props from ComboboxList which are not recognized by the Autocomplete MUI component
+        value,
+        renderGroupHeader,
+        virtualized,
+        style: {
+          maxHeight: `${COMBOBOX_CONFIG.getListboxMaxHeight()}px`,
+        },
+      }}
       PopperComponent={ComboBoxPopperFactory(PopperProps)}
       getOptionDisabled={(option) => !!option?.disabled}
       getOptionLabel={(option) => {

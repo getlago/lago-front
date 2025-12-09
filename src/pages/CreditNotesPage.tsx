@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Button, Typography } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
+import { Button, Typography } from '~/components/designSystem'
 import { formatFiltersForCreditNotesQuery } from '~/components/designSystem/Filters'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import { SearchInput } from '~/components/SearchInput'

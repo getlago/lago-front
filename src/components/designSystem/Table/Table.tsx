@@ -11,8 +11,15 @@ import { IconName } from 'lago-design-system'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/GenericPlaceholder'
+import {
+  Button,
+  GenericPlaceholder,
+  GenericPlaceholderProps,
+  Popper,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -57,7 +64,7 @@ type DataItem = {
 
 export type ActionItem<T> = {
   title: string | ReactNode
-  onAction: (item: T) => void
+  onAction: (item: T) => void | Promise<void>
   startIcon?: IconName
   endIcon?: IconName
   disabled?: boolean

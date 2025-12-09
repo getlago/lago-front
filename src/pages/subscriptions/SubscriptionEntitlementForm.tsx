@@ -1,11 +1,18 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Tooltip, Typography, WarningDialog, WarningDialogRef } from 'lago-design-system'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
-import { ChargeTable, Chip } from '~/components/designSystem'
+import {
+  Button,
+  ChargeTable,
+  Chip,
+  Tooltip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { ComboBox, ComboBoxField, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PrivilegeValueInputComponent } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'

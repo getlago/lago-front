@@ -17,6 +17,14 @@ import {
 } from '~/components/form'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
+import {
+  ADD_METADATA_DATA_TEST,
+  IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
+  INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+  RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
+  RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+  SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -147,8 +155,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   })
 
   const hasMinMax =
-    typeof formikProps?.values?.paidTopUpMinAmountCents !== 'undefined' ||
-    typeof formikProps?.values?.paidTopUpMaxAmountCents !== 'undefined'
+    !!formikProps?.values?.paidTopUpMinAmountCents || !!formikProps?.values?.paidTopUpMaxAmountCents
 
   return (
     <>
@@ -191,6 +198,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                     name={'ignorePaidTopUpLimitsOnCreation'}
                     formikProps={formikProps}
                     label={translate('text_17587075291282to3nmogezj')}
+                    data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
                   />
                 )}
 
@@ -199,6 +207,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   formikProps={formikProps}
                   label={translate('text_66a8aed1c3e07b277ec3990d')}
                   subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                  data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
                 />
               </>
             )}
@@ -334,21 +343,24 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
 
                   {formikProps.values.recurringTransactionRules?.[0].paidCredits && (
                     <>
-                      <Switch
-                        name="recurringTransactionRules.0.ignorePaidTopUpLimits"
-                        onChange={(value) => {
-                          formikProps.setFieldValue(
-                            'recurringTransactionRules.0.ignorePaidTopUpLimits',
-                            value,
-                          )
-                        }}
-                        checked={
-                          formikProps.values.recurringTransactionRules?.[0].ignorePaidTopUpLimits ||
-                          false
-                        }
-                        label={translate('text_1758285686646ty4gyil56oi')}
-                        subLabel={translate('text_1758285686647hxpjldry342')}
-                      />
+                      {hasMinMax && (
+                        <Switch
+                          name="recurringTransactionRules.0.ignorePaidTopUpLimits"
+                          onChange={(value) => {
+                            formikProps.setFieldValue(
+                              'recurringTransactionRules.0.ignorePaidTopUpLimits',
+                              value,
+                            )
+                          }}
+                          checked={
+                            formikProps.values.recurringTransactionRules?.[0]
+                              .ignorePaidTopUpLimits || false
+                          }
+                          label={translate('text_1758285686646ty4gyil56oi')}
+                          subLabel={translate('text_1758285686647hxpjldry342')}
+                          data-test={RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
+                        />
+                      )}
 
                       <Switch
                         name="recurringTransactionRules.0.invoiceRequiresSuccessfulPayment"
@@ -365,6 +377,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                         }
                         label={translate('text_66a8aed1c3e07b277ec3990d')}
                         subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                        data-test={RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
                       />
                     </>
                   )}
@@ -589,7 +602,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   onClick={() =>
                     formikProps.setFieldValue('recurringTransactionRules.0.expirationAt', '')
                   }
-                  data-test="show-recurring-expiration-at"
+                  data-test={SHOW_RECURRING_EXPIRATION_AT_DATA_TEST}
                 >
                   {translate('text_6560809c38fb9de88d8a517e')}
                 </Button>
@@ -633,7 +646,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                           (metadataItemKeyError === MetadataErrorsEnum.uniqueness &&
                             translate('text_63fcc3218d35b9377840f5dd')) ||
                           (metadataItemKeyError === MetadataErrorsEnum.maxLength &&
-                            translate('text_63fcc3218d35b9377840f5d9'))
+                            translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
                         }
                         disableHoverListener={!hasCustomKeyError}
                       >
@@ -709,7 +722,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                     metadatas,
                   )
                 }}
-                data-test="add-metadata"
+                data-test={ADD_METADATA_DATA_TEST}
               >
                 {translate('text_63fcc3218d35b9377840f5bb')}
               </Button>

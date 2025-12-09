@@ -11,11 +11,17 @@ import {
   LocalCustomerMetadata,
   MetadataAccordion,
 } from '~/components/customers/createCustomer/MetadataAccordion'
-import { Button, DrawerRef, Typography } from '~/components/designSystem'
+import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
+import {
+  Button,
+  DrawerRef,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { SwitchField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
@@ -363,7 +369,7 @@ const CreateCustomer = () => {
           loading={formikProps.isSubmitting}
           disabled={!formikProps.isValid || !formikProps.dirty}
           onClick={formikProps.submitForm}
-          data-test="submit-customer"
+          data-test={SUBMIT_CUSTOMER_DATA_TEST}
         >
           {isEdition
             ? translate('text_17295436903260tlyb1gp1i7')

@@ -1,13 +1,15 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
   Alert,
+  Avatar,
   Button,
+  GenericPlaceholder,
   NavigationTab,
   Popper,
   Skeleton,
@@ -15,7 +17,6 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
   DisputeInvoiceDialog,
@@ -251,7 +252,12 @@ gql`
   mutation refreshInvoice($input: RefreshInvoiceInput!) {
     refreshInvoice(input: $input) {
       id
-      ...AllInvoiceDetailsForCustomerInvoiceDetails
+      fees {
+        ...FeeForInvoiceDetailsTable
+      }
+      invoiceSubscriptions {
+        ...InvoiceSubscriptionForInvoiceDetailsTable
+      }
     }
   }
 

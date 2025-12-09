@@ -67,17 +67,19 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
                 const hasCustomValueError =
                   Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
 
+                let keyErrorTitle: string | undefined = undefined
+
+                if (metadataItemKeyError === MetadataErrorsEnum.uniqueness) {
+                  keyErrorTitle = translate('text_63fcc3218d35b9377840f5dd')
+                } else if (metadataItemKeyError === MetadataErrorsEnum.maxLength) {
+                  keyErrorTitle = translate('text_63fcc3218d35b9377840f5d9', { max: 20 })
+                }
+
                 return (
                   <React.Fragment key={`metadata-item-${m.id || m.localId || i}`}>
                     <Tooltip
                       placement="top-end"
-                      title={
-                        metadataItemKeyError === MetadataErrorsEnum.uniqueness
-                          ? translate('text_63fcc3218d35b9377840f5dd')
-                          : metadataItemKeyError === MetadataErrorsEnum.maxLength
-                            ? translate('text_63fcc3218d35b9377840f5d9')
-                            : undefined
-                      }
+                      title={keyErrorTitle}
                       disableHoverListener={!hasCustomKeyError}
                     >
                       <TextInputField

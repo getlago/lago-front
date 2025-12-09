@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import { Button, Typography } from 'lago-design-system'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
+import { Button, Typography } from '~/components/designSystem'
 import {
   ApiLogsAvailableFilters,
   Filters,

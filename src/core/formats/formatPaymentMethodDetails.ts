@@ -25,7 +25,7 @@ export const formatPaymentMethodDetails = (
 
   // Add type if present
   if (details.type) {
-    const normalizedType = details.type.replace(/_/g, ' ')
+    const normalizedType = details.type.replaceAll(/_/g, ' ')
 
     parts.push(capitalizeWords(normalizedType))
   }
@@ -37,7 +37,7 @@ export const formatPaymentMethodDetails = (
 
   // Add brand if present
   if (details.brand) {
-    const normalizedBrand = details.brand.replace(/_/g, ' ')
+    const normalizedBrand = details.brand.replaceAll(/_/g, ' ')
 
     parts.push(capitalizeWords(normalizedBrand))
   }

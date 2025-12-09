@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem'
-import { WarningDialog } from '~/components/WarningDialog'
+import { DialogRef, WarningDialog } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { DeletePlanDialogFragment, useDeletePlanMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -65,6 +64,22 @@ export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
     closeDialog: () => dialogRef.current?.closeDialog(),
   }))
 
+  let usedObject1 = translate('text_63d18d34f90cc83a038f843b', { count: 0 }, 0)
+
+  if (activeSubscriptionsCount > 0) {
+    usedObject1 = translate(
+      'text_63d18d34f90cc83a038f843b',
+      { count: activeSubscriptionsCount },
+      activeSubscriptionsCount,
+    )
+  } else if (draftInvoicesCount > 0) {
+    usedObject1 = translate(
+      'text_63d18d3edaed7e11710b4d25',
+      { count: draftInvoicesCount },
+      draftInvoicesCount,
+    )
+  }
+
   return (
     <WarningDialog
       ref={dialogRef}
@@ -87,20 +102,7 @@ export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
               ),
             }
           : {
-              usedObject1:
-                activeSubscriptionsCount > 0
-                  ? translate(
-                      'text_63d18d34f90cc83a038f843b',
-                      { count: activeSubscriptionsCount },
-                      activeSubscriptionsCount,
-                    )
-                  : draftInvoicesCount > 0
-                    ? translate(
-                        'text_63d18d3edaed7e11710b4d25',
-                        { count: draftInvoicesCount },
-                        draftInvoicesCount,
-                      )
-                    : translate('text_63d18d34f90cc83a038f843b', { count: 0 }, 0),
+              usedObject1,
             },
         draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0,
       )}

@@ -10,13 +10,8 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_INVOICE_PAYMENT_ROUTE, PAYMENT_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
-import {
-  CurrencyEnum,
-  Invoice,
-  PaymentRequest,
-  PaymentTypeEnum,
-  useGetPaymentsListQuery,
-} from '~/generated/graphql'
+import { isInvoice, isPaymentRequest } from '~/core/utils/payableUtils'
+import { CurrencyEnum, PaymentTypeEnum, useGetPaymentsListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -127,17 +122,16 @@ export const InvoicePaymentList: FC<{
                 minWidth: 160,
                 maxSpace: true,
                 content: ({ payable }) => {
-                  if (payable.payableType === 'Invoice') {
-                    const payableInvoice = payable as Invoice
-
-                    return payableInvoice.number
+                  if (isInvoice(payable)) {
+                    return payable.number
                   }
-                  if (payable.payableType === 'PaymentRequest') {
-                    const payablePaymentRequest = payable as PaymentRequest
-
-                    return translate('text_17370296250898eqj4qe4qg9', {
-                      count: payablePaymentRequest.invoices.length,
-                    })
+                  if (isPaymentRequest(payable)) {
+                    if (payable.invoices.length > 1) {
+                      return translate('text_17370296250898eqj4qe4qg9', {
+                        count: payable.invoices.length,
+                      })
+                    }
+                    return payable.invoices[0]?.number
                   }
                 },
               },

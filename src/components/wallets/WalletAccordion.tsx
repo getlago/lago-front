@@ -24,6 +24,10 @@ import {
   TerminateCustomerWalletDialog,
   TerminateCustomerWalletDialogRef,
 } from '~/components/wallets/TerminateCustomerWalletDialog'
+import {
+  WALLET_ACTIONS_DATA_TEST,
+  WALLET_TOPUP_BUTTON_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import { VoidWalletDialog, VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
 import { WalletTransactionList } from '~/components/wallets/WalletTransactionList'
 import { WalletTransactionListItem } from '~/components/wallets/WalletTransactionListItem'
@@ -208,6 +212,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                           e.stopPropagation()
                           onClick()
                         }}
+                        data-test={WALLET_ACTIONS_DATA_TEST}
                       />
                     </Tooltip>
                   )}
@@ -229,6 +234,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                           )
                           closePopper()
                         }}
+                        data-test={WALLET_TOPUP_BUTTON_DATA_TEST}
                       >
                         {translate('text_1741253143637fb7iatyka9w')}
                       </Button>

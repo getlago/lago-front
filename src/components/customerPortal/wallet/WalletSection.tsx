@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
-import { Button } from 'lago-design-system'
 
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
-import { Typography } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone/utils'

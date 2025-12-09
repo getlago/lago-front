@@ -1,6 +1,6 @@
 import { MultipleComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CREDIT_NOTE_REASONS } from '~/pages/CreateCreditNote'
+import { CREDIT_NOTE_REASONS } from '~/pages/createCreditNote/CreateCreditNote'
 
 import { FiltersFormValues } from '../types'
 

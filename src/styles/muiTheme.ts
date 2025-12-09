@@ -447,17 +447,17 @@ export const theme = createTheme({
       styleOverrides: {
         paper: {
           padding: '8px important',
-          maxHeight: 320,
           overflow: 'auto',
+          maxHeight: 320,
           scrollBehavior: 'smooth',
         },
         loading: { padding: 0 },
         listbox: {
           display: 'flex',
           flexDirection: 'column',
-          gap: '4px',
           maxHeight: 'inherit',
           padding: 0,
+          gap: '4px',
         },
         root: {
           '.MuiOutlinedInput-root': {
@@ -589,6 +589,7 @@ export const theme = createTheme({
           },
           '&.Mui-disabled': {
             backgroundColor: 'transparent',
+            color: palette.grey[400],
           },
           '&$disabled': {
             color: palette.grey[400],

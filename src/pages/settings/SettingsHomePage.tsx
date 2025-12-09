@@ -1,7 +1,7 @@
-import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
+import { Spinner } from '~/components/designSystem'
 import { BILLING_ENTITY_ROUTE } from '~/core/router'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 

@@ -19,11 +19,10 @@ gql`
   }
 `
 
-interface ActivityLogsTableProps
-  extends Pick<
-    TableProps<ActivityLogsTableDataFragment>,
-    'data' | 'isLoading' | 'containerSize' | 'onRowActionLink'
-  > {
+interface ActivityLogsTableProps extends Pick<
+  TableProps<ActivityLogsTableDataFragment>,
+  'data' | 'isLoading' | 'containerSize' | 'onRowActionLink'
+> {
   refetch: QueryResult['refetch']
   error: ApolloError | undefined
 }

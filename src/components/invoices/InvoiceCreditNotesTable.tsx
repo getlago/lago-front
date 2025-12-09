@@ -162,6 +162,28 @@ export const InvoiceCreditNotesTable = memo(
                               key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}`}
                             >
                               {charge.map((item, l) => {
+                                let feeDisplayText: string
+
+                                if (item?.fee?.feeType === FeeTypesEnum.AddOn) {
+                                  feeDisplayText = translate('text_6388baa2e514213fed583611', {
+                                    name: item.fee.invoiceName || item?.fee?.itemName,
+                                  })
+                                } else if (item?.fee?.feeType === FeeTypesEnum.Commitment) {
+                                  feeDisplayText =
+                                    item.fee.invoiceName || 'Minimum commitment - True up'
+                                } else {
+                                  feeDisplayText = composeMultipleValuesWithSepator([
+                                    item.fee?.invoiceName ||
+                                      item.fee.charge?.billableMetric.name ||
+                                      creditNoteDisplayName,
+                                    composeGroupedByDisplayName(item.fee.groupedBy),
+                                    composeChargeFilterDisplayName(item.fee.chargeFilter),
+                                    item?.fee?.trueUpParentFee?.id
+                                      ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
+                                      : '',
+                                  ])
+                                }
+
                                 return (
                                   <React.Fragment
                                     key={`formatedCreditNote-${i}-subscriptionItem-${j}-charge-${k}-item-${l}`}
@@ -174,27 +196,7 @@ export const InvoiceCreditNotesTable = memo(
                                           </Typography>
                                         ) : (
                                           <Typography variant="bodyHl" color="grey700">
-                                            {item?.fee?.feeType === FeeTypesEnum.AddOn
-                                              ? translate('text_6388baa2e514213fed583611', {
-                                                  name: item.fee.invoiceName || item?.fee?.itemName,
-                                                })
-                                              : item?.fee?.feeType === FeeTypesEnum.Commitment
-                                                ? item.fee.invoiceName ||
-                                                  'Minimum commitment - True up'
-                                                : composeMultipleValuesWithSepator([
-                                                    item.fee?.invoiceName ||
-                                                      item.fee.charge?.billableMetric.name ||
-                                                      creditNoteDisplayName,
-                                                    composeGroupedByDisplayName(item.fee.groupedBy),
-                                                    composeChargeFilterDisplayName(
-                                                      item.fee.chargeFilter,
-                                                    ),
-                                                    item?.fee?.trueUpParentFee?.id
-                                                      ? ` - ${translate(
-                                                          'text_64463aaa34904c00a23be4f7',
-                                                        )}`
-                                                      : '',
-                                                  ])}
+                                            {feeDisplayText}
                                           </Typography>
                                         )}
                                       </td>
