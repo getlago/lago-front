@@ -21,6 +21,8 @@ const mapLanguageKey = (language: LocaleEnum) => {
       return 'text_66b7d0d955677300665ac8d0'
     case LocaleEnum.sv:
       return 'text_6526cd088700e000714f0025'
+    case LocaleEnum['zh-TW']:
+      return 'text_64188b3d9735d5007d712241'
     default:
       return 'text_6407684eaf41130074c4b2f7'
   }
@@ -124,6 +126,16 @@ export const LanguageSettingsButton: FC<LanguageSettingsButtonProps> = ({ langua
             }}
           >
             {translate(mapLanguageKey(LocaleEnum.sv))}
+          </Button>
+          <Button
+            align="left"
+            variant={language === LocaleEnum['zh-TW'] ? 'secondary' : 'quaternary'}
+            onClick={() => {
+              onChange(LocaleEnum['zh-TW'])
+              closePopper()
+            }}
+          >
+            {translate(mapLanguageKey(LocaleEnum['zh-TW']))}
           </Button>
         </MenuPopper>
       )}
