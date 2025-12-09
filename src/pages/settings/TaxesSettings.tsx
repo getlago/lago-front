@@ -1,17 +1,18 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   ActionItem,
   Alert,
+  Avatar,
   Button,
+  GenericPlaceholder,
   InfiniteScroll,
   Table,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,

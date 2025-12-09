@@ -1,5 +1,4 @@
-import { Button } from 'lago-design-system'
-
+import { Button } from '~/components/designSystem'
 import { ComboBox, TextInputField } from '~/components/form'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

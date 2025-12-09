@@ -1,6 +1,7 @@
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import {
   Button,
+  GenericPlaceholder,
   HorizontalDataTable,
   InitScrollTo,
   RowType,
@@ -9,7 +10,6 @@ import {
 import { Filters, ForecastsAvailableFilters } from '~/components/designSystem/Filters'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FORECASTS_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

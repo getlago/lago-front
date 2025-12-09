@@ -1,7 +1,6 @@
-import { Avatar } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Card, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar, Card, Skeleton, Typography } from '~/components/designSystem'
 import {
   DunningEmail,
   DunningEmailProps,

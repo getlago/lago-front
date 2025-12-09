@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, AvatarBadge, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import {
   FC,
   forwardRef,
@@ -14,14 +14,16 @@ import { generatePath, Link } from 'react-router-dom'
 
 import {
   Alert,
+  Avatar,
+  AvatarBadge,
   Button,
   Drawer,
   DrawerRef,
+  GenericPlaceholder,
   Skeleton,
   Status,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
 import {
   payablePaymentStatusMapping,

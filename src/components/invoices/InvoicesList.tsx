@@ -1,10 +1,12 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
+  ActionItem,
+  GenericPlaceholderProps,
   InfiniteScroll,
   Status,
   StatusType,
@@ -16,12 +18,6 @@ import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
-  isDraftUrlParams,
-  isOutstandingUrlParams,
-  isPaymentDisputeLostUrlParams,
-  isPaymentOverdueUrlParams,
-  isSucceededUrlParams,
-  isVoidedUrlParams,
 } from '~/components/designSystem/Filters'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -31,6 +27,7 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -43,7 +40,6 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
-  INVOICE_SETTINGS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -62,7 +58,6 @@ import {
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -76,6 +71,8 @@ type TInvoiceListProps = {
   metadata: GetInvoicesListQuery['invoices']['metadata'] | undefined
   variables: LazyQueryHookOptions['variables'] | undefined
 }
+
+type InvoiceItem = GetInvoicesListQuery['invoices']['collection'][number]
 
 const InvoicesList = ({
   error,
@@ -97,10 +94,6 @@ const InvoicesList = ({
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
   )
-
-  const hasActiveWallet = useCustomerHasActiveWallet({
-    customerId: invoices?.[0]?.customer?.id,
-  })
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -143,6 +136,226 @@ const InvoicesList = ({
       }
     },
   })
+
+  const emptyState = getEmptyStateConfig({
+    hasSearchTerm: !!variables?.searchTerm,
+    searchParams,
+    translate,
+  })
+
+  const errorState: Partial<GenericPlaceholderProps> = useMemo(() => {
+    if (variables?.searchTerm) {
+      return {
+        title: translate('text_623b53fea66c76017eaebb6e'),
+        subtitle: translate('text_63bab307a61c62af497e0599'),
+      }
+    }
+
+    return {
+      title: translate('text_63ac86d797f728a87b2f9fea'),
+      subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
+      buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
+      buttonAction: () => location.reload(),
+      buttonVariant: 'primary',
+    }
+  }, [variables?.searchTerm, translate])
+
+  const createRecordPaymentAction = (invoice: InvoiceItem): ActionItem<InvoiceItem> | null => {
+    if (!actions.canRecordPayment(invoice)) return null
+
+    return {
+      startIcon: 'receipt',
+      title: translate('text_1737471851634wpeojigr27w'),
+      endIcon: isPremium ? undefined : 'sparkles',
+      onAction: ({ id }) => {
+        if (isPremium) {
+          navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
+        } else {
+          premiumWarningDialogRef.current?.openDialog()
+        }
+      },
+    }
+  }
+
+  const createIssueCreditNoteAction = (
+    invoice: InvoiceItem,
+    isPartiallyPaid: boolean,
+    isDisabledIssueCreditNoteButton: boolean,
+    disabledIssueCreditNoteButtonLabel: string | false,
+  ): ActionItem<InvoiceItem> | null => {
+    if (!actions.canIssueCreditNote(invoice)) return null
+
+    if (!isPremium) {
+      return {
+        startIcon: 'document',
+        endIcon: 'sparkles',
+        title: translate('text_636bdef6565341dcb9cfb127'),
+        onAction: () => {
+          premiumWarningDialogRef.current?.openDialog()
+        },
+      }
+    }
+
+    return {
+      startIcon: 'document',
+      title: translate('text_636bdef6565341dcb9cfb127'),
+      disabled: isDisabledIssueCreditNoteButton,
+      onAction: () => {
+        navigate(
+          generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+            customerId: invoice?.customer?.id,
+            invoiceId: invoice.id,
+          }),
+        )
+      },
+      tooltip:
+        !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
+          ? translate(disabledIssueCreditNoteButtonLabel)
+          : undefined,
+    }
+  }
+
+  const getActionsForActionsColumn = ({
+    invoice,
+    hasActiveWallet,
+    isPartiallyPaid,
+    isDisabledIssueCreditNoteButton,
+    disabledIssueCreditNoteButtonLabel,
+  }: {
+    invoice: InvoiceItem
+    hasActiveWallet: boolean
+    isPartiallyPaid: boolean
+    isDisabledIssueCreditNoteButton: boolean
+    disabledIssueCreditNoteButtonLabel: string | false
+  }): Array<ActionItem<InvoiceItem>> => {
+    const downloadAction: ActionItem<InvoiceItem> | null = actions.canDownload(invoice)
+      ? {
+          startIcon: 'download',
+          title: translate('text_62b31e1f6a5b8b1b745ece42'),
+          onAction: async ({ id }) => {
+            await downloadInvoice({
+              variables: { input: { id } },
+            })
+          },
+        }
+      : null
+
+    const finalizeAction: ActionItem<InvoiceItem> | null =
+      !actions.canDownload(invoice) && actions.canFinalize(invoice)
+        ? {
+            startIcon: 'checkmark',
+            title: translate('text_63a41a8eabb9ae67047c1c08'),
+            onAction: (item) => {
+              finalizeInvoiceRef.current?.openDialog(item)
+            },
+          }
+        : null
+
+    const duplicateAction: ActionItem<InvoiceItem> = {
+      startIcon: 'duplicate',
+      title: translate('text_63ac86d897f728a87b2fa031'),
+      onAction: ({ id }) => {
+        copyToClipboard(id)
+        addToast({
+          severity: 'info',
+          translateKey: 'text_63ac86d897f728a87b2fa0b0',
+        })
+      },
+    }
+
+    const recordPaymentAction = createRecordPaymentAction(invoice)
+
+    const retryCollectAction: ActionItem<InvoiceItem> | null = actions.canRetryCollect(invoice)
+      ? {
+          startIcon: 'push',
+          title: translate('text_63ac86d897f728a87b2fa039'),
+          onAction: async ({ id }) => {
+            const { errors } = await retryCollect({
+              variables: {
+                input: {
+                  id,
+                },
+              },
+            })
+
+            if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+              addToast({
+                severity: 'info',
+                translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+              })
+            }
+          },
+        }
+      : null
+
+    const generatePaymentUrlAction: ActionItem<InvoiceItem> | null = actions.canGeneratePaymentUrl(
+      invoice,
+    )
+      ? {
+          startIcon: 'link',
+          title: translate('text_1753384709668qrxbzpbskn8'),
+          onAction: async ({ id }) => {
+            await generatePaymentUrl({ variables: { input: { invoiceId: id } } })
+          },
+        }
+      : null
+
+    const updatePaymentStatusAction: ActionItem<InvoiceItem> | null =
+      actions.canUpdatePaymentStatus(invoice)
+        ? {
+            startIcon: 'coin-dollar',
+            title: translate('text_63eba8c65a6c8043feee2a01'),
+            onAction: () => {
+              updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+            },
+          }
+        : null
+
+    const issueCreditNoteAction = createIssueCreditNoteAction(
+      invoice,
+      isPartiallyPaid,
+      isDisabledIssueCreditNoteButton,
+      disabledIssueCreditNoteButtonLabel,
+    )
+
+    const voidInvoiceAction: ActionItem<InvoiceItem> | null = actions.canVoid(invoice)
+      ? {
+          startIcon: 'stop',
+          title: translate('text_1750678506388d4fr5etxbhh'),
+          onAction: () =>
+            navigate(
+              generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                customerId: invoice?.customer?.id,
+                invoiceId: invoice.id,
+              }),
+            ),
+        }
+      : null
+
+    const regenerateAction: ActionItem<InvoiceItem> | null = actions.canRegenerate(
+      invoice,
+      hasActiveWallet,
+    )
+      ? {
+          startIcon: 'stop',
+          title: translate('text_1750678506388oynw9hd01l9'),
+          onAction: () => navigate(regeneratePath(invoice as Invoice)),
+        }
+      : null
+
+    return [
+      downloadAction,
+      finalizeAction,
+      duplicateAction,
+      recordPaymentAction,
+      retryCollectAction,
+      generatePaymentUrlAction,
+      updatePaymentStatusAction,
+      issueCreditNoteAction,
+      voidInvoiceAction,
+      regenerateAction,
+    ].filter(Boolean) as Array<ActionItem<InvoiceItem>>
+  }
 
   return (
     <>
@@ -203,148 +416,15 @@ const InvoicesList = ({
               Number(invoice.totalPaidAmountCents) > 0 &&
               Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
 
-            return [
-              actions.canDownload(invoice)
-                ? {
-                    startIcon: 'download',
-                    title: translate('text_62b31e1f6a5b8b1b745ece42'),
-                    onAction: async ({ id }) => {
-                      await downloadInvoice({
-                        variables: { input: { id } },
-                      })
-                    },
-                  }
-                : actions.canFinalize(invoice)
-                  ? {
-                      startIcon: 'checkmark',
-                      title: translate('text_63a41a8eabb9ae67047c1c08'),
-                      onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
-                    }
-                  : null,
-              {
-                startIcon: 'duplicate',
-                title: translate('text_63ac86d897f728a87b2fa031'),
-                onAction: ({ id }) => {
-                  copyToClipboard(id)
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_63ac86d897f728a87b2fa0b0',
-                  })
-                },
-              },
+            const hasActiveWallet = invoice?.customer?.hasActiveWallet || false
 
-              actions.canRecordPayment(invoice)
-                ? {
-                    startIcon: 'receipt',
-                    title: translate('text_1737471851634wpeojigr27w'),
-
-                    endIcon: isPremium ? undefined : 'sparkles',
-                    onAction: ({ id }) => {
-                      if (isPremium) {
-                        navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
-                      } else {
-                        premiumWarningDialogRef.current?.openDialog()
-                      }
-                    },
-                  }
-                : null,
-
-              actions.canRetryCollect(invoice)
-                ? {
-                    startIcon: 'push',
-                    title: translate('text_63ac86d897f728a87b2fa039'),
-                    onAction: async ({ id }) => {
-                      const { errors } = await retryCollect({
-                        variables: {
-                          input: {
-                            id,
-                          },
-                        },
-                      })
-
-                      if (
-                        hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)
-                      ) {
-                        addToast({
-                          severity: 'info',
-                          translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                        })
-                      }
-                    },
-                  }
-                : null,
-
-              actions.canGeneratePaymentUrl(invoice)
-                ? {
-                    startIcon: 'link',
-                    title: translate('text_1753384709668qrxbzpbskn8'),
-                    onAction: async ({ id }) => {
-                      await generatePaymentUrl({ variables: { input: { invoiceId: id } } })
-                    },
-                  }
-                : null,
-
-              actions.canUpdatePaymentStatus(invoice)
-                ? {
-                    startIcon: 'coin-dollar',
-                    title: translate('text_63eba8c65a6c8043feee2a01'),
-                    onAction: () => {
-                      updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
-                    },
-                  }
-                : null,
-
-              actions.canIssueCreditNote(invoice) && !isPremium
-                ? {
-                    startIcon: 'document',
-                    endIcon: 'sparkles',
-                    title: translate('text_636bdef6565341dcb9cfb127'),
-                    onAction: () => premiumWarningDialogRef.current?.openDialog(),
-                  }
-                : null,
-
-              actions.canIssueCreditNote(invoice) && isPremium
-                ? {
-                    startIcon: 'document',
-                    title: translate('text_636bdef6565341dcb9cfb127'),
-                    disabled: disabledIssueCreditNoteButton,
-                    onAction: () => {
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      )
-                    },
-                    tooltip:
-                      !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
-                        ? translate(disabledIssueCreditNoteButtonLabel)
-                        : undefined,
-                  }
-                : null,
-
-              actions.canVoid(invoice)
-                ? {
-                    startIcon: 'stop',
-                    title: translate('text_1750678506388d4fr5etxbhh'),
-                    onAction: () =>
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      ),
-                  }
-                : null,
-
-              actions.canRegenerate(invoice, hasActiveWallet)
-                ? {
-                    startIcon: 'stop',
-                    title: translate('text_1750678506388oynw9hd01l9'),
-                    onAction: () => navigate(regeneratePath(invoice as Invoice)),
-                  }
-                : null,
-            ]
+            return getActionsForActionsColumn({
+              invoice,
+              hasActiveWallet,
+              isPartiallyPaid,
+              isDisabledIssueCreditNoteButton: disabledIssueCreditNoteButton,
+              disabledIssueCreditNoteButtonLabel,
+            })
           }}
           columns={[
             {
@@ -497,103 +577,8 @@ const InvoicesList = ({
             })
           }
           placeholder={{
-            errorState: variables?.searchTerm
-              ? {
-                  title: translate('text_623b53fea66c76017eaebb6e'),
-                  subtitle: translate('text_63bab307a61c62af497e0599'),
-                }
-              : {
-                  title: translate('text_63ac86d797f728a87b2f9fea'),
-                  subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
-                  buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
-                  buttonAction: () => location.reload(),
-                  buttonVariant: 'primary',
-                },
-            emptyState: variables?.searchTerm
-              ? {
-                  title: translate(
-                    isSucceededUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                      ? 'text_63c67d2913c20b8d7d05c44c'
-                      : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                        ? 'text_63c67d2913c20b8d7d05c442'
-                        : isOutstandingUrlParams({
-                              searchParams,
-                              prefix: INVOICE_LIST_FILTER_PREFIX,
-                            })
-                          ? 'text_63c67d8796db41749ada51ca'
-                          : isVoidedUrlParams({
-                                searchParams,
-                                prefix: INVOICE_LIST_FILTER_PREFIX,
-                              })
-                            ? 'text_65269cd46e7ec037a6823fd8'
-                            : 'text_63c67d2913c20b8d7d05c43e',
-                  ),
-                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
-                }
-              : {
-                  title: translate(
-                    isSucceededUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                      ? 'text_63b578e959c1366df5d14559'
-                      : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
-                        ? 'text_63b578e959c1366df5d1455b'
-                        : isOutstandingUrlParams({
-                              searchParams,
-                              prefix: INVOICE_LIST_FILTER_PREFIX,
-                            })
-                          ? 'text_63b578e959c1366df5d1456e'
-                          : isVoidedUrlParams({
-                                searchParams,
-                                prefix: INVOICE_LIST_FILTER_PREFIX,
-                              })
-                            ? 'text_65269cd46e7ec037a6823fd6'
-                            : isPaymentDisputeLostUrlParams({
-                                  searchParams,
-                                  prefix: INVOICE_LIST_FILTER_PREFIX,
-                                })
-                              ? 'text_66141e30699a0631f0b2ec7f'
-                              : isPaymentOverdueUrlParams({
-                                    searchParams,
-                                    prefix: INVOICE_LIST_FILTER_PREFIX,
-                                  })
-                                ? 'text_666c5b12fea4aa1e1b26bf70'
-                                : 'text_63b578e959c1366df5d14569',
-                  ),
-                  subtitle: isSucceededUrlParams({
-                    searchParams,
-                    prefix: INVOICE_LIST_FILTER_PREFIX,
-                  }) ? (
-                    translate('text_63b578e959c1366df5d1455f')
-                  ) : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ? (
-                    <Typography
-                      html={translate('text_63b578e959c1366df5d14566', {
-                        link: INVOICE_SETTINGS_ROUTE,
-                      })}
-                    />
-                  ) : isOutstandingUrlParams({
-                      searchParams,
-                      prefix: INVOICE_LIST_FILTER_PREFIX,
-                    }) ? (
-                    translate('text_63b578e959c1366df5d14570')
-                  ) : isVoidedUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ? (
-                    translate('text_65269cd46e7ec037a6823fda')
-                  ) : isPaymentDisputeLostUrlParams({
-                      searchParams,
-                      prefix: INVOICE_LIST_FILTER_PREFIX,
-                    }) ? (
-                    translate('text_66141e30699a0631f0b2ec87')
-                  ) : isPaymentOverdueUrlParams({
-                      searchParams,
-                      prefix: INVOICE_LIST_FILTER_PREFIX,
-                    }) ? (
-                    <Typography
-                      html={translate('text_666c5b12fea4aa1e1b26bf73', {
-                        link: INVOICE_SETTINGS_ROUTE,
-                      })}
-                    />
-                  ) : (
-                    translate('text_63b578e959c1366df5d1456d')
-                  ),
-                },
+            errorState,
+            emptyState,
           }}
         />
       </InfiniteScroll>

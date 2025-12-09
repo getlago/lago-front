@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom'
 
-import { Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { GenericPlaceholder, Typography } from '~/components/designSystem'
 import {
   SettingsListItemLoadingSkeleton,
   SettingsPaddedContainer,

@@ -1,10 +1,9 @@
 import { Tab, Tabs } from '@mui/material'
 import { FormikValues, useFormik } from 'formik'
-import { Button, Typography } from 'lago-design-system'
 import { useMemo, useState } from 'react'
 import { array } from 'yup'
 
-import { Drawer } from '~/components/designSystem'
+import { Button, Drawer, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {

@@ -1,10 +1,14 @@
 import { gql } from '@apollo/client'
-import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  ButtonLink,
+  GenericPlaceholder,
+  Skeleton,
+  Spinner,
+  Typography,
+} from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'

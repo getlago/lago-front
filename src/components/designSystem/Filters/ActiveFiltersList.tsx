@@ -1,7 +1,7 @@
-import { Typography } from 'lago-design-system'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'

@@ -1,12 +1,9 @@
-import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
-import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
-import {
-  LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
-  ORGANIZATION_LS_KEY_ID,
-} from '~/core/constants/localStorageKeys'
+import { Spinner } from '~/components/designSystem'
+import { getItemFromLS } from '~/core/apolloClient'
+import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE, CUSTOMERS_LIST_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -16,6 +13,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 const Home = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { loading: isUserLoading, currentMembership } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { hasOrganizationPremiumAddon, loading: isOrganizationLoading } = useOrganizationInfos()
@@ -26,26 +24,26 @@ const Home = () => {
   useEffect(() => {
     // Make sure user permissions are loaded before performing redirection
     if (!isUserLoading && !isOrganizationLoading && !!currentMembership) {
-      const lastPrivateVisitedRouteWhileNotConnected:
-        | { location: Location; organizationId: string }
-        | undefined = getItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+      // Check if there's a saved location from login redirect in router state
+      const routerState = location.state as
+        | { from?: Location; orgId?: string | null }
+        | null
+        | undefined
+      const savedLocation = routerState?.from
+      const savedOrgId = routerState?.orgId
 
-      if (
-        !!lastPrivateVisitedRouteWhileNotConnected &&
-        !!lastPrivateVisitedRouteWhileNotConnected?.organizationId &&
-        lastPrivateVisitedRouteWhileNotConnected?.location?.pathname !== '/'
-      ) {
+      if (savedLocation && savedLocation.pathname !== '/') {
         const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
 
-        if (lastPrivateVisitedRouteWhileNotConnected.organizationId === currentOrganizationId) {
-          // Return navigation to prevent later ones to be performed
-          return navigate(lastPrivateVisitedRouteWhileNotConnected.location, { replace: true })
+        // Only redirect if the organization matches (or was null when saved)
+        if (!savedOrgId || savedOrgId === currentOrganizationId) {
+          // Return navigation to prevent later default redirections from executing
+          return navigate(savedLocation, { replace: true })
         }
-
-        // This is a temp value for redirection, should be removed if it does not match the current organization
-        removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+        // Org mismatch - fall through to default navigation
       }
 
+      // Default home navigation based on permissions
       if (hasPermissions(['analyticsView']) && !hasAccessToAnalyticsDashboardsFeature) {
         navigate(ANALYTIC_ROUTE, { replace: true })
       } else if (hasPermissions(['dataApiView']) && hasAccessToAnalyticsDashboardsFeature) {
@@ -66,6 +64,7 @@ const Home = () => {
     hasPermissions,
     hasAccessToAnalyticsDashboardsFeature,
     navigate,
+    location.state,
   ])
 
   return <Spinner />

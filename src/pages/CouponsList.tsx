@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon, tw } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -9,7 +9,14 @@ import {
   TerminateCouponDialog,
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
-import { ButtonLink, InfiniteScroll, Status, Table, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  ButtonLink,
+  InfiniteScroll,
+  Status,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -191,7 +198,9 @@ const CouponsList = () => {
               {
                 startIcon: 'switch',
                 title: translate('text_62876a50ea3bba00b56d2cbc'),
-                onAction: () => terminateDialogRef.current?.openDialog(coupon),
+                onAction: () => {
+                  terminateDialogRef.current?.openDialog(coupon)
+                },
                 disabled: status === CouponStatusEnum.Terminated,
                 tooltip: translate('text_62878d88ea3bba00b56d33cf'),
                 tooltipListener: status !== CouponStatusEnum.Terminated,
@@ -199,7 +208,9 @@ const CouponsList = () => {
               {
                 startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),
-                onAction: () => deleteDialogRef.current?.openDialog({ couponId: id }),
+                onAction: () => {
+                  deleteDialogRef.current?.openDialog({ couponId: id })
+                },
               },
             ]
           }}

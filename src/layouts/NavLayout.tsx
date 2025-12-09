@@ -1,5 +1,7 @@
-import { Button, tw } from 'lago-design-system'
+import { tw } from 'lago-design-system'
 import { forwardRef, PropsWithChildren } from 'react'
+
+import { Button } from '~/components/designSystem'
 
 const NavWrapper = ({ children }: PropsWithChildren) => {
   return <div className="flex h-screen w-screen">{children}</div>

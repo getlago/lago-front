@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef, Skeleton } from '~/components/designSystem'
-import { WarningDialog } from '~/components/WarningDialog'
+import { DialogRef, Skeleton, WarningDialog } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import {
   useDeleteBillableMetricMutation,

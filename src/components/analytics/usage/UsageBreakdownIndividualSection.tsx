@@ -1,10 +1,10 @@
-import { Button } from 'lago-design-system'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import UsageBreakdownBillableMetrics from '~/components/analytics/usage/UsageBreakdownBillableMetrics'
 import { useUsageAnalyticsBreakdown } from '~/components/analytics/usage/useUsageAnalyticsBreakdown'
+import { Button } from '~/components/designSystem'
 import {
   AvailableFiltersEnum,
   Filters,

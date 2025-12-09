@@ -2,10 +2,8 @@ import { AlertSection } from './components/AlertSection'
 import { AvatarSection } from './components/AvatarSection'
 import { ButtonsSection } from './components/ButtonsSection'
 import { ChipsSection } from './components/ChipsSection'
-import { GenericPlaceholderSection } from './components/GenericPlaceholderSection'
 import { IconsSection } from './components/IconsSection'
 import { LinksSection } from './components/LinksSection'
-import { PoppersSection } from './components/PoppersSection'
 import { SelectorSection } from './components/SelectorSection'
 import { ShowMoreSection } from './components/ShowMoreSection'
 import { SkeletonSection } from './components/SkeletonSection'
@@ -17,10 +15,8 @@ export default function App() {
       <div className="mx-auto flex max-w-screen-lg flex-col gap-10">
         <AlertSection />
         <ChipsSection />
-        <PoppersSection />
         <SelectorSection />
         <ShowMoreSection />
-        <GenericPlaceholderSection />
         <IconsSection />
         <ButtonsSection />
         <TypographySection />

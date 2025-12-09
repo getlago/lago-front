@@ -1,12 +1,11 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
-import { Avatar } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
-import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Alert, Avatar, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
 import {

@@ -1,8 +1,8 @@
 import { useApolloClient } from '@apollo/client'
-import { Spinner } from 'lago-design-system'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { Spinner } from '~/components/designSystem'
 import {
   CUSTOMER_PORTAL_TOKEN_LS_KEY,
   getItemFromLS,

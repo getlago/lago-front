@@ -14,8 +14,10 @@ import { ComboboxListItem, ItemGroup } from '../ComboBox/ComboboxList'
 
 const randomKey = Math.round(Math.random() * 100000)
 
-interface MultipleComboBoxVirtualizedListProps
-  extends Pick<MultipleComboBoxProps, 'value' | 'renderGroupHeader' | 'virtualized'> {
+interface MultipleComboBoxVirtualizedListProps extends Pick<
+  MultipleComboBoxProps,
+  'value' | 'renderGroupHeader' | 'virtualized'
+> {
   children: ReactNode
 }
 

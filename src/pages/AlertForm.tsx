@@ -5,10 +5,15 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
-import { Button, Chip, Typography } from '~/components/designSystem'
+import {
+  Button,
+  Chip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { ComboBox, ComboBoxField, ComboboxItem, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'

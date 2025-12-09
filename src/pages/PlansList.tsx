@@ -1,9 +1,16 @@
 import { gql } from '@apollo/client'
-import { Avatar, GenericPlaceholderProps, Icon, tw } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  ButtonLink,
+  GenericPlaceholderProps,
+  InfiniteScroll,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
@@ -209,7 +216,9 @@ const PlansList = () => {
                   {
                     startIcon: 'trash',
                     title: translate('text_625fd39a15394c0117e7d794'),
-                    onAction: () => deleteDialogRef.current?.openDialog({ plan }),
+                    onAction: () => {
+                      deleteDialogRef.current?.openDialog({ plan })
+                    },
                   },
                 ]
               : undefined

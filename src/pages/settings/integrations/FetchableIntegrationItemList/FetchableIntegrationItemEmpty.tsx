@@ -1,6 +1,6 @@
-import { GenericPlaceholder, GenericPlaceholderProps } from 'lago-design-system'
 import { useNavigate } from 'react-router-dom'
 
+import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/designSystem'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'

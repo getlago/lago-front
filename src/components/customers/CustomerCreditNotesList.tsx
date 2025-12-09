@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
-import { Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { Avatar, GenericPlaceholder, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

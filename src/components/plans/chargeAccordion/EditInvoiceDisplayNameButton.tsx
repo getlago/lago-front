@@ -1,6 +1,6 @@
-import { Button, Tooltip } from 'lago-design-system'
 import { RefObject } from 'react'
 
+import { Button, Tooltip } from '~/components/designSystem'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

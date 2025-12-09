@@ -30,61 +30,63 @@ export const creditNoteFormCalculationCalculation = ({
 } => {
   if (hasError) return { feeForEstimate: undefined }
 
-  const feeForEstimate = !!Object.keys(fees || {}).length
-    ? Object.keys(fees || {}).reduce<CreditNoteItemInput[]>((accSub, subKey) => {
-        const subChild = ((fees as FeesPerInvoice) || {})[subKey]
-        const subValues = Object.keys(subChild?.fees || {}).reduce<CreditNoteItemInput[]>(
-          (accGroup, groupKey) => {
-            const child = subChild?.fees[groupKey] as FromFee
+  let feeForEstimate: CreditNoteItemInput[] | undefined = undefined
 
-            if (typeof child.checked === 'boolean' && !!child.checked) {
-              accGroup.push({
-                feeId: child.id,
-                amountCents: serializeAmount(child.value, currency),
-              })
+  if (!!Object.keys(fees || {}).length) {
+    feeForEstimate = Object.keys(fees || {}).reduce<CreditNoteItemInput[]>((accSub, subKey) => {
+      const subChild = ((fees as FeesPerInvoice) || {})[subKey]
+      const subValues = Object.keys(subChild?.fees || {}).reduce<CreditNoteItemInput[]>(
+        (accGroup, groupKey) => {
+          const child = subChild?.fees[groupKey] as FromFee
 
-              return accGroup
-            }
-
-            const grouped = (child as unknown as GroupedFee)?.grouped
-            const groupedValues = Object.keys(grouped || {}).reduce<CreditNoteItemInput[]>(
-              (accFee, feeKey) => {
-                const fee = grouped[feeKey]
-
-                if (fee.checked) {
-                  accFee.push({
-                    feeId: fee.id,
-                    amountCents: serializeAmount(fee.value, currency),
-                  })
-                }
-
-                return accFee
-              },
-              [],
-            )
-
-            accGroup = [...accGroup, ...groupedValues]
-            return accGroup
-          },
-          [],
-        )
-
-        accSub = [...accSub, ...subValues]
-
-        return accSub
-      }, [])
-    : !!addonFees
-      ? addonFees?.reduce<CreditNoteItemInput[]>((acc, fee) => {
-          if (!!fee.checked) {
-            acc.push({
-              feeId: fee.id,
-              amountCents: serializeAmount(fee.value, currency),
+          if (typeof child.checked === 'boolean' && !!child.checked) {
+            accGroup.push({
+              feeId: child.id,
+              amountCents: serializeAmount(child.value, currency),
             })
+
+            return accGroup
           }
 
-          return acc
-        }, [])
-      : undefined
+          const grouped = (child as unknown as GroupedFee)?.grouped
+          const groupedValues = Object.keys(grouped || {}).reduce<CreditNoteItemInput[]>(
+            (accFee, feeKey) => {
+              const fee = grouped[feeKey]
+
+              if (fee.checked) {
+                accFee.push({
+                  feeId: fee.id,
+                  amountCents: serializeAmount(fee.value, currency),
+                })
+              }
+
+              return accFee
+            },
+            [],
+          )
+
+          accGroup = [...accGroup, ...groupedValues]
+          return accGroup
+        },
+        [],
+      )
+
+      accSub = [...accSub, ...subValues]
+
+      return accSub
+    }, [])
+  } else if (addonFees) {
+    feeForEstimate = addonFees.reduce<CreditNoteItemInput[]>((acc, fee) => {
+      if (!!fee.checked) {
+        acc.push({
+          feeId: fee.id,
+          amountCents: serializeAmount(fee.value, currency),
+        })
+      }
+
+      return acc
+    }, [])
+  }
 
   return {
     feeForEstimate,
@@ -149,11 +151,15 @@ export const createCreditNoteForInvoiceButtonProps = ({
   const disabledIssueCreditNoteButton =
     creditableAmountCents === '0' && refundableAmountCents === '0'
 
+  const getDisabledReason = (): keyof typeof TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED => {
+    if (isUnpaid) return 'unpaid'
+    if (isAssociatedWithTerminatedWallet) return 'terminatedWallet'
+    return 'fullyCovered'
+  }
+
   const disabledIssueCreditNoteButtonLabel =
     disabledIssueCreditNoteButton &&
-    TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[
-      isUnpaid ? 'unpaid' : isAssociatedWithTerminatedWallet ? 'terminatedWallet' : 'fullyCovered'
-    ]
+    TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[getDisabledReason()]
 
   return {
     disabledIssueCreditNoteButton,

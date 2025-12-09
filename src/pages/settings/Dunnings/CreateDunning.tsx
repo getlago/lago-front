@@ -4,7 +4,14 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
-import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Alert,
+  Button,
+  Tooltip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
@@ -15,7 +22,6 @@ import {
   PreviewCampaignEmailDrawer,
   PreviewCampaignEmailDrawerRef,
 } from '~/components/settings/dunnings/PreviewCampaignEmailDrawer'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { DUNNINGS_SETTINGS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'

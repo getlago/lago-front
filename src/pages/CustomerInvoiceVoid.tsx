@@ -1,11 +1,17 @@
 import { InputAdornment } from '@mui/material'
 import { getIn, useFormik } from 'formik'
-import { Button, GenericPlaceholder, Typography } from 'lago-design-system'
 import { generatePath, Link, useNavigate, useParams } from 'react-router-dom'
 import { array, number, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
-import { Alert, Status, Table } from '~/components/designSystem'
+import {
+  Alert,
+  Button,
+  GenericPlaceholder,
+  Status,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { AmountInputField, RadioField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
@@ -126,11 +132,11 @@ const CustomerInvoiceVoid = () => {
       const input: VoidInvoiceInput =
         values.handle === HandleEnum.VoidOnly
           ? {
-              id: invoiceId as string,
+              id: invoiceId,
               generateCreditNote: false,
             }
           : {
-              id: invoiceId as string,
+              id: invoiceId,
               generateCreditNote: true,
               refundAmount: serializeAmount(values.payBack[0].value ?? 0, currency),
               creditAmount: serializeAmount(values.payBack[1].value ?? 0, currency),

@@ -1,7 +1,7 @@
 import { InputAdornment } from '@mui/material'
-import { Button, Tooltip } from 'lago-design-system'
 import { RefObject, useEffect, useState } from 'react'
 
+import { Button, Tooltip } from '~/components/designSystem'
 import { AmountInput } from '~/components/form'
 import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
 import { LocalUsageChargeInput } from '~/components/plans/types'

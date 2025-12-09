@@ -5,10 +5,17 @@ import { number, object, string } from 'yup'
 
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
 import { AddOnFormInput } from '~/components/addOns/types'
-import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Button,
+  Card,
+  Skeleton,
+  Tooltip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
-import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM, SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME } from '~/core/constants/form'
 import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'

@@ -1,9 +1,6 @@
 import { ApolloClient, ApolloQueryResult, gql } from '@apollo/client'
 
-import {
-  LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
-  ORGANIZATION_LS_KEY_ID,
-} from '~/core/constants/localStorageKeys'
+import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import {
   CurrentUserFragmentDoc,
   GetCurrentUserInfosForLoginQuery,
@@ -130,9 +127,6 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
       } else {
         removeItemFromLS(ORGANIZATION_LS_KEY_ID)
       }
-    } else {
-      // If no organization have been found, any redirection logic should be prevented later
-      removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
     }
 
     // If still no organization, take the first one that is accessible by the current session
@@ -174,7 +168,6 @@ export const switchCurrentOrganization = async (
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 
   // 4. Clear other org-specific state
-  removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
   removeItemFromLS(DEVTOOL_AUTO_SAVE_KEY)
 }
 

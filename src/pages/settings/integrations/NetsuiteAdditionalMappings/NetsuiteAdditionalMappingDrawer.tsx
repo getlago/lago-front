@@ -1,9 +1,8 @@
 import { FormikErrors, useFormik } from 'formik'
-import { Button, Typography } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { array, object, string } from 'yup'
 
-import { Drawer, DrawerRef } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import NetsuiteAdditionalMappingForm from '~/pages/settings/integrations/NetsuiteAdditionalMappings/NetsuiteAdditionalMappingForm'

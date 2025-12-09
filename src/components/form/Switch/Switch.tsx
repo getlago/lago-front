@@ -21,6 +21,7 @@ export interface SwitchProps {
   labelPosition?: LabelPosition
   onChange?: (value: boolean, e: MouseEvent<HTMLDivElement>) => Promise<unknown> | void
   className?: string
+  'data-test'?: string
 }
 
 const switchVariants = cva(
@@ -75,6 +76,7 @@ export const Switch = ({
   labelPosition = LabelPositionEnum.right,
   onChange,
   className,
+  'data-test': dataTest,
   ...props
 }: SwitchProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -102,6 +104,7 @@ export const Switch = ({
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
+      data-test={dataTest}
       className={tw(
         'h-[initial] p-0',
         'flex items-center',

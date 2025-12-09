@@ -9,7 +9,7 @@ import { getEnableFeatureFlags, listFeatureFlags, setFeatureFlags } from '~/core
 
 import './main.css'
 
-const { appEnv, sentryDsn } = envGlobalVar()
+const { appEnv, sentryDsn, appVersion } = envGlobalVar()
 
 if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
   Sentry.init({
@@ -29,6 +29,33 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     replaysOnErrorSampleRate: 0.3,
     // Collect traces for 30% of sessions
     tracesSampleRate: 0.3,
+    // Release tracking - essential for source maps
+    release: appVersion,
+    // Attach stack traces to all messages
+    attachStacktrace: true,
+    // Filter out common browser extension errors and noise
+    ignoreErrors: [
+      // Chrome extensions
+      /chrome-extension:/i,
+      /moz-extension:/i,
+      // Safari extensions
+      /safari-extension:/i,
+      // Generic script errors from extensions
+      /^Script error\.?$/i,
+      /^Javascript error: Script error\.? on line 0$/i,
+    ],
+    // Deny URLs from browser extensions and other noise
+    denyUrls: [
+      // Chrome extensions
+      /extensions\//i,
+      /^chrome:\/\//i,
+      /^chrome-extension:\/\//i,
+      // Firefox extensions
+      /^resource:\/\//i,
+      /^moz-extension:\/\//i,
+      // Safari extensions
+      /^safari-extension:\/\//i,
+    ],
   })
 
   // Capture unhandled promise rejections

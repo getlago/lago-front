@@ -12,7 +12,7 @@ exports[`Drawer Snapshot Tests matches snapshot with ReactNode title 1`] = `
       Custom Title
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
       data-test="button"
       tabindex="0"
       type="button"
@@ -56,7 +56,7 @@ exports[`Drawer Snapshot Tests matches snapshot with children as function 1`] = 
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
       data-test="button"
       tabindex="0"
       type="button"
@@ -105,7 +105,7 @@ exports[`Drawer Snapshot Tests matches snapshot with drawer open 1`] = `
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
       data-test="button"
       tabindex="0"
       type="button"
@@ -149,7 +149,7 @@ exports[`Drawer Snapshot Tests matches snapshot with fullContentHeight and no pa
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
       data-test="button"
       tabindex="0"
       type="button"
@@ -193,7 +193,7 @@ exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
       data-test="button"
       tabindex="0"
       type="button"
@@ -249,7 +249,7 @@ exports[`Drawer Snapshot Tests matches snapshot with stickyBottomBar and custom 
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-p2f3q-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
       data-test="button"
       tabindex="0"
       type="button"

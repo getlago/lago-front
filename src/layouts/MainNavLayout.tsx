@@ -1,14 +1,17 @@
-import { gql, useApolloClient } from '@apollo/client'
+import { ApolloError, gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
 import { captureException } from '@sentry/react'
-import { Avatar, ConditionalWrapper, Icon, IconName, Spinner, Tooltip } from 'lago-design-system'
+import { ConditionalWrapper, Icon, IconName } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import {
+  Avatar,
   Button,
   Popper,
   Skeleton,
+  Spinner,
+  Tooltip,
   Typography,
   VerticalMenu,
   VerticalMenuSectionTitle,
@@ -164,10 +167,16 @@ const MainNavLayout = () => {
 
       await Promise.allSettled(refetchPromises)
     } catch (error) {
-      // Errors are automatically captured by Apollo's error link
-      // However the error details is not captured by Sentry, so we need to capture it manually.
-      // Prefer to be noisy and capture the error manually to be sure we don't miss anything. We can adjust this later.
-      captureException(error)
+      // Apollo/GraphQL errors are automatically captured by the errorLink in apolloClient/init.ts
+      // Only capture non-Apollo errors manually to avoid duplicates
+      if (!(error instanceof ApolloError)) {
+        captureException(error, {
+          tags: {
+            errorType: 'OrganizationSwitchError',
+            component: 'MainNavLayout',
+          },
+        })
+      }
     } finally {
       setIsSwitchingOrg(false)
     }
@@ -192,7 +201,7 @@ const MainNavLayout = () => {
               opener={
                 <Button
                   className="max-w-[calc(240px-theme(space.8))] text-left *:first:mr-2"
-                  data-test="side-nav-name"
+                  data-test="side-nav-user-infos"
                   variant="quaternary"
                   size="small"
                   disabled={isLoading}
@@ -219,7 +228,12 @@ const MainNavLayout = () => {
                           initials={(organization?.name ?? 'Lago')[0]}
                         />
                       )}
-                      <Typography variant="caption" color="textSecondary" noWrap>
+                      <Typography
+                        noWrap
+                        color="textSecondary"
+                        data-test="side-nav-name"
+                        variant="caption"
+                      >
                         {organization?.name}
                       </Typography>
                     </>
@@ -315,6 +329,7 @@ const MainNavLayout = () => {
                       align="left"
                       size="small"
                       startIcon="logout"
+                      data-test="side-nav-logout"
                       onClick={async () => await logOut(client, true)}
                     >
                       {translate('text_623b497ad05b960101be3444')}

@@ -46,10 +46,16 @@ gql`
   }
 `
 
-enum BehaviorType {
+export enum BehaviorType {
   FALLBACK = 'fallback',
   NEW_CAMPAIGN = 'newCampaign',
   DEACTIVATE = 'deactivate',
+}
+
+export const getInitialBehavior = (customer: EditCustomerDunningCampaignFragment): BehaviorType => {
+  if (customer.appliedDunningCampaign?.id) return BehaviorType.NEW_CAMPAIGN
+  if (customer.excludeFromDunningCampaign) return BehaviorType.DEACTIVATE
+  return BehaviorType.FALLBACK
 }
 
 export type EditCustomerDunningCampaignDialogRef = DialogRef
@@ -84,11 +90,7 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
     appliedDunningCampaignId: string
   }>({
     initialValues: {
-      behavior: customer.appliedDunningCampaign?.id
-        ? BehaviorType.NEW_CAMPAIGN
-        : customer.excludeFromDunningCampaign
-          ? BehaviorType.DEACTIVATE
-          : BehaviorType.FALLBACK,
+      behavior: getInitialBehavior(customer),
       appliedDunningCampaignId: customer.appliedDunningCampaign?.id ?? '',
     },
     validationSchema: object().shape({

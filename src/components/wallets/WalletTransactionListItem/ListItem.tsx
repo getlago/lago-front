@@ -1,7 +1,20 @@
-import { Avatar, AvatarBadge, Icon, IconName } from 'lago-design-system'
+import { Icon, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Button, Popper, Tooltip, Typography, TypographyColor } from '~/components/designSystem'
+import {
+  Avatar,
+  AvatarBadge,
+  Button,
+  Popper,
+  Tooltip,
+  Typography,
+  TypographyColor,
+} from '~/components/designSystem'
+import {
+  TRANSACTION_AMOUNT_DATA_TEST,
+  TRANSACTION_CREDITS_DATA_TEST,
+  TRANSACTION_LABEL_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -92,7 +105,7 @@ export const ListItem: FC<ListItemProps> = ({
               noWrap
               variant="bodyHl"
               color={isPending || isFailed ? 'grey500' : labelColor}
-              data-test="transaction-label"
+              data-test={TRANSACTION_LABEL_DATA_TEST}
             >
               {label}
             </Typography>
@@ -109,12 +122,17 @@ export const ListItem: FC<ListItemProps> = ({
               variant="bodyHl"
               color={isPending || isFailed ? 'grey500' : creditsColor}
               blur={isBlurry}
-              data-test="credits"
+              data-test={TRANSACTION_CREDITS_DATA_TEST}
               className={tw(isFailed && 'line-through')}
             >
               {credits}
             </Typography>
-            <Typography variant="caption" color="grey600" blur={isBlurry} data-test="amount">
+            <Typography
+              variant="caption"
+              color="grey600"
+              blur={isBlurry}
+              data-test={TRANSACTION_AMOUNT_DATA_TEST}
+            >
               {amount}
             </Typography>
           </div>

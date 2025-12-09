@@ -29,11 +29,10 @@ type MuiColor =
   | 'warning'
   | undefined
 
-interface SimpleButtonProps
-  extends Pick<
-    MuiButtonProps,
-    'id' | 'disabled' | 'children' | 'onClick' | 'fullWidth' | 'tabIndex'
-  > {
+export interface SimpleButtonProps extends Pick<
+  MuiButtonProps,
+  'id' | 'disabled' | 'children' | 'onClick' | 'fullWidth' | 'tabIndex'
+> {
   size?: ButtonSize
   variant?: ButtonVariant
   danger?: boolean
@@ -46,8 +45,10 @@ interface SimpleButtonProps
   inheritColor?: boolean // This will only work for quaternary buttons
   fitContent?: boolean
 }
-interface ButtonIconProps
-  extends Omit<SimpleButtonProps, 'icon' | 'size' | 'endIcon' | 'startIcon' | 'children'> {
+interface ButtonIconProps extends Omit<
+  SimpleButtonProps,
+  'icon' | 'size' | 'endIcon' | 'startIcon' | 'children'
+> {
   size?: ButtonSize
   icon: IconName // If used, the button will only display an icon (no matter if there's a children)
   endIcon?: never

@@ -1,9 +1,17 @@
 import { gql } from '@apollo/client'
-import { Avatar, Icon } from 'lago-design-system'
+import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button, ButtonLink, Chip, Popper, Skeleton, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  Button,
+  ButtonLink,
+  Chip,
+  Popper,
+  Skeleton,
+  Typography,
+} from '~/components/designSystem'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,

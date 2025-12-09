@@ -1,11 +1,10 @@
-import { Typography } from 'lago-design-system'
-
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import PortalCustomerInfos from '~/components/customerPortal/PortalCustomerInfos'
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
 import UsageSection from '~/components/customerPortal/usage/UsageSection'
 import WalletSection from '~/components/customerPortal/wallet/WalletSection'
+import { Typography } from '~/components/designSystem'
 import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
