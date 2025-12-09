@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client'
+import { useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
+import { ChatMessages } from '~/components/aiAgent/ChatMessages'
 import { ChatPromptEditor } from '~/components/aiAgent/ChatPromptEditor'
 import { ChatShortcuts } from '~/components/aiAgent/ChatShortcuts'
 import { Typography } from '~/components/designSystem'
@@ -30,6 +32,7 @@ gql`
 export const PanelAiAgent = () => {
   const { conversationId, state, startNewConversation, addNewMessage } = useAiAgent()
   const [createAiConversation, { loading, error }] = useCreateAiConversationMutation()
+  const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
 
   const subscription = useOnConversationSubscription({
@@ -41,6 +44,8 @@ export const PanelAiAgent = () => {
   })
 
   const handleSubmit = async (values: CreateAiConversationInput) => {
+    setInitialPrompt(values.message)
+
     await createAiConversation({
       variables: {
         input: {
@@ -81,6 +86,14 @@ export const PanelAiAgent = () => {
           </div>
 
           <ChatShortcuts onSubmit={handleSubmit} />
+        </div>
+      )}
+
+      {!shouldDisplayWelcomeMessage && !state.messages.length && initialPrompt && (
+        <div className="mt-auto flex h-full flex-col gap-12 p-6">
+          <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>
+
+          <ChatMessages.Loading />
         </div>
       )}
 
