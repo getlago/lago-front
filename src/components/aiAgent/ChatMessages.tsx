@@ -26,7 +26,7 @@ const SentMessage = ({ children }: { children: ReactNode }) => {
   return (
     <Typography
       data-id="sent-message"
-      className="ml-7 whitespace-normal rounded-xl border border-grey-300 bg-white px-4 py-3"
+      className="max-w-[324px] self-end whitespace-normal break-words rounded-xl border border-grey-300 bg-white px-4 py-3"
       variant="captionHl"
       color="grey700"
     >
@@ -45,8 +45,8 @@ const ReceivedMessage = ({ children }: { children: ReactNode }) => {
 
 const LoadingMessage = () => {
   return (
-    <div>
-      <div className="h-5 w-2 animate-pulse-speed rounded-sm bg-black" />
+    <div className="flex gap-1">
+      <div className="h-5 w-3 animate-pulse rounded-sm bg-grey-600" />
     </div>
   )
 }

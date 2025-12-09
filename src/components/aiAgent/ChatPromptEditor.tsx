@@ -42,7 +42,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
       onSubmit={formikProps.handleSubmit}
     >
       {state.messages.length > 0 && (
-        <div className="absolute -inset-x-0.5 bottom-full h-8 w-[calc(100%+16px)] bg-gradient-to-b from-[transparent] to-white pt-1" />
+        <div className="absolute bottom-full h-8 w-full bg-[linear-gradient(180deg,rgba(243,244,246,0)_0%,#F3F4F6_100%)] pt-1" />
       )}
       <div className="h-24 w-full" />
       <div className="absolute inset-x-0 bottom-0">
@@ -58,7 +58,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           formikProps={formikProps}
           placeholder={translate('text_1757417225851xkstj2u16q5')}
           inputProps={{
-            className: '!resize-none w-full !pr-9 !py-3',
+            className: '!resize-none w-full !pr-9 !py-3 overflow-y-auto',
           }}
           disabled={state.isLoading || state.isStreaming}
         />
