@@ -10402,7 +10402,7 @@ export type DestroyIntegrationMutationVariables = Exact<{
 
 export type DestroyIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
 
-export type AddOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: any | null, organizationName: string, name: string };
+export type AddOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: any | null, organizationName: string, host?: string | null, name: string };
 
 export type CreateOktaIntegrationMutationVariables = Exact<{
   input: CreateOktaIntegrationInput;
@@ -12613,12 +12613,12 @@ export type GetAuthIntegrationsQuery = { __typename?: 'Query', integrations?: { 
       | { __typename?: 'AvalaraIntegration' }
       | { __typename?: 'HubspotIntegration' }
       | { __typename?: 'NetsuiteIntegration' }
-      | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: any | null, organizationName: string, name: string }
+      | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: any | null, organizationName: string, host?: string | null, name: string }
       | { __typename?: 'SalesforceIntegration' }
       | { __typename?: 'XeroIntegration' }
     > } | null };
 
-export type OktaIntegrationDetailsFragment = { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string };
+export type OktaIntegrationDetailsFragment = { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string, host?: string | null };
 
 export type GetOktaIntegrationQueryVariables = Exact<{
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -12630,7 +12630,7 @@ export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?:
     | { __typename?: 'AvalaraIntegration' }
     | { __typename?: 'HubspotIntegration' }
     | { __typename?: 'NetsuiteIntegration' }
-    | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string }
+    | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string, host?: string | null }
     | { __typename?: 'SalesforceIntegration' }
     | { __typename?: 'XeroIntegration' }
    | null };
@@ -15120,6 +15120,7 @@ export const AddOktaIntegrationDialogFragmentDoc = gql`
   clientId
   clientSecret
   organizationName
+  host
   ...DeleteOktaIntegrationDialog
 }
     ${DeleteOktaIntegrationDialogFragmentDoc}`;
@@ -17458,6 +17459,7 @@ export const OktaIntegrationDetailsFragmentDoc = gql`
   organizationName
   domain
   name
+  host
 }
     `;
 export const DeleteAvalaraIntegrationDialogFragmentDoc = gql`

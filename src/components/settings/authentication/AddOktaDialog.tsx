@@ -24,6 +24,8 @@ export interface AddOktaDialogRef {
   closeDialog: () => unknown
 }
 
+export const OKTA_INTEGRATION_SUBMIT_BTN = 'add-okta-dialog-submit-button'
+
 export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
@@ -98,6 +100,7 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
                 variant="primary"
                 disabled={!formikProps.isValid || !formikProps.dirty}
                 onClick={formikProps.submitForm}
+                data-test={OKTA_INTEGRATION_SUBMIT_BTN}
               >
                 {translate(
                   isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_664c732c264d7eed1c74fdcb',
@@ -116,6 +119,12 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
             label={translate('text_664c732c264d7eed1c74fd94')}
             placeholder={translate('text_664c732c264d7eed1c74fd9a')}
             helperText={translate('text_664c732c264d7eed1c74fda0')}
+          />
+          <TextInputField
+            formikProps={formikProps}
+            name="host"
+            label={translate('text_664c732c264d7eed1c74fdd0')}
+            placeholder={translate('text_664c732c264d7eed1c74fdd1')}
           />
           <TextInputField
             formikProps={formikProps}
