@@ -3024,7 +3024,9 @@ exports[`InvoicesList Snapshot Tests matches snapshot with empty state 1`] = `
                   class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
                   data-test="generic-placeholder-subtitle"
                 >
-                  text_63b578e959c1366df5d1456d
+                  <span>
+                    text_63b578e959c1366df5d1456d
+                  </span>
                 </div>
               </div>
             </td>
@@ -3325,7 +3327,9 @@ exports[`InvoicesList Snapshot Tests matches snapshot with error state 1`] = `
                   class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
                   data-test="generic-placeholder-subtitle"
                 >
-                  text_63ac86d797f728a87b2f9ff2
+                  <span>
+                    text_63ac86d797f728a87b2f9ff2
+                  </span>
                 </div>
                 <button
                   class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
