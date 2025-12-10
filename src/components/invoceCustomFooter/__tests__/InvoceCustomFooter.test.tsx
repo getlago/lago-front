@@ -1,45 +1,62 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { useGetCustomerAppliedInvoiceCustomSectionsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { render } from '~/test-utils'
 
-import { createInvoiceCustomSection } from './factories/invoiceCustomSectionFactory'
-
-import {
-  ADD_BUTTON,
-  CANCEL_BUTTON,
-  DELETE_SECTION_CHIP,
-  InvoceCustomFooter,
-} from '../InvoceCustomFooter'
+import { EDIT_BUTTON, InvoceCustomFooter, SECTION_CHIP } from '../InvoceCustomFooter'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: jest.fn(),
 }))
 
-jest.mock('~/components/invoceCustomFooter/InvoiceCustomerFooterSelection', () => ({
-  InvoiceCustomerFooterSelection: jest.fn(({ onChange }) => (
-    <div data-test="invoice-customer-footer-selection">
-      <button
-        data-test="mock-select-section"
-        onClick={() => onChange?.({ id: 'section-1', name: 'Section 1' })}
-      >
-        Select Section
-      </button>
-    </div>
-  )),
+jest.mock('~/hooks/useInvoiceCustomSections', () => ({
+  useInvoiceCustomSections: jest.fn(),
 }))
 
-jest.mock('~/generated/graphql', () => ({
-  ...jest.requireActual('~/generated/graphql'),
-  useGetCustomerAppliedInvoiceCustomSectionsQuery: jest.fn(),
+jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () => ({
+  EditInvoiceCustomSectionDialog: jest.fn(({ open, onClose, onSave }) =>
+    open ? (
+      <div data-test="edit-invoice-custom-section-dialog">
+        <button data-test="dialog-close" onClick={onClose}>
+          Close
+        </button>
+        <button
+          data-test="dialog-save-fallback"
+          onClick={() => onSave({ behavior: 'fallback', selectedSections: [] })}
+        >
+          Save Fallback
+        </button>
+        <button
+          data-test="dialog-save-apply"
+          onClick={() =>
+            onSave({
+              behavior: 'apply',
+              selectedSections: [{ id: 'section-1', name: 'Section 1' }],
+            })
+          }
+        >
+          Save Apply
+        </button>
+        <button
+          data-test="dialog-save-none"
+          onClick={() => onSave({ behavior: 'none', selectedSections: [] })}
+        >
+          Save None
+        </button>
+      </div>
+    ) : null,
+  ),
+  InvoiceCustomSectionBehavior: {
+    FALLBACK: 'fallback',
+    APPLY: 'apply',
+    NONE: 'none',
+  },
 }))
 
 const mockUseInternationalization = jest.mocked(useInternationalization)
-const mockUseGetCustomerAppliedInvoiceCustomSectionsQuery = jest.mocked(
-  useGetCustomerAppliedInvoiceCustomSectionsQuery,
-)
+const mockUseInvoiceCustomSections = jest.mocked(useInvoiceCustomSections)
 
 describe('InvoceCustomFooter', () => {
   beforeEach(() => {
@@ -50,38 +67,26 @@ describe('InvoceCustomFooter', () => {
       locale: 'en',
     } as ReturnType<typeof useInternationalization>)
 
-    mockUseGetCustomerAppliedInvoiceCustomSectionsQuery.mockReturnValue({
-      data: undefined,
+    mockUseInvoiceCustomSections.mockReturnValue({
+      data: [
+        { id: 'section-1', name: 'Section 1', code: 'section-1' },
+        { id: 'section-2', name: 'Section 2', code: 'section-2' },
+      ],
       loading: false,
-      error: undefined,
-    } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
+    } as ReturnType<typeof useInvoiceCustomSections>)
   })
 
-  describe('WHEN customer has configurableInvoiceCustomSections', () => {
-    it('THEN initializes state with customer sections and displays chips', async () => {
-      const customerSections = [
-        createInvoiceCustomSection({ id: 'section-1', name: 'Section 1' }),
-        createInvoiceCustomSection({ id: 'section-2', name: 'Section 2' }),
-      ]
-
-      mockUseGetCustomerAppliedInvoiceCustomSectionsQuery.mockReturnValue({
-        data: {
-          customer: {
-            __typename: 'Customer',
-            id: 'customer-1',
-            configurableInvoiceCustomSections: customerSections,
-            skipInvoiceCustomSections: false,
-          },
-        },
-        loading: false,
-        error: undefined,
-      } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
-
+  describe('WHEN invoiceCustomSection has selected sections', () => {
+    it('THEN displays chips for selected sections', async () => {
       render(
         <InvoceCustomFooter
-          customerId="customer-1"
           title="Test Title"
           description="Test Description"
+          viewType="subscription"
+          invoiceCustomSection={{
+            invoiceCustomSectionIds: ['section-1', 'section-2'],
+            skipInvoiceCustomSections: false,
+          }}
         />,
       )
 
@@ -91,27 +96,16 @@ describe('InvoceCustomFooter', () => {
       })
     })
 
-    it('THEN does not initialize state when skipInvoiceCustomSections is true', async () => {
-      const customerSections = [createInvoiceCustomSection({ id: 'section-1', name: 'Section 1' })]
-
-      mockUseGetCustomerAppliedInvoiceCustomSectionsQuery.mockReturnValue({
-        data: {
-          customer: {
-            __typename: 'Customer',
-            id: 'customer-1',
-            configurableInvoiceCustomSections: customerSections,
+    it('THEN does not display chips when skipInvoiceCustomSections is true', async () => {
+      render(
+        <InvoceCustomFooter
+          title="Test Title"
+          description="Test Description"
+          viewType="subscription"
+          invoiceCustomSection={{
+            invoiceCustomSectionIds: ['section-1'],
             skipInvoiceCustomSections: true,
-          },
-        },
-        loading: false,
-        error: undefined,
-      } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
-
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Test Title"
-          description="Test Description"
+          }}
         />,
       )
 
@@ -119,175 +113,179 @@ describe('InvoceCustomFooter', () => {
         expect(screen.queryByText('Section 1')).not.toBeInTheDocument()
       })
     })
-  })
 
-  describe('WHEN toggling combobox visibility', () => {
-    it('THEN shows combobox when add button is clicked', async () => {
+    it('THEN does not display chips when invoiceCustomSectionIds is null', async () => {
       render(
         <InvoceCustomFooter
-          customerId="customer-1"
           title="Test Title"
           description="Test Description"
-        />,
-      )
-
-      const addButton = screen.getByTestId(ADD_BUTTON)
-
-      await userEvent.click(addButton)
-
-      await waitFor(() => {
-        expect(screen.getByTestId('invoice-customer-footer-selection')).toBeInTheDocument()
-      })
-    })
-
-    it('THEN hides combobox when cancel button is clicked', async () => {
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Test Title"
-          description="Test Description"
-        />,
-      )
-
-      const addButton = screen.getByTestId(ADD_BUTTON)
-
-      await userEvent.click(addButton)
-
-      await waitFor(() => {
-        expect(screen.getByTestId('invoice-customer-footer-selection')).toBeInTheDocument()
-      })
-
-      const cancelButton = screen.getByTestId(CANCEL_BUTTON)
-
-      await userEvent.click(cancelButton)
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('invoice-customer-footer-selection')).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('WHEN selecting a section', () => {
-    it('THEN adds section to selected list and hides combobox', async () => {
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Test Title"
-          description="Test Description"
-        />,
-      )
-
-      const addButton = screen.getByTestId(ADD_BUTTON)
-
-      await userEvent.click(addButton)
-
-      await waitFor(() => {
-        expect(screen.getByTestId('invoice-customer-footer-selection')).toBeInTheDocument()
-      })
-
-      const selectButton = screen.getByTestId('mock-select-section')
-
-      await userEvent.click(selectButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Section 1')).toBeInTheDocument()
-        expect(screen.queryByTestId('invoice-customer-footer-selection')).not.toBeInTheDocument()
-      })
-    })
-
-    it('THEN does not add duplicate section if already selected', async () => {
-      const customerSections = [createInvoiceCustomSection({ id: 'section-1', name: 'Section 1' })]
-
-      mockUseGetCustomerAppliedInvoiceCustomSectionsQuery.mockReturnValue({
-        data: {
-          customer: {
-            __typename: 'Customer',
-            id: 'customer-1',
-            configurableInvoiceCustomSections: customerSections,
+          viewType="subscription"
+          invoiceCustomSection={{
+            invoiceCustomSectionIds: null,
             skipInvoiceCustomSections: false,
-          },
-        },
-        loading: false,
-        error: undefined,
-      } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
-
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Test Title"
-          description="Test Description"
+          }}
         />,
       )
 
       await waitFor(() => {
-        expect(screen.getByText('Section 1')).toBeInTheDocument()
+        expect(screen.queryByTestId(SECTION_CHIP('section-1'))).not.toBeInTheDocument()
       })
-
-      const addButton = screen.getByTestId(ADD_BUTTON)
-
-      await userEvent.click(addButton)
-
-      await waitFor(() => {
-        expect(screen.getByTestId('invoice-customer-footer-selection')).toBeInTheDocument()
-      })
-
-      const selectButton = screen.getByTestId('mock-select-section')
-
-      await userEvent.click(selectButton)
-
-      // Should still have only one Section 1 chip
-      const section1Chips = screen.getAllByText('Section 1')
-
-      expect(section1Chips).toHaveLength(1)
     })
   })
 
-  describe('WHEN deleting a section', () => {
-    it('THEN removes section from selected list', async () => {
-      const customerSections = [
-        createInvoiceCustomSection({ id: 'section-1', name: 'Section 1' }),
-        createInvoiceCustomSection({ id: 'section-2', name: 'Section 2' }),
-      ]
+  describe('WHEN opening the edit dialog', () => {
+    it('THEN shows dialog when edit button is clicked', async () => {
+      render(
+        <InvoceCustomFooter
+          title="Test Title"
+          description="Test Description"
+          viewType="subscription"
+        />,
+      )
 
-      mockUseGetCustomerAppliedInvoiceCustomSectionsQuery.mockReturnValue({
-        data: {
-          customer: {
-            __typename: 'Customer',
-            id: 'customer-1',
-            configurableInvoiceCustomSections: customerSections,
-            skipInvoiceCustomSections: false,
-          },
-        },
-        loading: false,
-        error: undefined,
-      } as ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>)
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-invoice-custom-section-dialog')).toBeInTheDocument()
+      })
+    })
+
+    it('THEN closes dialog when close button is clicked', async () => {
+      render(
+        <InvoceCustomFooter
+          title="Test Title"
+          description="Test Description"
+          viewType="subscription"
+        />,
+      )
+
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-invoice-custom-section-dialog')).toBeInTheDocument()
+      })
+
+      const closeButton = screen.getByTestId('dialog-close')
+
+      await userEvent.click(closeButton)
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-invoice-custom-section-dialog')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('WHEN saving from dialog', () => {
+    it('THEN calls setInvoiceCustomSection with apply behavior', async () => {
+      const setInvoiceCustomSection = jest.fn()
 
       render(
         <InvoceCustomFooter
-          customerId="customer-1"
           title="Test Title"
           description="Test Description"
+          viewType="subscription"
+          setInvoiceCustomSection={setInvoiceCustomSection}
+        />,
+      )
+
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      const saveApplyButton = screen.getByTestId('dialog-save-apply')
+
+      await userEvent.click(saveApplyButton)
+
+      await waitFor(() => {
+        expect(setInvoiceCustomSection).toHaveBeenCalledWith({
+          invoiceCustomSectionIds: ['section-1'],
+          skipInvoiceCustomSections: false,
+        })
+      })
+    })
+
+    it('THEN calls setInvoiceCustomSection with fallback behavior', async () => {
+      const setInvoiceCustomSection = jest.fn()
+
+      render(
+        <InvoceCustomFooter
+          title="Test Title"
+          description="Test Description"
+          viewType="subscription"
+          invoiceCustomSection={{
+            invoiceCustomSectionIds: ['section-1'],
+            skipInvoiceCustomSections: false,
+          }}
+          setInvoiceCustomSection={setInvoiceCustomSection}
+        />,
+      )
+
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      const saveFallbackButton = screen.getByTestId('dialog-save-fallback')
+
+      await userEvent.click(saveFallbackButton)
+
+      await waitFor(() => {
+        expect(setInvoiceCustomSection).toHaveBeenCalledWith({
+          invoiceCustomSectionIds: null,
+          skipInvoiceCustomSections: false,
+        })
+      })
+    })
+
+    it('THEN calls setInvoiceCustomSection with none behavior', async () => {
+      const setInvoiceCustomSection = jest.fn()
+
+      render(
+        <InvoceCustomFooter
+          title="Test Title"
+          description="Test Description"
+          viewType="subscription"
+          setInvoiceCustomSection={setInvoiceCustomSection}
+        />,
+      )
+
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      const saveNoneButton = screen.getByTestId('dialog-save-none')
+
+      await userEvent.click(saveNoneButton)
+
+      await waitFor(() => {
+        expect(setInvoiceCustomSection).toHaveBeenCalledWith({
+          invoiceCustomSectionIds: null,
+          skipInvoiceCustomSections: true,
+        })
+      })
+    })
+  })
+
+  describe('WHEN displaying section chips', () => {
+    it('THEN shows chips with correct test ids', async () => {
+      render(
+        <InvoceCustomFooter
+          title="Test Title"
+          description="Test Description"
+          viewType="subscription"
+          invoiceCustomSection={{
+            invoiceCustomSectionIds: ['section-1', 'section-2'],
+            skipInvoiceCustomSections: false,
+          }}
         />,
       )
 
       await waitFor(() => {
-        expect(screen.getByText('Section 1')).toBeInTheDocument()
-        expect(screen.getByText('Section 2')).toBeInTheDocument()
-      })
-
-      const deleteButton = screen
-        .getByTestId(DELETE_SECTION_CHIP('section-1'))
-        .querySelector('button[data-test="button"]')
-
-      expect(deleteButton).toBeTruthy()
-
-      if (deleteButton) {
-        await userEvent.click(deleteButton)
-      }
-
-      await waitFor(() => {
-        expect(screen.queryByText('Section 1')).not.toBeInTheDocument()
-        expect(screen.getByText('Section 2')).toBeInTheDocument()
+        expect(screen.getByTestId(SECTION_CHIP('section-1'))).toBeInTheDocument()
+        expect(screen.getByTestId(SECTION_CHIP('section-2'))).toBeInTheDocument()
       })
     })
   })
