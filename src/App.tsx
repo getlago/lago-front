@@ -113,12 +113,18 @@ const App = () => {
             <DeveloperToolProvider>
               <AiAgentProvider>
                 <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                  <Panel id="app-panel" order={1}>
-                    <div className="h-full overflow-auto" data-app-wrapper>
-                      <BrowserRouter basename="/">
-                        <RouteWrapper />
-                      </BrowserRouter>
-                    </div>
+                  <Panel id="app-panel-group">
+                    <PanelGroup direction="horizontal">
+                      <Panel id="app-panel">
+                        <div className="h-full overflow-auto" data-app-wrapper>
+                          <BrowserRouter basename="/">
+                            <RouteWrapper />
+                          </BrowserRouter>
+                        </div>
+                      </Panel>
+
+                      <AiAgent />
+                    </PanelGroup>
                   </Panel>
                   <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
                     <DevtoolsErrorBoundary>
