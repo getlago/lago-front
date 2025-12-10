@@ -26,11 +26,11 @@ export const PanelWrapper = ({
 
   return (
     <div>
-      <div className="flex flex-row justify-between gap-4 px-6 py-4 shadow-b">
+      <div className="flex flex-row items-center justify-between gap-2 px-6 py-4 shadow-b">
+        {!!showBackButton && (
+          <Button size="medium" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
+        )}
         <div className="flex h-8 flex-1 items-center gap-2 truncate">
-          {!!showBackButton && (
-            <Button size="small" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
-          )}
           <Typography variant="bodyHl" className="!truncate" color="grey700">
             {title}
           </Typography>
@@ -44,9 +44,9 @@ export const PanelWrapper = ({
         </div>
         <div className="flex flex-row items-center gap-3">
           {showHistoryButton && (
-            <Button size="small" variant="quaternary" icon="history" onClick={onShowHistory} />
+            <Button size="medium" variant="quaternary" icon="history" onClick={onShowHistory} />
           )}
-          <Button size="small" variant="quaternary" icon="close" onClick={closePanel} />
+          <Button size="medium" variant="quaternary" icon="close" onClick={closePanel} />
         </div>
       </div>
       <div className="height-minus-nav flex flex-col justify-between overflow-y-auto">
