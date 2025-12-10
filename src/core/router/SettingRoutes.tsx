@@ -33,6 +33,8 @@ const OktaAuthenticationDetails = lazyLoad(
   () => import('~/pages/settings/Authentication/OktaAuthenticationDetails'),
 )
 const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
+const BraintreeIntegrations = lazyLoad(() => import('~/pages/settings/BraintreeIntegrations'))
+const BraintreeIntegrationDetails = lazyLoad(() => import('~/pages/settings/BraintreeIntegrationDetails'))
 const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
 const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
 const HubspotIntegrations = lazyLoad(() => import('~/pages/settings/HubspotIntegrations'))
@@ -92,6 +94,8 @@ export const AVALARA_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/avalara`
 export const AVALARA_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/avalara/:integrationId/:tab`
 export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
+export const BRAINTREE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/braintree`
+export const BRAINTREE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
 export const HUBSPOT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot`
 export const HUBSPOT_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot/:integrationId`
 export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
@@ -222,7 +226,18 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <AvalaraIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
       },
-
+      {
+        path: BRAINTREE_INTEGRATION_ROUTE,
+        private: true,
+        element: <BraintreeIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: BRAINTREE_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <BraintreeIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
       {
         path: HUBSPOT_INTEGRATION_ROUTE,
         private: true,

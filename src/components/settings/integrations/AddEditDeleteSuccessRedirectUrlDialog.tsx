@@ -9,18 +9,21 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ADYEN_SUCCESS_LINK_SPEC_URL } from '~/core/constants/externalUrls'
 import {
   AdyenForCreateAndEditSuccessRedirectUrlFragment,
+  BraintreeForCreateAndEditSuccessRedirectUrlFragment,
   CashfreeForCreateAndEditSuccessRedirectUrlFragment,
   FlutterwaveForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
   MoneyhashForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   UpdateAdyenPaymentProviderInput,
+  UpdateBraintreePaymentProviderInput,
   UpdateCashfreePaymentProviderInput,
   UpdateFlutterwavePaymentProviderInput,
   UpdateGocardlessPaymentProviderInput,
   UpdateMoneyhashPaymentProviderInput,
   UpdateStripePaymentProviderInput,
   useUpdateAdyenPaymentProviderMutation,
+  useUpdateBraintreePaymentProviderMutation,
   useUpdateCashfreePaymentProviderMutation,
   useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation,
   useUpdateGocardlessPaymentProviderMutation,
@@ -31,6 +34,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment AdyenForCreateAndEditSuccessRedirectUrl on AdyenProvider {
+    id
+    successRedirectUrl
+  }
+
+  fragment BraintreeForCreateAndEditSuccessRedirectUrl on BraintreeProvider {
     id
     successRedirectUrl
   }
@@ -63,6 +71,13 @@ gql`
 
   mutation updateAdyenPaymentProvider($input: UpdateAdyenPaymentProviderInput!) {
     updateAdyenPaymentProvider(input: $input) {
+      id
+      successRedirectUrl
+    }
+  }
+
+  mutation updateBraintreePaymentProvider($input: UpdateBraintreePaymentProviderInput!) {
+    updateBraintreePaymentProvider(input: $input) {
       id
       successRedirectUrl
     }
@@ -114,6 +129,7 @@ const AddEditDeleteSuccessRedirectUrlDialogMode = {
 
 const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Adyen: 'Adyen',
+  Braintree: 'Braintree',
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
   Cashfree: 'Cashfree',
@@ -126,6 +142,7 @@ type LocalProviderType = {
   type: keyof typeof AddEditDeleteSuccessRedirectUrlDialogProviderType
   provider?:
     | AdyenForCreateAndEditSuccessRedirectUrlFragment
+    | BraintreeForCreateAndEditSuccessRedirectUrlFragment
     | CashfreeForCreateAndEditSuccessRedirectUrlFragment
     | FlutterwaveForCreateAndEditSuccessRedirectUrlFragment
     | GocardlessForCreateAndEditSuccessRedirectUrlFragment
@@ -175,6 +192,17 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           })
         }
       },
+    })
+
+    const [updateBraintreeProvider] = useUpdateBraintreePaymentProviderMutation({
+      onCompleted(data) {
+        if (data && data.updateBraintreePaymentProvider) {
+          addToast({
+            message: successToastMessage,
+            severity: 'success',
+          })
+        }
+      }
     })
 
     const [updateCashfreeProvider] = useUpdateCashfreePaymentProviderMutation({
@@ -235,6 +263,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
 
     const formikProps = useFormik<
       | UpdateAdyenPaymentProviderInput
+      | UpdateBraintreePaymentProviderInput
       | UpdateCashfreePaymentProviderInput
       | UpdateFlutterwavePaymentProviderInput
       | UpdateGocardlessPaymentProviderInput
@@ -253,6 +282,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       onSubmit: async ({ ...values }, formikBag) => {
         const methodLoojup = {
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Adyen]: updateAdyenProvider,
+          [AddEditDeleteSuccessRedirectUrlDialogProviderType.Braintree]: updateBraintreeProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe]: updateStripeProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.GoCardless]: updateGocardlessProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Cashfree]: updateCashfreeProvider,

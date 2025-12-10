@@ -25,6 +25,10 @@ import {
   AddAvalaraDialogRef,
 } from '~/components/settings/integrations/AddAvalaraDialog'
 import {
+  AddBraintreeDialog,
+  AddBraintreeDialogRef,
+} from '~/components/settings/integrations/AddBraintreeDialog'
+import {
   AddCashfreeDialog,
   AddCashfreeDialogRef,
 } from '~/components/settings/integrations/AddCashfreeDialog'
@@ -72,6 +76,7 @@ import {
   ADYEN_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
   AVALARA_INTEGRATION_ROUTE,
+  BRAINTREE_INTEGRATION_ROUTE,
   CASHFREE_INTEGRATION_ROUTE,
   FLUTTERWAVE_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
@@ -96,6 +101,7 @@ import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
 import Avalara from '~/public/images/avalara.svg'
+import Braintree from '~/public/images/braintree.svg'
 import Cashfree from '~/public/images/cashfree.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
 import GoCardless from '~/public/images/gocardless.svg'
@@ -127,6 +133,10 @@ gql`
         }
 
         ... on AdyenProvider {
+          id
+        }
+
+        ... on BraintreeProvider {
           id
         }
 
@@ -185,6 +195,7 @@ const Integrations = () => {
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
   const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
   const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+  const addBraintreeDialogRef = useRef<AddBraintreeDialogRef>(null)
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
@@ -214,6 +225,9 @@ const Integrations = () => {
   )
   const hasFlutterwaveIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'FlutterwaveProvider',
+  )
+  const hasBraintreeingeration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'BraintreeProvider',
   )
   const hasTaxManagement = !!hasBillingEntitiesWithTaxManagement
   const hasAccessToAvalaraPremiumIntegration = !!premiumIntegrations?.includes(
@@ -383,6 +397,30 @@ const Integrations = () => {
                             )
                           } else {
                             addAvalaraDialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        fullWidth
+                        title="Braintree"
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Braintree />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          if (hasBraintreeingeration) {
+                            navigate(
+                              generatePath(BRAINTREE_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            const element = document.activeElement as HTMLElement
+
+                            element.blur && element.blur()
+                            addBraintreeDialogRef.current?.openDialog()
                           }
                         }}
                       />

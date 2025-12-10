@@ -185,6 +185,18 @@ export type AddAdyenPaymentProviderInput = {
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Braintree input arguments */
+export type AddBraintreePaymentProviderInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
+  merchantId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  privateKey: Scalars['String']['input'];
+  publicKey: Scalars['String']['input'];
+  successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Cashfree input arguments */
 export type AddCashfreePaymentProviderInput = {
   clientId: Scalars['String']['input'];
@@ -746,6 +758,17 @@ export enum BillingTimeEnum {
   Anniversary = 'anniversary',
   Calendar = 'calendar'
 }
+
+export type BraintreeProvider = {
+  __typename?: 'BraintreeProvider';
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  merchantId?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  privateKey?: Maybe<Scalars['ObfuscatedString']['output']>;
+  publicKey?: Maybe<Scalars['ObfuscatedString']['output']>;
+  successRedirectUrl?: Maybe<Scalars['String']['output']>;
+};
 
 export type CashfreeProvider = {
   __typename?: 'CashfreeProvider';
@@ -4476,6 +4499,8 @@ export type Mutation = {
   acceptInvite?: Maybe<RegisterUser>;
   /** Add Adyen payment provider */
   addAdyenPaymentProvider?: Maybe<AdyenProvider>;
+  /** Add Braintree payment prodiver */
+  addBraintreePaymentProvider?: Maybe<BraintreeProvider>;
   /** Add or update Cashfree payment provider */
   addCashfreePaymentProvider?: Maybe<CashfreeProvider>;
   /** Add Flutterwave payment provider */
@@ -4713,6 +4738,8 @@ export type Mutation = {
   updateBillableMetric?: Maybe<BillableMetric>;
   /** Updates a Billing Entity */
   updateBillingEntity?: Maybe<BillingEntity>;
+  /** Update Braintree payment provider */
+  updateBraintreePaymentProvider?: Maybe<BraintreeProvider>;
   /** Update Cashfree payment provider */
   updateCashfreePaymentProvider?: Maybe<CashfreeProvider>;
   /** Update an existing coupon */
@@ -4788,6 +4815,11 @@ export type MutationAcceptInviteArgs = {
 
 export type MutationAddAdyenPaymentProviderArgs = {
   input: AddAdyenPaymentProviderInput;
+};
+
+
+export type MutationAddBraintreePaymentProviderArgs = {
+  input: AddBraintreePaymentProviderInput;
 };
 
 
@@ -5396,6 +5428,11 @@ export type MutationUpdateBillingEntityArgs = {
 };
 
 
+export type MutationUpdateBraintreePaymentProviderArgs = {
+  input: UpdateBraintreePaymentProviderInput;
+};
+
+
 export type MutationUpdateCashfreePaymentProviderArgs = {
   input: UpdateCashfreePaymentProviderInput;
 };
@@ -5768,7 +5805,7 @@ export enum PaymentMethodTypeEnum {
   Provider = 'provider'
 }
 
-export type PaymentProvider = AdyenProvider | CashfreeProvider | FlutterwaveProvider | GocardlessProvider | MoneyhashProvider | StripeProvider;
+export type PaymentProvider = AdyenProvider | BraintreeProvider | CashfreeProvider | FlutterwaveProvider | GocardlessProvider | MoneyhashProvider | StripeProvider;
 
 /** PaymentProviderCollection type */
 export type PaymentProviderCollection = {
@@ -6244,6 +6281,7 @@ export enum ProviderPaymentMethodsEnum {
 
 export enum ProviderTypeEnum {
   Adyen = 'adyen',
+  Braintree = 'braintree',
   Cashfree = 'cashfree',
   Flutterwave = 'flutterwave',
   Gocardless = 'gocardless',
@@ -8149,6 +8187,18 @@ export type UpdateBillingEntityInput = {
 };
 
 /** Update input arguments */
+export type UpdateBraintreePaymentProviderInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  flowId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
+  supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Update input arguments */
 export type UpdateCashfreePaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -9451,6 +9501,7 @@ export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
 
 export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
       | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
       | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
@@ -9641,6 +9692,7 @@ export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryV
 
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename: 'AdyenProvider', id: string, name: string, code: string }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename: 'CashfreeProvider', id: string, name: string, code: string }
       | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string }
       | { __typename: 'GocardlessProvider', id: string, name: string, code: string }
@@ -10450,6 +10502,7 @@ export type GetProviderByCodeForAdyenQueryVariables = Exact<{
 
 export type GetProviderByCodeForAdyenQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -10503,6 +10556,23 @@ export type UpdateAvalaraIntegrationMutationVariables = Exact<{
 
 export type UpdateAvalaraIntegrationMutation = { __typename?: 'Mutation', updateAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any, name: string } | null };
 
+export type AddBraintreeProviderDialogFragment = { __typename?: 'BraintreeProvider', id: string, name: string, code: string, publicKey?: any | null, privateKey?: any | null, merchantId?: string | null, successRedirectUrl?: string | null };
+
+export type GetProviderByCodeForBraintreeQueryVariables = Exact<{
+  code?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProviderByCodeForBraintreeQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'BraintreeProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
+
 export type AddCashfreeProviderDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
 
 export type GetProviderByCodeForCashfreeQueryVariables = Exact<{
@@ -10512,6 +10582,7 @@ export type GetProviderByCodeForCashfreeQueryVariables = Exact<{
 
 export type GetProviderByCodeForCashfreeQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -10535,6 +10606,8 @@ export type UpdateCashfreeApiKeyMutation = { __typename?: 'Mutation', updateCash
 
 export type AdyenForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null };
 
+export type BraintreeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'BraintreeProvider', id: string, successRedirectUrl?: string | null };
+
 export type CashfreeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null };
 
 export type FlutterwaveForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'FlutterwaveProvider', id: string, successRedirectUrl?: string | null };
@@ -10551,6 +10624,13 @@ export type UpdateAdyenPaymentProviderMutationVariables = Exact<{
 
 
 export type UpdateAdyenPaymentProviderMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateBraintreePaymentProviderMutationVariables = Exact<{
+  input: UpdateBraintreePaymentProviderInput;
+}>;
+
+
+export type UpdateBraintreePaymentProviderMutation = { __typename?: 'Mutation', updateBraintreePaymentProvider?: { __typename?: 'BraintreeProvider', id: string, successRedirectUrl?: string | null } | null };
 
 export type UpdateCashfreePaymentProviderMutationVariables = Exact<{
   input: UpdateCashfreePaymentProviderInput;
@@ -10596,6 +10676,7 @@ export type GetProviderByCodeForFlutterwaveQueryVariables = Exact<{
 
 export type GetProviderByCodeForFlutterwaveQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -10626,6 +10707,7 @@ export type GetProviderByCodeForGocardlessQueryVariables = Exact<{
 
 export type GetProviderByCodeForGocardlessQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -10665,6 +10747,7 @@ export type GetProviderByCodeForMoneyhashQueryVariables = Exact<{
 
 export type GetProviderByCodeForMoneyhashQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -10727,6 +10810,7 @@ export type GetProviderByCodeForStripeQueryVariables = Exact<{
 
 export type GetProviderByCodeForStripeQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -10926,6 +11010,15 @@ export type DestroyAvalaraIntegrationMutationVariables = Exact<{
 
 
 export type DestroyAvalaraIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
+
+export type DeleteBraintreeIntegrationDialogFragment = { __typename?: 'BraintreeProvider', id: string, name: string };
+
+export type DeleteBraintreeIntegrationMutationVariables = Exact<{
+  input: DestroyPaymentProviderInput;
+}>;
+
+
+export type DeleteBraintreeIntegrationMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
 export type DeleteCashfreeIntegrationDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string };
 
@@ -11615,6 +11708,7 @@ export type CreateDunningCampaignPaymentProviderQueryVariables = Exact<{ [key: s
 
 export type CreateDunningCampaignPaymentProviderQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename: 'AdyenProvider' }
+      | { __typename: 'BraintreeProvider' }
       | { __typename: 'CashfreeProvider' }
       | { __typename: 'FlutterwaveProvider' }
       | { __typename: 'GocardlessProvider' }
@@ -12527,6 +12621,7 @@ export type GetAdyenIntegrationsDetailsQueryVariables = Exact<{
 
 export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -12534,6 +12629,7 @@ export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentPr
     | { __typename?: 'StripeProvider' }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -12551,6 +12647,7 @@ export type GetAdyenIntegrationsListQueryVariables = Exact<{
 
 export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -12762,6 +12859,51 @@ export type RemoveBillingEntityTaxesMutationVariables = Exact<{
 
 export type RemoveBillingEntityTaxesMutation = { __typename?: 'Mutation', billingEntityRemoveTaxes?: { __typename: 'RemoveTaxesPayload' } | null };
 
+export type BraintreeIntegrationDetailsFragment = { __typename?: 'BraintreeProvider', id: string, code: string, merchantId?: string | null, name: string, privateKey?: any | null, publicKey?: any | null, successRedirectUrl?: string | null };
+
+export type GetBraintreeIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetBraintreeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'BraintreeProvider', id: string, code: string, merchantId?: string | null, name: string, privateKey?: any | null, publicKey?: any | null, successRedirectUrl?: string | null }
+    | { __typename?: 'CashfreeProvider' }
+    | { __typename?: 'FlutterwaveProvider' }
+    | { __typename?: 'GocardlessProvider' }
+    | { __typename?: 'MoneyhashProvider' }
+    | { __typename?: 'StripeProvider' }
+   | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider', id: string }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
+
+export type BraintreeIntegrationsFragment = { __typename?: 'BraintreeProvider', id: string, name: string, code: string };
+
+export type GetBraintreeIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetBraintreeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider', id: string, name: string, code: string, publicKey?: any | null, privateKey?: any | null, merchantId?: string | null, successRedirectUrl?: string | null }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
+
 export type CashfreeIntegrationDetailsFragment = { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
 
 export type GetCashfreeIntegrationsDetailsQueryVariables = Exact<{
@@ -12773,6 +12915,7 @@ export type GetCashfreeIntegrationsDetailsQueryVariables = Exact<{
 
 export type GetCashfreeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -12780,6 +12923,7 @@ export type GetCashfreeIntegrationsDetailsQuery = { __typename?: 'Query', paymen
     | { __typename?: 'StripeProvider' }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider', id: string }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -12797,6 +12941,7 @@ export type GetCashfreeIntegrationsListQueryVariables = Exact<{
 
 export type GetCashfreeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -12832,6 +12977,7 @@ export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
 
 export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null }
     | { __typename?: 'GocardlessProvider' }
@@ -12839,6 +12985,7 @@ export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', payment
     | { __typename?: 'StripeProvider' }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider', id: string }
       | { __typename?: 'GocardlessProvider' }
@@ -12856,6 +13003,7 @@ export type GetFlutterwaveIntegrationsListQueryVariables = Exact<{
 
 export type GetFlutterwaveIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
       | { __typename?: 'GocardlessProvider' }
@@ -12874,6 +13022,7 @@ export type GetGocardlessIntegrationsDetailsQueryVariables = Exact<{
 
 export type GetGocardlessIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null }
@@ -12881,6 +13030,7 @@ export type GetGocardlessIntegrationsDetailsQuery = { __typename?: 'Query', paym
     | { __typename?: 'StripeProvider' }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider', id: string }
@@ -12907,6 +13057,7 @@ export type GetGocardlessIntegrationsListQueryVariables = Exact<{
 
 export type GetGocardlessIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
@@ -12966,6 +13117,7 @@ export type IntegrationsSettingQueryVariables = Exact<{
 
 export type IntegrationsSettingQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider', id: string }
       | { __typename?: 'FlutterwaveProvider', id: string }
       | { __typename?: 'GocardlessProvider', id: string }
@@ -13056,6 +13208,7 @@ export type GetMoneyhashIntegrationsDetailsQueryVariables = Exact<{
 
 export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -13063,6 +13216,7 @@ export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', payme
     | { __typename?: 'StripeProvider' }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -13080,6 +13234,7 @@ export type GetMoneyhashIntegrationsListQueryVariables = Exact<{
 
 export type GetMoneyhashIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -13188,6 +13343,7 @@ export type GetStripeIntegrationsDetailsQueryVariables = Exact<{
 
 export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'BraintreeProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -13195,6 +13351,7 @@ export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentP
     | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null, supports3ds?: boolean | null }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -13212,6 +13369,7 @@ export type GetStripeIntegrationsListQueryVariables = Exact<{
 
 export type GetStripeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'BraintreeProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -15148,6 +15306,17 @@ export const AddAdyenProviderDialogFragmentDoc = gql`
   merchantAccount
 }
     `;
+export const AddBraintreeProviderDialogFragmentDoc = gql`
+    fragment AddBraintreeProviderDialog on BraintreeProvider {
+  id
+  name
+  code
+  publicKey
+  privateKey
+  merchantId
+  successRedirectUrl
+}
+    `;
 export const AddCashfreeProviderDialogFragmentDoc = gql`
     fragment AddCashfreeProviderDialog on CashfreeProvider {
   id
@@ -15160,6 +15329,12 @@ export const AddCashfreeProviderDialogFragmentDoc = gql`
     `;
 export const AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
     fragment AdyenForCreateAndEditSuccessRedirectUrl on AdyenProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const BraintreeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment BraintreeForCreateAndEditSuccessRedirectUrl on BraintreeProvider {
   id
   successRedirectUrl
 }
@@ -15339,6 +15514,12 @@ export const AvalaraIntegrationSettingsFragmentDoc = gql`
     `;
 export const DeleteAdyenIntegrationDialogFragmentDoc = gql`
     fragment DeleteAdyenIntegrationDialog on AdyenProvider {
+  id
+  name
+}
+    `;
+export const DeleteBraintreeIntegrationDialogFragmentDoc = gql`
+    fragment DeleteBraintreeIntegrationDialog on BraintreeProvider {
   id
   name
 }
@@ -17500,6 +17681,24 @@ export const TaxItemForApplyTaxFragmentDoc = gql`
   id
   code
   name
+}
+    `;
+export const BraintreeIntegrationDetailsFragmentDoc = gql`
+    fragment BraintreeIntegrationDetails on BraintreeProvider {
+  id
+  code
+  merchantId
+  name
+  privateKey
+  publicKey
+  successRedirectUrl
+}
+    `;
+export const BraintreeIntegrationsFragmentDoc = gql`
+    fragment BraintreeIntegrations on BraintreeProvider {
+  id
+  name
+  code
 }
     `;
 export const CashfreeIntegrationDetailsFragmentDoc = gql`
@@ -25045,6 +25244,66 @@ export function useUpdateAvalaraIntegrationMutation(baseOptions?: Apollo.Mutatio
 export type UpdateAvalaraIntegrationMutationHookResult = ReturnType<typeof useUpdateAvalaraIntegrationMutation>;
 export type UpdateAvalaraIntegrationMutationResult = Apollo.MutationResult<UpdateAvalaraIntegrationMutation>;
 export type UpdateAvalaraIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateAvalaraIntegrationMutation, UpdateAvalaraIntegrationMutationVariables>;
+export const GetProviderByCodeForBraintreeDocument = gql`
+    query getProviderByCodeForBraintree($code: String) {
+  paymentProvider(code: $code) {
+    ... on AdyenProvider {
+      id
+    }
+    ... on BraintreeProvider {
+      id
+    }
+    ... on GocardlessProvider {
+      id
+    }
+    ... on FlutterwaveProvider {
+      id
+    }
+    ... on CashfreeProvider {
+      id
+    }
+    ... on StripeProvider {
+      id
+    }
+    ... on MoneyhashProvider {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProviderByCodeForBraintreeQuery__
+ *
+ * To run a query within a React component, call `useGetProviderByCodeForBraintreeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProviderByCodeForBraintreeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProviderByCodeForBraintreeQuery({
+ *   variables: {
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useGetProviderByCodeForBraintreeQuery(baseOptions?: Apollo.QueryHookOptions<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>(GetProviderByCodeForBraintreeDocument, options);
+      }
+export function useGetProviderByCodeForBraintreeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>(GetProviderByCodeForBraintreeDocument, options);
+        }
+export function useGetProviderByCodeForBraintreeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>(GetProviderByCodeForBraintreeDocument, options);
+        }
+export type GetProviderByCodeForBraintreeQueryHookResult = ReturnType<typeof useGetProviderByCodeForBraintreeQuery>;
+export type GetProviderByCodeForBraintreeLazyQueryHookResult = ReturnType<typeof useGetProviderByCodeForBraintreeLazyQuery>;
+export type GetProviderByCodeForBraintreeSuspenseQueryHookResult = ReturnType<typeof useGetProviderByCodeForBraintreeSuspenseQuery>;
+export type GetProviderByCodeForBraintreeQueryResult = Apollo.QueryResult<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>;
 export const GetProviderByCodeForCashfreeDocument = gql`
     query getProviderByCodeForCashfree($code: String) {
   paymentProvider(code: $code) {
@@ -25208,6 +25467,40 @@ export function useUpdateAdyenPaymentProviderMutation(baseOptions?: Apollo.Mutat
 export type UpdateAdyenPaymentProviderMutationHookResult = ReturnType<typeof useUpdateAdyenPaymentProviderMutation>;
 export type UpdateAdyenPaymentProviderMutationResult = Apollo.MutationResult<UpdateAdyenPaymentProviderMutation>;
 export type UpdateAdyenPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>;
+export const UpdateBraintreePaymentProviderDocument = gql`
+    mutation updateBraintreePaymentProvider($input: UpdateBraintreePaymentProviderInput!) {
+  updateBraintreePaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateBraintreePaymentProviderMutationFn = Apollo.MutationFunction<UpdateBraintreePaymentProviderMutation, UpdateBraintreePaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateBraintreePaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateBraintreePaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBraintreePaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBraintreePaymentProviderMutation, { data, loading, error }] = useUpdateBraintreePaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBraintreePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBraintreePaymentProviderMutation, UpdateBraintreePaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateBraintreePaymentProviderMutation, UpdateBraintreePaymentProviderMutationVariables>(UpdateBraintreePaymentProviderDocument, options);
+      }
+export type UpdateBraintreePaymentProviderMutationHookResult = ReturnType<typeof useUpdateBraintreePaymentProviderMutation>;
+export type UpdateBraintreePaymentProviderMutationResult = Apollo.MutationResult<UpdateBraintreePaymentProviderMutation>;
+export type UpdateBraintreePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateBraintreePaymentProviderMutation, UpdateBraintreePaymentProviderMutationVariables>;
 export const UpdateCashfreePaymentProviderDocument = gql`
     mutation updateCashfreePaymentProvider($input: UpdateCashfreePaymentProviderInput!) {
   updateCashfreePaymentProvider(input: $input) {
@@ -26683,6 +26976,39 @@ export function useDestroyAvalaraIntegrationMutation(baseOptions?: Apollo.Mutati
 export type DestroyAvalaraIntegrationMutationHookResult = ReturnType<typeof useDestroyAvalaraIntegrationMutation>;
 export type DestroyAvalaraIntegrationMutationResult = Apollo.MutationResult<DestroyAvalaraIntegrationMutation>;
 export type DestroyAvalaraIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyAvalaraIntegrationMutation, DestroyAvalaraIntegrationMutationVariables>;
+export const DeleteBraintreeIntegrationDocument = gql`
+    mutation deleteBraintreeIntegration($input: DestroyPaymentProviderInput!) {
+  destroyPaymentProvider(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteBraintreeIntegrationMutationFn = Apollo.MutationFunction<DeleteBraintreeIntegrationMutation, DeleteBraintreeIntegrationMutationVariables>;
+
+/**
+ * __useDeleteBraintreeIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDeleteBraintreeIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBraintreeIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBraintreeIntegrationMutation, { data, loading, error }] = useDeleteBraintreeIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteBraintreeIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DeleteBraintreeIntegrationMutation, DeleteBraintreeIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteBraintreeIntegrationMutation, DeleteBraintreeIntegrationMutationVariables>(DeleteBraintreeIntegrationDocument, options);
+      }
+export type DeleteBraintreeIntegrationMutationHookResult = ReturnType<typeof useDeleteBraintreeIntegrationMutation>;
+export type DeleteBraintreeIntegrationMutationResult = Apollo.MutationResult<DeleteBraintreeIntegrationMutation>;
+export type DeleteBraintreeIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteBraintreeIntegrationMutation, DeleteBraintreeIntegrationMutationVariables>;
 export const DeleteCashfreeDocument = gql`
     mutation deleteCashfree($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -34964,6 +35290,114 @@ export function useRemoveBillingEntityTaxesMutation(baseOptions?: Apollo.Mutatio
 export type RemoveBillingEntityTaxesMutationHookResult = ReturnType<typeof useRemoveBillingEntityTaxesMutation>;
 export type RemoveBillingEntityTaxesMutationResult = Apollo.MutationResult<RemoveBillingEntityTaxesMutation>;
 export type RemoveBillingEntityTaxesMutationOptions = Apollo.BaseMutationOptions<RemoveBillingEntityTaxesMutation, RemoveBillingEntityTaxesMutationVariables>;
+export const GetBraintreeIntegrationsDetailsDocument = gql`
+    query getBraintreeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+  paymentProvider(id: $id) {
+    ... on BraintreeProvider {
+      id
+      ...BraintreeIntegrationDetails
+      ...DeleteBraintreeIntegrationDialog
+      ...AddBraintreeProviderDialog
+      ...BraintreeForCreateAndEditSuccessRedirectUrl
+    }
+  }
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on BraintreeProvider {
+        id
+      }
+    }
+  }
+}
+    ${BraintreeIntegrationDetailsFragmentDoc}
+${DeleteBraintreeIntegrationDialogFragmentDoc}
+${AddBraintreeProviderDialogFragmentDoc}
+${BraintreeForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
+
+/**
+ * __useGetBraintreeIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetBraintreeIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBraintreeIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBraintreeIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetBraintreeIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetBraintreeIntegrationsDetailsQuery, GetBraintreeIntegrationsDetailsQueryVariables> & ({ variables: GetBraintreeIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBraintreeIntegrationsDetailsQuery, GetBraintreeIntegrationsDetailsQueryVariables>(GetBraintreeIntegrationsDetailsDocument, options);
+      }
+export function useGetBraintreeIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBraintreeIntegrationsDetailsQuery, GetBraintreeIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBraintreeIntegrationsDetailsQuery, GetBraintreeIntegrationsDetailsQueryVariables>(GetBraintreeIntegrationsDetailsDocument, options);
+        }
+export function useGetBraintreeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBraintreeIntegrationsDetailsQuery, GetBraintreeIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBraintreeIntegrationsDetailsQuery, GetBraintreeIntegrationsDetailsQueryVariables>(GetBraintreeIntegrationsDetailsDocument, options);
+        }
+export type GetBraintreeIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetBraintreeIntegrationsDetailsQuery>;
+export type GetBraintreeIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetBraintreeIntegrationsDetailsLazyQuery>;
+export type GetBraintreeIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetBraintreeIntegrationsDetailsSuspenseQuery>;
+export type GetBraintreeIntegrationsDetailsQueryResult = Apollo.QueryResult<GetBraintreeIntegrationsDetailsQuery, GetBraintreeIntegrationsDetailsQueryVariables>;
+export const GetBraintreeIntegrationsListDocument = gql`
+    query getBraintreeIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on BraintreeProvider {
+        id
+        ...BraintreeIntegrations
+        ...AddBraintreeProviderDialog
+        ...DeleteBraintreeIntegrationDialog
+      }
+    }
+  }
+}
+    ${BraintreeIntegrationsFragmentDoc}
+${AddBraintreeProviderDialogFragmentDoc}
+${DeleteBraintreeIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetBraintreeIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetBraintreeIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBraintreeIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBraintreeIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetBraintreeIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetBraintreeIntegrationsListQuery, GetBraintreeIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBraintreeIntegrationsListQuery, GetBraintreeIntegrationsListQueryVariables>(GetBraintreeIntegrationsListDocument, options);
+      }
+export function useGetBraintreeIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBraintreeIntegrationsListQuery, GetBraintreeIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBraintreeIntegrationsListQuery, GetBraintreeIntegrationsListQueryVariables>(GetBraintreeIntegrationsListDocument, options);
+        }
+export function useGetBraintreeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBraintreeIntegrationsListQuery, GetBraintreeIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBraintreeIntegrationsListQuery, GetBraintreeIntegrationsListQueryVariables>(GetBraintreeIntegrationsListDocument, options);
+        }
+export type GetBraintreeIntegrationsListQueryHookResult = ReturnType<typeof useGetBraintreeIntegrationsListQuery>;
+export type GetBraintreeIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetBraintreeIntegrationsListLazyQuery>;
+export type GetBraintreeIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetBraintreeIntegrationsListSuspenseQuery>;
+export type GetBraintreeIntegrationsListQueryResult = Apollo.QueryResult<GetBraintreeIntegrationsListQuery, GetBraintreeIntegrationsListQueryVariables>;
 export const GetCashfreeIntegrationsDetailsDocument = gql`
     query getCashfreeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
