@@ -20,7 +20,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
       message: '',
     },
     onSubmit: (values, props) => {
-      if (state.isLoading || state.isStreaming) return
+      if (!values.message || state.isLoading || state.isStreaming) return
 
       handleSubmit(values, props)
       formikProps.resetForm()

@@ -1,34 +1,11 @@
-import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 
+import { useGetAiConversation } from '~/components/aiAgent/hooks/getAiConversation'
+import { useListAiConversations } from '~/components/aiAgent/hooks/listAiConversations'
 import { Skeleton, Typography } from '~/components/designSystem'
-import { useGetAiConversationLazyQuery, useListAiConversationsQuery } from '~/generated/graphql'
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { tw } from '~/styles/utils'
-
-gql`
-  query getAiConversation($id: ID!) {
-    aiConversation(id: $id) {
-      id
-      name
-      messages {
-        content
-        type
-      }
-    }
-  }
-
-  query listAiConversations($limit: Int) {
-    aiConversations(limit: $limit) {
-      collection {
-        id
-        name
-        updatedAt
-      }
-    }
-  }
-`
 
 type ChatHistoryProps = {
   hideHistory?: () => void
@@ -37,12 +14,9 @@ type ChatHistoryProps = {
 export const ChatHistory = ({ hideHistory }: ChatHistoryProps) => {
   const { setPreviousChatMessages } = useAiAgent()
 
-  const [getAiConversation] = useGetAiConversationLazyQuery()
-  const { data, loading, error } = useListAiConversationsQuery({
-    variables: {
-      limit: 3,
-    },
-  })
+  const { getAiConversation } = useGetAiConversation()
+
+  const { data, loading, error } = useListAiConversations()
 
   const handleGetAiConversation = async (id: string) => {
     const { data: singleConversationData } = await getAiConversation({
@@ -53,7 +27,7 @@ export const ChatHistory = ({ hideHistory }: ChatHistoryProps) => {
 
     if (singleConversationData?.aiConversation?.id) {
       const formattedMessages = singleConversationData?.aiConversation?.messages?.map((message) => {
-        const randomKey = Math.round(Math.random() * 100000)
+        const randomKey = crypto.randomUUID()
 
         return {
           id: `${message.type}-${randomKey}`,

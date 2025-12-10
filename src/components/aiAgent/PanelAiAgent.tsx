@@ -1,46 +1,24 @@
-import { gql } from '@apollo/client'
 import { useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
 import { ChatPromptEditor } from '~/components/aiAgent/ChatPromptEditor'
 import { ChatShortcuts } from '~/components/aiAgent/ChatShortcuts'
+import { useCreateAiConversation } from '~/components/aiAgent/hooks/useCreateAiConversation'
+import { useOnConversation } from '~/components/aiAgent/hooks/useOnConversation'
 import { Typography } from '~/components/designSystem'
-import {
-  CreateAiConversationInput,
-  useCreateAiConversationMutation,
-  useOnConversationSubscription,
-} from '~/generated/graphql'
+import { CreateAiConversationInput } from '~/generated/graphql'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-gql`
-  mutation createAiConversation($input: CreateAiConversationInput!) {
-    createAiConversation(input: $input) {
-      id
-      name
-    }
-  }
-  subscription onConversation($id: ID!) {
-    aiConversationStreamed(id: $id) {
-      chunk
-      done
-    }
-  }
-`
-
 export const PanelAiAgent = () => {
   const { conversationId, state, startNewConversation, addNewMessage } = useAiAgent()
-  const [createAiConversation, { loading, error }] = useCreateAiConversationMutation()
+  const { createAiConversation, loading, error } = useCreateAiConversation()
   const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
 
-  const subscription = useOnConversationSubscription({
-    skip: !conversationId,
-    variables: {
-      id: conversationId ?? '',
-    },
-    fetchPolicy: 'no-cache',
+  const subscription = useOnConversation({
+    conversationId,
   })
 
   const handleSubmit = async (values: CreateAiConversationInput) => {
@@ -57,15 +35,18 @@ export const PanelAiAgent = () => {
       onCompleted: (data) => {
         if (conversationId) {
           addNewMessage(values.message)
-          subscription.restart()
-        } else {
-          if (!!data.createAiConversation?.id) {
-            startNewConversation({
-              convId: data.createAiConversation.id,
-              message: values.message,
-            })
-          }
+
+          return subscription.restart()
         }
+
+        if (!data.createAiConversation?.id) {
+          return
+        }
+
+        return startNewConversation({
+          convId: data.createAiConversation.id,
+          message: values.message,
+        })
       },
     })
   }
@@ -89,7 +70,7 @@ export const PanelAiAgent = () => {
         </div>
       )}
 
-      {!shouldDisplayWelcomeMessage && !state.messages.length && initialPrompt && (
+      {!shouldDisplayWelcomeMessage && !state.messages.length && initialPrompt && !error && (
         <div className="mt-auto flex h-full flex-col gap-12 p-6">
           <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>
 
