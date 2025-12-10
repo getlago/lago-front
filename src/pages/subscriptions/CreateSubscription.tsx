@@ -136,6 +136,12 @@ gql`
       paymentMethod {
         id
       }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+        code
+      }
       plan {
         id
         parent {
@@ -283,6 +289,11 @@ const CreateSubscription = () => {
       paymentMethod: {
         paymentMethodType: subscription?.paymentMethodType,
         paymentMethodId: subscription?.paymentMethod?.id,
+      },
+      invoiceCustomSection: {
+        invoiceCustomSectionIds:
+          subscription?.selectedInvoiceCustomSections?.map((section) => section.id) || [],
+        skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
       },
     },
     validationSchema: object().shape({

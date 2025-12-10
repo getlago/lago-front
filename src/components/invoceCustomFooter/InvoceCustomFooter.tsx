@@ -6,6 +6,7 @@ import { InvoiceCustomerFooterSelection } from '~/components/invoceCustomFooter/
 import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
 import {
   CustomerAppliedInvoiceCustomSectionsFragmentDoc,
+  InvoiceCustomSectionsReferenceInput,
   useGetCustomerAppliedInvoiceCustomSectionsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -30,12 +31,29 @@ interface InvoceCustomFooterProps {
   customerId: string
   title: string
   description: string
+  invoiceCustomSection?: InvoiceCustomSectionsReferenceInput
+  setInvoiceCustomSection?: (item: InvoiceCustomSectionsReferenceInput) => void
 }
 
-export const InvoceCustomFooter = ({ customerId, title, description }: InvoceCustomFooterProps) => {
+export const InvoceCustomFooter = ({
+  customerId,
+  title,
+  description,
+  invoiceCustomSection,
+  setInvoiceCustomSection,
+}: InvoceCustomFooterProps) => {
   const { translate } = useInternationalization()
   const [invoiceCustomSelected, setInvoiceCustomSelected] = useState<MappedInvoiceSection[]>([])
   const [shouldDisplayCombobox, setShouldDisplayCombobox] = useState(false)
+  const { invoiceCustomSectionIds, skipInvoiceCustomSections } = invoiceCustomSection ?? {}
+
+  // eslint-disable-next-line no-console
+  console.log(
+    'invoiceCustomSection',
+    invoiceCustomSectionIds,
+    skipInvoiceCustomSections,
+    setInvoiceCustomSection,
+  )
 
   const { data } = useGetCustomerAppliedInvoiceCustomSectionsQuery({
     variables: { id: customerId },
