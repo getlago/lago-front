@@ -58,7 +58,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           formikProps={formikProps}
           placeholder={translate('text_1757417225851xkstj2u16q5')}
           inputProps={{
-            className: '!resize-none w-full !pr-9 !py-3 overflow-y-auto',
+            className: '!resize-none w-full !pr-13 !py-3 overflow-y-auto text-sm',
           }}
           disabled={state.isLoading || state.isStreaming}
         />
@@ -66,7 +66,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
         <button
           type="submit"
           className={tw(
-            'absolute right-4 top-3 flex size-6 items-center justify-center rounded-lg bg-grey-100',
+            'absolute right-4 top-3.5 flex size-6 items-center justify-center rounded-lg bg-grey-100',
             canSubmit && 'bg-blue-600',
           )}
           disabled={!canSubmit}
