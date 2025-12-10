@@ -3576,5 +3576,9 @@
   "text_1765363318310cus5jjpugdm": "Apply custom sections to this {{object}}'s invoices",
   "text_1765363318310e0gyrs2ijkn": "Do not display custom sections on {{object}}'s invoices",
   "text_17653633183105vrys5z3tvj": "Search and select a custom section",
-  "text_1765363318310jm7wdrj7zzk": "Edit invoice custom section"
+  "text_1765363318310jm7wdrj7zzk": "Edit invoice custom section",
+  "text_1765373135518xm96ypchuls": "Inherit from customer",
+  "text_1765373135519xqsbx2q5h1h": "Inherit from billing entity",
+  "text_17653731355193nuiojugqom": "Do not display custom sections on {{object}}'s invoices (inherit from customer)",
+  "text_176537313551954twfx3pys9": "No custom section applies to this {{object}}."
 }

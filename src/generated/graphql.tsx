@@ -9559,7 +9559,7 @@ export type EditCustomerDunningCampaignMutationVariables = Exact<{
 
 export type EditCustomerDunningCampaignMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string } | null } | null };
 
-export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string }> | null };
+export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null };
 
 export type EditCustomerInvoiceCustomSectionMutationVariables = Exact<{
   input: UpdateCustomerInput;
@@ -10075,13 +10075,6 @@ export type GetInvoicedUsagesQueryVariables = Exact<{
 
 
 export type GetInvoicedUsagesQuery = { __typename?: 'Query', invoicedUsages: { __typename?: 'InvoicedUsageCollection', collection: Array<{ __typename?: 'InvoicedUsage', amountCents: any, month: any, currency: CurrencyEnum, code?: string | null }> } };
-
-export type GetCustomerAppliedInvoiceCustomSectionsQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetCustomerAppliedInvoiceCustomSectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null } | null };
 
 export type InvoiceMetadatasForMetadataDrawerFragment = { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null };
 
@@ -11690,6 +11683,13 @@ export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
+
+export type GetCustomerInvoiceCustomSectionsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type GetCustomerInvoiceCustomSectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null } | null };
 
 export type UpdateBillingEntityEmailSettingMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
@@ -14164,6 +14164,7 @@ export const EditCustomerInvoiceCustomSectionFragmentDoc = gql`
   externalId
   configurableInvoiceCustomSections {
     id
+    name
   }
   hasOverwrittenInvoiceCustomSectionsSelection
   skipInvoiceCustomSections
@@ -23403,47 +23404,6 @@ export type GetInvoicedUsagesQueryHookResult = ReturnType<typeof useGetInvoicedU
 export type GetInvoicedUsagesLazyQueryHookResult = ReturnType<typeof useGetInvoicedUsagesLazyQuery>;
 export type GetInvoicedUsagesSuspenseQueryHookResult = ReturnType<typeof useGetInvoicedUsagesSuspenseQuery>;
 export type GetInvoicedUsagesQueryResult = Apollo.QueryResult<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>;
-export const GetCustomerAppliedInvoiceCustomSectionsDocument = gql`
-    query getCustomerAppliedInvoiceCustomSections($id: ID!) {
-  customer(id: $id) {
-    id
-    ...CustomerAppliedInvoiceCustomSections
-  }
-}
-    ${CustomerAppliedInvoiceCustomSectionsFragmentDoc}`;
-
-/**
- * __useGetCustomerAppliedInvoiceCustomSectionsQuery__
- *
- * To run a query within a React component, call `useGetCustomerAppliedInvoiceCustomSectionsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerAppliedInvoiceCustomSectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerAppliedInvoiceCustomSectionsQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetCustomerAppliedInvoiceCustomSectionsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerAppliedInvoiceCustomSectionsQuery, GetCustomerAppliedInvoiceCustomSectionsQueryVariables> & ({ variables: GetCustomerAppliedInvoiceCustomSectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerAppliedInvoiceCustomSectionsQuery, GetCustomerAppliedInvoiceCustomSectionsQueryVariables>(GetCustomerAppliedInvoiceCustomSectionsDocument, options);
-      }
-export function useGetCustomerAppliedInvoiceCustomSectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerAppliedInvoiceCustomSectionsQuery, GetCustomerAppliedInvoiceCustomSectionsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerAppliedInvoiceCustomSectionsQuery, GetCustomerAppliedInvoiceCustomSectionsQueryVariables>(GetCustomerAppliedInvoiceCustomSectionsDocument, options);
-        }
-export function useGetCustomerAppliedInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerAppliedInvoiceCustomSectionsQuery, GetCustomerAppliedInvoiceCustomSectionsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerAppliedInvoiceCustomSectionsQuery, GetCustomerAppliedInvoiceCustomSectionsQueryVariables>(GetCustomerAppliedInvoiceCustomSectionsDocument, options);
-        }
-export type GetCustomerAppliedInvoiceCustomSectionsQueryHookResult = ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsQuery>;
-export type GetCustomerAppliedInvoiceCustomSectionsLazyQueryHookResult = ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsLazyQuery>;
-export type GetCustomerAppliedInvoiceCustomSectionsSuspenseQueryHookResult = ReturnType<typeof useGetCustomerAppliedInvoiceCustomSectionsSuspenseQuery>;
-export type GetCustomerAppliedInvoiceCustomSectionsQueryResult = Apollo.QueryResult<GetCustomerAppliedInvoiceCustomSectionsQuery, GetCustomerAppliedInvoiceCustomSectionsQueryVariables>;
 export const UpdateInvoiceMetadataDocument = gql`
     mutation updateInvoiceMetadata($input: UpdateInvoiceInput!) {
   updateInvoice(input: $input) {
@@ -30018,6 +29978,47 @@ export type GetCurrentUserInfosQueryHookResult = ReturnType<typeof useGetCurrent
 export type GetCurrentUserInfosLazyQueryHookResult = ReturnType<typeof useGetCurrentUserInfosLazyQuery>;
 export type GetCurrentUserInfosSuspenseQueryHookResult = ReturnType<typeof useGetCurrentUserInfosSuspenseQuery>;
 export type GetCurrentUserInfosQueryResult = Apollo.QueryResult<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>;
+export const GetCustomerInvoiceCustomSectionsDocument = gql`
+    query getCustomerInvoiceCustomSections($customerId: ID!) {
+  customer(id: $customerId) {
+    id
+    ...EditCustomerInvoiceCustomSection
+  }
+}
+    ${EditCustomerInvoiceCustomSectionFragmentDoc}`;
+
+/**
+ * __useGetCustomerInvoiceCustomSectionsQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerInvoiceCustomSectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerInvoiceCustomSectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerInvoiceCustomSectionsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useGetCustomerInvoiceCustomSectionsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables> & ({ variables: GetCustomerInvoiceCustomSectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>(GetCustomerInvoiceCustomSectionsDocument, options);
+      }
+export function useGetCustomerInvoiceCustomSectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>(GetCustomerInvoiceCustomSectionsDocument, options);
+        }
+export function useGetCustomerInvoiceCustomSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>(GetCustomerInvoiceCustomSectionsDocument, options);
+        }
+export type GetCustomerInvoiceCustomSectionsQueryHookResult = ReturnType<typeof useGetCustomerInvoiceCustomSectionsQuery>;
+export type GetCustomerInvoiceCustomSectionsLazyQueryHookResult = ReturnType<typeof useGetCustomerInvoiceCustomSectionsLazyQuery>;
+export type GetCustomerInvoiceCustomSectionsSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInvoiceCustomSectionsSuspenseQuery>;
+export type GetCustomerInvoiceCustomSectionsQueryResult = Apollo.QueryResult<GetCustomerInvoiceCustomSectionsQuery, GetCustomerInvoiceCustomSectionsQueryVariables>;
 export const UpdateBillingEntityEmailSettingDocument = gql`
     mutation updateBillingEntityEmailSetting($input: UpdateBillingEntityInput!) {
   updateBillingEntity(input: $input) {

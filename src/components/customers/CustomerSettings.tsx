@@ -855,7 +855,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           />
           <EditCustomerInvoiceCustomSectionsDialog
             ref={editCustomerInvoiceCustomSectionsDialogRef}
-            customer={customer}
+            customerId={customerId}
           />
           <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
           <DeleteCustomerDocumentLocaleDialog

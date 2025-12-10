@@ -2,10 +2,16 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { render } from '~/test-utils'
 
-import { EDIT_BUTTON, InvoceCustomFooter, SECTION_CHIP } from '../InvoceCustomFooter'
+import {
+  EDIT_BUTTON,
+  FALLBACK_BILLING_ENTITY_LABEL,
+  InvoceCustomFooter,
+  SECTION_CHIP,
+} from '../InvoceCustomFooter'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: jest.fn(),
@@ -13,6 +19,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 jest.mock('~/hooks/useInvoiceCustomSections', () => ({
   useInvoiceCustomSections: jest.fn(),
+}))
+
+jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
+  useCustomerInvoiceCustomSections: jest.fn(),
 }))
 
 jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () => ({
@@ -57,6 +67,7 @@ jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () =
 
 const mockUseInternationalization = jest.mocked(useInternationalization)
 const mockUseInvoiceCustomSections = jest.mocked(useInvoiceCustomSections)
+const mockUseCustomerInvoiceCustomSections = jest.mocked(useCustomerInvoiceCustomSections)
 
 describe('InvoceCustomFooter', () => {
   beforeEach(() => {
@@ -73,13 +84,31 @@ describe('InvoceCustomFooter', () => {
         { id: 'section-2', name: 'Section 2', code: 'section-2' },
       ],
       loading: false,
+      error: false,
     } as ReturnType<typeof useInvoiceCustomSections>)
+
+    mockUseCustomerInvoiceCustomSections.mockReturnValue({
+      data: {
+        customerId: 'customer-1',
+        externalId: 'ext-customer-1',
+        configurableInvoiceCustomSections: [
+          { id: 'section-1', name: 'Section 1' },
+          { id: 'section-2', name: 'Section 2' },
+        ],
+        hasOverwrittenInvoiceCustomSectionsSelection: false,
+        skipInvoiceCustomSections: false,
+      },
+      loading: false,
+      error: false,
+      customer: null,
+    } as ReturnType<typeof useCustomerInvoiceCustomSections>)
   })
 
-  describe('WHEN invoiceCustomSection has selected sections', () => {
+  describe('WHEN invoiceCustomSection has selected sections (APPLY behavior)', () => {
     it('THEN displays chips for selected sections', async () => {
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -96,9 +125,10 @@ describe('InvoceCustomFooter', () => {
       })
     })
 
-    it('THEN does not display chips when skipInvoiceCustomSections is true', async () => {
+    it('THEN does not display chips when skipInvoiceCustomSections is true (NONE behavior)', async () => {
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -114,9 +144,10 @@ describe('InvoceCustomFooter', () => {
       })
     })
 
-    it('THEN does not display chips when invoiceCustomSectionIds is null', async () => {
+    it('THEN falls back to billing entity sections when invoiceCustomSectionIds is null (FALLBACK behavior)', async () => {
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -127,8 +158,11 @@ describe('InvoceCustomFooter', () => {
         />,
       )
 
+      // Should show "Inherit from billing entity" with sections from customer query
+      // since hasOverwrittenInvoiceCustomSectionsSelection=false and skipInvoiceCustomSections=false
       await waitFor(() => {
-        expect(screen.queryByTestId(SECTION_CHIP('section-1'))).not.toBeInTheDocument()
+        expect(screen.getByTestId(FALLBACK_BILLING_ENTITY_LABEL)).toBeInTheDocument()
+        expect(screen.getByText('Section 1')).toBeInTheDocument()
       })
     })
   })
@@ -137,6 +171,7 @@ describe('InvoceCustomFooter', () => {
     it('THEN shows dialog when edit button is clicked', async () => {
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -155,6 +190,7 @@ describe('InvoceCustomFooter', () => {
     it('THEN closes dialog when close button is clicked', async () => {
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -185,6 +221,7 @@ describe('InvoceCustomFooter', () => {
 
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -213,6 +250,7 @@ describe('InvoceCustomFooter', () => {
 
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -234,7 +272,7 @@ describe('InvoceCustomFooter', () => {
 
       await waitFor(() => {
         expect(setInvoiceCustomSection).toHaveBeenCalledWith({
-          invoiceCustomSectionIds: null,
+          invoiceCustomSectionIds: [],
           skipInvoiceCustomSections: false,
         })
       })
@@ -245,6 +283,7 @@ describe('InvoceCustomFooter', () => {
 
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
@@ -273,6 +312,7 @@ describe('InvoceCustomFooter', () => {
     it('THEN shows chips with correct test ids', async () => {
       render(
         <InvoceCustomFooter
+          customerId="customer-1"
           title="Test Title"
           description="Test Description"
           viewType="subscription"
