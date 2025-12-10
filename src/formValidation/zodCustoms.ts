@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 const EMAIL_REGEX: RegExp =
   // eslint-disable-next-line no-control-regex

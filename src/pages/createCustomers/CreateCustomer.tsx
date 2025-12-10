@@ -78,7 +78,7 @@ const CreateCustomer = () => {
     validators: {
       onDynamic: validationSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       const formattedValues = mapFromFormToApi(value, {
         paymentProvider: getPaymentProvider(value.paymentProviderCode),
         taxProviders,
@@ -91,7 +91,7 @@ const CreateCustomer = () => {
       const { errors } = answer
 
       if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-        form.setErrorMap({
+        formApi.setErrorMap({
           onDynamic: {
             fields: {
               externalId: {
@@ -104,7 +104,7 @@ const CreateCustomer = () => {
         return
       }
 
-      !isEdition && form.reset()
+      !isEdition && formApi.reset()
     },
     onSubmitInvalid({ formApi }) {
       scrollToFirstInputError('create-customer', formApi.state.errorMap.onDynamic || {})
