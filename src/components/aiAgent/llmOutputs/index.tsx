@@ -13,6 +13,6 @@ export const Message: FC<MessageProps> = ({ message }: MessageProps) => {
   return blockMatches.map((blockMatch, index) => {
     const Component = blockMatch.block.component
 
-    return <Component key={index} blockMatch={blockMatch} />
+    return <Component key={`llm-message-component-${index}`} blockMatch={blockMatch} />
   })
 }
