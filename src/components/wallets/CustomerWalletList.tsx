@@ -25,7 +25,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-const ACTIVE_WALLET_COUNT_LIMIT = 1
+const ACTIVE_WALLET_COUNT_LIMIT = 5
 
 gql`
   fragment CustomerWallet on Wallet {
