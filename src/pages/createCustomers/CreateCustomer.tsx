@@ -1,6 +1,6 @@
-import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { useCallback, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
@@ -111,11 +111,11 @@ const CreateCustomer = () => {
     },
   })
 
-  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const handleAbort = () => {
+    const isDirty = form.store.state.isDirty
 
-  const handleAbort = useCallback(() => {
     isDirty ? warningDialogRef.current?.openDialog() : onClose()
-  }, [isDirty, onClose])
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

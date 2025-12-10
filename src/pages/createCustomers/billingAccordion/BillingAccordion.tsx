@@ -25,7 +25,7 @@ const BillingAccordion = withForm({
   render: function Render({ form, isEdition, customer }) {
     const { translate } = useInternationalization()
 
-    const address = useStore(form.store, (state) => state.values.billingAddress)
+    const billingAddress = useStore(form.store, (state) => state.values.billingAddress)
     const isShippingEqualBillingAddress = useStore(
       form.store,
       (state) => state.values.isShippingEqualBillingAddress,
@@ -33,11 +33,10 @@ const BillingAccordion = withForm({
 
     useEffect(() => {
       if (isShippingEqualBillingAddress) {
-        form.setFieldValue('shippingAddress', address ? { ...address } : undefined)
+        form.setFieldValue('shippingAddress', billingAddress ? { ...billingAddress } : undefined)
       }
-
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [address, isShippingEqualBillingAddress])
+    }, [billingAddress, isShippingEqualBillingAddress])
 
     const currencyDataForCombobox = Object.values(CurrencyEnum).map((currencyType) => ({
       value: currencyType,
@@ -142,7 +141,6 @@ const BillingAccordion = withForm({
 
             <BillingFields
               form={form}
-              // Put the fields in shippingAddress object
               fields="shippingAddress"
               isDisabled={isShippingEqualBillingAddress}
             />

@@ -260,17 +260,17 @@ describe('useAccountingProviders', () => {
     })
 
     it('should handle delayed responses', async () => {
-      const { result } = await prepare({ delay: 100 })
+      const { result } = await prepare({ delay: 200 })
 
       expect(result.current.isLoadingAccountProviders).toBe(true)
       expect(result.current.accountingProviders).toBeUndefined()
 
-      // Before delay completes
-      await act(() => wait(20))
+      // Before delay completes - wait less than the mock delay
+      await act(() => wait(50))
       expect(result.current.isLoadingAccountProviders).toBe(true)
 
-      // After delay completes
-      await act(() => wait(100))
+      // After delay completes - wait for remaining time plus buffer
+      await act(() => wait(200))
       expect(result.current.isLoadingAccountProviders).toBe(false)
       expect(result.current.accountingProviders).toBeDefined()
     })

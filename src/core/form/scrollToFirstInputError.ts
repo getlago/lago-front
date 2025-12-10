@@ -10,11 +10,14 @@ export const scrollToFirstInputError = (formId: string, errorMap: Record<string,
     return !!fieldErrors
   })
 
-  if (firstInput) {
+  if (firstInput?.isConnected) {
     firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' })
     // Timeout just to ensure scrolling has finished
     setTimeout(() => {
-      firstInput.focus()
+      // Check if element still exists in the DOM before focusing
+      if (firstInput.isConnected) {
+        firstInput.focus()
+      }
     }, 300)
   }
 }
