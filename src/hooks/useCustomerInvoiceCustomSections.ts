@@ -43,10 +43,6 @@ interface UseCustomerInvoiceCustomSectionsReturn {
 
 /**
  * Hook to fetch customer invoice custom sections settings.
- * Returns the customer's custom section configuration including:
- * - configurableInvoiceCustomSections: Sections configured for this customer
- * - hasOverwrittenInvoiceCustomSectionsSelection: whether customer has overwritten the billing entity's sections
- * - skipInvoiceCustomSections: whether customer has disabled custom sections on this object
  */
 export const useCustomerInvoiceCustomSections = (
   customerId: string | undefined,
