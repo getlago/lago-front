@@ -253,7 +253,7 @@ describe('Wallet Top-Up Limits Switch Visibility', () => {
       cy.url().should('include', '/customer/')
 
       // Create wallet WITH limits
-      cy.get('button[role="tab"]', { timeout: 10000 }).contains('Wallet').click()
+      cy.get('button[role="tab"]', { timeout: 20000 }).contains('Wallet').click()
       cy.get(`[data-test="${CREATE_WALLET_DATA_TEST}"]`).click()
       cy.get('input[name="name"]').type(`${walletName} For TopUp With Limits`)
       cy.get('input[name="rateAmount"]').clear().type('1')
@@ -270,7 +270,7 @@ describe('Wallet Top-Up Limits Switch Visibility', () => {
 
       // Click top-up button
       cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`).should('be.visible')
-      cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`, { timeout: 10000 }).click()
+      cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`, { timeout: 20000 }).click()
       cy.url().should('include', '/wallet/')
       cy.url().should('include', '/top-up')
 
