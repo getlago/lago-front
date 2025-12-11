@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { embedDashboard } from '@superset-ui/embedded-sdk'
-import { Skeleton, Typography } from 'lago-design-system'
 import { useEffect } from 'react'
 
+import { Skeleton, Typography } from '~/components/designSystem'
 import { envGlobalVar } from '~/core/apolloClient'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
