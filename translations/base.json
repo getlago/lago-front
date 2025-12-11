@@ -1698,7 +1698,7 @@
   "text_620bc4d4269a55014d493f9e": "Hide password",
   "text_620bc4d4269a55014d493fb7": "Sorry, that email and password combination is incorrect.",
   "text_620bc4d4269a55014d493fc3": "This value is not an email address, please enter a valid email.",
-  "text_622f7a3dc32ce100c46a5154": "An error occurred, please reload the application",
+  "text_622f7a3dc32ce100c46a5154": "Something went wrong. If the error persists, please contact us.",
   "text_62c84d0029355c83db4dd186": "Don’t have an account? <a data-text=\"Sign up\" href=\"{{linkSignUp}}\">-</a>",
   "text_628cf761cbe6820138b8f2e4": "Overview",
   "text_628cf761cbe6820138b8f2e6": "Invoices",
