@@ -195,19 +195,13 @@ describe('Wallet Top-Up Limits Switch Visibility', () => {
 
   describe('Scenario 3: Top-Up Form for Wallet WITHOUT min/max limits', () => {
     it('should NOT show ignorePaidTopUpLimits switch in top-up form', () => {
-      let customerId: string
-
       // Create customer and wallet WITHOUT limits
       cy.visit('/customers')
       cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
       cy.get('input[name="externalId"]').type(`${randomId}-topup-no-limits`)
       cy.get('input[name="name"]').type(`${customerName} - TopUp No Limits`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
-
-      // Save customer ID from URL
-      cy.url().then((url) => {
-        customerId = url.split('/customer/')[1].split('/')[0]
-      })
+      cy.url().should('include', '/customer/')
 
       // Create wallet WITHOUT limits
       cy.get('button[role="tab"]', { timeout: 10000 }).contains('Wallet').click()
@@ -250,18 +244,13 @@ describe('Wallet Top-Up Limits Switch Visibility', () => {
 
   describe('Scenario 4: Top-Up Form for Wallet WITH min/max limits', () => {
     it('should show BOTH switches in top-up form', () => {
-      let customerId: string
       // Create customer and wallet WITH limits
       cy.visit('/customers')
       cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
       cy.get('input[name="externalId"]').type(`${randomId}-topup-with-limits`)
       cy.get('input[name="name"]').type(`${customerName} - TopUp With Limits`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
-
-      // Save customer ID from URL
-      cy.url().then((url) => {
-        customerId = url.split('/customer/')[1].split('/')[0]
-      })
+      cy.url().should('include', '/customer/')
 
       // Create wallet WITH limits
       cy.get('button[role="tab"]', { timeout: 10000 }).contains('Wallet').click()
