@@ -43,6 +43,11 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
       // Generic script errors from extensions
       /^Script error\.?$/i,
       /^Javascript error: Script error\.? on line 0$/i,
+      // Apollo Client abort errors (user navigating away, component unmounting, etc.)
+      // Matches "signal aborted", "AbortError: signal aborted", etc.
+      /signal aborted/i,
+      // Also catch generic AbortError messages
+      'AbortError',
     ],
     // Deny URLs from browser extensions and other noise
     denyUrls: [
