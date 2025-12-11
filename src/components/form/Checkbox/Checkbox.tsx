@@ -1,6 +1,7 @@
 import { ChangeEvent, useId, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
 import { CheckboxIcon } from './CheckboxIcon'
@@ -29,6 +30,7 @@ export const Checkbox = ({
   onChange,
 }: CheckboxProps) => {
   const componentId = useId()
+  const { translate } = useInternationalization()
 
   const inputRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
@@ -88,7 +90,7 @@ export const Checkbox = ({
       </div>
       {!!error && (
         <Typography className="mt-1" variant="caption" color="danger600">
-          {error}
+          {translate(error)}
         </Typography>
       )}
     </label>
