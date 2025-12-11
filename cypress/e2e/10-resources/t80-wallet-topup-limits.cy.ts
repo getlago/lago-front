@@ -217,7 +217,7 @@ describe('Wallet Top-Up Limits Switch Visibility', () => {
       cy.get(`[data-test="${WALLET_ACTIONS_DATA_TEST}"]`, { timeout: 10000 }).click()
 
       // Click top-up button
-      cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`).click()
+      cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`).should('be.visible').click()
       cy.url().should('include', '/wallet/')
       cy.url().should('include', '/top-up')
 
@@ -242,55 +242,65 @@ describe('Wallet Top-Up Limits Switch Visibility', () => {
     })
   })
 
-  // describe('Scenario 4: Top-Up Form for Wallet WITH min/max limits', () => {
-  //   it('should show BOTH switches in top-up form', () => {
-  //     // Create customer and wallet WITH limits
-  //     cy.visit('/customers')
-  //     cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
-  //     cy.get('input[name="externalId"]').type(`${randomId}-topup-with-limits`)
-  //     cy.get('input[name="name"]').type(`${customerName} - TopUp With Limits`)
-  //     cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
-  //     cy.url().should('include', '/customer/')
+  describe('Scenario 4: Top-Up Form for Wallet WITH min/max limits', () => {
+    it('should show BOTH switches in top-up form', () => {
+      // Create customer and wallet WITH limits
+      cy.visit('/customers')
+      cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
+      cy.get('input[name="externalId"]').type(`${randomId}-topup-with-limits`)
+      cy.get('input[name="name"]').type(`${customerName} - TopUp With Limits`)
 
-  //     // Create wallet WITH limits
-  //     cy.get('button[role="tab"]', { timeout: 20000 }).contains('Wallet').click()
-  //     cy.get(`[data-test="${CREATE_WALLET_DATA_TEST}"]`).click()
-  //     cy.get('input[name="name"]').type(`${walletName} For TopUp With Limits`)
-  //     cy.get('input[name="rateAmount"]').clear().type('1')
-  //     cy.get(`[data-test="${ADD_MIN_MAX_AMOUNT_DATA_TEST}"]`).click()
-  //     cy.get(`[data-test="${ADD_MIN_TOPUP_OPTION_DATA_TEST}"]`).click()
-  //     cy.get('input[name="paidTopUpMinAmountCents"]').type('10')
-  //     cy.get(`[data-test="${SUBMIT_WALLET_DATA_TEST}"]`).click()
+      // Intercept the customer details query BEFORE triggering the navigation
+      cy.intercept('POST', '/graphql', (req) => {
+        if (req.body.operationName === 'getCustomer') {
+          req.alias = 'getCustomer'
+        }
+      })
 
-  //     // make sure we're on the correct page
-  //     cy.url().should('include', '/wallet/')
+      cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
+      cy.url().should('include', '/customer/')
 
-  //     // Click on the wallet actions button
-  //     cy.get(`[data-test="${WALLET_ACTIONS_DATA_TEST}"]`, { timeout: 10000 }).click()
+      // Wait for customer data to load completely before looking for tabs
+      cy.wait('@getCustomer')
 
-  //     // Click top-up button
-  //     cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`).should('be.visible')
-  //     cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`, { timeout: 20000 }).click()
-  //     cy.url().should('include', '/wallet/')
-  //     cy.url().should('include', '/top-up')
+      // Create wallet WITH limits - use data-test attribute for reliability
+      cy.get('[data-test="wallet-tab"]').should('be.visible').click()
+      cy.get(`[data-test="${CREATE_WALLET_DATA_TEST}"]`).click()
+      cy.get('input[name="name"]').type(`${walletName} For TopUp With Limits`)
+      cy.get('input[name="rateAmount"]').clear().type('1')
+      cy.get(`[data-test="${ADD_MIN_MAX_AMOUNT_DATA_TEST}"]`).click()
+      cy.get(`[data-test="${ADD_MIN_TOPUP_OPTION_DATA_TEST}"]`).click()
+      cy.get('input[name="paidTopUpMinAmountCents"]').type('10')
+      cy.get(`[data-test="${SUBMIT_WALLET_DATA_TEST}"]`).click()
 
-  //     // Enter credits to purchase
-  //     cy.get('input[name="paidCredits"]').type('50')
+      // make sure we're on the correct page
+      cy.url().should('include', '/wallet/')
 
-  //     // Should see BOTH switches
-  //     cy.get(`[data-test="${INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}"]`).should(
-  //       'exist',
-  //     )
-  //     cy.get(`[data-test="${IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}"]`).should('exist')
+      // Click on the wallet actions button
+      cy.get(`[data-test="${WALLET_ACTIONS_DATA_TEST}"]`, { timeout: 30000 }).click()
 
-  //     // Clear the paid credits
-  //     cy.get('input[name="paidCredits"]').clear()
+      // Click top-up button
+      cy.get(`[data-test="${WALLET_TOPUP_BUTTON_DATA_TEST}"]`).click()
+      cy.url().should('include', '/wallet/')
+      cy.url().should('include', '/top-up')
 
-  //     // Both switches should disappear
-  //     cy.get(`[data-test="${INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}"]`).should(
-  //       'not.exist',
-  //     )
-  //     cy.get(`[data-test="${IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}"]`).should('not.exist')
-  //   })
-  // })
+      // Enter credits to purchase
+      cy.get('input[name="paidCredits"]').type('50')
+
+      // Should see BOTH switches
+      cy.get(`[data-test="${INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}"]`).should(
+        'exist',
+      )
+      cy.get(`[data-test="${IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}"]`).should('exist')
+
+      // Clear the paid credits
+      cy.get('input[name="paidCredits"]').clear()
+
+      // Both switches should disappear
+      cy.get(`[data-test="${INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}"]`).should(
+        'not.exist',
+      )
+      cy.get(`[data-test="${IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}"]`).should('not.exist')
+    })
+  })
 })
