@@ -2,19 +2,19 @@ import { useMemo } from 'react'
 
 import { Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
-import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
-import { mapItemsToCustomerInvoiceSection } from '~/components/invoceCustomFooter/utils'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 
+import { InvoiceCustomSectionBasic } from './types'
+
 interface InvoiceCustomerFooterSelectionProps {
-  onChange?: (item: MappedInvoiceSection) => void
+  onChange?: (item: InvoiceCustomSectionBasic) => void
   label?: string
   placeholder?: string
   emptyText?: string
   className?: string
   disabled?: boolean
   name?: string
-  invoiceCustomSelected?: MappedInvoiceSection[]
+  invoiceCustomSelected?: InvoiceCustomSectionBasic[]
 }
 
 export const InvoiceCustomerFooterSelection = ({
@@ -33,9 +33,7 @@ export const InvoiceCustomerFooterSelection = ({
     const item = orgInvoiceCustomSections?.find((section) => section.id === id)
 
     if (item) {
-      const mappedItem = mapItemsToCustomerInvoiceSection(item)
-
-      onChange?.(mappedItem)
+      onChange?.(item)
     }
   }
 

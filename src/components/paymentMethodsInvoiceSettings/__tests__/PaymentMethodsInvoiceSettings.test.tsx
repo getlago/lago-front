@@ -1,3 +1,4 @@
+import { screen } from '@testing-library/react'
 import { FormikProps } from 'formik'
 
 import { GetCustomerForCreateSubscriptionQuery } from '~/generated/graphql'
@@ -14,11 +15,11 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 jest.mock('~/components/paymentMethodSelection/PaymentMethodSelection', () => ({
-  PaymentMethodSelection: jest.fn(() => <div data-testid="payment-method-selection" />),
+  PaymentMethodSelection: jest.fn(() => <div data-test="payment-method-selection" />),
 }))
 
 jest.mock('~/components/invoceCustomFooter/InvoceCustomFooter', () => ({
-  InvoceCustomFooter: jest.fn(() => <div data-testid="invoice-custom-footer" />),
+  InvoceCustomFooter: jest.fn(() => <div data-test="invoice-custom-footer" />),
 }))
 
 const mockFormikProps = {
@@ -64,14 +65,12 @@ describe('PaymentMethodsInvoiceSettings', () => {
 
       expect(container.firstChild).toBeNull()
     })
-  })
 
-  describe('WHEN customer has valid id and externalId', () => {
-    it('THEN renders both PaymentMethodSelection and InvoceCustomFooter', () => {
+    it('THEN returns null when both id and externalId are undefined', () => {
       const customer = {
-        id: 'customer_id_123',
-        externalId: 'customer_ext_123',
-      } as GetCustomerForCreateSubscriptionQuery['customer']
+        id: undefined,
+        externalId: undefined,
+      } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
 
       const { container } = render(
         <PaymentMethodsInvoiceSettings
@@ -81,10 +80,27 @@ describe('PaymentMethodsInvoiceSettings', () => {
         />,
       )
 
-      expect(
-        container.querySelector('[data-testid="payment-method-selection"]'),
-      ).toBeInTheDocument()
-      expect(container.querySelector('[data-testid="invoice-custom-footer"]')).toBeInTheDocument()
+      expect(container.firstChild).toBeNull()
+    })
+  })
+
+  describe('WHEN customer has valid id and externalId', () => {
+    it('THEN renders both PaymentMethodSelection and InvoceCustomFooter', () => {
+      const customer = {
+        id: 'customer_id_123',
+        externalId: 'customer_ext_123',
+      } as GetCustomerForCreateSubscriptionQuery['customer']
+
+      render(
+        <PaymentMethodsInvoiceSettings
+          customer={customer}
+          formikProps={mockFormikProps}
+          viewType="subscription"
+        />,
+      )
+
+      expect(screen.getByTestId('payment-method-selection')).toBeInTheDocument()
+      expect(screen.getByTestId('invoice-custom-footer')).toBeInTheDocument()
     })
   })
 
@@ -95,7 +111,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
         externalId: 'customer_ext_123',
       } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
 
-      const { container } = render(
+      render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
@@ -103,12 +119,8 @@ describe('PaymentMethodsInvoiceSettings', () => {
         />,
       )
 
-      expect(
-        container.querySelector('[data-testid="payment-method-selection"]'),
-      ).toBeInTheDocument()
-      expect(
-        container.querySelector('[data-testid="invoice-custom-footer"]'),
-      ).not.toBeInTheDocument()
+      expect(screen.getByTestId('payment-method-selection')).toBeInTheDocument()
+      expect(screen.queryByTestId('invoice-custom-footer')).not.toBeInTheDocument()
     })
   })
 
@@ -119,7 +131,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
         externalId: null,
       } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
 
-      const { container } = render(
+      render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
@@ -127,10 +139,26 @@ describe('PaymentMethodsInvoiceSettings', () => {
         />,
       )
 
-      expect(
-        container.querySelector('[data-testid="payment-method-selection"]'),
-      ).not.toBeInTheDocument()
-      expect(container.querySelector('[data-testid="invoice-custom-footer"]')).toBeInTheDocument()
+      expect(screen.queryByTestId('payment-method-selection')).not.toBeInTheDocument()
+      expect(screen.getByTestId('invoice-custom-footer')).toBeInTheDocument()
+    })
+
+    it('THEN renders only InvoceCustomFooter when externalId is undefined', () => {
+      const customer = {
+        id: 'customer_id_123',
+        externalId: undefined,
+      } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
+
+      render(
+        <PaymentMethodsInvoiceSettings
+          customer={customer}
+          formikProps={mockFormikProps}
+          viewType="subscription"
+        />,
+      )
+
+      expect(screen.queryByTestId('payment-method-selection')).not.toBeInTheDocument()
+      expect(screen.getByTestId('invoice-custom-footer')).toBeInTheDocument()
     })
   })
 })

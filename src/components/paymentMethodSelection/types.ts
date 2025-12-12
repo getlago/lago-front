@@ -2,6 +2,8 @@ import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { PaymentMethodReferenceInput } from '~/generated/graphql'
 import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
+import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+
 export type SelectedPaymentMethod = PaymentMethodReferenceInput | null | undefined
 
 export interface PaymentMethodComboBoxProps {
@@ -20,7 +22,7 @@ export interface PaymentMethodSelectionProps {
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
   title: string
   description: string
-  viewType: string
+  viewType: ViewType
   className?: string
   disabled?: boolean
 }
@@ -31,10 +33,5 @@ export interface EditPaymentMethodDialogProps {
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
   paymentMethodsList: PaymentMethodList
-  viewType: string
-}
-
-export interface PaymentMethodSelectionExtraProps {
-  title: string
-  description: string
+  viewType: ViewType
 }

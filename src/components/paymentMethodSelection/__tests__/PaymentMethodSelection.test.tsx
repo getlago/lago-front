@@ -1,6 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { ViewType } from '~/components/paymentMethodsInvoiceSettings/types'
 import { PaymentMethodsDocument } from '~/generated/graphql'
 import {
   createMockPaymentMethod,
@@ -40,7 +41,7 @@ type PrepareType = {
   selectedPaymentMethod?: SelectedPaymentMethod
   title?: string
   description?: string
-  viewType?: string
+  viewType?: ViewType
   className?: string
   disabled?: boolean
   loading?: boolean

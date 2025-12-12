@@ -34,6 +34,7 @@ import {
   DatePickerField,
   TextInputField,
 } from '~/components/form'
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
@@ -135,6 +136,12 @@ gql`
       paymentMethodType
       paymentMethod {
         id
+      }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+        code
       }
       plan {
         id
@@ -284,6 +291,10 @@ const CreateSubscription = () => {
         paymentMethodType: subscription?.paymentMethodType,
         paymentMethodId: subscription?.paymentMethod?.id,
       },
+      invoiceCustomSection: {
+        invoiceCustomSections: subscription?.selectedInvoiceCustomSections || [],
+        skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
+      },
     },
     validationSchema: object().shape({
       planId: string().required(''),
@@ -326,9 +337,12 @@ const CreateSubscription = () => {
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
+      const { invoiceCustomSection, ...restValues } = values
+
       const localValues = {
         id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
-        ...values,
+        ...restValues,
+        invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }
       const rootElement = document.getElementById('root')
       const errorsString = await onSave(

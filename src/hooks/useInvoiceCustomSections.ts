@@ -36,7 +36,7 @@ interface UseInvoiceCustomSectionsLazyReturn {
 }
 
 /**
- * Hook to fetch invoice custom sections automatically on component mount.
+ * Hook to fetch ORG invoice custom sections automatically on component mount.
  */
 export const useInvoiceCustomSections = (): UseInvoiceCustomSectionsReturn => {
   const { data, loading, error } = useGetInvoiceCustomSectionsQuery()
@@ -51,7 +51,7 @@ export const useInvoiceCustomSections = (): UseInvoiceCustomSectionsReturn => {
 }
 
 /**
- * Hook to fetch invoice custom sections on demand (lazy loading).
+ * Hook to fetch ORG invoice custom sections on demand (lazy loading).
  * Returns a function to trigger the query.
  */
 export const useInvoiceCustomSectionsLazy = (): UseInvoiceCustomSectionsLazyReturn => {

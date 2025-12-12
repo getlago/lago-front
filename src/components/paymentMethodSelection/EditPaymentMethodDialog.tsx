@@ -9,6 +9,8 @@ import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 import { PaymentMethodComboBox } from './PaymentMethodComboBox'
 import { SelectedPaymentMethod } from './types'
 
+import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+
 export const EDIT_PM_DIALOG_CANCEL_BUTTON_TEST_ID = 'edit-payment-method-dialog-cancel-button'
 export const EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID = 'edit-payment-method-dialog-save-button'
 export const EDIT_PM_DIALOG_FALLBACK_RADIO_TEST_ID = 'edit-payment-method-dialog-fallback-radio'
@@ -27,7 +29,7 @@ interface EditPaymentMethodDialogProps {
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
   paymentMethodsList: PaymentMethodList
-  viewType: string
+  viewType: ViewType
 }
 
 export const EditPaymentMethodDialog = ({

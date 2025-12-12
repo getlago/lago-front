@@ -8,24 +8,14 @@ import { MultipleComboBox, RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   CustomerAppliedInvoiceCustomSectionsFragmentDoc,
-  EditCustomerInvoiceCustomSectionFragment,
   UpdateCustomerInput,
   useEditCustomerInvoiceCustomSectionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSectionsLazy } from '~/hooks/useInvoiceCustomSections'
 
 gql`
-  fragment EditCustomerInvoiceCustomSection on Customer {
-    id
-    externalId
-    configurableInvoiceCustomSections {
-      id
-    }
-    hasOverwrittenInvoiceCustomSectionsSelection
-    skipInvoiceCustomSections
-  }
-
   mutation editCustomerInvoiceCustomSection($input: UpdateCustomerInput!) {
     updateCustomer(input: $input) {
       id
@@ -45,27 +35,30 @@ enum BehaviorType {
 export type EditCustomerInvoiceCustomSectionsDialogRef = DialogRef
 
 interface EditCustomerInvoiceCustomSectionsDialogProps {
-  customer: EditCustomerInvoiceCustomSectionFragment
+  customerId: string
 }
 
 export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
   DialogRef,
   EditCustomerInvoiceCustomSectionsDialogProps
->(({ customer }: EditCustomerInvoiceCustomSectionsDialogProps, ref) => {
+>(({ customerId }: EditCustomerInvoiceCustomSectionsDialogProps, ref) => {
   const { translate } = useInternationalization()
 
-  const { getInvoiceCustomSections, data: invoiceCustomSections } = useInvoiceCustomSectionsLazy()
+  const { data: customerData, customer } = useCustomerInvoiceCustomSections(customerId)
+
+  const { getInvoiceCustomSections, data: orgInvoiceCustomSections } =
+    useInvoiceCustomSectionsLazy()
 
   const options = useMemo(() => {
-    return invoiceCustomSections.map((section) => ({
+    return (orgInvoiceCustomSections ?? []).map((section) => ({
       labelNode: section.name,
       label: section.name,
       description: section.code,
       value: section.id,
     }))
-  }, [invoiceCustomSections])
+  }, [orgInvoiceCustomSections])
 
-  const [editCustomerDunningCampaignBehavior] = useEditCustomerInvoiceCustomSectionMutation({
+  const [editCustomerInvoiceCustomSection] = useEditCustomerInvoiceCustomSectionMutation({
     refetchQueries: ['getCustomerSettings'],
     onCompleted: () => {
       addToast({
@@ -75,25 +68,31 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
     },
   })
 
-  let behavior: BehaviorType
+  const initialBehavior = useMemo((): BehaviorType => {
+    if (customerData?.hasOverwrittenInvoiceCustomSectionsSelection) {
+      return BehaviorType.CUSTOM_SECTIONS
+    } else if (customerData?.skipInvoiceCustomSections) {
+      return BehaviorType.DEACTIVATE
+    }
 
-  if (customer.hasOverwrittenInvoiceCustomSectionsSelection) {
-    behavior = BehaviorType.CUSTOM_SECTIONS
-  } else if (customer.skipInvoiceCustomSections) {
-    behavior = BehaviorType.DEACTIVATE
-  } else {
-    behavior = BehaviorType.FALLBACK
-  }
+    return BehaviorType.FALLBACK
+  }, [customerData])
+
+  const initialSectionIds = useMemo(() => {
+    if (!customerData?.hasOverwrittenInvoiceCustomSectionsSelection) {
+      return undefined
+    }
+
+    return customerData.configurableInvoiceCustomSections.map((section) => section.id)
+  }, [customerData])
 
   const formikProps = useFormik<{
     behavior: BehaviorType | ''
     configurableInvoiceCustomSectionIds: string[] | undefined
   }>({
     initialValues: {
-      behavior,
-      configurableInvoiceCustomSectionIds: customer.hasOverwrittenInvoiceCustomSectionsSelection
-        ? customer.configurableInvoiceCustomSections?.map((section) => section.id)
-        : undefined,
+      behavior: initialBehavior,
+      configurableInvoiceCustomSectionIds: initialSectionIds,
     },
     validationSchema: object().shape({
       behavior: mixed().oneOf(Object.values(BehaviorType)).required(''),
@@ -105,6 +104,8 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
         }),
     }),
     onSubmit: async (values) => {
+      if (!customer) return
+
       let formattedValues: UpdateCustomerInput = {
         id: customer.id,
         externalId: customer.externalId,
@@ -134,7 +135,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
           break
       }
 
-      await editCustomerDunningCampaignBehavior({ variables: { input: formattedValues } })
+      await editCustomerInvoiceCustomSection({ variables: { input: formattedValues } })
     },
     validateOnMount: true,
     enableReinitialize: true,

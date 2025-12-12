@@ -1,18 +1,71 @@
-import { mapItemsToCustomerInvoiceSection } from '~/components/invoceCustomFooter/utils'
+import { toInvoiceCustomSectionReference } from '../utils'
 
-import { createInvoiceCustomSection } from './factories/invoiceCustomSectionFactory'
+describe('WHEN toInvoiceCustomSectionReference is called', () => {
+  it('THEN returns undefined when input is undefined', () => {
+    expect(toInvoiceCustomSectionReference(undefined)).toBeUndefined()
+  })
 
-describe('mapItemsToCustomerInvoiceSection', () => {
-  it('should map InvoiceCustomSection items to MappedInvoiceSection format and discard other fields', () => {
-    const items = createInvoiceCustomSection({
-      id: 'section-1',
-      name: 'Section 1',
-      code: 'SECTION_1',
+  it('THEN returns undefined when input is null', () => {
+    expect(toInvoiceCustomSectionReference(null)).toBeUndefined()
+  })
+
+  it('THEN converts invoiceCustomSections to invoiceCustomSectionIds', () => {
+    const input = {
+      invoiceCustomSections: [
+        { id: 'section-1', name: 'Section 1' },
+        { id: 'section-2', name: 'Section 2' },
+      ],
+      skipInvoiceCustomSections: false,
+    }
+
+    const result = toInvoiceCustomSectionReference(input)
+
+    expect(result).toEqual({
+      invoiceCustomSectionIds: ['section-1', 'section-2'],
+      skipInvoiceCustomSections: false,
     })
+  })
 
-    const result = mapItemsToCustomerInvoiceSection(items)
+  it('THEN returns empty array when invoiceCustomSections is empty', () => {
+    const input = {
+      invoiceCustomSections: [],
+      skipInvoiceCustomSections: false,
+    }
 
-    expect(result).toEqual({ id: 'section-1', name: 'Section 1' })
-    expect(result).not.toHaveProperty('code')
+    const result = toInvoiceCustomSectionReference(input)
+
+    expect(result).toEqual({
+      invoiceCustomSectionIds: [],
+      skipInvoiceCustomSections: false,
+    })
+  })
+
+  it('THEN returns empty array when invoiceCustomSections is undefined', () => {
+    const input = {
+      invoiceCustomSections: undefined as never,
+      skipInvoiceCustomSections: true,
+    }
+
+    const result = toInvoiceCustomSectionReference(input)
+
+    expect(result).toEqual({
+      invoiceCustomSectionIds: [],
+      skipInvoiceCustomSections: true,
+    })
+  })
+
+  it('THEN preserves skipInvoiceCustomSections value', () => {
+    const inputWithSkip = {
+      invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
+      skipInvoiceCustomSections: true,
+    }
+
+    const inputWithoutSkip = {
+      invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
+      skipInvoiceCustomSections: false,
+    }
+
+    expect(toInvoiceCustomSectionReference(inputWithSkip)?.skipInvoiceCustomSections).toBe(true)
+    expect(toInvoiceCustomSectionReference(inputWithoutSkip)?.skipInvoiceCustomSections).toBe(false)
   })
 })
