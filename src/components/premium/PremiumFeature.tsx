@@ -10,9 +10,16 @@ type PremiumFeatureProps = {
   description: string
   feature: string
   className?: string
+  buttonClassName?: string
 }
 
-const PremiumFeature = ({ title, description, feature, className }: PremiumFeatureProps) => {
+const PremiumFeature = ({
+  title,
+  description,
+  feature,
+  className,
+  buttonClassName,
+}: PremiumFeatureProps) => {
   const { translate } = useInternationalization()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
@@ -39,6 +46,7 @@ const PremiumFeature = ({ title, description, feature, className }: PremiumFeatu
         </div>
 
         <Button
+          className={buttonClassName}
           endIcon="sparkles"
           variant="tertiary"
           onClick={() =>

@@ -203,9 +203,15 @@ const config: Config = {
           '0%': { transform: 'translateX(-120%)' },
           '100%': { transform: 'translateX(0)' },
         },
+
+        pulseSpeed: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
       },
       animation: {
         enter: 'enter 250ms cubic-bezier(0.4, 0, 0.2, 1) 1',
+        'pulse-speed': 'pulseSpeed 500ms ease-out infinite',
       },
     },
   },
