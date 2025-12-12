@@ -7,11 +7,16 @@ import { ChatShortcuts } from '~/components/aiAgent/ChatShortcuts'
 import { useCreateAiConversation } from '~/components/aiAgent/hooks/useCreateAiConversation'
 import { useOnConversation } from '~/components/aiAgent/hooks/useOnConversation'
 import { Typography } from '~/components/designSystem'
+import PremiumFeature from '~/components/premium/PremiumFeature'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const PanelAiAgent = () => {
+type PanelAiAgentProps = {
+  hasAccessToAiAgent: boolean
+}
+
+export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
   const { conversationId, state, startNewConversation, addNewMessage } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
   const [initialPrompt, setInitialPrompt] = useState<string>('')
@@ -66,7 +71,19 @@ export const PanelAiAgent = () => {
             </Typography>
           </div>
 
-          <ChatShortcuts onSubmit={handleSubmit} />
+          {hasAccessToAiAgent && <ChatShortcuts onSubmit={handleSubmit} />}
+        </div>
+      )}
+
+      {!hasAccessToAiAgent && (
+        <div className="p-6 pt-0">
+          <PremiumFeature
+            title={translate('text_1765530128923vobffyisvq9')}
+            description={translate('text_176553012892493ck00lv7qj')}
+            feature="Lago AI Agent"
+            className="flex-col bg-white"
+            buttonClassName="self-end"
+          />
         </div>
       )}
 
@@ -80,7 +97,7 @@ export const PanelAiAgent = () => {
 
       {!!state.messages.length && <ChatConversation subscription={subscription} />}
 
-      <ChatPromptEditor onSubmit={handleSubmit} />
+      <ChatPromptEditor disabled={!hasAccessToAiAgent} onSubmit={handleSubmit} />
     </div>
   )
 }
