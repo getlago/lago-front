@@ -107,7 +107,7 @@ describe('mapFromFormToApi', () => {
         url: 'https://example.com',
         legalName: 'John Doe Inc.',
         legalNumber: '123456789',
-        accountType: null,
+        accountType: CustomerAccountTypeEnum.Customer,
         customerType: undefined,
         externalSalesforceId: '',
         addressLine1: '',
@@ -126,11 +126,7 @@ describe('mapFromFormToApi', () => {
         },
         paymentProvider: undefined,
         paymentProviderCode: undefined,
-        providerCustomer: {
-          providerCustomerId: '',
-          syncWithProvider: false,
-          providerPaymentMethods: [],
-        },
+        providerCustomer: null,
         metadata: [],
         billingEntityCode: undefined,
         integrationCustomers: undefined,
@@ -152,7 +148,7 @@ describe('mapFromFormToApi', () => {
       expect(result.customerType).toBe(CustomerTypeEnum.Company)
     })
 
-    it('should set account type to null when isPartner is false', () => {
+    it('should set account type to customer when isPartner is false', () => {
       const formValues: CreateCustomerDefaultValues = {
         ...emptyCreateCustomerDefaultValues,
         externalId: 'customer-123',
@@ -161,7 +157,7 @@ describe('mapFromFormToApi', () => {
 
       const result = mapFromFormToApi(formValues, {})
 
-      expect(result.accountType).toBeNull()
+      expect(result.accountType).toBe(CustomerAccountTypeEnum.Customer)
     })
   })
 
@@ -320,11 +316,7 @@ describe('mapFromFormToApi', () => {
 
       const result = mapFromFormToApi(formValues, {})
 
-      expect(result.providerCustomer).toEqual({
-        providerCustomerId: undefined,
-        syncWithProvider: undefined,
-        providerPaymentMethods: [],
-      })
+      expect(result.providerCustomer).toBeNull()
     })
   })
 
@@ -574,8 +566,8 @@ describe('mapFromFormToApi', () => {
       const result = mapFromFormToApi(formValues, {})
 
       expect(result.externalId).toBe('minimal-123')
-      expect(result.accountType).toBeNull()
-      expect(result.providerCustomer?.providerPaymentMethods).toEqual([])
+      expect(result.accountType).toBe(CustomerAccountTypeEnum.Customer)
+      expect(result.providerCustomer).toBeNull()
       expect(result.integrationCustomers).toBeUndefined()
     })
 

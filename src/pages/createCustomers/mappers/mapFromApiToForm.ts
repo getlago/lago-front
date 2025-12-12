@@ -129,7 +129,10 @@ export const mapFromApiToForm = (
       syncWithProvider: taxProvider?.syncWithProvider ?? false,
       providerType: taxProvider?.integrationType ?? undefined,
     },
-    paymentProviderCode: customer?.paymentProviderCode ?? '',
+    paymentProviderCode:
+      customer?.paymentProvider && customer?.paymentProviderCode
+        ? customer?.paymentProviderCode
+        : '',
     paymentProviderCustomer: {
       providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? '',
       syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,

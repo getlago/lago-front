@@ -14,10 +14,8 @@ import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
   CreateCustomerMutation,
-  CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
   LagoApiError,
-  ProviderPaymentMethodsEnum,
   UpdateCustomerInput,
   UpdateCustomerMutation,
   useCreateCustomerMutation,
@@ -193,6 +191,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
       id: customerId as string,
     },
     skip: !customerId,
+    fetchPolicy: 'network-only',
   })
 
   const customer = data?.customer
@@ -224,6 +223,11 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
 
   const [update] = useUpdateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    refetchQueries: [
+      'getCustomer',
+      'integrationsListForCustomerMainInfos',
+      'paymentProvidersListForCustomerMainInfos',
+    ],
     onCompleted({ updateCustomer }) {
       if (!!updateCustomer) {
         addToast({
@@ -243,29 +247,12 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
   }, [error])
 
   const onSave = async (values: CreateCustomerInput | UpdateCustomerInput) => {
-    const { paymentProvider, providerCustomer } = values
-
-    const input = {
-      ...values,
-      accountType: values.accountType
-        ? CustomerAccountTypeEnum.Partner
-        : CustomerAccountTypeEnum.Customer,
-      paymentProvider,
-      providerCustomer: {
-        providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
-        syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
-        providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
-          ? [ProviderPaymentMethodsEnum.Card]
-          : providerCustomer?.providerPaymentMethods,
-      },
-    }
-
     if (customer && customerId) {
       return await update({
         variables: {
           input: {
             id: customer?.id as string,
-            ...input,
+            ...values,
           },
         },
       })
@@ -273,7 +260,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
 
     return await create({
       variables: {
-        input,
+        input: values,
       },
     })
   }

@@ -7,6 +7,7 @@ import {
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 
@@ -233,24 +234,28 @@ describe('mapFromApiToForm', () => {
           accountingCustomerId: '',
           syncWithProvider: false,
           subsidiaryId: undefined,
+          providerType: undefined,
         },
         crmProviderCode: '',
         crmCustomer: {
           crmCustomerId: '',
           syncWithProvider: false,
+          providerType: undefined,
         },
         taxProviderCode: '',
         taxCustomer: {
           taxCustomerId: '',
           syncWithProvider: false,
+          providerType: undefined,
         },
-        paymentProviderCode: 'stripe_1',
+        paymentProviderCode: '',
         paymentProviderCustomer: {
           providerCustomerId: '',
           syncWithProvider: false,
           providerPaymentMethods: {
             [ProviderPaymentMethodsEnum.Card]: true,
           },
+          providerType: undefined,
         },
         metadata: [
           { key: 'department', value: 'engineering', displayInInvoice: true, id: 'meta-1' },
@@ -362,6 +367,7 @@ describe('mapFromApiToForm', () => {
         externalId: 'ext-123',
         name: 'Test Customer',
         currency: CurrencyEnum.Usd,
+        paymentProvider: ProviderTypeEnum.Stripe,
         paymentProviderCode: 'stripe_1',
         providerCustomer: {
           id: 'cus_12345',
@@ -384,6 +390,7 @@ describe('mapFromApiToForm', () => {
           [ProviderPaymentMethodsEnum.Card]: true,
           [ProviderPaymentMethodsEnum.SepaDebit]: true,
         },
+        providerType: ProviderTypeEnum.Stripe,
       })
     })
 
@@ -840,6 +847,7 @@ describe('mapFromApiToForm', () => {
         },
         timezone: TimezoneEnum.TzEuropeParis,
         url: 'https://complete.example.com',
+        paymentProvider: ProviderTypeEnum.Stripe,
         paymentProviderCode: 'stripe_complete',
         providerCustomer: {
           id: 'cus_complete',
@@ -924,16 +932,19 @@ describe('mapFromApiToForm', () => {
           accountingCustomerId: 'xero-complete',
           syncWithProvider: true,
           subsidiaryId: undefined,
+          providerType: undefined,
         },
         crmProviderCode: 'hubspot_complete',
         crmCustomer: {
           crmCustomerId: 'hubspot-complete',
           syncWithProvider: false,
+          providerType: undefined,
         },
         taxProviderCode: 'anrok_complete',
         taxCustomer: {
           taxCustomerId: 'anrok-complete',
           syncWithProvider: true,
+          providerType: undefined,
         },
         paymentProviderCode: 'stripe_complete',
         paymentProviderCustomer: {
@@ -943,6 +954,7 @@ describe('mapFromApiToForm', () => {
             [ProviderPaymentMethodsEnum.Card]: true,
             [ProviderPaymentMethodsEnum.SepaDebit]: true,
           },
+          providerType: ProviderTypeEnum.Stripe,
         },
         metadata: [
           { key: 'segment', value: 'enterprise', displayInInvoice: true, id: 'meta-1' },

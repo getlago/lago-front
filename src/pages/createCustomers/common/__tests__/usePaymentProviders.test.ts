@@ -255,7 +255,7 @@ describe('usePaymentProviders', () => {
 
       const invalidType = result.current.getPaymentProvider('invalid-code')
 
-      expect(invalidType).toBeUndefined()
+      expect(invalidType).toBeNull()
     })
 
     it('should return undefined for undefined code', async () => {
@@ -265,7 +265,7 @@ describe('usePaymentProviders', () => {
 
       const undefinedType = result.current.getPaymentProvider(undefined)
 
-      expect(undefinedType).toBeUndefined()
+      expect(undefinedType).toBeNull()
     })
 
     it('should return undefined for empty string code', async () => {
@@ -275,7 +275,7 @@ describe('usePaymentProviders', () => {
 
       const emptyType = result.current.getPaymentProvider('')
 
-      expect(emptyType).toBeUndefined()
+      expect(emptyType).toBeNull()
     })
 
     it('should work when paymentProviders is null', async () => {
@@ -289,7 +289,7 @@ describe('usePaymentProviders', () => {
 
       const type = result.current.getPaymentProvider('stripe-main')
 
-      expect(type).toBeUndefined()
+      expect(type).toBeNull()
     })
 
     it('should work when collection is empty', async () => {
@@ -305,7 +305,7 @@ describe('usePaymentProviders', () => {
 
       const type = result.current.getPaymentProvider('stripe-main')
 
-      expect(type).toBeUndefined()
+      expect(type).toBeNull()
     })
   })
 

@@ -44,7 +44,9 @@ const CreateCustomer = () => {
   const { isEdition, onSave, customer, loading, onClose } = useCreateEditCustomer()
 
   const { data: billingEntitiesData, loading: isLoadingBillingEntities } =
-    useGetBillingEntitiesQuery()
+    useGetBillingEntitiesQuery({
+      fetchPolicy: 'network-only',
+    })
 
   const isFormReady = !isLoadingBillingEntities && !loading
 
@@ -130,7 +132,7 @@ const CreateCustomer = () => {
 
   return (
     <CenteredPage.Wrapper>
-      <form id="create-customer" onSubmit={handleSubmit}>
+      <form id="create-customer" className="flex min-h-full flex-col" onSubmit={handleSubmit}>
         <CenteredPage.Header>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
             {isEdition
@@ -202,7 +204,7 @@ const CreateCustomer = () => {
               />
               <BillingAccordion form={form} isEdition={isEdition} customer={customer} />
               <MetadataAccordion form={form} />
-              <ExternalAppsAccordion form={form} isEdition={isEdition} />
+              <ExternalAppsAccordion form={form} isEdition={isEdition} customer={customer} />
             </div>
           </CenteredPage.Container>
         )}

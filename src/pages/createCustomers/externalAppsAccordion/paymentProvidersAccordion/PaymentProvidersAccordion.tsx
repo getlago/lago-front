@@ -4,7 +4,12 @@ import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react'
 import { Accordion, Alert, Avatar, Typography } from '~/components/designSystem'
 import { ComboboxDataGrouped } from '~/components/form'
 import { ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION } from '~/core/constants/form'
-import { CurrencyEnum, ProviderPaymentMethodsEnum, ProviderTypeEnum } from '~/generated/graphql'
+import {
+  AddCustomerDrawerFragment,
+  CurrencyEnum,
+  ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { usePaymentProviders } from '~/pages/createCustomers/common/usePaymentProviders'
@@ -22,6 +27,8 @@ import { ExternalAppsAccordionLayout } from '../common/ExternalAppsAccordionLayo
 
 type PaymentProvidersAccordionProps = {
   setShowPaymentSection: Dispatch<SetStateAction<boolean>>
+  isEdition: boolean
+  customer: AddCustomerDrawerFragment | null | undefined
 }
 
 const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
@@ -35,12 +42,14 @@ const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
 
 const defaultProps: PaymentProvidersAccordionProps = {
   setShowPaymentSection: () => {},
+  isEdition: false,
+  customer: null,
 }
 
 const PaymentProvidersAccordion = withForm({
   defaultValues: emptyCreateCustomerDefaultValues,
   props: defaultProps,
-  render: function Render({ form, setShowPaymentSection }) {
+  render: function Render({ form, customer, setShowPaymentSection }) {
     const { translate } = useInternationalization()
 
     const { paymentProviders, isLoadingPaymentProviders, getPaymentProvider } =
@@ -50,6 +59,8 @@ const PaymentProvidersAccordion = withForm({
     const providerCustomer = useStore(form.store, (state) => state.values.paymentProviderCustomer)
     const paymentProvider = getPaymentProvider(paymentProviderCode)
     const currency = useStore(form.store, (state) => state.values.currency)
+
+    const hadPaymentProvider = !!customer?.providerCustomer?.providerCustomerId
 
     const selectedPaymentProvider = paymentProviders?.paymentProviders?.collection.find(
       (p) => p.code === paymentProviderCode,
@@ -105,7 +116,7 @@ const PaymentProvidersAccordion = withForm({
     const handleChangePaymentProviderCode = (value: string | undefined) => {
       const providerType = getPaymentProvider(value)
 
-      form.setFieldValue('paymentProviderCustomer.providerType', providerType)
+      form.setFieldValue('paymentProviderCustomer.providerType', providerType || undefined)
     }
 
     const getSyncWithProviderLabel = () => {
@@ -191,7 +202,7 @@ const PaymentProvidersAccordion = withForm({
                   <form.AppField name="paymentProviderCustomer.providerCustomerId">
                     {(field) => (
                       <field.TextInputField
-                        disabled={isSyncWithProviderDisabled}
+                        disabled={isSyncWithProviderDisabled || hadPaymentProvider}
                         label={translate('text_62b328ead9a4caef81cd9ca0')}
                         placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
                       />
@@ -204,7 +215,12 @@ const PaymentProvidersAccordion = withForm({
                       onChange: ({ value }) => handleSyncWithProviderChange(value),
                     }}
                   >
-                    {(field) => <field.CheckboxField label={getSyncWithProviderLabel()} />}
+                    {(field) => (
+                      <field.CheckboxField
+                        label={getSyncWithProviderLabel()}
+                        disabled={hadPaymentProvider}
+                      />
+                    )}
                   </form.AppField>
                 </>
               )}

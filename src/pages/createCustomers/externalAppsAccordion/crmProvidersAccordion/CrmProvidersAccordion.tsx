@@ -27,7 +27,7 @@ import { getIntegration } from '../common/getIntegration'
 type CrmProvidersAccordionProps = {
   setShowCrmSection: Dispatch<SetStateAction<boolean>>
   isEdition: boolean
-  customer?: AddCustomerDrawerFragment | null
+  customer: AddCustomerDrawerFragment | null | undefined
 }
 
 const defaultProps: CrmProvidersAccordionProps = {
