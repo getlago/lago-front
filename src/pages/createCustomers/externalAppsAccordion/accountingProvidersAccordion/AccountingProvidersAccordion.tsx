@@ -27,7 +27,7 @@ import { getIntegration } from '../common/getIntegration'
 type AccountingProvidersAccordionProps = {
   isEdition: boolean
   setShowAccountingSection: Dispatch<SetStateAction<boolean>>
-  customer?: AddCustomerDrawerFragment | null
+  customer: AddCustomerDrawerFragment | null | undefined
 }
 
 const defaultProps: AccountingProvidersAccordionProps = {

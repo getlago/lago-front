@@ -14,7 +14,7 @@ import { getIntegrationCustomers } from './getIntegrationCustomers'
 import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
 
 type AdditionalData = {
-  paymentProvider?: ProviderTypeEnum
+  paymentProvider?: ProviderTypeEnum | null
   taxProviders?: GetTaxIntegrationsForExternalAppsAccordionQuery
   crmProviders?: GetCrmIntegrationsForExternalAppsAccordionQuery
   accountingProviders?: GetAccountingIntegrationsForExternalAppsAccordionQuery
@@ -53,10 +53,21 @@ export const mapFromFormToApi = (
     taxCustomer: values.taxCustomer,
   })
 
+  const providerCustomer =
+    values.paymentProviderCustomer?.providerCustomerId ||
+    values.paymentProviderCustomer?.syncWithProvider
+      ? {
+          providerCustomerId: values.paymentProviderCustomer?.providerCustomerId,
+          syncWithProvider: values.paymentProviderCustomer?.syncWithProvider,
+          providerPaymentMethods: getProviderPaymentMethods(),
+        }
+      : null
+
   return {
     email: formattedEmail,
-    // onSave check this value. We need to define were we put default values
-    accountType: values.isPartner ? CustomerAccountTypeEnum.Partner : null,
+    accountType: values.isPartner
+      ? CustomerAccountTypeEnum.Partner
+      : CustomerAccountTypeEnum.Customer,
     customerType: values.customerType,
     name: values.name,
     firstname: values.firstname,
@@ -78,11 +89,7 @@ export const mapFromFormToApi = (
     url: values.url,
     paymentProvider,
     paymentProviderCode: values.paymentProviderCode,
-    providerCustomer: {
-      providerCustomerId: values.paymentProviderCustomer?.providerCustomerId,
-      syncWithProvider: values.paymentProviderCustomer?.syncWithProvider,
-      providerPaymentMethods: getProviderPaymentMethods(),
-    },
+    providerCustomer,
     metadata: values.metadata?.map((meta) => ({
       id: meta.id,
       key: meta.key,

@@ -59,7 +59,14 @@ const TestPaymentProvidersAccordionWrapper = ({
     defaultValues: emptyCreateCustomerDefaultValues,
   })
 
-  return <PaymentProvidersAccordion form={form} setShowPaymentSection={setShowPaymentSection} />
+  return (
+    <PaymentProvidersAccordion
+      form={form}
+      setShowPaymentSection={setShowPaymentSection}
+      customer={null}
+      isEdition={false}
+    />
+  )
 }
 
 describe('PaymentProvidersAccordion Integration Tests', () => {
@@ -150,7 +157,14 @@ describe('PaymentProvidersAccordion Integration Tests', () => {
           } as typeof emptyCreateCustomerDefaultValues,
         })
 
-        return <PaymentProvidersAccordion form={form} setShowPaymentSection={jest.fn()} />
+        return (
+          <PaymentProvidersAccordion
+            form={form}
+            setShowPaymentSection={jest.fn()}
+            customer={null}
+            isEdition={false}
+          />
+        )
       }
 
       render(<TestWrapper />)
@@ -196,7 +210,14 @@ describe('PaymentProvidersAccordion Integration Tests', () => {
           } as typeof emptyCreateCustomerDefaultValues,
         })
 
-        return <PaymentProvidersAccordion form={form} setShowPaymentSection={jest.fn()} />
+        return (
+          <PaymentProvidersAccordion
+            form={form}
+            setShowPaymentSection={jest.fn()}
+            customer={null}
+            isEdition={false}
+          />
+        )
       }
 
       render(<TestWrapper />)
@@ -222,7 +243,14 @@ describe('PaymentProvidersAccordion Integration Tests', () => {
           } as typeof emptyCreateCustomerDefaultValues,
         })
 
-        return <PaymentProvidersAccordion form={form} setShowPaymentSection={jest.fn()} />
+        return (
+          <PaymentProvidersAccordion
+            form={form}
+            setShowPaymentSection={jest.fn()}
+            customer={null}
+            isEdition={false}
+          />
+        )
       }
 
       const rendered = render(<TestWrapper />)
@@ -239,7 +267,14 @@ describe('PaymentProvidersAccordion Integration Tests', () => {
           } as typeof emptyCreateCustomerDefaultValues,
         })
 
-        return <PaymentProvidersAccordion form={form} setShowPaymentSection={jest.fn()} />
+        return (
+          <PaymentProvidersAccordion
+            form={form}
+            setShowPaymentSection={jest.fn()}
+            customer={null}
+            isEdition={false}
+          />
+        )
       }
 
       const rendered = render(<TestWrapper />)
@@ -263,7 +298,14 @@ describe('PaymentProvidersAccordion Integration Tests', () => {
           } as typeof emptyCreateCustomerDefaultValues,
         })
 
-        return <PaymentProvidersAccordion form={form} setShowPaymentSection={jest.fn()} />
+        return (
+          <PaymentProvidersAccordion
+            form={form}
+            setShowPaymentSection={jest.fn()}
+            customer={null}
+            isEdition={false}
+          />
+        )
       }
 
       const rendered = render(<TestWrapper />)

@@ -10,7 +10,7 @@ import {
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
-import { ProviderTypeEnum } from '~/generated/graphql'
+import { AddCustomerDrawerFragment, ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
@@ -25,16 +25,18 @@ import { usePaymentProviders } from '../common/usePaymentProviders'
 
 type ExternalAppsAccordionProps = {
   isEdition: boolean
+  customer: AddCustomerDrawerFragment | null | undefined
 }
 
 const defaultProps: ExternalAppsAccordionProps = {
   isEdition: false,
+  customer: null,
 }
 
 const ExternalAppsAccordion = withForm({
   defaultValues: emptyCreateCustomerDefaultValues,
   props: defaultProps,
-  render: function Render({ form, isEdition }) {
+  render: function Render({ form, customer, isEdition }) {
     const { translate } = useInternationalization()
 
     const { getPaymentProvider } = usePaymentProviders()
@@ -78,7 +80,12 @@ const ExternalAppsAccordion = withForm({
       >
         <div className="flex flex-col gap-6">
           {showPaymentSection && (
-            <PaymentProvidersAccordion form={form} setShowPaymentSection={setShowPaymentSection} />
+            <PaymentProvidersAccordion
+              form={form}
+              setShowPaymentSection={setShowPaymentSection}
+              isEdition={isEdition}
+              customer={customer}
+            />
           )}
 
           {showAccountingSection && (
@@ -86,6 +93,7 @@ const ExternalAppsAccordion = withForm({
               form={form}
               setShowAccountingSection={setShowAccountingSection}
               isEdition={isEdition}
+              customer={customer}
             />
           )}
 
@@ -94,6 +102,7 @@ const ExternalAppsAccordion = withForm({
               form={form}
               setShowTaxSection={setShowTaxSection}
               isEdition={isEdition}
+              customer={customer}
             />
           )}
 
@@ -102,6 +111,7 @@ const ExternalAppsAccordion = withForm({
               form={form}
               setShowCrmSection={setShowCrmSection}
               isEdition={isEdition}
+              customer={customer}
             />
           )}
 

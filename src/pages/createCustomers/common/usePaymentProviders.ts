@@ -59,19 +59,19 @@ gql`
 export const usePaymentProviders = (): {
   paymentProviders: PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined
   isLoadingPaymentProviders: boolean
-  getPaymentProvider: (code: string | undefined) => ProviderTypeEnum | undefined
+  getPaymentProvider: (code: string | undefined) => ProviderTypeEnum | null
 } => {
   const { data: paymentProviders, loading: isLoadingPaymentProviders } =
     usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
       variables: { limit: 1000 },
     })
 
-  const getPaymentProvider = (code: string | undefined): ProviderTypeEnum | undefined => {
-    if (!code) return undefined
+  const getPaymentProvider = (code: string | undefined): ProviderTypeEnum | null => {
+    if (!code) return null
 
     const provider = paymentProviders?.paymentProviders?.collection.find((p) => p.code === code)
 
-    if (!provider) return undefined
+    if (!provider) return null
 
     return provider.__typename.toLocaleLowerCase().replace('provider', '') as ProviderTypeEnum
   }

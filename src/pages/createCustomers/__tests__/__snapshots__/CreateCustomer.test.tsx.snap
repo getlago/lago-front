@@ -6,6 +6,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
     <form
+      class="flex min-h-full flex-col"
       id="create-customer"
     >
       <header
@@ -2094,6 +2095,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
     <form
+      class="flex min-h-full flex-col"
       id="create-customer"
     >
       <header
@@ -3082,6 +3084,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
     <form
+      class="flex min-h-full flex-col"
       id="create-customer"
     >
       <header
@@ -4070,6 +4073,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
     <form
+      class="flex min-h-full flex-col"
       id="create-customer"
     >
       <header
@@ -5055,6 +5059,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
     <form
+      class="flex min-h-full flex-col"
       id="create-customer"
     >
       <header
@@ -5989,6 +5994,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
   >
     <form
+      class="flex min-h-full flex-col"
       id="create-customer"
     >
       <header
