@@ -78,33 +78,22 @@ export const InvoiceCustomSectionDisplay = ({
     // FALLBACK - inherit from customer/billing entity
     if (customerData) {
       const sections = customerData.configurableInvoiceCustomSections
+      const hasOverwritten = customerData.hasOverwrittenInvoiceCustomSectionsSelection
+      const customerSkipSections = customerData.skipInvoiceCustomSections
 
       // Customer explicitly skipped ICS
-      if (
-        !customerData.hasOverwrittenInvoiceCustomSectionsSelection &&
-        customerData.skipInvoiceCustomSections
-      ) {
+      if (!hasOverwritten && customerSkipSections) {
         return { type: 'fallback_customer_skip' }
       }
 
       // Customer has overwritten selection with specific sections
-      if (
-        customerData.hasOverwrittenInvoiceCustomSectionsSelection &&
-        !customerData.skipInvoiceCustomSections
-      ) {
-        if (sections.length > 0) {
-          return { type: 'fallback_customer_sections', sections }
-        }
+      if (hasOverwritten && !customerSkipSections && sections.length > 0) {
+        return { type: 'fallback_customer_sections', sections }
       }
 
       // Fallback to billing entity
-      if (
-        !customerData.hasOverwrittenInvoiceCustomSectionsSelection &&
-        !customerData.skipInvoiceCustomSections
-      ) {
-        if (sections.length > 0) {
-          return { type: 'fallback_billing_entity', sections }
-        }
+      if (!hasOverwritten && !customerSkipSections && sections.length > 0) {
+        return { type: 'fallback_billing_entity', sections }
       }
     }
 

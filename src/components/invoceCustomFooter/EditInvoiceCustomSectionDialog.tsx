@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Dialog } from '~/components/designSystem'
+import { Dialog } from '~/components/designSystem'
 import { MultipleComboBox } from '~/components/form'
 import { Radio } from '~/components/form/Radio/Radio'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 
+import { EditInvoiceCustomSectionDialogActions } from './EditInvoiceCustomSectionDialogActions'
 import { InvoiceCustomSectionBasic } from './types'
 
 import { ViewType } from '../paymentMethodsInvoiceSettings/types'
 
-export const EDIT_ICS_DIALOG_CANCEL_BUTTON_TEST_ID =
-  'edit-invoice-custom-section-dialog-cancel-button'
-export const EDIT_ICS_DIALOG_SAVE_BUTTON_TEST_ID = 'edit-invoice-custom-section-dialog-save-button'
 export const EDIT_ICS_DIALOG_FALLBACK_RADIO_TEST_ID =
   'edit-invoice-custom-section-dialog-fallback-radio'
 export const EDIT_ICS_DIALOG_APPLY_RADIO_TEST_ID = 'edit-invoice-custom-section-dialog-apply-radio'
@@ -122,23 +120,12 @@ export const EditInvoiceCustomSectionDialog = ({
       description={translate('text_1765363318310io596s2cy1y', { object: getViewTypeLabel() })}
       onClose={onClose}
       actions={({ closeDialog }) => (
-        <>
-          <Button
-            variant="quaternary"
-            onClick={closeDialog}
-            data-test={EDIT_ICS_DIALOG_CANCEL_BUTTON_TEST_ID}
-          >
-            {translate('text_63ea0f84f400488553caa6a5')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={isSaveDisabled()}
-            onClick={handleSave}
-            data-test={EDIT_ICS_DIALOG_SAVE_BUTTON_TEST_ID}
-          >
-            {translate('text_1764327933607yodbve95igk')}
-          </Button>
-        </>
+        <EditInvoiceCustomSectionDialogActions
+          closeDialog={closeDialog}
+          onSave={handleSave}
+          isSaveDisabled={isSaveDisabled()}
+          translate={translate}
+        />
       )}
     >
       <div className="mb-8 flex flex-col gap-4">

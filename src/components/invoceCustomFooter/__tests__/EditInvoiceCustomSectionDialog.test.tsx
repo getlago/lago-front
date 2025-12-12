@@ -5,10 +5,10 @@ import { ViewType } from '~/components/paymentMethodsInvoiceSettings/types'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { render } from '~/test-utils'
 
+import { EDIT_ICS_DIALOG_SAVE_BUTTON_TEST_ID } from '../EditInvoiceCustomSectionDialogActions'
 import {
   EDIT_ICS_DIALOG_APPLY_RADIO_TEST_ID,
   EDIT_ICS_DIALOG_FALLBACK_RADIO_TEST_ID,
-  EDIT_ICS_DIALOG_SAVE_BUTTON_TEST_ID,
   EditInvoiceCustomSectionDialog,
   InvoiceCustomSectionBehavior,
 } from '../EditInvoiceCustomSectionDialog'
