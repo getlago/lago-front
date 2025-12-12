@@ -8,10 +8,14 @@ import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface ChatPromptEditorProps {
+  disabled?: boolean
   onSubmit: FormikConfig<CreateAiConversationInput>['onSubmit']
 }
 
-export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSubmit }) => {
+export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
+  disabled,
+  onSubmit: handleSubmit,
+}) => {
   const { state } = useAiAgent()
   const { translate } = useInternationalization()
 
@@ -60,7 +64,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({ onSubmit: handleSu
           inputProps={{
             className: '!resize-none w-full !pr-13 !py-3 overflow-y-auto text-sm',
           }}
-          disabled={state.isLoading || state.isStreaming}
+          disabled={state.isLoading || state.isStreaming || disabled}
         />
 
         <button

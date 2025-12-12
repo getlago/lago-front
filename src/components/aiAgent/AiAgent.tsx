@@ -6,21 +6,20 @@ import { ChatHistory } from '~/components/aiAgent/ChatHistory'
 import { NavigationBar } from '~/components/aiAgent/NavigationBar'
 import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 export const AiAgent = () => {
   const { panelRef, currentPanelOpened, panelOpen, state, resetConversation } = useAiAgent()
-  const { currentUser } = useCurrentUser()
+  const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
 
-  const hasAccessToAiAgent = isFeatureFlagActive(FeatureFlags.AI_AGENT)
+  const hasAccessToAiAgent = isPremium
 
   const [showHistory, setShowHistory] = useState(false)
 
-  if (!currentUser || !hasAccessToAiAgent) {
+  if (!currentUser) {
     return null
   }
 
@@ -63,12 +62,12 @@ export const AiAgent = () => {
             isBeta={shouldDisplayWelcomeMessage && !showHistory}
             showBackButton={!shouldDisplayWelcomeMessage || showHistory}
             onBackButton={onBackButton}
-            showHistoryButton={shouldDisplayWelcomeMessage}
+            showHistoryButton={shouldDisplayWelcomeMessage && hasAccessToAiAgent}
             onShowHistory={() => setShowHistory(true)}
           >
             {showHistory && <ChatHistory hideHistory={() => setShowHistory(false)} />}
 
-            {!showHistory && <PanelAiAgent />}
+            {!showHistory && <PanelAiAgent hasAccessToAiAgent={hasAccessToAiAgent} />}
           </PanelWrapper>
         )}
       </Panel>
