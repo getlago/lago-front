@@ -63,4 +63,3 @@ describe('WHEN EditInvoiceCustomSectionDialogActions is rendered', () => {
     expect(mockOnSave).not.toHaveBeenCalled()
   })
 })
-
