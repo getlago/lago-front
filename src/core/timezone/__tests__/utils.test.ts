@@ -29,6 +29,14 @@ describe('intlFormatDateTime', () => {
         expect(date).toEqual('Apr 18, 2025')
       })
 
+      it('should format to "Apr 18"', () => {
+        const { date } = intlFormatDateTime('2025-04-18T00:00:00Z', {
+          formatDate: DateFormat.DATE_MED_SHORT,
+        })
+
+        expect(date).toEqual('Apr 18')
+      })
+
       it('should format to "4/18/2025"', () => {
         const { date } = intlFormatDateTime('2025-04-18T00:00:00Z', {
           formatDate: DateFormat.DATE_SHORT,
@@ -290,6 +298,14 @@ describe('intlFormatDateTime', () => {
         })
 
         expect(date).toEqual('Jan 15, 2025')
+      })
+
+      it('should format to "Jan 15"', () => {
+        const { date } = intlFormatDateTime('2025-01-15T00:00:00Z', {
+          formatDate: DateFormat.DATE_MED_SHORT,
+        })
+
+        expect(date).toEqual('Jan 15')
       })
 
       it('should format to "1/15/2025"', () => {

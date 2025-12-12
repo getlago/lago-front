@@ -27,8 +27,6 @@ gql`
 `
 
 export interface CustomerInvoiceCustomSectionsData {
-  customerId: string
-  externalId: string
   configurableInvoiceCustomSections: InvoiceCustomSectionBasic[]
   hasOverwrittenInvoiceCustomSectionsSelection: boolean
   skipInvoiceCustomSections: boolean
@@ -64,8 +62,6 @@ export const useCustomerInvoiceCustomSections = (
   }
 
   const processedData: CustomerInvoiceCustomSectionsData = {
-    customerId: customer.id,
-    externalId: customer.externalId,
     configurableInvoiceCustomSections:
       customer.configurableInvoiceCustomSections?.map((s) => ({
         id: s.id,

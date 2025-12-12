@@ -40,6 +40,7 @@ export const ComboBox = ({
   onOpen,
   onChange,
   variant = 'default',
+  'data-test': dataTest,
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
@@ -116,6 +117,7 @@ export const ComboBox = ({
             startAdornmentValue={startAdornmentValue}
             params={params}
             variant={variant}
+            data-test={dataTest}
           />
         )
       }}

@@ -67,7 +67,7 @@ export const InvoceCustomFooter = ({
         </Typography>
       )}
       {description && (
-        <Typography variant="caption" className="mb-3">
+        <Typography variant="caption" className="mb-4">
           {description}
         </Typography>
       )}

@@ -58,7 +58,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
     }))
   }, [orgInvoiceCustomSections])
 
-  const [editCustomerDunningCampaignBehavior] = useEditCustomerInvoiceCustomSectionMutation({
+  const [editCustomerInvoiceCustomSection] = useEditCustomerInvoiceCustomSectionMutation({
     refetchQueries: ['getCustomerSettings'],
     onCompleted: () => {
       addToast({
@@ -135,7 +135,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
           break
       }
 
-      await editCustomerDunningCampaignBehavior({ variables: { input: formattedValues } })
+      await editCustomerInvoiceCustomSection({ variables: { input: formattedValues } })
     },
     validateOnMount: true,
     enableReinitialize: true,
