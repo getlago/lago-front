@@ -278,8 +278,8 @@ importers:
         specifier: 3.18.2
         version: 3.18.2(tailwindcss@3.4.18(ts-node@10.9.2(@swc/core@1.13.5)(@swc/wasm@1.13.20)(@types/node@24.10.1)(typescript@5.9.3)))
       gettext-extractor:
-        specifier: 4.0.1
-        version: 4.0.1
+        specifier: 4.0.3
+        version: 4.0.3
       glob:
         specifier: 13.0.0
         version: 13.0.0
@@ -5112,8 +5112,8 @@ packages:
   getpass@0.1.7:
     resolution: {integrity: sha512-0fzj9JxOLfJ+XGLhR8ze3unN0KZCgZwiSSDz168VERjK8Wl8kVSdcu2kspd4s4wtAa1y/qrVRiAA0WclVsu0ng==}
 
-  gettext-extractor@4.0.1:
-    resolution: {integrity: sha512-f11MbYAIeWCB8a5zYZu8W6/RLtjA6FBSpj8L9TdA1jIjkBsPSvJin6e1h3WsQxaiJcE6MPgFQb/lhTTl0k1Phw==}
+  gettext-extractor@4.0.3:
+    resolution: {integrity: sha512-37XhpG1kLCjd9G3g5+QHhAPZaqVytMHPOHQjqjCDSrCh1HUVLhBeOzeYYUvfk7yARDMarIT7uenVihFcY3EviA==}
     engines: {node: '>=20'}
 
   glob-parent@5.1.2:
@@ -5132,8 +5132,8 @@ packages:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
     hasBin: true
 
-  glob@11.0.1:
-    resolution: {integrity: sha512-zrQDm8XPnYEKawJScsnM0QzobJxlT/kHOOlRTio8IH/GrmxRE5fjllkzdaHclIuNjUQTJYH2xHNIGfdpJkDJUw==}
+  glob@11.1.0:
+    resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
     hasBin: true
 
@@ -13905,11 +13905,11 @@ snapshots:
     dependencies:
       assert-plus: 1.0.0
 
-  gettext-extractor@4.0.1:
+  gettext-extractor@4.0.3:
     dependencies:
       '@types/parse5': 5.0.3
       css-selector-parser: 1.4.1
-      glob: 11.0.1
+      glob: 11.1.0
       parse5: 6.0.1
       pofile: 1.0.11
       typescript: 5.9.3
@@ -13940,7 +13940,7 @@ snapshots:
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
 
-  glob@11.0.1:
+  glob@11.1.0:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 4.1.1
