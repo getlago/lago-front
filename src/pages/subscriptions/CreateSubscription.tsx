@@ -34,6 +34,7 @@ import {
   DatePickerField,
   TextInputField,
 } from '~/components/form'
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
@@ -336,9 +337,12 @@ const CreateSubscription = () => {
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
+      const { invoiceCustomSection, ...restValues } = values
+
       const localValues = {
         id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
-        ...values,
+        ...restValues,
+        invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }
       const rootElement = document.getElementById('root')
       const errorsString = await onSave(

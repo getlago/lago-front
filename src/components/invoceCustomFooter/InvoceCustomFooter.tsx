@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { Button, Typography } from '~/components/designSystem'
 import {
@@ -6,7 +6,6 @@ import {
   InvoiceCustomSectionBehavior,
   InvoiceCustomSectionSelection,
 } from '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog'
-import { InvoiceCustomSectionsReferenceInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
@@ -22,7 +21,7 @@ interface InvoceCustomFooterProps {
   description: string
   viewType: ViewType
   invoiceCustomSection?: InvoiceCustomSectionInput
-  setInvoiceCustomSection?: (item: InvoiceCustomSectionsReferenceInput) => void
+  setInvoiceCustomSection?: (item: InvoiceCustomSectionInput) => void
 }
 
 export const InvoceCustomFooter = ({
@@ -36,10 +35,7 @@ export const InvoceCustomFooter = ({
   const { translate } = useInternationalization()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const selectedSections = useMemo(
-    () => invoiceCustomSection?.invoiceCustomSections || [],
-    [invoiceCustomSection?.invoiceCustomSections],
-  )
+  const selectedSections = invoiceCustomSection?.invoiceCustomSections || []
   const skipSections = invoiceCustomSection?.skipInvoiceCustomSections || false
 
   const handleDialogSave = (selection: InvoiceCustomSectionSelection) => {
@@ -47,17 +43,17 @@ export const InvoceCustomFooter = ({
 
     if (behavior === InvoiceCustomSectionBehavior.FALLBACK) {
       setInvoiceCustomSection?.({
-        invoiceCustomSectionIds: [],
+        invoiceCustomSections: [],
         skipInvoiceCustomSections: false,
       })
     } else if (behavior === InvoiceCustomSectionBehavior.APPLY) {
       setInvoiceCustomSection?.({
-        invoiceCustomSectionIds: newSelectedSections.map((s) => s.id),
+        invoiceCustomSections: newSelectedSections,
         skipInvoiceCustomSections: false,
       })
     } else if (behavior === InvoiceCustomSectionBehavior.NONE) {
       setInvoiceCustomSection?.({
-        invoiceCustomSectionIds: [],
+        invoiceCustomSections: [],
         skipInvoiceCustomSections: true,
       })
     }
