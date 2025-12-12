@@ -59,6 +59,7 @@ describe('mapFromApiToForm', () => {
     ],
     billingEntity: {
       __typename: 'BillingEntity',
+      id: 'billing-entity-1',
       code: 'default-entity',
       name: 'Default Entity',
     },
@@ -183,6 +184,7 @@ describe('mapFromApiToForm', () => {
       ],
       billingEntity: {
         __typename: 'BillingEntity',
+        id: 'billing-entity-1',
         code: 'default-entity',
         name: 'Default Entity',
       },
@@ -273,6 +275,7 @@ describe('mapFromApiToForm', () => {
       const customerWithBillingEntity: AddCustomerDrawerFragment = {
         ...mockCustomer,
         billingEntity: {
+          id: 'billing-entity-1',
           code: 'custom-entity',
           __typename: 'BillingEntity',
           name: 'Custom Entity',
@@ -343,6 +346,7 @@ describe('mapFromApiToForm', () => {
       ],
       billingEntity: {
         __typename: 'BillingEntity',
+        id: 'billing-entity-1',
         code: 'default-entity',
         name: 'Default Entity',
       },
@@ -868,8 +872,9 @@ describe('mapFromApiToForm', () => {
           syncWithProvider: true,
         },
         billingEntity: {
-          code: 'complete-entity',
           __typename: 'BillingEntity',
+          id: 'billing-entity-1',
+          code: 'complete-entity',
           name: 'Complete Entity',
         },
         metadata: [

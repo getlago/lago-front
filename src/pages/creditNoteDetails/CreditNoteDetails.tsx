@@ -75,6 +75,7 @@ gql`
         value
       }
       billingEntity {
+        id
         einvoicing
       }
       customer {

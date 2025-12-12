@@ -138,6 +138,7 @@ gql`
       displayInInvoice
     }
     billingEntity {
+      id
       code
       name
     }

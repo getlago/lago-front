@@ -90,6 +90,7 @@ gql`
       errorDetails
     }
     billingEntity {
+      id
       name
       code
     }

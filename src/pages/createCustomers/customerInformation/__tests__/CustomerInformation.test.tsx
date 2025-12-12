@@ -28,6 +28,7 @@ const mockCustomer: AddCustomerDrawerFragment = {
   email: 'email@email.com',
   billingEntity: {
     __typename: 'BillingEntity',
+    id: 'billing-entity-1',
     name: 'Test Billing Entity',
     code: 'TBE',
   },

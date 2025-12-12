@@ -30,6 +30,7 @@ export const createMockCustomerDetails = (
     timezone: 'Europe/Rome',
     billingEntity: {
       __typename: 'BillingEntity',
+      id: 'billing-entity-1',
       name: 'Entity 1',
       code: 'E1',
     },

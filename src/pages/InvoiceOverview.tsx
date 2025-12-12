@@ -114,6 +114,7 @@ gql`
       }
     }
     billingEntity {
+      id
       name
       code
       einvoicing

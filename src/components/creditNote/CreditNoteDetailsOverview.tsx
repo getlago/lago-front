@@ -45,6 +45,7 @@ gql`
       refundAmountCents
       xmlUrl
       billingEntity {
+        id
         name
         code
         einvoicing
