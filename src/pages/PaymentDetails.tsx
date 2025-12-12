@@ -86,6 +86,7 @@ gql`
         displayName
         applicableTimezone
         billingEntity {
+          id
           einvoicing
         }
       }

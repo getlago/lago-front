@@ -30,6 +30,7 @@ const createMockCreditNote = (
   refundStatus: null,
   metadata,
   billingEntity: {
+    id: 'billing-entity-1',
     einvoicing: false,
   },
   customer: {

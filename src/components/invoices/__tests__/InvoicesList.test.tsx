@@ -163,6 +163,7 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
   errorDetails: null,
   billingEntity: {
     __typename: 'BillingEntity',
+    id: 'billing-entity-1',
     name: 'Acme Corp',
     code: 'acme',
   },
@@ -1179,6 +1180,7 @@ describe('InvoicesList', () => {
           createMockInvoice({
             billingEntity: {
               __typename: 'BillingEntity',
+              id: 'billing-entity-1',
               name: '',
               code: 'billing-code-123',
             },
@@ -1195,6 +1197,7 @@ describe('InvoicesList', () => {
           createMockInvoice({
             billingEntity: {
               __typename: 'BillingEntity',
+              id: 'billing-entity-1',
               name: '',
               code: '',
             },

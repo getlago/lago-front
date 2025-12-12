@@ -163,6 +163,7 @@ gql`
       zipcode
       accountType
       billingEntity {
+        id
         code
       }
       taxes {

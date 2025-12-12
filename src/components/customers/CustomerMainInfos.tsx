@@ -87,6 +87,7 @@ gql`
       value
     }
     billingEntity {
+      id
       name
       code
     }
