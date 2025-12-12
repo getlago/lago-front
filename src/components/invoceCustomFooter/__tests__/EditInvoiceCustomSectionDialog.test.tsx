@@ -76,13 +76,13 @@ function prepare({
   )
 }
 
-describe('EditInvoiceCustomSectionDialog', () => {
+describe('WHEN EditInvoiceCustomSectionDialog is rendered', () => {
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
   })
 
-  it('initializes with APPLY behavior when selectedSections are provided and shows combobox with selected sections', async () => {
+  it('THEN initializes with APPLY behavior when selectedSections are provided and shows combobox with selected sections', async () => {
     const selectedSections: InvoiceCustomSectionBasic[] = [
       { id: 'section-1', name: 'Section 1' },
       { id: 'section-2', name: 'Section 2' },
@@ -102,7 +102,7 @@ describe('EditInvoiceCustomSectionDialog', () => {
     expect(saveButton).not.toBeDisabled()
   })
 
-  it('disables save button when APPLY behavior is selected but no sections are selected', async () => {
+  it('THEN disables save button when APPLY behavior is selected but no sections are selected', async () => {
     const user = userEvent.setup()
 
     await act(() => prepare())
@@ -120,7 +120,7 @@ describe('EditInvoiceCustomSectionDialog', () => {
     })
   })
 
-  it('calls onSave with correct data when APPLY behavior is selected with sections', async () => {
+  it('THEN calls onSave with correct data when APPLY behavior is selected with sections', async () => {
     const user = userEvent.setup()
     const onSave = jest.fn()
     const onClose = jest.fn()
@@ -145,7 +145,7 @@ describe('EditInvoiceCustomSectionDialog', () => {
     })
   })
 
-  it('correctly handles behavior changes and saves with empty selectedSections when switching from APPLY to FALLBACK', async () => {
+  it('THEN correctly handles behavior changes and saves with empty selectedSections when switching from APPLY to FALLBACK', async () => {
     const user = userEvent.setup()
     const onSave = jest.fn()
     const onClose = jest.fn()

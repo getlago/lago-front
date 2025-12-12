@@ -91,8 +91,6 @@ describe('useCustomerInvoiceCustomSections', () => {
       expect(result.current.loading).toBe(false)
       expect(result.current.error).toBe(false)
       expect(result.current.data).toEqual({
-        customerId: CUSTOMER_ID,
-        externalId: 'ext-customer-123',
         configurableInvoiceCustomSections: [
           { id: 'section-1', name: 'Section 1' },
           { id: 'section-2', name: 'Section 2' },

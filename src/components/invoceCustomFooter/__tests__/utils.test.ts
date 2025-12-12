@@ -1,15 +1,15 @@
 import { toInvoiceCustomSectionReference } from '../utils'
 
-describe('toInvoiceCustomSectionReference', () => {
-  it('should return undefined when input is undefined', () => {
+describe('WHEN toInvoiceCustomSectionReference is called', () => {
+  it('THEN returns undefined when input is undefined', () => {
     expect(toInvoiceCustomSectionReference(undefined)).toBeUndefined()
   })
 
-  it('should return undefined when input is null', () => {
+  it('THEN returns undefined when input is null', () => {
     expect(toInvoiceCustomSectionReference(null)).toBeUndefined()
   })
 
-  it('should convert invoiceCustomSections to invoiceCustomSectionIds', () => {
+  it('THEN converts invoiceCustomSections to invoiceCustomSectionIds', () => {
     const input = {
       invoiceCustomSections: [
         { id: 'section-1', name: 'Section 1' },
@@ -26,7 +26,7 @@ describe('toInvoiceCustomSectionReference', () => {
     })
   })
 
-  it('should return empty array when invoiceCustomSections is empty', () => {
+  it('THEN returns empty array when invoiceCustomSections is empty', () => {
     const input = {
       invoiceCustomSections: [],
       skipInvoiceCustomSections: false,
@@ -40,7 +40,7 @@ describe('toInvoiceCustomSectionReference', () => {
     })
   })
 
-  it('should return empty array when invoiceCustomSections is undefined', () => {
+  it('THEN returns empty array when invoiceCustomSections is undefined', () => {
     const input = {
       invoiceCustomSections: undefined as never,
       skipInvoiceCustomSections: true,
@@ -54,7 +54,7 @@ describe('toInvoiceCustomSectionReference', () => {
     })
   })
 
-  it('should preserve skipInvoiceCustomSections value', () => {
+  it('THEN preserves skipInvoiceCustomSections value', () => {
     const inputWithSkip = {
       invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
       skipInvoiceCustomSections: true,

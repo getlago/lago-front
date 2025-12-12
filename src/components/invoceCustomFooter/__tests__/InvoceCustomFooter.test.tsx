@@ -8,6 +8,7 @@ import { render } from '~/test-utils'
 
 import { EDIT_BUTTON, InvoceCustomFooter } from '../InvoceCustomFooter'
 import { FALLBACK_BILLING_ENTITY_LABEL, SECTION_CHIP } from '../InvoiceCustomSectionDisplay'
+import { InvoiceCustomSectionBasic } from '../types'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: jest.fn(),
@@ -21,8 +22,27 @@ jest.mock('~/hooks/useInvoiceCustomSections', () => ({
   useInvoiceCustomSections: jest.fn(),
 }))
 
+let capturedOnSave:
+  | ((selection: { behavior: string; selectedSections: InvoiceCustomSectionBasic[] }) => void)
+  | undefined
+
 jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () => ({
-  EditInvoiceCustomSectionDialog: jest.fn(() => null),
+  EditInvoiceCustomSectionDialog: jest.fn(
+    ({
+      onSave,
+    }: {
+      onSave?: (selection: {
+        behavior: string
+        selectedSections: InvoiceCustomSectionBasic[]
+      }) => void
+    }) => {
+      // Capture onSave for testing
+      if (onSave) {
+        capturedOnSave = onSave
+      }
+      return null
+    },
+  ),
   InvoiceCustomSectionBehavior: {
     FALLBACK: 'fallback',
     APPLY: 'apply',
@@ -74,8 +94,8 @@ describe('InvoceCustomFooter', () => {
     })
   })
 
-  describe('Test 1: APPLY behavior - displays selected sections from form', () => {
-    it('should display chips for explicitly selected sections', async () => {
+  describe('WHEN APPLY behavior is selected', () => {
+    it('THEN displays chips for explicitly selected sections', async () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
@@ -103,7 +123,7 @@ describe('InvoceCustomFooter', () => {
       expect(screen.queryByText('Section 2')).not.toBeInTheDocument()
     })
 
-    it('should pass correct selected sections to dialog when opening edit dialog', async () => {
+    it('THEN passes correct selected sections to dialog when opening edit dialog', async () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
@@ -138,8 +158,8 @@ describe('InvoceCustomFooter', () => {
     })
   })
 
-  describe('Test 2: NONE behavior - skips invoice custom sections', () => {
-    it('should not display sections when skipInvoiceCustomSections is true', async () => {
+  describe('WHEN NONE behavior is selected', () => {
+    it('THEN does not display sections when skipInvoiceCustomSections is true', async () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
@@ -161,8 +181,8 @@ describe('InvoceCustomFooter', () => {
     })
   })
 
-  describe('Test 3: FALLBACK behavior - inherits from customer custom sections', () => {
-    it('should display customer sections when hasOverwrittenInvoiceCustomSectionsSelection is true', async () => {
+  describe('WHEN FALLBACK behavior is selected and customer has overwritten selection', () => {
+    it('THEN displays customer sections when hasOverwrittenInvoiceCustomSectionsSelection is true', async () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
@@ -199,7 +219,7 @@ describe('InvoceCustomFooter', () => {
       })
     })
 
-    it('should display customer skip message when customer has skipInvoiceCustomSections=true and hasOverwrittenInvoiceCustomSectionsSelection=false', async () => {
+    it('THEN displays customer skip message when customer has skipInvoiceCustomSections=true and hasOverwrittenInvoiceCustomSectionsSelection=false', async () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
@@ -232,8 +252,8 @@ describe('InvoceCustomFooter', () => {
     })
   })
 
-  describe('Test 4: FALLBACK behavior - inherits from billing entity', () => {
-    it('should display billing entity sections when customer has not overwritten selection', async () => {
+  describe('WHEN FALLBACK behavior is selected and customer has not overwritten selection', () => {
+    it('THEN displays billing entity sections when customer has not overwritten selection', async () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
@@ -271,7 +291,7 @@ describe('InvoceCustomFooter', () => {
       })
     })
 
-    it('should display empty state when no sections are available from billing entity', async () => {
+    it('THEN displays empty state when no sections are available from billing entity', async () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
@@ -308,8 +328,12 @@ describe('InvoceCustomFooter', () => {
     })
   })
 
-  describe('Test 5: Dialog interaction and state management', () => {
-    it('should open dialog when edit button is clicked', async () => {
+  describe('WHEN dialog interaction occurs', () => {
+    beforeEach(() => {
+      capturedOnSave = undefined
+    })
+
+    it('THEN opens dialog when edit button is clicked', async () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
@@ -336,7 +360,7 @@ describe('InvoceCustomFooter', () => {
       )
     })
 
-    it('should pass correct props to dialog based on current behavior', async () => {
+    it('THEN passes correct props to dialog based on current behavior', async () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
@@ -362,7 +386,7 @@ describe('InvoceCustomFooter', () => {
       expect(dialogCall?.selectedSections).toEqual([{ id: 'section-1', name: 'Section 1' }])
     })
 
-    it('should display title and description when provided', async () => {
+    it('THEN displays title and description when provided', async () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
@@ -374,6 +398,130 @@ describe('InvoceCustomFooter', () => {
 
       expect(screen.getByText('Custom Title')).toBeInTheDocument()
       expect(screen.getByText('Custom Description')).toBeInTheDocument()
+    })
+  })
+
+  describe('WHEN handleDialogSave is called', () => {
+    beforeEach(() => {
+      capturedOnSave = undefined
+    })
+
+    it('THEN calls setInvoiceCustomSection with FALLBACK behavior values', async () => {
+      const setInvoiceCustomSection = jest.fn()
+
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Invoice Custom Sections"
+          description="Select custom sections"
+          viewType="subscription"
+          setInvoiceCustomSection={setInvoiceCustomSection}
+        />,
+      )
+
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      // Wait for dialog to be initialized and onSave to be captured
+      await waitFor(() => {
+        expect(capturedOnSave).toBeDefined()
+      })
+
+      // Call onSave with FALLBACK behavior
+      const { InvoiceCustomSectionBehavior } = jest.requireMock(
+        '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog',
+      )
+
+      capturedOnSave?.({
+        behavior: InvoiceCustomSectionBehavior.FALLBACK,
+        selectedSections: [],
+      })
+
+      expect(setInvoiceCustomSection).toHaveBeenCalledWith({
+        invoiceCustomSections: [],
+        skipInvoiceCustomSections: false,
+      })
+    })
+
+    it('THEN calls setInvoiceCustomSection with APPLY behavior values', async () => {
+      const setInvoiceCustomSection = jest.fn()
+      const selectedSections: InvoiceCustomSectionBasic[] = [
+        { id: 'section-1', name: 'Section 1' },
+        { id: 'section-2', name: 'Section 2' },
+      ]
+
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Invoice Custom Sections"
+          description="Select custom sections"
+          viewType="subscription"
+          setInvoiceCustomSection={setInvoiceCustomSection}
+        />,
+      )
+
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      // Wait for dialog to be initialized and onSave to be captured
+      await waitFor(() => {
+        expect(capturedOnSave).toBeDefined()
+      })
+
+      // Call onSave with APPLY behavior
+      const { InvoiceCustomSectionBehavior } = jest.requireMock(
+        '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog',
+      )
+
+      capturedOnSave?.({
+        behavior: InvoiceCustomSectionBehavior.APPLY,
+        selectedSections,
+      })
+
+      expect(setInvoiceCustomSection).toHaveBeenCalledWith({
+        invoiceCustomSections: selectedSections,
+        skipInvoiceCustomSections: false,
+      })
+    })
+
+    it('THEN calls setInvoiceCustomSection with NONE behavior values', async () => {
+      const setInvoiceCustomSection = jest.fn()
+
+      render(
+        <InvoceCustomFooter
+          customerId="customer-1"
+          title="Invoice Custom Sections"
+          description="Select custom sections"
+          viewType="subscription"
+          setInvoiceCustomSection={setInvoiceCustomSection}
+        />,
+      )
+
+      const editButton = screen.getByTestId(EDIT_BUTTON)
+
+      await userEvent.click(editButton)
+
+      // Wait for dialog to be initialized and onSave to be captured
+      await waitFor(() => {
+        expect(capturedOnSave).toBeDefined()
+      })
+
+      // Call onSave with NONE behavior
+      const { InvoiceCustomSectionBehavior } = jest.requireMock(
+        '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog',
+      )
+
+      capturedOnSave?.({
+        behavior: InvoiceCustomSectionBehavior.NONE,
+        selectedSections: [],
+      })
+
+      expect(setInvoiceCustomSection).toHaveBeenCalledWith({
+        invoiceCustomSections: [],
+        skipInvoiceCustomSections: true,
+      })
     })
   })
 })

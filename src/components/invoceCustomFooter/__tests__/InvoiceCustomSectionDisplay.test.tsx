@@ -68,8 +68,8 @@ describe('InvoiceCustomSectionDisplay', () => {
     } as ReturnType<typeof useCustomerInvoiceCustomSections>)
   })
 
-  describe('InvoiceCustomSectionDisplay', () => {
-    it('renders chips for APPLY display state', () => {
+  describe('WHEN InvoiceCustomSectionDisplay is rendered', () => {
+    it('THEN renders chips for APPLY display state', () => {
       render(
         <InvoiceCustomSectionDisplay
           selectedSections={[
@@ -86,7 +86,7 @@ describe('InvoiceCustomSectionDisplay', () => {
       expect(screen.getByText('Applied Section 2')).toBeInTheDocument()
     })
 
-    it('renders skip message for NONE display state', () => {
+    it('THEN renders skip message for NONE display state', () => {
       render(
         <InvoiceCustomSectionDisplay
           selectedSections={[]}
@@ -99,7 +99,7 @@ describe('InvoiceCustomSectionDisplay', () => {
       expect(screen.getByTestId(SKIP_LABEL)).toBeInTheDocument()
     })
 
-    it('renders fallback customer sections with message', () => {
+    it('THEN renders fallback customer sections with message', () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
@@ -127,7 +127,7 @@ describe('InvoiceCustomSectionDisplay', () => {
       expect(screen.getByText('Customer Section')).toBeInTheDocument()
     })
 
-    it('renders skip message for fallback_customer_skip display state', () => {
+    it('THEN renders skip message for fallback_customer_skip display state', () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
@@ -151,7 +151,7 @@ describe('InvoiceCustomSectionDisplay', () => {
       expect(screen.getByTestId(SKIP_LABEL)).toBeInTheDocument()
     })
 
-    it('renders fallback billing entity sections with message', () => {
+    it('THEN renders fallback billing entity sections with message', () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
@@ -177,7 +177,7 @@ describe('InvoiceCustomSectionDisplay', () => {
       expect(screen.getByText('Org Section')).toBeInTheDocument()
     })
 
-    it('renders null for fallback_empty display state', () => {
+    it('THEN renders null for fallback_empty display state', () => {
       mockUseCustomerInvoiceCustomSections.mockReturnValue({
         data: {
           ...defaultCustomerData,
