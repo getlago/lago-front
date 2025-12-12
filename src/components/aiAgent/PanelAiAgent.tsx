@@ -81,7 +81,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
             title={translate('text_1765530128923vobffyisvq9')}
             description={translate('text_176553012892493ck00lv7qj')}
             feature="Lago AI Agent"
-            className="flex-col bg-white"
+            className="flex-col border border-grey-300 bg-white"
             buttonClassName="self-end"
           />
         </div>
