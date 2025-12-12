@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { ViewType } from '~/components/paymentMethodsInvoiceSettings/types'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
@@ -47,7 +48,7 @@ type PrepareType = {
   open?: boolean
   selectedPaymentMethod?: SelectedPaymentMethod
   paymentMethodsList?: PaymentMethodList
-  viewType?: string
+  viewType?: ViewType
 }
 
 function prepare({

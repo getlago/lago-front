@@ -33,5 +33,5 @@ export interface EditPaymentMethodDialogProps {
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
   paymentMethodsList: PaymentMethodList
-  viewType: string
+  viewType: ViewType
 }

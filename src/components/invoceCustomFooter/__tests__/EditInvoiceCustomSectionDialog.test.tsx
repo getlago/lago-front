@@ -1,6 +1,7 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { ViewType } from '~/components/paymentMethodsInvoiceSettings/types'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { render } from '~/test-utils'
 
@@ -54,7 +55,7 @@ function prepare({
     selectedSections: InvoiceCustomSectionBasic[]
   }) => void
   onClose?: () => void
-  viewType?: string
+  viewType?: ViewType
   loading?: boolean
 } = {}) {
   mockUseInvoiceCustomSections.mockReturnValue({
