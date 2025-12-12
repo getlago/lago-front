@@ -4066,6 +4066,7 @@ export type Invoice = {
   currency?: Maybe<CurrencyEnum>;
   customer: Customer;
   errorDetails?: Maybe<Array<ErrorDetail>>;
+  expectedFinalizationDate: Scalars['ISO8601Date']['output'];
   externalHubspotIntegrationId?: Maybe<Scalars['String']['output']>;
   externalIntegrationId?: Maybe<Scalars['String']['output']>;
   externalSalesforceIntegrationId?: Maybe<Scalars['String']['output']>;
@@ -5869,6 +5870,8 @@ export type Permissions = {
   creditNotesView: Scalars['Boolean']['output'];
   creditNotesVoid: Scalars['Boolean']['output'];
   customerSettingsUpdateGracePeriod: Scalars['Boolean']['output'];
+  customerSettingsUpdateIssuingDateAdjustment: Scalars['Boolean']['output'];
+  customerSettingsUpdateIssuingDateAnchor: Scalars['Boolean']['output'];
   customerSettingsUpdateLang: Scalars['Boolean']['output'];
   customerSettingsUpdatePaymentTerms: Scalars['Boolean']['output'];
   customerSettingsUpdateTaxRates: Scalars['Boolean']['output'];
@@ -11222,7 +11225,7 @@ export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null } } | null };
+export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null } } | null };
 
 export type GetEntitlementsForSubscriptionDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -27805,6 +27808,11 @@ export const GetSubscriptionForDetailsOverviewDocument = gql`
     paymentMethodType
     paymentMethod {
       id
+    }
+    skipInvoiceCustomSections
+    selectedInvoiceCustomSections {
+      id
+      name
     }
     ...SubscriptionForSubscriptionInformations
   }

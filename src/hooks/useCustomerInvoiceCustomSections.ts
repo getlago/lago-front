@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
+import { InvoiceCustomSectionBasic } from '~/components/invoceCustomFooter/types'
 import {
   EditCustomerInvoiceCustomSectionFragment,
   useGetCustomerInvoiceCustomSectionsQuery,
@@ -29,7 +29,7 @@ gql`
 export interface CustomerInvoiceCustomSectionsData {
   customerId: string
   externalId: string
-  configurableInvoiceCustomSections: MappedInvoiceSection[]
+  configurableInvoiceCustomSections: InvoiceCustomSectionBasic[]
   hasOverwrittenInvoiceCustomSectionsSelection: boolean
   skipInvoiceCustomSections: boolean
 }

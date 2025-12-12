@@ -6,23 +6,19 @@ import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCust
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { render } from '~/test-utils'
 
-import {
-  EDIT_BUTTON,
-  FALLBACK_BILLING_ENTITY_LABEL,
-  InvoceCustomFooter,
-  SECTION_CHIP,
-} from '../InvoceCustomFooter'
+import { EDIT_BUTTON, InvoceCustomFooter } from '../InvoceCustomFooter'
+import { FALLBACK_BILLING_ENTITY_LABEL, SECTION_CHIP } from '../InvoiceCustomSectionDisplay'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: jest.fn(),
 }))
 
-jest.mock('~/hooks/useInvoiceCustomSections', () => ({
-  useInvoiceCustomSections: jest.fn(),
-}))
-
 jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
   useCustomerInvoiceCustomSections: jest.fn(),
+}))
+
+jest.mock('~/hooks/useInvoiceCustomSections', () => ({
+  useInvoiceCustomSections: jest.fn(),
 }))
 
 jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () => ({
@@ -35,14 +31,8 @@ jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () =
 }))
 
 const mockUseInternationalization = jest.mocked(useInternationalization)
-const mockUseInvoiceCustomSections = jest.mocked(useInvoiceCustomSections)
 const mockUseCustomerInvoiceCustomSections = jest.mocked(useCustomerInvoiceCustomSections)
-
-const defaultOrgSections = [
-  { id: 'section-1', name: 'Section 1', code: 'section-1' },
-  { id: 'section-2', name: 'Section 2', code: 'section-2' },
-  { id: 'section-3', name: 'Section 3', code: 'section-3' },
-]
+const mockUseInvoiceCustomSections = jest.mocked(useInvoiceCustomSections)
 
 const defaultCustomerData = {
   customerId: 'customer-1',
@@ -55,6 +45,12 @@ const defaultCustomerData = {
   skipInvoiceCustomSections: false,
 }
 
+const defaultOrgSections = [
+  { id: 'section-1', name: 'Section 1', code: 'section-1' },
+  { id: 'section-2', name: 'Section 2', code: 'section-2' },
+  { id: 'section-3', name: 'Section 3', code: 'section-3' },
+]
+
 describe('InvoceCustomFooter', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -64,22 +60,22 @@ describe('InvoceCustomFooter', () => {
       locale: 'en',
     } as ReturnType<typeof useInternationalization>)
 
-    mockUseInvoiceCustomSections.mockReturnValue({
-      data: defaultOrgSections,
-      loading: false,
-      error: false,
-    } as ReturnType<typeof useInvoiceCustomSections>)
-
     mockUseCustomerInvoiceCustomSections.mockReturnValue({
       data: defaultCustomerData,
       loading: false,
       error: false,
       customer: null,
     } as ReturnType<typeof useCustomerInvoiceCustomSections>)
+
+    mockUseInvoiceCustomSections.mockReturnValue({
+      data: defaultOrgSections,
+      loading: false,
+      error: false,
+    })
   })
 
   describe('Test 1: APPLY behavior - displays selected sections from form', () => {
-    it('should display chips for explicitly selected sections when invoiceCustomSectionIds is provided', async () => {
+    it('should display chips for explicitly selected sections', async () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
@@ -122,7 +118,7 @@ describe('InvoceCustomFooter', () => {
 
       await userEvent.click(editButton)
 
-      // Verify dialog receives the selected sections
+      // Verify dialog receives the selected sections (mapped from IDs to { id, name })
       const { EditInvoiceCustomSectionDialog } = jest.requireMock(
         '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog',
       )

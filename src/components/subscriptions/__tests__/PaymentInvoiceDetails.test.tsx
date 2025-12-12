@@ -7,6 +7,7 @@ import { render } from '~/test-utils'
 
 import {
   INHERITED_BADGE_TEST_ID,
+  INVOICE_CUSTOM_FOOTER_SECTION,
   MANUAL_PAYMENT_METHOD_TEST_ID,
   PaymentInvoiceDetails,
 } from '../PaymentInvoiceDetails'
@@ -25,7 +26,19 @@ jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
   })),
 }))
 
+jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
+  useCustomerInvoiceCustomSections: jest.fn(() => ({
+    data: null,
+    loading: false,
+    error: false,
+    customer: null,
+  })),
+}))
+
 const { usePaymentMethodsList } = jest.requireMock('~/hooks/customer/usePaymentMethodsList')
+const { useCustomerInvoiceCustomSections } = jest.requireMock(
+  '~/hooks/useCustomerInvoiceCustomSections',
+)
 
 describe('PaymentInvoiceDetails', () => {
   beforeEach(() => {
@@ -33,6 +46,12 @@ describe('PaymentInvoiceDetails', () => {
       data: [],
       loading: false,
       error: false,
+    })
+    ;(useCustomerInvoiceCustomSections as jest.Mock).mockReturnValue({
+      data: null,
+      loading: false,
+      error: false,
+      customer: null,
     })
   })
 
@@ -164,6 +183,98 @@ describe('PaymentInvoiceDetails', () => {
 
       expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(INHERITED_BADGE_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('Invoice Custom Section display', () => {
+    it('displays ICS section when subscription has explicit sections selected (APPLY)', () => {
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Manual,
+      }
+
+      render(
+        <PaymentInvoiceDetails
+          selectedPaymentMethod={selectedPaymentMethod}
+          customerId="customer-id"
+          selectedInvoiceCustomSections={[{ id: 'section-1', name: 'Bank details' }]}
+          skipInvoiceCustomSections={false}
+        />,
+      )
+
+      expect(screen.getByTestId(INVOICE_CUSTOM_FOOTER_SECTION)).toBeInTheDocument()
+      expect(screen.getByText('Bank details')).toBeInTheDocument()
+    })
+
+    it('displays skip message when subscription explicitly skips ICS (NONE)', () => {
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Manual,
+      }
+
+      render(
+        <PaymentInvoiceDetails
+          selectedPaymentMethod={selectedPaymentMethod}
+          customerId="customer-id"
+          selectedInvoiceCustomSections={[]}
+          skipInvoiceCustomSections={true}
+        />,
+      )
+
+      expect(screen.getByTestId(INVOICE_CUSTOM_FOOTER_SECTION)).toBeInTheDocument()
+    })
+
+    it('displays fallback_billing_entity sections when customer has no overwritten selection', () => {
+      ;(useCustomerInvoiceCustomSections as jest.Mock).mockReturnValue({
+        data: {
+          customerId: 'customer-id',
+          externalId: 'customer-external-id',
+          configurableInvoiceCustomSections: [
+            { id: 'section-1', name: 'Bank details' },
+            { id: 'section-2', name: 'Legal terms' },
+          ],
+          hasOverwrittenInvoiceCustomSectionsSelection: false,
+          skipInvoiceCustomSections: false,
+        },
+        loading: false,
+        error: false,
+        customer: null,
+      })
+
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Manual,
+      }
+
+      render(
+        <PaymentInvoiceDetails
+          selectedPaymentMethod={selectedPaymentMethod}
+          customerId="customer-id"
+          selectedInvoiceCustomSections={[]}
+          skipInvoiceCustomSections={false}
+        />,
+      )
+
+      expect(screen.getByTestId(INVOICE_CUSTOM_FOOTER_SECTION)).toBeInTheDocument()
+      expect(screen.getByText('Bank details')).toBeInTheDocument()
+      expect(screen.getByText('Legal terms')).toBeInTheDocument()
+    })
+
+    it('does not display ICS section when no customerId and no explicit sections', () => {
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Manual,
+      }
+
+      render(
+        <PaymentInvoiceDetails
+          selectedPaymentMethod={selectedPaymentMethod}
+          selectedInvoiceCustomSections={[]}
+          skipInvoiceCustomSections={false}
+        />,
+      )
+
+      expect(screen.queryByTestId(INVOICE_CUSTOM_FOOTER_SECTION)).not.toBeInTheDocument()
     })
   })
 })

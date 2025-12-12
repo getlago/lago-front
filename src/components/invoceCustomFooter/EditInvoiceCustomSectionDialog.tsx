@@ -6,7 +6,9 @@ import { Radio } from '~/components/form/Radio/Radio'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 
-import { MappedInvoiceSection } from './types'
+import { InvoiceCustomSectionBasic } from './types'
+
+import { ViewType } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_ICS_DIALOG_CANCEL_BUTTON_TEST_ID =
   'edit-invoice-custom-section-dialog-cancel-button'
@@ -24,16 +26,16 @@ export enum InvoiceCustomSectionBehavior {
 
 export interface InvoiceCustomSectionSelection {
   behavior: InvoiceCustomSectionBehavior
-  selectedSections: MappedInvoiceSection[]
+  selectedSections: InvoiceCustomSectionBasic[]
 }
 
 interface EditInvoiceCustomSectionDialogProps {
   open: boolean
   onClose: () => void
-  selectedSections: MappedInvoiceSection[]
+  selectedSections: InvoiceCustomSectionBasic[]
   skipInvoiceCustomSections: boolean
   onSave: (selection: InvoiceCustomSectionSelection) => void
-  viewType: string
+  viewType: ViewType
 }
 
 export const EditInvoiceCustomSectionDialog = ({
@@ -50,7 +52,9 @@ export const EditInvoiceCustomSectionDialog = ({
   const [behavior, setBehavior] = useState<InvoiceCustomSectionBehavior>(
     InvoiceCustomSectionBehavior.FALLBACK,
   )
-  const [localSelectedSections, setLocalSelectedSections] = useState<MappedInvoiceSection[]>([])
+  const [localSelectedSections, setLocalSelectedSections] = useState<InvoiceCustomSectionBasic[]>(
+    [],
+  )
 
   useEffect(() => {
     if (open) {
@@ -103,7 +107,7 @@ export const EditInvoiceCustomSectionDialog = ({
   const handleComboboxChange = (
     selectedOptions: { value: string; label?: string | null }[],
   ): void => {
-    const mappedSections: MappedInvoiceSection[] = selectedOptions.map((option) => ({
+    const mappedSections: InvoiceCustomSectionBasic[] = selectedOptions.map((option) => ({
       id: option.value,
       name: option.label || '',
     }))

@@ -291,8 +291,7 @@ const CreateSubscription = () => {
         paymentMethodId: subscription?.paymentMethod?.id,
       },
       invoiceCustomSection: {
-        invoiceCustomSectionIds:
-          subscription?.selectedInvoiceCustomSections?.map((section) => section.id) || [],
+        invoiceCustomSections: subscription?.selectedInvoiceCustomSections || [],
         skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
       },
     },

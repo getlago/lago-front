@@ -11,7 +11,7 @@ import {
   EditInvoiceCustomSectionDialog,
   InvoiceCustomSectionBehavior,
 } from '../EditInvoiceCustomSectionDialog'
-import { MappedInvoiceSection } from '../types'
+import { InvoiceCustomSectionBasic } from '../types'
 
 jest.mock('~/hooks/useInvoiceCustomSections', () => ({
   useInvoiceCustomSections: jest.fn(),
@@ -47,11 +47,11 @@ function prepare({
   loading = false,
 }: {
   open?: boolean
-  selectedSections?: MappedInvoiceSection[]
+  selectedSections?: InvoiceCustomSectionBasic[]
   skipInvoiceCustomSections?: boolean
   onSave?: (selection: {
     behavior: InvoiceCustomSectionBehavior
-    selectedSections: MappedInvoiceSection[]
+    selectedSections: InvoiceCustomSectionBasic[]
   }) => void
   onClose?: () => void
   viewType?: string
@@ -82,7 +82,7 @@ describe('EditInvoiceCustomSectionDialog', () => {
   })
 
   it('initializes with APPLY behavior when selectedSections are provided and shows combobox with selected sections', async () => {
-    const selectedSections: MappedInvoiceSection[] = [
+    const selectedSections: InvoiceCustomSectionBasic[] = [
       { id: 'section-1', name: 'Section 1' },
       { id: 'section-2', name: 'Section 2' },
     ]
@@ -123,7 +123,7 @@ describe('EditInvoiceCustomSectionDialog', () => {
     const user = userEvent.setup()
     const onSave = jest.fn()
     const onClose = jest.fn()
-    const selectedSections: MappedInvoiceSection[] = [
+    const selectedSections: InvoiceCustomSectionBasic[] = [
       { id: 'section-1', name: 'Section 1' },
       { id: 'section-2', name: 'Section 2' },
     ]
