@@ -207,7 +207,7 @@ export const useAddSubscription: UseAddSubscription = ({
         }
       }
     },
-    refetchQueries: ['getCustomerSubscriptionForList'],
+    refetchQueries: ['getCustomerSubscriptionForList', 'getSubscriptionForCreateSubscription'],
   })
 
   return {
