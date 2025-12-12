@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloLink, Operation, split } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
+import { RetryLink } from '@apollo/client/link/retry'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException } from '@sentry/react'
 import ActionCable from 'actioncable'
@@ -104,6 +105,36 @@ export const initializeApolloClient = async () => {
 
   const timeoutLink = new ApolloLinkTimeout(TIMEOUT)
 
+  const retryLink = new RetryLink({
+    delay: {
+      initial: 150, // Start with 150ms delay
+      max: 5000, // Max delay of 5 seconds
+      jitter: true, // Add randomization to prevent thundering herd
+    },
+    attempts: {
+      max: 3, // Retry up to 3 times (4 total attempts including original)
+      retryIf: (error, operation) => {
+        // Only retry on network errors, not GraphQL errors
+        const isNetworkError = !!error && !error.result
+
+        // Don't retry if explicitly disabled via context
+        const { disableRetry = false } = operation.getContext()
+
+        if (disableRetry) return false
+
+        // Don't retry AbortErrors (user closed window/tab or navigated away)
+        const isAbortError =
+          error?.name === 'AbortError' || /signal aborted/i.test(error?.message || '')
+
+        if (isAbortError) return false
+
+        // Retry network errors (connection failures, timeouts, DNS failures)
+        // Don't retry GraphQL errors (which have a result)
+        return isNetworkError
+      },
+    },
+  })
+
   const errorLink = onError(({ graphQLErrors, operation }) => {
     const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
@@ -187,6 +218,7 @@ export const initializeApolloClient = async () => {
     authLink,
     tokenRefreshLink,
     cleanupLink,
+    retryLink,
     timeoutLink,
     errorLink,
     splitLink,
