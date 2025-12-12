@@ -100,9 +100,23 @@ describe('InvoiceCustomSectionDisplay', () => {
     })
 
     it('renders fallback customer sections with message', () => {
+      mockUseCustomerInvoiceCustomSections.mockReturnValue({
+        data: {
+          ...defaultCustomerData,
+          hasOverwrittenInvoiceCustomSectionsSelection: true,
+          skipInvoiceCustomSections: false,
+          configurableInvoiceCustomSections: [
+            { id: 'customer-section-1', name: 'Customer Section' },
+          ],
+        },
+        loading: false,
+        error: false,
+        customer: null,
+      } as ReturnType<typeof useCustomerInvoiceCustomSections>)
+
       render(
         <InvoiceCustomSectionDisplay
-          selectedSections={[{ id: 'customer-section-1', name: 'Customer Section' }]}
+          selectedSections={[]}
           skipSections={false}
           customerId="customer-1"
           viewType="subscription"
@@ -114,6 +128,17 @@ describe('InvoiceCustomSectionDisplay', () => {
     })
 
     it('renders skip message for fallback_customer_skip display state', () => {
+      mockUseCustomerInvoiceCustomSections.mockReturnValue({
+        data: {
+          ...defaultCustomerData,
+          hasOverwrittenInvoiceCustomSectionsSelection: false,
+          skipInvoiceCustomSections: true,
+        },
+        loading: false,
+        error: false,
+        customer: null,
+      } as ReturnType<typeof useCustomerInvoiceCustomSections>)
+
       render(
         <InvoiceCustomSectionDisplay
           selectedSections={[]}
@@ -127,9 +152,21 @@ describe('InvoiceCustomSectionDisplay', () => {
     })
 
     it('renders fallback billing entity sections with message', () => {
+      mockUseCustomerInvoiceCustomSections.mockReturnValue({
+        data: {
+          ...defaultCustomerData,
+          hasOverwrittenInvoiceCustomSectionsSelection: false,
+          skipInvoiceCustomSections: false,
+          configurableInvoiceCustomSections: [{ id: 'org-section-1', name: 'Org Section' }],
+        },
+        loading: false,
+        error: false,
+        customer: null,
+      } as ReturnType<typeof useCustomerInvoiceCustomSections>)
+
       render(
         <InvoiceCustomSectionDisplay
-          selectedSections={[{ id: 'org-section-1', name: 'Org Section' }]}
+          selectedSections={[]}
           skipSections={false}
           customerId="customer-1"
           viewType="subscription"
@@ -141,6 +178,18 @@ describe('InvoiceCustomSectionDisplay', () => {
     })
 
     it('renders null for fallback_empty display state', () => {
+      mockUseCustomerInvoiceCustomSections.mockReturnValue({
+        data: {
+          ...defaultCustomerData,
+          hasOverwrittenInvoiceCustomSectionsSelection: false,
+          skipInvoiceCustomSections: false,
+          configurableInvoiceCustomSections: [],
+        },
+        loading: false,
+        error: false,
+        customer: null,
+      } as ReturnType<typeof useCustomerInvoiceCustomSections>)
+
       const { container } = render(
         <InvoiceCustomSectionDisplay
           selectedSections={[]}

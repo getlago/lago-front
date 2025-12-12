@@ -83,7 +83,10 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: ['section-1', 'section-3'],
+            invoiceCustomSections: [
+              { id: 'section-1', name: 'Section 1' },
+              { id: 'section-3', name: 'Section 3' },
+            ],
             skipInvoiceCustomSections: false,
           }}
         />,
@@ -108,7 +111,10 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: ['section-1', 'section-2'],
+            invoiceCustomSections: [
+              { id: 'section-1', name: 'Section 1' },
+              { id: 'section-2', name: 'Section 2' },
+            ],
             skipInvoiceCustomSections: false,
           }}
         />,
@@ -141,7 +147,7 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: ['section-1'],
+            invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
             skipInvoiceCustomSections: true,
           }}
         />,
@@ -179,7 +185,7 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: [],
+            invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
           }}
         />,
@@ -212,7 +218,7 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: [],
+            invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
           }}
         />,
@@ -250,7 +256,7 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: [],
+            invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
           }}
         />,
@@ -285,7 +291,7 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: [],
+            invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
           }}
         />,
@@ -338,7 +344,7 @@ describe('InvoceCustomFooter', () => {
           description="Select custom sections"
           viewType="subscription"
           invoiceCustomSection={{
-            invoiceCustomSectionIds: ['section-1'],
+            invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
             skipInvoiceCustomSections: true,
           }}
         />,
@@ -351,7 +357,9 @@ describe('InvoceCustomFooter', () => {
       const dialogCall = EditInvoiceCustomSectionDialog.mock.calls[0]?.[0]
 
       expect(dialogCall?.skipInvoiceCustomSections).toBe(true)
-      expect(dialogCall?.selectedSections).toEqual([])
+      // The component passes selectedSections to the dialog regardless of skipInvoiceCustomSections
+      // The dialog will determine the initial behavior based on skipInvoiceCustomSections
+      expect(dialogCall?.selectedSections).toEqual([{ id: 'section-1', name: 'Section 1' }])
     })
 
     it('should display title and description when provided', async () => {
