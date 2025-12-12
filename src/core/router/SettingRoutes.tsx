@@ -76,6 +76,10 @@ const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnin
 const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDunning'))
 const CreatePricingUnit = lazyLoad(() => import('~/pages/settings/Invoices/CreatePricingUnit'))
 
+const RolesList = lazyLoad(() => import('~/pages/settings/rolesList/RolesList'))
+const RoleDetails = lazyLoad(() => import('~/pages/settings/roleDetails/RoleDetails'))
+const RoleCreateEdit = lazyLoad(() => import('~/pages/settings/roleCreateEdit/RoleCreateEdit'))
+
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
@@ -127,6 +131,11 @@ export const BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE = `${BILLING_ENTITY_BASE_WIT
 export const BILLING_ENTITY_INVOICE_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-settings`
 export const BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-custom-sections`
 export const BILLING_ENTITY_TAXES_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/taxes`
+
+export const ROLES_LIST_ROUTE = `${SETTINGS_ROUTE}/roles`
+export const ROLE_DETAILS_ROUTE = `${SETTINGS_ROUTE}/roles/:roleId`
+export const ROLE_CREATE_ROUTE = `${SETTINGS_ROUTE}/roles/create`
+export const ROLE_EDIT_ROUTE = `${SETTINGS_ROUTE}/roles/:roleId/edit`
 
 /**
  * Creation routes
@@ -397,6 +406,16 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <BillingEntityTaxesSettings />,
         permissions: ['billingEntitiesTaxesView'],
       },
+      {
+        path: ROLES_LIST_ROUTE,
+        private: true,
+        element: <RolesList />,
+      },
+      {
+        path: ROLE_DETAILS_ROUTE,
+        private: true,
+        element: <RoleDetails />,
+      },
     ],
   },
   {
@@ -422,5 +441,10 @@ export const settingRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreatePricingUnit />,
     permissions: ['pricingUnitsCreate', 'pricingUnitsUpdate'],
+  },
+  {
+    path: [ROLE_CREATE_ROUTE, ROLE_EDIT_ROUTE],
+    private: true,
+    element: <RoleCreateEdit />,
   },
 ]
