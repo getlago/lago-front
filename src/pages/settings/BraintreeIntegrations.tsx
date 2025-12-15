@@ -103,7 +103,7 @@ const BraintreeIntegrations = () => {
               <Skeleton variant="text" className="w-30" />
             ) : (
               <Typography variant="bodyHl" color="textSecondary">
-                {translate('text_645d071272418a14c1c76a6d')}
+                {translate('text_1765369124717esjsm0d93ud')}
               </Typography>
             )}
           </PageHeader.Group>
@@ -123,7 +123,7 @@ const BraintreeIntegrations = () => {
         <IntegrationsPage.Header
           isLoading={loading}
           integrationLogo={<Braintree />}
-          integrationName={translate('text_645d071272418a14c1c76a6d')}
+          integrationName={translate('text_1765369124717esjsm0d93ud')}
           integrationChip={translate('text_62b1edddbf5f461ab971270d')}
           integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
         />

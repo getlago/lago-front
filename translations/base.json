@@ -3572,5 +3572,18 @@
   "text_176466851340792f3wzvqvb8": "Edit Metadata",
   "text_17646706795118k0wulsr7oq": "Metadata will be linked to the credit note object payload but won’t appear on the generated pdf file.",
   "text_1764684767320qeu0x6az165": "Save edits",
-  "text_17647718978181hu15vk5h86": "Metadata successfully edited on credit note"
+  "text_17647718978181hu15vk5h86": "Metadata successfully edited on credit note",
+  "text_1765369124717esjsm0d93ud": "Braintree",
+  "text_1765380052632wuf7v0phm8p": "Connect to Braintree",
+  "text_1765380183979lb7nu5jsol0": "Edit information linked to this Braintree connection.",
+  "text_176538020524447d06e70gab": "To connect to Braintree, please enter the Public key, Private Key and Merchant ID from your Braintree account.",
+  "text_1765380223691wa9cb92pllc": "Edit Braintree connection",
+  "text_17653804594443xf5mmwbg22": "Public Key",
+  "text_176538048939646llarixiob": "Type a Public Key",
+  "text_1765380504804b3hk15zplt2": "Private Key",
+  "text_1765380521697718ibh0w2cq": "Type a Private Key",
+  "text_17653805407249fwvjsg27kq": "Merchant ID",
+  "text_17653805407241dvplpvc96n": "Type a Merchant ID",
+  "text_1765383425302lgghqg8clld": "Braintree connection successfully added",
+  "text_1765383628538x0p20xnw1w2": "Braintree connection successfully edited"
 }

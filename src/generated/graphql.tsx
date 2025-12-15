@@ -10573,6 +10573,20 @@ export type GetProviderByCodeForBraintreeQuery = { __typename?: 'Query', payment
     | { __typename?: 'StripeProvider', id: string }
    | null };
 
+export type AddBraintreeMutationVariables = Exact<{
+  input: AddBraintreePaymentProviderInput;
+}>;
+
+
+export type AddBraintreeMutation = { __typename?: 'Mutation', addBraintreePaymentProvider?: { __typename?: 'BraintreeProvider', id: string, name: string, code: string, publicKey?: any | null, privateKey?: any | null, merchantId?: string | null, successRedirectUrl?: string | null } | null };
+
+export type UpdateBraintreeMutationVariables = Exact<{
+  input: UpdateBraintreePaymentProviderInput;
+}>;
+
+
+export type UpdateBraintreeMutation = { __typename?: 'Mutation', updateBraintreePaymentProvider?: { __typename?: 'BraintreeProvider', id: string, name: string, code: string, publicKey?: any | null, privateKey?: any | null, merchantId?: string | null, successRedirectUrl?: string | null } | null };
+
 export type AddCashfreeProviderDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
 
 export type GetProviderByCodeForCashfreeQueryVariables = Exact<{
@@ -13117,7 +13131,7 @@ export type IntegrationsSettingQueryVariables = Exact<{
 
 export type IntegrationsSettingQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string }
-      | { __typename?: 'BraintreeProvider' }
+      | { __typename?: 'BraintreeProvider', id: string }
       | { __typename?: 'CashfreeProvider', id: string }
       | { __typename?: 'FlutterwaveProvider', id: string }
       | { __typename?: 'GocardlessProvider', id: string }
@@ -25304,6 +25318,78 @@ export type GetProviderByCodeForBraintreeQueryHookResult = ReturnType<typeof use
 export type GetProviderByCodeForBraintreeLazyQueryHookResult = ReturnType<typeof useGetProviderByCodeForBraintreeLazyQuery>;
 export type GetProviderByCodeForBraintreeSuspenseQueryHookResult = ReturnType<typeof useGetProviderByCodeForBraintreeSuspenseQuery>;
 export type GetProviderByCodeForBraintreeQueryResult = Apollo.QueryResult<GetProviderByCodeForBraintreeQuery, GetProviderByCodeForBraintreeQueryVariables>;
+export const AddBraintreeDocument = gql`
+    mutation addBraintree($input: AddBraintreePaymentProviderInput!) {
+  addBraintreePaymentProvider(input: $input) {
+    id
+    ...AddBraintreeProviderDialog
+    ...BraintreeIntegrationDetails
+  }
+}
+    ${AddBraintreeProviderDialogFragmentDoc}
+${BraintreeIntegrationDetailsFragmentDoc}`;
+export type AddBraintreeMutationFn = Apollo.MutationFunction<AddBraintreeMutation, AddBraintreeMutationVariables>;
+
+/**
+ * __useAddBraintreeMutation__
+ *
+ * To run a mutation, you first call `useAddBraintreeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddBraintreeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addBraintreeMutation, { data, loading, error }] = useAddBraintreeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddBraintreeMutation(baseOptions?: Apollo.MutationHookOptions<AddBraintreeMutation, AddBraintreeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddBraintreeMutation, AddBraintreeMutationVariables>(AddBraintreeDocument, options);
+      }
+export type AddBraintreeMutationHookResult = ReturnType<typeof useAddBraintreeMutation>;
+export type AddBraintreeMutationResult = Apollo.MutationResult<AddBraintreeMutation>;
+export type AddBraintreeMutationOptions = Apollo.BaseMutationOptions<AddBraintreeMutation, AddBraintreeMutationVariables>;
+export const UpdateBraintreeDocument = gql`
+    mutation updateBraintree($input: UpdateBraintreePaymentProviderInput!) {
+  updateBraintreePaymentProvider(input: $input) {
+    id
+    ...AddBraintreeProviderDialog
+    ...BraintreeIntegrationDetails
+  }
+}
+    ${AddBraintreeProviderDialogFragmentDoc}
+${BraintreeIntegrationDetailsFragmentDoc}`;
+export type UpdateBraintreeMutationFn = Apollo.MutationFunction<UpdateBraintreeMutation, UpdateBraintreeMutationVariables>;
+
+/**
+ * __useUpdateBraintreeMutation__
+ *
+ * To run a mutation, you first call `useUpdateBraintreeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBraintreeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBraintreeMutation, { data, loading, error }] = useUpdateBraintreeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBraintreeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBraintreeMutation, UpdateBraintreeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateBraintreeMutation, UpdateBraintreeMutationVariables>(UpdateBraintreeDocument, options);
+      }
+export type UpdateBraintreeMutationHookResult = ReturnType<typeof useUpdateBraintreeMutation>;
+export type UpdateBraintreeMutationResult = Apollo.MutationResult<UpdateBraintreeMutation>;
+export type UpdateBraintreeMutationOptions = Apollo.BaseMutationOptions<UpdateBraintreeMutation, UpdateBraintreeMutationVariables>;
 export const GetProviderByCodeForCashfreeDocument = gql`
     query getProviderByCodeForCashfree($code: String) {
   paymentProvider(code: $code) {
@@ -35944,6 +36030,9 @@ export const IntegrationsSettingDocument = gql`
         id
       }
       ... on AdyenProvider {
+        id
+      }
+      ... on BraintreeProvider {
         id
       }
       ... on CashfreeProvider {

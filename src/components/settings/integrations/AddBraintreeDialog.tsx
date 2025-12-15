@@ -8,13 +8,15 @@ import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { ADYEN_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { ADYEN_INTEGRATION_DETAILS_ROUTE, BRAINTREE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddBraintreePaymentProviderInput,
   AddBraintreeProviderDialogFragment,
   BraintreeIntegrationDetailsFragmentDoc,
   LagoApiError,
+  useAddBraintreeMutation,
   useGetProviderByCodeForBraintreeLazyQuery,
+  useUpdateBraintreeMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DeleteBraintreeIntegrationDialogRef } from './DeleteBraintreeIntegrationDialog'
@@ -56,6 +58,24 @@ gql `
     }
   }
 
+  mutation addBraintree($input: AddBraintreePaymentProviderInput!) {
+    addBraintreePaymentProvider(input: $input) {
+      id
+
+      ...AddBraintreeProviderDialog
+      ...BraintreeIntegrationDetails
+    }
+  }
+
+  mutation updateBraintree($input: UpdateBraintreePaymentProviderInput!) {
+    updateBraintreePaymentProvider(input: $input) {
+      id
+
+      ...AddBraintreeProviderDialog
+      ...BraintreeIntegrationDetails
+    }
+  }
+
   ${BraintreeIntegrationDetailsFragmentDoc}
 `
 
@@ -78,6 +98,33 @@ export const AddBraintreeDialog = forwardRef<AddBraintreeDialogRef>((_, ref) => 
   const braintreeProvider = localData?.provider
   const isEdition = !!braintreeProvider
 
+  const [addBraintree] = useAddBraintreeMutation({
+    onCompleted({ addBraintreePaymentProvider }) {
+      navigate(
+        generatePath(BRAINTREE_INTEGRATION_DETAILS_ROUTE, {
+          integrationId: addBraintreePaymentProvider.id,
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        })
+      )
+
+      addToast({
+        message: translate('text_1765383425302lgghqg8clld'),
+        severity: 'success',
+      })
+    }
+  })
+
+  const [updateBraintree] = useUpdateBraintreeMutation({
+    onCompleted({ updateBraintreePaymentProvider }) {
+      if (updateBraintreePaymentProvider?.id) {
+        addToast({
+          message: translate('text_1765383628538x0p20xnw1w2'),
+          severity: 'success',
+        })
+      }
+    }
+  })
+
   const [getBraintreeProviderByCode] = useGetProviderByCodeForBraintreeLazyQuery()
 
   const formikProps = useFormik<AddBraintreePaymentProviderInput>({
@@ -96,6 +143,7 @@ export const AddBraintreeDialog = forwardRef<AddBraintreeDialogRef>((_, ref) => 
       merchantId: string().required(''),
     }),
     onSubmit: async ({ publicKey, privateKey, merchantId, ...values }, formikBag) => {
+      console.log(values)
       const res = await getBraintreeProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
@@ -112,6 +160,25 @@ export const AddBraintreeDialog = forwardRef<AddBraintreeDialogRef>((_, ref) => 
         formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
         return
       }
+
+      if (isEdition) {
+        await updateBraintree({
+          variables: {
+            input: {
+              ...values,
+              id: braintreeProvider?.id || '',
+            },
+          },
+        })
+      } else {
+        await addBraintree({
+          variables: {
+            input: { ...values, publicKey, privateKey, merchantId },
+          },
+        })
+      }
+
+      dialogRef.current?.closeDialog()
     },
     validateOnMount: true,
     enableReinitialize: true,
@@ -129,13 +196,13 @@ export const AddBraintreeDialog = forwardRef<AddBraintreeDialogRef>((_, ref) => 
     <Dialog
       ref={dialogRef}
       title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_658466afe6140b469140e1fa',
+        isEdition ? 'text_658461066530343fe1808cd9' : 'text_1765380052632wuf7v0phm8p',
         {
           name: braintreeProvider?.name,
         },
       )}
       description={translate(
-        isEdition ? 'text_65846a0ed9fdbd46c4afc42d' : 'text_658466afe6140b469140e1fc',
+        isEdition ? 'text_1765380183979lb7nu5jsol0' : 'text_176538020524447d06e70gab',
       )}
       onClose={formikProps.resetForm}
       actions={({ closeDialog }) => (
@@ -171,7 +238,7 @@ export const AddBraintreeDialog = forwardRef<AddBraintreeDialogRef>((_, ref) => 
               onClick={formikProps.submitForm}
             >
               {translate(
-                isEdition ? 'text_645d071272418a14c1c76a67' : 'text_645d071272418a14c1c76ad8',
+                isEdition ? 'text_1765380223691wa9cb92pllc' : 'text_1765380052632wuf7v0phm8p',
               )}
             </Button>
           </Stack>
@@ -199,24 +266,24 @@ export const AddBraintreeDialog = forwardRef<AddBraintreeDialogRef>((_, ref) => 
         </div>
 
         <TextInputField
+          name="merchantId"
+          disabled={isEdition}
+          label={translate('text_17653805407249fwvjsg27kq')}
+          placeholder={translate('text_17653805407241dvplpvc96n')}
+          formikProps={formikProps}
+        />
+        <TextInputField
           name="publicKey"
           disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
+          label={translate('text_17653804594443xf5mmwbg22')}
+          placeholder={translate('text_176538048939646llarixiob')}
           formikProps={formikProps}
         />
         <TextInputField
           name="privateKey"
           disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
-          formikProps={formikProps}
-        />
-        <TextInputField
-          name="merchantId"
-          disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
+          label={translate('text_1765380504804b3hk15zplt2')}
+          placeholder={translate('text_1765380521697718ibh0w2cq')}
           formikProps={formikProps}
         />
       </div>

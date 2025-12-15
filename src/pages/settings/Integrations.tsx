@@ -226,7 +226,7 @@ const Integrations = () => {
   const hasFlutterwaveIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'FlutterwaveProvider',
   )
-  const hasBraintreeingeration = data?.paymentProviders?.collection?.some(
+  const hasBraintreeIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'BraintreeProvider',
   )
   const hasTaxManagement = !!hasBillingEntitiesWithTaxManagement
@@ -402,7 +402,7 @@ const Integrations = () => {
                       />
                       <Selector
                         fullWidth
-                        title="Braintree"
+                        title={translate('text_1765369124717esjsm0d93ud')}
                         subtitle={translate('text_634ea0ecc6147de10ddb6631')}
                         icon={
                           <Avatar size="big" variant="connector-full">
@@ -410,7 +410,7 @@ const Integrations = () => {
                           </Avatar>
                         }
                         onClick={() => {
-                          if (hasBraintreeingeration) {
+                          if (hasBraintreeIntegration) {
                             navigate(
                               generatePath(BRAINTREE_INTEGRATION_ROUTE, {
                                 integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -778,6 +778,7 @@ const Integrations = () => {
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddAvalaraDialog ref={addAvalaraDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
+      <AddBraintreeDialog ref={addBraintreeDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
       <AddMoneyhashDialog ref={addMoneyhashDialogRef} />

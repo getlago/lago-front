@@ -181,7 +181,7 @@ const BraintreeIntegrationDetails = () => {
         integrationLogo={<Braintree />}
         integrationName={braintreePaymentProvider?.name}
         integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-        integrationDescription={`${translate('text_645d071272418a14c1c76a6d')} • ${translate('text_62b1edddbf5f461ab971271f')}`}
+        integrationDescription={`${translate('text_1765369124717esjsm0d93ud')} • ${translate('text_62b1edddbf5f461ab971271f')}`}
       />
 
       <IntegrationsPage.Container>
@@ -220,19 +220,19 @@ const BraintreeIntegrationDetails = () => {
                 value={braintreePaymentProvider?.code}
               />
               <IntegrationsPage.DetailsItem
+                icon="bank"
+                label={translate('text_17653805407249fwvjsg27kq')}
+                value={braintreePaymentProvider?.merchantId ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
                 icon="key"
-                label={translate('text_645d071272418a14c1c76aa4')}
+                label={translate('text_17653804594443xf5mmwbg22')}
                 value={braintreePaymentProvider?.publicKey ?? undefined}
               />
               <IntegrationsPage.DetailsItem
                 icon="key"
-                label={translate('text_645d071272418a14c1c76aa4')}
+                label={translate('text_1765380504804b3hk15zplt2')}
                 value={braintreePaymentProvider?.privateKey ?? undefined}
-              />
-              <IntegrationsPage.DetailsItem
-                icon="key"
-                label={translate('text_645d071272418a14c1c76aa4')}
-                value={braintreePaymentProvider?.merchantId ?? undefined}
               />
             </>
           )}
@@ -261,7 +261,7 @@ const BraintreeIntegrationDetails = () => {
           {!loading && !braintreePaymentProvider?.successRedirectUrl && (
             <Typography variant="caption" color="grey600">
               {translate('text_65367cb78324b77fcb6af226', {
-                connectionName: translate('text_645d071272418a14c1c76a6d'),
+                connectionName: translate('text_1765369124717esjsm0d93ud'),
               })}
             </Typography>
           )}
