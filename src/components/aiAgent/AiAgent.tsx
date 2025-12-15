@@ -6,6 +6,7 @@ import { ChatHistory } from '~/components/aiAgent/ChatHistory'
 import { NavigationBar } from '~/components/aiAgent/NavigationBar'
 import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -15,7 +16,9 @@ export const AiAgent = () => {
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
 
-  const hasAccessToAiAgent = isPremium
+  const isAgentFeatureFlagEnabled = isFeatureFlagActive(FeatureFlags.AI_AGENT)
+
+  const hasAccessToAiAgent = isPremium && isAgentFeatureFlagEnabled
 
   const [showHistory, setShowHistory] = useState(false)
 
@@ -38,7 +41,7 @@ export const AiAgent = () => {
       <div className="relative">
         <div className="h-screen w-12 bg-white shadow-l">
           <div className="absolute rotate-90-tl">
-            <NavigationBar />
+            <NavigationBar hasAccessToAiAgent={hasAccessToAiAgent} />
           </div>
         </div>
       </div>

@@ -5,7 +5,11 @@ import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/extern
 import { AIPanelEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const NavigationBar = () => {
+type NavigationBarProps = {
+  hasAccessToAiAgent: boolean
+}
+
+export const NavigationBar = ({ hasAccessToAiAgent }: NavigationBarProps) => {
   const { togglePanel, currentPanelOpened } = useAiAgent()
   const { translate } = useInternationalization()
 
@@ -42,20 +46,22 @@ export const NavigationBar = () => {
 
   return (
     <div className="flex flex-row gap-2 p-2">
-      <Button
-        size="small"
-        variant={getCurrentPanelVariant(AIPanelEnum.ai)}
-        onClick={() => togglePanel(AIPanelEnum.ai)}
-      >
-        <div className="flex flex-row items-center gap-2">
-          {currentPanelOpened === AIPanelEnum.ai ? (
-            <Icon name="sparkles-base" size="small" color="primary" />
-          ) : (
-            <AiBadge className="bg-none p-0" />
-          )}
-          <div>{translate('text_175741722585199myqwj6vyw')}</div>
-        </div>
-      </Button>
+      {hasAccessToAiAgent && (
+        <Button
+          size="small"
+          variant={getCurrentPanelVariant(AIPanelEnum.ai)}
+          onClick={() => togglePanel(AIPanelEnum.ai)}
+        >
+          <div className="flex flex-row items-center gap-2">
+            {currentPanelOpened === AIPanelEnum.ai ? (
+              <Icon name="sparkles-base" size="small" color="primary" />
+            ) : (
+              <AiBadge className="bg-none p-0" />
+            )}
+            <div>{translate('text_175741722585199myqwj6vyw')}</div>
+          </div>
+        </Button>
+      )}
 
       {externalLinkButtons}
     </div>
