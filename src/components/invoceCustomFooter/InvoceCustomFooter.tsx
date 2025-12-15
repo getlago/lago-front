@@ -1,74 +1,63 @@
-import { gql } from '@apollo/client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { InvoiceCustomerFooterSelection } from '~/components/invoceCustomFooter/InvoiceCustomerFooterSelection'
-import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
+import { Button, Typography } from '~/components/designSystem'
 import {
-  CustomerAppliedInvoiceCustomSectionsFragmentDoc,
-  useGetCustomerAppliedInvoiceCustomSectionsQuery,
-} from '~/generated/graphql'
+  EditInvoiceCustomSectionDialog,
+  InvoiceCustomSectionBehavior,
+  InvoiceCustomSectionSelection,
+} from '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-gql`
-  query getCustomerAppliedInvoiceCustomSections($id: ID!) {
-    customer(id: $id) {
-      id
-      ...CustomerAppliedInvoiceCustomSections
-    }
-  }
+import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
+import { InvoiceCustomSectionInput } from './types'
 
-  ${CustomerAppliedInvoiceCustomSectionsFragmentDoc}
-`
+import { ViewType } from '../paymentMethodsInvoiceSettings/types'
 
-export const ADD_BUTTON = 'invoice-custom-footer-add-button'
-export const CANCEL_BUTTON = 'invoice-custom-footer-cancel-button'
-export const DELETE_SECTION_CHIP = (sectionId: string) =>
-  `invoice-custom-footer-delete-section-${sectionId}`
+export const EDIT_BUTTON = 'invoice-custom-footer-edit-button'
 
 interface InvoceCustomFooterProps {
   customerId: string
   title: string
   description: string
+  viewType: ViewType
+  invoiceCustomSection?: InvoiceCustomSectionInput
+  setInvoiceCustomSection?: (item: InvoiceCustomSectionInput) => void
 }
 
-export const InvoceCustomFooter = ({ customerId, title, description }: InvoceCustomFooterProps) => {
+export const InvoceCustomFooter = ({
+  customerId,
+  title,
+  description,
+  viewType,
+  invoiceCustomSection,
+  setInvoiceCustomSection,
+}: InvoceCustomFooterProps) => {
   const { translate } = useInternationalization()
-  const [invoiceCustomSelected, setInvoiceCustomSelected] = useState<MappedInvoiceSection[]>([])
-  const [shouldDisplayCombobox, setShouldDisplayCombobox] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { data } = useGetCustomerAppliedInvoiceCustomSectionsQuery({
-    variables: { id: customerId },
-    skip: !customerId,
-  })
+  const selectedSections = invoiceCustomSection?.invoiceCustomSections || []
+  const skipSections = invoiceCustomSection?.skipInvoiceCustomSections || false
 
-  const customer = data?.customer
+  const handleDialogSave = (selection: InvoiceCustomSectionSelection) => {
+    const { behavior, selectedSections: newSelectedSections } = selection
 
-  const onChange = (item: MappedInvoiceSection) => {
-    const isItemAlreadySelected = invoiceCustomSelected.find(({ id }) => id === item.id)
-
-    if (!isItemAlreadySelected) {
-      setInvoiceCustomSelected([...invoiceCustomSelected, item])
+    if (behavior === InvoiceCustomSectionBehavior.FALLBACK) {
+      setInvoiceCustomSection?.({
+        invoiceCustomSections: [],
+        skipInvoiceCustomSections: false,
+      })
+    } else if (behavior === InvoiceCustomSectionBehavior.APPLY) {
+      setInvoiceCustomSection?.({
+        invoiceCustomSections: newSelectedSections,
+        skipInvoiceCustomSections: false,
+      })
+    } else if (behavior === InvoiceCustomSectionBehavior.NONE) {
+      setInvoiceCustomSection?.({
+        invoiceCustomSections: [],
+        skipInvoiceCustomSections: true,
+      })
     }
-
-    setShouldDisplayCombobox(false)
   }
-
-  const onDelete = (item: MappedInvoiceSection) => {
-    const itemsWithoutRemovedItem = invoiceCustomSelected.filter(({ id }) => id !== item.id)
-
-    setInvoiceCustomSelected(itemsWithoutRemovedItem)
-  }
-
-  useEffect(() => {
-    if (
-      customer &&
-      customer.configurableInvoiceCustomSections?.length &&
-      !customer.skipInvoiceCustomSections
-    ) {
-      setInvoiceCustomSelected(customer.configurableInvoiceCustomSections)
-    }
-  }, [customer])
 
   return (
     <div>
@@ -82,56 +71,34 @@ export const InvoceCustomFooter = ({ customerId, title, description }: InvoceCus
           {description}
         </Typography>
       )}
-      <div className="flex flex-col gap-4">
-        {invoiceCustomSelected.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {invoiceCustomSelected.map((section) => (
-              <Chip
-                key={section.id}
-                label={section.name}
-                data-test={DELETE_SECTION_CHIP(section.id)}
-                onDelete={() => onDelete(section)}
-              />
-            ))}
-          </div>
-        )}
+      <div className="flex flex-col gap-3">
+        <InvoiceCustomSectionDisplay
+          selectedSections={selectedSections}
+          skipSections={skipSections}
+          customerId={customerId}
+          viewType={viewType}
+        />
 
-        {shouldDisplayCombobox ? (
-          <div className="flex items-center">
-            <div className="flex-1">
-              <InvoiceCustomerFooterSelection
-                placeholder={translate('text_1762947620814hsqq7d88d7c')}
-                emptyText={translate('text_1762952250941g1m9u5hpclb')}
-                onChange={onChange}
-                invoiceCustomSelected={invoiceCustomSelected}
-              />
-            </div>
-
-            <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-              <Button
-                icon="trash"
-                variant="quaternary"
-                data-test={CANCEL_BUTTON}
-                onClick={() => {
-                  setShouldDisplayCombobox(false)
-                }}
-              />
-            </Tooltip>
-          </div>
-        ) : (
+        <div className="flex items-start">
           <Button
-            fitContent
-            startIcon="plus"
             variant="inline"
-            data-test={ADD_BUTTON}
-            onClick={() => {
-              setShouldDisplayCombobox(true)
-            }}
+            startIcon="pen"
+            onClick={() => setIsDialogOpen(true)}
+            data-test={EDIT_BUTTON}
           >
-            {translate('text_1762862908777d78m2z5d29a')}
+            {translate('text_1765363318310jm7wdrj7zzk')}
           </Button>
-        )}
+        </div>
       </div>
+
+      <EditInvoiceCustomSectionDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        selectedSections={selectedSections}
+        skipInvoiceCustomSections={skipSections}
+        onSave={handleDialogSave}
+        viewType={viewType}
+      />
     </div>
   )
 }

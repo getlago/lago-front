@@ -48,7 +48,17 @@ export const PaymentMethodsInvoiceSettings = ({
           {...currentExtraProps.PaymentMethodSelection}
         />
       )}
-      {id && <InvoceCustomFooter customerId={id} {...currentExtraProps.InvoceCustomFooter} />}
+      {id && (
+        <InvoceCustomFooter
+          customerId={id}
+          viewType={viewType}
+          invoiceCustomSection={formikProps.values?.invoiceCustomSection ?? undefined}
+          setInvoiceCustomSection={(item) => {
+            formikProps.setFieldValue('invoiceCustomSection', item)
+          }}
+          {...currentExtraProps.InvoceCustomFooter}
+        />
+      )}
     </Card>
   )
 }

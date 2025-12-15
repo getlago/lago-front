@@ -23,6 +23,11 @@ gql`
       paymentMethod {
         id
       }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+      }
       ...SubscriptionForSubscriptionInformations
     }
   }
@@ -59,6 +64,9 @@ export const SubscriptionDetailsOverview = () => {
             paymentMethodId: subscription?.paymentMethod?.id,
           }}
           externalCustomerId={subscription?.customer?.externalId}
+          customerId={subscription?.customer?.id}
+          selectedInvoiceCustomSections={subscription?.selectedInvoiceCustomSections}
+          skipInvoiceCustomSections={subscription?.skipInvoiceCustomSections}
         />
       )}
       <PlanDetailsOverview planId={subscription?.plan.id} showEntitlementSection={false} />

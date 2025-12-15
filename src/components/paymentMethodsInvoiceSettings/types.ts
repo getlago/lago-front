@@ -1,19 +1,25 @@
 import { FormikProps } from 'formik'
 
-import { InvoceCustomFooterExtraProps } from '~/components/invoceCustomFooter/types'
-import { PaymentMethodSelectionExtraProps } from '~/components/paymentMethodSelection/types'
 import { GetCustomerForCreateSubscriptionQuery } from '~/generated/graphql'
 import { SubscriptionFormInput } from '~/pages/subscriptions/types'
+
+export type ViewType = 'subscription'
 
 export interface PaymentMethodsInvoiceSettingsProps {
   customer: GetCustomerForCreateSubscriptionQuery['customer']
   formikProps: FormikProps<SubscriptionFormInput>
-  viewType: 'subscription'
+  viewType: ViewType
 }
 
 export interface ViewTypeExtraProps {
-  PaymentMethodSelection: PaymentMethodSelectionExtraProps
-  InvoceCustomFooter: InvoceCustomFooterExtraProps
+  PaymentMethodSelection: {
+    title: string
+    description: string
+  }
+  InvoceCustomFooter: {
+    title: string
+    description: string
+  }
 }
 
 export type ViewTypeExtraPropsMap = {

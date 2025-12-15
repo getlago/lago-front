@@ -1,15 +1,17 @@
-import { MappedInvoiceSection } from '~/components/invoceCustomFooter/types'
-import { InvoiceCustomSection } from '~/generated/graphql'
+import { InvoiceCustomSectionsReferenceInput } from '~/generated/graphql'
+
+import { InvoiceCustomSectionInput } from './types'
 
 /**
- * Maps InvoiceCustomSection items to MappedInvoiceSection format (id and name only).
- * Extracts only the id and name properties from each item, discarding other not needed fields.
+ * Converts InvoiceCustomSectionInput (with names) to InvoiceCustomSectionsReferenceInput (IDs only) for GraphQL
  */
-export const mapItemsToCustomerInvoiceSection = (
-  item: InvoiceCustomSection,
-): MappedInvoiceSection => {
+export const toInvoiceCustomSectionReference = (
+  input?: InvoiceCustomSectionInput | null,
+): InvoiceCustomSectionsReferenceInput | undefined => {
+  if (!input) return undefined
+
   return {
-    id: item.id,
-    name: item.name,
+    invoiceCustomSectionIds: input.invoiceCustomSections?.map((s) => s.id) || [],
+    skipInvoiceCustomSections: input.skipInvoiceCustomSections,
   }
 }
