@@ -388,9 +388,9 @@ const ApiKeysForm = () => {
                         minWidth: 176,
                         title: (
                           <Checkbox
+                            canBeIndeterminate
                             // The pl-1 class is used to prevent the focus ring from being cropped.
                             className="pl-1"
-                            canBeIndeterminate
                             label={
                               <Typography variant="captionHl" color="grey600">
                                 {translate('text_1732893748379m7jh7zzz956')}
@@ -441,9 +441,9 @@ const ApiKeysForm = () => {
                         minWidth: 150,
                         title: (
                           <Checkbox
+                            canBeIndeterminate
                             // The pl-1 class is used to prevent the focus ring from being cropped.
                             className="pl-1"
-                            canBeIndeterminate
                             label={
                               <Typography variant="captionHl" color="grey600">
                                 {translate('text_17328937483790tnuhasm2yr')}

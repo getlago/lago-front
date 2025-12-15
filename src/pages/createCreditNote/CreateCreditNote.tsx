@@ -56,6 +56,7 @@ export const REASON_COMBOBOX_TEST_ID = 'reason-combobox'
 export const DESCRIPTION_INPUT_TEST_ID = 'description-input'
 export const DISPUTE_LOST_STATUS_TEST_ID = 'dispute-lost-status'
 export const PREPAID_CREDITS_REFUND_ALERT_TEST_ID = 'prepaid-credits-refund-alert'
+export const CLOSE_BUTTON_TEST_ID = 'close-credit-note-button'
 
 export const CREDIT_NOTE_REASONS: { reason: CreditNoteReasonEnum; label: string }[] = [
   {
@@ -219,6 +220,7 @@ const CreateCreditNote = () => {
         <Button
           variant="quaternary"
           icon="close"
+          data-test={CLOSE_BUTTON_TEST_ID}
           onClick={() =>
             formikProps.dirty
               ? warningDialogRef.current?.openDialog()
@@ -403,7 +405,11 @@ const CreateCreditNote = () => {
                         />
                       </div>
 
-                      <Alert className="mt-6" type="info" data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}>
+                      <Alert
+                        className="mt-6"
+                        type="info"
+                        data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
+                      >
                         {translate('text_1729084495407pcn1mei0hyd')}
                       </Alert>
                     </>

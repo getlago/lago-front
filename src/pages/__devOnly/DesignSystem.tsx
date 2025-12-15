@@ -1348,8 +1348,8 @@ const DesignSystem = () => {
 
                   <Block>
                     <Checkbox
-                      name="checkboxCond3"
                       canBeIndeterminate
+                      name="checkboxCond3"
                       value={getCheckboxValue(
                         formikProps.values.checkboxCond1,
                         formikProps.values.checkboxCond2,

@@ -1,10 +1,4 @@
-import {
-  CreditNoteForm,
-  CreditTypeEnum,
-  FeesPerInvoice,
-  FromFee,
-  GroupedFee,
-} from '~/components/creditNote/types'
+import { CreditNoteForm, CreditTypeEnum, FeesPerInvoice } from '~/components/creditNote/types'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreateCreditNoteInput,
@@ -62,40 +56,19 @@ export const serializeCreditNoteInput: (
 
         return [
           ...subAcc,
-          ...Object.keys(subChild?.fees).reduce<CreditNoteItemInput[]>((groupAcc, groupKey) => {
-            const child = subChild?.fees[groupKey] as FromFee
-
-            if (typeof child.checked === 'boolean') {
-              return !child.checked
-                ? groupAcc
-                : [
-                    ...groupAcc,
-                    {
-                      feeId: child?.id,
-                      amountCents: serializeAmount(child.value, currency),
-                    },
-                  ]
+          ...(subChild?.fees?.reduce<CreditNoteItemInput[]>((feeAcc, fee) => {
+            if (!fee.checked || Number(fee.value) <= 0) {
+              return feeAcc
             }
 
-            const grouped = (child as unknown as GroupedFee)?.grouped
-
             return [
-              ...groupAcc,
-              ...Object.keys(grouped).reduce<CreditNoteItemInput[]>((feeAcc, feeKey) => {
-                const fee = grouped[feeKey]
-
-                return !fee.checked
-                  ? feeAcc
-                  : [
-                      ...feeAcc,
-                      {
-                        feeId: fee.id,
-                        amountCents: serializeAmount(fee.value, currency),
-                      },
-                    ]
-              }, []),
+              ...feeAcc,
+              {
+                feeId: fee.id,
+                amountCents: serializeAmount(fee.value, currency),
+              },
             ]
-          }, []),
+          }, []) || []),
         ]
       }, []),
     ],

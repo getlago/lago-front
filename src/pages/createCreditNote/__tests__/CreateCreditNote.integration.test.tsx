@@ -17,6 +17,7 @@ import {
 import { render, TestMocksType } from '~/test-utils'
 
 import CreateCreditNote, {
+  CLOSE_BUTTON_TEST_ID,
   DESCRIPTION_INPUT_TEST_ID,
   DISPUTE_LOST_STATUS_TEST_ID,
   PREPAID_CREDITS_REFUND_ALERT_TEST_ID,
@@ -97,8 +98,8 @@ const defaultMockInvoice = {
 const defaultMockFeesPerInvoice = {
   'sub-1': {
     subscriptionName: 'Test Subscription',
-    fees: {
-      'fee-1': {
+    fees: [
+      {
         id: 'fee-1',
         checked: true,
         value: 100,
@@ -106,7 +107,7 @@ const defaultMockFeesPerInvoice = {
         maxAmount: '10000',
         appliedTaxes: [],
       },
-    },
+    ],
   },
 }
 
@@ -160,8 +161,8 @@ describe('CreateCreditNote', () => {
         feesPerInvoice: {
           'sub-1': {
             subscriptionName: 'Test Subscription',
-            fees: {
-              'fee-1': {
+            fees: [
+              {
                 id: 'fee-1',
                 checked: false,
                 value: 0,
@@ -169,7 +170,7 @@ describe('CreateCreditNote', () => {
                 maxAmount: '10000',
                 appliedTaxes: [],
               },
-            },
+            ],
           },
         },
         feeForAddOn: undefined,
@@ -581,27 +582,26 @@ describe('CreateCreditNote', () => {
 
       await user.type(descriptionInput, 'Some text to make form dirty')
 
-      // Find close button (the quaternary button with close icon)
-      const buttons = screen.getAllByTestId('button')
-      const closeButton = buttons.find((btn) => btn.querySelector('[data-test*="close"]'))
+      // Find close button by data-test
+      const closeButton = screen.getByTestId(CLOSE_BUTTON_TEST_ID)
 
-      if (closeButton) {
-        await user.click(closeButton)
+      expect(closeButton).toBeInTheDocument()
 
-        // Warning dialog should appear
-        await waitFor(
-          () => {
-            // The dialog renders with specific text from translations
-            // text_636bed940028096908b735ed: "Are you sure you want to discard this draft?"
-            const hasDialog =
-              screen.queryByText(/discard this draft/i) || screen.queryByRole('dialog')
+      await user.click(closeButton)
 
-            expect(hasDialog).toBeTruthy()
-          },
-          { timeout: 3000 },
-        )
-      }
-    })
+      // Warning dialog should appear
+      await waitFor(
+        () => {
+          // The dialog renders with specific text from translations
+          // text_636bed940028096908b735ed: "Are you sure you want to discard this draft?"
+          const hasDialog =
+            screen.queryByText(/discard this draft/i) || screen.queryByRole('dialog')
+
+          expect(hasDialog).toBeTruthy()
+        },
+        { timeout: 3000 },
+      )
+    }, 10000)
 
     it('should update form state when fees are checked/unchecked', async () => {
       const user = userEvent.setup()

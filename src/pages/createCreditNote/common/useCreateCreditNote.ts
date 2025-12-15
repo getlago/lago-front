@@ -1,5 +1,4 @@
 import { ApolloError, gql } from '@apollo/client'
-import _groupBy from 'lodash/groupBy'
 import { useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -19,7 +18,6 @@ import {
   Fee,
   FeeTypesEnum,
   InvoiceCreateCreditNoteFragment,
-  InvoiceFeeFragment,
   InvoiceTypeEnum,
   LagoApiError,
   useCreateCreditNoteMutation,
@@ -231,11 +229,15 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   const feesPerInvoice = useMemo(() => {
     return data?.invoice?.invoiceSubscriptions?.reduce<FeesPerInvoice>(
       (subAcc, invoiceSubscription) => {
+        const subscriptionName: string =
+          invoiceSubscription?.subscription?.name ||
+          invoiceSubscription?.subscription?.plan?.invoiceDisplayName ||
+          invoiceSubscription?.subscription?.plan?.name
+
         const trueUpFeeIds = invoiceSubscription?.fees?.reduce<string[]>((acc, fee) => {
           if (fee?.trueUpFee?.id) {
             acc.push(fee?.trueUpFee?.id)
           }
-
           return acc
         }, [])
 
@@ -272,140 +274,39 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           ) {
             return -1
           }
-
           return 0
         })
 
-        const groupedFees = _groupBy(orderedData, (fee) => {
-          // Custom group_by
-          // either charge alone, group charge or true up fee
-          if (fee?.feeType === FeeTypesEnum.Subscription) {
-            return undefined
-          } else if (fee?.chargeFilter?.id) {
-            return fee?.charge?.id
+        const subscriptionFees = orderedData.reduce<FromFee[]>((acc, fee) => {
+          if (!fee || Number(fee.creditableAmountCents) <= 0) {
+            return acc
           }
 
-          return fee?.id
-        }) as {
-          [key: string]: InvoiceFeeFragment[]
-        }
+          const composableName =
+            fee.invoiceDisplayName ||
+            (fee.feeType === FeeTypesEnum.Commitment
+              ? 'Minimum commitment - True up'
+              : composeMultipleValuesWithSepator([
+                  fee.invoiceName || subscriptionName,
+                  composeChargeFilterDisplayName(fee.chargeFilter),
+                  composeGroupedByDisplayName(fee.groupedBy),
+                ]))
 
-        const subscriptionName: string =
-          invoiceSubscription?.subscription?.name ||
-          invoiceSubscription.subscription.plan.invoiceDisplayName ||
-          invoiceSubscription?.subscription?.plan?.name
+          acc.push({
+            id: fee.id,
+            checked: true,
+            value: deserializeAmount(fee.creditableAmountCents, fee.amountCurrency),
+            name: composableName,
+            isTrueUpFee: trueUpFeeIds?.includes(fee.id),
+            maxAmount: fee.creditableAmountCents,
+            appliedTaxes: fee.appliedTaxes || [],
+            succeededAt: fee.succeededAt,
+          })
 
-        const subscriptionFees = Object.keys(groupedFees).reduce((groupApp, groupKey, index) => {
-          if (groupKey === 'undefined') {
-            const fee = groupedFees[groupKey][0]
+          return acc
+        }, [])
 
-            if (fee?.creditableAmountCents > 0) {
-              const composableName = composeMultipleValuesWithSepator([
-                fee?.invoiceName || subscriptionName,
-                composeChargeFilterDisplayName(fee?.chargeFilter),
-                composeGroupedByDisplayName(fee.groupedBy),
-              ])
-
-              return {
-                [`0_${fee?.id}`]: {
-                  id: fee?.id,
-                  checked: true,
-                  value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
-                  name: composableName,
-                  isTrueUpFee: trueUpFeeIds?.includes(fee?.id),
-                  trueUpFee: fee?.trueUpFee,
-                  maxAmount: fee?.creditableAmountCents,
-                  appliedTaxes: fee?.appliedTaxes || [],
-                  succeededAt: fee?.succeededAt,
-                },
-                ...groupApp,
-              }
-            }
-
-            return groupApp
-          }
-          const feeGroup = groupedFees[groupKey]
-          const firstFee = groupedFees[groupKey][0]
-
-          if (
-            feeGroup.length === 1 &&
-            [FeeTypesEnum.Charge, FeeTypesEnum.Subscription, FeeTypesEnum.Commitment].includes(
-              feeGroup[0]?.feeType,
-            ) &&
-            firstFee?.creditableAmountCents > 0
-          ) {
-            const composableName =
-              firstFee.invoiceDisplayName ||
-              (firstFee.feeType === FeeTypesEnum.Commitment
-                ? 'Minimum commitment - True up'
-                : composeMultipleValuesWithSepator([
-                    firstFee?.invoiceName || subscriptionName,
-                    composeChargeFilterDisplayName(firstFee?.chargeFilter),
-                    composeGroupedByDisplayName(firstFee.groupedBy),
-                  ]))
-
-            return {
-              ...groupApp,
-              [`${index}_${firstFee?.id}`]: {
-                id: firstFee?.id,
-                checked: true,
-                value: deserializeAmount(firstFee?.creditableAmountCents, firstFee.amountCurrency),
-                name: composableName,
-                isTrueUpFee: trueUpFeeIds?.includes(firstFee?.id),
-                trueUpFee: firstFee?.trueUpFee,
-                maxAmount: firstFee?.creditableAmountCents,
-                appliedTaxes: firstFee?.appliedTaxes || [],
-                succeededAt: firstFee?.succeededAt,
-              },
-            }
-          }
-
-          const regroupFees = (accFee: Record<string, FromFee>, feeGrouped: InvoiceFeeFragment) => {
-            if (
-              feeGrouped?.creditableAmountCents === '0' ||
-              ![FeeTypesEnum.Charge, FeeTypesEnum.Subscription].includes(feeGrouped.feeType)
-            ) {
-              return accFee
-            }
-
-            const composableName =
-              feeGrouped.invoiceDisplayName ||
-              composeMultipleValuesWithSepator([
-                composeChargeFilterDisplayName(feeGrouped?.chargeFilter),
-                composeGroupedByDisplayName(feeGrouped.groupedBy),
-              ])
-
-            return {
-              ...accFee,
-              [feeGrouped?.id]: {
-                id: feeGrouped?.id,
-                checked: true,
-                isTrueUpFee: trueUpFeeIds?.includes(feeGrouped?.id),
-                value: deserializeAmount(
-                  feeGrouped?.creditableAmountCents,
-                  feeGrouped.amountCurrency,
-                ),
-                name: composableName,
-                maxAmount: feeGrouped?.creditableAmountCents,
-                appliedTaxes: feeGrouped?.appliedTaxes || [],
-              },
-            }
-          }
-
-          const grouped = feeGroup.reduce(regroupFees, {})
-
-          return Object.keys(grouped).length > 0
-            ? {
-                ...groupApp,
-                [groupKey]: {
-                  name: firstFee.invoiceName || (firstFee?.charge?.billableMetric?.name as string),
-                  grouped,
-                },
-              }
-            : groupApp
-        }, {})
-
-        return Object.keys(subscriptionFees).length > 0
+        return subscriptionFees.length > 0
           ? {
               ...subAcc,
               [invoiceSubscription?.subscription?.id]: {

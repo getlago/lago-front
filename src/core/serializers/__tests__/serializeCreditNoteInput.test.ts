@@ -15,8 +15,8 @@ describe('serializeCreditNoteInput()', () => {
           fees: {
             '5db47206-183b-4b2b-9ce2-f8399448c2c2': {
               subscriptionName: 'Group Plan',
-              fees: {
-                '0_d185efb0-dd54-4676-84ae-8feb9e5d58b6': {
+              fees: [
+                {
                   id: 'd185efb0-dd54-4676-84ae-8feb9e5d58b6',
                   checked: true,
                   value: 0.74,
@@ -30,7 +30,7 @@ describe('serializeCreditNoteInput()', () => {
                     },
                   ],
                 },
-              },
+              ],
             },
           },
           payBack: [
@@ -73,8 +73,8 @@ describe('serializeCreditNoteInput()', () => {
           fees: {
             '5db47206-183b-4b2b-9ce2-f8399448c2c2': {
               subscriptionName: 'Group Plan',
-              fees: {
-                '0_d185efb0-dd54-4676-84ae-8feb9e5d58b6': {
+              fees: [
+                {
                   id: 'd185efb0-dd54-4676-84ae-8feb9e5d58b6',
                   checked: true,
                   value: 0.74,
@@ -88,87 +88,77 @@ describe('serializeCreditNoteInput()', () => {
                     },
                   ],
                 },
-                '309591d6-041d-4aa6-a5c2-6189c49e277b': {
-                  name: 'Count BM - One dimension',
-                  grouped: {
-                    '42b948dc-cd51-4951-bc7e-8a25414e994f': {
-                      id: '42b948dc-cd51-4951-bc7e-8a25414e994f',
-                      checked: true,
-                      value: 274,
-                      name: 'france',
-                      maxAmount: 27400,
-                      appliedTaxes: [
-                        {
-                          id: '1234',
-                          taxName: 'VAT',
-                          taxRate: 0.2,
-                        },
-                      ],
+                {
+                  id: '42b948dc-cd51-4951-bc7e-8a25414e994f',
+                  checked: true,
+                  value: 274,
+                  name: 'france',
+                  maxAmount: 27400,
+                  appliedTaxes: [
+                    {
+                      id: '1234',
+                      taxName: 'VAT',
+                      taxRate: 0.2,
                     },
-                    '3aa1eca1-4a22-4b61-ae65-7f16ee06a670': {
-                      id: '3aa1eca1-4a22-4b61-ae65-7f16ee06a670',
-                      checked: true,
-                      value: 345,
-                      name: 'italy',
-                      maxAmount: 34500,
-                      appliedTaxes: [
-                        {
-                          id: '1234',
-                          taxName: 'VAT',
-                          taxRate: 0.2,
-                        },
-                      ],
-                    },
-                  },
+                  ],
                 },
-                '6eb177a8-e30b-46c4-b426-ce7967c3d8d6': {
-                  name: 'Count BM - Two dimensions',
-                  grouped: {
-                    '87b3d55f-16aa-48e7-ba73-8cbac8520d77': {
-                      id: '87b3d55f-16aa-48e7-ba73-8cbac8520d77',
-                      checked: false,
-                      value: 0,
-                      name: 'AWS • usa',
-                      maxAmount: 0,
-                      appliedTaxes: [
-                        {
-                          id: '1234',
-                          taxName: 'VAT',
-                          taxRate: 0.2,
-                        },
-                      ],
+                {
+                  id: '3aa1eca1-4a22-4b61-ae65-7f16ee06a670',
+                  checked: true,
+                  value: 345,
+                  name: 'italy',
+                  maxAmount: 34500,
+                  appliedTaxes: [
+                    {
+                      id: '1234',
+                      taxName: 'VAT',
+                      taxRate: 0.2,
                     },
-                    '7097d3cd-71e9-488a-8d84-6d87e94f120e': {
-                      id: '7097d3cd-71e9-488a-8d84-6d87e94f120e',
-                      checked: true,
-                      value: 124,
-                      name: 'AWS • europe',
-                      maxAmount: 12400,
-                      appliedTaxes: [
-                        {
-                          id: '1234',
-                          taxName: 'VAT',
-                          taxRate: 0.2,
-                        },
-                      ],
-                    },
-                    'eb7332f7-146c-4b7f-82aa-ba6f74c06d29': {
-                      id: 'eb7332f7-146c-4b7f-82aa-ba6f74c06d29',
-                      checked: true,
-                      value: 163,
-                      name: 'Google • usa',
-                      maxAmount: 16300,
-                      appliedTaxes: [
-                        {
-                          id: '1234',
-                          taxName: 'VAT',
-                          taxRate: 0.2,
-                        },
-                      ],
-                    },
-                  },
+                  ],
                 },
-              },
+                {
+                  id: '87b3d55f-16aa-48e7-ba73-8cbac8520d77',
+                  checked: false,
+                  value: 0,
+                  name: 'AWS • usa',
+                  maxAmount: 0,
+                  appliedTaxes: [
+                    {
+                      id: '1234',
+                      taxName: 'VAT',
+                      taxRate: 0.2,
+                    },
+                  ],
+                },
+                {
+                  id: '7097d3cd-71e9-488a-8d84-6d87e94f120e',
+                  checked: true,
+                  value: 124,
+                  name: 'AWS • europe',
+                  maxAmount: 12400,
+                  appliedTaxes: [
+                    {
+                      id: '1234',
+                      taxName: 'VAT',
+                      taxRate: 0.2,
+                    },
+                  ],
+                },
+                {
+                  id: 'eb7332f7-146c-4b7f-82aa-ba6f74c06d29',
+                  checked: true,
+                  value: 163,
+                  name: 'Google • usa',
+                  maxAmount: 16300,
+                  appliedTaxes: [
+                    {
+                      id: '1234',
+                      taxName: 'VAT',
+                      taxRate: 0.2,
+                    },
+                  ],
+                },
+              ],
             },
           },
           payBack: [
