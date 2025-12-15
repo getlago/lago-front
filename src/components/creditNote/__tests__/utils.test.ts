@@ -180,22 +180,22 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              fee1: {
+            fees: [
+              {
                 id: '1',
                 checked: true,
                 maxAmount: 100,
                 name: 'Test Fee 1',
                 value: 50,
               },
-              fee2: {
+              {
                 id: '2',
                 checked: false,
                 maxAmount: 200,
                 name: 'Test Fee 2',
                 value: 75,
               },
-            },
+            ],
           },
         },
       }
@@ -210,22 +210,22 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              fee1: {
+            fees: [
+              {
                 id: '1',
                 checked: false,
                 maxAmount: 100,
                 name: 'Test Fee 1',
                 value: 50,
               },
-              fee2: {
+              {
                 id: '2',
                 checked: false,
                 maxAmount: 200,
                 name: 'Test Fee 2',
                 value: 75,
               },
-            },
+            ],
           },
         },
       }
@@ -235,32 +235,27 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
       expect(result).toBe(false)
     })
 
-    it('returns true when at least one grouped fee is checked', () => {
+    it('returns true when at least one fee in an array is checked', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              groupedFee1: {
-                name: 'Grouped Fee',
-                grouped: {
-                  subFee1: {
-                    id: '1',
-                    checked: true,
-                    maxAmount: 100,
-                    name: 'Sub Fee 1',
-                    value: 50,
-                  },
-                  subFee2: {
-                    id: '2',
-                    checked: false,
-                    maxAmount: 200,
-                    name: 'Sub Fee 2',
-                    value: 75,
-                  },
-                },
+            fees: [
+              {
+                id: '1',
+                checked: true,
+                maxAmount: 100,
+                name: 'Fee 1',
+                value: 50,
               },
-            },
+              {
+                id: '2',
+                checked: false,
+                maxAmount: 200,
+                name: 'Fee 2',
+                value: 75,
+              },
+            ],
           },
         },
       }
@@ -270,32 +265,27 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
       expect(result).toBe(true)
     })
 
-    it('returns false when no grouped fees are checked', () => {
+    it('returns false when no fees in array are checked', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              groupedFee1: {
-                name: 'Grouped Fee',
-                grouped: {
-                  subFee1: {
-                    id: '1',
-                    checked: false,
-                    maxAmount: 100,
-                    name: 'Sub Fee 1',
-                    value: 50,
-                  },
-                  subFee2: {
-                    id: '2',
-                    checked: false,
-                    maxAmount: 200,
-                    name: 'Sub Fee 2',
-                    value: 75,
-                  },
-                },
+            fees: [
+              {
+                id: '1',
+                checked: false,
+                maxAmount: 100,
+                name: 'Fee 1',
+                value: 50,
               },
-            },
+              {
+                id: '2',
+                checked: false,
+                maxAmount: 200,
+                name: 'Fee 2',
+                value: 75,
+              },
+            ],
           },
         },
       }
@@ -305,32 +295,27 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
       expect(result).toBe(false)
     })
 
-    it('returns true when fees contain both regular and grouped fees with at least one checked', () => {
+    it('returns true when multiple subscriptions have at least one checked fee', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              regularFee: {
+            fees: [
+              {
                 id: '1',
                 checked: false,
                 maxAmount: 100,
                 name: 'Regular Fee',
                 value: 50,
               },
-              groupedFee1: {
-                name: 'Grouped Fee',
-                grouped: {
-                  subFee1: {
-                    id: '2',
-                    checked: true,
-                    maxAmount: 200,
-                    name: 'Sub Fee 1',
-                    value: 75,
-                  },
-                },
+              {
+                id: '2',
+                checked: true,
+                maxAmount: 200,
+                name: 'Fee 1',
+                value: 75,
               },
-            },
+            ],
           },
         },
       }
@@ -355,27 +340,27 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription 1',
-            fees: {
-              fee1: {
+            fees: [
+              {
                 id: '1',
                 checked: false,
                 maxAmount: 100,
                 name: 'Test Fee 1',
                 value: 50,
               },
-            },
+            ],
           },
           subscription2: {
             subscriptionName: 'Test Subscription 2',
-            fees: {
-              fee2: {
+            fees: [
+              {
                 id: '2',
                 checked: true,
                 maxAmount: 200,
                 name: 'Test Fee 2',
                 value: 75,
               },
-            },
+            ],
           },
         },
       }
@@ -387,30 +372,27 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
   })
 
   describe('edge cases', () => {
-    it('returns false when grouped property is not present', () => {
+    it('returns false when fee is not checked', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              groupedFee1: {
-                name: 'Grouped Fee',
-                grouped: {
-                  subFee1: {
-                    id: '1',
-                    maxAmount: 100,
-                    name: 'Sub Fee 1',
-                    value: 50,
-                  },
-                  subFee2: {
-                    id: '2',
-                    maxAmount: 200,
-                    name: 'Sub Fee 2',
-                    value: 75,
-                  },
-                },
+            fees: [
+              {
+                id: '1',
+                checked: false,
+                maxAmount: 100,
+                name: 'Fee 1',
+                value: 50,
               },
-            },
+              {
+                id: '2',
+                checked: false,
+                maxAmount: 200,
+                name: 'Fee 2',
+                value: 75,
+              },
+            ],
           },
         },
       }
@@ -442,17 +424,12 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
       expect(result).toBe(false)
     })
 
-    it('handles grouped fee with empty grouped object', () => {
+    it('handles fee with empty fees array', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              groupedFee1: {
-                name: 'Grouped Fee',
-                grouped: {},
-              },
-            },
+            fees: [],
           },
         },
       }
@@ -485,15 +462,15 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              fee1: {
+            fees: [
+              {
                 id: '3',
                 checked: true,
                 maxAmount: 300,
                 name: 'Test Fee',
                 value: 100,
               },
-            },
+            ],
           },
         },
       }
@@ -518,15 +495,15 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
-            fees: {
-              fee1: {
+            fees: [
+              {
                 id: '3',
                 checked: true,
                 maxAmount: 300,
                 name: 'Test Fee',
                 value: 100,
               },
-            },
+            ],
           },
         },
       }

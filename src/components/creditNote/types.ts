@@ -15,18 +15,10 @@ export type FromFee = {
   }[]
 }
 
-export type GroupedFee = {
-  name: string
-  grouped: {
-    [key: string]: FromFee
-  }
-}
 export interface FeesPerInvoice {
   [subcriptionId: string]: {
     subscriptionName: string
-    fees: {
-      [feeGroupId: string]: FromFee | GroupedFee
-    }
+    fees: FromFee[]
   }
 }
 

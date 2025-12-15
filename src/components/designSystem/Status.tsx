@@ -84,6 +84,7 @@ export type StatusProps = {
   endIcon?: IconName
   type: StatusType
   label: StatusLabel | string
+  'data-test'?: string
 }
 
 type StatusConfig = Record<
@@ -141,6 +142,7 @@ export const Status: FC<StatusProps> = ({
   labelVariables,
   locale = 'en',
   endIcon,
+  'data-test': dataTest,
 }) => {
   const { translateWithContextualLocal: translate } = useContextualLocale(locale)
 
@@ -156,7 +158,7 @@ export const Status: FC<StatusProps> = ({
         config.backgroundColor,
         config.borderColor,
       )}
-      data-test="status"
+      data-test={dataTest || 'status'}
     >
       <Typography variant="captionHl" color={config.color} noWrap>
         {checkIsLabelStatus(label)

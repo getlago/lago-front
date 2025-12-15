@@ -8,7 +8,7 @@ import {
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
-import { CreditNoteForm, FeesPerInvoice, FromFee, GroupedFee } from './types'
+import { CreditNoteForm, FeesPerInvoice, FromFee } from './types'
 
 export type CreditNoteFormCalculationCalculationProps = {
   currency: CurrencyEnum
@@ -35,45 +35,17 @@ export const creditNoteFormCalculationCalculation = ({
   if (!!Object.keys(fees || {}).length) {
     feeForEstimate = Object.keys(fees || {}).reduce<CreditNoteItemInput[]>((accSub, subKey) => {
       const subChild = ((fees as FeesPerInvoice) || {})[subKey]
-      const subValues = Object.keys(subChild?.fees || {}).reduce<CreditNoteItemInput[]>(
-        (accGroup, groupKey) => {
-          const child = subChild?.fees[groupKey] as FromFee
+      const subValues = subChild?.fees?.reduce<CreditNoteItemInput[]>((accFees, fee) => {
+        if (fee.checked) {
+          accFees.push({
+            feeId: fee.id,
+            amountCents: serializeAmount(fee.value, currency),
+          })
+        }
+        return accFees
+      }, [])
 
-          if (typeof child.checked === 'boolean' && !!child.checked) {
-            accGroup.push({
-              feeId: child.id,
-              amountCents: serializeAmount(child.value, currency),
-            })
-
-            return accGroup
-          }
-
-          const grouped = (child as unknown as GroupedFee)?.grouped
-          const groupedValues = Object.keys(grouped || {}).reduce<CreditNoteItemInput[]>(
-            (accFee, feeKey) => {
-              const fee = grouped[feeKey]
-
-              if (fee.checked) {
-                accFee.push({
-                  feeId: fee.id,
-                  amountCents: serializeAmount(fee.value, currency),
-                })
-              }
-
-              return accFee
-            },
-            [],
-          )
-
-          accGroup = [...accGroup, ...groupedValues]
-          return accGroup
-        },
-        [],
-      )
-
-      accSub = [...accSub, ...subValues]
-
-      return accSub
+      return [...accSub, ...(subValues || [])]
     }, [])
   } else if (addonFees) {
     feeForEstimate = addonFees.reduce<CreditNoteItemInput[]>((acc, fee) => {
@@ -183,19 +155,7 @@ export const creditNoteFormHasAtLeastOneFeeChecked = (
     })
   } else if (groupedFeesValues.length) {
     return groupedFeesValues.some((fee) => {
-      const feesToInspect = Object.values(fee?.fees || {})
-
-      return feesToInspect.some((f) => {
-        // Fees of type GroupedFee
-        if ('grouped' in f) {
-          const feesGroupedValues = Object.values(f?.grouped || {})
-
-          return feesGroupedValues.some((g) => g?.checked)
-        }
-
-        // Fees of type FromFee
-        return f?.checked
-      })
+      return fee?.fees?.some((f) => f?.checked)
     })
   }
 

@@ -17,7 +17,7 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
       </div>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
-        data-test="button"
+        data-test="close-credit-note-button"
         tabindex="0"
         type="button"
       >
@@ -136,7 +136,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
       </div>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
-        data-test="button"
+        data-test="close-credit-note-button"
         tabindex="0"
         type="button"
       >
@@ -261,6 +261,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 </div>
                 <div
                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                  data-test="reason-combobox"
                 >
                   <div
                     class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
@@ -358,6 +359,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               </div>
               <div
                 class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                data-test="description-input"
               >
                 <div
                   class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-3u5vir-MuiInputBase-root-MuiOutlinedInput-root"
@@ -425,7 +427,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 >
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-undefined"
+                    data-test="subscription-checkbox-sub-1"
                     for=":r3b:"
                   >
                     <div
@@ -501,7 +503,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 >
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-fees.sub-1.fees.fee-1.checked"
+                    data-test="checkbox-fees.sub-1.fees.0.checked"
                     for=":r3c:"
                   >
                     <div
@@ -512,7 +514,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       >
                         <input
                           aria-checked="true"
-                          aria-labelledby="fees.sub-1.fees.fee-1.checked"
+                          aria-labelledby="fees.sub-1.fees.0.checked"
                           checked=""
                           class="absolute m-0 size-0 p-0 opacity-0"
                           id=":r3c:"
@@ -601,8 +603,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
-                              id="fees.sub-1.fees.fee-1.value"
-                              name="fees.sub-1.fees.fee-1.value"
+                              id="fees.sub-1.fees.0.value"
+                              name="fees.sub-1.fees.0.value"
                               placeholder="0.00"
                               style="text-align: right;"
                               type="text"
@@ -735,6 +737,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     >
                       <div
                         class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                        data-test="credit-amount-input"
                       >
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
@@ -792,6 +795,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     >
                       <div
                         class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                        data-test="refund-amount-input"
                       >
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
@@ -888,7 +892,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
           >
             <button
               class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
-              data-test="button"
+              data-test="submit-credit-note-button"
               disabled=""
               tabindex="-1"
               type="button"
@@ -1099,7 +1103,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
       </div>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
-        data-test="button"
+        data-test="close-credit-note-button"
         tabindex="0"
         type="button"
       >
@@ -1224,6 +1228,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 </div>
                 <div
                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                  data-test="reason-combobox"
                 >
                   <div
                     class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1321,6 +1326,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               </div>
               <div
                 class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                data-test="description-input"
               >
                 <div
                   class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-3u5vir-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1388,7 +1394,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 >
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-undefined"
+                    data-test="subscription-checkbox-sub-1"
                     for=":r3m:"
                   >
                     <div
@@ -1464,7 +1470,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 >
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-fees.sub-1.fees.fee-1.checked"
+                    data-test="checkbox-fees.sub-1.fees.0.checked"
                     for=":r3n:"
                   >
                     <div
@@ -1475,7 +1481,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                       >
                         <input
                           aria-checked="true"
-                          aria-labelledby="fees.sub-1.fees.fee-1.checked"
+                          aria-labelledby="fees.sub-1.fees.0.checked"
                           checked=""
                           class="absolute m-0 size-0 p-0 opacity-0"
                           id=":r3n:"
@@ -1564,8 +1570,8 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
-                              id="fees.sub-1.fees.fee-1.value"
-                              name="fees.sub-1.fees.fee-1.value"
+                              id="fees.sub-1.fees.0.value"
+                              name="fees.sub-1.fees.0.value"
                               placeholder="0.00"
                               style="text-align: right;"
                               type="text"
@@ -1681,6 +1687,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 </div>
                 <div
                   class="flex items-center justify-between"
+                  data-test="credit-only-amount-line"
                 >
                   <div
                     class="flex items-center gap-2"
@@ -1753,7 +1760,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
           >
             <button
               class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
-              data-test="button"
+              data-test="submit-credit-note-button"
               disabled=""
               tabindex="-1"
               type="button"
@@ -1964,7 +1971,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
       </div>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
-        data-test="button"
+        data-test="close-credit-note-button"
         tabindex="0"
         type="button"
       >
@@ -2050,7 +2057,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
             >
               <div
                 class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-red-100 outline-red-200"
-                data-test="status"
+                data-test="dispute-lost-status"
               >
                 <div
                   class="MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-nazx7r-MuiTypography-root"
@@ -2089,6 +2096,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 </div>
                 <div
                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                  data-test="reason-combobox"
                 >
                   <div
                     class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2186,6 +2194,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               </div>
               <div
                 class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                data-test="description-input"
               >
                 <div
                   class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-3u5vir-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2253,7 +2262,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 >
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-undefined"
+                    data-test="subscription-checkbox-sub-1"
                     for=":r3v:"
                   >
                     <div
@@ -2329,7 +2338,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 >
                   <label
                     class="flex flex-col cursor-pointer"
-                    data-test="checkbox-fees.sub-1.fees.fee-1.checked"
+                    data-test="checkbox-fees.sub-1.fees.0.checked"
                     for=":r40:"
                   >
                     <div
@@ -2340,7 +2349,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                       >
                         <input
                           aria-checked="true"
-                          aria-labelledby="fees.sub-1.fees.fee-1.checked"
+                          aria-labelledby="fees.sub-1.fees.0.checked"
                           checked=""
                           class="absolute m-0 size-0 p-0 opacity-0"
                           id=":r40:"
@@ -2429,8 +2438,8 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
-                              id="fees.sub-1.fees.fee-1.value"
-                              name="fees.sub-1.fees.fee-1.value"
+                              id="fees.sub-1.fees.0.value"
+                              name="fees.sub-1.fees.0.value"
                               placeholder="0.00"
                               style="text-align: right;"
                               type="text"
@@ -2546,6 +2555,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 </div>
                 <div
                   class="flex items-center justify-between"
+                  data-test="credit-only-amount-line"
                 >
                   <div
                     class="flex items-center gap-2"
@@ -2618,7 +2628,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
           >
             <button
               class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
-              data-test="button"
+              data-test="submit-credit-note-button"
               disabled=""
               tabindex="-1"
               type="button"

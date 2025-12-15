@@ -51,6 +51,13 @@ import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 import { useCreateCreditNote } from './common/useCreateCreditNote'
 import MetadataFormCard from './metadataForm/MetadataFormCard'
 
+export const SUBMIT_BUTTON_TEST_ID = 'submit-credit-note-button'
+export const REASON_COMBOBOX_TEST_ID = 'reason-combobox'
+export const DESCRIPTION_INPUT_TEST_ID = 'description-input'
+export const DISPUTE_LOST_STATUS_TEST_ID = 'dispute-lost-status'
+export const PREPAID_CREDITS_REFUND_ALERT_TEST_ID = 'prepaid-credits-refund-alert'
+export const CLOSE_BUTTON_TEST_ID = 'close-credit-note-button'
+
 export const CREDIT_NOTE_REASONS: { reason: CreditNoteReasonEnum; label: string }[] = [
   {
     reason: CreditNoteReasonEnum?.DuplicatedCharge,
@@ -213,6 +220,7 @@ const CreateCreditNote = () => {
         <Button
           variant="quaternary"
           icon="close"
+          data-test={CLOSE_BUTTON_TEST_ID}
           onClick={() =>
             formikProps.dirty
               ? warningDialogRef.current?.openDialog()
@@ -300,7 +308,11 @@ const CreateCreditNote = () => {
                   </div>
                   <div className="ml-auto">
                     {invoice?.paymentDisputeLostAt ? (
-                      <Status type={StatusType.danger} label="disputeLost" />
+                      <Status
+                        type={StatusType.danger}
+                        label="disputeLost"
+                        data-test={DISPUTE_LOST_STATUS_TEST_ID}
+                      />
                     ) : (
                       <Status
                         {...paymentStatusMapping({
@@ -326,6 +338,7 @@ const CreateCreditNote = () => {
                       value: reason.reason,
                       label: translate(reason.label),
                     }))}
+                    data-test={REASON_COMBOBOX_TEST_ID}
                   />
                   <TextInputField
                     name="description"
@@ -334,6 +347,7 @@ const CreateCreditNote = () => {
                     placeholder={translate('text_636bedf292786b19d3398ed6')}
                     rows={3}
                     multiline
+                    data-test={DESCRIPTION_INPUT_TEST_ID}
                   />
                 </Card>
 
@@ -391,7 +405,11 @@ const CreateCreditNote = () => {
                         />
                       </div>
 
-                      <Alert className="mt-6" type="info">
+                      <Alert
+                        className="mt-6"
+                        type="info"
+                        data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
+                      >
                         {translate('text_1729084495407pcn1mei0hyd')}
                       </Alert>
                     </>
@@ -413,6 +431,7 @@ const CreateCreditNote = () => {
                     fullWidth
                     size="large"
                     onClick={formikProps.submitForm}
+                    data-test={SUBMIT_BUTTON_TEST_ID}
                   >
                     {translate('text_636bedf292786b19d3398f12')}
                   </Button>

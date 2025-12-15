@@ -9,6 +9,7 @@ interface CreditNoteEstimationLineProps {
   value: string
   loading?: boolean
   tooltipContent?: string
+  'data-test'?: string
 }
 
 export const CreditNoteEstimationLine: FC<CreditNoteEstimationLineProps> = ({
@@ -17,9 +18,10 @@ export const CreditNoteEstimationLine: FC<CreditNoteEstimationLineProps> = ({
   value,
   loading,
   tooltipContent,
+  'data-test': dataTest,
 }) => {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between" data-test={dataTest}>
       <div className="flex items-center gap-2">
         <Typography variant="bodyHl" color={labelColor}>
           {label}

@@ -1,12 +1,6 @@
-import _get from 'lodash/get'
-import { boolean, ISchema, number, object, tuple } from 'yup'
+import { array, boolean, ISchema, number, object, tuple } from 'yup'
 
-import {
-  CreditNoteFeeErrorEnum,
-  FeesPerInvoice,
-  FromFee,
-  GroupedFee,
-} from '~/components/creditNote/types'
+import { CreditNoteFeeErrorEnum, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 
@@ -28,49 +22,31 @@ export const simpleFeeSchema = (maxAmount: number, currency: CurrencyEnum) =>
 export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: CurrencyEnum) =>
   object().shape(
     Object.keys(formikInitialFees || {}).reduce((accSub, subKey) => {
-      const subChilds = formikInitialFees[subKey]?.fees
+      const fees = formikInitialFees[subKey]?.fees || []
 
       accSub = {
         ...accSub,
         [subKey]: object().shape({
-          fees: object().shape(
-            Object.keys(subChilds).reduce((feeGroupAcc, feeGroupKey) => {
-              const child = subChilds[feeGroupKey] as FromFee
+          fees: array().of(
+            object().shape({
+              checked: boolean(),
+              value: number()
+                .default(0)
+                .when('checked', {
+                  is: true,
+                  then: (schema) =>
+                    schema
+                      .min(0.0000000000000001, CreditNoteFeeErrorEnum.minZero)
+                      .test('max-amount', CreditNoteFeeErrorEnum.overMax, function (value) {
+                        const fee = fees.find((f) => f.id === this.parent.id)
+                        const maxAmount = deserializeAmount(fee?.maxAmount || 0, currency)
 
-              if (typeof child.checked === 'boolean') {
-                return {
-                  ...feeGroupAcc,
-                  [feeGroupKey]: simpleFeeSchema(
-                    _get(
-                      formikInitialFees || {},
-                      `${subKey}.fees.${feeGroupKey}.maxAmount`,
-                    ) as unknown as number,
-                    currency,
-                  ),
-                }
-              }
-              const grouped = (child as unknown as GroupedFee)?.grouped
-
-              return {
-                ...feeGroupAcc,
-                [feeGroupKey]: object().shape({
-                  grouped: object().shape(
-                    Object.keys(grouped).reduce((feeAcc, feeKey) => {
-                      return {
-                        ...feeAcc,
-                        [feeKey]: simpleFeeSchema(
-                          _get(
-                            formikInitialFees || {},
-                            `${subKey}.fees.${feeGroupKey}.grouped.${feeKey}.maxAmount`,
-                          ) as unknown as number,
-                          currency,
-                        ),
-                      }
-                    }, {}),
-                  ),
+                        return value ? value <= maxAmount : true
+                      })
+                      .required(''),
+                  otherwise: (schema) => schema,
                 }),
-              }
-            }, {}),
+            }),
           ),
         }),
       }

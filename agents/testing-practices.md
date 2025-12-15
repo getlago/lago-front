@@ -17,6 +17,8 @@
    - Import the constant from the component file
    - Use it with `getByTestId()` or `queryByTestId()` from Testing Library
 
+4. **Never rely on translation copy, use exported const instead**
+
 **Example**:
 
 ```tsx

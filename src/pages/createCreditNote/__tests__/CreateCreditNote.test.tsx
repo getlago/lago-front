@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { CreditNoteReasonEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import CreateCreditNote, { CREDIT_NOTE_REASONS } from '../CreateCreditNote'
+import CreateCreditNote, { CLOSE_BUTTON_TEST_ID, CREDIT_NOTE_REASONS } from '../CreateCreditNote'
 
 const mockOnCreate = jest.fn()
 const mockUseCreateCreditNote = jest.fn()
@@ -32,8 +32,8 @@ const defaultMockInvoice = {
 const defaultMockFeesPerInvoice = {
   'sub-1': {
     subscriptionName: 'Test Subscription',
-    fees: {
-      'fee-1': {
+    fees: [
+      {
         id: 'fee-1',
         checked: true,
         value: 100,
@@ -41,7 +41,7 @@ const defaultMockFeesPerInvoice = {
         maxAmount: '10000',
         appliedTaxes: [],
       },
-    },
+    ],
   },
 }
 
@@ -156,13 +156,10 @@ describe('CreateCreditNote', () => {
 
       await act(() => render(<CreateCreditNote />))
 
-      // Find close button (the quaternary button with close icon)
-      const buttons = screen.getAllByTestId('button')
-      const closeButton = buttons.find((btn) => btn.querySelector('[data-test*="close"]'))
+      // Find close button by data-test
+      const closeButton = screen.getByTestId(CLOSE_BUTTON_TEST_ID)
 
-      if (closeButton) {
-        await user.click(closeButton)
-      }
+      await user.click(closeButton)
 
       // Since form is not dirty, should navigate without warning
       expect(testMockNavigateFn).toHaveBeenCalled()
