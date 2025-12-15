@@ -40,7 +40,7 @@ importers:
         specifier: 10.27.0
         version: 10.27.0(react@18.3.1)
       '@tanstack/react-form':
-        specifier: ^1.27.0
+        specifier: 1.27.0
         version: 1.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-virtual':
         specifier: 3.13.12
@@ -133,7 +133,7 @@ importers:
         specifier: 1.7.1
         version: 1.7.1
       zod:
-        specifier: ^4.1.12
+        specifier: 4.1.13
         version: 4.1.13
     devDependencies:
       '@babel/preset-env':
