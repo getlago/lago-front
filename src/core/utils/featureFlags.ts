@@ -5,6 +5,7 @@ export enum FeatureFlags {
   FIXED_CHARGES = 'fixedCharges',
   MULTI_PAYMENT_FLOW = 'multiPaymentFlow',
   AI_AGENT = 'aiAgent',
+  SUPERSET_ANALYTICS = 'supersetAnalytics',
 }
 
 const FF_KEY = 'featureFlags'

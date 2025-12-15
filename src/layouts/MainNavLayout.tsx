@@ -53,6 +53,7 @@ import {
   SETTINGS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -137,6 +138,8 @@ const MainNavLayout = () => {
   }, [pathname, contentRef, state?.disableScrollTop])
 
   const canSeeReportsSection = hasPermissions(['analyticsView'])
+
+  const canSeeSupersetDashboards = isFeatureFlagActive(FeatureFlags.SUPERSET_ANALYTICS)
 
   /**
    * Switches the current organization context.
@@ -385,13 +388,17 @@ const MainNavLayout = () => {
                       hidden: !hasPermissions(['analyticsView']),
                       extraComponent: <BadgeAI />,
                     },
-                    {
-                      title: translate('text_1762346890583hgqcnuvj2rh'),
-                      icon: 'eye',
-                      link: ANALYTIC_NEW_ROUTE,
-                      match: [ANALYTIC_NEW_ROUTE],
-                      hidden: !hasPermissions(['analyticsView']),
-                    },
+                    ...(canSeeSupersetDashboards
+                      ? [
+                          {
+                            title: translate('text_1762346890583hgqcnuvj2rh'),
+                            icon: 'eye' as IconName,
+                            link: ANALYTIC_NEW_ROUTE,
+                            match: [ANALYTIC_NEW_ROUTE],
+                            hidden: !hasPermissions(['analyticsView']),
+                          },
+                        ]
+                      : []),
                   ]}
                 />
               </NavLayout.NavSection>
