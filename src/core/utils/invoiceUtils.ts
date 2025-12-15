@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 
-import { FeeInput, Invoice, InvoiceTypeEnum } from '~/generated/graphql'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CurrencyEnum, FeeInput, Invoice, InvoiceTypeEnum } from '~/generated/graphql'
 
 gql`
   fragment FeeForInvoiceFeesToFeeInput on Fee {
@@ -49,4 +50,30 @@ export const invoiceFeesToFeeInput = (
     fromDatetime: fee.properties?.fromDatetime || today.startOf('day').toISO(),
     toDatetime: fee.properties?.toDatetime || today.endOf('day').toISO(),
   }))
+}
+
+export const formatInvoiceDisplayValue = (
+  hasTaxProvider: boolean,
+  taxProviderCondition: boolean,
+  taxProviderValue: number | undefined,
+  hasAnyFee: boolean,
+  fallbackValue: number,
+  currency: CurrencyEnum,
+): string => {
+  if (hasTaxProvider) {
+    if (!taxProviderCondition) {
+      return '-'
+    }
+    return intlFormatNumber(taxProviderValue || 0, {
+      currency,
+    })
+  }
+
+  if (!hasAnyFee) {
+    return '-'
+  }
+
+  return intlFormatNumber(fallbackValue, {
+    currency,
+  })
 }

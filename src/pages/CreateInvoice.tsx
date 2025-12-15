@@ -51,7 +51,7 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
-import { invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
+import { formatInvoiceDisplayValue, invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
@@ -594,40 +594,22 @@ const CreateInvoice = () => {
 
   const canSubmit = formikProps.isValid && (!!voidedInvoiceId || formikProps.dirty)
 
-  // Helper function to format display values
-  const formatDisplayValue = (
-    taxProviderCondition: boolean,
-    taxProviderValue: number | undefined,
-    fallbackValue: number,
-  ) => {
-    if (hasTaxProvider) {
-      if (!taxProviderCondition) {
-        return '-'
-      }
-      return intlFormatNumber(taxProviderValue || 0, {
-        currency,
-      })
-    }
-
-    if (!hasAnyFee) {
-      return '-'
-    }
-
-    return intlFormatNumber(fallbackValue, {
-      currency,
-    })
-  }
-
-  const subtotalDisplayValue = formatDisplayValue(
+  const subtotalDisplayValue = formatInvoiceDisplayValue(
+    hasTaxProvider,
     !!taxProviderSubtotalHT,
     taxProviderSubtotalHT,
+    hasAnyFee,
     subTotal,
+    currency,
   )
 
-  const amountDueValue = formatDisplayValue(
+  const amountDueValue = formatInvoiceDisplayValue(
+    hasTaxProvider,
     !!taxProviderTaxesToDisplay.size,
     taxProviderTotalTTC,
+    hasAnyFee,
     total,
+    currency,
   )
 
   return (
