@@ -37,6 +37,7 @@ import {
   EditInvoiceItemTaxDialog,
   EditInvoiceItemTaxDialogRef,
 } from '~/components/invoices/EditInvoiceItemTaxDialog'
+import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -233,16 +234,6 @@ gql`
   ${FeeForInvoiceFeesToFeeInputFragmentDoc}
   ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
-
-type TaxMapType = Map<
-  string,
-  {
-    label: string
-    amount: number
-    taxRate: number
-    hasEnumedTaxCode?: boolean
-  }
->
 
 const CreateInvoice = () => {
   const { translate } = useInternationalization()
@@ -1132,118 +1123,14 @@ const CreateInvoice = () => {
                           {subtotalDisplayValue}
                         </Typography>
                       </div>
-                      <>
-                        {hasTaxProvider ? (
-                          !taxProviderTaxesToDisplay.size ? (
-                            <div className={invoiceFooterLineClassname}>
-                              <Typography variant="bodyHl" color="grey600">
-                                {translate('text_6453819268763979024ad0e9')}
-                              </Typography>
-                              <Typography variant="body" color="grey700">
-                                {'-'}
-                              </Typography>
-                            </div>
-                          ) : (
-                            <>
-                              {Array.from(taxProviderTaxesToDisplay.values())
-                                .sort((a, b) => b.taxRate - a.taxRate)
-                                .map((taxToDisplay, i) => {
-                                  return (
-                                    <div
-                                      className={invoiceFooterLineClassname}
-                                      key={`one-off-invoice-tax-item-${i}`}
-                                      data-test={`one-off-invoice-tax-item-${i}`}
-                                    >
-                                      <Typography
-                                        variant="bodyHl"
-                                        color="grey600"
-                                        data-test={`one-off-invoice-tax-item-${i}-label`}
-                                      >
-                                        {taxToDisplay.label}
-                                      </Typography>
-                                      <Typography
-                                        variant="body"
-                                        color="grey700"
-                                        data-test={`one-off-invoice-tax-item-${i}-value`}
-                                      >
-                                        {taxToDisplay.hasEnumedTaxCode
-                                          ? null
-                                          : !hasAnyFee
-                                            ? '-'
-                                            : intlFormatNumber(
-                                                deserializeAmount(
-                                                  taxToDisplay.amount || 0,
-                                                  currency,
-                                                ),
-                                                {
-                                                  currency,
-                                                },
-                                              )}
-                                      </Typography>
-                                    </div>
-                                  )
-                                })}
-                            </>
-                          )
-                        ) : !!taxesToDisplay?.size ? (
-                          <>
-                            {Array.from(taxesToDisplay.values())
-                              .sort((a, b) => b.taxRate - a.taxRate)
-                              .map((taxToDisplay, i) => {
-                                return (
-                                  <div
-                                    className={invoiceFooterLineClassname}
-                                    key={`one-off-invoice-tax-item-${i}`}
-                                    data-test={`one-off-invoice-tax-item-${i}`}
-                                  >
-                                    <Typography
-                                      variant="bodyHl"
-                                      color="grey600"
-                                      data-test={`one-off-invoice-tax-item-${i}-label`}
-                                    >
-                                      {taxToDisplay.label}
-                                    </Typography>
-                                    <Typography
-                                      variant="body"
-                                      color="grey700"
-                                      data-test={`one-off-invoice-tax-item-${i}-value`}
-                                    >
-                                      {!hasAnyFee
-                                        ? '-'
-                                        : intlFormatNumber(taxToDisplay.amount, {
-                                            currency,
-                                          })}
-                                    </Typography>
-                                  </div>
-                                )
-                              })}
-                          </>
-                        ) : (
-                          <div
-                            className={invoiceFooterLineClassname}
-                            data-test="one-off-invoice-tax-item-no-tax"
-                          >
-                            <Typography
-                              variant="bodyHl"
-                              color="grey600"
-                              data-test="one-off-invoice-tax-item-no-tax-label"
-                            >
-                              {`${translate('text_6453819268763979024ad0e9')} (0%)`}
-                            </Typography>
-                            <Typography
-                              variant="body"
-                              color="grey700"
-                              data-test="one-off-invoice-tax-item-no-tax-value"
-                            >
-                              {!hasAnyFee
-                                ? '-'
-                                : intlFormatNumber(0, {
-                                    currency,
-                                  })}
-                            </Typography>
-                          </div>
-                        )}
-                      </>
+                      <InvoiceTaxesDisplay
+                        hasTaxProvider={hasTaxProvider}
+                        taxProviderTaxesToDisplay={taxProviderTaxesToDisplay}
+                        taxesToDisplay={taxesToDisplay}
+                        hasAnyFee={hasAnyFee}
+                        currency={currency}
+                        invoiceFooterLineClassname={invoiceFooterLineClassname}
+                      />
                       <div className={invoiceFooterLineClassname}>
                         <Typography variant="bodyHl" color="grey600">
                           {translate('text_6453819268763979024ad0ff')}
