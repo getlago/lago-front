@@ -86,6 +86,8 @@ export default defineConfig(({ mode }) => {
         telemetry: false,
       }),
     )
+
+    console.log(`✅ Sentry source maps will be uploaded for app version: ${appVersion}`)
   } else if (isProduction) {
     const missingVars: string[] = []
 
@@ -96,7 +98,7 @@ export default defineConfig(({ mode }) => {
 
     if (missingVars.length > 0) {
       console.log(
-        `⚠ Sentry source maps upload skipped. Missing environment variables: ${missingVars.join(', ')}`,
+        `⚠️ Sentry source maps upload skipped. Missing environment variables: ${missingVars.join(', ')}`,
       )
     }
   }
