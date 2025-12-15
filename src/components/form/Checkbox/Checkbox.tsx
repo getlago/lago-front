@@ -16,6 +16,7 @@ export interface CheckboxProps {
   name?: string
   value?: boolean | undefined
   onChange?: (event: ChangeEvent<HTMLInputElement>, checked: boolean) => void
+  'data-test'?: string
 }
 
 export const Checkbox = ({
@@ -28,6 +29,7 @@ export const Checkbox = ({
   name,
   value,
   onChange,
+  'data-test': dataTest,
 }: CheckboxProps) => {
   const componentId = useId()
   const { translate } = useInternationalization()
@@ -38,7 +40,7 @@ export const Checkbox = ({
   return (
     <label
       htmlFor={componentId}
-      data-test={`checkbox-${name}`}
+      data-test={dataTest || `checkbox-${name}`}
       className={tw('flex flex-col', !disabled && 'cursor-pointer', className)}
     >
       <div className={tw('mx-0 flex items-start align-middle *:leading-7')}>

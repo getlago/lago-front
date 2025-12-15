@@ -10,6 +10,9 @@ import { Checkbox } from '~/components/form/Checkbox'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const getSubscriptionCheckboxTestId = (subscriptionKey: string) =>
+  `subscription-checkbox-${subscriptionKey}`
+
 const determineCheckboxValue = (
   initialValue: boolean | undefined | null,
   additionalValue: boolean | undefined,
@@ -153,6 +156,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
                       {subscription?.subscriptionName}
                     </Typography>
                   }
+                  data-test={getSubscriptionCheckboxTestId(subKey)}
                   onChange={(_, value) => {
                     const childValues = _get(
                       formikProps.values.fees,

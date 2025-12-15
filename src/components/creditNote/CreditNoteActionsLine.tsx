@@ -8,6 +8,9 @@ import { AmountInputField } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 
+export const CREDIT_AMOUNT_INPUT_TEST_ID = 'credit-amount-input'
+export const REFUND_AMOUNT_INPUT_TEST_ID = 'refund-amount-input'
+
 interface CreditNoteActionsLineProps {
   label: string
   formikProps: FormikProps<Partial<CreditNoteForm>>
@@ -26,6 +29,14 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   error,
 }) => {
   const currencySymbol = getCurrencySymbol(currency)
+
+  let testId: string | undefined
+
+  if (name === 'payBack.0.value') {
+    testId = CREDIT_AMOUNT_INPUT_TEST_ID
+  } else if (name === 'payBack.1.value') {
+    testId = REFUND_AMOUNT_INPUT_TEST_ID
+  }
 
   return (
     <div>
@@ -47,6 +58,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
               startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
             }
           }
+          data-test={testId}
         />
       </div>
       {(!!error || hasError) && (
