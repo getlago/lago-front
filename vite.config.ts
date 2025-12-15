@@ -74,10 +74,6 @@ export default defineConfig(({ mode }) => {
         authToken: sentryAuthToken,
         release: {
           name: appVersion,
-          // Automatically associate commits with releases
-          setCommits: {
-            auto: true,
-          },
         },
         // Upload source maps
         sourcemaps: {
@@ -87,7 +83,9 @@ export default defineConfig(({ mode }) => {
       }),
     )
 
-    console.log(`✅ Sentry source maps will be uploaded for app version: ${appVersion}`)
+    console.log(
+      `✅ Sentry source maps will be uploaded for app version: ${appVersion}, sentryOrg: ${sentryOrg}, sentryProject: ${sentryProject}`,
+    )
   } else if (isProduction) {
     const missingVars: string[] = []
 

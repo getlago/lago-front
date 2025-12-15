@@ -37,6 +37,7 @@ import {
   EditInvoiceItemTaxDialog,
   EditInvoiceItemTaxDialogRef,
 } from '~/components/invoices/EditInvoiceItemTaxDialog'
+import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -51,7 +52,7 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
-import { invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
+import { formatInvoiceDisplayValue, invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
@@ -233,16 +234,6 @@ gql`
   ${FeeForInvoiceFeesToFeeInputFragmentDoc}
   ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
-
-type TaxMapType = Map<
-  string,
-  {
-    label: string
-    amount: number
-    taxRate: number
-    hasEnumedTaxCode?: boolean
-  }
->
 
 const CreateInvoice = () => {
   const { translate } = useInternationalization()
@@ -594,6 +585,24 @@ const CreateInvoice = () => {
 
   const canSubmit = formikProps.isValid && (!!voidedInvoiceId || formikProps.dirty)
 
+  const subtotalDisplayValue = formatInvoiceDisplayValue(
+    hasTaxProvider,
+    !!taxProviderSubtotalHT,
+    taxProviderSubtotalHT,
+    hasAnyFee,
+    subTotal,
+    currency,
+  )
+
+  const amountDueValue = formatInvoiceDisplayValue(
+    hasTaxProvider,
+    !!taxProviderTaxesToDisplay.size,
+    taxProviderTotalTTC,
+    hasAnyFee,
+    total,
+    currency,
+  )
+
   return (
     <>
       <PageHeader.Wrapper>
@@ -784,6 +793,49 @@ const CreateInvoice = () => {
                     formikProps?.values?.fees?.map((fee, i) => {
                       const unitValidationErrorKey = _get(formikProps.errors, `fees.${i}.units`)
 
+                      // Compute tax display content
+                      let taxDisplayContent
+
+                      if (hasTaxProvider) {
+                        const hasTaxProviderResult = !!taxProviderTaxesResult?.collection.length
+
+                        if (hasTaxProviderResult) {
+                          const taxItem = taxProviderTaxesResult?.collection.find(
+                            (t) => t.itemId === fee.addOnId,
+                          )
+
+                          taxDisplayContent = taxItem?.taxBreakdown?.map((tax) => (
+                            <Typography
+                              key={`fee-${i}-applied-taxe-${tax.name}`}
+                              variant="body"
+                              color="grey700"
+                            >
+                              {intlFormatNumber(tax?.rate || 0, {
+                                style: 'percent',
+                              })}
+                            </Typography>
+                          ))
+                        } else {
+                          taxDisplayContent = '-'
+                        }
+                      } else {
+                        if (fee.taxes?.length) {
+                          taxDisplayContent = fee.taxes.map((tax) => (
+                            <Typography
+                              key={`fee-${i}-applied-taxe-${tax.id}`}
+                              variant="body"
+                              color="grey700"
+                            >
+                              {intlFormatNumber(tax.rate / 100 || 0, {
+                                style: 'percent',
+                              })}
+                            </Typography>
+                          ))
+                        } else {
+                          taxDisplayContent = '0%'
+                        }
+                      }
+
                       return (
                         <div
                           className={tw(gridClassname, 'min-h-17 items-center py-3 shadow-b')}
@@ -873,35 +925,7 @@ const CreateInvoice = () => {
                             variant="body"
                             color="grey700"
                           >
-                            {hasTaxProvider
-                              ? !!taxProviderTaxesResult?.collection.length
-                                ? taxProviderTaxesResult?.collection
-                                    ?.find((t) => t.itemId === fee.addOnId)
-                                    ?.taxBreakdown?.map((tax) => (
-                                      <Typography
-                                        key={`fee-${i}-applied-taxe-${tax.name}`}
-                                        variant="body"
-                                        color="grey700"
-                                      >
-                                        {intlFormatNumber(tax?.rate || 0, {
-                                          style: 'percent',
-                                        })}
-                                      </Typography>
-                                    ))
-                                : '-'
-                              : fee.taxes?.length
-                                ? fee.taxes.map((tax) => (
-                                    <Typography
-                                      key={`fee-${i}-applied-taxe-${tax.id}`}
-                                      variant="body"
-                                      color="grey700"
-                                    >
-                                      {intlFormatNumber(tax.rate / 100 || 0, {
-                                        style: 'percent',
-                                      })}
-                                    </Typography>
-                                  ))
-                                : '0%'}
+                            {taxDisplayContent}
                           </Typography>
                           <Typography variant="body" color="grey700">
                             {!fee.units
@@ -1096,131 +1120,17 @@ const CreateInvoice = () => {
                           color="grey700"
                           data-test="one-off-invoice-subtotal-value"
                         >
-                          {hasTaxProvider
-                            ? !taxProviderSubtotalHT
-                              ? '-'
-                              : intlFormatNumber(taxProviderSubtotalHT, {
-                                  currency,
-                                })
-                            : !hasAnyFee
-                              ? '-'
-                              : intlFormatNumber(subTotal, {
-                                  currency,
-                                })}
+                          {subtotalDisplayValue}
                         </Typography>
                       </div>
-                      <>
-                        {hasTaxProvider ? (
-                          !taxProviderTaxesToDisplay.size ? (
-                            <div className={invoiceFooterLineClassname}>
-                              <Typography variant="bodyHl" color="grey600">
-                                {translate('text_6453819268763979024ad0e9')}
-                              </Typography>
-                              <Typography variant="body" color="grey700">
-                                {'-'}
-                              </Typography>
-                            </div>
-                          ) : (
-                            <>
-                              {Array.from(taxProviderTaxesToDisplay.values())
-                                .sort((a, b) => b.taxRate - a.taxRate)
-                                .map((taxToDisplay, i) => {
-                                  return (
-                                    <div
-                                      className={invoiceFooterLineClassname}
-                                      key={`one-off-invoice-tax-item-${i}`}
-                                      data-test={`one-off-invoice-tax-item-${i}`}
-                                    >
-                                      <Typography
-                                        variant="bodyHl"
-                                        color="grey600"
-                                        data-test={`one-off-invoice-tax-item-${i}-label`}
-                                      >
-                                        {taxToDisplay.label}
-                                      </Typography>
-                                      <Typography
-                                        variant="body"
-                                        color="grey700"
-                                        data-test={`one-off-invoice-tax-item-${i}-value`}
-                                      >
-                                        {taxToDisplay.hasEnumedTaxCode
-                                          ? null
-                                          : !hasAnyFee
-                                            ? '-'
-                                            : intlFormatNumber(
-                                                deserializeAmount(
-                                                  taxToDisplay.amount || 0,
-                                                  currency,
-                                                ),
-                                                {
-                                                  currency,
-                                                },
-                                              )}
-                                      </Typography>
-                                    </div>
-                                  )
-                                })}
-                            </>
-                          )
-                        ) : !!taxesToDisplay?.size ? (
-                          <>
-                            {Array.from(taxesToDisplay.values())
-                              .sort((a, b) => b.taxRate - a.taxRate)
-                              .map((taxToDisplay, i) => {
-                                return (
-                                  <div
-                                    className={invoiceFooterLineClassname}
-                                    key={`one-off-invoice-tax-item-${i}`}
-                                    data-test={`one-off-invoice-tax-item-${i}`}
-                                  >
-                                    <Typography
-                                      variant="bodyHl"
-                                      color="grey600"
-                                      data-test={`one-off-invoice-tax-item-${i}-label`}
-                                    >
-                                      {taxToDisplay.label}
-                                    </Typography>
-                                    <Typography
-                                      variant="body"
-                                      color="grey700"
-                                      data-test={`one-off-invoice-tax-item-${i}-value`}
-                                    >
-                                      {!hasAnyFee
-                                        ? '-'
-                                        : intlFormatNumber(taxToDisplay.amount, {
-                                            currency,
-                                          })}
-                                    </Typography>
-                                  </div>
-                                )
-                              })}
-                          </>
-                        ) : (
-                          <div
-                            className={invoiceFooterLineClassname}
-                            data-test="one-off-invoice-tax-item-no-tax"
-                          >
-                            <Typography
-                              variant="bodyHl"
-                              color="grey600"
-                              data-test="one-off-invoice-tax-item-no-tax-label"
-                            >
-                              {`${translate('text_6453819268763979024ad0e9')} (0%)`}
-                            </Typography>
-                            <Typography
-                              variant="body"
-                              color="grey700"
-                              data-test="one-off-invoice-tax-item-no-tax-value"
-                            >
-                              {!hasAnyFee
-                                ? '-'
-                                : intlFormatNumber(0, {
-                                    currency,
-                                  })}
-                            </Typography>
-                          </div>
-                        )}
-                      </>
+                      <InvoiceTaxesDisplay
+                        hasTaxProvider={hasTaxProvider}
+                        taxProviderTaxesToDisplay={taxProviderTaxesToDisplay}
+                        taxesToDisplay={taxesToDisplay}
+                        hasAnyFee={hasAnyFee}
+                        currency={currency}
+                        invoiceFooterLineClassname={invoiceFooterLineClassname}
+                      />
                       <div className={invoiceFooterLineClassname}>
                         <Typography variant="bodyHl" color="grey600">
                           {translate('text_6453819268763979024ad0ff')}
@@ -1230,17 +1140,7 @@ const CreateInvoice = () => {
                           color="grey700"
                           data-test="one-off-invoice-subtotal-amount-due-value"
                         >
-                          {hasTaxProvider
-                            ? !taxProviderTaxesToDisplay.size
-                              ? '-'
-                              : intlFormatNumber(taxProviderTotalTTC, {
-                                  currency,
-                                })
-                            : !hasAnyFee
-                              ? '-'
-                              : intlFormatNumber(total, {
-                                  currency,
-                                })}
+                          {amountDueValue}
                         </Typography>
                       </div>
                       <div className={invoiceFooterLineClassname}>
@@ -1252,17 +1152,7 @@ const CreateInvoice = () => {
                           color="grey700"
                           data-test="one-off-invoice-total-amount-due-value"
                         >
-                          {hasTaxProvider
-                            ? !taxProviderTaxesToDisplay.size
-                              ? '-'
-                              : intlFormatNumber(taxProviderTotalTTC, {
-                                  currency,
-                                })
-                            : !hasAnyFee
-                              ? '-'
-                              : intlFormatNumber(total, {
-                                  currency,
-                                })}
+                          {amountDueValue}
                         </Typography>
                       </div>
 
