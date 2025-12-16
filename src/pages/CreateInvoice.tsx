@@ -52,6 +52,7 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { formatInvoiceDisplayValue, invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
@@ -602,6 +603,7 @@ const CreateInvoice = () => {
     total,
     currency,
   )
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
 
   return (
     <>
@@ -622,7 +624,7 @@ const CreateInvoice = () => {
       </PageHeader.Wrapper>
       <div className="size-full">
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
-          <Card className="gap-8">
+          <Card className={tw(hasAccessToMultiPaymentFlow && 'mb-12', 'gap-8')}>
             {loading ? (
               <>
                 <div className="flex items-center justify-between">
@@ -1172,6 +1174,19 @@ const CreateInvoice = () => {
               </>
             )}
           </Card>
+
+          {hasAccessToMultiPaymentFlow && (
+            <Card>
+              <div className="flex w-[472px] flex-col gap-3">
+                <Typography variant="bodyHl" color="grey600">
+                  {translate('text_6453819268763979024ad0db')}
+                </Typography>
+                <Typography variant="body" color="grey700">
+                  {intlFormatNumber(subTotal, { currency })}
+                </Typography>
+              </div>
+            </Card>
+          )}
         </div>
 
         {!loading && (
