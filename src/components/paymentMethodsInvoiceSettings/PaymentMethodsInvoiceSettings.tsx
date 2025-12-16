@@ -35,11 +35,11 @@ export const PaymentMethodsInvoiceSettings = <T extends ViewTypeEnum>({
     [ViewTypeEnum.WalletTopUp]: {
       PaymentMethodSelection: {
         title: translate('text_17440371192353kif37ol194'),
-        description: translate('text_1762862363071z59xqjpg844'),
+        description: translate('text_1765911920689wymg5f6jmew'),
       },
       InvoceCustomFooter: {
         title: translate('text_17628623882713knw0jtohiw'),
-        description: translate('text_1762862855282gldrtploh46'),
+        description: translate('text_17659119206892z15k4n5ich'),
       },
     },
     [ViewTypeEnum.WalletRecurringTopUp]: {
