@@ -245,7 +245,7 @@ importers:
         specifier: 30.2.0
         version: 30.2.0(@babel/core@7.28.5)
       baseline-browser-mapping:
-        specifier: ^2.9.7
+        specifier: 2.9.7
         version: 2.9.7
       class-variance-authority:
         specifier: 0.7.1
