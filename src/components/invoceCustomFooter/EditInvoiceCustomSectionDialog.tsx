@@ -9,7 +9,7 @@ import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { EditInvoiceCustomSectionDialogActions } from './EditInvoiceCustomSectionDialogActions'
 import { InvoiceCustomSectionBasic } from './types'
 
-import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+import { ViewType, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_ICS_DIALOG_FALLBACK_RADIO_TEST_ID =
   'edit-invoice-custom-section-dialog-fallback-radio'
@@ -96,8 +96,14 @@ export const EditInvoiceCustomSectionDialog = ({
   }
 
   const getViewTypeLabel = (): string => {
-    if (viewType === 'subscription') {
+    if (viewType === ViewTypeEnum.Subscription) {
       return translate('text_1764327933607nrezuuiheuc')
+    }
+    if (viewType === ViewTypeEnum.WalletTopUp) {
+      return translate('text_1765895170354ovelm7g07o4')
+    }
+    if (viewType === ViewTypeEnum.WalletRecurringTopUp) {
+      return translate('text_1765959116589recur1ngrul')
     }
     return viewType
   }

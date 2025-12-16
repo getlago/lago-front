@@ -9,7 +9,7 @@ import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 import { PaymentMethodComboBox } from './PaymentMethodComboBox'
 import { SelectedPaymentMethod } from './types'
 
-import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+import { ViewType, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_PM_DIALOG_CANCEL_BUTTON_TEST_ID = 'edit-payment-method-dialog-cancel-button'
 export const EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID = 'edit-payment-method-dialog-save-button'
@@ -97,8 +97,14 @@ export const EditPaymentMethodDialog = ({
   }
 
   const getViewTypeLabel = (): string => {
-    if (viewType === 'subscription') {
+    if (viewType === ViewTypeEnum.Subscription) {
       return translate('text_1764327933607nrezuuiheuc')
+    }
+    if (viewType === ViewTypeEnum.WalletTopUp) {
+      return translate('text_1765895170354ovelm7g07o4')
+    }
+    if (viewType === ViewTypeEnum.WalletRecurringTopUp) {
+      return translate('text_1765959116589recur1ngrul')
     }
     return viewType
   }

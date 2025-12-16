@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
@@ -101,7 +102,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [
               { id: 'section-1', name: 'Section 1' },
@@ -129,7 +130,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [
               { id: 'section-1', name: 'Section 1' },
@@ -165,7 +166,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
             skipInvoiceCustomSections: true,
@@ -203,7 +204,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -236,7 +237,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -274,7 +275,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -309,7 +310,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -339,7 +340,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -366,7 +367,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
             skipInvoiceCustomSections: true,
@@ -392,7 +393,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Custom Title"
           description="Custom Description"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -414,7 +415,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
       )
@@ -456,7 +457,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
       )
@@ -494,7 +495,7 @@ describe('InvoceCustomFooter', () => {
           customerId="customer-1"
           title="Invoice Custom Sections"
           description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
       )

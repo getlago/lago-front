@@ -1,14 +1,29 @@
 import { FormikProps } from 'formik'
 
-import { GetCustomerForCreateSubscriptionQuery } from '~/generated/graphql'
+import { Customer, Maybe } from '~/generated/graphql'
 import { SubscriptionFormInput } from '~/pages/subscriptions/types'
+import { TWalletDataForm } from '~/pages/wallet/types'
 
-export type ViewType = 'subscription'
+export enum ViewTypeEnum {
+  Subscription = 'subscription',
+  WalletTopUp = 'walletTopUp',
+  WalletRecurringTopUp = 'walletRecurringTopUp',
+}
 
-export interface PaymentMethodsInvoiceSettingsProps {
-  customer: GetCustomerForCreateSubscriptionQuery['customer']
-  formikProps: FormikProps<SubscriptionFormInput>
-  viewType: ViewType
+export type ViewType = ViewTypeEnum
+
+type FormTypeMap = {
+  [ViewTypeEnum.Subscription]: SubscriptionFormInput
+  [ViewTypeEnum.WalletTopUp]: TWalletDataForm
+  [ViewTypeEnum.WalletRecurringTopUp]: TWalletDataForm
+}
+
+type CustomerForPaymentMethods = Maybe<Partial<Pick<Customer, 'id' | 'externalId'>>>
+
+export interface PaymentMethodsInvoiceSettingsProps<T extends ViewType = ViewType> {
+  customer: CustomerForPaymentMethods
+  formikProps: FormikProps<FormTypeMap[T]>
+  viewType: T
 }
 
 export interface ViewTypeExtraProps {
@@ -23,5 +38,5 @@ export interface ViewTypeExtraProps {
 }
 
 export type ViewTypeExtraPropsMap = {
-  subscription: ViewTypeExtraProps
+  [K in ViewType]: ViewTypeExtraProps
 }

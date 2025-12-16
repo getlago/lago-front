@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { ViewType } from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewType, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
@@ -55,7 +55,7 @@ function prepare({
   open = true,
   selectedPaymentMethod,
   paymentMethodsList: list = paymentMethodsList,
-  viewType = 'subscription',
+  viewType = ViewTypeEnum.Subscription,
 }: PrepareType = {}) {
   return render(
     <EditPaymentMethodDialog

@@ -1,11 +1,12 @@
 import { screen } from '@testing-library/react'
 import { FormikProps } from 'formik'
 
-import { GetCustomerForCreateSubscriptionQuery } from '~/generated/graphql'
+import { Customer } from '~/generated/graphql'
 import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 import { render } from '~/test-utils'
 
 import { PaymentMethodsInvoiceSettings } from '../PaymentMethodsInvoiceSettings'
+import { ViewTypeEnum } from '../types'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -40,7 +41,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
         <PaymentMethodsInvoiceSettings
           customer={null}
           formikProps={mockFormikProps}
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -53,13 +54,13 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const customer = {
         id: null,
         externalId: null,
-      } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
+      } as unknown as Customer
 
       const { container } = render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -70,13 +71,13 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const customer = {
         id: undefined,
         externalId: undefined,
-      } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
+      } as unknown as Customer
 
       const { container } = render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -89,13 +90,13 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const customer = {
         id: 'customer_id_123',
         externalId: 'customer_ext_123',
-      } as GetCustomerForCreateSubscriptionQuery['customer']
+      } as Customer
 
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -109,13 +110,13 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const customer = {
         id: null,
         externalId: 'customer_ext_123',
-      } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
+      } as unknown as Customer
 
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -129,13 +130,13 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const customer = {
         id: 'customer_id_123',
         externalId: null,
-      } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
+      } as unknown as Customer
 
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -147,13 +148,13 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const customer = {
         id: 'customer_id_123',
         externalId: undefined,
-      } as unknown as GetCustomerForCreateSubscriptionQuery['customer']
+      } as unknown as Customer
 
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
           formikProps={mockFormikProps}
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 

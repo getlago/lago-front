@@ -6,7 +6,7 @@ import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCust
 
 import { InvoiceCustomSectionBasic } from './types'
 
-import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+import { ViewType, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const SECTION_CHIP = (sectionId: string) =>
   `invoice-custom-section-display-chip-${sectionId}`
@@ -102,8 +102,14 @@ export const InvoiceCustomSectionDisplay = ({
   }, [selectedSections, skipSections, customerData])
 
   const getViewTypeLabel = (): string => {
-    if (viewType === 'subscription') {
+    if (viewType === ViewTypeEnum.Subscription) {
       return translate('text_1764327933607nrezuuiheuc')
+    }
+    if (viewType === ViewTypeEnum.WalletTopUp) {
+      return translate('text_1765895170354ovelm7g07o4')
+    }
+    if (viewType === ViewTypeEnum.WalletRecurringTopUp) {
+      return translate('text_1765959116589recur1ngrul')
     }
     return viewType
   }

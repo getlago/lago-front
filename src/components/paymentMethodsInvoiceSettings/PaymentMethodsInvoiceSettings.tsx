@@ -1,15 +1,19 @@
-import { Card } from '~/components/designSystem'
 import { InvoceCustomFooter } from '~/components/invoceCustomFooter/InvoceCustomFooter'
 import { PaymentMethodSelection } from '~/components/paymentMethodSelection/PaymentMethodSelection'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { PaymentMethodsInvoiceSettingsProps, ViewTypeExtraPropsMap } from './types'
+import {
+  PaymentMethodsInvoiceSettingsProps,
+  ViewType,
+  ViewTypeEnum,
+  ViewTypeExtraPropsMap,
+} from './types'
 
-export const PaymentMethodsInvoiceSettings = ({
+export const PaymentMethodsInvoiceSettings = <T extends ViewType>({
   customer,
   formikProps,
   viewType,
-}: PaymentMethodsInvoiceSettingsProps) => {
+}: PaymentMethodsInvoiceSettingsProps<T>) => {
   const { translate } = useInternationalization()
 
   if (!customer) return null
@@ -19,7 +23,7 @@ export const PaymentMethodsInvoiceSettings = ({
   if (!id && !externalId) return null
 
   const extraProps: ViewTypeExtraPropsMap = {
-    subscription: {
+    [ViewTypeEnum.Subscription]: {
       PaymentMethodSelection: {
         title: translate('text_17440371192353kif37ol194'),
         description: translate('text_1762862363071z59xqjpg844'),
@@ -29,6 +33,26 @@ export const PaymentMethodsInvoiceSettings = ({
         description: translate('text_1762862855282gldrtploh46'),
       },
     },
+    [ViewTypeEnum.WalletTopUp]: {
+      PaymentMethodSelection: {
+        title: translate('text_17440371192353kif37ol194'),
+        description: translate('text_1762862363071z59xqjpg844'),
+      },
+      InvoceCustomFooter: {
+        title: translate('text_17628623882713knw0jtohiw'),
+        description: translate('text_1762862855282gldrtploh46'),
+      },
+    },
+    [ViewTypeEnum.WalletRecurringTopUp]: {
+      PaymentMethodSelection: {
+        title: translate('text_17440371192353kif37ol194'),
+        description: translate('text_1765897537099nqupfwk74wg'),
+      },
+      InvoceCustomFooter: {
+        title: translate('text_17628623882713knw0jtohiw'),
+        description: translate('text_1765897537099lgkq6xuiwdw'),
+      },
+    },
   }
 
   const currentExtraProps = extraProps[viewType]
@@ -36,7 +60,7 @@ export const PaymentMethodsInvoiceSettings = ({
   if (!currentExtraProps) return null
 
   return (
-    <Card>
+    <>
       {externalId && (
         <PaymentMethodSelection
           viewType={viewType}
@@ -59,6 +83,6 @@ export const PaymentMethodsInvoiceSettings = ({
           {...currentExtraProps.InvoceCustomFooter}
         />
       )}
-    </Card>
+    </>
   )
 }

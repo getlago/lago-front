@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
@@ -59,6 +60,15 @@ gql`
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
     priority
+    paymentMethodType
+    paymentMethod {
+      id
+    }
+    skipInvoiceCustomSections
+    selectedInvoiceCustomSections {
+      id
+      name
+    }
     appliesTo {
       feeTypes
       billableMetrics {
@@ -91,6 +101,7 @@ gql`
   query getCustomerInfosForWalletForm($id: ID!) {
     customer(id: $id) {
       id
+      externalId
       currency
       timezone
     }
@@ -243,6 +254,14 @@ const CreateWallet = () => {
         : undefined,
       ignorePaidTopUpLimitsOnCreation: false,
       priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
+      paymentMethod: {
+        paymentMethodType: wallet?.paymentMethodType,
+        paymentMethodId: wallet?.paymentMethod?.id,
+      },
+      invoiceCustomSection: {
+        invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],
+        skipInvoiceCustomSections: wallet?.skipInvoiceCustomSections || false,
+      },
     },
     validationSchema: walletFormSchema(),
     validateOnMount: true,
@@ -255,6 +274,8 @@ const CreateWallet = () => {
       recurringTransactionRules,
       appliesTo,
       priority,
+      paymentMethod,
+      invoiceCustomSection,
       ...values
     }) => {
       const recurringTransactionRulesFormatted =
@@ -324,6 +345,8 @@ const CreateWallet = () => {
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
           appliesTo: formattedAppliesTo,
+          paymentMethod,
+          invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
           ...(values.paidTopUpMinAmountCents
             ? {
                 paidTopUpMinAmountCents: serializeAmount(
@@ -363,6 +386,8 @@ const CreateWallet = () => {
           paidCredits: paidCredits === '' ? '0' : String(paidCredits),
           recurringTransactionRules: recurringTransactionRulesFormatted,
           appliesTo: formattedAppliesTo,
+          paymentMethod,
+          invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
           ...(values.paidTopUpMinAmountCents
             ? {
                 paidTopUpMinAmountCents: serializeAmount(

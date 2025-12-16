@@ -15,6 +15,8 @@ import {
   SwitchField,
   TextInputField,
 } from '~/components/form'
+import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
@@ -28,6 +30,7 @@ import {
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
@@ -157,6 +160,8 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   const hasMinMax =
     !!formikProps?.values?.paidTopUpMinAmountCents || !!formikProps?.values?.paidTopUpMaxAmountCents
 
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+
   return (
     <>
       <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
@@ -238,6 +243,23 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
           />
         )}
       </section>
+
+      {hasAccessToMultiPaymentFlow &&
+        (customerData?.customer?.externalId || customerData?.customer?.id) && (
+          <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_17634566456760qoj7hs7jrh')}
+              </Typography>
+            </div>
+            <PaymentMethodsInvoiceSettings
+              customer={customerData?.customer}
+              formikProps={formikProps}
+              viewType={ViewTypeEnum.WalletTopUp}
+            />
+          </section>
+        )}
+
       <section className="flex w-full flex-col gap-6">
         <div className="flex flex-col gap-1">
           <Typography variant="subhead1">{translate('text_1741101674268ag60i0cc55m')}</Typography>
@@ -608,6 +630,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                 </Button>
               )}
             </div>
+
             <div className="flex flex-col gap-6 p-4">
               <div>
                 <Typography variant="bodyHl" color="textSecondary">

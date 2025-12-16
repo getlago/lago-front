@@ -7,6 +7,7 @@ import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { InvoiceCustomSectionDisplay } from '../invoceCustomFooter/InvoiceCustomSectionDisplay'
 import { SelectedPaymentMethod } from '../paymentMethodSelection/types'
 import { useDisplayedPaymentMethod } from '../paymentMethodSelection/useDisplayedPaymentMethod'
+import { ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 interface PaymentInvoiceDetailsProps {
   selectedPaymentMethod: SelectedPaymentMethod
@@ -102,7 +103,7 @@ export const PaymentInvoiceDetails = ({
                 selectedSections={selectedInvoiceCustomSections}
                 skipSections={skipInvoiceCustomSections}
                 customerId={customerId}
-                viewType="subscription"
+                viewType={ViewTypeEnum.Subscription}
               />
             }
           />
