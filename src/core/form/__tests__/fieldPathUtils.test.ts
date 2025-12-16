@@ -15,8 +15,8 @@ describe('getFieldPath', () => {
     )
   })
 
-  it('should handle empty string basePath', () => {
-    expect(getFieldPath('paymentMethod', '')).toBe('.paymentMethod')
+  it('should handle empty string basePath as no basePath', () => {
+    expect(getFieldPath('paymentMethod', '')).toBe('paymentMethod')
   })
 
   it('should handle nested basePath', () => {
