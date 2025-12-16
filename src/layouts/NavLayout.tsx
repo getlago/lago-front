@@ -4,7 +4,7 @@ import { forwardRef, PropsWithChildren } from 'react'
 import { Button } from '~/components/designSystem'
 
 const NavWrapper = ({ children }: PropsWithChildren) => {
-  return <div className="flex h-screen w-screen">{children}</div>
+  return <div className="flex h-screen w-full">{children}</div>
 }
 
 // Need to accept ref cause it's used within a ClickAwayListener

@@ -18,7 +18,6 @@ import {
 } from '~/components/designSystem'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   ADD_ON_DETAILS_ROUTE,
@@ -545,18 +544,6 @@ const MainNavLayout = () => {
                       } as TabProps,
                     ]
                   : []),
-                {
-                  title: translate('text_63fdd3e4076c80ecf4136f33'),
-                  icon: 'bulb',
-                  link: FEATURE_REQUESTS_URL,
-                  external: true,
-                },
-                {
-                  title: translate('text_6295e58352f39200d902b01c'),
-                  icon: 'book',
-                  link: DOCUMENTATION_URL,
-                  external: true,
-                },
                 {
                   title: translate('text_62728ff857d47b013204c726'),
                   icon: 'settings',

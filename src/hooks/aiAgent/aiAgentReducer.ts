@@ -31,6 +31,10 @@ export enum ChatActionType {
    * Reset the conversation
    */
   RESET_CONVERSATION = 'RESET_CONVERSATION',
+  /**
+   * Set the previous chat messages
+   */
+  SET_PREVIOUS_CHAT_MESSAGES = 'SET_PREVIOUS_CHAT_MESSAGES',
 }
 
 export type ChatMessage = {
@@ -43,6 +47,7 @@ export type ChatMessage = {
 export type ChatState = {
   messages: ChatMessage[]
   isLoading: boolean
+  isStreaming: boolean
 }
 
 type ChatAction =
@@ -51,6 +56,7 @@ type ChatAction =
   | { type: ChatActionType.DONE; messageId: string }
   | { type: ChatActionType.ADD_INPUT; message: string }
   | { type: ChatActionType.RESET_CONVERSATION }
+  | { type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES; messages: ChatMessage[] }
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
   switch (action.type) {
@@ -72,6 +78,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
       return {
         ...state,
         messages: [userMsg, assistantMsg],
+        isStreaming: false,
         isLoading: true,
       }
     }
@@ -88,7 +95,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
               }
             : message,
         ),
-        isLoading: true,
+        isStreaming: true,
+        isLoading: false,
       }
     }
 
@@ -103,6 +111,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
               }
             : message,
         ),
+        isStreaming: false,
         isLoading: false,
       }
     }
@@ -126,6 +135,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         ...state,
         messages: [...state.messages, userMsg, assistantMsg],
         isLoading: true,
+        isStreaming: false,
       }
     }
 
@@ -134,6 +144,16 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         ...state,
         messages: [],
         isLoading: false,
+        isStreaming: false,
+      }
+    }
+
+    case ChatActionType.SET_PREVIOUS_CHAT_MESSAGES: {
+      return {
+        ...state,
+        messages: action.messages,
+        isLoading: false,
+        isStreaming: false,
       }
     }
 
