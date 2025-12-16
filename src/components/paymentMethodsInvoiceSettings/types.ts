@@ -24,6 +24,7 @@ export interface PaymentMethodsInvoiceSettingsProps<T extends ViewType = ViewTyp
   customer: CustomerForPaymentMethods
   formikProps: FormikProps<FormTypeMap[T]>
   viewType: T
+  basePath?: string
 }
 
 export interface ViewTypeExtraProps {

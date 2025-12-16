@@ -1,5 +1,8 @@
 import { InvoceCustomFooter } from '~/components/invoceCustomFooter/InvoceCustomFooter'
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { PaymentMethodSelection } from '~/components/paymentMethodSelection/PaymentMethodSelection'
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { getFieldPath, getFieldValue } from '~/core/form/fieldPathUtils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import {
@@ -13,6 +16,7 @@ export const PaymentMethodsInvoiceSettings = <T extends ViewType>({
   customer,
   formikProps,
   viewType,
+  basePath,
 }: PaymentMethodsInvoiceSettingsProps<T>) => {
   const { translate } = useInternationalization()
 
@@ -65,9 +69,13 @@ export const PaymentMethodsInvoiceSettings = <T extends ViewType>({
         <PaymentMethodSelection
           viewType={viewType}
           externalCustomerId={externalId}
-          selectedPaymentMethod={formikProps.values?.paymentMethod}
+          selectedPaymentMethod={getFieldValue<SelectedPaymentMethod>(
+            'paymentMethod',
+            formikProps.values,
+            basePath,
+          )}
           setSelectedPaymentMethod={(item) => {
-            formikProps.setFieldValue('paymentMethod', item)
+            formikProps.setFieldValue(getFieldPath('paymentMethod', basePath), item)
           }}
           {...currentExtraProps.PaymentMethodSelection}
         />
@@ -76,9 +84,15 @@ export const PaymentMethodsInvoiceSettings = <T extends ViewType>({
         <InvoceCustomFooter
           customerId={id}
           viewType={viewType}
-          invoiceCustomSection={formikProps.values?.invoiceCustomSection ?? undefined}
+          invoiceCustomSection={
+            getFieldValue<InvoiceCustomSectionInput>(
+              'invoiceCustomSection',
+              formikProps.values,
+              basePath,
+            ) ?? undefined
+          }
           setInvoiceCustomSection={(item) => {
-            formikProps.setFieldValue('invoiceCustomSection', item)
+            formikProps.setFieldValue(getFieldPath('invoiceCustomSection', basePath), item)
           }}
           {...currentExtraProps.InvoceCustomFooter}
         />

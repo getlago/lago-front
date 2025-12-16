@@ -631,6 +631,18 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
               )}
             </div>
 
+            {hasAccessToMultiPaymentFlow &&
+              (customerData?.customer?.externalId || customerData?.customer?.id) && (
+                <div className="flex flex-col gap-6 p-4 shadow-b">
+                  <PaymentMethodsInvoiceSettings
+                    customer={customerData?.customer}
+                    formikProps={formikProps}
+                    basePath="recurringTransactionRules.0"
+                    viewType={ViewTypeEnum.WalletRecurringTopUp}
+                  />
+                </div>
+              )}
+
             <div className="flex flex-col gap-6 p-4">
               <div>
                 <Typography variant="bodyHl" color="textSecondary">
