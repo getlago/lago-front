@@ -5,14 +5,9 @@ import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types
 import { getFieldPath, getFieldValue } from '~/core/form/fieldPathUtils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import {
-  PaymentMethodsInvoiceSettingsProps,
-  ViewType,
-  ViewTypeEnum,
-  ViewTypeExtraPropsMap,
-} from './types'
+import { PaymentMethodsInvoiceSettingsProps, ViewTypeEnum, ViewTypeExtraPropsMap } from './types'
 
-export const PaymentMethodsInvoiceSettings = <T extends ViewType>({
+export const PaymentMethodsInvoiceSettings = <T extends ViewTypeEnum>({
   customer,
   formikProps,
   viewType,

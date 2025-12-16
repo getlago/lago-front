@@ -11,7 +11,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
 import { InvoiceCustomSectionInput } from './types'
 
-import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_BUTTON = 'invoice-custom-footer-edit-button'
 
@@ -19,7 +19,7 @@ interface InvoceCustomFooterProps {
   customerId: string
   title: string
   description: string
-  viewType: ViewType
+  viewType: ViewTypeEnum
   invoiceCustomSection?: InvoiceCustomSectionInput
   setInvoiceCustomSection?: (item: InvoiceCustomSectionInput) => void
 }

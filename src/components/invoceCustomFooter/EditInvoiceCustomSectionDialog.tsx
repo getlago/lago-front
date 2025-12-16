@@ -9,7 +9,7 @@ import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { EditInvoiceCustomSectionDialogActions } from './EditInvoiceCustomSectionDialogActions'
 import { InvoiceCustomSectionBasic } from './types'
 
-import { ViewType, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_ICS_DIALOG_FALLBACK_RADIO_TEST_ID =
   'edit-invoice-custom-section-dialog-fallback-radio'
@@ -33,7 +33,7 @@ interface EditInvoiceCustomSectionDialogProps {
   selectedSections: InvoiceCustomSectionBasic[]
   skipInvoiceCustomSections: boolean
   onSave: (selection: InvoiceCustomSectionSelection) => void
-  viewType: ViewType
+  viewType: ViewTypeEnum
 }
 
 export const EditInvoiceCustomSectionDialog = ({
@@ -95,18 +95,7 @@ export const EditInvoiceCustomSectionDialog = ({
     return false
   }
 
-  const getViewTypeLabel = (): string => {
-    if (viewType === ViewTypeEnum.Subscription) {
-      return translate('text_1764327933607nrezuuiheuc')
-    }
-    if (viewType === ViewTypeEnum.WalletTopUp) {
-      return translate('text_1765895170354ovelm7g07o4')
-    }
-    if (viewType === ViewTypeEnum.WalletRecurringTopUp) {
-      return translate('text_1765959116589recur1ngrul')
-    }
-    return viewType
-  }
+  const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
 
   const handleComboboxChange = (
     selectedOptions: { value: string; label?: string | null }[],
@@ -122,8 +111,8 @@ export const EditInvoiceCustomSectionDialog = ({
   return (
     <Dialog
       open={open}
-      title={translate('text_1765363318309snvsqc74nit', { object: getViewTypeLabel() })}
-      description={translate('text_1765363318310io596s2cy1y', { object: getViewTypeLabel() })}
+      title={translate('text_1765363318309snvsqc74nit', { object: viewTypeLabel })}
+      description={translate('text_1765363318310io596s2cy1y', { object: viewTypeLabel })}
       onClose={onClose}
       actions={({ closeDialog }) => (
         <EditInvoiceCustomSectionDialogActions
@@ -152,7 +141,7 @@ export const EditInvoiceCustomSectionDialog = ({
               value={InvoiceCustomSectionBehavior.APPLY}
               checked={behavior === InvoiceCustomSectionBehavior.APPLY}
               onChange={(value) => setBehavior(value as InvoiceCustomSectionBehavior)}
-              label={translate('text_1765363318310cus5jjpugdm', { object: getViewTypeLabel() })}
+              label={translate('text_1765363318310cus5jjpugdm', { object: viewTypeLabel })}
               labelVariant="body"
             />
           </div>
@@ -182,7 +171,7 @@ export const EditInvoiceCustomSectionDialog = ({
             value={InvoiceCustomSectionBehavior.NONE}
             checked={behavior === InvoiceCustomSectionBehavior.NONE}
             onChange={(value) => setBehavior(value as InvoiceCustomSectionBehavior)}
-            label={translate('text_1765363318310e0gyrs2ijkn', { object: getViewTypeLabel() })}
+            label={translate('text_1765363318310e0gyrs2ijkn', { object: viewTypeLabel })}
             labelVariant="body"
           />
         </div>

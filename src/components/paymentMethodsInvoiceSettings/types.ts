@@ -10,7 +10,11 @@ export enum ViewTypeEnum {
   WalletRecurringTopUp = 'walletRecurringTopUp',
 }
 
-export type ViewType = ViewTypeEnum
+export const VIEW_TYPE_TRANSLATION_KEYS: Record<ViewTypeEnum, string> = {
+  [ViewTypeEnum.Subscription]: 'text_1764327933607nrezuuiheuc',
+  [ViewTypeEnum.WalletTopUp]: 'text_1765895170354ovelm7g07o4',
+  [ViewTypeEnum.WalletRecurringTopUp]: 'text_1765959116589recur1ngrul',
+}
 
 type FormTypeMap = {
   [ViewTypeEnum.Subscription]: SubscriptionFormInput
@@ -20,7 +24,7 @@ type FormTypeMap = {
 
 type CustomerForPaymentMethods = Maybe<Partial<Pick<Customer, 'id' | 'externalId'>>>
 
-export interface PaymentMethodsInvoiceSettingsProps<T extends ViewType = ViewType> {
+export interface PaymentMethodsInvoiceSettingsProps<T extends ViewTypeEnum = ViewTypeEnum> {
   customer: CustomerForPaymentMethods
   formikProps: FormikProps<FormTypeMap[T]>
   viewType: T
@@ -39,5 +43,5 @@ export interface ViewTypeExtraProps {
 }
 
 export type ViewTypeExtraPropsMap = {
-  [K in ViewType]: ViewTypeExtraProps
+  [K in ViewTypeEnum]: ViewTypeExtraProps
 }

@@ -6,7 +6,7 @@ import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCust
 
 import { InvoiceCustomSectionBasic } from './types'
 
-import { ViewType, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const SECTION_CHIP = (sectionId: string) =>
   `invoice-custom-section-display-chip-${sectionId}`
@@ -32,7 +32,7 @@ interface InvoiceCustomSectionDisplayProps {
   selectedSections?: InvoiceCustomSectionBasic[] | null
   skipSections?: boolean | null
   customerId?: string
-  viewType: ViewType
+  viewType: ViewTypeEnum
 }
 
 /**
@@ -101,18 +101,7 @@ export const InvoiceCustomSectionDisplay = ({
     return { type: 'fallback_empty' }
   }, [selectedSections, skipSections, customerData])
 
-  const getViewTypeLabel = (): string => {
-    if (viewType === ViewTypeEnum.Subscription) {
-      return translate('text_1764327933607nrezuuiheuc')
-    }
-    if (viewType === ViewTypeEnum.WalletTopUp) {
-      return translate('text_1765895170354ovelm7g07o4')
-    }
-    if (viewType === ViewTypeEnum.WalletRecurringTopUp) {
-      return translate('text_1765959116589recur1ngrul')
-    }
-    return viewType
-  }
+  const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
 
   switch (displayState.type) {
     case 'apply':
@@ -121,7 +110,7 @@ export const InvoiceCustomSectionDisplay = ({
     case 'none':
       return (
         <Typography variant="body" color="grey700" data-test={SKIP_LABEL}>
-          {translate('text_176537313551954twfx3pys9', { object: getViewTypeLabel() })}
+          {translate('text_176537313551954twfx3pys9', { object: viewTypeLabel })}
         </Typography>
       )
 
@@ -138,7 +127,7 @@ export const InvoiceCustomSectionDisplay = ({
     case 'fallback_customer_skip':
       return (
         <Typography variant="body" color="grey700" data-test={SKIP_LABEL}>
-          {translate('text_17653731355193nuiojugqom', { object: getViewTypeLabel() })}
+          {translate('text_17653731355193nuiojugqom', { object: viewTypeLabel })}
         </Typography>
       )
 
