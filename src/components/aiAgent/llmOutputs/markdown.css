@@ -24,9 +24,14 @@
   @apply my-6 border-grey-300;
 }
 
+.markdown em,
+.markdown strong {
+  @apply font-semibold;
+}
+
 .markdown ul,
 .markdown ol {
-  @apply mb-2 pl-4;
+  @apply my-4 ml-4 pl-4;
 }
 
 .markdown li {

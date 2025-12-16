@@ -4,6 +4,7 @@ export enum FeatureFlags {
   ANALYTICS_USAGE = 'analyticsUsage',
   FIXED_CHARGES = 'fixedCharges',
   MULTI_PAYMENT_FLOW = 'multiPaymentFlow',
+  AI_AGENT = 'aiAgent',
 }
 
 const FF_KEY = 'featureFlags'
