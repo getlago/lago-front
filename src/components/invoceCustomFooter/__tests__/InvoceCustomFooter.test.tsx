@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
@@ -99,9 +100,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [
               { id: 'section-1', name: 'Section 1' },
@@ -127,9 +126,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [
               { id: 'section-1', name: 'Section 1' },
@@ -163,9 +160,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
             skipInvoiceCustomSections: true,
@@ -201,9 +196,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -234,9 +227,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -272,9 +263,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -307,9 +296,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
             skipInvoiceCustomSections: false,
@@ -334,14 +321,7 @@ describe('InvoceCustomFooter', () => {
     })
 
     it('THEN opens dialog when edit button is clicked', async () => {
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
-        />,
-      )
+      render(<InvoceCustomFooter customerId="customer-1" viewType={ViewTypeEnum.Subscription} />)
 
       const editButton = screen.getByTestId(EDIT_BUTTON)
 
@@ -364,9 +344,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
             skipInvoiceCustomSections: true,
@@ -386,18 +364,11 @@ describe('InvoceCustomFooter', () => {
       expect(dialogCall?.selectedSections).toEqual([{ id: 'section-1', name: 'Section 1' }])
     })
 
-    it('THEN displays title and description when provided', async () => {
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Custom Title"
-          description="Custom Description"
-          viewType="subscription"
-        />,
-      )
+    it('THEN displays default title and description', async () => {
+      render(<InvoceCustomFooter customerId="customer-1" viewType={ViewTypeEnum.Subscription} />)
 
-      expect(screen.getByText('Custom Title')).toBeInTheDocument()
-      expect(screen.getByText('Custom Description')).toBeInTheDocument()
+      // The component displays hardcoded translation keys
+      expect(screen.getByText('text_17628623882713knw0jtohiw')).toBeInTheDocument()
     })
   })
 
@@ -412,9 +383,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
       )
@@ -454,9 +423,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
       )
@@ -492,9 +459,7 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
       )

@@ -1,64 +1,55 @@
-import { Card } from '~/components/designSystem'
 import { InvoceCustomFooter } from '~/components/invoceCustomFooter/InvoceCustomFooter'
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { PaymentMethodSelection } from '~/components/paymentMethodSelection/PaymentMethodSelection'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { getFieldPath, getFieldValue } from '~/core/form/fieldPathUtils'
 
-import { PaymentMethodsInvoiceSettingsProps, ViewTypeExtraPropsMap } from './types'
+import { PaymentMethodsInvoiceSettingsProps, ViewTypeEnum } from './types'
 
-export const PaymentMethodsInvoiceSettings = ({
+export const PaymentMethodsInvoiceSettings = <T extends ViewTypeEnum>({
   customer,
   formikProps,
   viewType,
-}: PaymentMethodsInvoiceSettingsProps) => {
-  const { translate } = useInternationalization()
-
+  formFieldBasePath,
+}: PaymentMethodsInvoiceSettingsProps<T>) => {
   if (!customer) return null
 
   const { id, externalId } = customer
 
   if (!id && !externalId) return null
 
-  const extraProps: ViewTypeExtraPropsMap = {
-    subscription: {
-      PaymentMethodSelection: {
-        title: translate('text_17440371192353kif37ol194'),
-        description: translate('text_1762862363071z59xqjpg844'),
-      },
-      InvoceCustomFooter: {
-        title: translate('text_17628623882713knw0jtohiw'),
-        description: translate('text_1762862855282gldrtploh46'),
-      },
-    },
-  }
-
-  const currentExtraProps = extraProps[viewType]
-
-  if (!currentExtraProps) return null
-
   return (
-    <Card>
+    <>
       {externalId && (
         <PaymentMethodSelection
           viewType={viewType}
           externalCustomerId={externalId}
-          selectedPaymentMethod={formikProps.values?.paymentMethod}
+          selectedPaymentMethod={getFieldValue<SelectedPaymentMethod>(
+            'paymentMethod',
+            formikProps.values,
+            formFieldBasePath,
+          )}
           setSelectedPaymentMethod={(item) => {
-            formikProps.setFieldValue('paymentMethod', item)
+            formikProps.setFieldValue(getFieldPath('paymentMethod', formFieldBasePath), item)
           }}
-          {...currentExtraProps.PaymentMethodSelection}
         />
       )}
       {id && (
         <InvoceCustomFooter
           customerId={id}
           viewType={viewType}
-          invoiceCustomSection={formikProps.values?.invoiceCustomSection ?? undefined}
+          invoiceCustomSection={
+            getFieldValue<InvoiceCustomSectionInput>(
+              'invoiceCustomSection',
+              formikProps.values,
+              formFieldBasePath,
+            ) ?? undefined
+          }
           setInvoiceCustomSection={(item) => {
-            formikProps.setFieldValue('invoiceCustomSection', item)
+            formikProps.setFieldValue(getFieldPath('invoiceCustomSection', formFieldBasePath), item)
           }}
-          {...currentExtraProps.InvoceCustomFooter}
         />
       )}
-    </Card>
+    </>
   )
 }

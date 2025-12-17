@@ -15,7 +15,11 @@ import {
   WarningDialogRef,
 } from '~/components/designSystem'
 import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import {
   ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
@@ -28,6 +32,7 @@ import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
@@ -37,6 +42,7 @@ import {
   CreateCustomerWalletTransactionInput,
   CurrencyEnum,
   useCreateCustomerWalletTransactionMutation,
+  useGetCustomerInfosForWalletFormQuery,
   useGetCustomerWalletListQuery,
   useGetInvoiceStatusQuery,
   useGetWalletForTopUpQuery,
@@ -116,6 +122,13 @@ const CreateWalletTopUp = () => {
 
   const wallet = data?.wallet
 
+  const { data: customerData } = useGetCustomerInfosForWalletFormQuery({
+    variables: { id: customerId },
+    skip: !customerId,
+  })
+
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 
   const [createWallet] = useCreateCustomerWalletTransactionMutation({
@@ -185,6 +198,8 @@ const CreateWalletTopUp = () => {
       paidCredits,
       invoiceRequiresSuccessfulPayment,
       ignorePaidTopUpLimits,
+      invoiceCustomSection,
+      paymentMethod,
       ...rest
     }) => {
       if (!wallet) return
@@ -217,6 +232,10 @@ const CreateWalletTopUp = () => {
             paidCredits: paidCredits === '' ? '0' : String(paidCredits),
             invoiceRequiresSuccessfulPayment,
             ignorePaidTopUpLimits,
+            paymentMethod,
+            invoiceCustomSection: toInvoiceCustomSectionReference(
+              invoiceCustomSection as InvoiceCustomSectionInput,
+            ),
           },
         },
         refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
@@ -455,6 +474,22 @@ const CreateWalletTopUp = () => {
                 </Typography>
               </Alert>
             </section>
+
+            {hasAccessToMultiPaymentFlow &&
+              (customerData?.customer?.externalId || customerData?.customer?.id) && (
+                <section className="flex flex-col gap-6 pb-12 shadow-b">
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="subhead1">
+                      {translate('text_17634566456760qoj7hs7jrh')}
+                    </Typography>
+                  </div>
+                  <PaymentMethodsInvoiceSettings
+                    customer={customerData?.customer}
+                    formikProps={formikProps}
+                    viewType={ViewTypeEnum.WalletTransactionTopUp}
+                  />
+                </section>
+              )}
 
             <section className="flex flex-col gap-6">
               <Accordion

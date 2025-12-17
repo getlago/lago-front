@@ -1,7 +1,7 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { ViewType } from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 import { render } from '~/test-utils'
 
@@ -44,7 +44,7 @@ function prepare({
   skipInvoiceCustomSections = false,
   onSave = jest.fn(),
   onClose = jest.fn(),
-  viewType = 'subscription',
+  viewType = ViewTypeEnum.Subscription,
   loading = false,
 }: {
   open?: boolean
@@ -55,7 +55,7 @@ function prepare({
     selectedSections: InvoiceCustomSectionBasic[]
   }) => void
   onClose?: () => void
-  viewType?: ViewType
+  viewType?: ViewTypeEnum
   loading?: boolean
 } = {}) {
   mockUseInvoiceCustomSections.mockReturnValue({
