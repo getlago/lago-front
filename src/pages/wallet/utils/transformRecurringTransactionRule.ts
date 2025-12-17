@@ -1,13 +1,10 @@
 import { GetWalletInfosForWalletFormQuery } from '~/generated/graphql'
 
-type RecurringTransactionRuleFromQuery =
-  NonNullable<
-    NonNullable<GetWalletInfosForWalletFormQuery['wallet']>['recurringTransactionRules']
-  >[number]
+type RecurringTransactionRuleFromQuery = NonNullable<
+  NonNullable<GetWalletInfosForWalletFormQuery['wallet']>['recurringTransactionRules']
+>[number]
 
-export const transformRecurringTransactionRule = (
-  rule: RecurringTransactionRuleFromQuery,
-) => {
+export const transformRecurringTransactionRule = (rule: RecurringTransactionRuleFromQuery) => {
   // Extract and exclude fields that are not part of CreateRecurringTransactionRuleInput/UpdateRecurringTransactionRuleInput
   // These fields come from the GraphQL query but should not be included in the form values
   const fieldsToExclude = [
@@ -32,4 +29,3 @@ export const transformRecurringTransactionRule = (
     },
   }
 }
-

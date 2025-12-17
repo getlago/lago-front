@@ -1,11 +1,16 @@
-import { GetWalletInfosForWalletFormQuery } from '~/generated/graphql'
+import {
+  GetWalletInfosForWalletFormQuery,
+  PaymentMethodTypeEnum,
+  RecurringTransactionIntervalEnum,
+  RecurringTransactionMethodEnum,
+  RecurringTransactionTriggerEnum,
+} from '~/generated/graphql'
 
 import { transformRecurringTransactionRule } from '../transformRecurringTransactionRule'
 
-type RecurringTransactionRuleFromQuery =
-  NonNullable<
-    NonNullable<GetWalletInfosForWalletFormQuery['wallet']>['recurringTransactionRules']
-  >[number]
+type RecurringTransactionRuleFromQuery = NonNullable<
+  NonNullable<GetWalletInfosForWalletFormQuery['wallet']>['recurringTransactionRules']
+>[number]
 
 describe('transformRecurringTransactionRule', () => {
   const createMockRule = (
@@ -14,18 +19,18 @@ describe('transformRecurringTransactionRule', () => {
     return {
       expirationAt: null,
       grantedCredits: '100',
-      interval: 'monthly',
+      interval: RecurringTransactionIntervalEnum.Monthly,
       invoiceRequiresSuccessfulPayment: false,
       lagoId: 'rule-id',
-      method: 'target',
+      method: RecurringTransactionMethodEnum.Target,
       paidCredits: '50',
       startedAt: '2024-01-01T00:00:00Z',
       targetOngoingBalance: '200',
       thresholdCredits: '150',
       transactionName: 'Test Transaction',
-      trigger: 'interval',
+      trigger: RecurringTransactionTriggerEnum.Interval,
       ignorePaidTopUpLimits: false,
-      paymentMethodType: 'provider',
+      paymentMethodType: PaymentMethodTypeEnum.Provider,
       paymentMethod: {
         id: 'payment-method-id',
         __typename: 'PaymentMethod',
@@ -51,21 +56,21 @@ describe('transformRecurringTransactionRule', () => {
   it('should preserve all other fields from the original rule', () => {
     const rule = createMockRule({
       grantedCredits: '200',
-      interval: 'weekly',
+      interval: RecurringTransactionIntervalEnum.Weekly,
       transactionName: 'Custom Transaction',
     })
     const result = transformRecurringTransactionRule(rule)
 
     expect(result.grantedCredits).toBe('200')
-    expect(result.interval).toBe('weekly')
+    expect(result.interval).toBe(RecurringTransactionIntervalEnum.Weekly)
     expect(result.transactionName).toBe('Custom Transaction')
     expect(result.lagoId).toBe('rule-id')
-    expect(result.method).toBe('target')
+    expect(result.method).toBe(RecurringTransactionMethodEnum.Target)
   })
 
   it('should transform paymentMethodType and paymentMethod.id into paymentMethod object', () => {
     const rule = createMockRule({
-      paymentMethodType: 'manual',
+      paymentMethodType: PaymentMethodTypeEnum.Manual,
       paymentMethod: {
         id: 'custom-payment-id',
         __typename: 'PaymentMethod',
@@ -74,7 +79,7 @@ describe('transformRecurringTransactionRule', () => {
     const result = transformRecurringTransactionRule(rule)
 
     expect(result.paymentMethod).toEqual({
-      paymentMethodType: 'manual',
+      paymentMethodType: PaymentMethodTypeEnum.Manual,
       paymentMethodId: 'custom-payment-id',
     })
   })
@@ -109,4 +114,3 @@ describe('transformRecurringTransactionRule', () => {
     })
   })
 })
-
