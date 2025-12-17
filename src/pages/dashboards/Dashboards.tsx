@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { embedDashboard } from '@superset-ui/embedded-sdk'
-import { useEffect } from 'react'
+import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Skeleton, Typography } from '~/components/designSystem'
 import { envGlobalVar } from '~/core/apolloClient'
-import { useSupersetDashboardsQuery } from '~/generated/graphql'
+import { SupersetDashboard, useSupersetDashboardsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
 import { PageHeader } from '~/styles'
@@ -18,38 +18,74 @@ gql`
       embeddedId
       dashboardTitle
       guestToken
-      supersetUrl
     }
   }
 `
 
+const currentDashboard = (dashboards: Omit<SupersetDashboard, 'supersetUrl'>[] | undefined) => {
+  return dashboards?.find((d) => d.id === '1')
+}
+
 const Dashboards = () => {
   const { translate } = useInternationalization()
 
-  const { data, loading } = useSupersetDashboardsQuery({})
+  const dashboardRef = useRef<string>('')
+
+  const [getSupersetDashboards, { data, loading }] = useSupersetDashboardsLazyQuery({})
+
+  const dashboard = useMemo(() => {
+    return currentDashboard(data?.supersetDashboards)
+  }, [data?.supersetDashboards])
+
+  const fetchGuestToken = useCallback(async () => {
+    const supersetDashboards = await getSupersetDashboards()
+
+    const token = currentDashboard(supersetDashboards?.data?.supersetDashboards)?.guestToken || ''
+
+    return token
+  }, [getSupersetDashboards])
 
   useEffect(() => {
-    const dashboard = data?.supersetDashboards?.find((d) => d.id === '1')
-    const mountPoint = document.getElementById('superset')
+    getSupersetDashboards()
+  }, [getSupersetDashboards])
 
-    if (loading || !dashboard || !mountPoint) {
+  useEffect(() => {
+    if (!dashboard || dashboard?.id === dashboardRef?.current) {
       return
     }
 
-    embedDashboard({
-      id: dashboard.embeddedId,
-      supersetDomain: lagoSupersetUrl,
-      mountPoint,
-      fetchGuestToken: async () => dashboard.guestToken,
-      dashboardUiConfig: {
-        hideTitle: true,
-        filters: {
-          expanded: true,
+    let embedded: null | EmbeddedDashboard = null
+
+    const mount = async () => {
+      const mountPoint = document.getElementById('superset')
+
+      if (!mountPoint) {
+        return
+      }
+
+      embedded = await embedDashboard({
+        id: dashboard.embeddedId,
+        supersetDomain: lagoSupersetUrl,
+        mountPoint,
+        fetchGuestToken,
+        dashboardUiConfig: {
+          hideTitle: true,
+          filters: {
+            expanded: true,
+          },
         },
-      },
-      iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
-    })
-  }, [loading, data?.supersetDashboards])
+        iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
+      })
+
+      dashboardRef.current = dashboard.id
+    }
+
+    mount()
+
+    return () => {
+      embedded?.unmount()
+    }
+  }, [dashboard, fetchGuestToken])
 
   return (
     <>
