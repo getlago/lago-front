@@ -28,5 +28,5 @@ export interface PaymentMethodsInvoiceSettingsProps<T extends ViewTypeEnum = Vie
   customer: CustomerForPaymentMethods
   formikProps: FormikProps<FormTypeMap[T]>
   viewType: T
-  basePath?: string
+  formFieldBasePath?: string
 }

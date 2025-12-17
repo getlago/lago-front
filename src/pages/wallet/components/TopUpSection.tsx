@@ -637,7 +637,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   <PaymentMethodsInvoiceSettings
                     customer={customerData?.customer}
                     formikProps={formikProps}
-                    basePath="recurringTransactionRules.0"
+                    formFieldBasePath="recurringTransactionRules.0"
                     viewType={ViewTypeEnum.WalletRecurringTopUp}
                   />
                 </div>
