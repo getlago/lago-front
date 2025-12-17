@@ -45,6 +45,7 @@ import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
 import { TopUpSection } from '~/pages/wallet/components/TopUpSection'
 import { walletFormSchema } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
+import { transformRecurringTransactionRule } from '~/pages/wallet/utils/transformRecurringTransactionRule'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const WALLET_DEFAULT_PRIORITY = 50
@@ -253,31 +254,7 @@ const CreateWallet = () => {
         minimumFractionDigits: getCurrencyPrecision(currency),
       }),
       recurringTransactionRules:
-        wallet?.recurringTransactionRules?.map((rule) => {
-          // Extract and exclude fields that are not part of CreateRecurringTransactionRuleInput/UpdateRecurringTransactionRuleInput
-          // These fields come from the GraphQL query but should not be included in the form values
-          const fieldsToExclude = [
-            'paymentMethodType',
-            'skipInvoiceCustomSections',
-            'selectedInvoiceCustomSections',
-          ]
-
-          const rules = Object.fromEntries(
-            Object.entries(rule).filter(([key]) => !fieldsToExclude.includes(key)),
-          ) as typeof rule
-
-          return {
-            ...rules,
-            paymentMethod: {
-              paymentMethodType: rule.paymentMethodType,
-              paymentMethodId: rule.paymentMethod?.id,
-            },
-            invoiceCustomSection: {
-              invoiceCustomSections: rule.selectedInvoiceCustomSections || [],
-              skipInvoiceCustomSections: rule.skipInvoiceCustomSections || false,
-            },
-          }
-        }) || undefined,
+        wallet?.recurringTransactionRules?.map(transformRecurringTransactionRule) || undefined,
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
       paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents
         ? deserializeAmount(wallet.paidTopUpMinAmountCents, currency)
