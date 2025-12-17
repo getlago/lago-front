@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { Skeleton, Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem'
 import { envGlobalVar } from '~/core/apolloClient'
 import { SupersetDashboard, useSupersetDashboardsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -31,7 +31,7 @@ const Dashboards = () => {
 
   const dashboardRef = useRef<string>('')
 
-  const [getSupersetDashboards, { data, loading }] = useSupersetDashboardsLazyQuery({})
+  const [getSupersetDashboards, { data }] = useSupersetDashboardsLazyQuery({})
 
   const dashboard = useMemo(() => {
     return currentDashboard(data?.supersetDashboards)
@@ -95,19 +95,9 @@ const Dashboards = () => {
         </Typography>
       </PageHeader.Wrapper>
 
-      {loading && (
-        <div className="mt-8 px-8">
-          <Skeleton variant="text" className="mb-5 w-70" />
-          <Skeleton variant="text" className="mb-4" />
-          <Skeleton variant="text" className="w-30" />
-        </div>
-      )}
-
-      {!loading && (
-        <div className="height-minus-nav relative w-full">
-          <div id="superset" className="absolute inset-0 size-full"></div>
-        </div>
-      )}
+      <div className="height-minus-nav relative w-full">
+        <div id="superset" className="absolute inset-0 size-full"></div>
+      </div>
     </>
   )
 }
