@@ -100,8 +100,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [
@@ -128,8 +126,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [
@@ -164,8 +160,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
@@ -202,8 +196,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
@@ -235,8 +227,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
@@ -273,8 +263,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
@@ -308,8 +296,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [],
@@ -335,14 +321,7 @@ describe('InvoceCustomFooter', () => {
     })
 
     it('THEN opens dialog when edit button is clicked', async () => {
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
-          viewType={ViewTypeEnum.Subscription}
-        />,
-      )
+      render(<InvoceCustomFooter customerId="customer-1" viewType={ViewTypeEnum.Subscription} />)
 
       const editButton = screen.getByTestId(EDIT_BUTTON)
 
@@ -365,8 +344,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           invoiceCustomSection={{
             invoiceCustomSections: [{ id: 'section-1', name: 'Section 1' }],
@@ -387,18 +364,11 @@ describe('InvoceCustomFooter', () => {
       expect(dialogCall?.selectedSections).toEqual([{ id: 'section-1', name: 'Section 1' }])
     })
 
-    it('THEN displays title and description when provided', async () => {
-      render(
-        <InvoceCustomFooter
-          customerId="customer-1"
-          title="Custom Title"
-          description="Custom Description"
-          viewType={ViewTypeEnum.Subscription}
-        />,
-      )
+    it('THEN displays default title and description', async () => {
+      render(<InvoceCustomFooter customerId="customer-1" viewType={ViewTypeEnum.Subscription} />)
 
-      expect(screen.getByText('Custom Title')).toBeInTheDocument()
-      expect(screen.getByText('Custom Description')).toBeInTheDocument()
+      // The component displays hardcoded translation keys
+      expect(screen.getByText('text_17628623882713knw0jtohiw')).toBeInTheDocument()
     })
   })
 
@@ -413,8 +383,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
@@ -455,8 +423,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,
@@ -493,8 +459,6 @@ describe('InvoceCustomFooter', () => {
       render(
         <InvoceCustomFooter
           customerId="customer-1"
-          title="Invoice Custom Sections"
-          description="Select custom sections"
           viewType={ViewTypeEnum.Subscription}
           setInvoiceCustomSection={setInvoiceCustomSection}
         />,

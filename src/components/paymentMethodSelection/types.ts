@@ -20,8 +20,6 @@ export interface PaymentMethodSelectionProps {
   externalCustomerId: string
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
-  title: string
-  description: string
   viewType: ViewTypeEnum
   className?: string
   disabled?: boolean

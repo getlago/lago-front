@@ -30,18 +30,3 @@ export interface PaymentMethodsInvoiceSettingsProps<T extends ViewTypeEnum = Vie
   viewType: T
   basePath?: string
 }
-
-export interface ViewTypeExtraProps {
-  PaymentMethodSelection: {
-    title: string
-    description: string
-  }
-  InvoceCustomFooter: {
-    title: string
-    description: string
-  }
-}
-
-export type ViewTypeExtraPropsMap = {
-  [K in ViewTypeEnum]: ViewTypeExtraProps
-}
