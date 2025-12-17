@@ -12496,7 +12496,7 @@ export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrga
 export type SupersetDashboardsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SupersetDashboardsQuery = { __typename?: 'Query', supersetDashboards: Array<{ __typename?: 'SupersetDashboard', id: string, embeddedId: string, dashboardTitle: string, guestToken: string, supersetUrl: string }> };
+export type SupersetDashboardsQuery = { __typename?: 'Query', supersetDashboards: Array<{ __typename?: 'SupersetDashboard', id: string, embeddedId: string, dashboardTitle: string, guestToken: string }> };
 
 export type GetApiKeyToEditQueryVariables = Exact<{
   apiKeyId: Scalars['ID']['input'];
@@ -34038,7 +34038,6 @@ export const SupersetDashboardsDocument = gql`
     embeddedId
     dashboardTitle
     guestToken
-    supersetUrl
   }
 }
     `;
