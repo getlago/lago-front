@@ -28,7 +28,7 @@ import { PageHeader } from '~/styles'
 
 import { useRolesList } from './useRolesList'
 
-import { roleDetailsTabOptions, rolesNameMapping, systemRoles } from '../common/rolesConst'
+import { rolesNameMapping, systemRoles } from '../common/rolesConst'
 import { RoleItem } from '../common/roleTypes'
 
 const RolesList = () => {
@@ -141,7 +141,6 @@ const RolesList = () => {
   const handleRowclick = (role: RoleItem) => {
     return generatePath(ROLE_DETAILS_ROUTE, {
       roleId: role.id,
-      tab: roleDetailsTabOptions.overview,
     })
   }
 

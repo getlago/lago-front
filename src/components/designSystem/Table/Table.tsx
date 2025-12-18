@@ -100,6 +100,7 @@ export interface TableProps<T> {
   rowSize?: RowSize
   tableInDialog?: boolean
   containerClassName?: string
+  isHeaderDisplayed?: boolean
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
@@ -318,6 +319,7 @@ export const Table = <T extends DataItem>({
   actionColumn,
   actionColumnTooltip,
   rowDataTestId,
+  isHeaderDisplayed = true,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns
@@ -505,34 +507,44 @@ export const Table = <T extends DataItem>({
           },
         }}
       >
-        <MUITableHead>
-          <tr>
-            <>
-              {filteredColumns.map((column, i) => (
-                <TableCell
-                  className="sticky top-0 z-sectionHead border-b-0 bg-white shadow-b"
-                  key={`${TABLE_ID}-head-${i}`}
-                  align={column.textAlign || 'left'}
-                  maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
-                  tdCellClassName={column.tdCellClassName}
-                >
-                  <TableInnerCell
-                    className="min-h-10 text-grey-600"
-                    align={column.textAlign}
-                    style={{
-                      fontSize: theme.typography.captionHl.fontSize,
-                      fontWeight: theme.typography.captionHl.fontWeight,
-                      lineHeight: theme.typography.captionHl.lineHeight,
-                    }}
+        {isHeaderDisplayed ? (
+          <MUITableHead>
+            <tr>
+              <>
+                {filteredColumns.map((column, i) => (
+                  <TableCell
+                    className="sticky top-0 z-sectionHead border-b-0 bg-white shadow-b"
+                    key={`${TABLE_ID}-head-${i}`}
+                    align={column.textAlign || 'left'}
+                    maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                    tdCellClassName={column.tdCellClassName}
                   >
-                    {column.title}
-                  </TableInnerCell>
-                </TableCell>
+                    <TableInnerCell
+                      className="min-h-10 text-grey-600"
+                      align={column.textAlign}
+                      style={{
+                        fontSize: theme.typography.captionHl.fontSize,
+                        fontWeight: theme.typography.captionHl.fontWeight,
+                        lineHeight: theme.typography.captionHl.lineHeight,
+                      }}
+                    >
+                      {column.title}
+                    </TableInnerCell>
+                  </TableCell>
+                ))}
+                {shouldDisplayActionColumn && <TableActionCell className="top-0 z-sectionHead" />}
+              </>
+            </tr>
+          </MUITableHead>
+        ) : (
+          <MUITableHead>
+            <tr>
+              {filteredColumns.map((_column, i) => (
+                <td className="shadow-b" key={`${TABLE_ID}-head-spacer-${i}`} />
               ))}
-              {shouldDisplayActionColumn && <TableActionCell className="top-0 z-sectionHead" />}
-            </>
-          </tr>
-        </MUITableHead>
+            </tr>
+          </MUITableHead>
+        )}
 
         <MUITableBody>
           {renderPlaceholder() ??
