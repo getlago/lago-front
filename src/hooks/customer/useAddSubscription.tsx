@@ -255,14 +255,11 @@ export const useAddSubscription: UseAddSubscription = ({
           }
         : undefined
 
-      let subscriptionAtForUpdate: string | undefined
-
-      if (existingSubscription?.startedAt) {
-        subscriptionAtForUpdate =
-          DateTime.fromISO(existingSubscription.startedAt).toUTC().toISO() || undefined
-      } else if (subsDate) {
-        subscriptionAtForUpdate = DateTime.fromISO(subsDate).toUTC().toISO() || undefined
-      }
+      const subscriptionAtForUpdate = DateTime.fromISO(
+        existingSubscription?.startedAt || subsDate || '',
+      )
+        .toUTC()
+        .toISO()
 
       const { errors } =
         formType === FORM_TYPE_ENUM.creation || formType === FORM_TYPE_ENUM.upgradeDowngrade
