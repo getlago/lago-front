@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
+import { type RoleItem } from '../common/roleTypes'
 import { allRoles } from '../rolesList/mock/allRoles'
-import { type RoleItem } from '../rolesList/useRolesList'
 
 export const useRoleDetails = ({
   roleId,

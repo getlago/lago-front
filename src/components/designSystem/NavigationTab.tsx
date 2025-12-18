@@ -12,21 +12,23 @@ export enum TabManagedBy {
   INDEX = 'index',
 }
 
+export type NavigationTabItem = {
+  link?: string
+  title: string
+  match?: string[]
+  icon?: IconName
+  disabled?: boolean
+  hidden?: boolean
+  component?: ReactNode
+  dataTest?: string
+}
+
 type NavigationTabProps = {
   managedBy?: TabManagedBy
   loading?: boolean
   name?: string
   className?: string
-  tabs: {
-    link?: string
-    title: string
-    match?: string[]
-    icon?: IconName
-    disabled?: boolean
-    hidden?: boolean
-    component?: ReactNode
-    dataTest?: string
-  }[]
+  tabs: Array<NavigationTabItem>
   children?: ReactNode
   onChange?: (index: number) => void
   currentTab?: number

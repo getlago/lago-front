@@ -1,4 +1,6 @@
-export const allRoles = [
+import { RoleItem } from '../../common/roleTypes'
+
+export const allRoles: Array<RoleItem> = [
   {
     id: '1',
     organization: null,
@@ -16,6 +18,7 @@ export const allRoles = [
         name: 'Jane Smith',
       },
     ],
+    permissions: [],
   },
   {
     id: '2',
@@ -25,6 +28,7 @@ export const allRoles = [
     admin: false,
     deletedAt: null,
     members: [],
+    permissions: ['addonsCreate', 'addonsDelete', 'addonsUpdate', 'addonsView'],
   },
   {
     id: '3',
@@ -39,5 +43,6 @@ export const allRoles = [
         name: 'Alice Johnson',
       },
     ],
+    permissions: ['invoicesCreate', 'invoicesSend', 'billingEntitiesView'],
   },
 ]
