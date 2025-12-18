@@ -27,6 +27,7 @@ gql`
       terminatedAt
       customer {
         id
+        deletedAt
         activeSubscriptionsCount
       }
     }
@@ -54,7 +55,7 @@ interface TerminateCustomerSubscriptionDialogContext {
   name: string
   status: StatusTypeEnum
   payInAdvance: boolean
-  callback?: (() => unknown) | undefined
+  callback?: ((deletedAt?: string | null) => unknown) | undefined
 }
 
 export interface TerminateCustomerSubscriptionDialogRef {
@@ -93,7 +94,7 @@ export const TerminateCustomerSubscriptionDialog =
           })
 
           if (!!context?.callback) {
-            context?.callback()
+            context?.callback(terminateSubscription?.customer?.deletedAt)
           }
         }
       },

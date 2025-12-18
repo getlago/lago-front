@@ -9712,7 +9712,7 @@ export type TerminateCustomerSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number } } | null };
+export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, deletedAt?: any | null, activeSubscriptionsCount: number } } | null };
 
 export type GetInvoicesForTerminationQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -21803,6 +21803,7 @@ export const TerminateCustomerSubscriptionDocument = gql`
     terminatedAt
     customer {
       id
+      deletedAt
       activeSubscriptionsCount
     }
   }

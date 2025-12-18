@@ -1,7 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { GetSubscriptionForDetailsDocument, StatusTypeEnum } from '~/generated/graphql'
+import { CUSTOMER_DETAILS_ROUTE, SUBSCRIPTIONS_ROUTE } from '~/core/router'
+import {
+  GetSubscriptionForDetailsDocument,
+  StatusTypeEnum,
+  TerminateCustomerSubscriptionDocument,
+} from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import SubscriptionDetails, {
@@ -11,6 +16,7 @@ import SubscriptionDetails, {
   SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
 } from '../SubscriptionDetails'
 
+const mockNavigate = jest.fn()
 const mockHasPermissions = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -31,6 +37,11 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}))
+
 const mockSubscription = {
   id: 'subscription-1',
   name: 'Test Subscription',
@@ -48,7 +59,10 @@ const mockSubscription = {
   },
 }
 
-const createMocks = (subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active): TestMocksType => [
+const createMocks = (
+  subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active,
+  customerDeletedAt?: string | null,
+): TestMocksType => [
   {
     request: {
       query: GetSubscriptionForDetailsDocument,
@@ -65,14 +79,46 @@ const createMocks = (subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active)
       },
     },
   },
+  ...(customerDeletedAt !== undefined
+    ? [
+        {
+          request: {
+            query: TerminateCustomerSubscriptionDocument,
+            variables: {
+              input: {
+                id: 'subscription-1',
+                onTerminationInvoice: 'generate',
+              },
+            },
+          },
+          result: {
+            data: {
+              terminateSubscription: {
+                id: 'subscription-1',
+                status: StatusTypeEnum.Terminated,
+                terminatedAt: new Date().toISOString(),
+                customer: {
+                  id: 'customer-1',
+                  deletedAt: customerDeletedAt,
+                  activeSubscriptionsCount: 0,
+                },
+              },
+            },
+          },
+        },
+      ]
+    : []),
 ]
 
-const renderSubscriptionDetails = (subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active) => {
+const renderSubscriptionDetails = (
+  subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active,
+  customerDeletedAt?: string | null,
+) => {
   return render(<SubscriptionDetails />, {
     wrapper: (props: { children: React.ReactNode }) => (
       <AllTheProviders
         {...props}
-        mocks={createMocks(subscriptionStatus)}
+        mocks={createMocks(subscriptionStatus, customerDeletedAt)}
         useParams={{ subscriptionId: 'subscription-1' }}
         forceTypenames={true}
       />
@@ -182,6 +228,68 @@ describe('SubscriptionDetails', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId(buttonTestId)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('WHEN terminating a subscription', () => {
+    describe('WHEN customer is NOT deleted', () => {
+      it('THEN should navigate to customer details page', async () => {
+        const user = userEvent.setup()
+
+        mockHasPermissions.mockReturnValue(true)
+
+        renderSubscriptionDetails(StatusTypeEnum.Active, null)
+
+        await openPopper(user)
+
+        const terminateButton = screen.getByTestId(SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID)
+
+        await user.click(terminateButton)
+
+        // Wait for dialog to open and click continue
+        await waitFor(() => {
+          expect(screen.getByRole('dialog')).toBeInTheDocument()
+        })
+
+        const continueButton = screen.getByRole('button', { name: /terminate/i })
+
+        await user.click(continueButton)
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            CUSTOMER_DETAILS_ROUTE.replace(':customerId', 'customer-1'),
+          )
+        })
+      })
+    })
+
+    describe('WHEN customer is deleted', () => {
+      it('THEN should navigate to subscriptions list', async () => {
+        const user = userEvent.setup()
+
+        mockHasPermissions.mockReturnValue(true)
+
+        renderSubscriptionDetails(StatusTypeEnum.Active, '2024-01-01T00:00:00Z')
+
+        await openPopper(user)
+
+        const terminateButton = screen.getByTestId(SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID)
+
+        await user.click(terminateButton)
+
+        // Wait for dialog to open and click continue
+        await waitFor(() => {
+          expect(screen.getByRole('dialog')).toBeInTheDocument()
+        })
+
+        const continueButton = screen.getByRole('button', { name: /terminate/i })
+
+        await user.click(continueButton)
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(SUBSCRIPTIONS_ROUTE)
+        })
       })
     })
   })

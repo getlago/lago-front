@@ -27,6 +27,7 @@ import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tab
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
   CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
+  CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
@@ -219,8 +220,18 @@ const SubscriptionDetails = () => {
                         name: subscription?.name as string,
                         status: subscription?.status as StatusTypeEnum,
                         payInAdvance: !!subscription?.plan.payInAdvance,
-                        callback: () => {
-                          navigate(SUBSCRIPTIONS_ROUTE)
+                        callback: (deletedAt) => {
+                          const isCustomerDeleted = !!deletedAt
+
+                          if (isCustomerDeleted) {
+                            navigate(SUBSCRIPTIONS_ROUTE)
+                          } else {
+                            navigate(
+                              generatePath(CUSTOMER_DETAILS_ROUTE, {
+                                customerId: subscription?.customer?.id as string,
+                              }),
+                            )
+                          }
                         },
                       })
                       closePopper()
