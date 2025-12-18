@@ -23,6 +23,8 @@ gql`
   mutation terminateCustomerSubscription($input: TerminateSubscriptionInput!) {
     terminateSubscription(input: $input) {
       id
+      status
+      terminatedAt
       customer {
         id
         activeSubscriptionsCount
@@ -83,7 +85,6 @@ export const TerminateCustomerSubscriptionDialog =
     const refundAmount = deserializeAmount(invoice?.refundableAmountCents, currency)
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
-      refetchQueries: ['getCustomerSubscriptionForList', 'getSubscriptionsList'],
       onCompleted({ terminateSubscription }) {
         if (!!terminateSubscription) {
           addToast({

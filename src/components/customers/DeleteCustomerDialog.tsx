@@ -56,6 +56,17 @@ export const DeleteCustomerDialog = forwardRef<DeleteCustomerDialogRef, unknown>
         })
       }
     },
+    update(cache) {
+      // Clear subscriptions cache to prevent stale customer references
+      // We use cache.modify with DELETE to avoid triggering refetches for active watchers
+      cache.modify({
+        fields: {
+          subscriptions(_, { DELETE }) {
+            return DELETE
+          },
+        },
+      })
+    },
     refetchQueries: ['customers'],
   })
 
