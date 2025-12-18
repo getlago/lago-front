@@ -14,12 +14,10 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 export const AiAgent = () => {
   const { panelRef, currentPanelOpened, panelOpen, state, resetConversation } = useAiAgent()
-  const { isPremium, currentUser } = useCurrentUser()
+  const { isPremium: hasAccessToAiAgent, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
   const [showHistory, setShowHistory] = useState(false)
   const location = useLocation()
-
-  const hasAccessToAiAgent = isPremium
 
   const match = matchRoutes(objectCreationPaths, location)
 
