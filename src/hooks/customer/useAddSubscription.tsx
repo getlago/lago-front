@@ -255,6 +255,15 @@ export const useAddSubscription: UseAddSubscription = ({
           }
         : undefined
 
+      let subscriptionAtForUpdate: string | undefined
+
+      if (existingSubscription?.startedAt) {
+        subscriptionAtForUpdate =
+          DateTime.fromISO(existingSubscription.startedAt).toUTC().toISO() || undefined
+      } else if (subsDate) {
+        subscriptionAtForUpdate = DateTime.fromISO(subsDate).toUTC().toISO() || undefined
+      }
+
       const { errors } =
         formType === FORM_TYPE_ENUM.creation || formType === FORM_TYPE_ENUM.upgradeDowngrade
           ? await create({
@@ -294,11 +303,7 @@ export const useAddSubscription: UseAddSubscription = ({
                 input: {
                   ...values,
                   id: existingSubscription?.id as string,
-                  subscriptionAt: !!existingSubscription?.startedAt
-                    ? DateTime.fromISO(existingSubscription?.startedAt).toUTC().toISO()
-                    : subsDate
-                      ? DateTime.fromISO(subsDate).toUTC().toISO()
-                      : undefined,
+                  subscriptionAt: subscriptionAtForUpdate,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name ?? undefined,
                   paymentMethod: parsedPaymentMethod,
