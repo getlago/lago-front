@@ -11,13 +11,15 @@ import { objectCreationPaths } from '~/core/router'
 import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 
 export const AiAgent = () => {
   const { panelRef, currentPanelOpened, panelOpen, state, resetConversation } = useAiAgent()
-  const { isPremium: hasAccessToAiAgent, currentUser } = useCurrentUser()
+  const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
   const [showHistory, setShowHistory] = useState(false)
   const location = useLocation()
+  const { hasPermissions } = usePermissions()
 
   const match = matchRoutes(objectCreationPaths, location)
 
@@ -28,6 +30,9 @@ export const AiAgent = () => {
   if (!currentUser) {
     return null
   }
+
+  const hasAccessToAiAgent =
+    isPremium && hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
 
   const shouldDisplayWelcomeMessage = !state.messages.length
 
