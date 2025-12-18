@@ -54,7 +54,8 @@ export const AiAgent = () => {
         </div>
       </div>
 
-      <PanelResizeHandle />
+      <PanelResizeHandle disabled={currentPanelOpened !== AIPanelEnum.ai} />
+
       <Panel
         id="ai-panel"
         ref={panelRef}
