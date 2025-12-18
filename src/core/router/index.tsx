@@ -20,6 +20,7 @@ const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
 const Forecasts = lazyLoad(() => import('~/pages/forecasts/Forecasts'))
+const Dashboards = lazyLoad(() => import('~/pages/dashboards/Dashboards'))
 const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 
 // Route Available only on dev mode
@@ -31,6 +32,7 @@ export const ANALYTIC_ROUTE = '/analytics'
 export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
 export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
 export const FORECASTS_ROUTE = '/forecasts'
+export const ANALYTIC_NEW_ROUTE = '/new-analytics'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -80,6 +82,12 @@ export const routes: CustomRouteObject[] = [
         path: FORECASTS_ROUTE,
         private: true,
         element: <Forecasts />,
+        permissions: ['analyticsView', 'dataApiView'],
+      },
+      {
+        path: ANALYTIC_NEW_ROUTE,
+        private: true,
+        element: <Dashboards />,
         permissions: ['analyticsView', 'dataApiView'],
       },
       ...customerRoutes,

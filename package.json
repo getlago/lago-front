@@ -153,7 +153,8 @@
     "sanitize-html": "2.17.0",
     "shiki": "3.17.0",
     "yup": "1.7.1",
-    "zod": "4.1.13"
+    "zod": "4.1.13",
+    "@superset-ui/embedded-sdk": "0.2.0"
   },
   "engines": {
     "node": ">=24.11.1"
