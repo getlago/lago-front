@@ -31,17 +31,12 @@ gql`
   mutation createSubscription($input: CreateSubscriptionInput!) {
     createSubscription(input: $input) {
       id
-      customer {
-        id
-        activeSubscriptionsCount
-        ...CustomerDetails
-      }
-    }
-  }
-
-  mutation updateSubscription($input: UpdateSubscriptionInput!) {
-    updateSubscription(input: $input) {
-      id
+      status
+      startedAt
+      subscriptionAt
+      endingAt
+      name
+      externalId
       customer {
         id
         activeSubscriptionsCount
@@ -49,6 +44,32 @@ gql`
       }
       plan {
         id
+        name
+        code
+        interval
+      }
+    }
+  }
+
+  mutation updateSubscription($input: UpdateSubscriptionInput!) {
+    updateSubscription(input: $input) {
+      id
+      status
+      startedAt
+      subscriptionAt
+      endingAt
+      name
+      externalId
+      customer {
+        id
+        activeSubscriptionsCount
+        ...CustomerDetails
+      }
+      plan {
+        id
+        name
+        code
+        interval
       }
     }
   }
@@ -153,7 +174,6 @@ export const useAddSubscription: UseAddSubscription = ({
         }
       }
     },
-    refetchQueries: ['getCustomerSubscriptionForList'],
   })
   const [update] = useUpdateSubscriptionMutation({
     context: {
@@ -207,7 +227,6 @@ export const useAddSubscription: UseAddSubscription = ({
         }
       }
     },
-    refetchQueries: ['getCustomerSubscriptionForList', 'getSubscriptionForCreateSubscription'],
   })
 
   return {
