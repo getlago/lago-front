@@ -24,6 +24,7 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
 
 type AnnotatedSubscription = {
   id: string
@@ -52,9 +53,11 @@ const annotateSubscriptions = (
   {
     customerTimezone,
     customerId,
+    isStatusEditable,
   }: {
     customerTimezone?: TimezoneEnum
     customerId?: string
+    isStatusEditable: (status: StatusTypeEnum | null | undefined) => boolean
   },
 ): AnnotatedSubscription[] => {
   return (subscriptions || []).reduce<AnnotatedSubscription[]>((subsAcc, subscription) => {
@@ -100,7 +103,7 @@ const annotateSubscriptions = (
     }
 
     const _subDowngrade = isDowngrading &&
-      status !== StatusTypeEnum.Terminated &&
+      isStatusEditable(status) &&
       nextPlan && {
         id: nextSubscription?.id || nextPlan.id,
         externalId: nextSubscription?.externalId,
@@ -243,12 +246,14 @@ export const SubscriptionsList: FC<SubscriptionsListProps> = ({
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { isStatusEditable } = useSubscriptionPermissionsActions()
 
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
 
   const annotatedSubscriptions = annotateSubscriptions(subscriptions, {
     customerTimezone,
     customerId,
+    isStatusEditable,
   })
 
   return (

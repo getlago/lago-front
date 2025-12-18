@@ -23,8 +23,11 @@ gql`
   mutation terminateCustomerSubscription($input: TerminateSubscriptionInput!) {
     terminateSubscription(input: $input) {
       id
+      status
+      terminatedAt
       customer {
         id
+        deletedAt
         activeSubscriptionsCount
       }
     }
@@ -52,7 +55,7 @@ interface TerminateCustomerSubscriptionDialogContext {
   name: string
   status: StatusTypeEnum
   payInAdvance: boolean
-  callback?: (() => unknown) | undefined
+  callback?: ((deletedAt?: string | null) => unknown) | undefined
 }
 
 export interface TerminateCustomerSubscriptionDialogRef {
@@ -83,7 +86,6 @@ export const TerminateCustomerSubscriptionDialog =
     const refundAmount = deserializeAmount(invoice?.refundableAmountCents, currency)
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
-      refetchQueries: ['getCustomerSubscriptionForList', 'getSubscriptionsList'],
       onCompleted({ terminateSubscription }) {
         if (!!terminateSubscription) {
           addToast({
@@ -92,7 +94,7 @@ export const TerminateCustomerSubscriptionDialog =
           })
 
           if (!!context?.callback) {
-            context?.callback()
+            context?.callback(terminateSubscription?.customer?.deletedAt)
           }
         }
       },
