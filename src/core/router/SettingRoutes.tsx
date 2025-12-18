@@ -134,10 +134,13 @@ export const BILLING_ENTITY_INVOICE_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH
 export const BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-custom-sections`
 export const BILLING_ENTITY_TAXES_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/taxes`
 
-export const ROLES_LIST_ROUTE = `${SETTINGS_ROUTE}/roles`
-export const ROLE_DETAILS_ROUTE = `${SETTINGS_ROUTE}/roles/:roleId/:tab`
-export const ROLE_CREATE_ROUTE = `${SETTINGS_ROUTE}/roles/create`
-export const ROLE_EDIT_ROUTE = `${SETTINGS_ROUTE}/roles/:roleId/edit`
+const ROOT_ROLES_ROUTE = `${SETTINGS_ROUTE}/roles`
+
+export const ROLES_LIST_ROUTE = `${ROOT_ROLES_ROUTE}`
+export const ROLE_DETAILS_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId`
+export const ROLE_DETAILS_TAB_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/:tab`
+export const ROLE_CREATE_ROUTE = `${ROOT_ROLES_ROUTE}/create`
+export const ROLE_EDIT_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/edit`
 
 /**
  * Creation routes
@@ -414,7 +417,7 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <RolesList />,
       },
       {
-        path: ROLE_DETAILS_ROUTE,
+        path: [ROLE_DETAILS_ROUTE, ROLE_DETAILS_TAB_ROUTE],
         private: true,
         element: <RoleDetails />,
       },

@@ -8,10 +8,11 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { ROLE_DETAILS_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
+import { ROLE_DETAILS_ROUTE, ROLE_DETAILS_TAB_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PageHeader } from '~/styles'
 
+import RoleDetailsMembers from './roleDetailsMembers/RoleDetailsMembers'
 import RoleDetailsPermissions from './roleDetailsPermissions/RoleDetailsPermissions'
 import { useRoleDetails } from './useRoleDetails'
 
@@ -33,10 +34,19 @@ const RoleDetails = () => {
   const tabs: Array<NavigationTabItem> = [
     {
       title: translate('text_634687079be251fdb43833b7'),
-      link: generatePath(ROLE_DETAILS_ROUTE, {
-        roleId: roleId,
+      link: generatePath(ROLE_DETAILS_TAB_ROUTE, {
+        roleId,
         tab: roleDetailsTabOptions.overview,
       }),
+      match: [
+        generatePath(ROLE_DETAILS_TAB_ROUTE, {
+          roleId,
+          tab: roleDetailsTabOptions.overview,
+        }),
+        generatePath(ROLE_DETAILS_ROUTE, {
+          roleId,
+        }),
+      ],
       component: (
         <DetailsPage.Container>
           <RoleDetailsPermissions isLoading={isLoadingRole} role={role} />
@@ -45,13 +55,13 @@ const RoleDetails = () => {
     },
     {
       title: translate('text_63208b630aaf8df6bbfb2655'),
-      link: generatePath(ROLE_DETAILS_ROUTE, {
+      link: generatePath(ROLE_DETAILS_TAB_ROUTE, {
         roleId: roleId,
         tab: roleDetailsTabOptions.members,
       }),
       component: (
         <DetailsPage.Container>
-          <div>Members Content</div>
+          <RoleDetailsMembers isLoading={isLoadingRole} role={role} />
         </DetailsPage.Container>
       ),
     },

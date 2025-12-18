@@ -3,6 +3,7 @@ import { PermissionName } from './permissionsTypes'
 type Member = {
   id: string
   name: string
+  email: string
 }
 
 export type RoleItem = {

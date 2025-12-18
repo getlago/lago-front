@@ -1,6 +1,6 @@
 import { PermissionGroupMapping, PermissionName } from './permissionsTypes'
 
-export const hiddenPermissions: Array<PermissionName> = ['auditLogsView', 'dataApiView']
+export const hiddenPermissions: Array<PermissionName> = []
 
 export const permissionGroupMapping: PermissionGroupMapping = {
   addons: ['addonsCreate', 'addonsDelete', 'addonsUpdate', 'addonsView'],
@@ -80,6 +80,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
 export const groupNameMapping: Record<string, string> = {
   addons: 'text_629728388c4d2300e2d3801a',
   analytics: 'text_6553885df387fd0097fd7384',
+  auditLogs: 'text_1766071560701xrf1tn0w5wx',
   authenticationMethods: 'text_664c732c264d7eed1c74fd96',
   billableMetrics: 'text_623b497ad05b960101be3438',
   billingEntities: 'text_1743077296189ms0shds6g53',
@@ -87,6 +88,7 @@ export const groupNameMapping: Record<string, string> = {
   creditNotes: 'text_637ccf8133d2c9a7d11ce708',
   customerSettings: 'text_1765882497985wd35gnobdvl',
   customers: 'text_624efab67eb2570101d117a5',
+  dataApi: 'text_1766071560701ud8peghugtg',
   developers: 'text_6271200984178801ba8bdeac',
   draftInvoices: 'text_17658824979850l2uroad1dz',
   dunningCampaigns: 'text_1728574726495w5aylnynne9',

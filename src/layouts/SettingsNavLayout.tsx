@@ -38,6 +38,8 @@ import {
   INVOICE_SETTINGS_ROUTE,
   MEMBERS_ROUTE,
   OKTA_AUTHENTICATION_ROUTE,
+  ROLE_DETAILS_ROUTE,
+  ROLE_DETAILS_TAB_ROUTE,
   ROLES_LIST_ROUTE,
   settingRoutes,
   TAXES_SETTINGS_ROUTE,
@@ -81,6 +83,7 @@ const generateTabs = ({
   {
     title: translate('text_1765448879791epmkg4xijkn'),
     link: ROLES_LIST_ROUTE,
+    match: [ROLES_LIST_ROUTE, ROLE_DETAILS_ROUTE, ROLE_DETAILS_TAB_ROUTE],
   },
   {
     title: translate('text_63ac86d797f728a87b2f9f85'),
