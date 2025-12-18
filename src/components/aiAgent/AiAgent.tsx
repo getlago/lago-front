@@ -8,7 +8,6 @@ import { NavigationBar } from '~/components/aiAgent/NavigationBar'
 import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
 import { objectCreationPaths } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -20,9 +19,7 @@ export const AiAgent = () => {
   const [showHistory, setShowHistory] = useState(false)
   const location = useLocation()
 
-  const isAgentFeatureFlagEnabled = isFeatureFlagActive(FeatureFlags.AI_AGENT)
-
-  const hasAccessToAiAgent = isPremium && isAgentFeatureFlagEnabled
+  const hasAccessToAiAgent = isPremium
 
   const match = matchRoutes(objectCreationPaths, location)
 
