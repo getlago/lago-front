@@ -15,6 +15,7 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { isSubscriptionEditable } from '~/core/utils/subscriptionUtils'
 import {
   NextSubscriptionTypeEnum,
   Plan,
@@ -100,7 +101,7 @@ const annotateSubscriptions = (
     }
 
     const _subDowngrade = isDowngrading &&
-      status !== StatusTypeEnum.Terminated &&
+      isSubscriptionEditable(status) &&
       nextPlan && {
         id: nextSubscription?.id || nextPlan.id,
         externalId: nextSubscription?.externalId,

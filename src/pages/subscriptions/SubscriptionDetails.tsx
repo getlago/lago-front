@@ -27,7 +27,6 @@ import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tab
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
   CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
-  CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
@@ -35,6 +34,7 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { isSubscriptionEditable } from '~/core/utils/subscriptionUtils'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -66,6 +66,12 @@ gql`
     }
   }
 `
+
+export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
+export const SUBSCRIPTION_DETAILS_UPDATE_TEST_ID = 'subscription-details-update'
+export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
+  'subscription-details-upgrade-downgrade'
+export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
 
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
@@ -129,47 +135,50 @@ const SubscriptionDetails = () => {
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={
-              <Button data-test="subscription-details-actions" endIcon="chevron-down">
+              <Button data-test={SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID} endIcon="chevron-down">
                 {translate('text_626162c62f790600f850b6fe')}
               </Button>
             }
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {hasPermissions(['subscriptionsUpdate']) && (
-                  <>
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        navigate(
-                          generatePath(UPDATE_SUBSCRIPTION, {
-                            customerId: subscription?.customer?.id as string,
-                            subscriptionId: subscriptionId as string,
-                          }),
-                        )
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_62d7f6178ec94cd09370e63c')}
-                    </Button>
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        navigate(
-                          generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
-                            customerId: subscription?.customer?.id as string,
-                            subscriptionId: subscriptionId as string,
-                          }),
-                        )
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_62d7f6178ec94cd09370e64a')}
-                    </Button>
-                  </>
-                )}
+                {hasPermissions(['subscriptionsUpdate']) &&
+                  isSubscriptionEditable(subscription?.status) && (
+                    <>
+                      <Button
+                        data-test={SUBSCRIPTION_DETAILS_UPDATE_TEST_ID}
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          navigate(
+                            generatePath(UPDATE_SUBSCRIPTION, {
+                              customerId: subscription?.customer?.id as string,
+                              subscriptionId: subscriptionId as string,
+                            }),
+                          )
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_62d7f6178ec94cd09370e63c')}
+                      </Button>
+                      <Button
+                        data-test={SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID}
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          navigate(
+                            generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
+                              customerId: subscription?.customer?.id as string,
+                              subscriptionId: subscriptionId as string,
+                            }),
+                          )
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_62d7f6178ec94cd09370e64a')}
+                      </Button>
+                    </>
+                  )}
                 {canCreateOrUpdateAlert && (
                   <ButtonLink
                     type="button"
@@ -199,31 +208,28 @@ const SubscriptionDetails = () => {
                 >
                   {translate('text_62d7f6178ec94cd09370e65b')}
                 </Button>
-                {hasPermissions(['subscriptionsUpdate']) && (
-                  <Button
-                    data-test="subscription-details-terminate"
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      terminateSubscriptionDialogRef.current?.openDialog({
-                        id: subscription?.id as string,
-                        name: subscription?.name as string,
-                        status: subscription?.status as StatusTypeEnum,
-                        payInAdvance: !!subscription?.plan.payInAdvance,
-                        callback: () => {
-                          navigate(
-                            generatePath(CUSTOMER_DETAILS_ROUTE, {
-                              customerId: subscription?.customer?.id as string,
-                            }),
-                          )
-                        },
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_62d904b97e690a881f2b867c')}
-                  </Button>
-                )}
+                {hasPermissions(['subscriptionsUpdate']) &&
+                  isSubscriptionEditable(subscription?.status) && (
+                    <Button
+                      data-test={SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID}
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        terminateSubscriptionDialogRef.current?.openDialog({
+                          id: subscription?.id as string,
+                          name: subscription?.name as string,
+                          status: subscription?.status as StatusTypeEnum,
+                          payInAdvance: !!subscription?.plan.payInAdvance,
+                          callback: () => {
+                            navigate(SUBSCRIPTIONS_ROUTE)
+                          },
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_62d904b97e690a881f2b867c')}
+                    </Button>
+                  )}
               </MenuPopper>
             )}
           </Popper>
@@ -319,8 +325,7 @@ const SubscriptionDetails = () => {
               </DetailsPage.Container>
             ),
           },
-          ...(subscription?.status !== StatusTypeEnum.Canceled &&
-          subscription?.status !== StatusTypeEnum.Terminated
+          ...(isSubscriptionEditable(subscription?.status)
             ? [
                 {
                   title: translate('text_1725983967306cei92rkdtvb'),
