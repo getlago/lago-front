@@ -28,9 +28,11 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PopperOpener, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import TableInnerCell from './tableComponents/TableInnerCell'
+
 const PADDING_SPACING_RIGHT_PX = 32
 
-type Align = 'left' | 'center' | 'right'
+export type Align = 'left' | 'center' | 'right'
 
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 
@@ -216,46 +218,6 @@ const TableActionCell = ({
     >
       {children}
     </TableCell>
-  )
-}
-
-const TableInnerCell = ({
-  align,
-  children,
-  className,
-  minWidth,
-  maxWidth,
-  style,
-  truncateOverflow,
-}: PropsWithChildren & {
-  align?: Align
-  className?: string
-  minWidth?: number
-  maxWidth?: number
-  style?: React.CSSProperties
-  truncateOverflow?: boolean
-}) => {
-  return (
-    <div
-      className={tw(
-        'lago-table-inner-cell',
-        'flex items-center',
-        {
-          'justify-start': align === 'left',
-          'justify-center': align === 'center',
-          'justify-end': align === 'right',
-          grid: !!truncateOverflow,
-        },
-        className,
-      )}
-      style={{
-        minWidth: minWidth ? `${minWidth}px` : 'auto',
-        maxWidth: maxWidth ? `${maxWidth}px` : 'auto',
-        ...style,
-      }}
-    >
-      {children}
-    </div>
   )
 }
 

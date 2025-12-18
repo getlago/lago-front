@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { allRoles } from './mock/allRoles'
 
-export type RoleItem = (typeof allRoles)[number]
+import { RoleItem } from '../common/roleTypes'
 
 export const useRolesList = () => {
   // Placeholder right now, will be replaced by actual logic later

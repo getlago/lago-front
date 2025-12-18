@@ -26,8 +26,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PageHeader } from '~/styles'
 
-import { RolesNameMapping, systemRoles } from './const'
-import { RoleItem, useRolesList } from './useRolesList'
+import { useRolesList } from './useRolesList'
+
+import { roleDetailsTabOptions, rolesNameMapping, systemRoles } from '../common/rolesConst'
+import { RoleItem } from '../common/roleTypes'
 
 const RolesList = () => {
   const { isPremium } = useCurrentUser()
@@ -58,7 +60,7 @@ const RolesList = () => {
 
   const displayNameCell = (role: RoleItem) => {
     const nameToDisplay = systemRoles.includes(role.name)
-      ? translate(RolesNameMapping[role.name as keyof typeof RolesNameMapping])
+      ? translate(rolesNameMapping[role.name as keyof typeof rolesNameMapping])
       : role.name
 
     return <Typography color="grey600">{nameToDisplay}</Typography>
@@ -139,6 +141,7 @@ const RolesList = () => {
   const handleRowclick = (role: RoleItem) => {
     return generatePath(ROLE_DETAILS_ROUTE, {
       roleId: role.id,
+      tab: roleDetailsTabOptions.overview,
     })
   }
 
@@ -157,25 +160,6 @@ const RolesList = () => {
         </SettingsPageHeaderContainer>
 
         <SettingsListWrapper>
-          {!isPremium && (
-            <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
-              <div className="flex flex-col">
-                <div className="flex flex-row items-center gap-2">
-                  <Typography variant="bodyHl" color="grey700">
-                    {translate('text_1765450549863hmt6lo6scog')}
-                  </Typography>
-                  <Icon name="sparkles" />
-                </div>
-
-                <Typography variant="caption" color="grey600">
-                  {translate('text_1732286530467gnhwm6q5ftl')}
-                </Typography>
-              </div>
-              <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
-                {translate('text_65ae73ebe3a66bec2b91d72d')}
-              </Button>
-            </div>
-          )}
           {isLoadingRoles && <SettingsListItemLoadingSkeleton />}
           {!isLoadingRoles && (
             <SettingsListItem className="[box-shadow:none]">
@@ -195,6 +179,25 @@ const RolesList = () => {
                 onRowActionLink={handleRowclick}
               />
             </SettingsListItem>
+          )}
+          {!isPremium && (
+            <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
+              <div className="flex flex-col">
+                <div className="flex flex-row items-center gap-2">
+                  <Typography variant="bodyHl" color="grey700">
+                    {translate('text_1765450549863hmt6lo6scog')}
+                  </Typography>
+                  <Icon name="sparkles" />
+                </div>
+
+                <Typography variant="caption" color="grey600">
+                  {translate('text_1732286530467gnhwm6q5ftl')}
+                </Typography>
+              </div>
+              <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
+                {translate('text_65ae73ebe3a66bec2b91d72d')}
+              </Button>
+            </div>
           )}
         </SettingsListWrapper>
       </SettingsPaddedContainer>

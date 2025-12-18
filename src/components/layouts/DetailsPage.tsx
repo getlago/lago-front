@@ -26,7 +26,7 @@ const DetailsPageHeader: FC<{
 }> = ({ isLoading, icon, title, description, className }) => {
   if (isLoading) {
     return (
-      <div className={tw('flex items-center gap-4 px-4 py-8 shadow-b md:px-12', className)}>
+      <div className={tw('flex items-center gap-4 px-4 py-8 md:px-12', className)}>
         <Skeleton variant="connectorAvatar" size="large" />
         <div className="flex flex-col gap-1">
           <Skeleton variant="text" className="mb-1 w-40" />
@@ -37,7 +37,7 @@ const DetailsPageHeader: FC<{
   }
 
   return (
-    <div className={tw('flex items-center gap-4 px-4 py-8 shadow-b md:px-12', className)}>
+    <div className={tw('flex items-center gap-4 px-4 py-8 md:px-12', className)}>
       <Avatar variant="connector" size="large">
         <Icon name={icon} color="dark" size="large" />
       </Avatar>

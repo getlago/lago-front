@@ -76,9 +76,11 @@ const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnin
 const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDunning'))
 const CreatePricingUnit = lazyLoad(() => import('~/pages/settings/Invoices/CreatePricingUnit'))
 
-const RolesList = lazyLoad(() => import('~/pages/settings/rolesList/RolesList'))
-const RoleDetails = lazyLoad(() => import('~/pages/settings/roleDetails/RoleDetails'))
-const RoleCreateEdit = lazyLoad(() => import('~/pages/settings/roleCreateEdit/RoleCreateEdit'))
+const RolesList = lazyLoad(() => import('~/pages/settings/roles/rolesList/RolesList'))
+const RoleDetails = lazyLoad(() => import('~/pages/settings/roles/roleDetails/RoleDetails'))
+const RoleCreateEdit = lazyLoad(
+  () => import('~/pages/settings/roles/roleCreateEdit/RoleCreateEdit'),
+)
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
@@ -133,7 +135,7 @@ export const BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE = `${BILLING_ENTITY_BA
 export const BILLING_ENTITY_TAXES_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/taxes`
 
 export const ROLES_LIST_ROUTE = `${SETTINGS_ROUTE}/roles`
-export const ROLE_DETAILS_ROUTE = `${SETTINGS_ROUTE}/roles/:roleId`
+export const ROLE_DETAILS_ROUTE = `${SETTINGS_ROUTE}/roles/:roleId/:tab`
 export const ROLE_CREATE_ROUTE = `${SETTINGS_ROUTE}/roles/create`
 export const ROLE_EDIT_ROUTE = `${SETTINGS_ROUTE}/roles/:roleId/edit`
 
