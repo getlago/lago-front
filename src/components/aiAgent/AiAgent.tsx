@@ -7,7 +7,7 @@ import { ChatHistory } from '~/components/aiAgent/ChatHistory'
 import { NavigationBar } from '~/components/aiAgent/NavigationBar'
 import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
-import { objectCreationPaths } from '~/core/router'
+import { objectCreationPaths, settingsObjectCreationPaths } from '~/core/router'
 import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -21,7 +21,8 @@ export const AiAgent = () => {
   const location = useLocation()
   const { hasPermissions } = usePermissions()
 
-  const match = matchRoutes(objectCreationPaths, location)
+  const match =
+    matchRoutes(objectCreationPaths, location) || matchRoutes(settingsObjectCreationPaths, location)
 
   if (match) {
     return null
