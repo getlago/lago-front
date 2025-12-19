@@ -724,63 +724,119 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
           </div>
         </div>
         <div
-          class="flex flex-col gap-6"
+          class="ml-auto flex w-full max-w-100 flex-col gap-3"
         >
           <div
-            class="ml-auto flex w-full max-w-100 flex-col gap-3"
+            class="flex items-center justify-between"
           >
             <div
-              class="flex items-center justify-between"
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Subtotal (excl. tax)
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
+                Subtotal (excl. tax)
               </div>
             </div>
             <div
-              class="flex items-center justify-between"
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Tax
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
+                Tax
               </div>
             </div>
             <div
-              class="flex items-center justify-between"
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Tax (0%)
-                </div>
+                Tax (0%)
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              $0.00
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                data-test="bodyHl"
+              >
+                Credit note total amount
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex flex-col gap-6 border-b border-grey-300 pb-12"
+      >
+        <div
+          class="flex flex-col gap-6"
+        >
+          <div>
+            <div
+              class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+              data-test="subhead1"
+            >
+              Allocate credit note
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+              data-test="caption"
+            >
+              Choose how to allocate this credit note.
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 rounded-xl bg-grey-100 p-4"
+          >
+            <div>
+              <div
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
+              >
+                Credit note total
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
@@ -789,24 +845,32 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 $0.00
               </div>
             </div>
-            <div
-              class="flex items-center justify-between"
-            >
+            <div>
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Credit note total amount
-                </div>
+                Allocated so far
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
                 data-test="body"
               >
-                -
+                $0.00
+              </div>
+            </div>
+            <div>
+              <div
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
+              >
+                Remaining to allocate
+              </div>
+              <div
+                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                data-test="body"
+              >
+                $0.00
               </div>
             </div>
           </div>
@@ -817,18 +881,26 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               <div
                 class="flex items-center justify-between"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Credit on customer wallet
+                <div>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Refund
+                  </div>
+                  <div
+                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    data-test="caption"
+                  >
+                    Refund the customer (max: $0.00)
+                  </div>
                 </div>
                 <div
                   class="flex flex-col gap-1 max-w-42"
                 >
                   <div
                     class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
-                    data-test="credit-amount-input"
+                    data-test="refund-amount-input"
                   >
                     <div
                       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
@@ -845,8 +917,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       <input
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
-                        id="payBack.0.value"
-                        name="payBack.0.value"
+                        id="payBack.1.value"
+                        name="payBack.1.value"
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
@@ -875,18 +947,26 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               <div
                 class="flex items-center justify-between"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Refund customer (maximum $0.00)
+                <div>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Credit on customer wallet
+                  </div>
+                  <div
+                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    data-test="caption"
+                  >
+                    Add for future invoices (max: $0.00)
+                  </div>
                 </div>
                 <div
                   class="flex flex-col gap-1 max-w-42"
                 >
                   <div
                     class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
-                    data-test="refund-amount-input"
+                    data-test="credit-amount-input"
                   >
                     <div
                       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
@@ -903,8 +983,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       <input
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
-                        id="payBack.1.value"
-                        name="payBack.1.value"
+                        id="payBack.0.value"
+                        name="payBack.0.value"
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
@@ -1602,63 +1682,140 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
           </div>
         </div>
         <div
-          class="flex flex-col gap-6"
+          class="ml-auto flex w-full max-w-100 flex-col gap-3"
         >
           <div
-            class="ml-auto flex w-full max-w-100 flex-col gap-3"
+            class="flex items-center justify-between"
           >
             <div
-              class="flex items-center justify-between"
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Subtotal (excl. tax)
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
+                Subtotal (excl. tax)
               </div>
             </div>
             <div
-              class="flex items-center justify-between"
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Tax
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
+                Tax
               </div>
             </div>
             <div
-              class="flex items-center justify-between"
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Tax (0%)
-                </div>
+                Tax (0%)
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              $0.00
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                data-test="bodyHl"
+              >
+                Credit note total amount
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+            data-test="credit-only-amount-line"
+          >
+            <div
+              class="flex items-center gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                data-test="bodyHl"
+              >
+                Credit on customer wallet
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              $0.00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex flex-col gap-6 border-b border-grey-300 pb-12"
+      >
+        <div
+          class="flex flex-col gap-6"
+        >
+          <div>
+            <div
+              class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+              data-test="subhead1"
+            >
+              Allocate credit note
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+              data-test="caption"
+            >
+              Choose how to allocate this credit note.
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 rounded-xl bg-grey-100 p-4"
+          >
+            <div>
+              <div
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
+              >
+                Credit note total
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
@@ -1667,45 +1824,170 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 $0.00
               </div>
             </div>
-            <div
-              class="flex items-center justify-between"
-            >
+            <div>
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Credit note total amount
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
-              </div>
-            </div>
-            <div
-              class="flex items-center justify-between"
-              data-test="credit-only-amount-line"
-            >
-              <div
-                class="flex items-center gap-2"
-              >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Credit on customer wallet
-                </div>
+                Allocated so far
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
                 data-test="body"
               >
                 $0.00
+              </div>
+            </div>
+            <div>
+              <div
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
+              >
+                Remaining to allocate
+              </div>
+              <div
+                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                data-test="body"
+              >
+                $0.00
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex flex-col gap-4"
+          >
+            <div>
+              <div
+                class="flex items-center justify-between"
+              >
+                <div>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Refund
+                  </div>
+                  <div
+                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    data-test="caption"
+                  >
+                    Refund the customer (max: $0.00)
+                  </div>
+                </div>
+                <div
+                  class="flex flex-col gap-1 max-w-42"
+                >
+                  <div
+                    class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                    data-test="refund-amount-input"
+                  >
+                    <div
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                    >
+                      <div
+                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                        >
+                          $
+                        </p>
+                      </div>
+                      <input
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                        disabled=""
+                        id="payBack.1.value"
+                        name="payBack.1.value"
+                        placeholder="0.00"
+                        style="text-align: right;"
+                        type="text"
+                        value=""
+                      />
+                      <fieldset
+                        aria-hidden="true"
+                        class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      >
+                        <legend
+                          class="css-1whs34k-MuiNotchedOutlined-root"
+                        >
+                          <span
+                            class="notranslate"
+                          >
+                            ​
+                          </span>
+                        </legend>
+                      </fieldset>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div
+                class="flex items-center justify-between"
+              >
+                <div>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Credit on customer wallet
+                  </div>
+                  <div
+                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    data-test="caption"
+                  >
+                    Add for future invoices (max: $0.00)
+                  </div>
+                </div>
+                <div
+                  class="flex flex-col gap-1 max-w-42"
+                >
+                  <div
+                    class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                    data-test="credit-amount-input"
+                  >
+                    <div
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                    >
+                      <div
+                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                        >
+                          $
+                        </p>
+                      </div>
+                      <input
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                        disabled=""
+                        id="payBack.0.value"
+                        name="payBack.0.value"
+                        placeholder="0.00"
+                        style="text-align: right;"
+                        type="text"
+                        value=""
+                      />
+                      <fieldset
+                        aria-hidden="true"
+                        class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      >
+                        <legend
+                          class="css-1whs34k-MuiNotchedOutlined-root"
+                        >
+                          <span
+                            class="notranslate"
+                          >
+                            ​
+                          </span>
+                        </legend>
+                      </fieldset>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2012,7 +2294,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                     autocapitalize="none"
                     autocomplete="off"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r3s:"
+                    id=":r3u:"
                     name="reason"
                     placeholder="Select or search a reason"
                     role="combobox"
@@ -2176,7 +2458,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="subscription-checkbox-sub-1"
-                for=":r3v:"
+                for=":r41:"
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -2188,7 +2470,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                       aria-checked="true"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r3v:"
+                      id=":r41:"
                       readonly=""
                       type="checkbox"
                     />
@@ -2252,7 +2534,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="checkbox-fees.sub-1.fees.0.checked"
-                for=":r40:"
+                for=":r42:"
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -2265,7 +2547,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                       aria-labelledby="fees.sub-1.fees.0.checked"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r40:"
+                      id=":r42:"
                       readonly=""
                       type="checkbox"
                     />
@@ -2381,63 +2663,140 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
           </div>
         </div>
         <div
-          class="flex flex-col gap-6"
+          class="ml-auto flex w-full max-w-100 flex-col gap-3"
         >
           <div
-            class="ml-auto flex w-full max-w-100 flex-col gap-3"
+            class="flex items-center justify-between"
           >
             <div
-              class="flex items-center justify-between"
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Subtotal (excl. tax)
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
+                Subtotal (excl. tax)
               </div>
             </div>
             <div
-              class="flex items-center justify-between"
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Tax
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
+                Tax
               </div>
             </div>
             <div
-              class="flex items-center justify-between"
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
             >
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                data-test="bodyHl"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Tax (0%)
-                </div>
+                Tax (0%)
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              $0.00
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <div
+              class="flex items-center gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                data-test="bodyHl"
+              >
+                Credit note total amount
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              -
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+            data-test="credit-only-amount-line"
+          >
+            <div
+              class="flex items-center gap-2"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                data-test="bodyHl"
+              >
+                Credit on customer wallet
+              </div>
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              data-test="body"
+            >
+              $0.00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex flex-col gap-6 border-b border-grey-300 pb-12"
+      >
+        <div
+          class="flex flex-col gap-6"
+        >
+          <div>
+            <div
+              class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+              data-test="subhead1"
+            >
+              Allocate credit note
+            </div>
+            <div
+              class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+              data-test="caption"
+            >
+              Choose how to allocate this credit note.
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 rounded-xl bg-grey-100 p-4"
+          >
+            <div>
+              <div
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
+              >
+                Credit note total
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
@@ -2446,45 +2805,170 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 $0.00
               </div>
             </div>
-            <div
-              class="flex items-center justify-between"
-            >
+            <div>
               <div
-                class="flex items-center gap-2"
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
               >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Credit note total amount
-                </div>
-              </div>
-              <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
-                data-test="body"
-              >
-                -
-              </div>
-            </div>
-            <div
-              class="flex items-center justify-between"
-              data-test="credit-only-amount-line"
-            >
-              <div
-                class="flex items-center gap-2"
-              >
-                <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
-                  data-test="bodyHl"
-                >
-                  Credit on customer wallet
-                </div>
+                Allocated so far
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
                 data-test="body"
               >
                 $0.00
+              </div>
+            </div>
+            <div>
+              <div
+                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                data-test="caption"
+              >
+                Remaining to allocate
+              </div>
+              <div
+                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                data-test="body"
+              >
+                $0.00
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex flex-col gap-4"
+          >
+            <div>
+              <div
+                class="flex items-center justify-between"
+              >
+                <div>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Refund
+                  </div>
+                  <div
+                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    data-test="caption"
+                  >
+                    Refund the customer (max: $0.00)
+                  </div>
+                </div>
+                <div
+                  class="flex flex-col gap-1 max-w-42"
+                >
+                  <div
+                    class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                    data-test="refund-amount-input"
+                  >
+                    <div
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                    >
+                      <div
+                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                        >
+                          $
+                        </p>
+                      </div>
+                      <input
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                        disabled=""
+                        id="payBack.1.value"
+                        name="payBack.1.value"
+                        placeholder="0.00"
+                        style="text-align: right;"
+                        type="text"
+                        value=""
+                      />
+                      <fieldset
+                        aria-hidden="true"
+                        class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      >
+                        <legend
+                          class="css-1whs34k-MuiNotchedOutlined-root"
+                        >
+                          <span
+                            class="notranslate"
+                          >
+                            ​
+                          </span>
+                        </legend>
+                      </fieldset>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div
+                class="flex items-center justify-between"
+              >
+                <div>
+                  <div
+                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    data-test="bodyHl"
+                  >
+                    Credit on customer wallet
+                  </div>
+                  <div
+                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    data-test="caption"
+                  >
+                    Add for future invoices (max: $0.00)
+                  </div>
+                </div>
+                <div
+                  class="flex flex-col gap-1 max-w-42"
+                >
+                  <div
+                    class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                    data-test="credit-amount-input"
+                  >
+                    <div
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                    >
+                      <div
+                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                        >
+                          $
+                        </p>
+                      </div>
+                      <input
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                        disabled=""
+                        id="payBack.0.value"
+                        name="payBack.0.value"
+                        placeholder="0.00"
+                        style="text-align: right;"
+                        type="text"
+                        value=""
+                      />
+                      <fieldset
+                        aria-hidden="true"
+                        class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      >
+                        <legend
+                          class="css-1whs34k-MuiNotchedOutlined-root"
+                        >
+                          <span
+                            class="notranslate"
+                          >
+                            ​
+                          </span>
+                        </legend>
+                      </fieldset>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
