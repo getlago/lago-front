@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   ActionItem,
@@ -21,7 +21,7 @@ import {
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
+import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE, ROLE_EDIT_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { PageHeader } from '~/styles'
@@ -34,7 +34,8 @@ import { RoleItem } from '../common/roleTypes'
 const RolesList = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
-  const { roles, isLoadingRoles } = useRolesList()
+  const navigate = useNavigate()
+  const { roles, isLoadingRoles, deleteRole } = useRolesList()
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
@@ -116,7 +117,10 @@ const RolesList = () => {
         startIcon: 'duplicate',
         title: translate('text_64fa170e02f348164797a6af'),
         onAction: async () => {
-          // Launch duplicate role logic here then navigate to it
+          const path = generatePath(ROLE_CREATE_ROUTE)
+          const query = `?duplicate-from=${role.id}`
+
+          navigate(`${path}${query}`)
         },
       },
       {
@@ -124,7 +128,7 @@ const RolesList = () => {
         title: translate('text_1765528921745ibx4b56q1mt'),
         disabled: !canEdit,
         onAction: async () => {
-          // Launch duplicate role logic here then navigate to it
+          navigate(generatePath(ROLE_EDIT_ROUTE, { roleId: role.id }))
         },
       },
       {
@@ -132,6 +136,7 @@ const RolesList = () => {
         title: translate('text_6261640f28a49700f1290df5'),
         disabled: !canDelete,
         onAction: async () => {
+          deleteRole(role.id)
           // Launch duplicate role logic here then navigate to it
         },
       },

@@ -49,6 +49,7 @@ export interface TextInputProps extends Omit<
   beforeChangeFormatter?: ValueFormatterType[] | ValueFormatterType
   infoText?: string
   startAdornmentValue?: string
+  isOptional?: boolean
   onChange?: (value: string, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null) => void
 }
 
@@ -150,6 +151,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       InputProps,
       type = 'text',
       password,
+      isOptional = false,
       beforeChangeFormatter,
       onChange,
       ...props
@@ -257,7 +259,14 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
               color="textSecondary"
               component={(labelProps) => <label htmlFor={name} {...labelProps} />}
             >
-              {label}
+              <span className="flex flex-row gap-1">
+                {label}{' '}
+                {isOptional && (
+                  <Typography variant="caption" color="grey600">
+                    - {translate('text_17661418227616cvcuga1x7m')}
+                  </Typography>
+                )}
+              </span>
             </Typography>
             {!!infoText && (
               <Tooltip placement="top-start" title={infoText}>

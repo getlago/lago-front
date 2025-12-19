@@ -21,9 +21,9 @@ import { MenuPopper, PageHeader } from '~/styles'
 
 import RoleDetailsMembers from './roleDetailsMembers/RoleDetailsMembers'
 import RoleDetailsPermissions from './roleDetailsPermissions/RoleDetailsPermissions'
-import { useRoleDetails } from './useRoleDetails'
 
 import { roleDetailsTabOptions } from '../common/rolesConst'
+import { useRoleDetails } from '../common/useRoleDetails'
 import { useRoleDisplayName } from '../common/useRoleDisplayName'
 
 const RoleDetails = () => {
