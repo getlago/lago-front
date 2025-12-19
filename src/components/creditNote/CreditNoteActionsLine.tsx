@@ -19,6 +19,7 @@ interface CreditNoteActionsLineProps {
   name: string
   error?: string
   hasError?: boolean
+  disabled?: boolean
 }
 
 export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
@@ -29,6 +30,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   name,
   hasError,
   error,
+  disabled,
 }) => {
   const currencySymbol = getCurrencySymbol(currency)
 
@@ -61,6 +63,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
           className="max-w-42"
           beforeChangeFormatter={['positiveNumber']}
           error={!!error || hasError}
+          disabled={disabled}
           inputProps={{ style: { textAlign: 'right' } }}
           InputProps={
             currency && {

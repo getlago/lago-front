@@ -1437,7 +1437,6 @@
   "text_63720bd734e1344aea75b7e9": "Anular créditos",
   "text_63720bd734e1344aea75b85d": "Crédito disponível anulado com sucesso",
   "text_637d0e720ace4ea09aaf0630": "Crédito na carteira do cliente",
-  "text_637d10c83077eff6e8c79cd0": "Reembolsar cliente (máximo {{max}})",
   "text_637e23e47a15bf0bd71e0d03": "O valor do reembolso não pode exceder {{max}}",
   "text_637e334680481f653e8caa9d": "O <b>valor total a creditar</b>, calculado somando os valores dos itens, deve ser igual à soma do crédito na carteira do cliente e o valor total do reembolso de {{total}}.",
   "text_63725b30957fd5b26b308dd3": "Notas de crédito",

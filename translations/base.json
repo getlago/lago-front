@@ -1427,7 +1427,6 @@
   "text_63720bd734e1344aea75b7e9": "Void credits",
   "text_63720bd734e1344aea75b85d": "Credit available successfully voided",
   "text_637d0e720ace4ea09aaf0630": "Credit on customer wallet",
-  "text_637d10c83077eff6e8c79cd0": "Refund customer (maximum {{max}})",
   "text_637e23e47a15bf0bd71e0d03": "Refund amount cannot exceed {{max}}",
   "text_637e334680481f653e8caa9d": "The <b>total amount to credit</b>, calculated by summing the item amounts, must equal the sum of the credit on the customer’s wallet and the total refund amount of {{total}}.",
   "text_63725b30957fd5b26b308dd3": "Credit notes",

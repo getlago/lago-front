@@ -26,18 +26,18 @@ const renderComponent = (props = {}) => {
 
 describe('CreditNoteFormAllocation', () => {
   describe('refund fields', () => {
-    it('should render refund and credit inputs when canRefund is true', () => {
+    it('should always render refund and credit inputs', () => {
       renderComponent({ canRefund: true })
 
       expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
     })
 
-    it('should not render refund inputs when canRefund is false', () => {
+    it('should render inputs even when canRefund is false', () => {
       renderComponent({ canRefund: false })
 
-      expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
-      expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
     })
   })
 
