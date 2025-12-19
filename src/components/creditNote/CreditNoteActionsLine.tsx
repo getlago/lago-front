@@ -12,6 +12,7 @@ export const CREDIT_AMOUNT_INPUT_TEST_ID = 'credit-amount-input'
 export const REFUND_AMOUNT_INPUT_TEST_ID = 'refund-amount-input'
 
 interface CreditNoteActionsLineProps {
+  details: string
   label: string
   formikProps: FormikProps<Partial<CreditNoteForm>>
   currency: CurrencyEnum
@@ -21,6 +22,7 @@ interface CreditNoteActionsLineProps {
 }
 
 export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
+  details,
   label,
   formikProps,
   currency,
@@ -41,9 +43,16 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <Typography variant="bodyHl" color="grey700">
-          {label}
-        </Typography>
+        <div>
+          <Typography variant="bodyHl" color="grey700">
+            {label}
+          </Typography>
+          {details && (
+            <Typography variant="caption" color="grey600">
+              {details}
+            </Typography>
+          )}
+        </div>
 
         <AmountInputField
           name={name}
