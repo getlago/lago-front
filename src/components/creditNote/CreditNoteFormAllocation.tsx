@@ -102,50 +102,52 @@ export const CreditNoteFormAllocation = ({
         </Alert>
       )}
 
-      {canRefund && (
-        <div className="flex flex-col gap-4">
-          <CreditNoteActionsLine
-            details={translate('text_17661623560070v25swovor4', {
-              max: maxRefundableAmountFormatted,
-            })}
-            formikProps={formikProps}
-            name="payBack.1.value"
-            currency={currency}
-            label={translate('text_17270794543889mcmuhfq70p')}
-            hasError={
-              !!getIn(formikProps.errors, 'payBack.1.value') ||
-              !!getIn(formikProps.errors, 'payBackErrors')
-            }
-            error={
-              getIn(formikProps.errors, 'payBack.1.value') === PayBackErrorEnum.maxRefund
-                ? translate('text_637e23e47a15bf0bd71e0d03', {
-                    max: intlFormatNumber(maxRefundableAmount, { currency }),
-                  })
-                : undefined
-            }
-          />
-          <CreditNoteActionsLine
-            details={translate('text_1766162519559r3f2pkqdp79', {
-              max: maxCreditableAmountFormatted,
-            })}
-            formikProps={formikProps}
-            name="payBack.0.value"
-            currency={currency}
-            label={translate('text_637d0e720ace4ea09aaf0630')}
-            hasError={
-              !!getIn(formikProps.errors, 'payBack.0.value') ||
-              !!getIn(formikProps.errors, 'payBackErrors')
-            }
-            error={
-              getIn(formikProps.errors, 'payBack.0.value') === PayBackErrorEnum.maxCredit
-                ? translate('text_1738751394771xq525lyxj9k', {
-                    max: maxCreditableAmountFormatted,
-                  })
-                : undefined
-            }
-          />
-        </div>
-      )}
+      <div className="flex flex-col gap-4">
+        <CreditNoteActionsLine
+          details={translate('text_17661623560070v25swovor4', {
+            max: maxRefundableAmountFormatted,
+          })}
+          formikProps={formikProps}
+          name="payBack.1.value"
+          currency={currency}
+          label={translate('text_17270794543889mcmuhfq70p')}
+          disabled={!canRefund}
+          hasError={
+            canRefund &&
+            (!!getIn(formikProps.errors, 'payBack.1.value') ||
+              !!getIn(formikProps.errors, 'payBackErrors'))
+          }
+          error={
+            getIn(formikProps.errors, 'payBack.1.value') === PayBackErrorEnum.maxRefund
+              ? translate('text_637e23e47a15bf0bd71e0d03', {
+                  max: intlFormatNumber(maxRefundableAmount, { currency }),
+                })
+              : undefined
+          }
+        />
+        <CreditNoteActionsLine
+          details={translate('text_1766162519559r3f2pkqdp79', {
+            max: maxCreditableAmountFormatted,
+          })}
+          formikProps={formikProps}
+          name="payBack.0.value"
+          currency={currency}
+          label={translate('text_637d0e720ace4ea09aaf0630')}
+          disabled={!canRefund}
+          hasError={
+            canRefund &&
+            (!!getIn(formikProps.errors, 'payBack.0.value') ||
+              !!getIn(formikProps.errors, 'payBackErrors'))
+          }
+          error={
+            getIn(formikProps.errors, 'payBack.0.value') === PayBackErrorEnum.maxCredit
+              ? translate('text_1738751394771xq525lyxj9k', {
+                  max: maxCreditableAmountFormatted,
+                })
+              : undefined
+          }
+        />
+      </div>
     </div>
   )
 }
