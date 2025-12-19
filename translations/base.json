@@ -3651,6 +3651,11 @@
   "text_1765464506554l3g5v7dctfv": "System",
   "text_1765528202844ro1c3jxwbs8": "Manage role",
   "text_1765528921745ibx4b56q1mt": "Edit role",
+  "text_1766138146087w2ax628r6j1": "Create role",
+  "text_176613814608779rumjj7r2d": "Add a new role",
+  "text_1766138146087vq4eqb2moza": "Edit this role",
+  "text_176613820114657nlabp19lm": "Create a new role with custom permissions",
+  "text_1766138201147d9p3xi519nq": "Edit this role with custom permissions",
   "text_1765530135524j574y0dr6bb": "List all roles in your organization",
   "text_1765530400261k7yl3n4kk8h": "Add a new role",
   "text_1765809421198bliknx7z31x": "Permissions",
@@ -3783,5 +3788,15 @@
   "text_1766047644675mhoyd5oe387": "Update a wallet",
   "text_17660641695938ntvs0023to": "View all members assigned to this role",
   "text_1766071560701xrf1tn0w5wx": "Audit Logs",
-  "text_1766071560701ud8peghugtg": "Data API"
+  "text_1766071560701ud8peghugtg": "Data API",
+  "text_17661418227616cvcuga1x7m": "Optional",
+  "text_17661418987504ov1o9cqxp9": "Define a role name",
+  "text_176614189875029z5fbpnkne": "Define a role description",
+  "text_1766149969683xorkc7s7fcj": "Role Permissions",
+  "text_1766149969683a8fo8a1bc87": "Review and adjust what this role can access and perform in Lago",
+  "text_1766153788882ynf8snr3mjq": "0 permissions enabled",
+  "text_1766155139328b95i4fjkwe9": "Role name is required",
+  "text_1766158947598y30l6z5btl6": "Custom role created successfully",
+  "text_176615894759841ijqrfnb29": "Custom role edited successfully",
+  "text_1766158947598m8ut1nw2vjq": "Custom role deleted successfully"
 }

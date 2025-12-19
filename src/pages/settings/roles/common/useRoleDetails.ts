@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { systemRoles } from '../common/rolesConst'
-import { type RoleItem } from '../common/roleTypes'
+import { systemRoles } from './rolesConst'
+import { type RoleItem } from './roleTypes'
+
 import { allRoles } from '../rolesList/mock/allRoles'
 
 export const useRoleDetails = ({
@@ -20,23 +21,25 @@ export const useRoleDetails = ({
   const [canBeEdited, setCanBeEdited] = useState(false)
   const [canBeDeleted, setCanBeDeleted] = useState(false)
 
-  setTimeout(() => {
-    const foundRole = allRoles.find((r) => r.id === roleId)
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoadingRole(false)
+      const foundRole = allRoles.find((r) => r.id === roleId)
 
-    if (!foundRole) return
+      if (!foundRole) return
 
-    setIsLoadingRole(false)
-    setRole(foundRole)
+      setRole(foundRole)
 
-    if (systemRoles.includes(foundRole.name)) {
-      setCanBeEdited(false)
-      setCanBeDeleted(false)
-      return
-    }
+      if (systemRoles.includes(foundRole.name)) {
+        setCanBeEdited(false)
+        setCanBeDeleted(false)
+        return
+      }
 
-    setCanBeEdited(true)
-    setCanBeDeleted(foundRole.members.length === 0)
-  }, 1000)
+      setCanBeEdited(true)
+      setCanBeDeleted(foundRole.members.length === 0)
+    }, 1000)
+  }, [roleId])
 
   return {
     role,
