@@ -8,6 +8,8 @@ gql`
   fragment MembershipPermissions on Membership {
     id
     permissions {
+      aiConversationsView
+      aiConversationsCreate
       addonsCreate
       addonsDelete
       addonsUpdate
