@@ -5,9 +5,11 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, Schema, string } from 'yup'
 
 import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'
+import { CreditNoteFormAllocation } from '~/components/creditNote/CreditNoteFormAllocation'
 import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
 import { CreditNoteItemsForm } from '~/components/creditNote/CreditNoteItemsForm'
 import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
+import { useCreditNoteFormCalculation } from '~/components/creditNote/useCreditNoteFormCalculation'
 import {
   creditNoteFormCalculationCalculation,
   creditNoteFormHasAtLeastOneFeeChecked,
@@ -174,6 +176,13 @@ const CreateCreditNote = () => {
       }),
     [currency, formikProps.values.addOnFee, formikProps.values.fees, hasError],
   )
+
+  const creditNoteCalculation = useCreditNoteFormCalculation({
+    invoice,
+    formikProps,
+    feeForEstimate,
+    setPayBackValidation,
+  })
 
   const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
 
@@ -418,13 +427,30 @@ const CreateCreditNote = () => {
               ) : (
                 <CreditNoteFormCalculation
                   hasError={hasError}
-                  invoice={invoice}
-                  formikProps={formikProps}
-                  feeForEstimate={feeForEstimate}
-                  setPayBackValidation={setPayBackValidation}
+                  currency={creditNoteCalculation.currency}
+                  estimationLoading={creditNoteCalculation.estimationLoading}
+                  hasCouponLine={creditNoteCalculation.hasCouponLine}
+                  proRatedCouponAmount={creditNoteCalculation.proRatedCouponAmount}
+                  totalExcludedTax={creditNoteCalculation.totalExcludedTax}
+                  taxes={creditNoteCalculation.taxes}
+                  totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
+                  canOnlyCredit={creditNoteCalculation.canOnlyCredit}
                 />
               )}
             </div>
+
+            <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
+              <CreditNoteFormAllocation
+                formikProps={formikProps}
+                currency={creditNoteCalculation.currency}
+                canRefund={creditNoteCalculation.canRefund}
+                maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
+                maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
+                totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
+                estimationLoading={creditNoteCalculation.estimationLoading}
+              />
+            </div>
+
             <div className="flex flex-col">
               <MetadataFormCard formikProps={formikProps} />
             </div>

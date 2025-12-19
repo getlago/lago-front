@@ -3643,5 +3643,9 @@
   "text_1766074535187nro7qatdzyh": "Max refundable",
   "text_1766133873554m5a3a9c8x2f": "Select fees and their associated amount to constitute the credit note.",
   "text_1766135526530syun4t00t28": "Allocate credit note",
-  "text_1766135526530nw5fnkx9f2x": "Choose how to allocate this credit note."
+  "text_1766135526530nw5fnkx9f2x": "Choose how to allocate this credit note.",
+  "text_17661623560070v25swovor4": "Refund the customer (max: {{max}})",
+  "text_1766162519559r3f2pkqdp79": "Add for future invoices (max: {{max}})",
+  "text_1766162940956q60f79xxr11": "Allocated so far",
+  "text_1766162940956fzxpt25f23k": "Remaining to allocate"
 }
