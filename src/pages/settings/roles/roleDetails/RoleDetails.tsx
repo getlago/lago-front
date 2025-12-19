@@ -1,16 +1,23 @@
 import { generatePath, useParams } from 'react-router-dom'
 
 import {
+  Button,
   ButtonLink,
   NavigationTab,
   NavigationTabItem,
+  Popper,
   Skeleton,
   Typography,
 } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { ROLE_DETAILS_ROUTE, ROLE_DETAILS_TAB_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
+import {
+  ROLE_DETAILS_ROUTE,
+  ROLE_DETAILS_TAB_ROUTE,
+  ROLE_EDIT_ROUTE,
+  ROLES_LIST_ROUTE,
+} from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { PageHeader } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 import RoleDetailsMembers from './roleDetailsMembers/RoleDetailsMembers'
 import RoleDetailsPermissions from './roleDetailsPermissions/RoleDetailsPermissions'
@@ -22,7 +29,7 @@ import { useRoleDisplayName } from '../common/useRoleDisplayName'
 const RoleDetails = () => {
   const { translate } = useInternationalization()
   const { roleId } = useParams<string>()
-  const { role, isLoadingRole } = useRoleDetails({ roleId })
+  const { role, isLoadingRole, canBeEdited, canBeDeleted } = useRoleDetails({ roleId })
   const { getDisplayName } = useRoleDisplayName()
 
   if (!roleId) {
@@ -67,6 +74,8 @@ const RoleDetails = () => {
     },
   ]
 
+  const handleDelete = () => {}
+
   return (
     <>
       <PageHeader.Wrapper>
@@ -83,6 +92,33 @@ const RoleDetails = () => {
             </Typography>
           )}
         </PageHeader.Group>
+        <Popper
+          PopperProps={{ placement: 'bottom-end' }}
+          opener={
+            <Button endIcon="chevron-down">{translate('text_634687079be251fdb438338f')}</Button>
+          }
+        >
+          {() => (
+            <MenuPopper>
+              <ButtonLink
+                to={generatePath(ROLE_EDIT_ROUTE, { roleId })}
+                type="tab"
+                icon="pen"
+                disabled={!canBeEdited}
+              >
+                {translate('text_63aa15caab5b16980b21b0b8')}
+              </ButtonLink>
+              <Button
+                startIcon="trash"
+                variant="quaternary"
+                disabled={!canBeDeleted}
+                onClick={handleDelete}
+              >
+                {translate('text_6261640f28a49700f1290df5')}
+              </Button>
+            </MenuPopper>
+          )}
+        </Popper>
       </PageHeader.Wrapper>
       <DetailsPage.Header
         isLoading={isLoadingRole}
