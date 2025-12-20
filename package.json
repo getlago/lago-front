@@ -120,7 +120,7 @@
     "@llm-ui/react": "0.13.3",
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
-    "@nangohq/frontend": "0.69.14",
+    "@nangohq/frontend": "0.69.17",
     "@sentry/react": "10.27.0",
     "@tanstack/react-form": "1.27.0",
     "@tanstack/react-virtual": "3.13.13",
