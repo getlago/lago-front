@@ -293,6 +293,10 @@ export const objectCreationRoutes: CustomRouteObject[] = [
   },
 ]
 
+export const objectCreationPaths = objectCreationRoutes
+  ?.reduce((prev, curr) => prev.concat(curr.path ? curr.path : []), [] as string[])
+  ?.map((path) => ({ path }))
+
 export const objectDetailsRoutes: CustomRouteObject[] = [
   {
     path: [CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE],

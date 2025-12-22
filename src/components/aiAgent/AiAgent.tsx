@@ -1,30 +1,38 @@
 import { tw } from 'lago-design-system'
 import { useState } from 'react'
 import { Panel, PanelResizeHandle } from 'react-resizable-panels'
+import { matchRoutes, useLocation } from 'react-router-dom'
 
 import { ChatHistory } from '~/components/aiAgent/ChatHistory'
 import { NavigationBar } from '~/components/aiAgent/NavigationBar'
 import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
+import { objectCreationPaths } from '~/core/router'
 import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 
 export const AiAgent = () => {
   const { panelRef, currentPanelOpened, panelOpen, state, resetConversation } = useAiAgent()
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
-
-  const isAgentFeatureFlagEnabled = isFeatureFlagActive(FeatureFlags.AI_AGENT)
-
-  const hasAccessToAiAgent = isPremium && isAgentFeatureFlagEnabled
-
   const [showHistory, setShowHistory] = useState(false)
+  const location = useLocation()
+  const { hasPermissions } = usePermissions()
+
+  const match = matchRoutes(objectCreationPaths, location)
+
+  if (match) {
+    return null
+  }
 
   if (!currentUser) {
     return null
   }
+
+  const hasAccessToAiAgent =
+    isPremium && hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
 
   const shouldDisplayWelcomeMessage = !state.messages.length
 
@@ -46,7 +54,8 @@ export const AiAgent = () => {
         </div>
       </div>
 
-      <PanelResizeHandle />
+      <PanelResizeHandle disabled={currentPanelOpened !== AIPanelEnum.ai} />
+
       <Panel
         id="ai-panel"
         ref={panelRef}
