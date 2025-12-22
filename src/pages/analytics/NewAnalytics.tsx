@@ -4,8 +4,9 @@ import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 import { NavigationTab, Typography } from '~/components/designSystem'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Invoices from '~/pages/analytics/Invoices'
 import Mrr from '~/pages/analytics/Mrr'
 import PrepaidCredits from '~/pages/analytics/PrepaidCredits'
@@ -17,7 +18,9 @@ const NewAnalytics = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const hasAccessToUsage = isFeatureFlagActive(FeatureFlags.ANALYTICS_USAGE)
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+
+  const hasAccessToUsage = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.RevenueAnalytics)
 
   // Redirect to revenue-streams when URL is exactly /analytics
   // Cause we support old and new analytics routes, this is needed
