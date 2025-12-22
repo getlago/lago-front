@@ -21,6 +21,8 @@ import {
   WarningDialogRef,
 } from '~/components/designSystem'
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import {
   EditFeeBillingPeriod,
   EditFeeBillingPeriodRef,
@@ -39,6 +41,8 @@ import {
 } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
@@ -150,6 +154,7 @@ gql`
   query getInfosForCreateInvoice($id: ID!) {
     customer(id: $id) {
       id
+      externalId
       addressLine1
       addressLine2
       city
@@ -379,7 +384,7 @@ const CreateInvoice = () => {
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: async ({ fees, ...values }) => {
+    onSubmit: async ({ fees, paymentMethod, invoiceCustomSection, ...values }) => {
       if (voidedInvoiceId && prefillData?.invoice?.id && actions.canVoid(prefillData?.invoice)) {
         const res = await voidInvoice({
           variables: {
@@ -400,6 +405,10 @@ const CreateInvoice = () => {
           input: {
             ...values,
             ...(prefillData?.invoice?.id ? { voidedInvoiceId: prefillData?.invoice?.id } : {}),
+            paymentMethod,
+            invoiceCustomSection: toInvoiceCustomSectionReference(
+              invoiceCustomSection as InvoiceCustomSectionInput,
+            ),
             fees: fees.map(({ unitAmountCents, taxes: addonTaxes, ...fee }) => {
               return {
                 ...fee,
@@ -584,7 +593,7 @@ const CreateInvoice = () => {
   const invoiceFooterLineClassname =
     'flex items-center [&>*:first-child]:mr-4 [&>*:first-child]:flex-1 [&>*:last-child]:w-42 [&>*:last-child]:text-end'
 
-  const canSubmit = formikProps.isValid && (!!voidedInvoiceId || formikProps.dirty)
+  const canSubmit = formikProps.isValid && hasAnyFee && (!!voidedInvoiceId || formikProps.dirty)
 
   const subtotalDisplayValue = formatInvoiceDisplayValue(
     hasTaxProvider,
@@ -1175,16 +1184,18 @@ const CreateInvoice = () => {
             )}
           </Card>
 
-          {hasAccessToMultiPaymentFlow && (
+          {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
             <Card>
-              <div className="flex w-[472px] flex-col gap-3">
-                <Typography variant="bodyHl" color="grey600">
-                  {translate('text_6453819268763979024ad0db')}
-                </Typography>
-                <Typography variant="body" color="grey700">
-                  {intlFormatNumber(subTotal, { currency })}
+              <div className="flex flex-col gap-1">
+                <Typography variant="subhead1">
+                  {translate('text_17634566456760qoj7hs7jrh')}
                 </Typography>
               </div>
+              <PaymentMethodsInvoiceSettings
+                customer={customer}
+                formikProps={formikProps}
+                viewType={ViewTypeEnum.OneOffInvoice}
+              />
             </Card>
           )}
         </div>
