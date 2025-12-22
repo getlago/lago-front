@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react'
 
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
@@ -78,7 +79,7 @@ describe('InvoiceCustomSectionDisplay', () => {
           ]}
           skipSections={false}
           customerId="customer-1"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -92,7 +93,7 @@ describe('InvoiceCustomSectionDisplay', () => {
           selectedSections={[]}
           skipSections={true}
           customerId="customer-1"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -119,7 +120,7 @@ describe('InvoiceCustomSectionDisplay', () => {
           selectedSections={[]}
           skipSections={false}
           customerId="customer-1"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -144,7 +145,7 @@ describe('InvoiceCustomSectionDisplay', () => {
           selectedSections={[]}
           skipSections={false}
           customerId="customer-1"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -169,7 +170,7 @@ describe('InvoiceCustomSectionDisplay', () => {
           selectedSections={[]}
           skipSections={false}
           customerId="customer-1"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 
@@ -195,7 +196,7 @@ describe('InvoiceCustomSectionDisplay', () => {
           selectedSections={[]}
           skipSections={false}
           customerId="customer-1"
-          viewType="subscription"
+          viewType={ViewTypeEnum.Subscription}
         />,
       )
 

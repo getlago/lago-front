@@ -51,7 +51,7 @@
     "@graphql-codegen/cli": "6.1.0",
     "@graphql-codegen/typescript": "5.0.6",
     "@graphql-codegen/typescript-operations": "5.0.6",
-    "@graphql-codegen/typescript-react-apollo": "4.3.3",
+    "@graphql-codegen/typescript-react-apollo": "4.3.4",
     "@parcel/watcher": "2.5.1",
     "@sentry/vite-plugin": "4.6.1",
     "@svgr/core": "8.1.0",
@@ -76,7 +76,7 @@
     "@vitejs/plugin-react-swc": "4.2.2",
     "autoprefixer": "10.4.22",
     "babel-jest": "30.2.0",
-    "baseline-browser-mapping": "^2.9.7",
+    "baseline-browser-mapping": "2.9.7",
     "class-variance-authority": "0.7.1",
     "cssnano": "7.1.2",
     "cypress": "15.7.0",
@@ -120,10 +120,10 @@
     "@llm-ui/react": "0.13.3",
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
-    "@nangohq/frontend": "0.69.14",
+    "@nangohq/frontend": "0.69.17",
     "@sentry/react": "10.27.0",
     "@tanstack/react-form": "1.27.0",
-    "@tanstack/react-virtual": "3.13.12",
+    "@tanstack/react-virtual": "3.13.13",
     "ace-builds": "1.43.5",
     "actioncable": "5.2.8-1",
     "apollo-link-timeout": "4.0.0",
@@ -153,7 +153,8 @@
     "sanitize-html": "2.17.0",
     "shiki": "3.17.0",
     "yup": "1.7.1",
-    "zod": "4.1.13"
+    "zod": "4.1.13",
+    "@superset-ui/embedded-sdk": "0.2.0"
   },
   "engines": {
     "node": ">=24.11.1"

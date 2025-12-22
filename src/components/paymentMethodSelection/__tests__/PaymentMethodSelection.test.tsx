@@ -1,7 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { ViewType } from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { PaymentMethodsDocument } from '~/generated/graphql'
 import {
   createMockPaymentMethod,
@@ -41,7 +41,7 @@ type PrepareType = {
   selectedPaymentMethod?: SelectedPaymentMethod
   title?: string
   description?: string
-  viewType?: ViewType
+  viewType?: ViewTypeEnum
   className?: string
   disabled?: boolean
   loading?: boolean
@@ -53,9 +53,7 @@ const mockSetSelectedPaymentMethod = jest.fn()
 
 async function prepare({
   selectedPaymentMethod,
-  title = 'Payment Method',
-  description = 'Select a payment method',
-  viewType = 'subscription',
+  viewType = ViewTypeEnum.Subscription,
   className,
   disabled = false,
   loading = false,
@@ -88,8 +86,6 @@ async function prepare({
         externalCustomerId={EXTERNAL_CUSTOMER_ID}
         selectedPaymentMethod={selectedPaymentMethod}
         setSelectedPaymentMethod={mockSetSelectedPaymentMethod}
-        title={title}
-        description={description}
         viewType={viewType}
         className={className}
         disabled={disabled}
@@ -107,35 +103,6 @@ describe('PaymentMethodSelection', () => {
   })
 
   describe('WHEN rendering with basic props', () => {
-    it('THEN renders title and description', async () => {
-      await prepare({
-        title: 'Payment Method Title',
-        description: 'Payment Method Description',
-      })
-
-      expect(screen.getByText('Payment Method Title')).toBeInTheDocument()
-      expect(screen.getByText('Payment Method Description')).toBeInTheDocument()
-    })
-
-    it('THEN renders without title and description when not provided', async () => {
-      await prepare({
-        title: '',
-        description: '',
-      })
-
-      expect(screen.queryByText('Payment Method Title')).not.toBeInTheDocument()
-      expect(screen.queryByText('Payment Method Description')).not.toBeInTheDocument()
-    })
-
-    it('THEN renders PaymentMethodDisplay component', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.getByText(/visa/i)).toBeInTheDocument()
-        expect(screen.getByText(/4242/i)).toBeInTheDocument()
-      })
-    })
-
     it('THEN renders edit button with correct text', async () => {
       await prepare()
 

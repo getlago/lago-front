@@ -9,7 +9,7 @@ import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 import { PaymentMethodComboBox } from './PaymentMethodComboBox'
 import { SelectedPaymentMethod } from './types'
 
-import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_PM_DIALOG_CANCEL_BUTTON_TEST_ID = 'edit-payment-method-dialog-cancel-button'
 export const EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID = 'edit-payment-method-dialog-save-button'
@@ -29,7 +29,7 @@ interface EditPaymentMethodDialogProps {
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
   paymentMethodsList: PaymentMethodList
-  viewType: ViewType
+  viewType: ViewTypeEnum
 }
 
 export const EditPaymentMethodDialog = ({
@@ -96,18 +96,13 @@ export const EditPaymentMethodDialog = ({
     return false
   }
 
-  const getViewTypeLabel = (): string => {
-    if (viewType === 'subscription') {
-      return translate('text_1764327933607nrezuuiheuc')
-    }
-    return viewType
-  }
+  const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
 
   return (
     <Dialog
       open={open}
-      title={translate('text_1764327933607ccgjo6zvcqe', { object: getViewTypeLabel() })}
-      description={translate('text_1764327933607muwda2648vk', { object: getViewTypeLabel() })}
+      title={translate('text_1764327933607ccgjo6zvcqe', { object: viewTypeLabel })}
+      description={translate('text_1764327933607muwda2648vk', { object: viewTypeLabel })}
       onClose={onClose}
       actions={({ closeDialog }) => (
         <>
@@ -147,7 +142,7 @@ export const EditPaymentMethodDialog = ({
               value={PaymentMethodBehavior.SPECIFIC}
               checked={behavior === PaymentMethodBehavior.SPECIFIC}
               onChange={(value) => setBehavior(value as PaymentMethodBehavior)}
-              label={translate('text_1764327933607k8rsl1pzong', { object: getViewTypeLabel() })}
+              label={translate('text_1764327933607k8rsl1pzong', { object: viewTypeLabel })}
               labelVariant="body"
             />
           </div>

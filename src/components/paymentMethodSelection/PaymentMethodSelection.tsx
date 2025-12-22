@@ -9,14 +9,14 @@ import { PaymentMethodDisplay } from './PaymentMethodDisplay'
 import { PaymentMethodSelectionProps } from './types'
 import { useDisplayedPaymentMethod } from './useDisplayedPaymentMethod'
 
+import { VIEW_TYPE_TRANSLATION_KEYS } from '../paymentMethodsInvoiceSettings/types'
+
 export const EDIT_PAYMENT_METHOD_BUTTON_TEST_ID = 'edit-payment-method-button'
 
 export const PaymentMethodSelection = ({
   externalCustomerId,
   selectedPaymentMethod,
   setSelectedPaymentMethod,
-  title,
-  description,
   viewType,
   className,
   disabled = false,
@@ -43,16 +43,15 @@ export const PaymentMethodSelection = ({
 
   return (
     <div className={className}>
-      {title && (
-        <Typography variant="captionHl" color="textSecondary">
-          {title}
-        </Typography>
-      )}
-      {description && (
-        <Typography variant="caption" className="mb-3">
-          {description}
-        </Typography>
-      )}
+      <Typography variant="captionHl" color="textSecondary">
+        {translate('text_17440371192353kif37ol194')}
+      </Typography>
+
+      <Typography variant="caption" className="mb-3">
+        {translate('text_1762862363071z59xqjpg844', {
+          object: translate(VIEW_TYPE_TRANSLATION_KEYS[viewType]),
+        })}
+      </Typography>
 
       <div className="flex flex-col gap-3">
         <PaymentMethodDisplay displayedPaymentMethod={displayedPaymentMethod} />

@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
@@ -23,14 +25,12 @@ import {
 } from '~/core/serializers/serializeAmount'
 import {
   CreateCustomerWalletInput,
-  CreateRecurringTransactionRuleInput,
   CurrencyEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
   UpdateCustomerWalletInput,
-  UpdateRecurringTransactionRuleInput,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
   useGetWalletInfosForWalletFormQuery,
@@ -45,6 +45,7 @@ import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
 import { TopUpSection } from '~/pages/wallet/components/TopUpSection'
 import { walletFormSchema } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
+import { transformRecurringTransactionRule } from '~/pages/wallet/utils/transformRecurringTransactionRule'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const WALLET_DEFAULT_PRIORITY = 50
@@ -59,6 +60,15 @@ gql`
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
     priority
+    paymentMethodType
+    paymentMethod {
+      id
+    }
+    skipInvoiceCustomSections
+    selectedInvoiceCustomSections {
+      id
+      name
+    }
     appliesTo {
       feeTypes
       billableMetrics {
@@ -79,6 +89,15 @@ gql`
       transactionName
       trigger
       ignorePaidTopUpLimits
+      paymentMethodType
+      paymentMethod {
+        id
+      }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+      }
       transactionMetadata {
         key
         value
@@ -91,6 +110,7 @@ gql`
   query getCustomerInfosForWalletForm($id: ID!) {
     customer(id: $id) {
       id
+      externalId
       currency
       timezone
     }
@@ -233,7 +253,8 @@ const CreateWallet = () => {
         style: 'decimal',
         minimumFractionDigits: getCurrencyPrecision(currency),
       }),
-      recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
+      recurringTransactionRules:
+        wallet?.recurringTransactionRules?.map(transformRecurringTransactionRule) || undefined,
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
       paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents
         ? deserializeAmount(wallet.paidTopUpMinAmountCents, currency)
@@ -243,6 +264,14 @@ const CreateWallet = () => {
         : undefined,
       ignorePaidTopUpLimitsOnCreation: false,
       priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
+      paymentMethod: {
+        paymentMethodType: wallet?.paymentMethodType,
+        paymentMethodId: wallet?.paymentMethod?.id,
+      },
+      invoiceCustomSection: {
+        invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],
+        skipInvoiceCustomSections: wallet?.skipInvoiceCustomSections || false,
+      },
     },
     validationSchema: walletFormSchema(),
     validateOnMount: true,
@@ -255,62 +284,63 @@ const CreateWallet = () => {
       recurringTransactionRules,
       appliesTo,
       priority,
+      paymentMethod,
+      invoiceCustomSection,
       ...values
     }) => {
       const recurringTransactionRulesFormatted =
         recurringTransactionRules && recurringTransactionRules?.length > 0
-          ? recurringTransactionRules.map(
-              (rule: CreateRecurringTransactionRuleInput | UpdateRecurringTransactionRuleInput) => {
-                const {
-                  interval,
-                  trigger,
-                  thresholdCredits,
-                  method,
-                  targetOngoingBalance,
-                  startedAt,
-                  invoiceRequiresSuccessfulPayment,
-                  paidCredits: rulePaidCredit,
-                  grantedCredits: ruleGrantedCredit,
-                  expirationAt,
-                  ignorePaidTopUpLimits,
-                  ...rest
-                } = rule
+          ? recurringTransactionRules.map((rule) => {
+              const {
+                interval,
+                trigger,
+                thresholdCredits,
+                method,
+                targetOngoingBalance,
+                startedAt,
+                invoiceRequiresSuccessfulPayment,
+                paidCredits: rulePaidCredit,
+                grantedCredits: ruleGrantedCredit,
+                expirationAt,
+                ignorePaidTopUpLimits,
+                invoiceCustomSection: ruleInvoiceCustomSection,
+                ...rest
+              } = rule
 
-                let targetedBalance: string | null = null
+              let targetedBalance: string | null = null
 
-                if (
-                  method === RecurringTransactionMethodEnum.Target &&
-                  targetOngoingBalance === ''
-                ) {
-                  targetedBalance = '0'
-                } else if (method === RecurringTransactionMethodEnum.Target) {
-                  targetedBalance = String(targetOngoingBalance)
-                }
+              if (method === RecurringTransactionMethodEnum.Target && targetOngoingBalance === '') {
+                targetedBalance = '0'
+              } else if (method === RecurringTransactionMethodEnum.Target) {
+                targetedBalance = String(targetOngoingBalance)
+              }
 
-                return {
-                  ...rest,
-                  lagoId:
-                    'lagoId' in rule && formType === FORM_TYPE_ENUM.edition
-                      ? rule.lagoId
-                      : undefined,
-                  method: method as RecurringTransactionMethodEnum,
-                  trigger: trigger as RecurringTransactionTriggerEnum,
-                  interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
-                  startedAt:
-                    trigger === RecurringTransactionTriggerEnum.Interval
-                      ? (startedAt ?? DateTime.now().toISO())
-                      : null,
-                  thresholdCredits:
-                    trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
-                  paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
-                  grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
-                  targetOngoingBalance: targetedBalance,
-                  invoiceRequiresSuccessfulPayment,
-                  ignorePaidTopUpLimits,
-                  expirationAt: expirationAt === '' ? null : expirationAt,
-                }
-              },
-            )
+              return {
+                ...rest,
+                lagoId:
+                  'lagoId' in rule && formType === FORM_TYPE_ENUM.edition
+                    ? (rule.lagoId as string | undefined)
+                    : undefined,
+                method: method as RecurringTransactionMethodEnum,
+                trigger: trigger as RecurringTransactionTriggerEnum,
+                interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
+                startedAt:
+                  trigger === RecurringTransactionTriggerEnum.Interval
+                    ? (startedAt ?? DateTime.now().toISO())
+                    : null,
+                thresholdCredits:
+                  trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
+                paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
+                grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
+                targetOngoingBalance: targetedBalance,
+                invoiceRequiresSuccessfulPayment,
+                ignorePaidTopUpLimits,
+                expirationAt: expirationAt === '' ? null : expirationAt,
+                invoiceCustomSection: toInvoiceCustomSectionReference(
+                  ruleInvoiceCustomSection as InvoiceCustomSectionInput,
+                ),
+              }
+            })
           : []
 
       const formattedAppliesTo = {
@@ -324,6 +354,8 @@ const CreateWallet = () => {
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
           appliesTo: formattedAppliesTo,
+          paymentMethod,
+          invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
           ...(values.paidTopUpMinAmountCents
             ? {
                 paidTopUpMinAmountCents: serializeAmount(
@@ -363,6 +395,8 @@ const CreateWallet = () => {
           paidCredits: paidCredits === '' ? '0' : String(paidCredits),
           recurringTransactionRules: recurringTransactionRulesFormatted,
           appliesTo: formattedAppliesTo,
+          paymentMethod,
+          invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
           ...(values.paidTopUpMinAmountCents
             ? {
                 paidTopUpMinAmountCents: serializeAmount(

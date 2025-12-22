@@ -11,23 +11,19 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
 import { InvoiceCustomSectionInput } from './types'
 
-import { ViewType } from '../paymentMethodsInvoiceSettings/types'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_BUTTON = 'invoice-custom-footer-edit-button'
 
 interface InvoceCustomFooterProps {
   customerId: string
-  title: string
-  description: string
-  viewType: ViewType
+  viewType: ViewTypeEnum
   invoiceCustomSection?: InvoiceCustomSectionInput
   setInvoiceCustomSection?: (item: InvoiceCustomSectionInput) => void
 }
 
 export const InvoceCustomFooter = ({
   customerId,
-  title,
-  description,
   viewType,
   invoiceCustomSection,
   setInvoiceCustomSection,
@@ -61,16 +57,16 @@ export const InvoceCustomFooter = ({
 
   return (
     <div>
-      {title && (
-        <Typography variant="captionHl" color="textSecondary">
-          {title}
-        </Typography>
-      )}
-      {description && (
-        <Typography variant="caption" className="mb-4">
-          {description}
-        </Typography>
-      )}
+      <Typography variant="captionHl" color="textSecondary">
+        {translate('text_17628623882713knw0jtohiw')}
+      </Typography>
+
+      <Typography variant="caption" className="mb-3">
+        {translate('text_1762862855282gldrtploh46', {
+          object: translate(VIEW_TYPE_TRANSLATION_KEYS[viewType]),
+        })}
+      </Typography>
+
       <div className="flex flex-col gap-3">
         <InvoiceCustomSectionDisplay
           selectedSections={selectedSections}

@@ -74,11 +74,20 @@ export default defineConfig(({ mode }) => {
         authToken: sentryAuthToken,
         release: {
           name: appVersion,
+          // Use release-based source map instead of Debug IDs
+          // This is needed because Debug ID injection is not working correctly
+          // with this build setup. The legacy method matches source maps by
+          // release name + file path instead of Debug IDs.
+          // Docs: https://docs.sentry.io/platforms/javascript/sourcemaps/uploading/vite/
+          uploadLegacySourcemaps: {
+            paths: ['./dist'],
+            urlPrefix: '~/',
+          },
         },
-        // Upload source maps
         sourcemaps: {
-          assets: './dist/**',
+          disable: true,
         },
+        debug: true,
         telemetry: false,
       }),
     )
@@ -113,6 +122,7 @@ export default defineConfig(({ mode }) => {
       NANGO_PUBLIC_KEY: JSON.stringify(env.NANGO_PUBLIC_KEY),
       SENTRY_DSN: JSON.stringify(env.SENTRY_DSN),
       LAGO_DISABLE_PDF_GENERATION: JSON.stringify(env.LAGO_DISABLE_PDF_GENERATION),
+      LAGO_SUPERSET_URL: JSON.stringify(env.LAGO_SUPERSET_URL),
     },
     resolve: {
       alias: {

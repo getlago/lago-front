@@ -9,3 +9,12 @@
 a {
   @apply text-blue no-underline visited:text-purple hover:underline focus:rounded focus:ring;
 }
+
+#superset iframe {
+  width: 100%;
+  height: 100%;
+}
+
+#superset .ant-tabs-nav-wrap {
+  margin-left: 28px;
+}

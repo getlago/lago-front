@@ -40,6 +40,7 @@ import {
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -836,11 +837,13 @@ const CreateSubscription = () => {
                           <Typography variant="headline">
                             {translate('text_1762862388271au34vz50g8i')}
                           </Typography>
-                          <PaymentMethodsInvoiceSettings
-                            customer={customer}
-                            formikProps={subscriptionFormikProps}
-                            viewType="subscription"
-                          />
+                          <Card>
+                            <PaymentMethodsInvoiceSettings
+                              customer={customer}
+                              formikProps={subscriptionFormikProps}
+                              viewType={ViewTypeEnum.Subscription}
+                            />
+                          </Card>
                         </div>
                       )}
 

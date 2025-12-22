@@ -79,5 +79,6 @@ export default {
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',
+    LAGO_SUPERSET_URL: 'https://localhost:8089',
   },
 } satisfies Config

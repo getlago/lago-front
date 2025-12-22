@@ -18,11 +18,11 @@ import {
 } from '~/components/designSystem'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
+  ANALYTIC_NEW_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -53,6 +53,7 @@ import {
   SETTINGS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -137,6 +138,8 @@ const MainNavLayout = () => {
   }, [pathname, contentRef, state?.disableScrollTop])
 
   const canSeeReportsSection = hasPermissions(['analyticsView'])
+
+  const canSeeSupersetDashboards = isFeatureFlagActive(FeatureFlags.SUPERSET_ANALYTICS)
 
   /**
    * Switches the current organization context.
@@ -385,6 +388,17 @@ const MainNavLayout = () => {
                       hidden: !hasPermissions(['analyticsView']),
                       extraComponent: <BadgeAI />,
                     },
+                    ...(canSeeSupersetDashboards
+                      ? [
+                          {
+                            title: translate('text_1762346890583hgqcnuvj2rh'),
+                            icon: 'eye' as IconName,
+                            link: ANALYTIC_NEW_ROUTE,
+                            match: [ANALYTIC_NEW_ROUTE],
+                            hidden: !hasPermissions(['analyticsView']),
+                          },
+                        ]
+                      : []),
                   ]}
                 />
               </NavLayout.NavSection>
@@ -545,18 +559,6 @@ const MainNavLayout = () => {
                       } as TabProps,
                     ]
                   : []),
-                {
-                  title: translate('text_63fdd3e4076c80ecf4136f33'),
-                  icon: 'bulb',
-                  link: FEATURE_REQUESTS_URL,
-                  external: true,
-                },
-                {
-                  title: translate('text_6295e58352f39200d902b01c'),
-                  icon: 'book',
-                  link: DOCUMENTATION_URL,
-                  external: true,
-                },
                 {
                   title: translate('text_62728ff857d47b013204c726'),
                   icon: 'settings',

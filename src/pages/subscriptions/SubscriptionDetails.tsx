@@ -40,6 +40,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
 import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
@@ -67,10 +68,17 @@ gql`
   }
 `
 
+export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
+export const SUBSCRIPTION_DETAILS_UPDATE_TEST_ID = 'subscription-details-update'
+export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
+  'subscription-details-upgrade-downgrade'
+export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
+
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const { canEditSubscription, isStatusEditable } = useSubscriptionPermissionsActions()
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
@@ -129,16 +137,17 @@ const SubscriptionDetails = () => {
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={
-              <Button data-test="subscription-details-actions" endIcon="chevron-down">
+              <Button data-test={SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID} endIcon="chevron-down">
                 {translate('text_626162c62f790600f850b6fe')}
               </Button>
             }
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {hasPermissions(['subscriptionsUpdate']) && (
+                {canEditSubscription(subscription?.status) && (
                   <>
                     <Button
+                      data-test={SUBSCRIPTION_DETAILS_UPDATE_TEST_ID}
                       variant="quaternary"
                       align="left"
                       onClick={() => {
@@ -154,6 +163,7 @@ const SubscriptionDetails = () => {
                       {translate('text_62d7f6178ec94cd09370e63c')}
                     </Button>
                     <Button
+                      data-test={SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID}
                       variant="quaternary"
                       align="left"
                       onClick={() => {
@@ -199,9 +209,9 @@ const SubscriptionDetails = () => {
                 >
                   {translate('text_62d7f6178ec94cd09370e65b')}
                 </Button>
-                {hasPermissions(['subscriptionsUpdate']) && (
+                {canEditSubscription(subscription?.status) && (
                   <Button
-                    data-test="subscription-details-terminate"
+                    data-test={SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID}
                     variant="quaternary"
                     align="left"
                     onClick={() => {
@@ -210,12 +220,18 @@ const SubscriptionDetails = () => {
                         name: subscription?.name as string,
                         status: subscription?.status as StatusTypeEnum,
                         payInAdvance: !!subscription?.plan.payInAdvance,
-                        callback: () => {
-                          navigate(
-                            generatePath(CUSTOMER_DETAILS_ROUTE, {
-                              customerId: subscription?.customer?.id as string,
-                            }),
-                          )
+                        callback: (deletedAt) => {
+                          const isCustomerDeleted = !!deletedAt
+
+                          if (isCustomerDeleted) {
+                            navigate(SUBSCRIPTIONS_ROUTE)
+                          } else {
+                            navigate(
+                              generatePath(CUSTOMER_DETAILS_ROUTE, {
+                                customerId: subscription?.customer?.id as string,
+                              }),
+                            )
+                          }
                         },
                       })
                       closePopper()
@@ -319,8 +335,7 @@ const SubscriptionDetails = () => {
               </DetailsPage.Container>
             ),
           },
-          ...(subscription?.status !== StatusTypeEnum.Canceled &&
-          subscription?.status !== StatusTypeEnum.Terminated
+          ...(isStatusEditable(subscription?.status)
             ? [
                 {
                   title: translate('text_1725983967306cei92rkdtvb'),
