@@ -6,7 +6,8 @@ import { Typography } from '~/components/designSystem'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { useGetRangeLabel } from './useGetRangeLabel'
 
 gql`
   fragment FeeForInvoiceDetailsTableBodyLineGraduated on Fee {
@@ -41,7 +42,7 @@ type InvoiceDetailsTableBodyLineGraduatedProps = {
 
 export const InvoiceDetailsTableBodyLineGraduated = memo(
   ({ currency, fee, isDraftInvoice, hideVat }: InvoiceDetailsTableBodyLineGraduatedProps) => {
-    const { translate } = useInternationalization()
+    const { getRangeLabel } = useGetRangeLabel()
 
     return (
       <>
@@ -49,22 +50,13 @@ export const InvoiceDetailsTableBodyLineGraduated = memo(
           <tr key={`fee-${fee.id}-graduated-range-fee-per-unit-${i}`} className="details-line">
             <td>
               <Typography variant="body" color="grey600">
-                {(fee?.amountDetails?.graduatedRanges?.length || 0) === 1
-                  ? translate('text_659e67cd63512ef5328430e6', {
-                      fromValue: Number(graduatedRange?.fromValue),
-                    })
-                  : i === 0
-                    ? translate('text_659e67cd63512ef532843070', {
-                        toValue: Number(graduatedRange?.toValue),
-                      })
-                    : i === (fee?.amountDetails?.graduatedRanges?.length || 0) - 1
-                      ? translate('text_659e67cd63512ef5328430e6', {
-                          fromValue: Number(graduatedRange?.fromValue),
-                        })
-                      : translate('text_659e67cd63512ef5328430af', {
-                          fromValue: Number(graduatedRange?.fromValue),
-                          toValue: Number(graduatedRange?.toValue),
-                        })}
+                {getRangeLabel(
+                  i,
+                  fee?.amountDetails?.graduatedRanges?.length || 0,
+                  Number(graduatedRange?.fromValue),
+                  Number(graduatedRange?.toValue),
+                  false,
+                )}
               </Typography>
             </td>
             <td>
@@ -122,22 +114,13 @@ export const InvoiceDetailsTableBodyLineGraduated = memo(
               <tr key={`fee-${fee.id}-graduated-range-flat-fee-${i}`} className="details-line">
                 <td>
                   <Typography variant="body" color="grey600">
-                    {(fee?.amountDetails?.graduatedRanges?.length || 0) === 1
-                      ? translate('text_659e67cd63512ef53284314a', {
-                          fromValue: Number(graduatedRange?.fromValue),
-                        })
-                      : i === 0
-                        ? translate('text_659e67cd63512ef53284310e', {
-                            toValue: Number(graduatedRange?.toValue),
-                          })
-                        : i === (fee?.amountDetails?.graduatedRanges?.length || 0) - 1
-                          ? translate('text_659e67cd63512ef53284314a', {
-                              fromValue: Number(graduatedRange?.fromValue),
-                            })
-                          : translate('text_659e67cd63512ef532843136', {
-                              fromValue: Number(graduatedRange?.fromValue),
-                              toValue: Number(graduatedRange?.toValue),
-                            })}
+                    {getRangeLabel(
+                      i,
+                      fee?.amountDetails?.graduatedRanges?.length || 0,
+                      Number(graduatedRange?.fromValue),
+                      Number(graduatedRange?.toValue),
+                      true,
+                    )}
                   </Typography>
                 </td>
                 <td>

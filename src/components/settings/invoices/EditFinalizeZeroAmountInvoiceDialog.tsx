@@ -86,11 +86,16 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
 
   const isCustomer = entity?.__typename === 'Customer'
 
-  const initialValue = isCustomer
-    ? finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit
-      ? ''
-      : finalizeZeroAmountInvoice
-    : finalizeZeroAmountInvoice?.toString()
+  const getInitialValue = () => {
+    if (isCustomer) {
+      return finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit
+        ? ''
+        : finalizeZeroAmountInvoice
+    }
+    return finalizeZeroAmountInvoice?.toString()
+  }
+
+  const initialValue = getInitialValue()
 
   const formikProps = useFormik({
     initialValues: {
