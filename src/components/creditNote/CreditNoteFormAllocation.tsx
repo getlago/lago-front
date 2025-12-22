@@ -1,4 +1,5 @@
 import { FormikProps, getIn } from 'formik'
+import { useMemo } from 'react'
 
 import { CreditNoteActionsLine } from '~/components/creditNote/CreditNoteActionsLine'
 import { Alert, Skeleton, Typography } from '~/components/designSystem'
@@ -34,6 +35,24 @@ export const CreditNoteFormAllocation = ({
   const refundValue = Number(getIn(formikProps.values, 'payBack.1.value') || 0)
   const allocatedSoFar = creditValue + refundValue
   const remainingToAllocate = totalTaxIncluded - allocatedSoFar
+
+  const alertTypographyProps = useMemo(() => {
+    const payBackErrors = getIn(formikProps.errors, 'payBackErrors')
+    const payBackValueError = getIn(formikProps.errors, 'payBack.0.value')
+
+    if (
+      payBackErrors === PayBackErrorEnum.maxTotalInvoice ||
+      payBackValueError === LagoApiError.DoesNotMatchItemAmounts
+    ) {
+      return {
+        html: translate('text_637e334680481f653e8caa9d', {
+          total: intlFormatNumber(totalTaxIncluded || 0, { currency }),
+        }),
+      }
+    }
+
+    return {}
+  }, [formikProps.errors, totalTaxIncluded, currency, translate])
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,16 +106,7 @@ export const CreditNoteFormAllocation = ({
 
       {getIn(formikProps.errors, 'payBackErrors') && (
         <Alert type="danger">
-          <Typography
-            color="textSecondary"
-            {...((getIn(formikProps.errors, 'payBackErrors') === PayBackErrorEnum.maxTotalInvoice ||
-              getIn(formikProps.errors, 'payBack.0.value') ===
-                LagoApiError.DoesNotMatchItemAmounts) && {
-              html: translate('text_637e334680481f653e8caa9d', {
-                total: intlFormatNumber(totalTaxIncluded || 0, { currency }),
-              }),
-            })}
-          />
+          <Typography color="textSecondary" {...alertTypographyProps} />
         </Alert>
       )}
 
