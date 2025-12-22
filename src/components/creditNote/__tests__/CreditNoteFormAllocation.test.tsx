@@ -11,7 +11,6 @@ import { CreditTypeEnum, PayBackErrorEnum } from '../types'
 const defaultProps = {
   formikProps: createMockFormikProps(),
   currency: CurrencyEnum.Usd,
-  canRefund: true,
   maxCreditableAmount: 100,
   maxRefundableAmount: 100,
   totalTaxIncluded: 120,
@@ -27,14 +26,7 @@ const renderComponent = (props = {}) => {
 describe('CreditNoteFormAllocation', () => {
   describe('refund fields', () => {
     it('should always render refund and credit inputs', () => {
-      renderComponent({ canRefund: true })
-
-      expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
-    })
-
-    it('should render inputs even when canRefund is false', () => {
-      renderComponent({ canRefund: false })
+      renderComponent()
 
       expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()

@@ -439,17 +439,18 @@ const CreateCreditNote = () => {
               )}
             </div>
 
-            <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
-              <CreditNoteFormAllocation
-                formikProps={formikProps}
-                currency={creditNoteCalculation.currency}
-                canRefund={creditNoteCalculation.canRefund}
-                maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
-                maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
-                totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
-                estimationLoading={creditNoteCalculation.estimationLoading}
-              />
-            </div>
+            {creditNoteCalculation.canRefund && !isPrepaidCreditsInvoice && (
+              <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
+                <CreditNoteFormAllocation
+                  formikProps={formikProps}
+                  currency={creditNoteCalculation.currency}
+                  maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
+                  maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
+                  totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
+                  estimationLoading={creditNoteCalculation.estimationLoading}
+                />
+              </div>
+            )}
 
             <div className="flex flex-col">
               <MetadataFormCard formikProps={formikProps} />

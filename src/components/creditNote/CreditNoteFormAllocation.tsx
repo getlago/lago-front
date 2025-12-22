@@ -11,7 +11,6 @@ import { CreditNoteForm, PayBackErrorEnum } from './types'
 interface CreditNoteFormAllocationProps {
   formikProps: FormikProps<Partial<CreditNoteForm>>
   currency: CurrencyEnum
-  canRefund: boolean
   maxCreditableAmount: number
   maxRefundableAmount: number
   totalTaxIncluded: number
@@ -21,7 +20,6 @@ interface CreditNoteFormAllocationProps {
 export const CreditNoteFormAllocation = ({
   formikProps,
   currency,
-  canRefund,
   maxCreditableAmount,
   maxRefundableAmount,
   totalTaxIncluded,
@@ -111,11 +109,9 @@ export const CreditNoteFormAllocation = ({
           name="payBack.1.value"
           currency={currency}
           label={translate('text_17270794543889mcmuhfq70p')}
-          disabled={!canRefund}
           hasError={
-            canRefund &&
-            (!!getIn(formikProps.errors, 'payBack.1.value') ||
-              !!getIn(formikProps.errors, 'payBackErrors'))
+            !!getIn(formikProps.errors, 'payBack.1.value') ||
+            !!getIn(formikProps.errors, 'payBackErrors')
           }
           error={
             getIn(formikProps.errors, 'payBack.1.value') === PayBackErrorEnum.maxRefund
@@ -133,11 +129,9 @@ export const CreditNoteFormAllocation = ({
           name="payBack.0.value"
           currency={currency}
           label={translate('text_637d0e720ace4ea09aaf0630')}
-          disabled={!canRefund}
           hasError={
-            canRefund &&
-            (!!getIn(formikProps.errors, 'payBack.0.value') ||
-              !!getIn(formikProps.errors, 'payBackErrors'))
+            !!getIn(formikProps.errors, 'payBack.0.value') ||
+            !!getIn(formikProps.errors, 'payBackErrors')
           }
           error={
             getIn(formikProps.errors, 'payBack.0.value') === PayBackErrorEnum.maxCredit
