@@ -37,6 +37,7 @@ interface UsePaymentMethodsListReturn {
 interface UsePaymentMethodsListArgs {
   externalCustomerId: string
   withDeleted?: boolean
+  skip?: boolean
 }
 
 type UsePaymentMethodsList = (args: UsePaymentMethodsListArgs) => UsePaymentMethodsListReturn
@@ -44,13 +45,14 @@ type UsePaymentMethodsList = (args: UsePaymentMethodsListArgs) => UsePaymentMeth
 export const usePaymentMethodsList: UsePaymentMethodsList = ({
   externalCustomerId,
   withDeleted = true,
+  skip = false,
 }) => {
   const { data, loading, error, refetch } = usePaymentMethodsQuery({
     variables: {
       externalCustomerId,
       withDeleted,
     },
-    skip: !externalCustomerId,
+    skip: skip || !externalCustomerId,
   })
 
   return {
