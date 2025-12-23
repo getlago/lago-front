@@ -76,6 +76,12 @@ const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnin
 const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDunning'))
 const CreatePricingUnit = lazyLoad(() => import('~/pages/settings/Invoices/CreatePricingUnit'))
 
+const RolesList = lazyLoad(() => import('~/pages/settings/roles/rolesList/RolesList'))
+const RoleDetails = lazyLoad(() => import('~/pages/settings/roles/roleDetails/RoleDetails'))
+const RoleCreateEdit = lazyLoad(
+  () => import('~/pages/settings/roles/roleCreateEdit/RoleCreateEdit'),
+)
+
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
@@ -128,6 +134,14 @@ export const BILLING_ENTITY_INVOICE_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH
 export const BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-custom-sections`
 export const BILLING_ENTITY_TAXES_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/taxes`
 
+const ROOT_ROLES_ROUTE = `${SETTINGS_ROUTE}/roles`
+
+export const ROLES_LIST_ROUTE = `${ROOT_ROLES_ROUTE}`
+export const ROLE_DETAILS_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId`
+export const ROLE_DETAILS_TAB_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/:tab`
+export const ROLE_CREATE_ROUTE = `${ROOT_ROLES_ROUTE}/create`
+export const ROLE_EDIT_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/edit`
+
 /**
  * Creation routes
  */
@@ -139,6 +153,42 @@ export const CREATE_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-s
 export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/:sectionId/edit`
 export const CREATE_PRICING_UNIT = `${INVOICE_SETTINGS_ROUTE}/pricing-unit/create`
 export const EDIT_PRICING_UNIT = `${INVOICE_SETTINGS_ROUTE}/pricing-unit/:pricingUnitId/edit`
+
+export const settingsObjectCreationRoutes: CustomRouteObject[] = [
+  {
+    path: [CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE],
+    private: true,
+    element: <CreateDunning />,
+    permissions: ['dunningCampaignsCreate', 'dunningCampaignsView', 'dunningCampaignsUpdate'],
+  },
+  {
+    path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
+    private: true,
+    element: <CreateInvoiceCustomSection />,
+    permissions: ['invoiceCustomSectionsCreate', 'invoiceCustomSectionsUpdate'],
+  },
+  {
+    path: [BILLING_ENTITY_CREATE_ROUTE, BILLING_ENTITY_UPDATE_ROUTE],
+    private: true,
+    element: <BillingEntityCreateEdit />,
+    permissions: ['billingEntitiesCreate', 'billingEntitiesUpdate'],
+  },
+  {
+    path: [CREATE_PRICING_UNIT, EDIT_PRICING_UNIT],
+    private: true,
+    element: <CreatePricingUnit />,
+    permissions: ['pricingUnitsCreate', 'pricingUnitsUpdate'],
+  },
+  {
+    path: [ROLE_CREATE_ROUTE, ROLE_EDIT_ROUTE],
+    private: true,
+    element: <RoleCreateEdit />,
+  },
+]
+
+export const settingsObjectCreationPaths = settingsObjectCreationRoutes
+  ?.reduce((prev, curr) => prev.concat(curr.path ? curr.path : []), [] as string[])
+  ?.map((path) => ({ path }))
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -397,30 +447,17 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <BillingEntityTaxesSettings />,
         permissions: ['billingEntitiesTaxesView'],
       },
+      {
+        path: ROLES_LIST_ROUTE,
+        private: true,
+        element: <RolesList />,
+      },
+      {
+        path: [ROLE_DETAILS_ROUTE, ROLE_DETAILS_TAB_ROUTE],
+        private: true,
+        element: <RoleDetails />,
+      },
     ],
   },
-  {
-    path: [CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE],
-    private: true,
-    element: <CreateDunning />,
-    permissions: ['dunningCampaignsCreate', 'dunningCampaignsView', 'dunningCampaignsUpdate'],
-  },
-  {
-    path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
-    private: true,
-    element: <CreateInvoiceCustomSection />,
-    permissions: ['invoiceCustomSectionsCreate', 'invoiceCustomSectionsUpdate'],
-  },
-  {
-    path: [BILLING_ENTITY_CREATE_ROUTE, BILLING_ENTITY_UPDATE_ROUTE],
-    private: true,
-    element: <BillingEntityCreateEdit />,
-    permissions: ['billingEntitiesCreate', 'billingEntitiesUpdate'],
-  },
-  {
-    path: [CREATE_PRICING_UNIT, EDIT_PRICING_UNIT],
-    private: true,
-    element: <CreatePricingUnit />,
-    permissions: ['pricingUnitsCreate', 'pricingUnitsUpdate'],
-  },
+  ...settingsObjectCreationRoutes,
 ]

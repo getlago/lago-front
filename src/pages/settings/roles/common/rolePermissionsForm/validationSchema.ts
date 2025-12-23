@@ -1,0 +1,11 @@
+import { z } from 'zod'
+
+import { zodOneOfPermissions } from '~/formValidation/zodCustoms'
+
+export const validationSchema = z.object({
+  name: z.string().min(1, 'text_1766155139328b95i4fjkwe9'),
+  description: z.string(),
+  permissions: z.record(zodOneOfPermissions, z.boolean()),
+})
+
+export type RoleCreateEditFormValues = z.infer<typeof validationSchema>
