@@ -30,19 +30,31 @@ jest.mock('~/core/router/CustomerRoutes', () => ({
       private: true,
     },
   ] as CustomRouteObject[],
+  customerVoidRoutes: [
+    {
+      path: '/customer/:customerId/invoice/void/:invoiceId',
+      private: true,
+    },
+    {
+      path: '/customer/:customerId/invoice/regenerate/:invoiceId',
+      private: true,
+    },
+  ] as CustomRouteObject[],
 }))
 
 describe('getObjectCreationPaths', () => {
   it('should transform all routes into path objects', () => {
     const result = getObjectCreationPaths()
 
-    expect(result).toHaveLength(5)
+    expect(result).toHaveLength(7)
     expect(result).toEqual([
       { path: '/create/plans' },
       { path: '/update/plan/:planId' },
       { path: '/create/invoice' },
       { path: '/customer/:customerId/request-overdue-payment' },
       { path: '/customer/:customerId/invoice/:invoiceId/create/credit-notes' },
+      { path: '/customer/:customerId/invoice/void/:invoiceId' },
+      { path: '/customer/:customerId/invoice/regenerate/:invoiceId' },
     ])
   })
 
@@ -72,7 +84,7 @@ describe('getObjectCreationPaths', () => {
     expect(result.every((p) => p.path !== undefined)).toBe(true)
   })
 
-  it('should include paths from both objectCreationRoutes and customerObjectCreationRoutes', () => {
+  it('should include paths from objectCreationRoutes, customerObjectCreationRoutes, and customerVoidRoutes', () => {
     const result = getObjectCreationPaths()
 
     // Check objectCreationRoutes paths
@@ -85,6 +97,14 @@ describe('getObjectCreationPaths', () => {
     )
     expect(
       result.some((p) => p.path === '/customer/:customerId/invoice/:invoiceId/create/credit-notes'),
+    ).toBe(true)
+
+    // Check customerVoidRoutes paths
+    expect(result.some((p) => p.path === '/customer/:customerId/invoice/void/:invoiceId')).toBe(
+      true,
+    )
+    expect(
+      result.some((p) => p.path === '/customer/:customerId/invoice/regenerate/:invoiceId'),
     ).toBe(true)
   })
 })
