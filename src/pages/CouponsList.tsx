@@ -12,6 +12,7 @@ import {
 import {
   Avatar,
   ButtonLink,
+  GenericPlaceholderProps,
   InfiniteScroll,
   Status,
   Table,
@@ -83,6 +84,28 @@ const CouponsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
   const list = data?.coupons?.collection || []
   const shouldShowItemActions = hasPermissions(['couponsCreate', 'couponsUpdate', 'couponsDelete'])
+
+  const getEmptyState = (): Partial<GenericPlaceholderProps> => {
+    if (variables?.searchTerm) {
+      return {
+        title: translate('text_63beebbf4f60e2f553232773'),
+        subtitle: translate('text_63beebbf4f60e2f553232775'),
+      }
+    }
+    if (hasPermissions(['couponsCreate'])) {
+      return {
+        title: translate('text_62865498824cc10126ab296c'),
+        subtitle: translate('text_62865498824cc10126ab2971'),
+        buttonTitle: translate('text_62865498824cc10126ab2975'),
+        buttonVariant: 'primary',
+        buttonAction: () => navigate(CREATE_COUPON_ROUTE),
+      }
+    }
+    return {
+      title: translate('text_664dec926bfdb6007a036b78'),
+      subtitle: translate('text_62865498824cc10126ab2971'),
+    }
+  }
 
   return (
     <>
@@ -228,23 +251,7 @@ const CouponsList = () => {
                   buttonAction: () => location.reload(),
                 },
 
-            emptyState: !!variables?.searchTerm
-              ? {
-                  title: translate('text_63beebbf4f60e2f553232773'),
-                  subtitle: translate('text_63beebbf4f60e2f553232775'),
-                }
-              : hasPermissions(['couponsCreate'])
-                ? {
-                    title: translate('text_62865498824cc10126ab296c'),
-                    subtitle: translate('text_62865498824cc10126ab2971'),
-                    buttonTitle: translate('text_62865498824cc10126ab2975'),
-                    buttonVariant: 'primary',
-                    buttonAction: () => navigate(CREATE_COUPON_ROUTE),
-                  }
-                : {
-                    title: translate('text_664dec926bfdb6007a036b78'),
-                    subtitle: translate('text_62865498824cc10126ab2971'),
-                  },
+            emptyState: getEmptyState(),
           }}
         />
       </InfiniteScroll>

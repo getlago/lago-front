@@ -96,20 +96,23 @@ export const EditNetPaymentTermDialog = forwardRef<
     },
   })
 
+  const getNetPaymentTermInitialValue = () => {
+    if (typeof model?.netPaymentTerm !== 'number') {
+      return null
+    }
+    const isCustomValue = !Object.values(NetPaymentTermValuesEnum).includes(
+      String(model?.netPaymentTerm) as unknown as NetPaymentTermValuesEnum,
+    )
+
+    return isCustomValue ? NetPaymentTermValuesEnum.custom : String(model?.netPaymentTerm)
+  }
+
   const formikProps = useFormik<{
     netPaymentTerm: string | null
     customPeriod: number | null
   }>({
     initialValues: {
-      netPaymentTerm:
-        typeof model?.netPaymentTerm === 'number' &&
-        !Object.values(NetPaymentTermValuesEnum).includes(
-          String(model?.netPaymentTerm) as unknown as NetPaymentTermValuesEnum,
-        )
-          ? NetPaymentTermValuesEnum.custom
-          : typeof model?.netPaymentTerm === 'number'
-            ? String(model?.netPaymentTerm)
-            : null,
+      netPaymentTerm: getNetPaymentTermInitialValue(),
       customPeriod:
         typeof model?.netPaymentTerm === 'number' &&
         !Object.values(NetPaymentTermValuesEnum).includes(
