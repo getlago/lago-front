@@ -633,9 +633,11 @@ const CreateInvoice = () => {
       </PageHeader.Wrapper>
       <div className="size-full">
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
-          <Card className={tw('gap-8', {
-            'mb-12': hasAccessToMultiPaymentFlow
-          })}>
+          <Card
+            className={tw('gap-8', {
+              'mb-12': hasAccessToMultiPaymentFlow,
+            })}
+          >
             {loading ? (
               <>
                 <div className="flex items-center justify-between">
