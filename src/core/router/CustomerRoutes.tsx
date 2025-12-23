@@ -1,5 +1,3 @@
-import CustomerInvoiceRegenerate from '~/pages/CustomerInvoiceRegenerate'
-
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -14,6 +12,7 @@ const CustomerRequestOverduePayment = lazyLoad(
 )
 
 const CustomerInvoiceVoid = lazyLoad(() => import(`~/pages/CustomerInvoiceVoid`))
+const CustomerInvoiceRegenerate = lazyLoad(() => import('~/pages/CustomerInvoiceRegenerate'))
 
 // Credit note related
 const CreateCreditNote = lazyLoad(() => import('~/pages/createCreditNote/CreateCreditNote'))
