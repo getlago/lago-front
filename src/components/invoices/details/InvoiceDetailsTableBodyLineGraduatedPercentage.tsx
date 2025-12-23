@@ -6,7 +6,8 @@ import { Typography } from '~/components/designSystem'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { useGetRangeLabel } from './useGetRangeLabel'
 
 gql`
   fragment FeeForInvoiceDetailsTableBodyLineGraduatedPercentage on Fee {
@@ -46,7 +47,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
     isDraftInvoice,
     hideVat,
   }: InvoiceDetailsTableBodyLineGraduatedPercentageProps) => {
-    const { translate } = useInternationalization()
+    const { getRangeLabel } = useGetRangeLabel()
 
     return (
       <>
@@ -57,22 +58,13 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
           >
             <td>
               <Typography variant="body" color="grey600">
-                {(fee?.amountDetails?.graduatedPercentageRanges?.length || 0) === 1
-                  ? translate('text_659e67cd63512ef5328430e6', {
-                      fromValue: Number(graduatedPercentageRange?.fromValue),
-                    })
-                  : i === 0
-                    ? translate('text_659e67cd63512ef532843070', {
-                        toValue: Number(graduatedPercentageRange?.toValue),
-                      })
-                    : i === (fee?.amountDetails?.graduatedPercentageRanges?.length || 0) - 1
-                      ? translate('text_659e67cd63512ef5328430e6', {
-                          fromValue: Number(graduatedPercentageRange?.fromValue),
-                        })
-                      : translate('text_659e67cd63512ef5328430af', {
-                          fromValue: Number(graduatedPercentageRange?.fromValue),
-                          toValue: Number(graduatedPercentageRange?.toValue),
-                        })}
+                {getRangeLabel(
+                  i,
+                  fee?.amountDetails?.graduatedPercentageRanges?.length || 0,
+                  Number(graduatedPercentageRange?.fromValue),
+                  Number(graduatedPercentageRange?.toValue),
+                  false,
+                )}
               </Typography>
             </td>
             <td>
@@ -128,22 +120,13 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
               >
                 <td>
                   <Typography variant="body" color="grey600">
-                    {fee?.amountDetails?.graduatedPercentageRanges?.length || 0
-                      ? translate('text_659e67cd63512ef53284314a', {
-                          fromValue: Number(graduatedPercentageRange?.fromValue),
-                        })
-                      : i === 0
-                        ? translate('text_659e67cd63512ef53284310e', {
-                            toValue: Number(graduatedPercentageRange?.toValue),
-                          })
-                        : i === (fee?.amountDetails?.graduatedPercentageRanges?.length || 0) - 1
-                          ? translate('text_659e67cd63512ef53284314a', {
-                              fromValue: Number(graduatedPercentageRange?.fromValue),
-                            })
-                          : translate('text_659e67cd63512ef532843136', {
-                              fromValue: Number(graduatedPercentageRange?.fromValue),
-                              toValue: Number(graduatedPercentageRange?.toValue),
-                            })}
+                    {getRangeLabel(
+                      i,
+                      fee?.amountDetails?.graduatedPercentageRanges?.length || 0,
+                      Number(graduatedPercentageRange?.fromValue),
+                      Number(graduatedPercentageRange?.toValue),
+                      true,
+                    )}
                   </Typography>
                 </td>
                 <td>

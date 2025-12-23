@@ -20,7 +20,6 @@ import {
   PaymentMethodReferenceInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
 gql`
   fragment CustomerForRequestOverduePaymentForm on Customer {
@@ -52,7 +51,7 @@ interface RequestPaymentFormProps {
   currency: CurrencyEnum
   invoices: InvoicesForRequestOverduePaymentFormFragment[]
   lastSentDate?: LastPaymentRequestFragment
-  externalCustomerId: string
+  externalCustomerId?: string
 }
 
 export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
@@ -65,11 +64,6 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   externalCustomerId,
 }) => {
   const { translate } = useInternationalization()
-
-  const { data: paymentMethodsList } = usePaymentMethodsList({
-    externalCustomerId,
-    withDeleted: false,
-  })
 
   const amount = intlFormatNumber(overdueAmount, { currency, currencyDisplay: 'narrowSymbol' })
   const count = invoices.length
@@ -185,7 +179,7 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
             {translate('text_1766485465416p3b95l4ng0m')}
           </Typography>
           <PaymentMethodComboBox
-            paymentMethodsList={paymentMethodsList}
+            externalCustomerId={externalCustomerId}
             selectedPaymentMethod={formikProps.values.paymentMethod}
             setSelectedPaymentMethod={(value) => formikProps.setFieldValue('paymentMethod', value)}
           />

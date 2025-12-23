@@ -246,7 +246,7 @@ const CustomerRequestOverduePayment: FC = () => {
               currency={defaultCurrency}
               invoices={invoicesCollection}
               lastSentDate={paymentRequests?.collection?.[0]}
-              externalCustomerId={customer?.externalId || ''}
+              externalCustomerId={customer?.externalId}
             />
           </div>
         </section>
