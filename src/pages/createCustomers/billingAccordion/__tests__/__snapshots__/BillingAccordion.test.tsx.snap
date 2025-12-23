@@ -205,7 +205,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r6:"
+                            id=":r9:"
                             name="currency"
                             placeholder="Search or select a currency"
                             role="combobox"
@@ -811,7 +811,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":rk:"
+                              id=":rn:"
                               name="billingAddress.country"
                               placeholder="Search and select a country"
                               role="combobox"
@@ -895,7 +895,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                   <label
                     class="flex flex-col cursor-pointer"
                     data-test="checkbox-isShippingEqualBillingAddress"
-                    for=":rm:"
+                    for=":rp:"
                   >
                     <div
                       class="mx-0 flex items-start align-middle *:leading-7"
@@ -907,7 +907,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           aria-checked="mixed"
                           aria-labelledby="Use the same information from the billing address"
                           class="absolute m-0 size-0 p-0 opacity-0"
-                          id=":rm:"
+                          id=":rp:"
                           readonly=""
                           type="checkbox"
                         />
@@ -1204,7 +1204,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":rs:"
+                              id=":rv:"
                               name="shippingAddress.country"
                               placeholder="Search and select a country"
                               role="combobox"
@@ -1425,7 +1425,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r1q:"
+                            id=":r1v:"
                             name="currency"
                             placeholder="Search or select a currency"
                             role="combobox"
@@ -2031,7 +2031,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r28:"
+                              id=":r2d:"
                               name="billingAddress.country"
                               placeholder="Search and select a country"
                               role="combobox"
@@ -2115,7 +2115,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                   <label
                     class="flex flex-col cursor-pointer"
                     data-test="checkbox-isShippingEqualBillingAddress"
-                    for=":r2a:"
+                    for=":r2f:"
                   >
                     <div
                       class="mx-0 flex items-start align-middle *:leading-7"
@@ -2127,7 +2127,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           aria-checked="mixed"
                           aria-labelledby="Use the same information from the billing address"
                           class="absolute m-0 size-0 p-0 opacity-0"
-                          id=":r2a:"
+                          id=":r2f:"
                           readonly=""
                           type="checkbox"
                         />
@@ -2424,7 +2424,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2g:"
+                              id=":r2l:"
                               name="shippingAddress.country"
                               placeholder="Search and select a country"
                               role="combobox"
@@ -2645,7 +2645,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r10:"
+                            id=":r14:"
                             name="currency"
                             placeholder="Search or select a currency"
                             role="combobox"
@@ -3251,7 +3251,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1e:"
+                              id=":r1i:"
                               name="billingAddress.country"
                               placeholder="Search and select a country"
                               role="combobox"
@@ -3335,7 +3335,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                   <label
                     class="flex flex-col cursor-pointer"
                     data-test="checkbox-isShippingEqualBillingAddress"
-                    for=":r1g:"
+                    for=":r1k:"
                   >
                     <div
                       class="mx-0 flex items-start align-middle *:leading-7"
@@ -3347,7 +3347,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           aria-checked="mixed"
                           aria-labelledby="Use the same information from the billing address"
                           class="absolute m-0 size-0 p-0 opacity-0"
-                          id=":r1g:"
+                          id=":r1k:"
                           readonly=""
                           type="checkbox"
                         />
@@ -3644,7 +3644,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1m:"
+                              id=":r1q:"
                               name="shippingAddress.country"
                               placeholder="Search and select a country"
                               role="combobox"
