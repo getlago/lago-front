@@ -155,6 +155,8 @@ const RoleCreateEdit = () => {
                     label={translate('text_6388b923e514213fed58331c')}
                     placeholder={translate('text_176614189875029z5fbpnkne')}
                     isOptional
+                    rows="3"
+                    multiline
                   />
                 )}
               </form.AppField>

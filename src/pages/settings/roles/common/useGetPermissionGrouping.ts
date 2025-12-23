@@ -16,54 +16,6 @@ export const useGetPermissionGrouping = (
     return translate(permissionDescriptionMapping[permissionName]) || permissionName
   }
 
-  const getPermissionDisplayName = (permissionName: PermissionName): string => {
-    if (permissionName.includes('View')) {
-      return translate('text_1765891513411ia199l1kqvn')
-    }
-
-    if (permissionName.includes('Create')) {
-      return translate('text_1765891513411mmvzq1dha2g')
-    }
-
-    if (permissionName.includes('Update')) {
-      return translate('text_176589151341131hm375yt26')
-    }
-
-    if (permissionName.includes('Delete')) {
-      return translate('text_17658915134117q3obpdiyp0')
-    }
-
-    if (permissionName.includes('Detach')) {
-      return translate('text_17659019698052gwjaownm41')
-    }
-
-    if (permissionName.includes('Attach')) {
-      return translate('text_1765901969805kxro9oyumce')
-    }
-
-    if (permissionName.includes('TopUp')) {
-      return translate('text_17659019698057h2jzmj84xg')
-    }
-
-    if (permissionName.includes('Void')) {
-      return translate('text_1765901969805bi8wpofb9am')
-    }
-
-    if (permissionName.includes('Manage')) {
-      return translate('text_17659019698052jkqqh1plsj')
-    }
-
-    if (permissionName.includes('Send')) {
-      return translate('text_1765902388230kbfr36xduhx')
-    }
-
-    if (permissionName.includes('Terminate')) {
-      return translate('text_1765902396031jith7jlydpw')
-    }
-
-    return permissionName
-  }
-
   const getPermissionGroupDisplayName = (groupKey: string): string => {
     return translate(groupNameMapping[groupKey]) || translate('text_636d86cd9fd41b93c35bf1c7') // 'Other'
   }
@@ -91,7 +43,6 @@ export const useGetPermissionGrouping = (
         displayName: groupName,
         permissions: matchingPermissions.map((permission) => ({
           name: permission,
-          displayName: getPermissionDisplayName(permission),
           description: getPermissionDescription(permission),
           isReadPermission: permission.endsWith('View'),
         })),
@@ -110,7 +61,6 @@ export const useGetPermissionGrouping = (
       displayName: groupName,
       permissions: unmappedPermissions.map((permission) => ({
         name: permission,
-        displayName: getPermissionDisplayName(permission),
         description: getPermissionDescription(permission),
         isReadPermission: permission.endsWith('View'),
       })),

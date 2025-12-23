@@ -4,7 +4,6 @@ export type PermissionName = Exclude<keyof Permissions, '__typename'>
 
 export type PermissionItem = {
   name: PermissionName
-  displayName: string
   description: string
   isReadPermission: boolean
 }

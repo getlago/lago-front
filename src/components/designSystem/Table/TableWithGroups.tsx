@@ -22,7 +22,6 @@ import TableInnerCell from './tableComponents/TableInnerCell'
 // Constants
 const DEFAULT_COLUMN_WIDTH = 160
 const DEFAULT_COLUMN_MIN_WIDTH = 120
-const DEFAULT_FIRST_COLUMN_WIDTH = 200
 const ROW_HEIGHT = 48
 const HEADER_ROW_HEIGHT = 40
 
@@ -30,19 +29,27 @@ const HEADER_ROW_HEIGHT = 40
 // Type Definitions
 // --------------------------------
 
-export type ColumnConfig = {
-  key: string
-  label: string
-  minWidth?: number // Minimum width for this column
-  isFullWidth?: boolean // If true, this column will expand to fill remaining space (only one column should have this)
-  align?: Align // Text alignment for the column (default: 'right')
+// Helpers provided to column content render functions
+export type ColumnHelpers = {
+  isExpanded: boolean // Whether the current row (if group) is expanded
+  ChevronIcon: ReactNode // Pre-built chevron component ready to render (null for non-group rows)
 }
 
-export type RowConfig<T> = {
+export type RowConfig = {
   key: string
   label: string | ReactNode
-  content: (item: T, column: ColumnConfig) => ReactNode
 } & ({ type: 'group' } | { type: 'line'; groupKey?: string })
+
+// Unified column configuration
+export type ColumnConfig = {
+  key: string
+  label: string | ReactNode
+  minWidth?: number // Minimum width for this column
+  isFullWidth?: boolean // If true, this column will expand to fill remaining space
+  align?: Align // Text alignment for the column (default: 'left')
+  sticky?: boolean // If true, this column will be sticky on the left
+  content: (row: RowConfig, helpers: ColumnHelpers) => ReactNode
+}
 
 export type TableWithGroupsRef = {
   expandAll: () => void
@@ -51,14 +58,10 @@ export type TableWithGroupsRef = {
   isGroupExpanded: (groupKey: string) => boolean
 }
 
-export type TableWithGroupsProps<T> = {
-  rows: RowConfig<T>[]
+export type TableWithGroupsProps = {
+  rows: RowConfig[]
   columns: ColumnConfig[]
-  data: T[]
   isLoading?: boolean
-  columnWidth?: number
-  firstColumnLabel?: string
-  firstColumnWidth?: number
 }
 
 // --------------------------------
@@ -66,24 +69,44 @@ export type TableWithGroupsProps<T> = {
 // --------------------------------
 
 // Get all group keys from rows configuration
-const getGroupKeys = <T,>(rows: RowConfig<T>[]): string[] => {
+const getGroupKeys = (rows: RowConfig[]): string[] => {
   return rows.filter((row) => row.type === 'group').map((row) => row.key)
+}
+
+/**
+ * Default render function for the row label column.
+ * Renders the chevron (for groups) and the row label with appropriate styling.
+ */
+export const defaultRowLabelContent = (
+  row: RowConfig,
+  { ChevronIcon }: ColumnHelpers,
+): ReactNode => {
+  const isGroup = row.type === 'group'
+
+  return (
+    <div className="flex flex-row items-center gap-2">
+      {ChevronIcon}
+      {typeof row.label !== 'string' && row.label}
+      {typeof row.label === 'string' && isGroup && (
+        <Typography variant="bodyHl" color="grey700" noWrap>
+          {row.label}
+        </Typography>
+      )}
+      {typeof row.label === 'string' && !isGroup && (
+        <Typography variant="body" color="grey600" noWrap className="pl-8">
+          {row.label}
+        </Typography>
+      )}
+    </div>
+  )
 }
 
 // --------------------------------
 // Component
 // --------------------------------
 
-const TableWithGroupsInner = <T,>(
-  {
-    rows,
-    columns,
-    data,
-    isLoading = false,
-    columnWidth = DEFAULT_COLUMN_WIDTH,
-    firstColumnLabel = '',
-    firstColumnWidth = DEFAULT_FIRST_COLUMN_WIDTH,
-  }: TableWithGroupsProps<T>,
+const TableWithGroupsInner = (
+  { rows, columns, isLoading = false }: TableWithGroupsProps,
   ref: React.ForwardedRef<TableWithGroupsRef>,
 ) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -94,6 +117,10 @@ const TableWithGroupsInner = <T,>(
 
   // All groups start collapsed (empty object means all collapsed)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
+
+  // Split columns into sticky and scrollable
+  const stickyColumns = useMemo(() => columns.filter((col) => col.sticky), [columns])
+  const scrollableColumns = useMemo(() => columns.filter((col) => !col.sticky), [columns])
 
   // Expose methods via ref
   useImperativeHandle(ref, () => ({
@@ -139,17 +166,58 @@ const TableWithGroupsInner = <T,>(
     return HEADER_ROW_HEIGHT + visibleRows.length * ROW_HEIGHT
   }, [visibleRows.length])
 
-  // Calculate column widths, accounting for flex column
-  const getColumnWidth = useCallback(
-    (index: number): number => {
-      const column = columns[index]
+  // Calculate fixed sticky columns width (columns without isFullWidth)
+  const fixedStickyColumnsWidth = useMemo(() => {
+    return stickyColumns.reduce((sum, col) => {
+      if (col.isFullWidth) return sum
 
-      if (!column) return columnWidth
+      return sum + (col.minWidth ?? DEFAULT_COLUMN_WIDTH)
+    }, 0)
+  }, [stickyColumns])
+
+  // Helper to get individual sticky column width
+  const getStickyColumnWidth = useCallback(
+    (stickyColumnIndex: number): number => {
+      const stickyCol = stickyColumns[stickyColumnIndex]
+
+      if (!stickyCol) return DEFAULT_COLUMN_WIDTH
+
+      // If this sticky column has isFullWidth, calculate remaining space
+      if (stickyCol.isFullWidth) {
+        // Calculate width needed for scrollable columns
+        const scrollableColumnsWidth = scrollableColumns.reduce((sum, col) => {
+          return sum + (col.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH)
+        }, 0)
+
+        // Available width for the full-width sticky column
+        const flexWidth = containerWidth - fixedStickyColumnsWidth - scrollableColumnsWidth
+
+        return Math.max(flexWidth, stickyCol.minWidth ?? DEFAULT_COLUMN_WIDTH)
+      }
+
+      return stickyCol.minWidth ?? DEFAULT_COLUMN_WIDTH
+    },
+    [stickyColumns, scrollableColumns, containerWidth, fixedStickyColumnsWidth],
+  )
+
+  // Calculate total width of all sticky columns
+  const totalStickyWidth = useMemo(() => {
+    return stickyColumns.reduce((sum, _, index) => {
+      return sum + getStickyColumnWidth(index)
+    }, 0)
+  }, [stickyColumns, getStickyColumnWidth])
+
+  // Calculate scrollable column widths, accounting for flex column
+  const getScrollableColumnWidth = useCallback(
+    (index: number): number => {
+      const column = scrollableColumns[index]
+
+      if (!column) return DEFAULT_COLUMN_MIN_WIDTH
 
       // If this column has flex, calculate remaining space
       if (column.isFullWidth) {
-        const availableWidth = containerWidth - firstColumnWidth
-        const fixedColumnsWidth = columns.reduce((sum, col) => {
+        const availableWidth = containerWidth - totalStickyWidth
+        const fixedColumnsWidth = scrollableColumns.reduce((sum, col) => {
           if (col.isFullWidth) return sum
 
           return sum + (col.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH)
@@ -165,14 +233,14 @@ const TableWithGroupsInner = <T,>(
 
       return column.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH
     },
-    [columns, columnWidth, containerWidth, firstColumnWidth],
+    [scrollableColumns, containerWidth, totalStickyWidth],
   )
 
-  // Horizontal virtualizer for columns
+  // Horizontal virtualizer for scrollable columns
   const columnVirtualizer = useVirtualizer({
-    count: isLoading ? 12 : columns.length,
+    count: isLoading ? 12 : scrollableColumns.length,
     horizontal: true,
-    estimateSize: getColumnWidth,
+    estimateSize: getScrollableColumnWidth,
     getScrollElement: () => parentRef.current,
   })
 
@@ -190,13 +258,28 @@ const TableWithGroupsInner = <T,>(
   })
 
   // Handle group row click
-  const handleRowClick = useCallback((row: RowConfig<T>) => {
+  const handleRowClick = useCallback((row: RowConfig) => {
     if (row.type !== 'group') return
 
     setExpandedGroups((prev) => ({
       ...prev,
       [row.key]: !prev[row.key],
     }))
+  }, [])
+
+  // Factory function to create chevron icon for a row
+  const createChevronIcon = useCallback((row: RowConfig, isExpanded: boolean): ReactNode => {
+    if (row.type !== 'group') {
+      return null
+    }
+
+    return (
+      <Icon
+        className={tw('mr-2 transition-transform', isExpanded && 'rotate-90')}
+        name="chevron-right-filled"
+        size="medium"
+      />
+    )
   }, [])
 
   // Check if horizontal scroll is active (for sticky column shadow)
@@ -236,98 +319,120 @@ const TableWithGroupsInner = <T,>(
     return () => resizeObserver.disconnect()
   }, [])
 
+  // Render header label (handles both string and ReactNode)
+  const renderHeaderLabel = (label: string | ReactNode) => {
+    if (typeof label === 'string') {
+      return (
+        <Typography variant="captionHl" color="grey600">
+          {label}
+        </Typography>
+      )
+    }
+
+    return label
+  }
+
   return (
     <div ref={containerRef} className="relative size-full overflow-hidden">
-      {/* Sticky First Column */}
-      <div
-        className={tw('absolute left-0 top-0 z-20 bg-white', hasHorizontalScroll && 'shadow-r')}
-        style={{ width: firstColumnWidth }}
-      >
-        {/* Sticky Header Cell */}
+      {/* Sticky Columns Container */}
+      {stickyColumns.length > 0 && (
         <div
-          className="flex bg-white"
-          style={{
-            height: HEADER_ROW_HEIGHT,
-            borderBottom: `1px solid ${theme.palette.grey[300]}`,
-          }}
+          className={tw('absolute left-0 top-0 z-20 bg-white', hasHorizontalScroll && 'shadow-r')}
+          style={{ width: totalStickyWidth }}
         >
-          <TableInnerCell align="left" className="min-h-10 px-4 text-grey-600">
-            {isLoading ? (
-              <Skeleton className="w-3/4" variant="text" />
-            ) : (
-              <Typography variant="captionHl" color="grey600">
-                {firstColumnLabel}
-              </Typography>
-            )}
-          </TableInnerCell>
-        </div>
+          {/* Sticky Header Cells */}
+          <div
+            className="flex bg-white"
+            style={{
+              height: HEADER_ROW_HEIGHT,
+              borderBottom: `1px solid ${theme.palette.grey[300]}`,
+            }}
+          >
+            {stickyColumns.map((stickyCol, colIndex) => (
+              <div
+                key={`sticky-header-${stickyCol.key}`}
+                style={{ width: getStickyColumnWidth(colIndex) }}
+              >
+                <TableInnerCell
+                  align={stickyCol.align ?? 'left'}
+                  className="min-h-10 px-4 text-grey-600"
+                >
+                  {isLoading ? (
+                    <Skeleton className="w-3/4" variant="text" />
+                  ) : (
+                    renderHeaderLabel(stickyCol.label)
+                  )}
+                </TableInnerCell>
+              </div>
+            ))}
+          </div>
 
-        {/* Sticky Row Labels */}
-        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-          const row = visibleRows[virtualRow.index]
-          const isGroup = row.type === 'group'
-          const isExpanded = isGroup && expandedGroups[row.key]
-          const isChildLine = row.type === 'line' && 'groupKey' in row && row.groupKey
-          const isHovered = isGroup && hoveredRowIndex === virtualRow.index
+          {/* Sticky Row Cells */}
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const row = visibleRows[virtualRow.index]
+            const isGroup = row.type === 'group'
+            const isExpanded = isGroup && expandedGroups[row.key]
+            const isHovered = isGroup && hoveredRowIndex === virtualRow.index
 
-          return (
-            <div
-              key={`sticky-row-${virtualRow.index}`}
-              role={isGroup ? 'button' : undefined}
-              tabIndex={isGroup ? 0 : -1}
-              className={tw(
-                'absolute left-0 flex',
-                isGroup && 'cursor-pointer',
-                isHovered ? 'bg-grey-100' : 'bg-white',
-              )}
-              style={{
-                height: ROW_HEIGHT,
-                width: firstColumnWidth,
-                top: HEADER_ROW_HEIGHT + virtualRow.start,
-                borderBottom: `1px solid ${theme.palette.grey[300]}`,
-              }}
-              onClick={() => handleRowClick(row)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  handleRowClick(row)
-                }
-              }}
-              onMouseEnter={() => isGroup && setHoveredRowIndex(virtualRow.index)}
-              onMouseLeave={() => isGroup && setHoveredRowIndex(null)}
-            >
-              <TableInnerCell align="left" className={tw('px-4', isChildLine && 'pl-10')}>
-                {isLoading && <Skeleton className="w-3/4" variant="text" />}
-                {!isLoading && (
-                  <>
-                    {isGroup && (
-                      <Icon
-                        className={tw('mr-2 transition-transform', isExpanded && 'rotate-90')}
-                        name="chevron-right-filled"
-                        size="small"
-                      />
-                    )}
-                    {typeof row.label === 'string' ? (
-                      <Typography variant={isGroup ? 'bodyHl' : 'body'} color="grey700" noWrap>
-                        {row.label}
-                      </Typography>
-                    ) : (
-                      row.label
-                    )}
-                  </>
+            return (
+              <div
+                key={`sticky-row-${virtualRow.index}`}
+                role={isGroup ? 'button' : undefined}
+                tabIndex={isGroup ? 0 : -1}
+                className={tw(
+                  'absolute left-0 flex',
+                  isGroup && 'cursor-pointer',
+                  isHovered ? 'bg-grey-100' : 'bg-white',
                 )}
-              </TableInnerCell>
-            </div>
-          )
-        })}
-      </div>
+                style={{
+                  height: ROW_HEIGHT,
+                  width: totalStickyWidth,
+                  top: HEADER_ROW_HEIGHT + virtualRow.start,
+                  borderBottom: `1px solid ${theme.palette.grey[300]}`,
+                }}
+                onClick={() => handleRowClick(row)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleRowClick(row)
+                  }
+                }}
+                onMouseEnter={() => isGroup && setHoveredRowIndex(virtualRow.index)}
+                onMouseLeave={() => isGroup && setHoveredRowIndex(null)}
+              >
+                {stickyColumns.map((stickyCol, colIndex) => {
+                  const helpers: ColumnHelpers = {
+                    isExpanded: !!isExpanded,
+                    ChevronIcon: createChevronIcon(row, !!isExpanded),
+                  }
+
+                  return (
+                    <div
+                      key={`sticky-cell-${virtualRow.index}-${stickyCol.key}`}
+                      style={{ width: getStickyColumnWidth(colIndex) }}
+                    >
+                      <TableInnerCell align={stickyCol.align ?? 'left'} className="h-full px-4">
+                        {isLoading ? (
+                          <Skeleton className="w-3/4" variant="text" />
+                        ) : (
+                          stickyCol.content(row, helpers)
+                        )}
+                      </TableInnerCell>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Scrollable Content Area */}
       <div
         ref={parentRef}
         className="size-full overflow-auto"
         style={{
-          paddingLeft: firstColumnWidth,
+          paddingLeft: totalStickyWidth,
         }}
       >
         <div
@@ -340,7 +445,7 @@ const TableWithGroupsInner = <T,>(
           {/* Header Row */}
           <div className="sticky top-0 z-10 flex bg-white" style={{ height: HEADER_ROW_HEIGHT }}>
             {columnVirtualizer.getVirtualItems().map((virtualColumn) => {
-              const column = columns[virtualColumn.index]
+              const column = scrollableColumns[virtualColumn.index]
 
               return (
                 <div
@@ -357,9 +462,7 @@ const TableWithGroupsInner = <T,>(
                     {isLoading ? (
                       <Skeleton className="w-3/4" variant="text" />
                     ) : (
-                      <Typography variant="captionHl" color="grey600" noWrap>
-                        {column?.label}
-                      </Typography>
+                      column && renderHeaderLabel(column.label)
                     )}
                   </TableInnerCell>
                 </div>
@@ -371,6 +474,7 @@ const TableWithGroupsInner = <T,>(
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
             const row = visibleRows[virtualRow.index]
             const isGroup = row.type === 'group'
+            const isExpanded = isGroup && expandedGroups[row.key]
             const isHovered = isGroup && hoveredRowIndex === virtualRow.index
 
             return (
@@ -388,8 +492,11 @@ const TableWithGroupsInner = <T,>(
                 onMouseLeave={() => isGroup && setHoveredRowIndex(null)}
               >
                 {columnVirtualizer.getVirtualItems().map((virtualColumn) => {
-                  const column = columns[virtualColumn.index]
-                  const dataItem = data[virtualColumn.index]
+                  const column = scrollableColumns[virtualColumn.index]
+                  const helpers: ColumnHelpers = {
+                    isExpanded: !!isExpanded,
+                    ChevronIcon: createChevronIcon(row, !!isExpanded),
+                  }
 
                   return (
                     <div
@@ -406,7 +513,7 @@ const TableWithGroupsInner = <T,>(
                         {isLoading ? (
                           <Skeleton className="w-3/4" variant="text" />
                         ) : (
-                          dataItem && column && row.content(dataItem, column)
+                          column && column.content(row, helpers)
                         )}
                       </TableInnerCell>
                     </div>
@@ -422,6 +529,6 @@ const TableWithGroupsInner = <T,>(
 }
 
 // Use forwardRef with generics
-export const TableWithGroups = forwardRef(TableWithGroupsInner) as <T>(
-  props: TableWithGroupsProps<T> & { ref?: React.ForwardedRef<TableWithGroupsRef> },
+export const TableWithGroups = forwardRef(TableWithGroupsInner) as (
+  props: TableWithGroupsProps & { ref?: React.ForwardedRef<TableWithGroupsRef> },
 ) => React.ReactElement

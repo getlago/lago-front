@@ -127,9 +127,7 @@ describe('useGetPermissionGrouping', () => {
       (p) => p.name === 'plansCreate',
     )
 
-    expect(typeof plansView?.displayName).toBe('string')
     expect(typeof plansView?.description).toBe('string')
-    expect(typeof plansCreate?.displayName).toBe('string')
     expect(typeof plansCreate?.description).toBe('string')
   })
 
