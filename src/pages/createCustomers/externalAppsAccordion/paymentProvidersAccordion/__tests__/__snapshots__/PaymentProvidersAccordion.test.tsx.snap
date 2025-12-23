@@ -280,7 +280,7 @@ exports[`PaymentProvidersAccordion Integration Tests WHEN rendering the componen
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r6:"
+                              id=":r9:"
                               name="paymentProviderCode"
                               placeholder="Search or select a connected account"
                               role="combobox"
