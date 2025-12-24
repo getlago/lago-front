@@ -1,5 +1,6 @@
 import { FormikProps } from 'formik'
 
+import { InvoiceFormInput } from '~/components/invoices/types'
 import { CreateCustomerWalletTransactionInput, Customer, Maybe } from '~/generated/graphql'
 import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 import { TWalletDataForm } from '~/pages/wallet/types'
@@ -9,6 +10,7 @@ export enum ViewTypeEnum {
   WalletTopUp = 'walletTopUp',
   WalletRecurringTopUp = 'walletRecurringTopUp',
   WalletTransactionTopUp = 'walletTransactionTopUp',
+  OneOffInvoice = 'oneOffInvoice',
 }
 
 export const VIEW_TYPE_TRANSLATION_KEYS: Record<ViewTypeEnum, string> = {
@@ -16,6 +18,7 @@ export const VIEW_TYPE_TRANSLATION_KEYS: Record<ViewTypeEnum, string> = {
   [ViewTypeEnum.WalletTopUp]: 'text_1765895170354ovelm7g07o4',
   [ViewTypeEnum.WalletRecurringTopUp]: 'text_1765959116589recur1ngrul',
   [ViewTypeEnum.WalletTransactionTopUp]: 'text_17659678187872em8xoix499',
+  [ViewTypeEnum.OneOffInvoice]: 'text_1766405484863ts63ubynxt3',
 }
 
 type FormTypeMap = {
@@ -23,6 +26,7 @@ type FormTypeMap = {
   [ViewTypeEnum.WalletTopUp]: TWalletDataForm
   [ViewTypeEnum.WalletRecurringTopUp]: TWalletDataForm
   [ViewTypeEnum.WalletTransactionTopUp]: Omit<CreateCustomerWalletTransactionInput, 'walletId'>
+  [ViewTypeEnum.OneOffInvoice]: InvoiceFormInput
 }
 
 type CustomerForPaymentMethods = Maybe<Partial<Pick<Customer, 'id' | 'externalId'>>>

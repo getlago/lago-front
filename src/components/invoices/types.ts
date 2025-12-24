@@ -1,3 +1,5 @@
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import {
   CreateInvoiceInput,
   FeeInput,
@@ -11,8 +13,13 @@ export type LocalFeeInput = FeeInput & {
   taxes?: TaxInfosForCreateInvoiceFragment[] | null
 }
 
-export interface InvoiceFormInput extends Omit<CreateInvoiceInput, 'clientMutationId'> {
+export type InvoiceFormInput = Omit<
+  CreateInvoiceInput,
+  'clientMutationId' | 'paymentMethod' | 'fees'
+> & {
   fees: LocalFeeInput[]
+  paymentMethod?: SelectedPaymentMethod
+  invoiceCustomSection?: InvoiceCustomSectionInput
 }
 
 export type InvoiceFeesForDisplay =

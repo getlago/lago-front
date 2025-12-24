@@ -1838,6 +1838,7 @@ export type CreateInvoiceInput = {
   currency?: InputMaybe<CurrencyEnum>;
   customerId: Scalars['ID']['input'];
   fees: Array<FeeInput>;
+  invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   voidedInvoiceId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -3640,6 +3641,7 @@ export type FetchDraftInvoiceTaxesInput = {
   currency?: InputMaybe<CurrencyEnum>;
   customerId: Scalars['ID']['input'];
   fees: Array<FeeInput>;
+  invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   voidedInvoiceId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -11861,7 +11863,7 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -31525,6 +31527,7 @@ export const GetInfosForCreateInvoiceDocument = gql`
     query getInfosForCreateInvoice($id: ID!) {
   customer(id: $id) {
     id
+    externalId
     addressLine1
     addressLine2
     city
