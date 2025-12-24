@@ -8,6 +8,7 @@ import {
   AddCustomerDrawerFragment,
   IntegrationTypeEnum,
   NetsuiteIntegration,
+  NetsuiteV2Integration,
   XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -19,6 +20,7 @@ import Netsuite from '~/public/images/netsuite.svg'
 import Xero from '~/public/images/xero.svg'
 
 import NetsuiteAccountingProviderContent from './NetsuiteAccountingProviderContent'
+import NetsuiteV2AccountingProviderContent from './NetsuiteV2AccountingProviderContent'
 import XeroAccountingProviderContent from './XeroAccountingProviderContent'
 
 import { ExternalAppsAccordionLayout } from '../common/ExternalAppsAccordionLayout'
@@ -52,13 +54,26 @@ const AccountingProvidersAccordion = withForm({
 
     const accountingCustomer = useStore(form.store, (state) => state.values.accountingCustomer)
 
-    const accountingCustomers = [customer?.xeroCustomer, customer?.netsuiteCustomer].filter(Boolean)
+    const accountingCustomers = [
+      customer?.xeroCustomer,
+      customer?.netsuiteCustomer,
+      customer?.netsuiteV2Customer,
+    ].filter(Boolean)
 
     const {
       hadInitialIntegrationCustomer: hadInitialNetsuiteIntegrationCustomer,
       allIntegrations: allNetsuiteIntegrations,
     } = getIntegration<NetsuiteIntegration>({
       integrationType: IntegrationTypeEnum.Netsuite,
+      allIntegrationsData: accountingProviders,
+      integrationCustomers: accountingCustomers,
+    })
+
+    const {
+      hadInitialIntegrationCustomer: hadInitialNetsuiteV2IntegrationCustomer,
+      allIntegrations: allNetsuiteV2Integrations,
+    } = getIntegration<NetsuiteV2Integration>({
+      integrationType: IntegrationTypeEnum.NetsuiteV2,
       allIntegrationsData: accountingProviders,
       integrationCustomers: accountingCustomers,
     })
@@ -74,10 +89,15 @@ const AccountingProvidersAccordion = withForm({
 
     const getSelectedIntegration = () => {
       const netsuite = allNetsuiteIntegrations || []
+      const netsuiteV2 = allNetsuiteV2Integrations || []
       const xero = allXeroIntegrations || []
 
       if (hadInitialNetsuiteIntegrationCustomer) {
         return netsuite.find((integration) => integration.code === accountingProviderCode)
+      }
+
+      if (hadInitialNetsuiteV2IntegrationCustomer) {
+        return netsuiteV2.find((integration) => integration.code === accountingProviderCode)
       }
 
       if (hadInitialXeroIntegrationCustomer) {
@@ -85,7 +105,7 @@ const AccountingProvidersAccordion = withForm({
       }
 
       return (
-        [...netsuite, ...xero].find((integration) => integration.code === accountingProviderCode) ||
+        [...netsuite, ...netsuiteV2, ...xero].find((integration) => integration.code === accountingProviderCode) ||
         undefined
       )
     }
@@ -101,6 +121,15 @@ const AccountingProvidersAccordion = withForm({
       }
     }, [selectedIntegration])
 
+    const selectedNetsuiteV2Integration = useMemo(() => {
+      if (
+        selectedIntegration &&
+        selectedIntegration.__typename === integrationTypeToTypename[IntegrationTypeEnum.NetsuiteV2]
+      ) {
+        return selectedIntegration as NetsuiteV2Integration
+      }
+    }, [selectedIntegration])
+
     const selectedXeroIntegration = useMemo(() => {
       if (
         selectedIntegration &&
@@ -111,8 +140,8 @@ const AccountingProvidersAccordion = withForm({
     }, [selectedIntegration])
 
     const allAccountingIntegrationsData = useMemo(() => {
-      return [...(allNetsuiteIntegrations || []), ...(allXeroIntegrations || [])]
-    }, [allNetsuiteIntegrations, allXeroIntegrations])
+      return [...(allNetsuiteIntegrations || []), ...(allNetsuiteV2Integrations || []), ...(allXeroIntegrations || [])]
+    }, [allNetsuiteIntegrations, allNetsuiteV2Integrations, allXeroIntegrations])
 
     const connectedAccountingIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
       if (!allAccountingIntegrationsData?.length) return []
@@ -137,6 +166,8 @@ const AccountingProvidersAccordion = withForm({
         <Avatar size="big" variant="connector-full">
           {selectedIntegration.__typename ===
             integrationTypeToTypename[IntegrationTypeEnum.Netsuite] && <Netsuite />}
+          {selectedIntegration.__typename ===
+            integrationTypeToTypename[IntegrationTypeEnum.NetsuiteV2] && <Netsuite />}
           {selectedIntegration.__typename ===
             integrationTypeToTypename[IntegrationTypeEnum.Xero] && <Xero />}
         </Avatar>
@@ -190,7 +221,7 @@ const AccountingProvidersAccordion = withForm({
               {(field) => (
                 <field.ComboBoxField
                   disabled={
-                    hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer
+                    hadInitialNetsuiteIntegrationCustomer || hadInitialNetsuiteV2IntegrationCustomer || hadInitialXeroIntegrationCustomer
                   }
                   data={connectedAccountingIntegrationsData}
                   label={translate('text_66423cad72bbad009f2f5695')}
@@ -206,6 +237,15 @@ const AccountingProvidersAccordion = withForm({
                 form={form}
                 hadInitialNetsuiteIntegrationCustomer={hadInitialNetsuiteIntegrationCustomer}
                 selectedNetsuiteIntegration={selectedNetsuiteIntegration}
+                isEdition={isEdition}
+              />
+            )}
+
+            {!!selectedNetsuiteV2Integration && (
+              <NetsuiteV2AccountingProviderContent
+                form={form}
+                hadInitialNetsuiteV2IntegrationCustomer={hadInitialNetsuiteV2IntegrationCustomer}
+                selectedNetsuiteV2Integration={selectedNetsuiteV2Integration}
                 isEdition={isEdition}
               />
             )}

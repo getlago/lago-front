@@ -16,6 +16,12 @@ gql`
           code
           name
         }
+        ... on NetsuiteV2Integration {
+          __typename
+          id
+          code
+          name
+        }
         ... on XeroIntegration {
           __typename
           id

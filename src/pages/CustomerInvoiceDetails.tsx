@@ -537,6 +537,7 @@ const CustomerInvoiceDetails = () => {
     variables: { limit: 1000 },
     skip:
       !customer?.netsuiteCustomer?.integrationId &&
+      !customer?.netsuiteV2Customer?.integrationId &&
       !customer?.xeroCustomer?.integrationId &&
       !customer?.hubspotCustomer?.integrationId &&
       !customer?.salesforceCustomer?.integrationId &&

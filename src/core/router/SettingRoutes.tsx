@@ -34,6 +34,7 @@ const OktaAuthenticationDetails = lazyLoad(
 )
 const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
 const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
+const NetsuiteV2Integrations = lazyLoad(() => import('~/pages/settings/NetsuiteV2Integrations'))
 const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
 const HubspotIntegrations = lazyLoad(() => import('~/pages/settings/HubspotIntegrations'))
 const HubspotIntegrationDetails = lazyLoad(
@@ -41,6 +42,9 @@ const HubspotIntegrationDetails = lazyLoad(
 )
 const NetsuiteIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/NetsuiteIntegrationDetails'),
+)
+const NetsuiteV2IntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/NetsuiteV2IntegrationDetails'),
 )
 const SalesforceIntegrations = lazyLoad(() => import('~/pages/settings/SalesforceIntegrations'))
 const SalesforceIntegrationDetails = lazyLoad(
@@ -96,6 +100,8 @@ export const HUBSPOT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot`
 export const HUBSPOT_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot/:integrationId`
 export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
 export const NETSUITE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite/:integrationId/:tab`
+export const NETSUITE_V2_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite_v2`
+export const NETSUITE_V2_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite_v2/:integrationId/:tab`
 export const SALESFORCE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/salesforce`
 export const SALESFORCE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/salesforce/:integrationId`
 export const STRIPE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/stripe`
@@ -245,6 +251,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: NETSUITE_INTEGRATION_ROUTE,
         private: true,
         element: <NetsuiteIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: NETSUITE_V2_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <NetsuiteV2IntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: NETSUITE_V2_INTEGRATION_ROUTE,
+        private: true,
+        element: <NetsuiteV2Integrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {

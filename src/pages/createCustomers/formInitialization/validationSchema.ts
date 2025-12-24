@@ -85,8 +85,8 @@ export const validationSchema = z.object({
       (data) => {
         if (!data) return true
 
-        // Only NetSuite has subsidiaries for now
-        if (data.providerType !== IntegrationTypeEnum.Netsuite) {
+        // Only NetSuite and NetSuiteV2 has subsidiaries for now
+        if (data.providerType !== IntegrationTypeEnum.Netsuite || data.providerType !== IntegrationTypeEnum.NetsuiteV2) {
           return true
         }
 

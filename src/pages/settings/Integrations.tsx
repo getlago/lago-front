@@ -53,6 +53,10 @@ import {
   AddNetsuiteDialogRef,
 } from '~/components/settings/integrations/AddNetsuiteDialog'
 import {
+  AddNetsuiteV2Dialog,
+  AddNetsuiteV2DialogRef,
+} from '~/components/settings/integrations/AddNetsuiteV2Dialog'
+import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
 } from '~/components/settings/integrations/AddSalesforceDialog'
@@ -79,6 +83,7 @@ import {
   INTEGRATIONS_ROUTE,
   MONEYHASH_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
+  NETSUITE_V2_INTEGRATION_ROUTE,
   SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
@@ -151,6 +156,9 @@ gql`
         ... on NetsuiteIntegration {
           id
         }
+        ... on NetsuiteV2Integration {
+          id
+        }
         ... on XeroIntegration {
           id
         }
@@ -180,6 +188,7 @@ const Integrations = () => {
   const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
+  const addNetsuiteV2DialogRef = useRef<AddNetsuiteV2DialogRef>(null)
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
@@ -222,6 +231,9 @@ const Integrations = () => {
   const hasAccessToNetsuitePremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Netsuite,
   )
+  const hasAccessToNetsuiteV2PremiumIntegration = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.NetsuiteV2,
+  )
   const hasAccessToXeroPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Xero,
   )
@@ -233,6 +245,9 @@ const Integrations = () => {
   )
   const hasNetsuiteIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'NetsuiteIntegration',
+  )
+  const hasNetsuiteV2Integration = data?.integrations?.collection?.some(
+    (integration) => integration?.__typename === 'NetsuiteV2Integration',
   )
   const hasAnrokIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'AnrokIntegration',
@@ -526,6 +541,38 @@ const Integrations = () => {
                       />
                       <Selector
                         fullWidth
+                        title={translate('text_1766068213462z5ia1fxaveh')}
+                        subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+                        endIcon={getEndIcon({
+                          showSparkles: !hasAccessToNetsuiteV2PremiumIntegration,
+                          showConnectedBadge: hasNetsuiteV2Integration,
+                        })}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Netsuite />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          if (!hasAccessToNetsuiteV2PremiumIntegration) {
+                            premiumWarningDialogRef.current?.openDialog({
+                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                              mailtoSubject: translate('text_661ff6e56ef7e1b7c542b220'),
+                              mailtoBody: translate('text_661ff6e56ef7e1b7c542b238'),
+                            })
+                          } else if (hasNetsuiteV2Integration) {
+                            navigate(
+                              generatePath(NETSUITE_V2_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addNetsuiteV2DialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        fullWidth
                         title={translate('text_1731507195246vu9kt6xnhv6')}
                         subtitle={translate('text_1731507195246zr2p61vihmw')}
                         icon={
@@ -746,6 +793,7 @@ const Integrations = () => {
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
+      <AddNetsuiteV2Dialog ref={addNetsuiteV2DialogRef} />
       <AddXeroDialog ref={addXeroDialogRef} />
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <AddSalesforceDialog ref={addSalesforceDialogRef} />

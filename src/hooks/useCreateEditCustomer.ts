@@ -42,6 +42,16 @@ gql`
       subsidiaryId
       syncWithProvider
     }
+    netsuiteV2Customer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      subsidiaryId
+      syncWithProvider
+    }
     anrokCustomer {
       __typename
       id

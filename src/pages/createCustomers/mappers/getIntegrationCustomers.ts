@@ -8,6 +8,7 @@ import {
   IntegrationCustomerInput,
   IntegrationTypeEnum,
   NetsuiteIntegration,
+  NetsuiteV2Integration,
   SalesforceIntegration,
   XeroIntegration,
 } from '~/generated/graphql'
@@ -55,6 +56,10 @@ export const getIntegrationCustomers = ({
   const accountingIntegrations = [
     ...(getAllIntegrationForAnIntegrationType<NetsuiteIntegration>({
       integrationType: IntegrationTypeEnum.Netsuite,
+      allIntegrationsData: accountingProviders,
+    }) || []),
+    ...(getAllIntegrationForAnIntegrationType<NetsuiteV2Integration>({
+      integrationType: IntegrationTypeEnum.NetsuiteV2,
       allIntegrationsData: accountingProviders,
     }) || []),
     ...(getAllIntegrationForAnIntegrationType<XeroIntegration>({

@@ -50,9 +50,11 @@ export const mapFromApiToForm = (
     return billingAddress.every((value, index) => value === shippingAddress[index])
   }
 
-  // Should only have one between xero and netsuite
+  // Should only have one between xero, netsuite, and netsuiteV2
   const accountingProvider =
-    [customer?.xeroCustomer, customer?.netsuiteCustomer].find(Boolean) || undefined
+    [customer?.xeroCustomer, customer?.netsuiteCustomer, customer?.netsuiteV2Customer].find(
+      Boolean,
+    ) || undefined
 
   // Should only have one between hubspot and salesforce
   const crmProvider =

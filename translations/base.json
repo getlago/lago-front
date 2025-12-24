@@ -3617,5 +3617,7 @@
   "text_1763418788157c3on0ci6osi": "Billing cycle ending on Dec 31 sets the issuing date to Dec 31.",
   "text_17634187881589jfd2riv1pr": "Billing cycle ending on Dec 31 sets the issuing date to Jan 1.",
   "text_17634187881585jurckihq30": "Issuing date follows the rule above, regardless of grace period.",
-  "text_1763418788158j8nzvbz85yj": "Matches the finalization date, can be delayed by grace period."
+  "text_1763418788158j8nzvbz85yj": "Matches the finalization date, can be delayed by grace period.",
+  "text_1766068213462z5ia1fxaveh": "Netsuite V2",
+  "text_1766072494329cdczw6alxv7": "Edit information linked to this NetSuite V2 connection."
 }

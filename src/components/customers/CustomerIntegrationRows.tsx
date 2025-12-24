@@ -67,6 +67,12 @@ gql`
           name
           accountId
         }
+        ... on NetsuiteV2Integration {
+          __typename
+          id
+          name
+          accountId
+        }
         ... on AnrokIntegration {
           __typename
           id
@@ -117,6 +123,7 @@ const CustomerIntegrationRows = ({ customer, linkedPaymentProvider }: Props) => 
       variables: { limit: 1000 },
       skip:
         !customer?.netsuiteCustomer &&
+        !customer?.netsuiteV2Customer &&
         !customer?.anrokCustomer &&
         !customer?.avalaraCustomer &&
         !customer?.xeroCustomer &&
@@ -130,6 +137,12 @@ const CustomerIntegrationRows = ({ customer, linkedPaymentProvider }: Props) => 
       customer,
       'NetsuiteIntegration',
       'netsuiteCustomer',
+    ),
+    netsuiteV2: getConnectedIntegrations(
+      integrationsData,
+      customer,
+      "NetsuiteV2Integration",
+      "netsuiteV2Customer",
     ),
     xero: getConnectedIntegrations(integrationsData, customer, 'XeroIntegration', 'xeroCustomer'),
     anrok: getConnectedIntegrations(
@@ -158,7 +171,7 @@ const CustomerIntegrationRows = ({ customer, linkedPaymentProvider }: Props) => 
     ),
   }
 
-  const { netsuite, xero, anrok, avalara, hubspot, salesforce } = connectedIntegrations
+  const { netsuite, netsuiteV2, xero, anrok, avalara, hubspot, salesforce } = connectedIntegrations
 
   const customerIntegrations = [
     {
@@ -183,6 +196,29 @@ const CustomerIntegrationRows = ({ customer, linkedPaymentProvider }: Props) => 
         size: 'small' as AvatarSize,
       },
       externalCustomerId: customer?.netsuiteCustomer?.externalCustomerId,
+    },
+    {
+      integrationProvider: 'NetsuiteV2Integration',
+      canRender: !!customer?.netsuiteV2Customer?.integrationId && !!netsuiteV2?.id,
+      label: translate('text_66423cad72bbad009f2f568f'),
+      additionalLabel: '',
+      buildExternalUrl: () => {
+        if (!netsuiteV2?.accountId || !customer?.netsuiteV2Customer?.externalCustomerId) {
+          return ''
+        }
+
+        return buildNetsuiteCustomerUrl(
+          netsuiteV2.accountId,
+          customer.netsuiteV2Customer.externalCustomerId,
+        )
+      },
+      integrationName: netsuiteV2?.name,
+      integrationIcon: {
+        icon: <Netsuite />,
+        variant: 'connector-full' as AvatarConnectorVariant,
+        size: 'small' as AvatarSize,
+      },
+      externalCustomerId: customer?.netsuiteV2Customer?.externalCustomerId,
     },
     {
       integrationProvider: 'XeroIntegration',

@@ -7,6 +7,7 @@ import {
   HubspotIntegration,
   IntegrationTypeEnum,
   NetsuiteIntegration,
+  NetsuiteV2Integration,
   SalesforceIntegration,
   XeroIntegration,
 } from '~/generated/graphql'
@@ -18,6 +19,7 @@ type SupportedIntegration =
   | AvalaraIntegration
   | HubspotIntegration
   | NetsuiteIntegration
+  | NetsuiteV2Integration
   | SalesforceIntegration
   | XeroIntegration
 

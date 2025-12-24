@@ -59,6 +59,11 @@ gql`
       integrationId
       externalCustomerId
     }
+    netsuiteV2Customer {
+      id
+      integrationId
+      externalCustomerId
+    }
     paymentProviderCode
     providerCustomer {
       id
