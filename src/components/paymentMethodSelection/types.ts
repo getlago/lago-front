@@ -7,9 +7,10 @@ import { ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 export type SelectedPaymentMethod = PaymentMethodReferenceInput | null | undefined
 
 export interface PaymentMethodComboBoxProps {
-  paymentMethodsList: PaymentMethodList
+  paymentMethodsList?: PaymentMethodList
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
+  externalCustomerId?: string
   className?: string
   disabled?: boolean
   name?: string

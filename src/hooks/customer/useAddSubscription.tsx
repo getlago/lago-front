@@ -37,6 +37,15 @@ gql`
       endingAt
       name
       externalId
+      paymentMethodType
+      paymentMethod {
+        id
+      }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+      }
       customer {
         id
         activeSubscriptionsCount
@@ -60,6 +69,15 @@ gql`
       endingAt
       name
       externalId
+      paymentMethodType
+      paymentMethod {
+        id
+      }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+      }
       customer {
         id
         activeSubscriptionsCount

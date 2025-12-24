@@ -8,6 +8,7 @@ import {
   ActionItem,
   Avatar,
   ButtonLink,
+  GenericPlaceholderProps,
   InfiniteScroll,
   Table,
   Typography,
@@ -67,6 +68,28 @@ const AddOnsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
   const list = data?.addOns?.collection || []
   const shouldShowItemActions = hasPermissions(['addonsUpdate', 'addonsDelete'])
+
+  const getEmptyState = (): Partial<GenericPlaceholderProps> => {
+    if (variables?.searchTerm) {
+      return {
+        title: translate('text_63bee4e10e2d53912bfe4da5'),
+        subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
+      }
+    }
+    if (hasPermissions(['addonsCreate'])) {
+      return {
+        title: translate('text_629728388c4d2300e2d380c9'),
+        subtitle: translate('text_629728388c4d2300e2d380df'),
+        buttonTitle: translate('text_629728388c4d2300e2d3810f'),
+        buttonVariant: 'primary',
+        buttonAction: () => navigate(CREATE_ADD_ON_ROUTE),
+      }
+    }
+    return {
+      title: translate('text_664de6f0ec798e005a110d19'),
+      subtitle: translate('text_629728388c4d2300e2d380df'),
+    }
+  }
 
   return (
     <>
@@ -209,23 +232,7 @@ const AddOnsList = () => {
                   buttonAction: () => location.reload(),
                 },
 
-            emptyState: !!variables?.searchTerm
-              ? {
-                  title: translate('text_63bee4e10e2d53912bfe4da5'),
-                  subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
-                }
-              : hasPermissions(['addonsCreate'])
-                ? {
-                    title: translate('text_629728388c4d2300e2d380c9'),
-                    subtitle: translate('text_629728388c4d2300e2d380df'),
-                    buttonTitle: translate('text_629728388c4d2300e2d3810f'),
-                    buttonVariant: 'primary',
-                    buttonAction: () => navigate(CREATE_ADD_ON_ROUTE),
-                  }
-                : {
-                    title: translate('text_664de6f0ec798e005a110d19'),
-                    subtitle: translate('text_629728388c4d2300e2d380df'),
-                  },
+            emptyState: getEmptyState(),
           }}
         />
       </InfiniteScroll>

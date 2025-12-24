@@ -40,6 +40,19 @@ export const PlanDetailsUsageChargesSection = ({
 
   const isAnnual = isPlanIntervalAnnual(plan?.interval)
 
+  const getInvoicingStrategyTextValue = (charge: Charge) => {
+    if (!charge.payInAdvance) {
+      return translate('text_66968fba80f8f89a8aefdec0')
+    }
+    if (charge.invoiceable) {
+      return translate('text_66968fba80f8f89a8aefdebf')
+    }
+    if (charge.regroupPaidFees === RegroupPaidFeesEnum.Invoice) {
+      return translate('text_66968fba80f8f89a8aefdec0')
+    }
+    return translate('text_6682c52081acea9052074686')
+  }
+
   return (
     <section className="flex flex-col gap-12">
       {!!meteredCharges?.length && (
@@ -79,7 +92,7 @@ export const PlanDetailsUsageChargesSection = ({
                         {
                           label: translate('text_1750411499858su5b7bbp5t9'),
                           value: translate('text_1750424999815sw5whlu1xj0', {
-                            shortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
+                            shortName: charge.appliedPricingUnit.pricingUnit?.shortName,
                             conversionRateAmount: intlFormatNumber(
                               charge.appliedPricingUnit?.conversionRate,
                               {
@@ -148,13 +161,7 @@ export const PlanDetailsUsageChargesSection = ({
                       },
                       {
                         label: translate('text_6682c52081acea90520744ca'),
-                        value: !charge.payInAdvance
-                          ? translate('text_66968fba80f8f89a8aefdec0')
-                          : charge.invoiceable
-                            ? translate('text_66968fba80f8f89a8aefdebf')
-                            : charge.regroupPaidFees === RegroupPaidFeesEnum.Invoice
-                              ? translate('text_66968fba80f8f89a8aefdec0')
-                              : translate('text_6682c52081acea9052074686'),
+                        value: getInvoicingStrategyTextValue(charge as Charge),
                       },
                       {
                         label: translate('text_645bb193927b375079d28a8f'),
