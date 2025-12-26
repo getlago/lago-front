@@ -12,21 +12,25 @@ export const CREDIT_AMOUNT_INPUT_TEST_ID = 'credit-amount-input'
 export const REFUND_AMOUNT_INPUT_TEST_ID = 'refund-amount-input'
 
 interface CreditNoteActionsLineProps {
+  details: string
   label: string
   formikProps: FormikProps<Partial<CreditNoteForm>>
   currency: CurrencyEnum
   name: string
   error?: string
   hasError?: boolean
+  disabled?: boolean
 }
 
 export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
+  details,
   label,
   formikProps,
   currency,
   name,
   hasError,
   error,
+  disabled,
 }) => {
   const currencySymbol = getCurrencySymbol(currency)
 
@@ -41,9 +45,16 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <Typography variant="bodyHl" color="grey700">
-          {label}
-        </Typography>
+        <div>
+          <Typography variant="bodyHl" color="grey700">
+            {label}
+          </Typography>
+          {details && (
+            <Typography variant="caption" color="grey600">
+              {details}
+            </Typography>
+          )}
+        </div>
 
         <AmountInputField
           name={name}
@@ -52,6 +63,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
           className="max-w-42"
           beforeChangeFormatter={['positiveNumber']}
           error={!!error || hasError}
+          disabled={disabled}
           inputProps={{ style: { textAlign: 'right' } }}
           InputProps={
             currency && {
