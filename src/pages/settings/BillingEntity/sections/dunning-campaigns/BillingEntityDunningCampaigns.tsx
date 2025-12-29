@@ -125,13 +125,12 @@ const BillingEntityDunningCampaigns = () => {
                 {!hasAccessToFeature && (
                   <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
                     <div>
-                      <Typography
-                        className="flex items-center gap-2"
-                        variant="bodyHl"
-                        color="textSecondary"
-                      >
-                        {translate('text_1729263759370k8po52j4m2n')} <Icon name="sparkles" />
-                      </Typography>
+                      <div className="flex items-center gap-1">
+                        <Typography variant="bodyHl" color="textSecondary">
+                          {translate('text_1729263759370k8po52j4m2n')}
+                        </Typography>
+                        <Icon name="sparkles" />
+                      </div>
                       <Typography variant="caption">
                         {translate('text_1729263759370rhgayszv6yq')}
                       </Typography>
