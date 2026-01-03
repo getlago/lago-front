@@ -5712,6 +5712,7 @@ export type Payment = {
   id: Scalars['ID']['output'];
   payable: Payable;
   payablePaymentStatus?: Maybe<PayablePaymentStatusEnum>;
+  paymentProvider?: Maybe<PaymentProvider>;
   paymentProviderType?: Maybe<ProviderTypeEnum>;
   paymentReceipt?: Maybe<PaymentReceipt>;
   paymentType: PaymentTypeEnum;
@@ -10158,7 +10159,14 @@ export type GetInvoiceMetadatasQuery = { __typename?: 'Query', invoice?: { __typ
 export type PaymentForPaymentsListFragment = { __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
     | { __typename?: 'Invoice', id: string, number: string, payableType: string }
     | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, number: string }> }
-  , customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null };
+  , paymentProvider?:
+    | { __typename?: 'AdyenProvider', name: string }
+    | { __typename?: 'CashfreeProvider', name: string }
+    | { __typename?: 'FlutterwaveProvider', name: string }
+    | { __typename?: 'GocardlessProvider', name: string }
+    | { __typename?: 'MoneyhashProvider', name: string }
+    | { __typename?: 'StripeProvider', name: string }
+   | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null };
 
 export type InvoiceForVoidInvoiceDialogFragment = { __typename?: 'Invoice', id: string, number: string };
 
@@ -12247,7 +12255,14 @@ export type GetPaymentsListQueryVariables = Exact<{
 export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
         | { __typename?: 'Invoice', id: string, number: string, payableType: string }
         | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, number: string }> }
-      , customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
+      , paymentProvider?:
+        | { __typename?: 'AdyenProvider', name: string }
+        | { __typename?: 'CashfreeProvider', name: string }
+        | { __typename?: 'FlutterwaveProvider', name: string }
+        | { __typename?: 'GocardlessProvider', name: string }
+        | { __typename?: 'MoneyhashProvider', name: string }
+        | { __typename?: 'StripeProvider', name: string }
+       | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
 
 export type GetPlanForDetailsQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
@@ -14708,6 +14723,26 @@ export const PaymentForPaymentsListFragmentDoc = gql`
   paymentProviderType
   paymentType
   providerPaymentId
+  paymentProvider {
+    ... on AdyenProvider {
+      name
+    }
+    ... on CashfreeProvider {
+      name
+    }
+    ... on FlutterwaveProvider {
+      name
+    }
+    ... on GocardlessProvider {
+      name
+    }
+    ... on MoneyhashProvider {
+      name
+    }
+    ... on StripeProvider {
+      name
+    }
+  }
   reference
   customer {
     id

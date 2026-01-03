@@ -139,8 +139,9 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
           {
             key: 'paymentType',
             title: translate('text_1737043182491927uocp2ydo'),
-            content: ({ paymentType, paymentProviderType }) => (
+            content: ({ paymentType, paymentProviderType, paymentProvider }) => (
               <PaymentProviderChip
+                label={paymentProvider?.name}
                 paymentProvider={
                   paymentProviderType ??
                   (paymentType === PaymentTypeEnum.Manual ? 'manual' : undefined)

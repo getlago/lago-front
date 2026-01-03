@@ -46,6 +46,26 @@ gql`
     paymentProviderType
     paymentType
     providerPaymentId
+    paymentProvider {
+      ... on AdyenProvider {
+        name
+      }
+      ... on CashfreeProvider {
+        name
+      }
+      ... on FlutterwaveProvider {
+        name
+      }
+      ... on GocardlessProvider {
+        name
+      }
+      ... on MoneyhashProvider {
+        name
+      }
+      ... on StripeProvider {
+        name
+      }
+    }
     reference
     customer {
       id
