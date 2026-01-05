@@ -40,8 +40,8 @@ importers:
         specifier: 10.32.1
         version: 10.32.1(react@18.3.1)
       '@superset-ui/embedded-sdk':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@tanstack/react-form':
         specifier: 1.27.6
         version: 1.27.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3046,8 +3046,8 @@ packages:
   '@sinonjs/fake-timers@13.0.5':
     resolution: {integrity: sha512-36/hTbH2uaWuGVERyC6da9YwGWnzUZXuPro/F2LfsdOsLnCojz/iSH8MxUt/FD2S5XBSVPhmArFUXcpCQ2Hkiw==}
 
-  '@superset-ui/embedded-sdk@0.2.0':
-    resolution: {integrity: sha512-n3lCDIfOtCGx8hYUye6rNxX4HI/pjP5u07W4kODt/0DuNl5Dd0+KHnU8ulG0PP2anOrnkc32HENno4Q/Qr5ICw==}
+  '@superset-ui/embedded-sdk@0.3.0':
+    resolution: {integrity: sha512-Q1ttlQy5H69pvJ29K5mY3/7awzwmOgTyEa/IzGwIZKlz0/dpV8GT/6zPic8C88TMJpkt5cDlpj8B1aUZm+K7Qg==}
 
   '@superset-ui/switchboard@0.20.3':
     resolution: {integrity: sha512-qEMXFwdRLfXug4gXXdBEGpFtBWZoxdZkCJLBVxj1IR8cQvSqjkWAQOzSSYYdcIeREWqi8iP+iK6apNV1ZQCKcA==}
@@ -11551,7 +11551,7 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@superset-ui/embedded-sdk@0.2.0':
+  '@superset-ui/embedded-sdk@0.3.0':
     dependencies:
       '@superset-ui/switchboard': 0.20.3
       jwt-decode: 4.0.0
