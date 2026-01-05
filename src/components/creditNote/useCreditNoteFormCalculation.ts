@@ -176,9 +176,10 @@ export const useCreditNoteFormCalculation = ({
     return {
       maxCreditableAmount: deserializeAmount(maxCreditableAmountCents || 0, currency),
       maxRefundableAmount: deserializeAmount(maxRefundableAmountCents || 0, currency),
-      totalTaxIncluded:
-        deserializeAmount(subTotalExcludingTaxesAmountCents || 0, currency) +
-        deserializeAmount(taxesAmountCents || 0, currency),
+      totalTaxIncluded: deserializeAmount(
+        (Number(subTotalExcludingTaxesAmountCents) || 0) + (Number(taxesAmountCents) || 0),
+        currency,
+      ),
       proRatedCouponAmount: deserializeAmount(couponsAdjustmentAmountCents || 0, currency),
       totalExcludedTax: deserializeAmount(subTotalExcludingTaxesAmountCents || 0, currency),
       taxes: new Map(

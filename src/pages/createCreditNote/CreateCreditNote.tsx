@@ -289,7 +289,7 @@ const CreateCreditNote = () => {
                       <Typography variant="caption" color="grey600">
                         {translate('text_65a6b4e2cb38d9b70ec53d83')}
                       </Typography>
-                      <Typography variant="subhead1" color="grey700">
+                      <Typography variant="bodyHl" color="grey700">
                         {intlFormatNumber(deserializeAmount(invoice?.totalAmountCents, currency), {
                           currency,
                         })}
