@@ -11,15 +11,15 @@ gql`
     customerPortalOrganization {
       id
       premiumIntegrations
-      billingConfiguration {
-        id
-        documentLocale
-      }
     }
 
     customerPortalUser {
       id
       billingConfiguration {
+        id
+        documentLocale
+      }
+      billingEntityBillingConfiguration {
         id
         documentLocale
       }
@@ -38,7 +38,7 @@ const useCustomerPortalTranslate = () => {
 
   const documentLocale =
     (data?.customerPortalUser?.billingConfiguration?.documentLocale as Locale) ||
-    (data?.customerPortalOrganization?.billingConfiguration?.documentLocale as Locale) ||
+    (data?.customerPortalUser?.billingEntityBillingConfiguration?.documentLocale as Locale) ||
     'en'
 
   const { translateWithContextualLocal: translate } = useContextualLocale(documentLocale)
