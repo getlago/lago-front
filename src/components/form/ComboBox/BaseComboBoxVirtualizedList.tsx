@@ -38,6 +38,39 @@ export const calculateItemMarginTop = (
 }
 
 /**
+ * Calculate the bottom margin for an item based on its position and the next element
+ * @param index - The index of the current item
+ * @param elements - Array of all elements
+ * @param groupItemKey - Key used to identify group headers
+ * @returns The margin bottom value in pixels
+ */
+export const calculateItemMarginBottom = (
+  index: number,
+  elements: ReactElement[],
+  groupItemKey: string,
+): number => {
+  const element = elements[index]
+  const isHeader = (element.key as string)?.includes(groupItemKey)
+
+  // Headers have no margin
+  if (isHeader) {
+    return 0
+  }
+
+  // Check if next element is a header or if this is the last item
+  const nextElement = index < elements.length - 1 ? elements[index + 1] : null
+  const nextIsHeader = nextElement ? (nextElement.key as string)?.includes(groupItemKey) : false
+  const isLastItem = index === elements.length - 1
+
+  // 8px margin before headers or at end
+  if (nextIsHeader || isLastItem) {
+    return COMBOBOX_CONFIG.ITEM_GROUP_MARGIN_BOTTOM
+  }
+
+  return 0
+}
+
+/**
  * Calculate the total height of an item including margins for the virtualizer
  * This includes the item's base height plus top and bottom spacing
  * @param index - The index of the current item
@@ -120,6 +153,7 @@ export const BaseComboBoxVirtualizedList = ({
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
           const element = elements[virtualRow.index]
           const marginTop = calculateItemMarginTop(virtualRow.index, elements, groupItemKey)
+          const marginBottom = calculateItemMarginBottom(virtualRow.index, elements, groupItemKey)
 
           return (
             <div
@@ -128,13 +162,13 @@ export const BaseComboBoxVirtualizedList = ({
               data-index={virtualRow.index}
               className="absolute left-0 top-0 w-full"
               style={{
-                height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
               <div
                 style={{
                   marginTop: `${marginTop}px`,
+                  marginBottom: `${marginBottom}px`,
                 }}
               >
                 {element}
