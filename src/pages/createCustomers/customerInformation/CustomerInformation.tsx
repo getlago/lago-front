@@ -103,7 +103,6 @@ const CustomerInformation = withForm({
             <field.ComboBoxField
               label={translate('text_1726128938631ioz4orixel3')}
               placeholder={translate('text_17261289386318j0nhr1ms3t')}
-              disabled={isEdition && !customer?.canEditAttributes}
               PopperProps={{ displayInDialog: true }}
               data={customerTypeData}
             />
