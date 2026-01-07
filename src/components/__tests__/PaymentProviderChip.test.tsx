@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { cleanup, screen } from '@testing-library/react'
 
 import { ProviderTypeEnum } from '~/generated/graphql'
