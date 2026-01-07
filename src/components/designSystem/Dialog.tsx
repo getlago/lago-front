@@ -15,6 +15,8 @@ export interface DialogProps {
   open?: boolean
   description?: ReactNode
   children?: ReactNode
+  formId?: string
+  formSubmit?: (e: React.FormEvent) => void
   onOpen?: () => void
   onClose?: () => void
 }
@@ -26,7 +28,18 @@ export interface DialogRef {
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
   (
-    { title, description, actions, children, onOpen, onClose, open = false, ...props }: DialogProps,
+    {
+      title,
+      description,
+      actions,
+      children,
+      onOpen,
+      onClose,
+      open = false,
+      formId,
+      formSubmit,
+      ...props
+    }: DialogProps,
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(open)
@@ -94,11 +107,23 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
             </Typography>
           )}
 
-          {children && children}
+          {formId ? (
+            <form id={formId} onSubmit={formSubmit}>
+              {children && children}
 
-          <div className="flex flex-col-reverse flex-wrap justify-end gap-3 md:flex-row">
-            {actions({ closeDialog })}
-          </div>
+              <div className="flex flex-col-reverse flex-wrap justify-end gap-3 md:flex-row">
+                {actions({ closeDialog })}
+              </div>
+            </form>
+          ) : (
+            <>
+              {children}
+
+              <div className="flex flex-col-reverse flex-wrap justify-end gap-3 md:flex-row">
+                {actions({ closeDialog })}
+              </div>
+            </>
+          )}
         </MuiDialog>
       </>
     )
