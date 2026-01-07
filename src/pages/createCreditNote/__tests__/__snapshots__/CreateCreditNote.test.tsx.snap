@@ -260,8 +260,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   Total amount
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
-                  data-test="subhead1"
+                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  data-test="bodyHl"
                 >
                   $100.00
                 </div>
@@ -322,7 +322,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
             data-test="subhead1"
           >
-            Credit note note settings
+            Credit note settings
           </div>
           <div
             class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
@@ -1218,8 +1218,8 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   Total amount
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
-                  data-test="subhead1"
+                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  data-test="bodyHl"
                 >
                   $100.00
                 </div>
@@ -1280,7 +1280,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
             class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
             data-test="subhead1"
           >
-            Credit note note settings
+            Credit note settings
           </div>
           <div
             class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
@@ -1993,8 +1993,8 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                   Total amount
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
-                  data-test="subhead1"
+                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  data-test="bodyHl"
                 >
                   $100.00
                 </div>
@@ -2055,7 +2055,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
             class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
             data-test="subhead1"
           >
-            Credit note note settings
+            Credit note settings
           </div>
           <div
             class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
