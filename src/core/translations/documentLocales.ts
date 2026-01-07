@@ -14,6 +14,7 @@ export const DocumentLocales: documentLocalesType = {
   es: 'Spanish',
   sv: 'Swedish',
   'pt-BR': 'Portuguese (Brazil)',
+  'zh-TW': 'Chinese (Taïwan)',
 }
 
 export const documentLocalesDataForComboBox: { value: LocaleEnum; label: string }[] = (
