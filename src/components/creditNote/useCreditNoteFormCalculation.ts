@@ -15,8 +15,6 @@ import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 
 import { CreditNoteForm, CreditTypeEnum, PayBackErrorEnum } from './types'
 
-export const CREDIT_ONLY_AMOUNT_LINE_TEST_ID = 'credit-only-amount-line'
-
 gql`
   fragment InvoiceForCreditNoteFormCalculation on Invoice {
     id
