@@ -7,6 +7,7 @@ import {
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragment,
   InvoicePaymentStatusTypeEnum,
+  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
@@ -26,6 +27,7 @@ const createMockInvoice = (
   versionNumber: 4,
   paymentDisputeLostAt: null,
   totalPaidAmountCents: '10000',
+  invoiceType: InvoiceTypeEnum.Subscription,
   fees: [],
   ...overrides,
 })
@@ -171,6 +173,47 @@ describe('useCreditNoteFormCalculation', () => {
       const { result } = setup()
 
       expect(result.current.taxes).toBeInstanceOf(Map)
+    })
+  })
+
+  describe('prepaid credits invoice handling', () => {
+    it('should skip payBack initialization for prepaid credits invoices', () => {
+      const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Credit })
+      const formikProps = createMockFormikProps()
+
+      setup({ invoice, formikProps })
+
+      // For prepaid credits, setFieldValue should NOT be called for payBack initialization
+      // The hook skips initialization for prepaid credits invoices
+      const setFieldValueCalls = (formikProps.setFieldValue as jest.Mock).mock.calls
+      const payBackInitCalls = setFieldValueCalls.filter(
+        (call: string[]) => call[0] === 'payBack.0.type' || call[0] === 'payBack.1.type',
+      )
+
+      expect(payBackInitCalls.length).toBe(0)
+    })
+
+    it('should set empty validation for prepaid credits invoices', () => {
+      const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Credit })
+      const { setPayBackValidation } = setup({ invoice })
+
+      // For prepaid credits, validation should be set to empty array
+      expect(setPayBackValidation).toHaveBeenCalled()
+    })
+
+    it('should initialize payBack for non-prepaid credits invoices', () => {
+      const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Subscription })
+      const formikProps = createMockFormikProps()
+
+      setup({ invoice, formikProps })
+
+      // For non-prepaid credits, setFieldValue should be called for payBack initialization
+      const setFieldValueCalls = (formikProps.setFieldValue as jest.Mock).mock.calls
+      const payBackInitCalls = setFieldValueCalls.filter(
+        (call: string[]) => call[0] === 'payBack.0.type' || call[0] === 'payBack.1.type',
+      )
+
+      expect(payBackInitCalls.length).toBeGreaterThan(0)
     })
   })
 })

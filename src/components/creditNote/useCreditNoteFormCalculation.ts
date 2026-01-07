@@ -9,6 +9,7 @@ import {
   CreditNoteItemInput,
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragment,
+  InvoiceTypeEnum,
   useCreditNoteEstimateLazyQuery,
 } from '~/generated/graphql'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
@@ -27,6 +28,7 @@ gql`
     versionNumber
     paymentDisputeLostAt
     totalPaidAmountCents
+    invoiceType
     fees {
       id
       appliedTaxes {
@@ -102,6 +104,7 @@ export const useCreditNoteFormCalculation = ({
   const hasNoPayment = Number(invoice?.totalPaidAmountCents) === 0
   const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
   const canRefund = !canOnlyCredit
+  const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
 
   const currency = invoice?.currency || CurrencyEnum.Usd
   const currencyPrecision = getCurrencyPrecision(currency)
@@ -194,6 +197,12 @@ export const useCreditNoteFormCalculation = ({
   }, [currency, estimationData?.creditNoteEstimate, estimationError])
 
   useEffect(() => {
+    // Skip initialization for prepaid credits invoices
+    // They use a different payBack structure managed by CreateCreditNote component
+    if (isPrepaidCreditsInvoice) {
+      return
+    }
+
     // Set the default values for credit payback fields
     formikProps.setFieldValue('payBack.0.type', CreditTypeEnum.credit)
     formikProps.setFieldValue('payBack.0.value', undefined)
@@ -207,6 +216,14 @@ export const useCreditNoteFormCalculation = ({
   }, [])
 
   useEffect(() => {
+    // Skip validation setup for prepaid credits invoices
+    // They use a different payBack structure (single refund element)
+    // and don't use the estimation API
+    if (isPrepaidCreditsInvoice) {
+      setPayBackValidation(array())
+      return
+    }
+
     formikProps.setFieldValue(
       'payBack.0.value',
       !totalTaxIncluded ? undefined : Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision),
@@ -278,6 +295,7 @@ export const useCreditNoteFormCalculation = ({
   }, [
     canRefund,
     currencyPrecision,
+    isPrepaidCreditsInvoice,
     maxCreditableAmount,
     maxRefundableAmount,
     setPayBackValidation,
