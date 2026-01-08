@@ -13,7 +13,11 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div
@@ -113,7 +117,11 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div
@@ -213,7 +221,11 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div
@@ -313,7 +325,11 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div

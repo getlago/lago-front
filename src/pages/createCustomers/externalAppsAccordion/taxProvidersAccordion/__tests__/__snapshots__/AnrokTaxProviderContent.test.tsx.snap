@@ -13,7 +13,11 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
         data-test="captionHl"
         for="taxCustomer.taxCustomerId"
       >
-        Anrok customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Anrok customer ID
+        </span>
       </label>
     </div>
     <div
@@ -113,7 +117,11 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
         data-test="captionHl"
         for="taxCustomer.taxCustomerId"
       >
-        Anrok customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Anrok customer ID
+        </span>
       </label>
     </div>
     <div
@@ -213,7 +221,11 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
         data-test="captionHl"
         for="taxCustomer.taxCustomerId"
       >
-        Anrok customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Anrok customer ID
+        </span>
       </label>
     </div>
     <div
@@ -313,7 +325,11 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
         data-test="captionHl"
         for="taxCustomer.taxCustomerId"
       >
-        Anrok customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Anrok customer ID
+        </span>
       </label>
     </div>
     <div

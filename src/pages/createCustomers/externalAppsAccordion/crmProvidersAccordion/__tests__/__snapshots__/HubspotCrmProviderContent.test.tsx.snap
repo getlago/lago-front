@@ -16,7 +16,11 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
-          Targeted HubSpot object
+          <span
+            class="flex flex-row gap-1"
+          >
+            Targeted HubSpot object
+          </span>
         </label>
       </div>
       <div
@@ -101,7 +105,11 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
-          Targeted HubSpot object
+          <span
+            class="flex flex-row gap-1"
+          >
+            Targeted HubSpot object
+          </span>
         </label>
       </div>
       <div
@@ -186,7 +194,11 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
-          Targeted HubSpot object
+          <span
+            class="flex flex-row gap-1"
+          >
+            Targeted HubSpot object
+          </span>
         </label>
       </div>
       <div
@@ -271,7 +283,11 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
-          Targeted HubSpot object
+          <span
+            class="flex flex-row gap-1"
+          >
+            Targeted HubSpot object
+          </span>
         </label>
       </div>
       <div
@@ -357,7 +373,11 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with fo
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
-          Targeted HubSpot object
+          <span
+            class="flex flex-row gap-1"
+          >
+            Targeted HubSpot object
+          </span>
         </label>
       </div>
       <div

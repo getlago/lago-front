@@ -11,7 +11,7 @@ export interface CheckboxProps {
   className?: string
   disabled?: boolean
   error?: string
-  label: string | React.ReactNode
+  label: string | React.ReactNode | null
   sublabel?: string | React.ReactNode
   name?: string
   value?: boolean | undefined
@@ -75,11 +75,10 @@ export const Checkbox = ({
           />
         </div>
         <div>
-          {typeof label === 'string' ? (
+          {typeof label === 'string' && (
             <Typography color={disabled ? 'disabled' : 'textSecondary'}>{label}</Typography>
-          ) : (
-            label
           )}
+          {label && typeof label !== 'string' && label}
           {!!label &&
             (typeof sublabel === 'string' ? (
               <Typography variant="caption" color={disabled ? 'disabled' : 'grey600'}>

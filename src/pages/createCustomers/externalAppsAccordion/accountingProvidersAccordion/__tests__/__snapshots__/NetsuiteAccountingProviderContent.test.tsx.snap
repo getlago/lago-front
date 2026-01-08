@@ -13,7 +13,11 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
@@ -113,7 +117,11 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
@@ -213,7 +221,11 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
@@ -313,7 +325,11 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
@@ -415,7 +431,11 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
@@ -532,7 +552,11 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
           data-test="captionHl"
           for="accountingCustomer.subsidiaryId"
         >
-          Subsidiary
+          <span
+            class="flex flex-row gap-1"
+          >
+            Subsidiary
+          </span>
         </label>
       </div>
       <div

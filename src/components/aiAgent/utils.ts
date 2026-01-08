@@ -1,6 +1,7 @@
 import { customerObjectCreationRoutes, customerVoidRoutes } from '~/core/router/CustomerRoutes'
 import { ERROR_404_ROUTE, FORBIDDEN_ROUTE } from '~/core/router/index'
 import { objectCreationRoutes } from '~/core/router/ObjectsRoutes'
+import { settingsObjectCreationRoutes } from '~/core/router/SettingRoutes'
 
 /**
  * Transforms route definitions into an array of path objects for route matching.
@@ -13,6 +14,7 @@ export const getHiddenAiAgentPaths = (): Array<{ path: string }> => {
     ...objectCreationRoutes,
     ...customerObjectCreationRoutes,
     ...customerVoidRoutes,
+    ...settingsObjectCreationRoutes,
   ]
     ?.reduce((prev, curr) => prev.concat(curr.path ? curr.path : []), [] as string[])
     ?.map((path: string) => ({ path }))

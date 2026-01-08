@@ -13,7 +13,11 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
-        Salesforce Account ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Salesforce Account ID
+        </span>
       </label>
     </div>
     <div
@@ -113,7 +117,11 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
-        Salesforce Account ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Salesforce Account ID
+        </span>
       </label>
     </div>
     <div
@@ -213,7 +221,11 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
-        Salesforce Account ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Salesforce Account ID
+        </span>
       </label>
     </div>
     <div
@@ -313,7 +325,11 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
-        Salesforce Account ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Salesforce Account ID
+        </span>
       </label>
     </div>
     <div

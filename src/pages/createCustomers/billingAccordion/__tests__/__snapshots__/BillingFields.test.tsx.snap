@@ -16,7 +16,11 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           data-test="captionHl"
           for="billingAddress.addressLine1"
         >
-          Address line 1
+          <span
+            class="flex flex-row gap-1"
+          >
+            Address line 1
+          </span>
         </label>
       </div>
       <div
@@ -62,7 +66,11 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           data-test="captionHl"
           for="billingAddress.addressLine2"
         >
-          Address line 2
+          <span
+            class="flex flex-row gap-1"
+          >
+            Address line 2
+          </span>
         </label>
       </div>
       <div
@@ -108,7 +116,11 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           data-test="captionHl"
           for="billingAddress.zipcode"
         >
-          Zip code
+          <span
+            class="flex flex-row gap-1"
+          >
+            Zip code
+          </span>
         </label>
       </div>
       <div
@@ -154,7 +166,11 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           data-test="captionHl"
           for="billingAddress.city"
         >
-          City
+          <span
+            class="flex flex-row gap-1"
+          >
+            City
+          </span>
         </label>
       </div>
       <div
@@ -200,7 +216,11 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           data-test="captionHl"
           for="billingAddress.state"
         >
-          State
+          <span
+            class="flex flex-row gap-1"
+          >
+            State
+          </span>
         </label>
       </div>
       <div
@@ -249,7 +269,11 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
             data-test="captionHl"
             for="billingAddress.country"
           >
-            Country
+            <span
+              class="flex flex-row gap-1"
+            >
+              Country
+            </span>
           </label>
         </div>
         <div
