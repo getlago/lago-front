@@ -28,6 +28,7 @@ import {
 import { MEMBERS_ROUTE, ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import { useRolesList } from '~/hooks/useRolesList'
 import { PageHeader } from '~/styles'
 
@@ -40,6 +41,11 @@ const RolesList = () => {
   const { translate } = useInternationalization()
   const { roles, isLoadingRoles } = useRolesList()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
+  const { hasPermissions } = usePermissions()
+
+  const canCreateRoles = hasPermissions(['rolesCreate'])
+  const canEditRoles = hasPermissions(['rolesUpdate'])
+  const canDeleteRoles = hasPermissions(['rolesDelete'])
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
@@ -60,6 +66,8 @@ const RolesList = () => {
         </Button>
       )
     }
+
+    if (!canCreateRoles) return
 
     return (
       <ButtonLink type="button" to={ROLE_CREATE_ROUTE} buttonProps={{ variant: 'inline' }}>
@@ -116,7 +124,7 @@ const RolesList = () => {
 
   const actionColumn = (role: RoleItem): Array<ActionItem<RoleItem>> => {
     const isSystemRole = systemRoles.includes(role.name)
-    const canDelete = role.memberships.length === 0
+    const canDelete = role.memberships.length === 0 && canDeleteRoles
 
     if (isSystemRole) {
       if (!isPremium) {
@@ -134,6 +142,7 @@ const RolesList = () => {
         {
           startIcon: 'duplicate',
           title: translate('text_64fa170e02f348164797a6af'),
+          disabled: !canCreateRoles,
           onAction: () => navigateToDuplicate(role.id),
         },
       ]
@@ -143,11 +152,13 @@ const RolesList = () => {
       {
         startIcon: 'duplicate',
         title: translate('text_64fa170e02f348164797a6af'),
+        disabled: !canCreateRoles,
         onAction: () => navigateToDuplicate(role.id),
       },
       {
         startIcon: 'pen',
         title: translate('text_1765528921745ibx4b56q1mt'),
+        disabled: !canEditRoles,
         onAction: () => navigateToEdit(role.id),
       },
       {
