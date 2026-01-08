@@ -20,7 +20,6 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
             class="flex flex-row gap-1"
           >
             Address line 1
-             
           </span>
         </label>
       </div>
@@ -71,7 +70,6 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
             class="flex flex-row gap-1"
           >
             Address line 2
-             
           </span>
         </label>
       </div>
@@ -122,7 +120,6 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
             class="flex flex-row gap-1"
           >
             Zip code
-             
           </span>
         </label>
       </div>
@@ -173,7 +170,6 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
             class="flex flex-row gap-1"
           >
             City
-             
           </span>
         </label>
       </div>
@@ -224,7 +220,6 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
             class="flex flex-row gap-1"
           >
             State
-             
           </span>
         </label>
       </div>
@@ -278,7 +273,6 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
               class="flex flex-row gap-1"
             >
               Country
-               
             </span>
           </label>
         </div>

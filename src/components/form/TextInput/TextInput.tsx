@@ -260,7 +260,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
               component={(labelProps) => <label htmlFor={name} {...labelProps} />}
             >
               <span className="flex flex-row gap-1">
-                {label}{' '}
+                {label}
                 {isOptional && (
                   <Typography variant="caption" color="grey600">
                     - {translate('text_17661418227616cvcuga1x7m')}

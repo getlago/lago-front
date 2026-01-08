@@ -178,7 +178,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Affiliated entity
-                       
                     </span>
                   </label>
                 </div>
@@ -280,7 +279,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer external ID (required)
-                     
                   </span>
                 </label>
               </div>
@@ -334,7 +332,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Customer type
-                       
                     </span>
                   </label>
                 </div>
@@ -436,7 +433,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer name
-                     
                   </span>
                 </label>
               </div>
@@ -490,7 +486,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       First name
-                       
                     </span>
                   </label>
                 </div>
@@ -541,7 +536,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Last name
-                       
                     </span>
                   </label>
                 </div>
@@ -596,7 +590,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Timezone
-                       
                     </span>
                   </label>
                 </div>
@@ -718,7 +711,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     External Salesforce Id
-                     
                   </span>
                 </label>
               </div>
@@ -862,7 +854,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     Currency
-                                     
                                   </span>
                                 </label>
                                 <div
@@ -969,7 +960,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   class="flex flex-row gap-1"
                                 >
                                   Legal name
-                                   
                                 </span>
                               </label>
                             </div>
@@ -1020,7 +1010,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   class="flex flex-row gap-1"
                                 >
                                   Legal number
-                                   
                                 </span>
                               </label>
                             </div>
@@ -1071,7 +1060,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   class="flex flex-row gap-1"
                                 >
                                   Tax identification number
-                                   
                                 </span>
                               </label>
                             </div>
@@ -1122,7 +1110,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   class="flex flex-row gap-1"
                                 >
                                   Email
-                                   
                                 </span>
                               </label>
                             </div>
@@ -1179,7 +1166,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   class="flex flex-row gap-1"
                                 >
                                   URL
-                                   
                                 </span>
                               </label>
                             </div>
@@ -1230,7 +1216,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   class="flex flex-row gap-1"
                                 >
                                   Phone number
-                                   
                                 </span>
                               </label>
                             </div>
@@ -1294,7 +1279,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     Address line 1
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1345,7 +1329,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     Address line 2
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1396,7 +1379,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     Zip code
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1447,7 +1429,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     City
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1498,7 +1479,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     State
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1552,7 +1532,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                       class="flex flex-row gap-1"
                                     >
                                       Country
-                                       
                                     </span>
                                   </label>
                                 </div>
@@ -1717,7 +1696,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     Address line 1
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1768,7 +1746,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     Address line 2
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1819,7 +1796,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     Zip code
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1870,7 +1846,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     City
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1921,7 +1896,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     class="flex flex-row gap-1"
                                   >
                                     State
-                                     
                                   </span>
                                 </label>
                               </div>
@@ -1975,7 +1949,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                       class="flex flex-row gap-1"
                                     >
                                       Country
-                                       
                                     </span>
                                   </label>
                                 </div>
@@ -2402,7 +2375,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Affiliated entity
-                       
                     </span>
                   </label>
                 </div>
@@ -2504,7 +2476,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer external ID (required)
-                     
                   </span>
                 </label>
               </div>
@@ -2558,7 +2529,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Customer type
-                       
                     </span>
                   </label>
                 </div>
@@ -2660,7 +2630,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer name
-                     
                   </span>
                 </label>
               </div>
@@ -2714,7 +2683,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       First name
-                       
                     </span>
                   </label>
                 </div>
@@ -2765,7 +2733,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Last name
-                       
                     </span>
                   </label>
                 </div>
@@ -2820,7 +2787,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Timezone
-                       
                     </span>
                   </label>
                 </div>
@@ -2942,7 +2908,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     External Salesforce Id
-                     
                   </span>
                 </label>
               </div>
@@ -3431,7 +3396,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Affiliated entity
-                       
                     </span>
                   </label>
                 </div>
@@ -3533,7 +3497,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer external ID (required)
-                     
                   </span>
                 </label>
               </div>
@@ -3587,7 +3550,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Customer type
-                       
                     </span>
                   </label>
                 </div>
@@ -3689,7 +3651,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer name
-                     
                   </span>
                 </label>
               </div>
@@ -3743,7 +3704,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       First name
-                       
                     </span>
                   </label>
                 </div>
@@ -3794,7 +3754,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Last name
-                       
                     </span>
                   </label>
                 </div>
@@ -3849,7 +3808,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Timezone
-                       
                     </span>
                   </label>
                 </div>
@@ -3971,7 +3929,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     External Salesforce Id
-                     
                   </span>
                 </label>
               </div>
@@ -4460,7 +4417,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Affiliated entity
-                       
                     </span>
                   </label>
                 </div>
@@ -4562,7 +4518,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer external ID (required)
-                     
                   </span>
                 </label>
               </div>
@@ -4616,7 +4571,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Customer type
-                       
                     </span>
                   </label>
                 </div>
@@ -4718,7 +4672,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer name
-                     
                   </span>
                 </label>
               </div>
@@ -4772,7 +4725,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       First name
-                       
                     </span>
                   </label>
                 </div>
@@ -4823,7 +4775,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Last name
-                       
                     </span>
                   </label>
                 </div>
@@ -4878,7 +4829,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Timezone
-                       
                     </span>
                   </label>
                 </div>
@@ -5000,7 +4950,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     External Salesforce Id
-                     
                   </span>
                 </label>
               </div>
@@ -5486,7 +5435,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Affiliated entity
-                       
                     </span>
                   </label>
                 </div>
@@ -5588,7 +5536,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer external ID (required)
-                     
                   </span>
                 </label>
               </div>
@@ -5642,7 +5589,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Customer type
-                       
                     </span>
                   </label>
                 </div>
@@ -5744,7 +5690,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     Customer name
-                     
                   </span>
                 </label>
               </div>
@@ -5798,7 +5743,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       First name
-                       
                     </span>
                   </label>
                 </div>
@@ -5849,7 +5793,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Last name
-                       
                     </span>
                   </label>
                 </div>
@@ -5904,7 +5847,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       class="flex flex-row gap-1"
                     >
                       Timezone
-                       
                     </span>
                   </label>
                 </div>
@@ -6026,7 +5968,6 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     class="flex flex-row gap-1"
                   >
                     External Salesforce Id
-                     
                   </span>
                 </label>
               </div>
@@ -6461,7 +6402,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                       class="flex flex-row gap-1"
                     >
                       Affiliated entity
-                       
                     </span>
                   </label>
                 </div>
@@ -6563,7 +6503,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     class="flex flex-row gap-1"
                   >
                     Customer external ID (required)
-                     
                   </span>
                 </label>
               </div>
@@ -6617,7 +6556,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                       class="flex flex-row gap-1"
                     >
                       Customer type
-                       
                     </span>
                   </label>
                 </div>
@@ -6719,7 +6657,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     class="flex flex-row gap-1"
                   >
                     Customer name
-                     
                   </span>
                 </label>
               </div>
@@ -6773,7 +6710,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                       class="flex flex-row gap-1"
                     >
                       First name
-                       
                     </span>
                   </label>
                 </div>
@@ -6824,7 +6760,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                       class="flex flex-row gap-1"
                     >
                       Last name
-                       
                     </span>
                   </label>
                 </div>
@@ -6879,7 +6814,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                       class="flex flex-row gap-1"
                     >
                       Timezone
-                       
                     </span>
                   </label>
                 </div>
@@ -7001,7 +6935,6 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     class="flex flex-row gap-1"
                   >
                     External Salesforce Id
-                     
                   </span>
                 </label>
               </div>

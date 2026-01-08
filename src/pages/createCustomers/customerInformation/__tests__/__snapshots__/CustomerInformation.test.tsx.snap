@@ -39,7 +39,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Affiliated entity
-               
             </span>
           </label>
         </div>
@@ -141,7 +140,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             Customer external ID (required)
-             
           </span>
         </label>
       </div>
@@ -195,7 +193,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Customer type
-               
             </span>
           </label>
         </div>
@@ -297,7 +294,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             Customer name
-             
           </span>
         </label>
       </div>
@@ -351,7 +347,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               First name
-               
             </span>
           </label>
         </div>
@@ -402,7 +397,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Last name
-               
             </span>
           </label>
         </div>
@@ -457,7 +451,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Timezone
-               
             </span>
           </label>
         </div>
@@ -579,7 +572,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             External Salesforce Id
-             
           </span>
         </label>
       </div>
@@ -664,7 +656,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Affiliated entity
-               
             </span>
           </label>
         </div>
@@ -766,7 +757,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             Customer external ID (required)
-             
           </span>
         </label>
       </div>
@@ -820,7 +810,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Customer type
-               
             </span>
           </label>
         </div>
@@ -922,7 +911,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             Customer name
-             
           </span>
         </label>
       </div>
@@ -976,7 +964,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               First name
-               
             </span>
           </label>
         </div>
@@ -1027,7 +1014,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Last name
-               
             </span>
           </label>
         </div>
@@ -1082,7 +1068,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Timezone
-               
             </span>
           </label>
         </div>
@@ -1204,7 +1189,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             External Salesforce Id
-             
           </span>
         </label>
       </div>
@@ -1289,7 +1273,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Affiliated entity
-               
             </span>
           </label>
         </div>
@@ -1373,7 +1356,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             Customer external ID (required)
-             
           </span>
         </label>
       </div>
@@ -1428,7 +1410,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Customer type
-               
             </span>
           </label>
         </div>
@@ -1530,7 +1511,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             Customer name
-             
           </span>
         </label>
       </div>
@@ -1584,7 +1564,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               First name
-               
             </span>
           </label>
         </div>
@@ -1635,7 +1614,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Last name
-               
             </span>
           </label>
         </div>
@@ -1690,7 +1668,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class="flex flex-row gap-1"
             >
               Timezone
-               
             </span>
           </label>
         </div>
@@ -1812,7 +1789,6 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             class="flex flex-row gap-1"
           >
             External Salesforce Id
-             
           </span>
         </label>
       </div>

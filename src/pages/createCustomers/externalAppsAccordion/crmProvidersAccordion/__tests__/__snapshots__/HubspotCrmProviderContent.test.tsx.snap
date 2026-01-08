@@ -20,7 +20,6 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             class="flex flex-row gap-1"
           >
             Targeted HubSpot object
-             
           </span>
         </label>
       </div>
@@ -110,7 +109,6 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             class="flex flex-row gap-1"
           >
             Targeted HubSpot object
-             
           </span>
         </label>
       </div>
@@ -200,7 +198,6 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             class="flex flex-row gap-1"
           >
             Targeted HubSpot object
-             
           </span>
         </label>
       </div>
@@ -290,7 +287,6 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             class="flex flex-row gap-1"
           >
             Targeted HubSpot object
-             
           </span>
         </label>
       </div>
@@ -381,7 +377,6 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with fo
             class="flex flex-row gap-1"
           >
             Targeted HubSpot object
-             
           </span>
         </label>
       </div>

@@ -267,7 +267,6 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN rendering the compo
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>
@@ -518,7 +517,6 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN rendering the compo
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>
@@ -769,7 +767,6 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN rendering the compo
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>
@@ -1020,7 +1017,6 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN user interacts with
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>

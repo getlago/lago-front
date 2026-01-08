@@ -342,7 +342,6 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     class="flex flex-row gap-1"
                   >
                     Reason
-                     
                   </span>
                 </label>
               </div>
@@ -445,7 +444,6 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   class="flex flex-row gap-1"
                 >
                   Internal note (optional)
-                   
                 </span>
               </label>
             </div>
@@ -1310,7 +1308,6 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                     class="flex flex-row gap-1"
                   >
                     Reason
-                     
                   </span>
                 </label>
               </div>
@@ -1413,7 +1410,6 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   class="flex flex-row gap-1"
                 >
                   Internal note (optional)
-                   
                 </span>
               </label>
             </div>
@@ -2095,7 +2091,6 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                     class="flex flex-row gap-1"
                   >
                     Reason
-                     
                   </span>
                 </label>
               </div>
@@ -2198,7 +2193,6 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                   class="flex flex-row gap-1"
                 >
                   Internal note (optional)
-                   
                 </span>
               </label>
             </div>

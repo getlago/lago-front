@@ -17,7 +17,6 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
           class="flex flex-row gap-1"
         >
           Anrok customer ID
-           
         </span>
       </label>
     </div>
@@ -122,7 +121,6 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
           class="flex flex-row gap-1"
         >
           Anrok customer ID
-           
         </span>
       </label>
     </div>
@@ -227,7 +225,6 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
           class="flex flex-row gap-1"
         >
           Anrok customer ID
-           
         </span>
       </label>
     </div>
@@ -332,7 +329,6 @@ exports[`AnrokTaxProviderContent Integration Tests WHEN rendering the component 
           class="flex flex-row gap-1"
         >
           Anrok customer ID
-           
         </span>
       </label>
     </div>

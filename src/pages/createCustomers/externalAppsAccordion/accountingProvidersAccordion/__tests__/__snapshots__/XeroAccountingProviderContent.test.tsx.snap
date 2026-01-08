@@ -17,7 +17,6 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           class="flex flex-row gap-1"
         >
           Xero customer ID
-           
         </span>
       </label>
     </div>
@@ -122,7 +121,6 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           class="flex flex-row gap-1"
         >
           Xero customer ID
-           
         </span>
       </label>
     </div>
@@ -227,7 +225,6 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           class="flex flex-row gap-1"
         >
           Xero customer ID
-           
         </span>
       </label>
     </div>
@@ -332,7 +329,6 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           class="flex flex-row gap-1"
         >
           Xero customer ID
-           
         </span>
       </label>
     </div>

@@ -267,7 +267,6 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>
@@ -518,7 +517,6 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>
@@ -769,7 +767,6 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>
@@ -1020,7 +1017,6 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                             class="flex flex-row gap-1"
                           >
                             Connected account
-                             
                           </span>
                         </label>
                       </div>
