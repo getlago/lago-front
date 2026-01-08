@@ -3,16 +3,16 @@
 exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN should display headers when metadata exists 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters !rounded-none css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters !rounded-none css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-cx7a1d-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -23,7 +23,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -48,13 +48,13 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
           class="flex flex-col gap-2"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Metadata
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Add metadata to the customer and decide if it appears on the invoice.
@@ -63,40 +63,40 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px; height: auto; transition-duration: 0ms; transition-timing-function: undefined;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col mt-6 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col mt-6 css-hash-MuiAccordionDetails-root
             >
               <div>
                 <div
                   class="grid grid-cols-[200px_1fr_60px_24px] gap-x-3 gap-y-6 mb-1 [&>*:nth-child(3)]:col-span-2"
                 >
                   <div
-                    class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="captionHl"
                   >
                     Key
                   </div>
                   <div
-                    class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="captionHl"
                   >
                     Value
                   </div>
                   <div
-                    class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="captionHl"
                   >
                     Invoice
@@ -116,14 +116,14 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                         class="flex flex-col gap-1"
                       >
                         <div
-                          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                         >
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
                           >
                             <input
                               aria-invalid="false"
-                              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                               id="metadata[0].key"
                               name="metadata[0].key"
                               placeholder="Enter a key"
@@ -132,10 +132,10 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                             >
                               <legend
-                                class="css-1whs34k-MuiNotchedOutlined-root"
+                                class=css-hash-MuiNotchedOutlined-root
                               >
                                 <span
                                   class="notranslate"
@@ -160,14 +160,14 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                         class="flex flex-col gap-1"
                       >
                         <div
-                          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                         >
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
                           >
                             <input
                               aria-invalid="false"
-                              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                               id="metadata[0].value"
                               name="metadata[0].value"
                               placeholder="Enter a value"
@@ -176,10 +176,10 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                             >
                               <legend
-                                class="css-1whs34k-MuiNotchedOutlined-root"
+                                class=css-hash-MuiNotchedOutlined-root
                               >
                                 <span
                                   class="notranslate"
@@ -207,13 +207,13 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                         type="checkbox"
                       />
                       <div
-                        class="MuiTypography-root MuiTypography-noteHl whitespace-pre-line w-6 text-center opacity-100 css-awegiu-MuiTypography-root"
+                        class=MuiTypography-root MuiTypography-noteHl whitespace-pre-line w-6 text-center opacity-100 css-hash-MuiTypography-root
                         data-test="noteHl"
                       >
                         On
                       </div>
                       <div
-                        class="MuiTypography-root MuiTypography-noteHl whitespace-pre-line w-6 text-center opacity-100 css-1c9mx0v-MuiTypography-root"
+                        class=MuiTypography-root MuiTypography-noteHl whitespace-pre-line w-6 text-center opacity-100 css-hash-MuiTypography-root
                         data-test="noteHl"
                       >
                         Off
@@ -248,7 +248,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                       data-mui-internal-clone-element="true"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                         data-test="button"
                         tabindex="0"
                         type="button"
@@ -270,13 +270,13 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                   </div>
                 </div>
                 <button
-                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center mt-4 css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+                  class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center mt-4 css-hash-MuiButtonBase-root-MuiButton-root
                   data-test="add-metadata-button"
                   tabindex="0"
                   type="button"
                 >
                   <span
-                    class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+                    class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
                   >
                     <svg
                       class="text-inherit size-4 min-w-4"
@@ -306,16 +306,16 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
 exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN should render a matching snapshot 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters !rounded-none css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters !rounded-none css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="false"
-      class="MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-cx7a1d-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -326,7 +326,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -351,13 +351,13 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
           class="flex flex-col gap-2"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Metadata
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Add metadata to the customer and decide if it appears on the invoice.
@@ -372,16 +372,16 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
 exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN should render a matching snapshot after expansion 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters !rounded-none css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters !rounded-none css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-cx7a1d-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -392,7 +392,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -417,13 +417,13 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
           class="flex flex-col gap-2"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Metadata
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Add metadata to the customer and decide if it appears on the invoice.
@@ -432,34 +432,34 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px; height: auto; transition-duration: 0ms; transition-timing-function: undefined;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col mt-6 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col mt-6 css-hash-MuiAccordionDetails-root
             >
               <div>
                 <div
                   class="grid grid-cols-[200px_1fr_60px_24px] gap-x-3 gap-y-6"
                 />
                 <button
-                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+                  class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                   data-test="add-metadata-button"
                   tabindex="0"
                   type="button"
                 >
                   <span
-                    class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+                    class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
                   >
                     <svg
                       class="text-inherit size-4 min-w-4"

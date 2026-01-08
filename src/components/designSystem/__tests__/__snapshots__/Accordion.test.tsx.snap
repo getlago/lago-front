@@ -3,16 +3,16 @@
 exports[`Accordion Snapshot Tests matches snapshot for borderless variant 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters !rounded-none css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters !rounded-none css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-cx7a1d-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -23,7 +23,7 @@ exports[`Accordion Snapshot Tests matches snapshot for borderless variant 1`] = 
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -50,21 +50,21 @@ exports[`Accordion Snapshot Tests matches snapshot for borderless variant 1`] = 
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col mt-6 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col mt-6 css-hash-MuiAccordionDetails-root
             >
               <div>
                 Content Text
@@ -81,16 +81,16 @@ exports[`Accordion Snapshot Tests matches snapshot for borderless variant 1`] = 
 exports[`Accordion Snapshot Tests matches snapshot for closed card accordion 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="false"
-      class="MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -101,7 +101,7 @@ exports[`Accordion Snapshot Tests matches snapshot for closed card accordion 1`]
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -134,16 +134,16 @@ exports[`Accordion Snapshot Tests matches snapshot for closed card accordion 1`]
 exports[`Accordion Snapshot Tests matches snapshot for large size 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-23 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-16xpu10-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-23 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -154,7 +154,7 @@ exports[`Accordion Snapshot Tests matches snapshot for large size 1`] = `
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -181,21 +181,21 @@ exports[`Accordion Snapshot Tests matches snapshot for large size 1`] = `
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col shadow-t p-8 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col shadow-t p-8 css-hash-MuiAccordionDetails-root
             >
               <div>
                 Content Text
@@ -212,16 +212,16 @@ exports[`Accordion Snapshot Tests matches snapshot for large size 1`] = `
 exports[`Accordion Snapshot Tests matches snapshot for medium size 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -232,7 +232,7 @@ exports[`Accordion Snapshot Tests matches snapshot for medium size 1`] = `
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -259,21 +259,21 @@ exports[`Accordion Snapshot Tests matches snapshot for medium size 1`] = `
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col shadow-t p-4 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col shadow-t p-4 css-hash-MuiAccordionDetails-root
             >
               <div>
                 Content Text
@@ -290,16 +290,16 @@ exports[`Accordion Snapshot Tests matches snapshot for medium size 1`] = `
 exports[`Accordion Snapshot Tests matches snapshot for open card accordion 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -310,7 +310,7 @@ exports[`Accordion Snapshot Tests matches snapshot for open card accordion 1`] =
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -337,21 +337,21 @@ exports[`Accordion Snapshot Tests matches snapshot for open card accordion 1`] =
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col shadow-t p-4 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col shadow-t p-4 css-hash-MuiAccordionDetails-root
             >
               <div>
                 Content Text
@@ -368,16 +368,16 @@ exports[`Accordion Snapshot Tests matches snapshot for open card accordion 1`] =
 exports[`Accordion Snapshot Tests matches snapshot with function children 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -388,7 +388,7 @@ exports[`Accordion Snapshot Tests matches snapshot with function children 1`] = 
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -415,21 +415,21 @@ exports[`Accordion Snapshot Tests matches snapshot with function children 1`] = 
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col shadow-t p-4 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col shadow-t p-4 css-hash-MuiAccordionDetails-root
             >
               <div>
                 State: 
@@ -447,16 +447,16 @@ exports[`Accordion Snapshot Tests matches snapshot with function children 1`] = 
 exports[`Accordion Snapshot Tests matches snapshot with noContentMargin 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+    class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 css-hash-MuiPaper-root-MuiAccordion-root
   >
     <div
       aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+        class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
       >
         <div
           class="mr-3"
@@ -467,7 +467,7 @@ exports[`Accordion Snapshot Tests matches snapshot with noContentMargin 1`] = `
             data-mui-internal-clone-element="true"
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="open-charge"
               tabindex="-1"
               type="button"
@@ -494,21 +494,21 @@ exports[`Accordion Snapshot Tests matches snapshot with noContentMargin 1`] = `
       </div>
     </div>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
       style="min-height: 0px;"
     >
       <div
-        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
       >
         <div
-          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
         >
           <div
             class="MuiAccordion-region"
             role="region"
           >
             <div
-              class="MuiAccordionDetails-root flex flex-col shadow-t p-0 css-1s0sbcr-MuiAccordionDetails-root"
+              class=MuiAccordionDetails-root flex flex-col shadow-t p-0 css-hash-MuiAccordionDetails-root
             >
               <div>
                 Content Text

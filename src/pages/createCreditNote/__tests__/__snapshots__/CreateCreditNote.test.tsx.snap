@@ -16,7 +16,7 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="close-credit-note-button"
         tabindex="0"
         type="button"
@@ -95,7 +95,7 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
         class="mb-20 px-8"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
+          class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
           data-test="button"
           disabled=""
           tabindex="-1"
@@ -115,7 +115,7 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
           class="flex h-full items-center justify-end gap-3"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-ofux1-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -123,7 +123,7 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
             Cancel
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="submit-credit-note-button"
             disabled=""
             tabindex="-1"
@@ -145,13 +145,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
       class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 py-4"
     >
       <div
-        class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
         data-test="bodyHl"
       >
         Issue a credit note on INV-001
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="close-credit-note-button"
         tabindex="0"
         type="button"
@@ -177,13 +177,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
         class="flex flex-col gap-1"
       >
         <div
-          class="MuiTypography-root MuiTypography-headline whitespace-pre-line css-lh3wu3-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
           data-test="headline"
         >
           Issue a credit note
         </div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Adjust or refund finalized invoices with credit notes.
@@ -196,13 +196,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
           class="flex flex-col"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Invoice information
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Selected invoice to record the credit note.
@@ -237,13 +237,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 </div>
                 <div>
                   <div
-                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                     data-test="caption"
                   >
                     Invoice number
                   </div>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     INV-001
@@ -254,13 +254,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 class="text-right"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Total amount
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   $100.00
@@ -272,13 +272,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             >
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Already paid
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $100.00
@@ -286,13 +286,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               </div>
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Amount due
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $0.00
@@ -300,13 +300,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               </div>
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Max refundable
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $100.00
@@ -319,13 +319,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
           class="flex flex-col gap-6"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Credit note settings
           </div>
           <div
-            class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+            class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
           >
             <div
               class="flex flex-col gap-1 group/combobox-input"
@@ -334,7 +334,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 class="flex items-center gap-1"
               >
                 <label
-                  class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="captionHl"
                   for="reason"
                 >
@@ -342,11 +342,11 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 </label>
               </div>
               <div
-                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                 data-test="reason-combobox"
               >
                 <div
-                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+                  class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
                 >
                   <input
                     aria-autocomplete="list"
@@ -354,8 +354,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     aria-invalid="false"
                     autocapitalize="none"
                     autocomplete="off"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r38:"
+                    class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+                    id=:r-mui-id:
                     name="reason"
                     placeholder="Select or search a reason"
                     role="combobox"
@@ -364,10 +364,10 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     value=""
                   />
                   <div
-                    class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                    class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                       data-test="button"
                       tabindex="0"
                       type="button"
@@ -386,7 +386,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       </svg>
                     </button>
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                       data-test="button"
                       tabindex="0"
                       type="button"
@@ -409,10 +409,10 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   </div>
                   <fieldset
                     aria-hidden="true"
-                    class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                    class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                   >
                     <legend
-                      class="css-1whs34k-MuiNotchedOutlined-root"
+                      class=css-hash-MuiNotchedOutlined-root
                     >
                       <span
                         class="notranslate"
@@ -432,7 +432,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               class="flex items-center gap-1"
             >
               <label
-                class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="captionHl"
                 for="description"
               >
@@ -440,15 +440,15 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               </label>
             </div>
             <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+              class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
               data-test="description-input"
             >
               <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-3u5vir-MuiInputBase-root-MuiOutlinedInput-root"
+                class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-hash-MuiInputBase-root-MuiOutlinedInput-root
               >
                 <textarea
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1nohqde-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   id="description"
                   name="description"
                   placeholder="Add a description to your Credit Note"
@@ -456,17 +456,17 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 />
                 <textarea
                   aria-hidden="true"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1nohqde-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   readonly=""
                   style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                   tabindex="-1"
                 />
                 <fieldset
                   aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                  class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                 >
                   <legend
-                    class="css-1whs34k-MuiNotchedOutlined-root"
+                    class=css-hash-MuiNotchedOutlined-root
                   >
                     <span
                       class="notranslate"
@@ -485,13 +485,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
       >
         <div>
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Items to credit
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Select fees and their associated amount to constitute the credit note.
@@ -499,13 +499,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
         </div>
         <div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Invoice
           </div>
           <div
-            class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="bodyHl"
           >
             INV-001 for a subtotal (incl. tax) of $100.00
@@ -519,7 +519,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="subscription-checkbox-sub-1"
-                for=":r3b:"
+                for=:r-mui-id:
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -531,7 +531,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       aria-checked="true"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r3b:"
+                      id=:r-mui-id:
                       readonly=""
                       type="checkbox"
                     />
@@ -574,7 +574,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   </div>
                   <div>
                     <div
-                      class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1kk9jpm-MuiTypography-root"
+                      class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                       data-test="bodyHl"
                     >
                       Test Subscription
@@ -583,7 +583,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 </div>
               </label>
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1kk9jpm-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit amount
@@ -595,7 +595,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="checkbox-fees.sub-1.fees.0.checked"
-                for=":r3c:"
+                for=:r-mui-id:
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -608,7 +608,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       aria-labelledby="fees.sub-1.fees.0.checked"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r3c:"
+                      id=:r-mui-id:
                       readonly=""
                       type="checkbox"
                     />
@@ -651,12 +651,12 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   </div>
                   <div>
                     <div
-                      class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                      class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                       data-test="body"
                     >
                       Test Fee
                       <div
-                        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                         data-test="caption"
                       >
                         Max: $100.00
@@ -677,23 +677,23 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     class="flex flex-col gap-1 max-w-42"
                   >
                     <div
-                      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                     >
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-hash-MuiInputBase-root-MuiOutlinedInput-root
                       >
                         <div
-                          class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                          class=MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                         >
                           <p
-                            class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                            class=MuiTypography-root MuiTypography-body1 css-hash-MuiTypography-root
                           >
                             $
                           </p>
                         </div>
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                          class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
                           id="fees.sub-1.fees.0.value"
                           name="fees.sub-1.fees.0.value"
                           placeholder="0.00"
@@ -703,10 +703,10 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                         >
                           <legend
-                            class="css-1whs34k-MuiNotchedOutlined-root"
+                            class=css-hash-MuiNotchedOutlined-root
                           >
                             <span
                               class="notranslate"
@@ -733,14 +733,14 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Subtotal (excl. tax)
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -753,14 +753,14 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Tax
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -773,14 +773,14 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Tax (0%)
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               $0.00
@@ -793,14 +793,14 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit note total amount
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -816,13 +816,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
         >
           <div>
             <div
-              class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-hash-MuiTypography-root
               data-test="subhead1"
             >
               Allocate credit note
             </div>
             <div
-              class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
               data-test="caption"
             >
               Choose how to allocate this credit note.
@@ -833,13 +833,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
           >
             <div>
               <div
-                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                 data-test="caption"
               >
                 Credit note total
               </div>
               <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                 data-test="body"
               >
                 $0.00
@@ -847,13 +847,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             </div>
             <div>
               <div
-                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                 data-test="caption"
               >
                 Allocated so far
               </div>
               <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                 data-test="body"
               >
                 $0.00
@@ -861,13 +861,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             </div>
             <div>
               <div
-                class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                 data-test="caption"
               >
                 Remaining to allocate
               </div>
               <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                 data-test="body"
               >
                 $0.00
@@ -883,13 +883,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               >
                 <div>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Refund
                   </div>
                   <div
-                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                     data-test="caption"
                   >
                     Refund the customer (max: $0.00)
@@ -899,24 +899,24 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   class="flex flex-col gap-1 max-w-42"
                 >
                   <div
-                    class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                    class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                     data-test="refund-amount-input"
                   >
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                      class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-hash-MuiInputBase-root-MuiOutlinedInput-root
                     >
                       <div
-                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                        class=MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                          class=MuiTypography-root MuiTypography-body1 css-hash-MuiTypography-root
                         >
                           $
                         </p>
                       </div>
                       <input
                         aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                        class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
                         id="payBack.1.value"
                         name="payBack.1.value"
                         placeholder="0.00"
@@ -926,10 +926,10 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                        class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                       >
                         <legend
-                          class="css-1whs34k-MuiNotchedOutlined-root"
+                          class=css-hash-MuiNotchedOutlined-root
                         >
                           <span
                             class="notranslate"
@@ -949,13 +949,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               >
                 <div>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Credit on customer wallet
                   </div>
                   <div
-                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                     data-test="caption"
                   >
                     Add for future invoices (max: $0.00)
@@ -965,24 +965,24 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   class="flex flex-col gap-1 max-w-42"
                 >
                   <div
-                    class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                    class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                     data-test="credit-amount-input"
                   >
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                      class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-hash-MuiInputBase-root-MuiOutlinedInput-root
                     >
                       <div
-                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                        class=MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                          class=MuiTypography-root MuiTypography-body1 css-hash-MuiTypography-root
                         >
                           $
                         </p>
                       </div>
                       <input
                         aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                        class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
                         id="payBack.0.value"
                         name="payBack.0.value"
                         placeholder="0.00"
@@ -992,10 +992,10 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                        class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                       >
                         <legend
-                          class="css-1whs34k-MuiNotchedOutlined-root"
+                          class=css-hash-MuiNotchedOutlined-root
                         >
                           <span
                             class="notranslate"
@@ -1022,13 +1022,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             class="flex flex-col gap-2"
           >
             <div
-              class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
               data-test="subhead1"
             >
               Metadata
             </div>
             <div
-              class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
               data-test="caption"
             >
               Include metadata on this credit note
@@ -1036,13 +1036,13 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
           </div>
           <div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="add-metadata-button"
               tabindex="0"
               type="button"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+                class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
@@ -1073,7 +1073,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
           class="flex h-full items-center justify-end gap-3"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-ofux1-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -1081,7 +1081,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             Cancel
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="submit-credit-note-button"
             disabled=""
             tabindex="-1"
@@ -1103,13 +1103,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
       class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 py-4"
     >
       <div
-        class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
         data-test="bodyHl"
       >
         Issue a credit note on INV-001
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="close-credit-note-button"
         tabindex="0"
         type="button"
@@ -1135,13 +1135,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
         class="flex flex-col gap-1"
       >
         <div
-          class="MuiTypography-root MuiTypography-headline whitespace-pre-line css-lh3wu3-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
           data-test="headline"
         >
           Issue a credit note
         </div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Adjust or refund finalized invoices with credit notes.
@@ -1154,13 +1154,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
           class="flex flex-col"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Invoice information
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Selected invoice to record the credit note.
@@ -1195,13 +1195,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 </div>
                 <div>
                   <div
-                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                     data-test="caption"
                   >
                     Invoice number
                   </div>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     INV-001
@@ -1212,13 +1212,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 class="text-right"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Total amount
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   $100.00
@@ -1230,13 +1230,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
             >
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Already paid
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $0.00
@@ -1244,13 +1244,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               </div>
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Amount due
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $100.00
@@ -1258,13 +1258,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               </div>
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Max refundable
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $100.00
@@ -1277,13 +1277,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
           class="flex flex-col gap-6"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Credit note settings
           </div>
           <div
-            class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+            class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
           >
             <div
               class="flex flex-col gap-1 group/combobox-input"
@@ -1292,7 +1292,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 class="flex items-center gap-1"
               >
                 <label
-                  class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="captionHl"
                   for="reason"
                 >
@@ -1300,11 +1300,11 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 </label>
               </div>
               <div
-                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                 data-test="reason-combobox"
               >
                 <div
-                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+                  class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
                 >
                   <input
                     aria-autocomplete="list"
@@ -1312,8 +1312,8 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                     aria-invalid="false"
                     autocapitalize="none"
                     autocomplete="off"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r3j:"
+                    class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+                    id=:r-mui-id:
                     name="reason"
                     placeholder="Select or search a reason"
                     role="combobox"
@@ -1322,10 +1322,10 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                     value=""
                   />
                   <div
-                    class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                    class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                       data-test="button"
                       tabindex="0"
                       type="button"
@@ -1344,7 +1344,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                       </svg>
                     </button>
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                       data-test="button"
                       tabindex="0"
                       type="button"
@@ -1367,10 +1367,10 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   </div>
                   <fieldset
                     aria-hidden="true"
-                    class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                    class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                   >
                     <legend
-                      class="css-1whs34k-MuiNotchedOutlined-root"
+                      class=css-hash-MuiNotchedOutlined-root
                     >
                       <span
                         class="notranslate"
@@ -1390,7 +1390,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               class="flex items-center gap-1"
             >
               <label
-                class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="captionHl"
                 for="description"
               >
@@ -1398,15 +1398,15 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               </label>
             </div>
             <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+              class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
               data-test="description-input"
             >
               <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-3u5vir-MuiInputBase-root-MuiOutlinedInput-root"
+                class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-hash-MuiInputBase-root-MuiOutlinedInput-root
               >
                 <textarea
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1nohqde-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   id="description"
                   name="description"
                   placeholder="Add a description to your Credit Note"
@@ -1414,17 +1414,17 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 />
                 <textarea
                   aria-hidden="true"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1nohqde-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   readonly=""
                   style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                   tabindex="-1"
                 />
                 <fieldset
                   aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                  class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                 >
                   <legend
-                    class="css-1whs34k-MuiNotchedOutlined-root"
+                    class=css-hash-MuiNotchedOutlined-root
                   >
                     <span
                       class="notranslate"
@@ -1443,13 +1443,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
       >
         <div>
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Items to credit
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Select fees and their associated amount to constitute the credit note.
@@ -1457,13 +1457,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
         </div>
         <div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Invoice
           </div>
           <div
-            class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="bodyHl"
           >
             INV-001 for a subtotal (incl. tax) of $100.00
@@ -1477,7 +1477,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="subscription-checkbox-sub-1"
-                for=":r3m:"
+                for=:r-mui-id:
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -1489,7 +1489,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                       aria-checked="true"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r3m:"
+                      id=:r-mui-id:
                       readonly=""
                       type="checkbox"
                     />
@@ -1532,7 +1532,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   </div>
                   <div>
                     <div
-                      class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1kk9jpm-MuiTypography-root"
+                      class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                       data-test="bodyHl"
                     >
                       Test Subscription
@@ -1541,7 +1541,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 </div>
               </label>
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1kk9jpm-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit amount
@@ -1553,7 +1553,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="checkbox-fees.sub-1.fees.0.checked"
-                for=":r3n:"
+                for=:r-mui-id:
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -1566,7 +1566,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                       aria-labelledby="fees.sub-1.fees.0.checked"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r3n:"
+                      id=:r-mui-id:
                       readonly=""
                       type="checkbox"
                     />
@@ -1609,12 +1609,12 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   </div>
                   <div>
                     <div
-                      class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                      class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                       data-test="body"
                     >
                       Test Fee
                       <div
-                        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                         data-test="caption"
                       >
                         Max: $100.00
@@ -1635,23 +1635,23 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                     class="flex flex-col gap-1 max-w-42"
                   >
                     <div
-                      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                     >
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-hash-MuiInputBase-root-MuiOutlinedInput-root
                       >
                         <div
-                          class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                          class=MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                         >
                           <p
-                            class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                            class=MuiTypography-root MuiTypography-body1 css-hash-MuiTypography-root
                           >
                             $
                           </p>
                         </div>
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                          class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
                           id="fees.sub-1.fees.0.value"
                           name="fees.sub-1.fees.0.value"
                           placeholder="0.00"
@@ -1661,10 +1661,10 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                         >
                           <legend
-                            class="css-1whs34k-MuiNotchedOutlined-root"
+                            class=css-hash-MuiNotchedOutlined-root
                           >
                             <span
                               class="notranslate"
@@ -1691,14 +1691,14 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Subtotal (excl. tax)
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -1711,14 +1711,14 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Tax
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -1731,14 +1731,14 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Tax (0%)
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               $0.00
@@ -1751,14 +1751,14 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit note total amount
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -1772,14 +1772,14 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit on customer wallet
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               $0.00
@@ -1797,13 +1797,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
             class="flex flex-col gap-2"
           >
             <div
-              class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
               data-test="subhead1"
             >
               Metadata
             </div>
             <div
-              class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
               data-test="caption"
             >
               Include metadata on this credit note
@@ -1811,13 +1811,13 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
           </div>
           <div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="add-metadata-button"
               tabindex="0"
               type="button"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+                class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
@@ -1848,7 +1848,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
           class="flex h-full items-center justify-end gap-3"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-ofux1-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -1856,7 +1856,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
             Cancel
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="submit-credit-note-button"
             disabled=""
             tabindex="-1"
@@ -1878,13 +1878,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
       class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 py-4"
     >
       <div
-        class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
         data-test="bodyHl"
       >
         Issue a credit note on INV-001
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="close-credit-note-button"
         tabindex="0"
         type="button"
@@ -1910,13 +1910,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
         class="flex flex-col gap-1"
       >
         <div
-          class="MuiTypography-root MuiTypography-headline whitespace-pre-line css-lh3wu3-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
           data-test="headline"
         >
           Issue a credit note
         </div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Adjust or refund finalized invoices with credit notes.
@@ -1929,13 +1929,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
           class="flex flex-col"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Invoice information
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Selected invoice to record the credit note.
@@ -1970,13 +1970,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 </div>
                 <div>
                   <div
-                    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                     data-test="caption"
                   >
                     Invoice number
                   </div>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     INV-001
@@ -1987,13 +1987,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 class="text-right"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Total amount
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   $100.00
@@ -2005,13 +2005,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
             >
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Already paid
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $100.00
@@ -2019,13 +2019,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               </div>
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Amount due
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $0.00
@@ -2033,13 +2033,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               </div>
               <div>
                 <div
-                  class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                   data-test="caption"
                 >
                   Max refundable
                 </div>
                 <div
-                  class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
                   $100.00
@@ -2052,13 +2052,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
           class="flex flex-col gap-6"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Credit note settings
           </div>
           <div
-            class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+            class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
           >
             <div
               class="flex flex-col gap-1 group/combobox-input"
@@ -2067,7 +2067,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 class="flex items-center gap-1"
               >
                 <label
-                  class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="captionHl"
                   for="reason"
                 >
@@ -2075,11 +2075,11 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 </label>
               </div>
               <div
-                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                 data-test="reason-combobox"
               >
                 <div
-                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+                  class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
                 >
                   <input
                     aria-autocomplete="list"
@@ -2087,8 +2087,8 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                     aria-invalid="false"
                     autocapitalize="none"
                     autocomplete="off"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r3s:"
+                    class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+                    id=:r-mui-id:
                     name="reason"
                     placeholder="Select or search a reason"
                     role="combobox"
@@ -2097,10 +2097,10 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                     value=""
                   />
                   <div
-                    class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                    class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                       data-test="button"
                       tabindex="0"
                       type="button"
@@ -2119,7 +2119,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                       </svg>
                     </button>
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                       data-test="button"
                       tabindex="0"
                       type="button"
@@ -2142,10 +2142,10 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                   </div>
                   <fieldset
                     aria-hidden="true"
-                    class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                    class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                   >
                     <legend
-                      class="css-1whs34k-MuiNotchedOutlined-root"
+                      class=css-hash-MuiNotchedOutlined-root
                     >
                       <span
                         class="notranslate"
@@ -2165,7 +2165,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               class="flex items-center gap-1"
             >
               <label
-                class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="captionHl"
                 for="description"
               >
@@ -2173,15 +2173,15 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               </label>
             </div>
             <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+              class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
               data-test="description-input"
             >
               <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-3u5vir-MuiInputBase-root-MuiOutlinedInput-root"
+                class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-hash-MuiInputBase-root-MuiOutlinedInput-root
               >
                 <textarea
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1nohqde-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   id="description"
                   name="description"
                   placeholder="Add a description to your Credit Note"
@@ -2189,17 +2189,17 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 />
                 <textarea
                   aria-hidden="true"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1nohqde-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   readonly=""
                   style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                   tabindex="-1"
                 />
                 <fieldset
                   aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                  class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                 >
                   <legend
-                    class="css-1whs34k-MuiNotchedOutlined-root"
+                    class=css-hash-MuiNotchedOutlined-root
                   >
                     <span
                       class="notranslate"
@@ -2218,13 +2218,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
       >
         <div>
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-2 css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Items to credit
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Select fees and their associated amount to constitute the credit note.
@@ -2232,13 +2232,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
         </div>
         <div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Invoice
           </div>
           <div
-            class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="bodyHl"
           >
             INV-001 for a subtotal (incl. tax) of $100.00
@@ -2252,7 +2252,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="subscription-checkbox-sub-1"
-                for=":r3v:"
+                for=:r-mui-id:
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -2264,7 +2264,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                       aria-checked="true"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r3v:"
+                      id=:r-mui-id:
                       readonly=""
                       type="checkbox"
                     />
@@ -2307,7 +2307,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                   </div>
                   <div>
                     <div
-                      class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1kk9jpm-MuiTypography-root"
+                      class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                       data-test="bodyHl"
                     >
                       Test Subscription
@@ -2316,7 +2316,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 </div>
               </label>
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1kk9jpm-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit amount
@@ -2328,7 +2328,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               <label
                 class="flex flex-col cursor-pointer"
                 data-test="checkbox-fees.sub-1.fees.0.checked"
-                for=":r40:"
+                for=:r-mui-id:
               >
                 <div
                   class="mx-0 flex items-start align-middle *:leading-7"
@@ -2341,7 +2341,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                       aria-labelledby="fees.sub-1.fees.0.checked"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
-                      id=":r40:"
+                      id=:r-mui-id:
                       readonly=""
                       type="checkbox"
                     />
@@ -2384,12 +2384,12 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                   </div>
                   <div>
                     <div
-                      class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                      class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                       data-test="body"
                     >
                       Test Fee
                       <div
-                        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+                        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
                         data-test="caption"
                       >
                         Max: $100.00
@@ -2410,23 +2410,23 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                     class="flex flex-col gap-1 max-w-42"
                   >
                     <div
-                      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                     >
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-16rxcoi-MuiInputBase-root-MuiOutlinedInput-root"
+                        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-hash-MuiInputBase-root-MuiOutlinedInput-root
                       >
                         <div
-                          class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-ittuaa-MuiInputAdornment-root"
+                          class=MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                         >
                           <p
-                            class="MuiTypography-root MuiTypography-body1 css-egp88d-MuiTypography-root"
+                            class=MuiTypography-root MuiTypography-body1 css-hash-MuiTypography-root
                           >
                             $
                           </p>
                         </div>
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-w9s4ww-MuiInputBase-input-MuiOutlinedInput-input"
+                          class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
                           id="fees.sub-1.fees.0.value"
                           name="fees.sub-1.fees.0.value"
                           placeholder="0.00"
@@ -2436,10 +2436,10 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                         >
                           <legend
-                            class="css-1whs34k-MuiNotchedOutlined-root"
+                            class=css-hash-MuiNotchedOutlined-root
                           >
                             <span
                               class="notranslate"
@@ -2466,14 +2466,14 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Subtotal (excl. tax)
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -2486,14 +2486,14 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Tax
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -2506,14 +2506,14 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Tax (0%)
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               $0.00
@@ -2526,14 +2526,14 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit note total amount
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               -
@@ -2547,14 +2547,14 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               class="flex items-center gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
                 Credit on customer wallet
               </div>
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               $0.00
@@ -2572,13 +2572,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
             class="flex flex-col gap-2"
           >
             <div
-              class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
               data-test="subhead1"
             >
               Metadata
             </div>
             <div
-              class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
               data-test="caption"
             >
               Include metadata on this credit note
@@ -2586,13 +2586,13 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
           </div>
           <div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="add-metadata-button"
               tabindex="0"
               type="button"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+                class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
@@ -2623,7 +2623,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
           class="flex h-full items-center justify-end gap-3"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-ofux1-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -2631,7 +2631,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
             Cancel
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1hxaqk9-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="submit-credit-note-button"
             disabled=""
             tabindex="-1"

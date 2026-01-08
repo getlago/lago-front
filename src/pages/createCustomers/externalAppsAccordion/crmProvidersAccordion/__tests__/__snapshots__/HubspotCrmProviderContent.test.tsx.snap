@@ -3,7 +3,7 @@
 exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render a matching snapshot 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
   >
     <div
       class="flex flex-col gap-1 group/combobox-input"
@@ -12,7 +12,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
@@ -20,10 +20,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-autocomplete="list"
@@ -31,8 +31,8 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-            id=":r6:"
+            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+            id=:r-mui-id:
             name="crmCustomer.targetedObject"
             role="combobox"
             spellcheck="false"
@@ -40,10 +40,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             value=""
           />
           <div
-            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -66,10 +66,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -88,7 +88,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
 exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render in edition mode 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
   >
     <div
       class="flex flex-col gap-1 group/combobox-input"
@@ -97,7 +97,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
@@ -105,10 +105,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-autocomplete="list"
@@ -116,8 +116,8 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-            id=":re:"
+            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+            id=:r-mui-id:
             name="crmCustomer.targetedObject"
             role="combobox"
             spellcheck="false"
@@ -125,10 +125,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             value=""
           />
           <div
-            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -151,10 +151,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -173,7 +173,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
 exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render with Hubspot integration data 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
   >
     <div
       class="flex flex-col gap-1 group/combobox-input"
@@ -182,7 +182,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
@@ -190,10 +190,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-autocomplete="list"
@@ -201,8 +201,8 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-            id=":ra:"
+            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+            id=:r-mui-id:
             name="crmCustomer.targetedObject"
             role="combobox"
             spellcheck="false"
@@ -210,10 +210,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             value=""
           />
           <div
-            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -236,10 +236,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -258,7 +258,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
 exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the component THEN should render with initial integration customer 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
   >
     <div
       class="flex flex-col gap-1 group/combobox-input"
@@ -267,7 +267,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
@@ -275,10 +275,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-autocomplete="list"
@@ -286,9 +286,9 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
             disabled=""
-            id=":ri:"
+            id=:r-mui-id:
             name="crmCustomer.targetedObject"
             role="combobox"
             spellcheck="false"
@@ -296,10 +296,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
             value=""
           />
           <div
-            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -322,10 +322,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -344,7 +344,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN rendering the componen
 exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with form fields THEN should display fields when targeted object is pre-selected 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+    class=MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
   >
     <div
       class="flex flex-col gap-1 group/combobox-input"
@@ -353,7 +353,7 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with fo
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="crmCustomer.targetedObject"
         >
@@ -361,10 +361,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with fo
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-autocomplete="list"
@@ -372,8 +372,8 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with fo
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-            id=":rq:"
+            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+            id=:r-mui-id:
             name="crmCustomer.targetedObject"
             role="combobox"
             spellcheck="false"
@@ -381,10 +381,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with fo
             value="HubSpot Companies"
           />
           <div
-            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -407,10 +407,10 @@ exports[`HubspotCrmProviderContent Integration Tests WHEN user interacts with fo
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
