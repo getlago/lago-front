@@ -43,13 +43,6 @@ gql`
       creditNotesCreate
       creditNotesView
       creditNotesVoid
-      customerSettingsUpdateGracePeriod
-      customerSettingsUpdateIssuingDateAnchor
-      customerSettingsUpdateIssuingDateAdjustment
-      customerSettingsUpdateLang
-      customerSettingsUpdatePaymentTerms
-      customerSettingsUpdateTaxRates
-      customerSettingsView
       customersCreate
       customersDelete
       customersUpdate
