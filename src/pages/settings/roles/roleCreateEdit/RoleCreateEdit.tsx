@@ -84,7 +84,31 @@ const RoleCreateEdit = () => {
             },
           },
         })
-        return
+      }
+
+      const hasErrorcodeInvalid = errors?.some((error) => {
+        return (
+          error.extensions &&
+          'details' in error.extensions &&
+          error.extensions.details &&
+          typeof error.extensions.details === 'object' &&
+          'code' in error.extensions.details &&
+          Array.isArray(error.extensions.details.code) &&
+          error.extensions.details.code.includes('is invalid')
+        )
+      })
+
+      if (hasErrorcodeInvalid) {
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              code: {
+                message: 'text_1767881112174odn29xztnvi',
+                path: ['code'],
+              },
+            },
+          },
+        })
       }
     },
     onSubmitInvalid({ formApi }) {
