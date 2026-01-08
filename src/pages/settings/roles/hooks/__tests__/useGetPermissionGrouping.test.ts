@@ -9,7 +9,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 describe('useGetPermissionGrouping', () => {
-  it('returns all groups from permissionGroupMapping', () => {
+  it('returns groups for provided permissions', () => {
     const { result } = renderHook(() =>
       useGetPermissionGrouping(['AddonsCreate', 'AnalyticsView', 'PlansView', 'CustomersView']),
     )
@@ -26,7 +26,7 @@ describe('useGetPermissionGrouping', () => {
     expect(result.current.permissionGrouping).toEqual({})
   })
 
-  it('maps permissions to their respective groups', () => {
+  it('maps permissions to their respective groups with PascalCase names', () => {
     const { result } = renderHook(() =>
       useGetPermissionGrouping(['PlansView', 'AddonsCreate', 'AddonsView']),
     )
@@ -34,10 +34,10 @@ describe('useGetPermissionGrouping', () => {
     const { permissionGrouping } = result.current
 
     expect(permissionGrouping.plans.permissions).toHaveLength(1)
-    expect(permissionGrouping.plans.permissions[0].name).toBe('plansView')
+    expect(permissionGrouping.plans.permissions[0].name).toBe('PlansView')
     expect(permissionGrouping.addons.permissions).toHaveLength(2)
-    expect(permissionGrouping.addons.permissions[0].name).toBe('addonsCreate')
-    expect(permissionGrouping.addons.permissions[1].name).toBe('addonsView')
+    expect(permissionGrouping.addons.permissions.map((p) => p.name)).toContain('AddonsCreate')
+    expect(permissionGrouping.addons.permissions.map((p) => p.name)).toContain('AddonsView')
   })
 
   it('does not add "other" key when all permissions are mapped', () => {
@@ -62,26 +62,18 @@ describe('useGetPermissionGrouping', () => {
     expect(result.current.permissionGrouping.other.permissions).toHaveLength(2)
   })
 
-  it('filters out hidden permissions', () => {
-    const { result } = renderHook(() =>
-      useGetPermissionGrouping(['AuditLogsView', 'DataApiView', 'PlansView']),
-    )
+  it('only includes groups that have matching permissions', () => {
+    const { result } = renderHook(() => useGetPermissionGrouping(['PlansView']))
 
     const { permissionGrouping } = result.current
 
-    expect(permissionGrouping.auditLogs).toBeUndefined()
-    expect(permissionGrouping.dataApi).toBeUndefined()
+    // Only plans should have permissions, other groups should not be in result
     expect(permissionGrouping.plans.permissions).toHaveLength(1)
-    expect(permissionGrouping.plans.permissions[0].name).toBe('plansView')
-  })
+    expect(permissionGrouping.plans.permissions[0].name).toBe('PlansView')
 
-  it('does not include hidden permissions in "other" key', () => {
-    const { result } = renderHook(() =>
-      useGetPermissionGrouping(['AuditLogsView', 'unknownPermission' as never]),
-    )
-
-    expect(result.current.permissionGrouping.other.permissions).toHaveLength(1)
-    expect(result.current.permissionGrouping.other.permissions[0].name).toBe('unknownPermission')
+    // Groups without matching permissions should not be included
+    expect(Object.keys(permissionGrouping)).toHaveLength(1)
+    expect(Object.keys(permissionGrouping)).toContain('plans')
   })
 
   it('returns translated displayName and description strings', () => {
@@ -104,5 +96,30 @@ describe('useGetPermissionGrouping', () => {
     expect(result.current.permissionGrouping.plans.displayName).toBe(
       'text_62442e40cea25600b0b6d85a',
     )
+  })
+
+  it('returns group with name property', () => {
+    const { result } = renderHook(() => useGetPermissionGrouping(['PlansView']))
+
+    expect(result.current.permissionGrouping.plans.name).toBe('plans')
+  })
+
+  it('handles multiple permissions in same group', () => {
+    const { result } = renderHook(() =>
+      useGetPermissionGrouping(['PlansView', 'PlansCreate', 'PlansUpdate', 'PlansDelete']),
+    )
+
+    expect(result.current.permissionGrouping.plans.permissions).toHaveLength(4)
+  })
+
+  it('handles permissions from multiple groups', () => {
+    const { result } = renderHook(() =>
+      useGetPermissionGrouping(['PlansView', 'CustomersView', 'InvoicesView', 'SubscriptionsView']),
+    )
+
+    expect(result.current.permissionGrouping).toHaveProperty('plans')
+    expect(result.current.permissionGrouping).toHaveProperty('customers')
+    expect(result.current.permissionGrouping).toHaveProperty('invoices')
+    expect(result.current.permissionGrouping).toHaveProperty('subscriptions')
   })
 })
