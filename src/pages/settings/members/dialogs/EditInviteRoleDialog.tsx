@@ -34,7 +34,7 @@ export const EditInviteRoleDialog = forwardRef<EditInviteRoleDialogRef>((_, ref)
   })
 
   const initialValues: UpdateInviteSingleRole = {
-    role: localData?.invite?.roles[0] || 'Admin',
+    role: localData?.invite?.roles[0] || '',
   }
 
   const form = useAppForm({
