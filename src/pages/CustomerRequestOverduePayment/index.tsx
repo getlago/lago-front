@@ -163,8 +163,6 @@ const CustomerRequestOverduePayment: FC = () => {
             externalCustomerId: customer?.externalId ?? '',
             email: values.emails.replaceAll(' ', ''),
             lagoInvoiceIds: invoices?.collection?.map((invoice) => invoice.id),
-            // TODO: Uncomment when backend is ready
-            // paymentMethod: values.paymentMethod,
           },
         },
       })
