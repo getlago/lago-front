@@ -3788,5 +3788,6 @@
   "text_176771435162557p8hyixafi": "There are no members matching your filters",
   "text_17677905696331arrjnqzwwb": "Delete custom role",
   "text_1767790569633bso609s2bau": "You’re about to remove the role {{roleName}} from the organization. This means you will not be able to add this role to members of the organization, are you sure?",
-  "text_176779056963310shb5ayw55": "Delete role"
+  "text_176779056963310shb5ayw55": "Delete role",
+  "text_1767881112174odn29xztnvi": "Code format isn't valid."
 }
