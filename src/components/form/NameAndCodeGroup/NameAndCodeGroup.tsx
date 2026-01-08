@@ -29,7 +29,8 @@ const NameAndCodeGroup = withFieldGroup({
     const handleNameChange = ({ value }: { value: string }) => {
       const isCodeBlurred = group.getFieldMeta('code')?.isBlurred
 
-      if (isCodeBlurred) return
+      // isDisabled mean we don't want to update the value. Be it directly or indirectly.
+      if (isCodeBlurred || isDisabled) return
       group.setFieldValue('code', formatCodeFromName(value))
     }
 
