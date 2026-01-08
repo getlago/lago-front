@@ -338,7 +338,12 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   data-test="captionHl"
                   for="reason"
                 >
-                  Reason
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Reason
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -436,7 +441,12 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 data-test="captionHl"
                 for="description"
               >
-                Internal note (optional)
+                <span
+                  class="flex flex-row gap-1"
+                >
+                  Internal note (optional)
+                   
+                </span>
               </label>
             </div>
             <div
@@ -1296,7 +1306,12 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   data-test="captionHl"
                   for="reason"
                 >
-                  Reason
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Reason
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -1394,7 +1409,12 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 data-test="captionHl"
                 for="description"
               >
-                Internal note (optional)
+                <span
+                  class="flex flex-row gap-1"
+                >
+                  Internal note (optional)
+                   
+                </span>
               </label>
             </div>
             <div
@@ -2071,7 +2091,12 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                   data-test="captionHl"
                   for="reason"
                 >
-                  Reason
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Reason
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -2169,7 +2194,12 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 data-test="captionHl"
                 for="description"
               >
-                Internal note (optional)
+                <span
+                  class="flex flex-row gap-1"
+                >
+                  Internal note (optional)
+                   
+                </span>
               </label>
             </div>
             <div

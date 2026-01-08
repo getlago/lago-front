@@ -264,7 +264,12 @@ exports[`PaymentProvidersAccordion Integration Tests WHEN rendering the componen
                             data-test="captionHl"
                             for="paymentProviderCode"
                           >
-                            Connected account
+                            <span
+                              class="flex flex-row gap-1"
+                            >
+                              Connected account
+                               
+                            </span>
                           </label>
                         </div>
                         <div

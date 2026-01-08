@@ -263,7 +263,12 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN rendering the compo
                           data-test="captionHl"
                           for="accountingProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div
@@ -509,7 +514,12 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN rendering the compo
                           data-test="captionHl"
                           for="accountingProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div
@@ -755,7 +765,12 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN rendering the compo
                           data-test="captionHl"
                           for="accountingProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div
@@ -1001,7 +1016,12 @@ exports[`AccountingProvidersAccordion Integration Tests WHEN user interacts with
                           data-test="captionHl"
                           for="accountingProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div

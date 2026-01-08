@@ -35,7 +35,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="billingEntityCode"
           >
-            Affiliated entity
+            <span
+              class="flex flex-row gap-1"
+            >
+              Affiliated entity
+               
+            </span>
           </label>
         </div>
         <div
@@ -132,7 +137,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="externalId"
         >
-          Customer external ID (required)
+          <span
+            class="flex flex-row gap-1"
+          >
+            Customer external ID (required)
+             
+          </span>
         </label>
       </div>
       <div
@@ -181,7 +191,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="customerType"
           >
-            Customer type
+            <span
+              class="flex flex-row gap-1"
+            >
+              Customer type
+               
+            </span>
           </label>
         </div>
         <div
@@ -278,7 +293,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="name"
         >
-          Customer name
+          <span
+            class="flex flex-row gap-1"
+          >
+            Customer name
+             
+          </span>
         </label>
       </div>
       <div
@@ -327,7 +347,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="firstname"
           >
-            First name
+            <span
+              class="flex flex-row gap-1"
+            >
+              First name
+               
+            </span>
           </label>
         </div>
         <div
@@ -373,7 +398,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="lastname"
           >
-            Last name
+            <span
+              class="flex flex-row gap-1"
+            >
+              Last name
+               
+            </span>
           </label>
         </div>
         <div
@@ -423,7 +453,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="timezone"
           >
-            Timezone
+            <span
+              class="flex flex-row gap-1"
+            >
+              Timezone
+               
+            </span>
           </label>
         </div>
         <div
@@ -540,7 +575,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="externalSalesforceId"
         >
-          External Salesforce Id
+          <span
+            class="flex flex-row gap-1"
+          >
+            External Salesforce Id
+             
+          </span>
         </label>
       </div>
       <div
@@ -620,7 +660,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="billingEntityCode"
           >
-            Affiliated entity
+            <span
+              class="flex flex-row gap-1"
+            >
+              Affiliated entity
+               
+            </span>
           </label>
         </div>
         <div
@@ -717,7 +762,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="externalId"
         >
-          Customer external ID (required)
+          <span
+            class="flex flex-row gap-1"
+          >
+            Customer external ID (required)
+             
+          </span>
         </label>
       </div>
       <div
@@ -766,7 +816,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="customerType"
           >
-            Customer type
+            <span
+              class="flex flex-row gap-1"
+            >
+              Customer type
+               
+            </span>
           </label>
         </div>
         <div
@@ -863,7 +918,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="name"
         >
-          Customer name
+          <span
+            class="flex flex-row gap-1"
+          >
+            Customer name
+             
+          </span>
         </label>
       </div>
       <div
@@ -912,7 +972,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="firstname"
           >
-            First name
+            <span
+              class="flex flex-row gap-1"
+            >
+              First name
+               
+            </span>
           </label>
         </div>
         <div
@@ -958,7 +1023,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="lastname"
           >
-            Last name
+            <span
+              class="flex flex-row gap-1"
+            >
+              Last name
+               
+            </span>
           </label>
         </div>
         <div
@@ -1008,7 +1078,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="timezone"
           >
-            Timezone
+            <span
+              class="flex flex-row gap-1"
+            >
+              Timezone
+               
+            </span>
           </label>
         </div>
         <div
@@ -1125,7 +1200,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="externalSalesforceId"
         >
-          External Salesforce Id
+          <span
+            class="flex flex-row gap-1"
+          >
+            External Salesforce Id
+             
+          </span>
         </label>
       </div>
       <div
@@ -1205,7 +1285,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="billingEntityCode"
           >
-            Affiliated entity
+            <span
+              class="flex flex-row gap-1"
+            >
+              Affiliated entity
+               
+            </span>
           </label>
         </div>
         <div
@@ -1284,7 +1369,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="externalId"
         >
-          Customer external ID (required)
+          <span
+            class="flex flex-row gap-1"
+          >
+            Customer external ID (required)
+             
+          </span>
         </label>
       </div>
       <div
@@ -1334,7 +1424,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="customerType"
           >
-            Customer type
+            <span
+              class="flex flex-row gap-1"
+            >
+              Customer type
+               
+            </span>
           </label>
         </div>
         <div
@@ -1431,7 +1526,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="name"
         >
-          Customer name
+          <span
+            class="flex flex-row gap-1"
+          >
+            Customer name
+             
+          </span>
         </label>
       </div>
       <div
@@ -1480,7 +1580,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="firstname"
           >
-            First name
+            <span
+              class="flex flex-row gap-1"
+            >
+              First name
+               
+            </span>
           </label>
         </div>
         <div
@@ -1526,7 +1631,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="lastname"
           >
-            Last name
+            <span
+              class="flex flex-row gap-1"
+            >
+              Last name
+               
+            </span>
           </label>
         </div>
         <div
@@ -1576,7 +1686,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="captionHl"
             for="timezone"
           >
-            Timezone
+            <span
+              class="flex flex-row gap-1"
+            >
+              Timezone
+               
+            </span>
           </label>
         </div>
         <div
@@ -1693,7 +1808,12 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           data-test="captionHl"
           for="externalSalesforceId"
         >
-          External Salesforce Id
+          <span
+            class="flex flex-row gap-1"
+          >
+            External Salesforce Id
+             
+          </span>
         </label>
       </div>
       <div

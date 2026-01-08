@@ -263,7 +263,12 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div
@@ -509,7 +514,12 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div
@@ -755,7 +765,12 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div
@@ -1001,7 +1016,12 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                             
+                          </span>
                         </label>
                       </div>
                       <div

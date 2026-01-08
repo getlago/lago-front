@@ -174,7 +174,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="billingEntityCode"
                   >
-                    Affiliated entity
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Affiliated entity
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -271,7 +276,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalId"
                 >
-                  Customer external ID (required)
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer external ID (required)
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -320,7 +330,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="customerType"
                   >
-                    Customer type
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Customer type
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -417,7 +432,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="name"
                 >
-                  Customer name
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer name
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -466,7 +486,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="firstname"
                   >
-                    First name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      First name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -512,7 +537,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="lastname"
                   >
-                    Last name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Last name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -562,7 +592,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="timezone"
                   >
-                    Timezone
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Timezone
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -679,7 +714,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalSalesforceId"
                 >
-                  External Salesforce Id
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    External Salesforce Id
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -818,7 +858,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="currency"
                                 >
-                                  Currency
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    Currency
+                                     
+                                  </span>
                                 </label>
                                 <div
                                   class=""
@@ -920,7 +965,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                 data-test="captionHl"
                                 for="legalName"
                               >
-                                Legal name
+                                <span
+                                  class="flex flex-row gap-1"
+                                >
+                                  Legal name
+                                   
+                                </span>
                               </label>
                             </div>
                             <div
@@ -966,7 +1016,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                 data-test="captionHl"
                                 for="legalNumber"
                               >
-                                Legal number
+                                <span
+                                  class="flex flex-row gap-1"
+                                >
+                                  Legal number
+                                   
+                                </span>
                               </label>
                             </div>
                             <div
@@ -1012,7 +1067,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                 data-test="captionHl"
                                 for="taxIdentificationNumber"
                               >
-                                Tax identification number
+                                <span
+                                  class="flex flex-row gap-1"
+                                >
+                                  Tax identification number
+                                   
+                                </span>
                               </label>
                             </div>
                             <div
@@ -1058,7 +1118,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                 data-test="captionHl"
                                 for="email"
                               >
-                                Email
+                                <span
+                                  class="flex flex-row gap-1"
+                                >
+                                  Email
+                                   
+                                </span>
                               </label>
                             </div>
                             <div
@@ -1110,7 +1175,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                 data-test="captionHl"
                                 for="url"
                               >
-                                URL
+                                <span
+                                  class="flex flex-row gap-1"
+                                >
+                                  URL
+                                   
+                                </span>
                               </label>
                             </div>
                             <div
@@ -1156,7 +1226,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                 data-test="captionHl"
                                 for="phone"
                               >
-                                Phone number
+                                <span
+                                  class="flex flex-row gap-1"
+                                >
+                                  Phone number
+                                   
+                                </span>
                               </label>
                             </div>
                             <div
@@ -1215,7 +1290,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="billingAddress.addressLine1"
                                 >
-                                  Address line 1
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    Address line 1
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1261,7 +1341,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="billingAddress.addressLine2"
                                 >
-                                  Address line 2
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    Address line 2
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1307,7 +1392,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="billingAddress.zipcode"
                                 >
-                                  Zip code
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    Zip code
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1353,7 +1443,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="billingAddress.city"
                                 >
-                                  City
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    City
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1399,7 +1494,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="billingAddress.state"
                                 >
-                                  State
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    State
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1448,7 +1548,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     data-test="captionHl"
                                     for="billingAddress.country"
                                   >
-                                    Country
+                                    <span
+                                      class="flex flex-row gap-1"
+                                    >
+                                      Country
+                                       
+                                    </span>
                                   </label>
                                 </div>
                                 <div
@@ -1608,7 +1713,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="shippingAddress.addressLine1"
                                 >
-                                  Address line 1
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    Address line 1
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1654,7 +1764,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="shippingAddress.addressLine2"
                                 >
-                                  Address line 2
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    Address line 2
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1700,7 +1815,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="shippingAddress.zipcode"
                                 >
-                                  Zip code
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    Zip code
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1746,7 +1866,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="shippingAddress.city"
                                 >
-                                  City
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    City
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1792,7 +1917,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                   data-test="captionHl"
                                   for="shippingAddress.state"
                                 >
-                                  State
+                                  <span
+                                    class="flex flex-row gap-1"
+                                  >
+                                    State
+                                     
+                                  </span>
                                 </label>
                               </div>
                               <div
@@ -1841,7 +1971,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                                     data-test="captionHl"
                                     for="shippingAddress.country"
                                   >
-                                    Country
+                                    <span
+                                      class="flex flex-row gap-1"
+                                    >
+                                      Country
+                                       
+                                    </span>
                                   </label>
                                 </div>
                                 <div
@@ -2263,7 +2398,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="billingEntityCode"
                   >
-                    Affiliated entity
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Affiliated entity
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -2360,7 +2500,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalId"
                 >
-                  Customer external ID (required)
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer external ID (required)
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -2409,7 +2554,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="customerType"
                   >
-                    Customer type
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Customer type
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -2506,7 +2656,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="name"
                 >
-                  Customer name
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer name
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -2555,7 +2710,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="firstname"
                   >
-                    First name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      First name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -2601,7 +2761,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="lastname"
                   >
-                    Last name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Last name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -2651,7 +2816,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="timezone"
                   >
-                    Timezone
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Timezone
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -2768,7 +2938,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalSalesforceId"
                 >
-                  External Salesforce Id
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    External Salesforce Id
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -3252,7 +3427,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="billingEntityCode"
                   >
-                    Affiliated entity
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Affiliated entity
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -3349,7 +3529,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalId"
                 >
-                  Customer external ID (required)
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer external ID (required)
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -3398,7 +3583,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="customerType"
                   >
-                    Customer type
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Customer type
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -3495,7 +3685,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="name"
                 >
-                  Customer name
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer name
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -3544,7 +3739,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="firstname"
                   >
-                    First name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      First name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -3590,7 +3790,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="lastname"
                   >
-                    Last name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Last name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -3640,7 +3845,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="timezone"
                   >
-                    Timezone
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Timezone
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -3757,7 +3967,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalSalesforceId"
                 >
-                  External Salesforce Id
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    External Salesforce Id
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -4241,7 +4456,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="billingEntityCode"
                   >
-                    Affiliated entity
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Affiliated entity
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -4338,7 +4558,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalId"
                 >
-                  Customer external ID (required)
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer external ID (required)
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -4387,7 +4612,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="customerType"
                   >
-                    Customer type
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Customer type
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -4484,7 +4714,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="name"
                 >
-                  Customer name
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer name
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -4533,7 +4768,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="firstname"
                   >
-                    First name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      First name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -4579,7 +4819,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="lastname"
                   >
-                    Last name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Last name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -4629,7 +4874,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="timezone"
                   >
-                    Timezone
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Timezone
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -4746,7 +4996,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalSalesforceId"
                 >
-                  External Salesforce Id
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    External Salesforce Id
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -5227,7 +5482,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="billingEntityCode"
                   >
-                    Affiliated entity
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Affiliated entity
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -5324,7 +5584,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalId"
                 >
-                  Customer external ID (required)
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer external ID (required)
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -5373,7 +5638,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="customerType"
                   >
-                    Customer type
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Customer type
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -5470,7 +5740,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="name"
                 >
-                  Customer name
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer name
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -5519,7 +5794,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="firstname"
                   >
-                    First name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      First name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -5565,7 +5845,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="lastname"
                   >
-                    Last name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Last name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -5615,7 +5900,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                     data-test="captionHl"
                     for="timezone"
                   >
-                    Timezone
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Timezone
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -5732,7 +6022,12 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                   data-test="captionHl"
                   for="externalSalesforceId"
                 >
-                  External Salesforce Id
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    External Salesforce Id
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -6162,7 +6457,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     data-test="captionHl"
                     for="billingEntityCode"
                   >
-                    Affiliated entity
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Affiliated entity
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -6259,7 +6559,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                   data-test="captionHl"
                   for="externalId"
                 >
-                  Customer external ID (required)
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer external ID (required)
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -6308,7 +6613,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     data-test="captionHl"
                     for="customerType"
                   >
-                    Customer type
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Customer type
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -6405,7 +6715,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                   data-test="captionHl"
                   for="name"
                 >
-                  Customer name
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    Customer name
+                     
+                  </span>
                 </label>
               </div>
               <div
@@ -6454,7 +6769,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     data-test="captionHl"
                     for="firstname"
                   >
-                    First name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      First name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -6500,7 +6820,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     data-test="captionHl"
                     for="lastname"
                   >
-                    Last name
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Last name
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -6550,7 +6875,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                     data-test="captionHl"
                     for="timezone"
                   >
-                    Timezone
+                    <span
+                      class="flex flex-row gap-1"
+                    >
+                      Timezone
+                       
+                    </span>
                   </label>
                 </div>
                 <div
@@ -6667,7 +6997,12 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                   data-test="captionHl"
                   for="externalSalesforceId"
                 >
-                  External Salesforce Id
+                  <span
+                    class="flex flex-row gap-1"
+                  >
+                    External Salesforce Id
+                     
+                  </span>
                 </label>
               </div>
               <div
