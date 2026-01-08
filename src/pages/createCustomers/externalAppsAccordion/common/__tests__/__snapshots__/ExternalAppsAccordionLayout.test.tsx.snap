@@ -31,7 +31,7 @@ exports[`ExternalAppsAccordionLayout Integration Tests WHEN rendering the Summar
         class="flex flex-col"
       >
         <div
-          class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="bodyHl"
         >
           Select a connection
@@ -49,13 +49,13 @@ exports[`ExternalAppsAccordionLayout Integration Tests WHEN rendering the Summar
     style="width: inherit;"
   >
     <div
-      class="MuiTypography-root MuiTypography-body MuiTypography-noWrap css-1w5quc2-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="body"
     >
       label
     </div>
     <div
-      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-4auuis-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="caption"
     >
       subLabel

@@ -3,7 +3,7 @@
 exports[`HelperText Integration Tests WHEN rendering the component THEN should render a matching snapshot 1`] = `
 <div>
   <div
-    class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
     data-test="caption"
   >
     <span>

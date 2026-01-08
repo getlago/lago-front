@@ -9,20 +9,20 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       class="flex flex-col gap-2"
     >
       <div
-        class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
         data-test="subhead1"
       >
         Customer information
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="caption"
       >
         Define the customer information to easily identify it.
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -31,7 +31,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="billingEntityCode"
           >
@@ -39,10 +39,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -50,8 +50,8 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":rf:"
+              class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+              id=:r-mui-id:
               name="billingEntityCode"
               placeholder="Search or select an entity"
               role="combobox"
@@ -60,10 +60,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -82,7 +82,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -105,10 +105,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -128,7 +128,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="externalId"
         >
@@ -136,14 +136,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-focused MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-focused MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="externalId"
             name="externalId"
             placeholder="Type an external ID"
@@ -152,10 +152,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -168,7 +168,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -177,7 +177,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="customerType"
           >
@@ -185,10 +185,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -196,8 +196,8 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":ri:"
+              class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+              id=:r-mui-id:
               name="customerType"
               placeholder="Search or select a customer type"
               role="combobox"
@@ -206,10 +206,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -228,7 +228,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -251,10 +251,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -274,7 +274,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="name"
         >
@@ -282,14 +282,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="name"
             name="name"
             placeholder="Type a name"
@@ -298,10 +298,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -323,7 +323,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="firstname"
           >
@@ -331,14 +331,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="firstname"
               name="firstname"
               placeholder="Type a first name"
@@ -347,10 +347,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             />
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -369,7 +369,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="lastname"
           >
@@ -377,14 +377,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="lastname"
               name="lastname"
               placeholder="Type a last name"
@@ -393,10 +393,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             />
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -410,7 +410,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -419,7 +419,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="timezone"
           >
@@ -427,10 +427,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -438,9 +438,9 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
               disabled=""
-              id=":rn:"
+              id=:r-mui-id:
               name="timezone"
               placeholder="Search or select a timezone"
               role="combobox"
@@ -449,10 +449,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 disabled=""
                 tabindex="-1"
@@ -472,7 +472,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -495,10 +495,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -510,11 +510,11 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </div>
         </div>
         <div
-          class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
           data-test="text-field-helpertext"
         >
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             <span>
@@ -536,7 +536,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="externalSalesforceId"
         >
@@ -544,14 +544,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="externalSalesforceId"
             name="externalSalesforceId"
             placeholder="Type an external Salesforce Id"
@@ -560,10 +560,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -575,7 +575,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </div>
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="text-field-helpertext"
       >
         Enter an existing Salesforce Account ID to link this customer with a Salesforce Account
@@ -594,20 +594,20 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       class="flex flex-col gap-2"
     >
       <div
-        class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
         data-test="subhead1"
       >
         Customer information
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="caption"
       >
         Define the customer information to easily identify it.
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -616,7 +616,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="billingEntityCode"
           >
@@ -624,10 +624,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -635,8 +635,8 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":r19:"
+              class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+              id=:r-mui-id:
               name="billingEntityCode"
               placeholder="Search or select an entity"
               role="combobox"
@@ -645,10 +645,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -667,7 +667,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -690,10 +690,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -713,7 +713,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="externalId"
         >
@@ -721,14 +721,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="externalId"
             name="externalId"
             placeholder="Type an external ID"
@@ -737,10 +737,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -753,7 +753,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -762,7 +762,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="customerType"
           >
@@ -770,10 +770,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -781,8 +781,8 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":r1c:"
+              class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+              id=:r-mui-id:
               name="customerType"
               placeholder="Search or select a customer type"
               role="combobox"
@@ -791,10 +791,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -813,7 +813,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -836,10 +836,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -859,7 +859,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="name"
         >
@@ -867,14 +867,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="name"
             name="name"
             placeholder="Type a name"
@@ -883,10 +883,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -908,7 +908,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="firstname"
           >
@@ -916,14 +916,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="firstname"
               name="firstname"
               placeholder="Type a first name"
@@ -932,10 +932,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             />
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -954,7 +954,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="lastname"
           >
@@ -962,14 +962,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="lastname"
               name="lastname"
               placeholder="Type a last name"
@@ -978,10 +978,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             />
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -995,7 +995,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -1004,7 +1004,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="timezone"
           >
@@ -1012,10 +1012,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -1023,9 +1023,9 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
               disabled=""
-              id=":r1h:"
+              id=:r-mui-id:
               name="timezone"
               placeholder="Search or select a timezone"
               role="combobox"
@@ -1034,10 +1034,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 disabled=""
                 tabindex="-1"
@@ -1057,7 +1057,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -1080,10 +1080,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -1095,11 +1095,11 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </div>
         </div>
         <div
-          class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
           data-test="text-field-helpertext"
         >
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             <span>
@@ -1121,7 +1121,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="externalSalesforceId"
         >
@@ -1129,14 +1129,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="externalSalesforceId"
             name="externalSalesforceId"
             placeholder="Type an external Salesforce Id"
@@ -1145,10 +1145,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -1160,7 +1160,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </div>
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="text-field-helpertext"
       >
         Enter an existing Salesforce Account ID to link this customer with a Salesforce Account
@@ -1179,20 +1179,20 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       class="flex flex-col gap-2"
     >
       <div
-        class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
         data-test="subhead1"
       >
         Customer information
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="caption"
       >
         Define the customer information to easily identify it.
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -1201,7 +1201,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="billingEntityCode"
           >
@@ -1209,10 +1209,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -1220,9 +1220,9 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
               disabled=""
-              id=":rs:"
+              id=:r-mui-id:
               name="billingEntityCode"
               placeholder="Search or select an entity"
               role="combobox"
@@ -1231,10 +1231,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -1257,10 +1257,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -1280,7 +1280,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="externalId"
         >
@@ -1288,14 +1288,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-hash-MuiInputBase-input-MuiOutlinedInput-input
             disabled=""
             id="externalId"
             name="externalId"
@@ -1305,10 +1305,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -1321,7 +1321,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -1330,7 +1330,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="customerType"
           >
@@ -1338,10 +1338,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -1349,8 +1349,8 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":rv:"
+              class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+              id=:r-mui-id:
               name="customerType"
               placeholder="Search or select a customer type"
               role="combobox"
@@ -1359,10 +1359,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -1381,7 +1381,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -1404,10 +1404,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -1427,7 +1427,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="name"
         >
@@ -1435,14 +1435,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="name"
             name="name"
             placeholder="Type a name"
@@ -1451,10 +1451,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -1476,7 +1476,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="firstname"
           >
@@ -1484,14 +1484,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="firstname"
               name="firstname"
               placeholder="Type a first name"
@@ -1500,10 +1500,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             />
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -1522,7 +1522,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="lastname"
           >
@@ -1530,14 +1530,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="lastname"
               name="lastname"
               placeholder="Type a last name"
@@ -1546,10 +1546,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             />
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -1563,7 +1563,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -1572,7 +1572,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="timezone"
           >
@@ -1580,10 +1580,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -1591,9 +1591,9 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
+              class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
               disabled=""
-              id=":r14:"
+              id=:r-mui-id:
               name="timezone"
               placeholder="Search or select a timezone"
               role="combobox"
@@ -1602,10 +1602,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 disabled=""
                 tabindex="-1"
@@ -1625,7 +1625,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -1648,10 +1648,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"
@@ -1663,11 +1663,11 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           </div>
         </div>
         <div
-          class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
           data-test="text-field-helpertext"
         >
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             <span>
@@ -1689,7 +1689,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="externalSalesforceId"
         >
@@ -1697,14 +1697,14 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="externalSalesforceId"
             name="externalSalesforceId"
             placeholder="Type an external Salesforce Id"
@@ -1713,10 +1713,10 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -1728,7 +1728,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
         </div>
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="text-field-helpertext"
       >
         Enter an existing Salesforce Account ID to link this customer with a Salesforce Account

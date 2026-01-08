@@ -9,7 +9,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
@@ -17,14 +17,14 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="crmCustomer.crmCustomerId"
           name="crmCustomer.crmCustomerId"
           placeholder="Type a Salesforce Account ID"
@@ -33,10 +33,10 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -51,7 +51,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-crmCustomer.syncWithProvider"
-    for=":r7:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -63,7 +63,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Salesforce"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":r7:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -89,7 +89,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Salesforce
@@ -109,7 +109,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
@@ -117,14 +117,14 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="crmCustomer.crmCustomerId"
           name="crmCustomer.crmCustomerId"
           placeholder="Type a Salesforce Account ID"
@@ -133,10 +133,10 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -151,7 +151,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-crmCustomer.syncWithProvider"
-    for=":rf:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -163,7 +163,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Test Salesforce Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":rf:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -189,7 +189,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Salesforce Integration
@@ -209,7 +209,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
@@ -217,14 +217,14 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="crmCustomer.crmCustomerId"
           name="crmCustomer.crmCustomerId"
           placeholder="Type a Salesforce Account ID"
@@ -233,10 +233,10 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -251,7 +251,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-crmCustomer.syncWithProvider"
-    for=":rb:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -263,7 +263,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Test Salesforce Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":rb:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -289,7 +289,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Salesforce Integration
@@ -309,7 +309,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="crmCustomer.crmCustomerId"
       >
@@ -317,14 +317,14 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-hash-MuiInputBase-input-MuiOutlinedInput-input
           disabled=""
           id="crmCustomer.crmCustomerId"
           name="crmCustomer.crmCustomerId"
@@ -334,10 +334,10 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -352,7 +352,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
   <label
     class="flex flex-col"
     data-test="checkbox-crmCustomer.syncWithProvider"
-    for=":rj:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -365,7 +365,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
           aria-labelledby="Create automatically this customer in Test Salesforce Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
           disabled=""
-          id=":rj:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -391,7 +391,7 @@ exports[`SalesforceCrmProviderContent Integration Tests WHEN rendering the compo
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1lkb4zy-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Salesforce Integration
