@@ -209,8 +209,10 @@ export const useCreditNoteFormCalculation = ({
 
     // Initialize the refund field if possible
     if (canRefund) {
-      formikProps.setFieldValue('payBack.1.type', CreditTypeEnum.refund)
-      formikProps.setFieldValue('payBack.1.value', undefined)
+      formikProps.setFieldValue('payBack.1', {
+        type: CreditTypeEnum.refund,
+        value: undefined,
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -230,7 +232,10 @@ export const useCreditNoteFormCalculation = ({
     )
 
     if (canRefund) {
-      formikProps.setFieldValue('payBack.1.value', undefined)
+      formikProps.setFieldValue('payBack.1', {
+        type: CreditTypeEnum.refund,
+        value: undefined,
+      })
     }
 
     setPayBackValidation(
