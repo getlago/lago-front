@@ -85,6 +85,7 @@ const generateTabs = ({
     title: translate('text_1765448879791epmkg4xijkn'),
     link: ROLES_LIST_ROUTE,
     match: [ROLES_LIST_ROUTE, ROLE_DETAILS_ROUTE],
+    hidden: !hasPermissions(['rolesView', 'permissionsView']),
   },
   {
     title: translate('text_63ac86d797f728a87b2f9f85'),

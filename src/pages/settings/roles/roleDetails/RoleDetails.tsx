@@ -31,7 +31,8 @@ import { useRoleDetails } from '../hooks/useRoleDetails'
 const RoleDetails = () => {
   const { translate } = useInternationalization()
   const { roleId } = useParams<string>()
-  const { role, isLoadingRole, isSystem, canBeDeleted } = useRoleDetails({ roleId })
+  const { role, isLoadingRole, isSystem, canBeDuplicated, canBeEdited, canBeDeleted } =
+    useRoleDetails({ roleId })
   const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
   const { isPremium } = useCurrentUser()
@@ -104,23 +105,25 @@ const RoleDetails = () => {
                   variant="quaternary"
                   align="left"
                   fullWidth
+                  disabled={!canBeDuplicated}
                   onClick={() => navigateToDuplicate(roleId)}
                 >
                   {translate('text_64fa170e02f348164797a6af')}
                 </Button>
               )}
-              {!isSystem && (
+              {!isSystem && isPremium && (
                 <Button
                   startIcon="pen"
                   variant="quaternary"
                   fullWidth
                   align="left"
+                  disabled={!canBeEdited}
                   onClick={() => navigateToEdit(roleId)}
                 >
                   {translate('text_63aa15caab5b16980b21b0b8')}
                 </Button>
               )}
-              {!isSystem && (
+              {!isSystem && isPremium && (
                 <Tooltip
                   title={translate('text_1767002012431la8gv2iqucp')}
                   disableHoverListener={canBeDeleted}
