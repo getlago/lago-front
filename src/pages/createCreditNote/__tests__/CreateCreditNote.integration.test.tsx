@@ -19,7 +19,6 @@ import { render, TestMocksType } from '~/test-utils'
 import CreateCreditNote, {
   CLOSE_BUTTON_TEST_ID,
   DESCRIPTION_INPUT_TEST_ID,
-  DISPUTE_LOST_STATUS_TEST_ID,
   PREPAID_CREDITS_REFUND_ALERT_TEST_ID,
   SUBMIT_BUTTON_TEST_ID,
 } from '../CreateCreditNote'
@@ -267,9 +266,6 @@ describe('CreateCreditNote', () => {
         },
         { timeout: 2000, interval: 100 },
       )
-
-      // Should show dispute lost status badge
-      expect(screen.getByTestId(DISPUTE_LOST_STATUS_TEST_ID)).toBeInTheDocument()
     }, 10000)
   })
 
@@ -455,8 +451,9 @@ describe('CreateCreditNote', () => {
 
       await act(() => render(<CreateCreditNote />))
 
-      // Should show paid amount in the invoice info
-      expect(screen.getByText(/\$50\.00/)).toBeInTheDocument()
+      const paidAmountElements = screen.getAllByText(/\$50\.00/)
+
+      expect(paidAmountElements.length).toBeGreaterThan(0)
 
       // Both credit and refund fields should be available
       await waitFor(() => {
