@@ -65,17 +65,21 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
   const manualLabel =
     paymentProvider === 'manual' ? 'text_1737110192586abtitcui0xt' : 'text_173799550683709p2rqkoqd5'
 
+  const displayLabel = isManual
+    ? translate(manualLabel)
+    : label || translate(providers[paymentProvider].label)
+
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
       <Avatar className="bg-white" variant="connector" size="small">
-        {paymentProvider === 'manual' || paymentProvider === 'manual_long' ? (
+        {isManual ? (
           <Icon name="receipt" color="dark" size="small" />
         ) : (
           providers[paymentProvider].icon
         )}
       </Avatar>
       <Typography variant={textVariant} color={textColor} noWrap>
-        {isManual ? translate(manualLabel) : (label ?? translate(providers[paymentProvider].label))}
+        {displayLabel}
       </Typography>
     </div>
   )
