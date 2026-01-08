@@ -19,15 +19,21 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
-jest.mock('../useRolesList', () => ({
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: () => true,
+  }),
+}))
+
+jest.mock('~/hooks/useRolesList', () => ({
   useRolesList: () => ({
     roles: [
       {
         id: '1',
-        name: 'admin',
+        name: 'Admin',
         description: 'Admin role',
         admin: true,
-        members: [{ id: '1', name: 'John', email: 'john@test.com' }],
+        memberships: [{ id: '1', name: 'John', email: 'john@test.com' }],
         permissions: [],
       },
       {
@@ -35,7 +41,7 @@ jest.mock('../useRolesList', () => ({
         name: 'custom-role',
         description: 'Custom role',
         admin: false,
-        members: [],
+        memberships: [],
         permissions: ['plansView'],
       },
     ],
