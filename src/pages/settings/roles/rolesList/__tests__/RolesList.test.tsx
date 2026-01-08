@@ -1,0 +1,121 @@
+import { act, screen } from '@testing-library/react'
+
+import { render } from '~/test-utils'
+
+import RolesList from '../RolesList'
+
+const mockNavigate = jest.fn()
+const mockDeleteRole = jest.fn()
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
+}))
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({
+    isPremium: true,
+  }),
+}))
+
+jest.mock('../useRolesList', () => ({
+  useRolesList: () => ({
+    roles: [
+      {
+        id: '1',
+        name: 'admin',
+        description: 'Admin role',
+        admin: true,
+        members: [{ id: '1', name: 'John', email: 'john@test.com' }],
+        permissions: [],
+      },
+      {
+        id: '2',
+        name: 'custom-role',
+        description: 'Custom role',
+        admin: false,
+        members: [],
+        permissions: ['plansView'],
+      },
+    ],
+    isLoadingRoles: false,
+    deleteRole: mockDeleteRole,
+  }),
+}))
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+  generatePath: (path: string, params?: Record<string, string>) => {
+    if (params) {
+      return Object.entries(params).reduce(
+        (acc, [key, value]) => acc.replace(`:${key}`, value),
+        path,
+      )
+    }
+    return path
+  },
+}))
+
+describe('RolesList', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('renders page header', async () => {
+    await act(() => render(<RolesList />))
+
+    expect(screen.getAllByText('text_1765448879791epmkg4xijkn')).toHaveLength(3)
+  })
+
+  it('renders roles table with correct columns', async () => {
+    await act(() => render(<RolesList />))
+
+    expect(screen.getByText('text_1765464417018tezju4yvyoo')).toBeInTheDocument()
+    expect(screen.getByText('text_1765464417018n3moulidii0')).toBeInTheDocument()
+    expect(screen.getByText('text_17654644170188lrzkfyhtkf')).toBeInTheDocument()
+  })
+
+  it('renders system role with translated name', async () => {
+    await act(() => render(<RolesList />))
+
+    expect(screen.getByText('text_664f035a68227f00e261b7ee')).toBeInTheDocument()
+  })
+
+  it('renders custom role with original name', async () => {
+    await act(() => render(<RolesList />))
+
+    expect(screen.getByText('custom-role')).toBeInTheDocument()
+  })
+
+  it('displays member count for each role', async () => {
+    await act(() => render(<RolesList />))
+
+    expect(screen.getByText('1')).toBeInTheDocument()
+    expect(screen.getByText('0')).toBeInTheDocument()
+  })
+
+  it('displays role type status', async () => {
+    await act(() => render(<RolesList />))
+
+    expect(screen.getByText('text_1765464506554l3g5v7dctfv')).toBeInTheDocument()
+    expect(screen.getByText('text_6641dd21c0cffd005b5e2a8b')).toBeInTheDocument()
+  })
+
+  it('renders create button for premium users', async () => {
+    await act(() => render(<RolesList />))
+
+    const createButton = screen.getByText('text_1765530400261k7yl3n4kk8h')
+
+    expect(createButton).toBeInTheDocument()
+  })
+
+  it('renders action menu button for each role', async () => {
+    await act(() => render(<RolesList />))
+
+    const actionButtons = screen.getAllByTestId('open-action-button')
+
+    expect(actionButtons.length).toBeGreaterThan(0)
+  })
+})
