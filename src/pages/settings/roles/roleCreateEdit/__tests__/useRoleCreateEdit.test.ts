@@ -4,11 +4,34 @@ import { useRoleCreateEdit } from '../useRoleCreateEdit'
 
 const mockUseParams = jest.fn()
 const mockUseLocation = jest.fn()
+const mockNavigate = jest.fn()
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => mockUseParams(),
   useLocation: () => mockUseLocation(),
+  useNavigate: () => mockNavigate,
+  generatePath: (path: string) => path,
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  addToast: jest.fn(),
+  envGlobalVar: () => ({ disableSignUp: false }),
+}))
+
+jest.mock('~/core/router', () => ({
+  ROLE_DETAILS_ROUTE: '/settings/roles/:roleId',
+}))
+
+jest.mock('~/generated/graphql', () => ({
+  useCreateRoleMutation: () => [jest.fn()],
+  useEditRoleMutation: () => [jest.fn()],
 }))
 
 describe('useRoleCreateEdit', () => {

@@ -5,8 +5,9 @@ describe('validationSchema', () => {
     it('accepts valid name', () => {
       const result = validationSchema.safeParse({
         name: 'My Role',
+        code: 'my-role',
         description: 'Description',
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(true)
@@ -15,8 +16,9 @@ describe('validationSchema', () => {
     it('rejects empty name', () => {
       const result = validationSchema.safeParse({
         name: '',
+        code: 'my-role',
         description: 'Description',
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(false)
@@ -29,8 +31,9 @@ describe('validationSchema', () => {
     it('accepts single character name', () => {
       const result = validationSchema.safeParse({
         name: 'A',
+        code: 'a',
         description: '',
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(true)
@@ -39,8 +42,33 @@ describe('validationSchema', () => {
     it('accepts long name', () => {
       const result = validationSchema.safeParse({
         name: 'A'.repeat(100),
+        code: 'long-name',
         description: '',
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe('code field', () => {
+    it('accepts valid code', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: 'my-role-code',
+        description: '',
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts empty code', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: '',
+        description: '',
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(true)
@@ -51,8 +79,9 @@ describe('validationSchema', () => {
     it('accepts empty description', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: '',
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(true)
@@ -61,8 +90,9 @@ describe('validationSchema', () => {
     it('accepts long description', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: 'A'.repeat(500),
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(true)
@@ -71,8 +101,9 @@ describe('validationSchema', () => {
     it('accepts description with special characters', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: 'This role can: view, edit & delete items!',
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(true)
@@ -80,14 +111,15 @@ describe('validationSchema', () => {
   })
 
   describe('permissions field', () => {
-    it('accepts valid permissions', () => {
+    it('accepts valid permissions with PascalCase keys', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: 'Description',
         permissions: {
-          plansView: true,
-          plansCreate: false,
-          customersView: true,
+          PlansView: true,
+          PlansCreate: false,
+          CustomersView: true,
         },
       })
 
@@ -97,6 +129,7 @@ describe('validationSchema', () => {
     it('accepts empty permissions object', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: 'Description',
         permissions: {},
       })
@@ -107,10 +140,11 @@ describe('validationSchema', () => {
     it('accepts all permissions set to false', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: 'Description',
         permissions: {
-          plansView: false,
-          plansCreate: false,
+          PlansView: false,
+          PlansCreate: false,
         },
       })
 
@@ -120,16 +154,30 @@ describe('validationSchema', () => {
     it('accepts all permissions set to true', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: 'Description',
         permissions: {
-          plansView: true,
-          plansCreate: true,
-          customersView: true,
-          customersCreate: true,
+          PlansView: true,
+          PlansCreate: true,
+          CustomersView: true,
+          CustomersCreate: true,
         },
       })
 
       expect(result.success).toBe(true)
+    })
+
+    it('rejects invalid permission keys', () => {
+      const result = validationSchema.safeParse({
+        name: 'Role Name',
+        code: 'role-name',
+        description: 'Description',
+        permissions: {
+          invalidPermission: true,
+        },
+      })
+
+      expect(result.success).toBe(false)
     })
   })
 
@@ -137,28 +185,41 @@ describe('validationSchema', () => {
     it('validates a complete valid form', () => {
       const result = validationSchema.safeParse({
         name: 'Custom Admin Role',
+        code: 'custom-admin-role',
         description: 'A role with custom admin permissions',
         permissions: {
-          plansView: true,
-          plansCreate: true,
-          plansUpdate: true,
-          plansDelete: false,
-          customersView: true,
+          PlansView: true,
+          PlansCreate: true,
+          PlansUpdate: true,
+          PlansDelete: false,
+          CustomersView: true,
         },
       })
 
       expect(result.success).toBe(true)
       if (result.success) {
         expect(result.data.name).toBe('Custom Admin Role')
+        expect(result.data.code).toBe('custom-admin-role')
         expect(result.data.description).toBe('A role with custom admin permissions')
-        expect(result.data.permissions.plansView).toBe(true)
+        expect(result.data.permissions.PlansView).toBe(true)
       }
     })
 
     it('fails when name is missing', () => {
       const result = validationSchema.safeParse({
+        code: 'role-code',
         description: 'Description',
-        permissions: { plansView: true },
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it('fails when code is missing', () => {
+      const result = validationSchema.safeParse({
+        name: 'Role Name',
+        description: 'Description',
+        permissions: { PlansView: true },
       })
 
       expect(result.success).toBe(false)
@@ -167,6 +228,7 @@ describe('validationSchema', () => {
     it('fails when permissions is missing', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
+        code: 'role-name',
         description: 'Description',
       })
 

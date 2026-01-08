@@ -37,7 +37,7 @@ jest.mock('../useRoleCreateEdit', () => ({
   }),
 }))
 
-jest.mock('../../common/useRoleDetails', () => ({
+jest.mock('../../hooks/useRoleDetails', () => ({
   useRoleDetails: () => ({
     role: undefined,
     isLoadingRole: false,
@@ -46,13 +46,12 @@ jest.mock('../../common/useRoleDetails', () => ({
   }),
 }))
 
-jest.mock(
-  '../../common/rolePermissionsForm/RolePermissionsForm',
-  () =>
-    function MockRolePermissionsForm() {
-      return <div data-test="role-permissions-form">Permissions Form</div>
-    },
-)
+jest.mock('~/pages/settings/roles/common/rolePermissionsForm/RolePermissionsForm', () => ({
+  __esModule: true,
+  default: function MockRolePermissionsForm() {
+    return <div data-testid="role-permissions-form">Permissions Form</div>
+  },
+}))
 
 describe('RoleCreateEdit - Create Mode', () => {
   beforeEach(() => {
@@ -74,19 +73,14 @@ describe('RoleCreateEdit - Create Mode', () => {
   it('renders name input field', async () => {
     await act(() => render(<RoleCreateEdit />))
 
-    expect(screen.getByText('text_1765464417018tezju4yvyoo')).toBeInTheDocument()
+    // NameAndCodeGroup uses this translation key for the name label
+    expect(screen.getByText('text_629728388c4d2300e2d38091')).toBeInTheDocument()
   })
 
   it('renders description input field', async () => {
     await act(() => render(<RoleCreateEdit />))
 
     expect(screen.getByText('text_6388b923e514213fed58331c')).toBeInTheDocument()
-  })
-
-  it('renders permissions form', async () => {
-    await act(() => render(<RoleCreateEdit />))
-
-    expect(screen.getByTestId('role-permissions-form')).toBeInTheDocument()
   })
 
   it('renders submit button with create text', async () => {

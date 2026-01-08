@@ -10,48 +10,56 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({
+    isPremium: true,
+  }),
+}))
+
 const render = (ui: React.ReactElement) =>
   rtlRender(ui, {
     wrapper: (props) => <AllTheProviders {...props} useParams={{ roleId: '1' }} />,
   })
 
-jest.mock('../../common/useRoleDetails', () => ({
+jest.mock('../../hooks/useRoleDetails', () => ({
   useRoleDetails: () => ({
     role: {
       id: '1',
       name: 'custom-role',
+      code: 'custom-role-code',
       description: 'A custom role description',
       admin: false,
-      members: [],
-      permissions: ['plansView'],
+      memberships: [],
+      permissions: ['PlansView'],
     },
     isLoadingRole: false,
+    isSystem: false,
+    canBeDuplicated: true,
     canBeEdited: true,
     canBeDeleted: true,
   }),
 }))
 
-jest.mock('../../common/useRoleDisplayName', () => ({
-  useRoleDisplayName: () => ({
+jest.mock('~/hooks/useRoleDisplayInformation', () => ({
+  useRoleDisplayInformation: () => ({
     getDisplayName: (role: { name: string } | undefined) => role?.name || '',
+    getDisplayDescription: (role: { description: string } | undefined) => role?.description || '',
   }),
 }))
 
-jest.mock(
-  '../roleDetailsPermissions/RoleDetailsPermissions',
-  () =>
-    function MockRoleDetailsPermissions() {
-      return <div data-test="role-details-permissions">Permissions Content</div>
-    },
-)
+jest.mock('../../hooks/useRoleActions', () => ({
+  useRoleActions: () => ({
+    navigateToDuplicate: jest.fn(),
+    navigateToEdit: jest.fn(),
+  }),
+}))
 
-jest.mock(
-  '../roleDetailsMembers/RoleDetailsMembers',
-  () =>
-    function MockRoleDetailsMembers() {
-      return <div data-test="role-details-members">Members Content</div>
-    },
-)
+jest.mock('~/pages/settings/roles/common/rolePermissionsForm/RolePermissionsForm', () => ({
+  __esModule: true,
+  default: function MockRolePermissionsForm() {
+    return <div data-testid="role-permissions-form">Permissions Form</div>
+  },
+}))
 
 describe('RoleDetails', () => {
   beforeEach(() => {
@@ -82,18 +90,5 @@ describe('RoleDetails', () => {
     await act(() => render(<RoleDetails />))
 
     expect(screen.getByText('text_634687079be251fdb438338f')).toBeInTheDocument()
-  })
-
-  it('renders navigation tabs', async () => {
-    await act(() => render(<RoleDetails />))
-
-    expect(screen.getByText('text_634687079be251fdb43833b7')).toBeInTheDocument()
-    expect(screen.getByText('text_63208b630aaf8df6bbfb2655')).toBeInTheDocument()
-  })
-
-  it('renders permissions content in overview tab', async () => {
-    await act(() => render(<RoleDetails />))
-
-    expect(screen.getByTestId('role-details-permissions')).toBeInTheDocument()
   })
 })

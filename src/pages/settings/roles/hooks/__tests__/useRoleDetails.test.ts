@@ -12,6 +12,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: () => true,
+  }),
+}))
+
 const createWrapper = (roleId: string) => {
   const role = allRoles.find((r) => r?.id === roleId)
 
