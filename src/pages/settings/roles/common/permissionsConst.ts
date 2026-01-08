@@ -46,15 +46,6 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'CreditNotesUpdate',
     'CreditNotesExport',
   ],
-  customerSettings: [
-    'CustomerSettingsUpdateGracePeriod',
-    'CustomerSettingsUpdateIssuingDateAnchor',
-    'CustomerSettingsUpdateIssuingDateAdjustment',
-    'CustomerSettingsUpdateLang',
-    'CustomerSettingsUpdatePaymentTerms',
-    'CustomerSettingsUpdateTaxRates',
-    'CustomerSettingsView',
-  ],
   customers: ['CustomersCreate', 'CustomersDelete', 'CustomersUpdate', 'CustomersView'],
   dataApi: ['DataApiView'],
   developers: ['DevelopersKeysManage', 'DevelopersManage'],
@@ -198,15 +189,6 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   CreditNotesUpdate: 'text_1766047581848fjq7h53nksy',
   CreditNotesView: 'text_17660475818489lrb93zbafu',
   CreditNotesVoid: 'text_1766047581848azlox6rihlr',
-
-  // Customer Settings
-  CustomerSettingsUpdateGracePeriod: 'text_1766047581848i1plc1qxg5n',
-  CustomerSettingsUpdateIssuingDateAnchor: 'text_1766047581848wv5t9vkjj3p',
-  CustomerSettingsUpdateIssuingDateAdjustment: 'text_1766047581849jlkhl84xss4',
-  CustomerSettingsUpdateLang: 'text_1766047581849ygottmecybq',
-  CustomerSettingsUpdatePaymentTerms: 'text_1766047581849hh2nxq5ryl4',
-  CustomerSettingsUpdateTaxRates: 'text_1766047581849fcg8eqldup8',
-  CustomerSettingsView: 'text_1766047581849g2pqe23vpjj',
 
   // Customers
   CustomersCreate: 'text_17660475818490917oik1suj',
