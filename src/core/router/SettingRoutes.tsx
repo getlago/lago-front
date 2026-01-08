@@ -183,6 +183,7 @@ export const settingsObjectCreationRoutes: CustomRouteObject[] = [
     path: [ROLE_CREATE_ROUTE, ROLE_EDIT_ROUTE],
     private: true,
     element: <RoleCreateEdit />,
+    permissions: ['rolesCreate', 'rolesUpdate'],
   },
 ]
 
@@ -447,11 +448,13 @@ export const settingRoutes: CustomRouteObject[] = [
         path: ROLES_LIST_ROUTE,
         private: true,
         element: <RolesList />,
+        permissions: ['rolesView', 'permissionsView'],
       },
       {
         path: ROLE_DETAILS_ROUTE,
         private: true,
         element: <RoleDetails />,
+        permissions: ['rolesView', 'permissionsView'],
       },
     ],
   },

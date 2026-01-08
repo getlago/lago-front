@@ -97,6 +97,11 @@ gql`
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView
+      rolesCreate
+      rolesDelete
+      rolesUpdate
+      rolesView
+      permissionsView
       subscriptionsCreate
       subscriptionsUpdate
       subscriptionsView
