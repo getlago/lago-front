@@ -37,7 +37,10 @@ import {
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
   MEMBERS_ROUTE,
+  MEMBERS_TAB_ROUTE,
   OKTA_AUTHENTICATION_ROUTE,
+  ROLE_DETAILS_ROUTE,
+  ROLES_LIST_ROUTE,
   settingRoutes,
   TAXES_SETTINGS_ROUTE,
   UPDATE_DUNNING_ROUTE,
@@ -75,7 +78,13 @@ const generateTabs = ({
   {
     title: translate('text_63208b630aaf8df6bbfb2655'),
     link: MEMBERS_ROUTE,
+    match: [MEMBERS_ROUTE, MEMBERS_TAB_ROUTE],
     hidden: !hasPermissions(['organizationMembersView']),
+  },
+  {
+    title: translate('text_1765448879791epmkg4xijkn'),
+    link: ROLES_LIST_ROUTE,
+    match: [ROLES_LIST_ROUTE, ROLE_DETAILS_ROUTE],
   },
   {
     title: translate('text_63ac86d797f728a87b2f9f85'),
