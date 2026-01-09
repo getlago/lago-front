@@ -126,7 +126,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('accepts empty permissions object', () => {
+    it('does NOT accept empty permissions object', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
         code: 'role-name',
@@ -134,10 +134,10 @@ describe('validationSchema', () => {
         permissions: {},
       })
 
-      expect(result.success).toBe(true)
+      expect(result.success).toBe(false)
     })
 
-    it('accepts all permissions set to false', () => {
+    it('does NOT accept all permissions set to false', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
         code: 'role-name',
@@ -148,7 +148,7 @@ describe('validationSchema', () => {
         },
       })
 
-      expect(result.success).toBe(true)
+      expect(result.success).toBe(false)
     })
 
     it('accepts all permissions set to true', () => {

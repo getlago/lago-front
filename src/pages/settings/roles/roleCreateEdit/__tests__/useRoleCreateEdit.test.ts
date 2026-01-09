@@ -1,4 +1,6 @@
-import { renderHook } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
+
+import { CreateRoleInput, PermissionEnum } from '~/generated/graphql'
 
 import { useRoleCreateEdit } from '../useRoleCreateEdit'
 
@@ -6,12 +8,24 @@ const mockUseParams = jest.fn()
 const mockUseLocation = jest.fn()
 const mockNavigate = jest.fn()
 
+const mockCreateRoleMutation = jest.fn()
+const mockEditRoleMutation = jest.fn()
+const mockAddToast = jest.fn()
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => mockUseParams(),
   useLocation: () => mockUseLocation(),
   useNavigate: () => mockNavigate,
-  generatePath: (path: string) => path,
+  generatePath: (path: string, params?: Record<string, string>) => {
+    if (params) {
+      return Object.entries(params).reduce(
+        (acc, [key, value]) => acc.replace(`:${key}`, value),
+        path,
+      )
+    }
+    return path
+  },
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -21,7 +35,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 jest.mock('~/core/apolloClient', () => ({
-  addToast: jest.fn(),
+  addToast: (params: unknown) => mockAddToast(params),
   envGlobalVar: () => ({ disableSignUp: false }),
 }))
 
@@ -30,14 +44,17 @@ jest.mock('~/core/router', () => ({
 }))
 
 jest.mock('~/generated/graphql', () => ({
-  useCreateRoleMutation: () => [jest.fn()],
-  useEditRoleMutation: () => [jest.fn()],
+  ...jest.requireActual('~/generated/graphql'),
+  useCreateRoleMutation: () => [mockCreateRoleMutation],
+  useEditRoleMutation: () => [mockEditRoleMutation],
 }))
 
 describe('useRoleCreateEdit', () => {
   beforeEach(() => {
     mockUseParams.mockReturnValue({})
     mockUseLocation.mockReturnValue({ search: '' })
+    mockCreateRoleMutation.mockResolvedValue({ data: { createRole: { id: 'new-role-id' } } })
+    mockEditRoleMutation.mockResolvedValue({ data: { updateRole: { id: 'edit-role-123' } } })
   })
 
   afterEach(() => {
@@ -98,6 +115,279 @@ describe('useRoleCreateEdit', () => {
       const { result } = renderHook(() => useRoleCreateEdit())
 
       expect(result.current.isEdition).toBe(false)
+    })
+  })
+
+  describe('handleSave function', () => {
+    it('returns handleSave function', () => {
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      expect(result.current.handleSave).toBeDefined()
+      expect(typeof result.current.handleSave).toBe('function')
+    })
+
+    it('calls createRoleMutation when creating a new role', async () => {
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'New Role',
+        code: 'new_role',
+        description: 'A new role description',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      expect(mockCreateRoleMutation).toHaveBeenCalled()
+      expect(mockEditRoleMutation).not.toHaveBeenCalled()
+    })
+
+    it('calls editRoleMutation when editing an existing role', async () => {
+      mockUseParams.mockReturnValue({ roleId: 'edit-role-123' })
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'Updated Role',
+        code: 'updated_role',
+        description: 'Updated description',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      expect(mockEditRoleMutation).toHaveBeenCalled()
+      expect(mockCreateRoleMutation).not.toHaveBeenCalled()
+    })
+
+    it('passes correct input to createRoleMutation', async () => {
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'New Role',
+        code: 'new_role',
+        description: 'A new role description',
+        permissions: [PermissionEnum.PlansView, PermissionEnum.PlansCreate],
+      } as CreateRoleInput
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      expect(mockCreateRoleMutation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: {
+            input: formValues,
+          },
+        }),
+      )
+    })
+
+    it('excludes code when editing a role', async () => {
+      mockUseParams.mockReturnValue({ roleId: 'edit-role-123' })
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'Updated Role',
+        code: 'updated_role',
+        description: 'Updated description',
+        permissions: [PermissionEnum.PlansView],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      expect(mockEditRoleMutation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: {
+            input: {
+              id: 'edit-role-123',
+              name: 'Updated Role',
+              description: 'Updated description',
+              permissions: [PermissionEnum.PlansView],
+            },
+          },
+        }),
+      )
+    })
+
+    it('shows success toast after creating a role', async () => {
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'New Role',
+        code: 'new_role',
+        description: 'A new role description',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it
+      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ createRole: { id: 'new-role-id' } })
+      })
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith({
+          message: 'text_1766158947598y30l6z5btl6',
+          severity: 'success',
+        })
+      })
+    })
+
+    it('shows success toast after editing a role', async () => {
+      mockUseParams.mockReturnValue({ roleId: 'edit-role-123' })
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'Updated Role',
+        code: 'updated_role',
+        description: 'Updated description',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it
+      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ updateRole: { id: 'edit-role-123' } })
+      })
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith({
+          message: 'text_176615894759841ijqrfnb29',
+          severity: 'success',
+        })
+      })
+    })
+
+    it('navigates to role details after creating a role', async () => {
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'New Role',
+        code: 'new_role',
+        description: '',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it
+      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ createRole: { id: 'new-role-id' } })
+      })
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/settings/roles/new-role-id')
+      })
+    })
+
+    it('navigates to role details after editing a role', async () => {
+      mockUseParams.mockReturnValue({ roleId: 'edit-role-123' })
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'Updated Role',
+        code: 'updated_role',
+        description: '',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it
+      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ updateRole: { id: 'edit-role-123' } })
+      })
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/settings/roles/edit-role-123')
+      })
+    })
+
+    it('does not navigate or toast when create returns no data', async () => {
+      mockCreateRoleMutation.mockResolvedValue({ data: { createRole: null } })
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'New Role',
+        code: 'new_role',
+        description: '',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it with null
+      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ createRole: null })
+      })
+
+      // Wait to ensure nothing was called
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(mockAddToast).not.toHaveBeenCalled()
+    })
+
+    it('does not navigate or toast when edit returns no data', async () => {
+      mockUseParams.mockReturnValue({ roleId: 'edit-role-123' })
+      mockEditRoleMutation.mockResolvedValue({ data: { updateRole: null } })
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'Updated Role',
+        code: 'updated_role',
+        description: '',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it with null
+      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ updateRole: null })
+      })
+
+      // Wait to ensure nothing was called
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(mockAddToast).not.toHaveBeenCalled()
     })
   })
 })
