@@ -11,6 +11,7 @@ import { CreditNoteItemsForm } from '~/components/creditNote/CreditNoteItemsForm
 import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
 import { useCreditNoteFormCalculation } from '~/components/creditNote/useCreditNoteFormCalculation'
 import {
+  buildInitialPayBack,
   creditNoteFormCalculationCalculation,
   creditNoteFormHasAtLeastOneFeeChecked,
 } from '~/components/creditNote/utils'
@@ -91,8 +92,7 @@ const CreateCreditNote = () => {
     useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
 
-  const hasNoPayment = Number(invoice?.totalPaidAmountCents) === 0
-  const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
+  const initialPayBack = buildInitialPayBack(invoice)
 
   const addOnFeesValidation = useMemo(
     () => generateAddOnFeesSchema(feeForAddOn || [], currency),
@@ -120,12 +120,7 @@ const CreateCreditNote = () => {
       fees: feesPerInvoice,
       addOnFee: feeForAddOn,
       creditFee: feeForCredit,
-      payBack: canOnlyCredit
-        ? [{ type: CreditTypeEnum.credit, value: undefined }]
-        : [
-            { type: CreditTypeEnum.credit, value: undefined },
-            { type: CreditTypeEnum.refund, value: undefined },
-          ],
+      payBack: initialPayBack,
       creditAmount: undefined,
       refundAmount: undefined,
       metadata: [],
@@ -185,6 +180,8 @@ const CreateCreditNote = () => {
   })
 
   const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
+  const hasCreditableOrRefundableAmount =
+    Number(invoice?.creditableAmountCents) > 0 || Number(invoice?.refundableAmountCents) > 0
 
   const creditFeeValue = formikProps.values.creditFee?.[0]?.value
 
@@ -406,7 +403,11 @@ const CreateCreditNote = () => {
                 <>
                   <div className="ml-auto w-full max-w-100">
                     <CreditNoteEstimationLine
-                      label={translate('text_1729262339446mk289ygp31g')}
+                      label={
+                        hasCreditableOrRefundableAmount
+                          ? translate('text_17270794543889mcmuhfq70p')
+                          : translate('text_1767883339943r32jn2ioyeu')
+                      }
                       value={intlFormatNumber(
                         Number(formikProps.values.creditFee?.[0]?.value || 0),
                         {
@@ -416,13 +417,15 @@ const CreateCreditNote = () => {
                     />
                   </div>
 
-                  <Alert
-                    className="mt-6"
-                    type="info"
-                    data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
-                  >
-                    {translate('text_1729084495407pcn1mei0hyd')}
-                  </Alert>
+                  {hasCreditableOrRefundableAmount && (
+                    <Alert
+                      className="mt-6"
+                      type="info"
+                      data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
+                    >
+                      {translate('text_1729084495407pcn1mei0hyd')}
+                    </Alert>
+                  )}
                 </>
               ) : (
                 <CreditNoteFormCalculation
@@ -439,13 +442,16 @@ const CreateCreditNote = () => {
               )}
             </div>
 
-            {creditNoteCalculation.canRefund && !isPrepaidCreditsInvoice && (
+            {!isPrepaidCreditsInvoice && hasCreditableOrRefundableAmount && (
               <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
                 <CreditNoteFormAllocation
                   formikProps={formikProps}
                   currency={creditNoteCalculation.currency}
                   maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
                   maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
+                  maxApplicableToSourceInvoiceAmount={
+                    creditNoteCalculation.maxApplicableToSourceInvoiceAmount
+                  }
                   totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
                   estimationLoading={creditNoteCalculation.estimationLoading}
                 />

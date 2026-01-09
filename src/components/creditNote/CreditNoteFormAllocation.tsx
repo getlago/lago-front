@@ -8,21 +8,28 @@ import { CurrencyEnum, LagoApiError } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { CreditNoteForm, PayBackErrorEnum } from './types'
+import { getPayBackFields } from './utils'
 
 interface CreditNoteFormAllocationProps {
   formikProps: FormikProps<Partial<CreditNoteForm>>
   currency: CurrencyEnum
   maxCreditableAmount: number
   maxRefundableAmount: number
+  maxApplicableToSourceInvoiceAmount: number
   totalTaxIncluded: number
   estimationLoading?: boolean
 }
+
+export const CREDIT_AMOUNT_INPUT_TEST_ID = 'credit-amount-input'
+export const REFUND_AMOUNT_INPUT_TEST_ID = 'refund-amount-input'
+export const APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID = 'apply-to-invoice-amount-input'
 
 export const CreditNoteFormAllocation = ({
   formikProps,
   currency,
   maxCreditableAmount,
   maxRefundableAmount,
+  maxApplicableToSourceInvoiceAmount,
   totalTaxIncluded,
   estimationLoading,
 }: CreditNoteFormAllocationProps) => {
@@ -30,11 +37,20 @@ export const CreditNoteFormAllocation = ({
 
   const maxRefundableAmountFormatted = intlFormatNumber(maxRefundableAmount, { currency })
   const maxCreditableAmountFormatted = intlFormatNumber(maxCreditableAmount, { currency })
+  const maxApplicableToSourceInvoiceAmountFormatted = intlFormatNumber(
+    maxApplicableToSourceInvoiceAmount,
+    { currency },
+  )
 
-  const creditValue = Number(getIn(formikProps.values, 'payBack.0.value') || 0)
-  const refundValue = Number(getIn(formikProps.values, 'payBack.1.value') || 0)
-  const allocatedSoFar = creditValue + refundValue
+  const { credit, refund, applyToInvoice } = getPayBackFields(formikProps.values.payBack)
+
+  const allocatedSoFar = credit.value + refund.value + applyToInvoice.value
   const remainingToAllocate = totalTaxIncluded - allocatedSoFar
+
+  const hasPayBackErrors = !!getIn(formikProps.errors, 'payBackErrors')
+
+  const allocationCaptionColor = hasPayBackErrors ? 'danger600' : 'grey600'
+  const allocationValueColor = hasPayBackErrors ? 'danger600' : 'grey700'
 
   const alertTypographyProps = useMemo(() => {
     const payBackErrors = getIn(formikProps.errors, 'payBackErrors')
@@ -45,14 +61,12 @@ export const CreditNoteFormAllocation = ({
       payBackValueError === LagoApiError.DoesNotMatchItemAmounts
     ) {
       return {
-        html: translate('text_637e334680481f653e8caa9d', {
-          total: intlFormatNumber(totalTaxIncluded || 0, { currency }),
-        }),
+        html: translate('text_637e334680481f653e8caa9d'),
       }
     }
 
     return {}
-  }, [formikProps.errors, totalTaxIncluded, currency, translate])
+  }, [formikProps.errors, translate])
 
   return (
     <div className="flex flex-col gap-6">
@@ -79,25 +93,25 @@ export const CreditNoteFormAllocation = ({
           )}
         </div>
         <div>
-          <Typography variant="caption" color="grey600">
+          <Typography variant="caption" color={allocationCaptionColor}>
             {translate('text_1766162940956q60f79xxr11')}
           </Typography>
           {estimationLoading ? (
             <Skeleton variant="text" color="dark" className="w-20" />
           ) : (
-            <Typography variant="body" color="grey700">
+            <Typography variant="body" color={allocationValueColor}>
               {intlFormatNumber(allocatedSoFar, { currency })}
             </Typography>
           )}
         </div>
         <div>
-          <Typography variant="caption" color="grey600">
+          <Typography variant="caption" color={allocationCaptionColor}>
             {translate('text_1766162940956fzxpt25f23k')}
           </Typography>
           {estimationLoading ? (
             <Skeleton variant="text" color="dark" className="w-20" />
           ) : (
-            <Typography variant="body" color="grey700">
+            <Typography variant="body" color={allocationValueColor}>
               {intlFormatNumber(remainingToAllocate, { currency })}
             </Typography>
           )}
@@ -106,51 +120,76 @@ export const CreditNoteFormAllocation = ({
 
       {getIn(formikProps.errors, 'payBackErrors') && (
         <Alert type="danger">
+          <Typography variant="bodyHl" color="textSecondary">
+            {translate('text_1767884759747gd07dh4ihn9')}
+          </Typography>
           <Typography color="textSecondary" {...alertTypographyProps} />
         </Alert>
       )}
 
       <div className="flex flex-col gap-4">
-        <CreditNoteActionsLine
-          details={translate('text_17661623560070v25swovor4', {
-            max: maxRefundableAmountFormatted,
-          })}
-          formikProps={formikProps}
-          name="payBack.1.value"
-          currency={currency}
-          label={translate('text_17270794543889mcmuhfq70p')}
-          hasError={
-            !!getIn(formikProps.errors, 'payBack.1.value') ||
-            !!getIn(formikProps.errors, 'payBackErrors')
-          }
-          error={
-            getIn(formikProps.errors, 'payBack.1.value') === PayBackErrorEnum.maxRefund
-              ? translate('text_637e23e47a15bf0bd71e0d03', {
-                  max: intlFormatNumber(maxRefundableAmount, { currency }),
-                })
-              : undefined
-          }
-        />
-        <CreditNoteActionsLine
-          details={translate('text_1766162519559r3f2pkqdp79', {
-            max: maxCreditableAmountFormatted,
-          })}
-          formikProps={formikProps}
-          name="payBack.0.value"
-          currency={currency}
-          label={translate('text_637d0e720ace4ea09aaf0630')}
-          hasError={
-            !!getIn(formikProps.errors, 'payBack.0.value') ||
-            !!getIn(formikProps.errors, 'payBackErrors')
-          }
-          error={
-            getIn(formikProps.errors, 'payBack.0.value') === PayBackErrorEnum.maxCredit
-              ? translate('text_1738751394771xq525lyxj9k', {
-                  max: maxCreditableAmountFormatted,
-                })
-              : undefined
-          }
-        />
+        {applyToInvoice.show && (
+          <CreditNoteActionsLine
+            details={translate('text_1767883339944hsqsrt3tg8a', {
+              max: maxApplicableToSourceInvoiceAmountFormatted,
+            })}
+            formikProps={formikProps}
+            name={applyToInvoice.path}
+            currency={currency}
+            label={translate('text_1767883339943r32jn2ioyeu')}
+            hasError={!!getIn(formikProps.errors, applyToInvoice.path)}
+            error={
+              getIn(formikProps.errors, applyToInvoice.path) === PayBackErrorEnum.maxApplyToInvoice
+                ? translate('text_1767890728665ukf38vdx6t3', {
+                    max: maxApplicableToSourceInvoiceAmountFormatted,
+                  })
+                : undefined
+            }
+            testId={APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID}
+          />
+        )}
+
+        {refund.show && (
+          <CreditNoteActionsLine
+            details={translate('text_17661623560070v25swovor4', {
+              max: maxRefundableAmountFormatted,
+            })}
+            formikProps={formikProps}
+            name={refund.path}
+            currency={currency}
+            label={translate('text_17270794543889mcmuhfq70p')}
+            hasError={!!getIn(formikProps.errors, refund.path)}
+            error={
+              getIn(formikProps.errors, refund.path) === PayBackErrorEnum.maxRefund
+                ? translate('text_637e23e47a15bf0bd71e0d03', {
+                    max: maxRefundableAmountFormatted,
+                  })
+                : undefined
+            }
+            testId={REFUND_AMOUNT_INPUT_TEST_ID}
+          />
+        )}
+
+        {credit.show && (
+          <CreditNoteActionsLine
+            details={translate('text_1766162519559r3f2pkqdp79', {
+              max: maxCreditableAmountFormatted,
+            })}
+            formikProps={formikProps}
+            name={credit.path}
+            currency={currency}
+            label={translate('text_637d0e720ace4ea09aaf0630')}
+            hasError={!!getIn(formikProps.errors, credit.path)}
+            error={
+              getIn(formikProps.errors, credit.path) === PayBackErrorEnum.maxCredit
+                ? translate('text_1738751394771xq525lyxj9k', {
+                    max: maxCreditableAmountFormatted,
+                  })
+                : undefined
+            }
+            testId={CREDIT_AMOUNT_INPUT_TEST_ID}
+          />
+        )}
       </div>
     </div>
   )

@@ -111,6 +111,7 @@ gql`
       taxRate
       taxName
     }
+    appliedToSourceInvoiceAmountCents
     creditAmountCents
     refundAmountCents
     totalAmountCents
@@ -120,6 +121,20 @@ gql`
 interface CreditNoteDetailsOverviewTableProps {
   loading: boolean
   creditNote?: CreditNoteDetailsForOverviewTableFragment | null
+}
+
+// Test IDs for unit testing
+export const CREDIT_NOTE_DETAILS_TABLE_TEST_IDS = {
+  taxRateColumn: 'credit-note-tax-rate-column',
+  couponAdjustmentRow: 'credit-note-coupon-adjustment-row',
+  subTotalRow: 'credit-note-sub-total-row',
+  taxRow: 'credit-note-tax-row',
+  zeroTaxRow: 'credit-note-zero-tax-row',
+  appliedToSourceInvoiceRow: 'credit-note-applied-to-source-invoice-row',
+  creditRow: 'credit-note-credit-row',
+  refundRow: 'credit-note-refund-row',
+  totalRow: 'credit-note-total-row',
+  footer: 'credit-note-footer',
 }
 
 export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTableProps> = ({
@@ -173,7 +188,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
                     </Typography>
                   </th>
                   {!isPrepaidCreditsInvoice && (
-                    <th>
+                    <th data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.taxRateColumn}>
                       <Typography variant="captionHl" color="grey600">
                         {translate('text_636bedf292786b19d3398f06')}
                       </Typography>
@@ -245,10 +260,10 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
         )
       })}
       {!loading && (
-        <table>
+        <table data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.footer}>
           <tfoot>
             {Number(creditNote?.couponsAdjustmentAmountCents || 0) > 0 && (
-              <tr>
+              <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.couponAdjustmentRow}>
                 <td></td>
                 <td>
                   <Typography variant="bodyHl" color="grey600">
@@ -272,7 +287,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
               </tr>
             )}
             {!isPrepaidCreditsInvoice && (
-              <tr>
+              <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.subTotalRow}>
                 <td></td>
                 <td>
                   <Typography variant="bodyHl" color="grey600">
@@ -299,7 +314,10 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
             {!!creditNote?.appliedTaxes?.length ? (
               <>
                 {creditNote?.appliedTaxes.map((appliedTax) => (
-                  <tr key={`creditNote-${creditNote.id}-applied-tax-${appliedTax.id}`}>
+                  <tr
+                    key={`creditNote-${creditNote.id}-applied-tax-${appliedTax.id}`}
+                    data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.taxRow}
+                  >
                     <td></td>
                     <td>
                       <Typography variant="bodyHl" color="grey600">
@@ -342,7 +360,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
             ) : (
               <>
                 {!isPrepaidCreditsInvoice && (
-                  <tr>
+                  <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.zeroTaxRow}>
                     <td></td>
                     <td>
                       <Typography variant="bodyHl" color="grey600">
@@ -363,8 +381,35 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
               </>
             )}
 
+            {Number(creditNote?.appliedToSourceInvoiceAmountCents || 0) > 0 && (
+              <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.appliedToSourceInvoiceRow}>
+                <td></td>
+                <td>
+                  <Typography variant="bodyHl" color="grey700">
+                    {translate('text_17678874117919zdg2q55od0', {
+                      invoiceNumber: creditNote?.invoice?.number,
+                    })}
+                  </Typography>
+                </td>
+                <td>
+                  <Typography variant="body" color="success600">
+                    -
+                    {intlFormatNumber(
+                      deserializeAmount(
+                        creditNote?.appliedToSourceInvoiceAmountCents || 0,
+                        creditNote?.currency || CurrencyEnum.Usd,
+                      ),
+                      {
+                        currencyDisplay: 'symbol',
+                        currency: creditNote?.currency || CurrencyEnum.Usd,
+                      },
+                    )}
+                  </Typography>
+                </td>
+              </tr>
+            )}
             {Number(creditNote?.creditAmountCents || 0) > 0 && (
-              <tr>
+              <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.creditRow}>
                 <td></td>
                 <td>
                   <Typography variant="bodyHl" color="grey700">
@@ -389,7 +434,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
               </tr>
             )}
             {Number(creditNote?.refundAmountCents || 0) > 0 && (
-              <tr>
+              <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.refundRow}>
                 <td></td>
                 <td>
                   <Typography variant="bodyHl" color="grey700">
@@ -413,7 +458,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
                 </td>
               </tr>
             )}
-            <tr>
+            <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.totalRow}>
               <td></td>
               <td>
                 <Typography variant="bodyHl" color="grey700">

@@ -1,16 +1,14 @@
 import { wait } from '@apollo/client/testing'
 import { act, renderHook } from '@testing-library/react'
 
-import { ERROR_404_ROUTE } from '~/core/router'
 import { GetInvoiceCreateCreditNoteDocument } from '~/generated/graphql'
 import {
-  fourOFourInvoiceMock,
   fullOneOffInvoiceMockAndExpect,
   fullSubscriptionInvoiceGroupTrueUpMockAndExpect,
   fullSubscriptionInvoiceMockAndExpect,
   INVOICE_FIXTURE_ID,
 } from '~/hooks/__tests__/fixtures'
-import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
+import { AllTheProviders } from '~/test-utils'
 
 import { useCreateCreditNote } from '../useCreateCreditNote'
 
@@ -45,10 +43,6 @@ async function prepare({ mock }: PrepareType = {}) {
 }
 
 describe('useCreateCreditNote()', () => {
-  beforeEach(() => {
-    testMockNavigateFn.mockClear()
-  })
-
   it('returns default datas', async () => {
     const { mock } = fullSubscriptionInvoiceMockAndExpect()
     const { result } = await prepare({ mock })
@@ -63,19 +57,6 @@ describe('useCreateCreditNote()', () => {
     expect(result.current.feesPerInvoice).toBeDefined()
     expect(result.current.feeForAddOn).not.toBeDefined()
     expect(result.current.onCreate).toBeDefined()
-  })
-
-  it('send to 404 if no refundableAmountCents and creditableAmountCents', async () => {
-    const { mock } = fourOFourInvoiceMock()
-
-    await prepare({ mock })
-
-    // Skip loading state
-    await act(() => wait(0))
-
-    act(() => {
-      expect(testMockNavigateFn).toHaveBeenCalledWith(ERROR_404_ROUTE)
-    })
   })
 
   it('should format feeForAddOn correctly', async () => {

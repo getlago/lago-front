@@ -4,14 +4,22 @@ import {
   feeMockFormatedForEstimate,
   feesMock,
 } from '~/components/creditNote/__tests__/fixtures'
-import { CreditNoteForm } from '~/components/creditNote/types'
+import { CreditTypeEnum } from '~/components/creditNote/types'
 import {
+  buildInitialPayBack,
   createCreditNoteForInvoiceButtonProps,
   creditNoteFormCalculationCalculation,
   CreditNoteFormCalculationCalculationProps,
   creditNoteFormHasAtLeastOneFeeChecked,
+  getPayBackFields,
+  isCreditNoteCreationDisabled,
 } from '~/components/creditNote/utils'
-import { CurrencyEnum, InvoicePaymentStatusTypeEnum, InvoiceTypeEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  InvoiceForCreditNoteFormCalculationFragment,
+  InvoicePaymentStatusTypeEnum,
+  InvoiceTypeEnum,
+} from '~/generated/graphql'
 
 const prepare = ({
   addonFees = undefined,
@@ -29,19 +37,25 @@ const prepare = ({
   return { feeForEstimate }
 }
 
-describe('CreditNote utils', () => {
-  describe('creditNoteFormCalculationCalculation()', () => {
-    it('should return undefined for feeForEstimate if hasError is true', () => {
+describe('creditNoteFormCalculationCalculation', () => {
+  describe('GIVEN hasError is true', () => {
+    it('THEN should return undefined for feeForEstimate', () => {
       const { feeForEstimate } = prepare({ hasError: true })
 
       expect(feeForEstimate).toBeUndefined()
     })
-    it('should return fees for estimate', () => {
+  })
+
+  describe('GIVEN fees are provided', () => {
+    it('THEN should return fees for estimate', () => {
       const { feeForEstimate } = prepare({ fees: feesMock })
 
       expect(feeForEstimate).toEqual(feeMockFormatedForEstimate)
     })
-    it('should return addonFees for estimate', () => {
+  })
+
+  describe('GIVEN addonFees are provided', () => {
+    it('THEN should return addonFees for estimate', () => {
       const { feeForEstimate } = prepare({ addonFees: addOnFeeMock })
 
       expect(feeForEstimate).toEqual(addonMockFormatedForEstimate)
@@ -50,381 +64,123 @@ describe('CreditNote utils', () => {
 })
 
 describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
-  describe('when addOnFee is present', () => {
-    it('returns true when at least one addon fee is checked', () => {
+  describe('GIVEN addOnFee is present', () => {
+    it('WHEN at least one addon fee is checked THEN should return true', () => {
       const formValues = {
         addOnFee: [
-          {
-            id: '1',
-            checked: true,
-            maxAmount: 100,
-            name: 'Test Addon 1',
-            value: 50,
-          },
-          {
-            id: '2',
-            checked: false,
-            maxAmount: 200,
-            name: 'Test Addon 2',
-            value: 75,
-          },
+          { id: '1', checked: true, maxAmount: 100, name: 'Test Addon 1', value: 50 },
+          { id: '2', checked: false, maxAmount: 200, name: 'Test Addon 2', value: 75 },
         ],
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(true)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(true)
     })
 
-    it('returns false when no addon fees are checked', () => {
+    it('WHEN no addon fees are checked THEN should return false', () => {
       const formValues = {
         addOnFee: [
-          {
-            id: '1',
-            checked: false,
-            maxAmount: 100,
-            name: 'Test Addon 1',
-            value: 50,
-          },
-          {
-            id: '2',
-            checked: false,
-            maxAmount: 200,
-            name: 'Test Addon 2',
-            value: 75,
-          },
+          { id: '1', checked: false, maxAmount: 100, name: 'Test Addon 1', value: 50 },
+          { id: '2', checked: false, maxAmount: 200, name: 'Test Addon 2', value: 75 },
         ],
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
 
-    it('returns false when addOnFee array is empty', () => {
-      const formValues = {
-        addOnFee: [],
-      }
+    it('WHEN addOnFee array is empty THEN should return false', () => {
+      const formValues = { addOnFee: [] }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
   })
 
-  describe('when creditFee is present (and no addOnFee)', () => {
-    it('returns true when at least one credit fee is checked', () => {
+  describe('GIVEN creditFee is present (and no addOnFee)', () => {
+    it('WHEN at least one credit fee is checked THEN should return true', () => {
       const formValues = {
         creditFee: [
-          {
-            id: '1',
-            checked: true,
-            maxAmount: 100,
-            name: 'Test Credit 1',
-            value: 50,
-          },
-          {
-            id: '2',
-            checked: false,
-            maxAmount: 200,
-            name: 'Test Credit 2',
-            value: 75,
-          },
+          { id: '1', checked: true, maxAmount: 100, name: 'Test Credit 1', value: 50 },
+          { id: '2', checked: false, maxAmount: 200, name: 'Test Credit 2', value: 75 },
         ],
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(true)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(true)
     })
 
-    it('returns false when no credit fees are checked', () => {
+    it('WHEN no credit fees are checked THEN should return false', () => {
       const formValues = {
         creditFee: [
-          {
-            id: '1',
-            checked: false,
-            maxAmount: 100,
-            name: 'Test Credit 1',
-            value: 50,
-          },
-          {
-            id: '2',
-            checked: false,
-            maxAmount: 200,
-            name: 'Test Credit 2',
-            value: 75,
-          },
+          { id: '1', checked: false, maxAmount: 100, name: 'Test Credit 1', value: 50 },
+          { id: '2', checked: false, maxAmount: 200, name: 'Test Credit 2', value: 75 },
         ],
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
 
-    it('returns false when creditFee array is empty', () => {
-      const formValues = {
-        creditFee: [],
-      }
+    it('WHEN creditFee array is empty THEN should return false', () => {
+      const formValues = { creditFee: [] }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
   })
 
-  describe('when regular fees are present (and no addOnFee or creditFee)', () => {
-    it('returns true when at least one regular fee is checked', () => {
+  describe('GIVEN regular fees are present (and no addOnFee or creditFee)', () => {
+    it('WHEN at least one regular fee is checked THEN should return true', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
             fees: [
-              {
-                id: '1',
-                checked: true,
-                maxAmount: 100,
-                name: 'Test Fee 1',
-                value: 50,
-              },
-              {
-                id: '2',
-                checked: false,
-                maxAmount: 200,
-                name: 'Test Fee 2',
-                value: 75,
-              },
+              { id: '1', checked: true, maxAmount: 100, name: 'Test Fee 1', value: 50 },
+              { id: '2', checked: false, maxAmount: 200, name: 'Test Fee 2', value: 75 },
             ],
           },
         },
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(true)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(true)
     })
 
-    it('returns false when no regular fees are checked', () => {
+    it('WHEN no regular fees are checked THEN should return false', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription',
             fees: [
-              {
-                id: '1',
-                checked: false,
-                maxAmount: 100,
-                name: 'Test Fee 1',
-                value: 50,
-              },
-              {
-                id: '2',
-                checked: false,
-                maxAmount: 200,
-                name: 'Test Fee 2',
-                value: 75,
-              },
+              { id: '1', checked: false, maxAmount: 100, name: 'Test Fee 1', value: 50 },
+              { id: '2', checked: false, maxAmount: 200, name: 'Test Fee 2', value: 75 },
             ],
           },
         },
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
 
-    it('returns true when at least one fee in an array is checked', () => {
-      const formValues = {
-        fees: {
-          subscription1: {
-            subscriptionName: 'Test Subscription',
-            fees: [
-              {
-                id: '1',
-                checked: true,
-                maxAmount: 100,
-                name: 'Fee 1',
-                value: 50,
-              },
-              {
-                id: '2',
-                checked: false,
-                maxAmount: 200,
-                name: 'Fee 2',
-                value: 75,
-              },
-            ],
-          },
-        },
-      }
+    it('WHEN fees object is empty THEN should return false', () => {
+      const formValues = { fees: {} }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(true)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
 
-    it('returns false when no fees in array are checked', () => {
-      const formValues = {
-        fees: {
-          subscription1: {
-            subscriptionName: 'Test Subscription',
-            fees: [
-              {
-                id: '1',
-                checked: false,
-                maxAmount: 100,
-                name: 'Fee 1',
-                value: 50,
-              },
-              {
-                id: '2',
-                checked: false,
-                maxAmount: 200,
-                name: 'Fee 2',
-                value: 75,
-              },
-            ],
-          },
-        },
-      }
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
-    })
-
-    it('returns true when multiple subscriptions have at least one checked fee', () => {
-      const formValues = {
-        fees: {
-          subscription1: {
-            subscriptionName: 'Test Subscription',
-            fees: [
-              {
-                id: '1',
-                checked: false,
-                maxAmount: 100,
-                name: 'Regular Fee',
-                value: 50,
-              },
-              {
-                id: '2',
-                checked: true,
-                maxAmount: 200,
-                name: 'Fee 1',
-                value: 75,
-              },
-            ],
-          },
-        },
-      }
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(true)
-    })
-
-    it('returns false when fees object is empty', () => {
-      const formValues = {
-        fees: {},
-      }
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
-    })
-
-    it('handles multiple subscriptions and returns true if any fee is checked', () => {
+    it('WHEN multiple subscriptions have at least one checked fee THEN should return true', () => {
       const formValues = {
         fees: {
           subscription1: {
             subscriptionName: 'Test Subscription 1',
-            fees: [
-              {
-                id: '1',
-                checked: false,
-                maxAmount: 100,
-                name: 'Test Fee 1',
-                value: 50,
-              },
-            ],
+            fees: [{ id: '1', checked: false, maxAmount: 100, name: 'Test Fee 1', value: 50 }],
           },
           subscription2: {
             subscriptionName: 'Test Subscription 2',
-            fees: [
-              {
-                id: '2',
-                checked: true,
-                maxAmount: 200,
-                name: 'Test Fee 2',
-                value: 75,
-              },
-            ],
+            fees: [{ id: '2', checked: true, maxAmount: 200, name: 'Test Fee 2', value: 75 }],
           },
         },
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(true)
-    })
-  })
-
-  describe('edge cases', () => {
-    it('returns false when fee is not checked', () => {
-      const formValues = {
-        fees: {
-          subscription1: {
-            subscriptionName: 'Test Subscription',
-            fees: [
-              {
-                id: '1',
-                checked: false,
-                maxAmount: 100,
-                name: 'Fee 1',
-                value: 50,
-              },
-              {
-                id: '2',
-                checked: false,
-                maxAmount: 200,
-                name: 'Fee 2',
-                value: 75,
-              },
-            ],
-          },
-        },
-      }
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(
-        formValues as unknown as Partial<CreditNoteForm>,
-      )
-
-      expect(result).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(true)
     })
 
-    it('returns false when all fee types are undefined', () => {
-      const formValues = {}
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
-    })
-
-    it('returns false when all fee types are null/empty', () => {
-      const formValues = {
-        addOnFee: undefined,
-        creditFee: undefined,
-        fees: undefined,
-      }
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
-    })
-
-    it('handles fee with empty fees array', () => {
+    it('WHEN subscription has empty fees array THEN should return false', () => {
       const formValues = {
         fees: {
           subscription1: {
@@ -434,204 +190,400 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         },
       }
 
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      expect(result).toBe(false)
-    })
-
-    it('prioritizes addOnFee over other fee types', () => {
-      const formValues = {
-        addOnFee: [
-          {
-            id: '1',
-            checked: false,
-            maxAmount: 100,
-            name: 'Test Addon',
-            value: 50,
-          },
-        ],
-        creditFee: [
-          {
-            id: '2',
-            checked: true,
-            maxAmount: 200,
-            name: 'Test Credit',
-            value: 75,
-          },
-        ],
-        fees: {
-          subscription1: {
-            subscriptionName: 'Test Subscription',
-            fees: [
-              {
-                id: '3',
-                checked: true,
-                maxAmount: 300,
-                name: 'Test Fee',
-                value: 100,
-              },
-            ],
-          },
-        },
-      }
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      // Should return false because addOnFee takes precedence and none are checked
-      expect(result).toBe(false)
-    })
-
-    it('prioritizes creditFee over regular fees when addOnFee is not present', () => {
-      const formValues = {
-        creditFee: [
-          {
-            id: '2',
-            checked: false,
-            maxAmount: 200,
-            name: 'Test Credit',
-            value: 75,
-          },
-        ],
-        fees: {
-          subscription1: {
-            subscriptionName: 'Test Subscription',
-            fees: [
-              {
-                id: '3',
-                checked: true,
-                maxAmount: 300,
-                name: 'Test Fee',
-                value: 100,
-              },
-            ],
-          },
-        },
-      }
-
-      const result = creditNoteFormHasAtLeastOneFeeChecked(formValues)
-
-      // Should return false because creditFee takes precedence and none are checked
-      expect(result).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
   })
 
-  describe('createCreditNoteForInvoiceButtonProps', () => {
-    describe('WHEN disabledIssueCreditNoteButton is true', () => {
-      it('THEN returns disabled button with unpaid label when payment is pending', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
+  describe('GIVEN edge cases', () => {
+    it('WHEN all fee types are undefined THEN should return false', () => {
+      expect(creditNoteFormHasAtLeastOneFeeChecked({})).toBe(false)
+    })
+
+    it('WHEN all fee types are null/empty THEN should return false', () => {
+      const formValues = {
+        addOnFee: undefined,
+        creditFee: undefined,
+        fees: undefined,
+      }
+
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
+    })
+
+    it('WHEN addOnFee takes precedence over other fee types THEN should only check addOnFee', () => {
+      const formValues = {
+        addOnFee: [{ id: '1', checked: false, maxAmount: 100, name: 'Test Addon', value: 50 }],
+        creditFee: [{ id: '2', checked: true, maxAmount: 200, name: 'Test Credit', value: 75 }],
+        fees: {
+          subscription1: {
+            subscriptionName: 'Test Subscription',
+            fees: [{ id: '3', checked: true, maxAmount: 300, name: 'Test Fee', value: 100 }],
+          },
+        },
+      }
+
+      // Should return false because addOnFee takes precedence and none are checked
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
+    })
+
+    it('WHEN creditFee takes precedence over regular fees THEN should only check creditFee', () => {
+      const formValues = {
+        creditFee: [{ id: '2', checked: false, maxAmount: 200, name: 'Test Credit', value: 75 }],
+        fees: {
+          subscription1: {
+            subscriptionName: 'Test Subscription',
+            fees: [{ id: '3', checked: true, maxAmount: 300, name: 'Test Fee', value: 100 }],
+          },
+        },
+      }
+
+      // Should return false because creditFee takes precedence and none are checked
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
+    })
+  })
+})
+
+describe('isCreditNoteCreationDisabled', () => {
+  describe('GIVEN invoice is unpaid', () => {
+    it('WHEN paymentStatus is Pending THEN should return false', () => {
+      expect(
+        isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
-        })
+        }),
+      ).toBe(false)
+    })
 
-        expect(result.disabledIssueCreditNoteButton).toBe(true)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_17290829949642fgof01loxo')
-      })
-
-      it('THEN returns disabled button with unpaid label when payment failed', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
+    it('WHEN paymentStatus is Failed THEN should return false', () => {
+      expect(
+        isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
-        })
+        }),
+      ).toBe(false)
+    })
+  })
 
-        expect(result.disabledIssueCreditNoteButton).toBe(true)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_17290829949642fgof01loxo')
-      })
-
-      it('THEN returns disabled button with terminatedWallet label when invoice is credit type without active wallet', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
-          invoiceType: InvoiceTypeEnum.Credit,
-          associatedActiveWalletPresent: false,
-          creditableAmountCents: '0',
-          refundableAmountCents: '0',
-        })
-
-        expect(result.disabledIssueCreditNoteButton).toBe(true)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
-      })
-
-      it('THEN returns disabled button with fullyCovered label when no other conditions match', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
+  describe('GIVEN invoice is paid', () => {
+    it('WHEN both amounts are 0 THEN should return true', () => {
+      expect(
+        isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
-        })
-
-        expect(result.disabledIssueCreditNoteButton).toBe(true)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
-      })
+        }),
+      ).toBe(true)
     })
 
-    describe('WHEN disabledIssueCreditNoteButton is false', () => {
-      it('THEN returns enabled button with false label when creditableAmountCents is not zero', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
-          creditableAmountCents: '1000',
-          refundableAmountCents: '0',
-        })
-
-        expect(result.disabledIssueCreditNoteButton).toBe(false)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe(false)
-      })
-
-      it('THEN returns enabled button with false label when refundableAmountCents is not zero', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
-          creditableAmountCents: '0',
-          refundableAmountCents: '500',
-        })
-
-        expect(result.disabledIssueCreditNoteButton).toBe(false)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe(false)
-      })
-
-      it('THEN returns enabled button with false label when both amounts are not zero', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
-          creditableAmountCents: '1000',
-          refundableAmountCents: '500',
-        })
-
-        expect(result.disabledIssueCreditNoteButton).toBe(false)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe(false)
-      })
-    })
-
-    describe('WHEN priority of disabled reasons', () => {
-      it('THEN prioritizes unpaid over terminatedWallet', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-          invoiceType: InvoiceTypeEnum.Credit,
-          associatedActiveWalletPresent: false,
-          creditableAmountCents: '0',
-          refundableAmountCents: '0',
-        })
-
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_17290829949642fgof01loxo')
-      })
-
-      it('THEN prioritizes terminatedWallet over fullyCovered', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
+    it('WHEN creditableAmountCents > 0 THEN should return false', () => {
+      expect(
+        isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
-          invoiceType: InvoiceTypeEnum.Credit,
-          associatedActiveWalletPresent: false,
-          creditableAmountCents: '0',
+          creditableAmountCents: '1000',
           refundableAmountCents: '0',
-        })
-
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
-      })
+        }),
+      ).toBe(false)
     })
 
-    describe('WHEN invoice is credit type with active wallet', () => {
-      it('THEN does not return terminatedWallet reason', () => {
-        const result = createCreditNoteForInvoiceButtonProps({
-          invoiceType: InvoiceTypeEnum.Credit,
-          associatedActiveWalletPresent: true,
+    it('WHEN refundableAmountCents > 0 THEN should return false', () => {
+      expect(
+        isCreditNoteCreationDisabled({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '0',
-          refundableAmountCents: '0',
-        })
+          refundableAmountCents: '1000',
+        }),
+      ).toBe(false)
+    })
+  })
 
-        expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
+  describe('GIVEN invoice is undefined or null', () => {
+    it('WHEN invoice is undefined THEN should return false', () => {
+      expect(isCreditNoteCreationDisabled(undefined)).toBe(false)
+    })
+
+    it('WHEN invoice is null THEN should return false', () => {
+      expect(isCreditNoteCreationDisabled(null)).toBe(false)
+    })
+  })
+})
+
+describe('createCreditNoteForInvoiceButtonProps', () => {
+  describe('GIVEN invoice is unpaid', () => {
+    it('WHEN paymentStatus is Pending THEN should enable button even if amounts are 0', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
       })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+
+    it('WHEN paymentStatus is Failed THEN should enable button even if amounts are 0', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+  })
+
+  describe('GIVEN invoice is paid', () => {
+    it('WHEN amounts are 0 THEN should disable button with fullyCovered message', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(true)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
+    })
+
+    it('WHEN creditableAmountCents > 0 THEN should enable button', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+        creditableAmountCents: '1000',
+        refundableAmountCents: '0',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+
+    it('WHEN refundableAmountCents > 0 THEN should enable button', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+        creditableAmountCents: '0',
+        refundableAmountCents: '1000',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+  })
+
+  describe('GIVEN prepaid credits invoice with terminated wallet', () => {
+    it('WHEN disabled THEN should show terminatedWallet message', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+        invoiceType: InvoiceTypeEnum.Credit,
+        associatedActiveWalletPresent: false,
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(true)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
+    })
+  })
+})
+
+describe('getPayBackFields', () => {
+  describe('GIVEN undefined payBack', () => {
+    it('THEN should return all fields with show=false and empty values', () => {
+      const result = getPayBackFields(undefined)
+
+      expect(result.credit).toEqual({ path: '', value: 0, show: false })
+      expect(result.refund).toEqual({ path: '', value: 0, show: false })
+      expect(result.applyToInvoice).toEqual({ path: '', value: 0, show: false })
+    })
+  })
+
+  describe('GIVEN empty payBack array', () => {
+    it('THEN should return all fields with show=false', () => {
+      const result = getPayBackFields([])
+
+      expect(result.credit.show).toBe(false)
+      expect(result.refund.show).toBe(false)
+      expect(result.applyToInvoice.show).toBe(false)
+    })
+  })
+
+  describe('GIVEN payBack with only credit', () => {
+    it('THEN should return credit with show=true and correct path', () => {
+      const payBack = [{ type: CreditTypeEnum.credit, value: 50 }]
+
+      const result = getPayBackFields(payBack)
+
+      expect(result.credit).toEqual({ path: 'payBack.0.value', value: 50, show: true })
+      expect(result.refund.show).toBe(false)
+      expect(result.applyToInvoice.show).toBe(false)
+    })
+  })
+
+  describe('GIVEN payBack with credit and refund', () => {
+    it('THEN should return correct paths based on array index', () => {
+      const payBack = [
+        { type: CreditTypeEnum.credit, value: 30 },
+        { type: CreditTypeEnum.refund, value: 20 },
+      ]
+
+      const result = getPayBackFields(payBack)
+
+      expect(result.credit).toEqual({ path: 'payBack.0.value', value: 30, show: true })
+      expect(result.refund).toEqual({ path: 'payBack.1.value', value: 20, show: true })
+      expect(result.applyToInvoice.show).toBe(false)
+    })
+  })
+
+  describe('GIVEN payBack with all three types', () => {
+    it('THEN should return all fields with show=true and correct paths', () => {
+      const payBack = [
+        { type: CreditTypeEnum.credit, value: 30 },
+        { type: CreditTypeEnum.refund, value: 20 },
+        { type: CreditTypeEnum.applyToInvoice, value: 10 },
+      ]
+
+      const result = getPayBackFields(payBack)
+
+      expect(result.credit).toEqual({ path: 'payBack.0.value', value: 30, show: true })
+      expect(result.refund).toEqual({ path: 'payBack.1.value', value: 20, show: true })
+      expect(result.applyToInvoice).toEqual({ path: 'payBack.2.value', value: 10, show: true })
+    })
+  })
+
+  describe('GIVEN payBack with undefined values', () => {
+    it('THEN should default value to 0', () => {
+      const payBack = [
+        { type: CreditTypeEnum.credit, value: undefined },
+        { type: CreditTypeEnum.refund, value: undefined },
+      ]
+
+      const result = getPayBackFields(payBack)
+
+      expect(result.credit.value).toBe(0)
+      expect(result.refund.value).toBe(0)
+    })
+  })
+
+  describe('GIVEN payBack with different order', () => {
+    it('THEN should find correct index regardless of order', () => {
+      const payBack = [
+        { type: CreditTypeEnum.applyToInvoice, value: 10 },
+        { type: CreditTypeEnum.credit, value: 30 },
+      ]
+
+      const result = getPayBackFields(payBack)
+
+      expect(result.credit).toEqual({ path: 'payBack.1.value', value: 30, show: true })
+      expect(result.applyToInvoice).toEqual({ path: 'payBack.0.value', value: 10, show: true })
+      expect(result.refund.show).toBe(false)
+    })
+  })
+})
+
+describe('buildInitialPayBack', () => {
+  const createMockInvoice = (
+    overrides: Partial<InvoiceForCreditNoteFormCalculationFragment> = {},
+  ): InvoiceForCreditNoteFormCalculationFragment =>
+    ({
+      id: 'invoice-1',
+      totalAmountCents: '10000',
+      totalPaidAmountCents: '10000',
+      paymentDisputeLostAt: null,
+      currency: CurrencyEnum.Usd,
+      invoiceType: InvoiceTypeEnum.Subscription,
+      ...overrides,
+    }) as InvoiceForCreditNoteFormCalculationFragment
+
+  describe('GIVEN undefined invoice', () => {
+    it('THEN should return only credit type', () => {
+      const result = buildInitialPayBack(undefined)
+
+      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
+    })
+  })
+
+  describe('GIVEN null invoice', () => {
+    it('THEN should return only credit type', () => {
+      const result = buildInitialPayBack(null)
+
+      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
+    })
+  })
+
+  describe('GIVEN fully paid invoice', () => {
+    it('WHEN no dispute lost THEN should include credit and refund', () => {
+      const invoice = createMockInvoice({
+        totalAmountCents: '10000',
+        totalPaidAmountCents: '10000',
+        paymentDisputeLostAt: null,
+      })
+
+      const result = buildInitialPayBack(invoice)
+
+      expect(result).toEqual([
+        { type: CreditTypeEnum.credit, value: undefined },
+        { type: CreditTypeEnum.refund, value: undefined },
+      ])
+    })
+
+    it('WHEN dispute lost THEN should include only credit (no refund)', () => {
+      const invoice = createMockInvoice({
+        totalAmountCents: '10000',
+        totalPaidAmountCents: '10000',
+        paymentDisputeLostAt: '2024-01-01',
+      })
+
+      const result = buildInitialPayBack(invoice)
+
+      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
+    })
+  })
+
+  describe('GIVEN partially paid invoice', () => {
+    it('WHEN no dispute lost THEN should include credit, refund, and applyToInvoice', () => {
+      const invoice = createMockInvoice({
+        totalAmountCents: '10000',
+        totalPaidAmountCents: '5000',
+        paymentDisputeLostAt: null,
+      })
+
+      const result = buildInitialPayBack(invoice)
+
+      expect(result).toEqual([
+        { type: CreditTypeEnum.credit, value: undefined },
+        { type: CreditTypeEnum.refund, value: undefined },
+        { type: CreditTypeEnum.applyToInvoice, value: undefined },
+      ])
+    })
+
+    it('WHEN dispute lost THEN should include credit and applyToInvoice (no refund)', () => {
+      const invoice = createMockInvoice({
+        totalAmountCents: '10000',
+        totalPaidAmountCents: '5000',
+        paymentDisputeLostAt: '2024-01-01',
+      })
+
+      const result = buildInitialPayBack(invoice)
+
+      expect(result).toEqual([
+        { type: CreditTypeEnum.credit, value: undefined },
+        { type: CreditTypeEnum.applyToInvoice, value: undefined },
+      ])
+    })
+  })
+
+  describe('GIVEN unpaid invoice', () => {
+    it('THEN should include credit and applyToInvoice (no refund)', () => {
+      const invoice = createMockInvoice({
+        totalAmountCents: '10000',
+        totalPaidAmountCents: '0',
+        paymentDisputeLostAt: null,
+      })
+
+      const result = buildInitialPayBack(invoice)
+
+      expect(result).toEqual([
+        { type: CreditTypeEnum.credit, value: undefined },
+        { type: CreditTypeEnum.applyToInvoice, value: undefined },
+      ])
     })
   })
 })

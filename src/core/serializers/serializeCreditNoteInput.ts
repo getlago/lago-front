@@ -30,6 +30,12 @@ export const serializeCreditNoteInput: (
           payBack.find((p) => p.type === CreditTypeEnum.refund)?.value || 0,
           currency,
         ) || 0,
+    appliedToSourceInvoiceAmountCents: !payBack
+      ? 0
+      : serializeAmount(
+          payBack.find((p) => p.type === CreditTypeEnum.applyToInvoice)?.value || 0,
+          currency,
+        ) || 0,
     items: [
       ...(addOnFee?.reduce<CreditNoteItemInput[]>((acc, fee) => {
         if (fee.checked && Number(fee.value) > 0) {

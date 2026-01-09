@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import {
   CREDIT_AMOUNT_INPUT_TEST_ID,
   REFUND_AMOUNT_INPUT_TEST_ID,
-} from '~/components/creditNote/CreditNoteActionsLine'
+} from '~/components/creditNote/CreditNoteFormAllocation'
 import { CREDIT_ONLY_AMOUNT_LINE_TEST_ID } from '~/components/creditNote/CreditNoteFormCalculation'
 import { getSubscriptionCheckboxTestId } from '~/components/creditNote/CreditNoteItemsForm'
 import {
