@@ -1,4 +1,4 @@
-import { revalidateLogic } from '@tanstack/react-form'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -86,19 +86,7 @@ const RoleCreateEdit = () => {
         })
       }
 
-      const hasErrorcodeInvalid = errors?.some((error) => {
-        return (
-          error.extensions &&
-          'details' in error.extensions &&
-          error.extensions.details &&
-          typeof error.extensions.details === 'object' &&
-          'code' in error.extensions.details &&
-          Array.isArray(error.extensions.details.code) &&
-          error.extensions.details.code.includes('is invalid')
-        )
-      })
-
-      if (hasErrorcodeInvalid) {
+      if (hasDefinedGQLError('ValueIsInvalid', errors, 'code')) {
         formApi.setErrorMap({
           onDynamic: {
             fields: {
@@ -113,6 +101,20 @@ const RoleCreateEdit = () => {
     },
     onSubmitInvalid({ formApi }) {
       scrollToFirstInputError(ROLE_CREATE_EDIT_FORM_ID, formApi.state.errorMap.onDynamic || {})
+
+      const onlyHasErrorsOnPermissions =
+        formApi.state.errorMap.onDynamic?.permissions &&
+        formApi.state.errorMap.onDynamic.permissions.length > 0 &&
+        Object.keys(formApi.state.errorMap.onDynamic).length === 1
+
+      if (onlyHasErrorsOnPermissions) {
+        // Use querySelector to simplify scrolling to the alert error container instead of passing ref
+        const alertError = document.querySelector(
+          '[data-scroll-target="role-permissions-form-errors"]',
+        )
+
+        alertError?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
     },
   })
 
@@ -136,6 +138,11 @@ const RoleCreateEdit = () => {
 
     handleClose()
   }
+
+  const permissionsErrors = useStore(
+    form.store,
+    (state) => state.errorMap.onDynamic?.permissions || [],
+  ).map((error) => error.message)
 
   return (
     <CenteredPage.Wrapper>
@@ -193,6 +200,7 @@ const RoleCreateEdit = () => {
               fields="permissions"
               isEditable={true}
               isLoading={isLoadingRole}
+              errors={permissionsErrors}
             />
           </CenteredPage.Container>
         )}
