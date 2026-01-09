@@ -6,9 +6,10 @@ import { z } from 'zod'
 
 import { Alert, Avatar, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { HOME_ROUTE } from '~/core/router'
-import { MemberForEditRoleForDialogFragment, MembershipRole } from '~/generated/graphql'
+import { MemberForEditRoleForDialogFragment, PermissionEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useRolesList } from '~/hooks/useRolesList'
 
 import RolePicker from './RolePicker'
 
@@ -32,6 +33,8 @@ export const EditMemberRoleDialog = forwardRef<EditMemberRoleDialogRef>((_, ref)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { updateMembershipRole } = useMembershipActions()
+  const { roles, isLoadingRoles } = useRolesList()
+
   const dialogRef = useRef<DialogRef>(null)
   const [localData, setLocalData] = useState<MemberForEditRoleForDialogImperativeProps | null>(null)
 
@@ -39,8 +42,10 @@ export const EditMemberRoleDialog = forwardRef<EditMemberRoleDialogRef>((_, ref)
     role: z.string(),
   })
 
+  const initialRole = roles.find((role) => role.name === localData?.member?.roles[0])
+
   const initialValues: UpdateInviteSingleRole = {
-    role: localData?.member?.roles[0] || 'Admin',
+    role: initialRole?.code || 'admin',
   }
 
   const form = useAppForm({
@@ -61,10 +66,13 @@ export const EditMemberRoleDialog = forwardRef<EditMemberRoleDialogRef>((_, ref)
 
       dialogRef.current?.closeDialog()
 
-      // If you edit your own memberships role to something else than admin, you will get redirected to home page
+      const newRole = roles.find((role) => role.name === res.data?.updateMembership?.roles[0])
+
+      // If you edit your own memberships role to something else that do not have the right permission,
+      // you will get redirected to home page
       if (
         localData?.isEditingMyOwnMembership &&
-        res.data?.updateMembership?.roles[0] !== MembershipRole.Admin
+        !newRole?.permissions.includes(PermissionEnum.RolesView)
       ) {
         // The redirection have to be retriggered on the next tick to avoid wrong forbidden page display
         setTimeout(() => {
@@ -115,24 +123,26 @@ export const EditMemberRoleDialog = forwardRef<EditMemberRoleDialogRef>((_, ref)
       formId={EDIT_MEMBER_ROLE_FORM_ID}
       formSubmit={handleSubmit}
     >
-      <div className="mb-8 flex flex-col gap-8">
-        <Stack gap={3} direction="row" alignItems="center">
-          <Avatar
-            variant="user"
-            identifier={(localData?.member?.user?.email || '').charAt(0)}
-            size="big"
-          />
-          <Typography variant="body" color="grey700">
-            {localData?.member?.user?.email}
-          </Typography>
-        </Stack>
+      {!isLoadingRoles && (
+        <div className="mb-8 flex flex-col gap-8">
+          <Stack gap={3} direction="row" alignItems="center">
+            <Avatar
+              variant="user"
+              identifier={(localData?.member?.user?.email || '').charAt(0)}
+              size="big"
+            />
+            <Typography variant="body" color="grey700">
+              {localData?.member?.user?.email}
+            </Typography>
+          </Stack>
 
-        <RolePicker form={form} fields={{ role: 'role' }} />
+          <RolePicker form={form} fields={{ role: 'role' }} />
 
-        {localData?.isEditingLastAdmin && (
-          <Alert type="danger">{translate('text_664f035a68227f00e261b7f4')}</Alert>
-        )}
-      </div>
+          {localData?.isEditingLastAdmin && (
+            <Alert type="danger">{translate('text_664f035a68227f00e261b7f4')}</Alert>
+          )}
+        </div>
+      )}
     </Dialog>
   )
 })
