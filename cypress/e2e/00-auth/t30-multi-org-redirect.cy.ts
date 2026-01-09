@@ -61,6 +61,9 @@ describe('Multi-organization redirect flows', () => {
     cy.get('[data-test="create-invite-button"]', { timeout: 10000 }).should('be.visible')
     cy.get('[data-test="create-invite-button"]').click()
     cy.get('input[name="email"]').type(testUsers.userA.email)
+    // Select Admin role from the role picker combobox
+    cy.get('input[name="role"]').click()
+    cy.get('[data-option-index="0"]').click() // Select Admin (first option)
     cy.get('[data-test="submit-invite-button"]').click()
 
     // Wait for invitation to be created and get the URL from the UI

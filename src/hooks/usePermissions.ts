@@ -43,13 +43,6 @@ gql`
       creditNotesCreate
       creditNotesView
       creditNotesVoid
-      customerSettingsUpdateGracePeriod
-      customerSettingsUpdateIssuingDateAnchor
-      customerSettingsUpdateIssuingDateAdjustment
-      customerSettingsUpdateLang
-      customerSettingsUpdatePaymentTerms
-      customerSettingsUpdateTaxRates
-      customerSettingsView
       customersCreate
       customersDelete
       customersUpdate
@@ -97,6 +90,11 @@ gql`
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView
+      rolesCreate
+      rolesDelete
+      rolesUpdate
+      rolesView
+      permissionsView
       subscriptionsCreate
       subscriptionsUpdate
       subscriptionsView
