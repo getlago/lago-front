@@ -3650,5 +3650,6 @@
   "text_1767883339943r32jn2ioyeu": "Apply to current invoice",
   "text_1767883339944hsqsrt3tg8a": "Reduce this invoice’s amount due (max: {{max}})",
   "text_17678874117919zdg2q55od0": "Applied on invoice {{invoiceNumber}}",
-  "text_1767890728665ukf38vdx6t3": "Reduce amount due cannot exceed {{max}}"
+  "text_1767890728665ukf38vdx6t3": "Reduce amount due cannot exceed {{max}}",
+  "text_17661418227616cvcuga1x7m": "Optional"
 }

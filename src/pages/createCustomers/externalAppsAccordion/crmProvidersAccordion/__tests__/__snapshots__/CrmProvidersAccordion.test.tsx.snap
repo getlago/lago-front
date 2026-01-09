@@ -4,22 +4,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
 <div>
   <div>
     <div
-      class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-kunl3q-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-hash-MuiTypography-root
       data-test="captionHl"
     >
       CRM connection
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="false"
-        class="MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
         <div
-          class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+          class=MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
         >
           <div
             class="mr-3"
@@ -30,7 +30,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               data-mui-internal-clone-element="true"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="open-charge"
                 tabindex="-1"
                 type="button"
@@ -80,7 +80,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                 class="flex flex-col"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   Select a connection
@@ -88,7 +88,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               </div>
             </div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -118,22 +118,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
 <div>
   <div>
     <div
-      class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-kunl3q-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-hash-MuiTypography-root
       data-test="captionHl"
     >
       CRM connection
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
         <div
-          class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+          class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
         >
           <div
             class="mr-3"
@@ -144,7 +144,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               data-mui-internal-clone-element="true"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="open-charge"
                 tabindex="-1"
                 type="button"
@@ -194,7 +194,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                 class="flex flex-col"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   Select a connection
@@ -202,7 +202,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               </div>
             </div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -224,33 +224,33 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
         </div>
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
         style="min-height: 0px; height: auto; transition-duration: 0ms; transition-timing-function: undefined;"
       >
         <div
-          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+          class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
         >
           <div
-            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+            class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
           >
             <div
               class="MuiAccordion-region"
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root flex flex-col shadow-t p-0 css-1s0sbcr-MuiAccordionDetails-root"
+                class=MuiAccordionDetails-root flex flex-col shadow-t p-0 css-hash-MuiAccordionDetails-root
               >
                 <div
                   class="flex flex-col gap-6 p-4"
                 >
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Connection
                   </div>
                   <div
-                    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+                    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
                   >
                     <div
                       class="flex flex-col gap-1 group/combobox-input"
@@ -259,18 +259,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                         class="flex items-center gap-1"
                       >
                         <label
-                          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                          </span>
                         </label>
                       </div>
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+                          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
                         >
                           <input
                             aria-autocomplete="list"
@@ -278,8 +282,8 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r9:"
+                            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+                            id=:r-mui-id:
                             name="crmProviderCode"
                             placeholder="Search and select a connected account"
                             role="combobox"
@@ -288,10 +292,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             value=""
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                           >
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -310,7 +314,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                               </svg>
                             </button>
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -333,10 +337,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                           >
                             <legend
-                              class="css-1whs34k-MuiNotchedOutlined-root"
+                              class=css-hash-MuiNotchedOutlined-root
                             >
                               <span
                                 class="notranslate"
@@ -364,22 +368,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
 <div>
   <div>
     <div
-      class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-kunl3q-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-hash-MuiTypography-root
       data-test="captionHl"
     >
       CRM connection
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
         <div
-          class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+          class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
         >
           <div
             class="mr-3"
@@ -390,7 +394,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               data-mui-internal-clone-element="true"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="open-charge"
                 tabindex="-1"
                 type="button"
@@ -440,7 +444,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                 class="flex flex-col"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   Select a connection
@@ -448,7 +452,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               </div>
             </div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -470,33 +474,33 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
         </div>
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
         style="min-height: 0px; height: auto; transition-duration: 0ms; transition-timing-function: undefined;"
       >
         <div
-          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+          class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
         >
           <div
-            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+            class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
           >
             <div
               class="MuiAccordion-region"
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root flex flex-col shadow-t p-0 css-1s0sbcr-MuiAccordionDetails-root"
+                class=MuiAccordionDetails-root flex flex-col shadow-t p-0 css-hash-MuiAccordionDetails-root
               >
                 <div
                   class="flex flex-col gap-6 p-4"
                 >
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Connection
                   </div>
                   <div
-                    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+                    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
                   >
                     <div
                       class="flex flex-col gap-1 group/combobox-input"
@@ -505,18 +509,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                         class="flex items-center gap-1"
                       >
                         <label
-                          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                          </span>
                         </label>
                       </div>
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+                          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
                         >
                           <input
                             aria-autocomplete="list"
@@ -524,8 +532,8 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":rj:"
+                            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+                            id=:r-mui-id:
                             name="crmProviderCode"
                             placeholder="Search and select a connected account"
                             role="combobox"
@@ -534,10 +542,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             value=""
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                           >
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -556,7 +564,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                               </svg>
                             </button>
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -579,10 +587,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                           >
                             <legend
-                              class="css-1whs34k-MuiNotchedOutlined-root"
+                              class=css-hash-MuiNotchedOutlined-root
                             >
                               <span
                                 class="notranslate"
@@ -610,22 +618,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
 <div>
   <div>
     <div
-      class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-kunl3q-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-hash-MuiTypography-root
       data-test="captionHl"
     >
       CRM connection
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
         <div
-          class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+          class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
         >
           <div
             class="mr-3"
@@ -636,7 +644,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               data-mui-internal-clone-element="true"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="open-charge"
                 tabindex="-1"
                 type="button"
@@ -686,7 +694,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                 class="flex flex-col"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   Select a connection
@@ -694,7 +702,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
               </div>
             </div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -716,33 +724,33 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
         </div>
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
         style="min-height: 0px; height: auto; transition-duration: 0ms; transition-timing-function: undefined;"
       >
         <div
-          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+          class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
         >
           <div
-            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+            class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
           >
             <div
               class="MuiAccordion-region"
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root flex flex-col shadow-t p-0 css-1s0sbcr-MuiAccordionDetails-root"
+                class=MuiAccordionDetails-root flex flex-col shadow-t p-0 css-hash-MuiAccordionDetails-root
               >
                 <div
                   class="flex flex-col gap-6 p-4"
                 >
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Connection
                   </div>
                   <div
-                    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+                    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
                   >
                     <div
                       class="flex flex-col gap-1 group/combobox-input"
@@ -751,18 +759,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                         class="flex items-center gap-1"
                       >
                         <label
-                          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                          </span>
                         </label>
                       </div>
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+                          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
                         >
                           <input
                             aria-autocomplete="list"
@@ -770,8 +782,8 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":re:"
+                            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+                            id=:r-mui-id:
                             name="crmProviderCode"
                             placeholder="Search and select a connected account"
                             role="combobox"
@@ -780,10 +792,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                             value=""
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                           >
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -802,7 +814,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                               </svg>
                             </button>
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -825,10 +837,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN rendering the component TH
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                           >
                             <legend
-                              class="css-1whs34k-MuiNotchedOutlined-root"
+                              class=css-hash-MuiNotchedOutlined-root
                             >
                               <span
                                 class="notranslate"
@@ -856,22 +868,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
 <div>
   <div>
     <div
-      class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-kunl3q-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line mb-1 css-hash-MuiTypography-root
       data-test="captionHl"
     >
       CRM connection
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-1w3zah3-MuiPaper-root-MuiAccordion-root"
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerCrmProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-3gvd0h-MuiButtonBase-root-MuiAccordionSummary-root"
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
         <div
-          class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-129qzx5-MuiAccordionSummary-content"
+          class=MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-hash-MuiAccordionSummary-content
         >
           <div
             class="mr-3"
@@ -882,7 +894,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
               data-mui-internal-clone-element="true"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="open-charge"
                 tabindex="-1"
                 type="button"
@@ -932,7 +944,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                 class="flex flex-col"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                   data-test="bodyHl"
                 >
                   Select a connection
@@ -940,7 +952,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
               </div>
             </div>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -962,33 +974,33 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
         </div>
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
         style="min-height: 0px; height: auto; transition-duration: 0ms; transition-timing-function: undefined;"
       >
         <div
-          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+          class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
         >
           <div
-            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+            class=MuiCollapse-wrapperInner MuiCollapse-vertical css-hash-MuiCollapse-wrapperInner
           >
             <div
               class="MuiAccordion-region"
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root flex flex-col shadow-t p-0 css-1s0sbcr-MuiAccordionDetails-root"
+                class=MuiAccordionDetails-root flex flex-col shadow-t p-0 css-hash-MuiAccordionDetails-root
               >
                 <div
                   class="flex flex-col gap-6 p-4"
                 >
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Connection
                   </div>
                   <div
-                    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+                    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
                   >
                     <div
                       class="flex flex-col gap-1 group/combobox-input"
@@ -997,18 +1009,22 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                         class="flex items-center gap-1"
                       >
                         <label
-                          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                           data-test="captionHl"
                           for="crmProviderCode"
                         >
-                          Connected account
+                          <span
+                            class="flex flex-row gap-1"
+                          >
+                            Connected account
+                          </span>
                         </label>
                       </div>
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+                          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
                         >
                           <input
                             aria-autocomplete="list"
@@ -1016,8 +1032,8 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":rt:"
+                            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+                            id=:r-mui-id:
                             name="crmProviderCode"
                             placeholder="Search and select a connected account"
                             role="combobox"
@@ -1026,10 +1042,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                             value=""
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
                           >
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -1048,7 +1064,7 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                               </svg>
                             </button>
                             <button
-                              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                               data-test="button"
                               tabindex="0"
                               type="button"
@@ -1071,10 +1087,10 @@ exports[`CrmProvidersAccordion Integration Tests WHEN user interacts with the ac
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                           >
                             <legend
-                              class="css-1whs34k-MuiNotchedOutlined-root"
+                              class=css-hash-MuiNotchedOutlined-root
                             >
                               <span
                                 class="notranslate"

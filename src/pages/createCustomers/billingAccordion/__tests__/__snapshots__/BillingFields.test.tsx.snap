@@ -12,22 +12,26 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="billingAddress.addressLine1"
         >
-          Address line 1
+          <span
+            class="flex flex-row gap-1"
+          >
+            Address line 1
+          </span>
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="billingAddress.addressLine1"
             name="billingAddress.addressLine1"
             placeholder="Type an address line 1"
@@ -36,10 +40,10 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -58,22 +62,26 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="billingAddress.addressLine2"
         >
-          Address line 2
+          <span
+            class="flex flex-row gap-1"
+          >
+            Address line 2
+          </span>
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="billingAddress.addressLine2"
             name="billingAddress.addressLine2"
             placeholder="Type an address line 2"
@@ -82,10 +90,10 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -104,22 +112,26 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="billingAddress.zipcode"
         >
-          Zip code
+          <span
+            class="flex flex-row gap-1"
+          >
+            Zip code
+          </span>
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="billingAddress.zipcode"
             name="billingAddress.zipcode"
             placeholder="Type a zip code"
@@ -128,10 +140,10 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -150,22 +162,26 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="billingAddress.city"
         >
-          City
+          <span
+            class="flex flex-row gap-1"
+          >
+            City
+          </span>
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="billingAddress.city"
             name="billingAddress.city"
             placeholder="Type a city"
@@ -174,10 +190,10 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -196,22 +212,26 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="billingAddress.state"
         >
-          State
+          <span
+            class="flex flex-row gap-1"
+          >
+            State
+          </span>
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-invalid="false"
-            class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+            class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="billingAddress.state"
             name="billingAddress.state"
             placeholder="Type a state"
@@ -220,10 +240,10 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"
@@ -236,7 +256,7 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
       </div>
     </div>
     <div
-      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon col-span-2 css-14x076-MuiAutocomplete-root"
+      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon col-span-2 css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -245,18 +265,22 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
           class="flex items-center gap-1"
         >
           <label
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
             for="billingAddress.country"
           >
-            Country
+            <span
+              class="flex flex-row gap-1"
+            >
+              Country
+            </span>
           </label>
         </div>
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
@@ -264,8 +288,8 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":rg:"
+              class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+              id=:r-mui-id:
               name="billingAddress.country"
               placeholder="Search and select a country"
               role="combobox"
@@ -274,10 +298,10 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
               value=""
             />
             <div
-              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+              class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -296,7 +320,7 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
                 </svg>
               </button>
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -319,10 +343,10 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
             </div>
             <fieldset
               aria-hidden="true"
-              class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
             >
               <legend
-                class="css-1whs34k-MuiNotchedOutlined-root"
+                class=css-hash-MuiNotchedOutlined-root
               >
                 <span
                   class="notranslate"

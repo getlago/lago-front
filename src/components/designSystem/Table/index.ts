@@ -1,3 +1,5 @@
 export * from './ChargeTable'
 export * from './HorizontalDataTable'
 export * from './Table'
+export * from './TableWithGroups'
+export * from './types'
