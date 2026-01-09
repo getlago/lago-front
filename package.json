@@ -122,7 +122,7 @@
     "@mui/x-date-pickers": "6.20.2",
     "@nangohq/frontend": "0.69.20",
     "@sentry/react": "10.32.1",
-    "@tanstack/react-form": "1.27.6",
+    "@tanstack/react-form": "1.27.7",
     "@tanstack/react-virtual": "3.13.13",
     "ace-builds": "1.43.5",
     "actioncable": "5.2.8-1",
