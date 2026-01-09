@@ -73,31 +73,33 @@ const RoleCreateEdit = () => {
 
       const { errors } = answer
 
+      const errorsToDisplay = {
+        onDynamic: {
+          fields: {},
+        },
+      }
+
       if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              name: {
-                message: 'text_626162c62f790600f850b728',
-                path: ['name'],
-              },
-            },
+        errorsToDisplay.onDynamic.fields = {
+          ...errorsToDisplay.onDynamic.fields,
+          name: {
+            message: 'text_626162c62f790600f850b728',
+            path: ['name'],
           },
-        })
+        }
       }
 
       if (hasDefinedGQLError('ValueIsInvalid', errors, 'code')) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              code: {
-                message: 'text_1767881112174odn29xztnvi',
-                path: ['code'],
-              },
-            },
+        errorsToDisplay.onDynamic.fields = {
+          ...errorsToDisplay.onDynamic.fields,
+          code: {
+            message: 'text_1767881112174odn29xztnvi',
+            path: ['code'],
           },
-        })
+        }
       }
+
+      formApi.setErrorMap(errorsToDisplay)
     },
     onSubmitInvalid({ formApi }) {
       scrollToFirstInputError(ROLE_CREATE_EDIT_FORM_ID, formApi.state.errorMap.onDynamic || {})

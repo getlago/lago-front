@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 
 import { GetInvitesDocument, GetRolesListDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
@@ -288,6 +288,330 @@ describe('MembersInvitationList', () => {
       await waitFor(() => {
         // Error state title uses translation key
         expect(screen.getByText('text_6321a076b94bd1b32494e9ee')).toBeInTheDocument()
+      })
+    })
+
+    it('shows error state subtitle when query fails', async () => {
+      const errorMock = {
+        request: {
+          query: GetInvitesDocument,
+          variables: { limit: 20 },
+        },
+        error: new Error('Failed to fetch invitations'),
+      }
+
+      await prepare({ mocks: [errorMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Error state subtitle translation key
+        expect(screen.getByText('text_6321a076b94bd1b32494e9e8')).toBeInTheDocument()
+      })
+    })
+
+    it('shows retry button when query fails', async () => {
+      const errorMock = {
+        request: {
+          query: GetInvitesDocument,
+          variables: { limit: 20 },
+        },
+        error: new Error('Failed to fetch invitations'),
+      }
+
+      await prepare({ mocks: [errorMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Retry button translation key
+        expect(screen.getByText('text_6321a076b94bd1b32494e9f2')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Search Filtering', () => {
+    it('filters invitations by search query', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
+
+      fireEvent.change(searchInput, { target: { value: 'test1' } })
+
+      // Only test1 should be visible after filtering
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows all invitations when search is cleared', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
+
+      fireEvent.change(searchInput, { target: { value: 'test1' } })
+
+      await waitFor(() => {
+        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+      })
+
+      fireEvent.change(searchInput, { target: { value: '' } })
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+      })
+    })
+
+    it('search is case insensitive', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
+
+      fireEvent.change(searchInput, { target: { value: 'TEST1' } })
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows no results when search matches nothing', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
+
+      fireEvent.change(searchInput, { target: { value: 'nonexistent' } })
+
+      await waitFor(() => {
+        expect(screen.queryByText('test1@example.com')).not.toBeInTheDocument()
+        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Table Structure', () => {
+    it('renders email column header', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        // Email column header translation key
+        expect(screen.getByText('text_63208b630aaf8df6bbfb2655')).toBeInTheDocument()
+      })
+    })
+
+    it('renders role column header', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        // Role column header translation key
+        expect(screen.getByText('text_664f035a68227f00e261b7ec')).toBeInTheDocument()
+      })
+    })
+
+    it('renders invitation avatar', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+      })
+
+      // Avatar should be rendered for each invitation
+      const avatars = document.querySelectorAll('[class*="avatar"]')
+
+      expect(avatars.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('Empty State Content', () => {
+    it('shows empty state title when no invitations', async () => {
+      const emptyMock = {
+        request: {
+          query: GetInvitesDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            invites: {
+              __typename: 'InviteCollection',
+              metadata: {
+                __typename: 'CollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 0,
+              },
+              collection: [],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [emptyMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Empty state title translation key (no pending invitations)
+        expect(screen.getByText('text_17671750294886x8eq8lizmt')).toBeInTheDocument()
+      })
+    })
+
+    it('shows empty state subtitle when no invitations', async () => {
+      const emptyMock = {
+        request: {
+          query: GetInvitesDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            invites: {
+              __typename: 'InviteCollection',
+              metadata: {
+                __typename: 'CollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 0,
+              },
+              collection: [],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [emptyMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Empty state subtitle translation key
+        expect(screen.getByText('text_1767175029488r5limdbdwm5')).toBeInTheDocument()
+      })
+    })
+
+    it('shows invite button in empty state', async () => {
+      const emptyMock = {
+        request: {
+          query: GetInvitesDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            invites: {
+              __typename: 'InviteCollection',
+              metadata: {
+                __typename: 'CollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 0,
+              },
+              collection: [],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [emptyMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Invite button translation key
+        expect(screen.getByText('text_63208b630aaf8df6bbfb265b')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Action Column', () => {
+    it('renders action menu for invitations', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+      })
+
+      // Action buttons should be present
+      const actionButtons = screen.getAllByRole('button')
+
+      expect(actionButtons.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('Pagination', () => {
+    it('handles paginated results', async () => {
+      const paginatedMock = {
+        request: {
+          query: GetInvitesDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            invites: {
+              __typename: 'InviteCollection',
+              metadata: {
+                __typename: 'CollectionMetadata',
+                currentPage: 1,
+                totalPages: 3,
+                totalCount: 50,
+              },
+              collection: mockInvitations,
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [paginatedMock, rolesListMock] })
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Invitation Count', () => {
+    it('renders correct number of invitations', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+      })
+    })
+
+    it('handles single invitation', async () => {
+      const singleInviteMock = {
+        request: {
+          query: GetInvitesDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            invites: {
+              __typename: 'InviteCollection',
+              metadata: {
+                __typename: 'CollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 1,
+              },
+              collection: [mockInvitations[0]],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [singleInviteMock, rolesListMock] })
+
+      await waitFor(() => {
+        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
       })
     })
   })
