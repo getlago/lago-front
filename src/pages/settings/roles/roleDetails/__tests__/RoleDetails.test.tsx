@@ -1,4 +1,5 @@
 import { act, render as rtlRender, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { AllTheProviders } from '~/test-utils'
 
@@ -10,9 +11,11 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({
-    isPremium: true,
+const mockHasOrganizationPremiumAddon = jest.fn()
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
   }),
 }))
 
@@ -64,6 +67,7 @@ jest.mock('~/pages/settings/roles/common/rolePermissionsForm/RolePermissionsForm
 describe('RoleDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasOrganizationPremiumAddon.mockReturnValue(true)
   })
 
   it('renders role name in header', async () => {
@@ -90,5 +94,59 @@ describe('RoleDetails', () => {
     await act(() => render(<RoleDetails />))
 
     expect(screen.getByText('text_634687079be251fdb438338f')).toBeInTheDocument()
+  })
+
+  describe('with premium addon', () => {
+    beforeEach(() => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    })
+
+    it('shows duplicate, edit, and delete actions in menu', async () => {
+      await act(() => render(<RoleDetails />))
+
+      const actionButton = screen.getByText('text_634687079be251fdb438338f')
+
+      await userEvent.click(actionButton)
+
+      // Duplicate button (text_64fa170e02f348164797a6af)
+      expect(screen.getByText('text_64fa170e02f348164797a6af')).toBeInTheDocument()
+      // Edit button (text_63aa15caab5b16980b21b0b8)
+      expect(screen.getByText('text_63aa15caab5b16980b21b0b8')).toBeInTheDocument()
+      // Delete button (text_6261640f28a49700f1290df5)
+      expect(screen.getByText('text_6261640f28a49700f1290df5')).toBeInTheDocument()
+    })
+
+    it('does not show sparkles icon on duplicate button', async () => {
+      await act(() => render(<RoleDetails />))
+
+      const actionButton = screen.getByText('text_634687079be251fdb438338f')
+
+      await userEvent.click(actionButton)
+
+      const duplicateButton = screen.getByText('text_64fa170e02f348164797a6af').closest('button')
+
+      expect(duplicateButton).not.toHaveAttribute('data-icon', 'sparkles')
+    })
+  })
+
+  describe('without premium addon', () => {
+    beforeEach(() => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+    })
+
+    it('shows only duplicate action with sparkles icon in menu', async () => {
+      await act(() => render(<RoleDetails />))
+
+      const actionButton = screen.getByText('text_634687079be251fdb438338f')
+
+      await userEvent.click(actionButton)
+
+      // Duplicate button should be visible (text_64fa170e02f348164797a6af)
+      expect(screen.getByText('text_64fa170e02f348164797a6af')).toBeInTheDocument()
+      // Edit button should NOT be visible (text_63aa15caab5b16980b21b0b8)
+      expect(screen.queryByText('text_63aa15caab5b16980b21b0b8')).not.toBeInTheDocument()
+      // Delete button should NOT be visible (text_6261640f28a49700f1290df5)
+      expect(screen.queryByText('text_6261640f28a49700f1290df5')).not.toBeInTheDocument()
+    })
   })
 })

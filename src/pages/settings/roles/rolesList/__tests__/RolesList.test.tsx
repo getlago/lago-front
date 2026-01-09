@@ -13,9 +13,11 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({
-    isPremium: true,
+const mockHasOrganizationPremiumAddon = jest.fn()
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
   }),
 }))
 
@@ -67,6 +69,7 @@ jest.mock('react-router-dom', () => ({
 describe('RolesList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasOrganizationPremiumAddon.mockReturnValue(true)
   })
 
   it('renders page header', async () => {
@@ -109,19 +112,43 @@ describe('RolesList', () => {
     expect(screen.getByText('text_6641dd21c0cffd005b5e2a8b')).toBeInTheDocument()
   })
 
-  it('renders create button for premium users', async () => {
-    await act(() => render(<RolesList />))
-
-    const createButton = screen.getByText('text_1765530400261k7yl3n4kk8h')
-
-    expect(createButton).toBeInTheDocument()
-  })
-
   it('renders action menu button for each role', async () => {
     await act(() => render(<RolesList />))
 
     const actionButtons = screen.getAllByTestId('open-action-button')
 
     expect(actionButtons.length).toBeGreaterThan(0)
+  })
+
+  describe('with premium addon', () => {
+    beforeEach(() => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    })
+
+    it('renders create button as link', async () => {
+      await act(() => render(<RolesList />))
+
+      const createButton = screen.getByText('text_1765530400261k7yl3n4kk8h')
+
+      expect(createButton).toBeInTheDocument()
+      expect(createButton.closest('a')).toHaveAttribute('href', '/settings/roles/create')
+    })
+  })
+
+  describe('without premium addon', () => {
+    beforeEach(() => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+    })
+
+    it('renders create button with sparkles icon as button not link', async () => {
+      await act(() => render(<RolesList />))
+
+      const createButton = screen.getByText('text_1765530400261k7yl3n4kk8h')
+
+      expect(createButton).toBeInTheDocument()
+      // Should be a button, not a link
+      expect(createButton.closest('button')).toBeInTheDocument()
+      expect(createButton.closest('a')).not.toBeInTheDocument()
+    })
   })
 })

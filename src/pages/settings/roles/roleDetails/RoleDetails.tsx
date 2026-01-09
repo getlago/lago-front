@@ -15,9 +15,10 @@ import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { MEMBERS_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -35,7 +36,8 @@ const RoleDetails = () => {
     useRoleDetails({ roleId })
   const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
-  const { isPremium } = useCurrentUser()
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
@@ -87,7 +89,7 @@ const RoleDetails = () => {
         >
           {() => (
             <MenuPopper>
-              {!isPremium && (
+              {!hasPremiumAddon && (
                 <Button
                   startIcon="duplicate"
                   variant="quaternary"
@@ -99,7 +101,7 @@ const RoleDetails = () => {
                   {translate('text_64fa170e02f348164797a6af')}
                 </Button>
               )}
-              {isPremium && (
+              {hasPremiumAddon && (
                 <Button
                   startIcon="duplicate"
                   variant="quaternary"
@@ -111,7 +113,7 @@ const RoleDetails = () => {
                   {translate('text_64fa170e02f348164797a6af')}
                 </Button>
               )}
-              {!isSystem && isPremium && (
+              {!isSystem && hasPremiumAddon && (
                 <Button
                   startIcon="pen"
                   variant="quaternary"
@@ -123,7 +125,7 @@ const RoleDetails = () => {
                   {translate('text_63aa15caab5b16980b21b0b8')}
                 </Button>
               )}
-              {!isSystem && isPremium && (
+              {!isSystem && hasPremiumAddon && (
                 <Tooltip
                   title={translate('text_1767002012431la8gv2iqucp')}
                   disableHoverListener={canBeDeleted}

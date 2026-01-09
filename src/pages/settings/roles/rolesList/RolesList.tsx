@@ -26,8 +26,9 @@ import {
   systemRoles,
 } from '~/core/constants/roles'
 import { MEMBERS_ROUTE, ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useRolesList } from '~/hooks/useRolesList'
 import { PageHeader } from '~/styles'
@@ -37,7 +38,9 @@ import RoleTypeChip from '../common/RoleTypeChip'
 import { useRoleActions } from '../hooks/useRoleActions'
 
 const RolesList = () => {
-  const { isPremium } = useCurrentUser()
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
+
   const { translate } = useInternationalization()
   const { roles, isLoadingRoles } = useRolesList()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
@@ -59,7 +62,7 @@ const RolesList = () => {
   }
 
   const getRoleHeaderAction = () => {
-    if (!isPremium) {
+    if (!hasPremiumAddon) {
       return (
         <Button onClick={openPremiumDialog} variant="inline" endIcon="sparkles">
           {translate('text_1765530400261k7yl3n4kk8h')}
@@ -126,18 +129,18 @@ const RolesList = () => {
     const isSystemRole = systemRoles.includes(role.name)
     const canDelete = role.memberships.length === 0 && canDeleteRoles
 
-    if (isSystemRole) {
-      if (!isPremium) {
-        return [
-          {
-            startIcon: 'duplicate',
-            endIcon: 'sparkles',
-            title: translate('text_64fa170e02f348164797a6af'),
-            onAction: openPremiumDialog,
-          },
-        ]
-      }
+    if (!hasPremiumAddon) {
+      return [
+        {
+          startIcon: 'duplicate',
+          endIcon: 'sparkles',
+          title: translate('text_64fa170e02f348164797a6af'),
+          onAction: openPremiumDialog,
+        },
+      ]
+    }
 
+    if (isSystemRole) {
       return [
         {
           startIcon: 'duplicate',
@@ -214,7 +217,7 @@ const RolesList = () => {
               />
             </SettingsListItem>
           )}
-          {!isPremium && roles.length === 0 && (
+          {!hasPremiumAddon && roles.length === 0 && (
             <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
               <div className="flex flex-col">
                 <div className="flex flex-row items-center gap-2">
