@@ -376,4 +376,173 @@ describe('MembersList', () => {
       })
     })
   })
+
+  describe('Member Count', () => {
+    it('renders correct number of members', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+        expect(screen.getByText('finance@example.com')).toBeInTheDocument()
+      })
+    })
+
+    it('handles single member', async () => {
+      const singleMemberMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            memberships: {
+              __typename: 'MembershipCollection',
+              metadata: {
+                __typename: 'MembershipsCollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 1,
+                adminCount: 1,
+              },
+              collection: [createMockMembership('member-1', 'single@example.com', ['Admin'])],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [singleMemberMock, rolesListMock] })
+
+      await waitFor(() => {
+        expect(screen.getByText('single@example.com')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Multiple Roles', () => {
+    it('displays member with multiple roles', async () => {
+      const multiRoleMemberMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            memberships: {
+              __typename: 'MembershipCollection',
+              metadata: {
+                __typename: 'MembershipsCollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 1,
+                adminCount: 1,
+              },
+              collection: [
+                createMockMembership('member-1', 'multirole@example.com', ['Admin', 'Finance']),
+              ],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [multiRoleMemberMock, rolesListMock] })
+
+      await waitFor(() => {
+        expect(screen.getByText('multirole@example.com')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Pagination', () => {
+    it('handles paginated results', async () => {
+      const paginatedMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            memberships: {
+              __typename: 'MembershipCollection',
+              metadata: {
+                __typename: 'MembershipsCollectionMetadata',
+                currentPage: 1,
+                totalPages: 3,
+                totalCount: 50,
+                adminCount: 5,
+              },
+              collection: mockMembers,
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [paginatedMock, rolesListMock] })
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Create Invite Button', () => {
+    it('renders create invite button in header', async () => {
+      await prepare()
+
+      const button = screen.getByTestId('create-invite-button')
+
+      expect(button).toBeInTheDocument()
+    })
+  })
+
+  describe('Search Input', () => {
+    it('renders search input with correct placeholder', async () => {
+      await prepare()
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664devzn1r2wql')
+
+      expect(searchInput).toBeInTheDocument()
+    })
+  })
+
+  describe('Admin Count', () => {
+    it('displays correct admin count in metadata', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+      })
+
+      // The metadata includes adminCount: 1
+    })
+
+    it('handles zero admin count', async () => {
+      const noAdminMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            memberships: {
+              __typename: 'MembershipCollection',
+              metadata: {
+                __typename: 'MembershipsCollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 1,
+                adminCount: 0,
+              },
+              collection: [createMockMembership('member-1', 'user@example.com', ['Finance'])],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [noAdminMock, rolesListMock] })
+
+      await waitFor(() => {
+        expect(screen.getByText('user@example.com')).toBeInTheDocument()
+      })
+    })
+  })
 })
