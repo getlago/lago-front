@@ -117,37 +117,63 @@ export const creditNoteFormCalculationCalculation = ({
 
 export enum CreditNoteType {
   VOIDED,
-  CREDIT_AND_REFUND,
+  ON_INVOICE,
   CREDIT,
   REFUND,
 }
 
-export const creditNoteType = ({
+export const getCreditNoteTypes = ({
   creditAmountCents,
   refundAmountCents,
-  voidedAt,
+  appliedToSourceInvoiceAmountCents,
 }: Pick<
   CreditNoteTableItemFragment,
-  'creditAmountCents' | 'refundAmountCents' | 'voidedAt'
->): CreditNoteType | null => {
-  if (voidedAt) {
-    return CreditNoteType.VOIDED
-  } else if (creditAmountCents > 0 && refundAmountCents > 0) {
-    return CreditNoteType.CREDIT_AND_REFUND
-  } else if (creditAmountCents > 0) {
-    return CreditNoteType.CREDIT
-  } else if (refundAmountCents > 0) {
-    return CreditNoteType.REFUND
+  'creditAmountCents' | 'refundAmountCents' | 'appliedToSourceInvoiceAmountCents'
+>): CreditNoteType[] => {
+  const types: CreditNoteType[] = []
+
+  if (Number(creditAmountCents) > 0) {
+    types.push(CreditNoteType.CREDIT)
+  }
+  if (Number(appliedToSourceInvoiceAmountCents) > 0) {
+    types.push(CreditNoteType.ON_INVOICE)
+  }
+  if (Number(refundAmountCents) > 0) {
+    types.push(CreditNoteType.REFUND)
   }
 
-  return null
+  return types
 }
 
-export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP = {
-  [CreditNoteType.VOIDED]: 'text_1727079454388ekfkh3vna8m',
-  [CreditNoteType.CREDIT_AND_REFUND]: 'text_1727079454388wxlpkmmkrmj',
-  [CreditNoteType.CREDIT]: 'text_1727079454388x9q4uz6ah71',
-  [CreditNoteType.REFUND]: 'text_17270794543889mcmuhfq70p',
+export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP: Record<CreditNoteType | 'MULTIPLE_TYPES', string> =
+  {
+    [CreditNoteType.VOIDED]: 'text_1727079454388ekfkh3vna8m',
+    [CreditNoteType.ON_INVOICE]: 'text_1736431648426rjb1s8vq61n',
+    [CreditNoteType.CREDIT]: 'text_1727079454388x9q4uz6ah71',
+    [CreditNoteType.REFUND]: 'text_17270794543889mcmuhfq70p',
+    MULTIPLE_TYPES: 'text_1736431648426vz8s9kj2f4p',
+  }
+
+/**
+ * Formats a list of types into a human-readable string.
+ * - 2 items: "Credit & refund"
+ * - 3+ items: "Credit, on invoice & refund"
+ * Only first word is capitalized, rest are lowercase.
+ */
+export const formatCreditNoteTypesForDisplay = (translatedTypes: string[]): string => {
+  if (translatedTypes.length === 0) return ''
+  if (translatedTypes.length === 1) return translatedTypes[0]
+
+  const types = translatedTypes.map((t) => t.toLowerCase())
+  const firstType = types[0].charAt(0).toUpperCase() + types[0].slice(1)
+  const lastType = types[types.length - 1]
+  const middleTypes = types.slice(1, -1)
+
+  if (middleTypes.length === 0) {
+    return `${firstType} & ${lastType}`
+  }
+
+  return `${firstType}, ${middleTypes.join(', ')} & ${lastType}`
 }
 
 const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
