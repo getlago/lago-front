@@ -68,7 +68,6 @@ import {
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
-  InvoiceForCreditNotesTableFragmentDoc,
   InvoiceForDetailsTableFragmentDoc,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
@@ -138,7 +137,6 @@ gql`
     }
 
     ...InvoiceDetailsForInvoiceOverview
-    ...InvoiceForCreditNotesTable
     ...InvoiceForDetailsTable
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
@@ -291,7 +289,6 @@ gql`
     }
   }
 
-  ${InvoiceForCreditNotesTableFragmentDoc}
   ${InvoiceForDetailsTableFragmentDoc}
   ${InvoiceForInvoiceInfosFragmentDoc}
   ${InvoiceDetailsForInvoiceOverviewFragmentDoc}

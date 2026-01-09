@@ -18,7 +18,6 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
-import { InvoiceCreditNotesTable } from '~/components/invoices/InvoiceCreditNotesTable'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { InvoiceOverviewHeaderButtons } from '~/components/invoices/InvoiceOverviewHeaderButtons'
 import { Metadatas } from '~/components/invoices/Metadatas'
@@ -34,13 +33,10 @@ import {
 } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import {
   AvalaraIntegrationInfosForInvoiceOverviewFragment,
   BillingEntity,
-  CreditNote,
-  CreditNoteItem,
   Customer,
   CustomerAccountTypeEnum,
   CustomerForInvoiceOverviewFragment,
@@ -357,14 +353,6 @@ const InvoiceOverview = memo(
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
     const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
-    const formattedCreditNotes = invoice?.creditNotes
-      ?.reduce<{ creditNote: CreditNote; items: CreditNoteItem[][][] }[]>((acc, cur) => {
-        const newItems = formatCreditNotesItems(cur.items as CreditNoteItem[])
-
-        acc.push({ creditNote: cur, items: newItems })
-        return acc
-      }, [])
-      .sort((a, b) => (a.creditNote.number < b.creditNote.number ? -1 : 1))
 
     if (hasError) {
       return (
@@ -542,16 +530,6 @@ const InvoiceOverview = memo(
                 fees={fees}
                 invoiceSubscriptions={invoiceSubscriptions}
               />
-              {!!formattedCreditNotes?.length &&
-                invoice?.status !== InvoiceStatusTypeEnum.Draft &&
-                !loadingRefreshInvoice && (
-                  <InvoiceCreditNotesTable
-                    customerId={customer?.id || ''}
-                    formatedCreditNotes={formattedCreditNotes}
-                    invoiceId={invoiceId || ''}
-                    invoiceType={invoice?.invoiceType}
-                  />
-                )}
               {showExternalAppsSection && (
                 <Stack marginTop={8} gap={6}>
                   <SectionHeader variant="subhead1">
