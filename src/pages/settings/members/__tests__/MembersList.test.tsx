@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 
 import { GetMembersDocument, GetRolesListDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
@@ -542,6 +542,232 @@ describe('MembersList', () => {
 
       await waitFor(() => {
         expect(screen.getByText('user@example.com')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Search Filtering', () => {
+    it('filters members by search query', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+        expect(screen.getByText('finance@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664devzn1r2wql')
+
+      fireEvent.change(searchInput, { target: { value: 'admin' } })
+
+      // Only admin should be visible after filtering
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+        expect(screen.queryByText('finance@example.com')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows all members when search is cleared', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664devzn1r2wql')
+
+      fireEvent.change(searchInput, { target: { value: 'admin' } })
+
+      await waitFor(() => {
+        expect(screen.queryByText('finance@example.com')).not.toBeInTheDocument()
+      })
+
+      fireEvent.change(searchInput, { target: { value: '' } })
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+        expect(screen.getByText('finance@example.com')).toBeInTheDocument()
+      })
+    })
+
+    it('search is case insensitive', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664devzn1r2wql')
+
+      fireEvent.change(searchInput, { target: { value: 'ADMIN' } })
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+        expect(screen.queryByText('finance@example.com')).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows no results when search matches nothing', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+      })
+
+      const searchInput = screen.getByPlaceholderText('text_1767713872664devzn1r2wql')
+
+      fireEvent.change(searchInput, { target: { value: 'nonexistent' } })
+
+      await waitFor(() => {
+        expect(screen.queryByText('admin@example.com')).not.toBeInTheDocument()
+        expect(screen.queryByText('finance@example.com')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Action Column', () => {
+    it('renders action menu for members', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+      })
+
+      // Action column tooltip translation key
+      const actionButtons = screen.getAllByRole('button')
+
+      expect(actionButtons.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('Table Structure', () => {
+    it('renders email column header', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        // Email column header translation key
+        expect(screen.getByText('text_63208b630aaf8df6bbfb2655')).toBeInTheDocument()
+      })
+    })
+
+    it('renders role column header', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        // Role column header translation key
+        expect(screen.getByText('text_664f035a68227f00e261b7ec')).toBeInTheDocument()
+      })
+    })
+
+    it('renders member avatar', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+      })
+
+      // Avatar should be rendered for each member
+      const avatars = document.querySelectorAll('[class*="avatar"]')
+
+      expect(avatars.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('Empty State Content', () => {
+    it('shows empty state title when no members', async () => {
+      const emptyMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            memberships: {
+              __typename: 'MembershipCollection',
+              metadata: {
+                __typename: 'MembershipsCollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 0,
+                adminCount: 0,
+              },
+              collection: [],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [emptyMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Empty state title translation key
+        expect(screen.getByText('text_176771435162557p8hyixafi')).toBeInTheDocument()
+      })
+    })
+
+    it('shows empty state subtitle when no members', async () => {
+      const emptyMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            memberships: {
+              __typename: 'MembershipCollection',
+              metadata: {
+                __typename: 'MembershipsCollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 0,
+                adminCount: 0,
+              },
+              collection: [],
+            },
+          },
+        },
+      }
+
+      await prepare({ mocks: [emptyMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Empty state subtitle translation key
+        expect(screen.getByText('text_1767714241102xpwokcuhvki')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Error State Content', () => {
+    it('shows error state subtitle when query fails', async () => {
+      const errorMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        error: new Error('Failed to fetch members'),
+      }
+
+      await prepare({ mocks: [errorMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Error state subtitle translation key
+        expect(screen.getByText('text_6321a076b94bd1b32494e9f0')).toBeInTheDocument()
+      })
+    })
+
+    it('shows retry button when query fails', async () => {
+      const errorMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        error: new Error('Failed to fetch members'),
+      }
+
+      await prepare({ mocks: [errorMock, rolesListMock] })
+
+      await waitFor(() => {
+        // Retry button translation key
+        expect(screen.getByText('text_6321a076b94bd1b32494e9f2')).toBeInTheDocument()
       })
     })
   })
