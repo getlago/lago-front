@@ -86,10 +86,8 @@ export const useRoleCreateEdit = (): {
   }
 
   const handleSave = async (formattedValues: CreateRoleInput) => {
-    // Do nothing for now
-
     if (isEdition) {
-      // Don't want code here
+      // Don't want code from formattedValues here
       const formattedValuesForUpdate: UpdateRoleInput = {
         id: roleId as string,
         name: formattedValues.name,
