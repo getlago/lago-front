@@ -2,7 +2,7 @@ import { useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Alert, Button, Typography } from '~/components/designSystem'
 import {
   ColumnConfig,
   ColumnHelpers,
@@ -23,17 +23,19 @@ import { PermissionItem, PermissionName } from '../permissionsTypes'
 type RolePermissionsFormProps = {
   isEditable?: boolean
   isLoading?: boolean
+  errors?: Array<string>
 }
 
 const defaultProps: RolePermissionsFormProps = {
   isEditable: true,
   isLoading: false,
+  errors: [],
 }
 
 const RolePermissionsForm = withFieldGroup({
   defaultValues: rolePermissionsEmptyValues,
   props: defaultProps,
-  render: function Render({ group, isEditable, isLoading }) {
+  render: function Render({ group, isEditable, isLoading, errors }) {
     const { translate } = useInternationalization()
 
     const { permissionGrouping } = useGetPermissionGrouping(allPermissions)
@@ -67,7 +69,7 @@ const RolePermissionsForm = withFieldGroup({
 
       permissionsToUpdate.forEach((permissionName) => {
         // We use don't validate to avoid triggering validation on each checkbox change thus not freezing the whole page
-        group.setFieldValue(permissionName, checked, { dontValidate: true })
+        group.setFieldValue(permissionName, checked, { dontValidate: !errors?.length })
       })
     }
 
@@ -79,7 +81,7 @@ const RolePermissionsForm = withFieldGroup({
 
       permissionsToUpdate.forEach((permissionName) => {
         // We use don't validate to avoid triggering validation on each checkbox change thus not freezing the whole page
-        group.setFieldValue(permissionName, checked, { dontValidate: true })
+        group.setFieldValue(permissionName, checked, { dontValidate: !errors?.length })
       })
     }
 
@@ -331,6 +333,15 @@ const RolePermissionsForm = withFieldGroup({
             {translate('text_624aa732d6af4e0103d40e61')}
           </Button>
         </div>
+        {errors && errors.length > 0 && (
+          <Alert type="danger" data-scroll-target="role-permissions-form-errors">
+            {errors.map((error) => (
+              <Typography key={error} variant="body" color="grey700">
+                {translate(error)}
+              </Typography>
+            ))}
+          </Alert>
+        )}
         <TableWithGroups
           ref={tableRef}
           rows={filteredRows}
