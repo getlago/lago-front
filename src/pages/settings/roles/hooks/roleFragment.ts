@@ -14,6 +14,7 @@ gql`
         id
         email
       }
+      revokedAt
     }
   }
 `
