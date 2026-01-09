@@ -172,6 +172,12 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
         )
       }
     },
+    onError() {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_622f7a3dc32ce100c46a5154',
+      })
+    },
   })
 
   if (

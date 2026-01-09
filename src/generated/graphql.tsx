@@ -1921,6 +1921,7 @@ export type CreatePlanInput = {
   fixedCharges?: InputMaybe<Array<FixedChargeInput>>;
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Array<MetadataInput>>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
   name: Scalars['String']['input'];
   payInAdvance: Scalars['Boolean']['input'];
@@ -5984,6 +5985,7 @@ export type Plan = {
   interval: PlanInterval;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   isOverridden: Scalars['Boolean']['output'];
+  metadata?: Maybe<Array<ItemMetadata>>;
   minimumCommitment?: Maybe<Commitment>;
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
@@ -8527,6 +8529,7 @@ export type UpdatePlanInput = {
   id: Scalars['ID']['input'];
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Array<MetadataInput>>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
   name: Scalars['String']['input'];
   payInAdvance: Scalars['Boolean']['input'];
