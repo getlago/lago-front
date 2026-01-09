@@ -25,6 +25,7 @@ export interface FeesPerInvoice {
 export enum CreditTypeEnum {
   credit = 'credit',
   refund = 'refund',
+  applyToInvoice = 'applyToInvoice',
 }
 
 export interface CreditNoteForm {
@@ -51,5 +52,6 @@ export enum CreditNoteFeeErrorEnum {
 export enum PayBackErrorEnum {
   maxRefund = 'maxRefund',
   maxCredit = 'maxCredit',
+  maxApplyToInvoice = 'maxApplyToInvoice',
   maxTotalInvoice = 'maxTotalInvoice',
 }

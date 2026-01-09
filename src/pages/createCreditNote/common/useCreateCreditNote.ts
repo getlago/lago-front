@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
+import { isCreditNoteCreationDisabled } from '~/components/creditNote/utils'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   composeChargeFilterDisplayName,
@@ -171,12 +172,18 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
         )
       }
     },
+    onError() {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_622f7a3dc32ce100c46a5154',
+      })
+    },
   })
 
   if (
     !invoiceId ||
     hasDefinedGQLError('NotFound', error, 'invoice') ||
-    (data?.invoice?.refundableAmountCents === '0' && data?.invoice?.creditableAmountCents === '0')
+    isCreditNoteCreationDisabled(data?.invoice)
   ) {
     navigate(ERROR_404_ROUTE)
   }
