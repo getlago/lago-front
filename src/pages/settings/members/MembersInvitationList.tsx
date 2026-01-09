@@ -215,7 +215,7 @@ const MembersInvitationList = () => {
       />
       <InfiniteScroll onBottom={handleInfiniteScrolling}>
         <Table
-          name="members-setting-members-list"
+          name="members-setting-invitations-list"
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={invitesLoading}
