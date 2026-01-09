@@ -2420,7 +2420,6 @@
   "text_1729678728144lfukq2wzred": "Fatura não sincronizada com o HubSpot",
   "text_1729679289432l7pa9bgih1v": "Sincronizar fatura para o HubSpot",
   "text_1729756690073w4jrdeesayy": "Sincronização com HubSpot iniciada com sucesso.",
-  "text_17290829949642fgof01loxo": "A nota de crédito não pode ser emitida porque a fatura não está paga.",
   "text_172908299496461z9ejmm2j7": "A nota de crédito não pode ser emitida, pois a fatura está vinculada a uma carteira encerrada.",
   "text_1729082994964zccpjmtotdy": "A nota de crédito não pode ser emitida, pois o valor creditável já está totalmente coberto.",
   "text_1729084495407pcn1mei0hyd": "O reembolso desta fatura pré-paga anulará automaticamente os créditos da carteira assim que o status de reembolso da nota de crédito for marcado como bem-sucedido.",
