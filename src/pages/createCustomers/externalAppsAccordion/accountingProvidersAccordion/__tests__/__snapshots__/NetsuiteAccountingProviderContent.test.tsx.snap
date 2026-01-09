@@ -9,22 +9,26 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
           placeholder="Type a NetSuite customer ID"
@@ -33,10 +37,10 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -51,7 +55,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":r7:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -63,7 +67,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
           aria-checked="false"
           aria-labelledby="Create automatically this customer in NetSuite"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":r7:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -89,7 +93,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in NetSuite
@@ -109,22 +113,26 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
           placeholder="Type a NetSuite customer ID"
@@ -133,10 +141,10 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -151,7 +159,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":rf:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -163,7 +171,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Test Netsuite Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":rf:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -189,7 +197,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Netsuite Integration
@@ -209,22 +217,26 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
           placeholder="Type a NetSuite customer ID"
@@ -233,10 +245,10 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -251,7 +263,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":rb:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -263,7 +275,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Test Netsuite Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":rb:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -289,7 +301,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Netsuite Integration
@@ -309,22 +321,26 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-hash-MuiInputBase-input-MuiOutlinedInput-input
           disabled=""
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
@@ -334,10 +350,10 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -352,7 +368,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
   <label
     class="flex flex-col"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":rj:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -365,7 +381,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
           aria-labelledby="Create automatically this customer in Test Netsuite Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
           disabled=""
-          id=":rj:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -391,7 +407,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN rendering the 
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1lkb4zy-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Netsuite Integration
@@ -411,22 +427,26 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        NetSuite customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          NetSuite customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-hash-MuiInputBase-input-MuiOutlinedInput-input
           disabled=""
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
@@ -436,10 +456,10 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -454,7 +474,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":r19:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -467,7 +487,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
           aria-labelledby="Create automatically this customer in Test Netsuite Integration"
           checked=""
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":r19:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -510,7 +530,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Netsuite Integration
@@ -519,7 +539,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
     </div>
   </label>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-14x076-MuiAutocomplete-root"
+    class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
   >
     <div
       class="flex flex-col gap-1 group/combobox-input"
@@ -528,18 +548,22 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
         class="flex items-center gap-1"
       >
         <label
-          class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
           data-test="captionHl"
           for="accountingCustomer.subsidiaryId"
         >
-          Subsidiary
+          <span
+            class="flex flex-row gap-1"
+          >
+            Subsidiary
+          </span>
         </label>
       </div>
       <div
-        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+        class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
       >
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-gt5rc1-MuiInputBase-root-MuiOutlinedInput-root"
+          class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
         >
           <input
             aria-autocomplete="list"
@@ -547,8 +571,8 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1u6ndc-MuiInputBase-input-MuiOutlinedInput-input"
-            id=":r1a:"
+            class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
+            id=:r-mui-id:
             name="accountingCustomer.subsidiaryId"
             placeholder="Select and search a subsidiary name or external ID"
             role="combobox"
@@ -557,10 +581,10 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
             value=""
           />
           <div
-            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+            class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
           >
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center MuiAutocomplete-clearIndicator hidden css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -579,7 +603,7 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
               </svg>
             </button>
             <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+              class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
               data-test="button"
               tabindex="0"
               type="button"
@@ -602,10 +626,10 @@ exports[`NetsuiteAccountingProviderContent Integration Tests WHEN user interacts
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+            class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
           >
             <legend
-              class="css-1whs34k-MuiNotchedOutlined-root"
+              class=css-hash-MuiNotchedOutlined-root
             >
               <span
                 class="notranslate"

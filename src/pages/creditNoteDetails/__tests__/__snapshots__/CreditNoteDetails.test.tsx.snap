@@ -9,7 +9,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in error state 1`] = `
       class="flex items-center gap-4"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="button"
         tabindex="0"
         type="button"
@@ -28,7 +28,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in error state 1`] = `
         </svg>
       </button>
       <div
-        class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="bodyHl"
       />
     </div>
@@ -49,13 +49,13 @@ exports[`CreditNoteDetails snapshots matches snapshot in error state 1`] = `
       </svg>
     </div>
     <div
-      class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-3 css-uvnpl0-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line mb-3 css-hash-MuiTypography-root
       data-test="generic-placeholder-title"
     >
       Something went wrong
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-11vl04s-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-body whitespace-pre-line mb-5 css-hash-MuiTypography-root
       data-test="generic-placeholder-subtitle"
     >
       <span>
@@ -63,7 +63,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in error state 1`] = `
       </span>
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="generic-placeholder-button"
       tabindex="0"
       type="button"
@@ -83,7 +83,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
       class="flex items-center gap-4"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="button"
         tabindex="0"
         type="button"
@@ -139,7 +139,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
     class="flex flex-row shadow-b mx-12"
   >
     <div
-      class="MuiTabs-root w-full flex-1 items-center overflow-visible min-h-13 css-1e5y0we-MuiTabs-root"
+      class=MuiTabs-root w-full flex-1 items-center overflow-visible min-h-13 css-hash-MuiTabs-root
       role="navigation"
     >
       <div
@@ -147,25 +147,25 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
         style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"
       />
       <div
-        class="MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-1uicv9e-MuiTabs-scroller"
+        class=MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-hash-MuiTabs-scroller
         style="margin-bottom: 0px;"
       >
         <div
           aria-label="Navigation tab"
-          class="MuiTabs-flexContainer css-131tw69-MuiTabs-flexContainer"
+          class=MuiTabs-flexContainer css-hash-MuiTabs-flexContainer
           role="tablist"
         >
           <button
             aria-controls="simple-tabpanel-0"
             aria-selected="true"
-            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
             id="simple-tab-0"
             role="tab"
             tabindex="0"
             type="button"
           >
             <span
-              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-captionHl css-hash-MuiTypography-root
             >
               Overview
             </span>
@@ -173,21 +173,21 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
           <button
             aria-controls="simple-tabpanel-1"
             aria-selected="false"
-            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
             id="simple-tab-1"
             role="tab"
             tabindex="-1"
             type="button"
           >
             <span
-              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-captionHl css-hash-MuiTypography-root
             >
               Activity logs
             </span>
           </button>
         </div>
         <span
-          class="MuiTabs-indicator css-9idi0b-MuiTabs-indicator"
+          class=MuiTabs-indicator css-hash-MuiTabs-indicator
           style="left: 0px; width: 0px;"
         />
       </div>
@@ -203,7 +203,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
     >
       <div>
         <div
-          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-hash-MuiTypography-root
           data-test="subhead1"
         >
           Overview
@@ -221,13 +221,13 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
               class="flex items-start gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
                 data-test="caption"
               >
                 Credit available
               </div>
               <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                 data-test="body"
               >
                 $0.00
@@ -237,7 +237,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
               class="flex items-start gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
                 data-test="caption"
               >
                 Credit status
@@ -247,7 +247,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                 data-test="status"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-1ycl6jq-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
                   data-test="captionHl"
                 >
                   Available
@@ -269,7 +269,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                 <td />
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Credit subtotal (excl. tax)
@@ -277,7 +277,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                 </td>
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                     data-test="body"
                   >
                     -
@@ -291,7 +291,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                 <td />
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Tax (0%)
@@ -299,7 +299,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                 </td>
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                     data-test="body"
                   >
                     -
@@ -313,7 +313,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                 <td />
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Total credit
@@ -321,7 +321,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                 </td>
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                     data-test="body"
                   >
                     -
@@ -335,12 +335,12 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-hash-MuiTypography-root
           data-test="subhead1"
         >
           Metadata
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -352,7 +352,7 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
           class="mt-6"
         >
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             No metadata linked to this credit note
@@ -382,7 +382,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
       class="flex items-center gap-4"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="button"
         tabindex="0"
         type="button"
@@ -401,7 +401,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
         </svg>
       </button>
       <div
-        class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="bodyHl"
       >
         CN-001
@@ -411,14 +411,14 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
       class=""
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-qynrhl-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="button"
         tabindex="0"
         type="button"
       >
         Actions
         <span
-          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-r64y3m-MuiButton-endIcon"
+          class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-hash-MuiButton-endIcon
         >
           <svg
             class="text-inherit size-4 min-w-4"
@@ -465,14 +465,14 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
         class="flex flex-row items-center gap-2"
       >
         <div
-          class="MuiTypography-root MuiTypography-headline whitespace-pre-line css-lh3wu3-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
           data-test="headline"
         >
           CN-001
         </div>
       </div>
       <div
-        class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
         data-test="body"
       >
         for $100.00 • credit-note-123
@@ -483,7 +483,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
     class="flex flex-row shadow-b mx-12"
   >
     <div
-      class="MuiTabs-root w-full flex-1 items-center overflow-visible min-h-13 css-1e5y0we-MuiTabs-root"
+      class=MuiTabs-root w-full flex-1 items-center overflow-visible min-h-13 css-hash-MuiTabs-root
       role="navigation"
     >
       <div
@@ -491,25 +491,25 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
         style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"
       />
       <div
-        class="MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-1uicv9e-MuiTabs-scroller"
+        class=MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-hash-MuiTabs-scroller
         style="margin-bottom: 0px;"
       >
         <div
           aria-label="Navigation tab"
-          class="MuiTabs-flexContainer css-131tw69-MuiTabs-flexContainer"
+          class=MuiTabs-flexContainer css-hash-MuiTabs-flexContainer
           role="tablist"
         >
           <button
             aria-controls="simple-tabpanel-0"
             aria-selected="true"
-            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
             id="simple-tab-0"
             role="tab"
             tabindex="0"
             type="button"
           >
             <span
-              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-captionHl css-hash-MuiTypography-root
             >
               Overview
             </span>
@@ -517,21 +517,21 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
           <button
             aria-controls="simple-tabpanel-1"
             aria-selected="false"
-            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-18puqzm-MuiButtonBase-root-MuiTab-root"
+            class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
             id="simple-tab-1"
             role="tab"
             tabindex="-1"
             type="button"
           >
             <span
-              class="MuiTypography-root MuiTypography-captionHl css-6jlzyv-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-captionHl css-hash-MuiTypography-root
             >
               Activity logs
             </span>
           </button>
         </div>
         <span
-          class="MuiTabs-indicator css-9idi0b-MuiTabs-indicator"
+          class=MuiTabs-indicator css-hash-MuiTabs-indicator
           style="left: 0px; width: 0px;"
         />
       </div>
@@ -547,7 +547,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
     >
       <div>
         <div
-          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-hash-MuiTypography-root
           data-test="subhead1"
         >
           Overview
@@ -565,13 +565,13 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
               class="flex items-start gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
                 data-test="caption"
               >
                 Credit available
               </div>
               <div
-                class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                 data-test="body"
               >
                 $0.00
@@ -581,7 +581,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
               class="flex items-start gap-2"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-4auuis-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
                 data-test="caption"
               >
                 Credit status
@@ -591,7 +591,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                 data-test="status"
               >
                 <div
-                  class="MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-1ycl6jq-MuiTypography-root"
+                  class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
                   data-test="captionHl"
                 >
                   Available
@@ -613,7 +613,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                 <td />
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Credit subtotal (excl. tax)
@@ -621,7 +621,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                 </td>
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                     data-test="body"
                   >
                     -
@@ -635,7 +635,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                 <td />
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1ievvmx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Tax (0%)
@@ -643,7 +643,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                 </td>
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                     data-test="body"
                   >
                     -
@@ -657,7 +657,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                 <td />
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-1enjtpx-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                     data-test="bodyHl"
                   >
                     Total credit
@@ -665,7 +665,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                 </td>
                 <td>
                   <div
-                    class="MuiTypography-root MuiTypography-body whitespace-pre-line css-8wv2ag-MuiTypography-root"
+                    class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                     data-test="body"
                   >
                     -
@@ -679,12 +679,12 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-uvnpl0-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line flex h-nav items-center justify-between shadow-b css-hash-MuiTypography-root
           data-test="subhead1"
         >
           Metadata
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -699,13 +699,13 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
             class="grid grid-cols-1 md:grid-cols-[fit-content(100%)_1fr] gap-x-8 md:gap-y-2 [&>*:nth-child(odd):not(:first-child)]:mt-2 md:[&>*:nth-child(odd):not(:first-child)]:mt-0"
           >
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               test_key
             </div>
             <div
-              class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
               data-test="body"
             >
               test_value

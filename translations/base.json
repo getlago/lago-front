@@ -3651,5 +3651,6 @@
   "text_17678874117919zdg2q55od0": "Applied on invoice {{invoiceNumber}}",
   "text_1767890728665ukf38vdx6t3": "Reduce amount due cannot exceed {{max}}",
   "text_1736431648426rjb1s8vq61n": "On invoice",
-  "text_1736431648426vz8s9kj2f4p": "Multiple types"
+  "text_1736431648426vz8s9kj2f4p": "Multiple types",
+  "text_17661418227616cvcuga1x7m": "Optional"
 }

@@ -2,12 +2,12 @@
 
 exports[`Dialog Snapshot Tests matches snapshot with ReactNode title and description 1`] = `
 <div
-  aria-labelledby=":r1h:"
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-q1heck-MuiPaper-root-MuiDialog-paper"
+  aria-labelledby=:r-mui-id:
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-hash-MuiPaper-root-MuiDialog-paper
   role="dialog"
 >
   <div
-    class="MuiTypography-root MuiTypography-headline whitespace-pre-line mb-3 css-lh3wu3-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-headline whitespace-pre-line mb-3 css-hash-MuiTypography-root
     data-test="dialog-title"
   >
     <div>
@@ -15,7 +15,7 @@ exports[`Dialog Snapshot Tests matches snapshot with ReactNode title and descrip
     </div>
   </div>
   <div
-    class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-8 css-11vl04s-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-body whitespace-pre-line mb-8 css-hash-MuiTypography-root
     data-test="dialog-description"
   >
     <div>
@@ -37,12 +37,12 @@ exports[`Dialog Snapshot Tests matches snapshot with ReactNode title and descrip
 
 exports[`Dialog Snapshot Tests matches snapshot with basic props 1`] = `
 <div
-  aria-labelledby=":r1d:"
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-q1heck-MuiPaper-root-MuiDialog-paper"
+  aria-labelledby=:r-mui-id:
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-hash-MuiPaper-root-MuiDialog-paper
   role="dialog"
 >
   <div
-    class="MuiTypography-root MuiTypography-headline whitespace-pre-line mb-8 css-lh3wu3-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-headline whitespace-pre-line mb-8 css-hash-MuiTypography-root
     data-test="dialog-title"
   >
     Test Dialog
@@ -64,12 +64,12 @@ exports[`Dialog Snapshot Tests matches snapshot with closed dialog 1`] = `null`;
 
 exports[`Dialog Snapshot Tests matches snapshot with multiple actions 1`] = `
 <div
-  aria-labelledby=":r1j:"
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-q1heck-MuiPaper-root-MuiDialog-paper"
+  aria-labelledby=:r-mui-id:
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-hash-MuiPaper-root-MuiDialog-paper
   role="dialog"
 >
   <div
-    class="MuiTypography-root MuiTypography-headline whitespace-pre-line mb-8 css-lh3wu3-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-headline whitespace-pre-line mb-8 css-hash-MuiTypography-root
     data-test="dialog-title"
   >
     Test Dialog
@@ -92,18 +92,18 @@ exports[`Dialog Snapshot Tests matches snapshot with multiple actions 1`] = `
 
 exports[`Dialog Snapshot Tests matches snapshot with title and description 1`] = `
 <div
-  aria-labelledby=":r1f:"
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-q1heck-MuiPaper-root-MuiDialog-paper"
+  aria-labelledby=:r-mui-id:
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-hash-MuiPaper-root-MuiDialog-paper
   role="dialog"
 >
   <div
-    class="MuiTypography-root MuiTypography-headline whitespace-pre-line mb-3 css-lh3wu3-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-headline whitespace-pre-line mb-3 css-hash-MuiTypography-root
     data-test="dialog-title"
   >
     Test Dialog
   </div>
   <div
-    class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-8 css-11vl04s-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-body whitespace-pre-line mb-8 css-hash-MuiTypography-root
     data-test="dialog-description"
   >
     This is a description
@@ -123,18 +123,18 @@ exports[`Dialog Snapshot Tests matches snapshot with title and description 1`] =
 
 exports[`Dialog Snapshot Tests matches snapshot without children 1`] = `
 <div
-  aria-labelledby=":r1n:"
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-q1heck-MuiPaper-root-MuiDialog-paper"
+  aria-labelledby=:r-mui-id:
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-hash-MuiPaper-root-MuiDialog-paper
   role="dialog"
 >
   <div
-    class="MuiTypography-root MuiTypography-headline whitespace-pre-line mb-3 css-lh3wu3-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-headline whitespace-pre-line mb-3 css-hash-MuiTypography-root
     data-test="dialog-title"
   >
     Test Dialog
   </div>
   <div
-    class="MuiTypography-root MuiTypography-body whitespace-pre-line mb-8 css-11vl04s-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-body whitespace-pre-line mb-8 css-hash-MuiTypography-root
     data-test="dialog-description"
   >
     Test Description
@@ -151,12 +151,12 @@ exports[`Dialog Snapshot Tests matches snapshot without children 1`] = `
 
 exports[`Dialog Snapshot Tests matches snapshot without description 1`] = `
 <div
-  aria-labelledby=":r1l:"
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-q1heck-MuiPaper-root-MuiDialog-paper"
+  aria-labelledby=:r-mui-id:
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollBody MuiDialog-paperWidthSm flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl css-hash-MuiPaper-root-MuiDialog-paper
   role="dialog"
 >
   <div
-    class="MuiTypography-root MuiTypography-headline whitespace-pre-line mb-8 css-lh3wu3-MuiTypography-root"
+    class=MuiTypography-root MuiTypography-headline whitespace-pre-line mb-8 css-hash-MuiTypography-root
     data-test="dialog-title"
   >
     Test Dialog
