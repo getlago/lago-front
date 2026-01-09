@@ -17,9 +17,8 @@ const SYSTEM_ROLES_ORDER = ['Admin', 'Finance', 'Manager']
 export const useRolesList = (): {
   roles: Array<RoleItem>
   isLoadingRoles: boolean
-  refetch: () => void
 } => {
-  const { data, loading, refetch } = useGetRolesListQuery()
+  const { data, loading } = useGetRolesListQuery()
 
   const sortedRoles = [...(data?.roles || [])].sort((a, b) => {
     const aIndex = SYSTEM_ROLES_ORDER.indexOf(a.name)
@@ -44,6 +43,5 @@ export const useRolesList = (): {
   return {
     roles: sortedRoles,
     isLoadingRoles: loading,
-    refetch,
   }
 }
