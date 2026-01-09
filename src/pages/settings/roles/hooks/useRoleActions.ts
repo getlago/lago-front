@@ -51,10 +51,12 @@ export const useRoleActions = (): {
   }
 
   const navigateToDuplicate = (roleId: string) => {
-    const path = generatePath(ROLE_CREATE_ROUTE)
-    const query = `?duplicate-from=${roleId}`
+    const query = `duplicate-from=${roleId}`
+    const path = generatePath(ROLE_CREATE_ROUTE, {
+      search: query,
+    })
 
-    navigate(`${path}${query}`)
+    navigate(path)
   }
   const navigateToEdit = (roleId: string) => {
     navigate(generatePath(ROLE_EDIT_ROUTE, { roleId }))
