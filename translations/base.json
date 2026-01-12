@@ -3790,5 +3790,6 @@
   "text_1767790569633bso609s2bau": "You’re about to remove the role {{roleName}} from the organization. This means you will not be able to add this role to members of the organization, are you sure?",
   "text_176779056963310shb5ayw55": "Delete role",
   "text_1767881112174odn29xztnvi": "Code format isn't valid.",
-  "text_1767969448650g3wwpvy5f9g": "Select at least one permission"
+  "text_1767969448650g3wwpvy5f9g": "Select at least one permission",
+  "text_1768219065391kkeiaebav23": "Please select a role"
 }
