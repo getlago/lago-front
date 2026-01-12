@@ -39,7 +39,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   const { getDisplayName } = useRoleDisplayInformation()
   const { roles } = useRolesList()
 
-  const invitationUrl = `${window.location.origin}${generatePath(INVITATION_ROUTE, {
+  const invitationUrl = `${globalThis.location.origin}${generatePath(INVITATION_ROUTE, {
     token: inviteToken,
   })}`
   const { organization } = useOrganizationInfos()
@@ -118,13 +118,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
         <Button variant="quaternary" onClick={closeDialog}>
           {translate('text_63208c711ce25db7814074cd')}
         </Button>
-        {!inviteToken ? (
-          <form.AppForm>
-            <form.SubmitButton dataTest={SUBMIT_INVITE_DATA_TEST}>
-              {translate('text_63208c711ce25db7814074d9')}
-            </form.SubmitButton>
-          </form.AppForm>
-        ) : (
+        {inviteToken ? (
           <Button
             disabled={!!createInviteError}
             onClick={() => {
@@ -140,6 +134,12 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
           >
             {translate('text_63208c701ce25db7814074a3')}
           </Button>
+        ) : (
+          <form.AppForm>
+            <form.SubmitButton dataTest={SUBMIT_INVITE_DATA_TEST}>
+              {translate('text_63208c711ce25db7814074d9')}
+            </form.SubmitButton>
+          </form.AppForm>
         )}
       </>
     )

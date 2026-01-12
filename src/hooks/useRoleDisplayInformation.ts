@@ -6,7 +6,7 @@ import {
 } from '~/core/constants/roles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-type AllowedElements = RoleItem | undefined | { name: string; description?: string }
+export type AllowedElements = RoleItem | undefined | { name: string; description?: string }
 
 export const useRoleDisplayInformation = (): {
   getDisplayName: (role: AllowedElements) => string

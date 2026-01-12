@@ -12,13 +12,13 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
-import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
+import { MEMBERS_PAGE_ROLE_FILTER_KEY, RoleItem } from '~/core/constants/roles'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { GetInvitesQuery, InviteItemForMembersSettingsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
+import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
 import {
   CreateInviteDialog,
@@ -38,13 +38,34 @@ import { useGetMembersInvitationList } from './hooks/useGetMembersInvitationsLis
 
 type Invitation = GetInvitesQuery['invites']['collection'][0]
 
+const EmailColumn = ({ email }: { email: string | null }) => (
+  <div className="flex flex-1 items-center gap-3">
+    <Avatar variant="user" identifier={(email || '').charAt(0)} size="big" />
+    <Typography variant="body" color="grey700">
+      {email}
+    </Typography>
+  </div>
+)
+
+const getRolesColumn = (
+  allRoles: Array<RoleItem>,
+  getDisplayName: (role: AllowedElements) => string,
+) =>
+  function RolesColumnInside({ roles }: { roles: string[] }) {
+    const roleToDisplay = allRoles.find((r) => r.code === roles[0])
+
+    return <Chip label={getDisplayName(roleToDisplay)} />
+  }
+
 const MembersInvitationList = () => {
   const { translate } = useInternationalization()
   const { invitations, metadata, invitesLoading, invitesFetchMore, invitesError, invitesRefetch } =
     useGetMembersInvitationList()
+  const { roles } = useRolesList()
   const { getDisplayName } = useRoleDisplayInformation()
   const { hasPermissions } = usePermissions()
-  const { roles } = useRolesList()
+
+  const RolesColumn = getRolesColumn(roles, getDisplayName)
 
   const editInviteRoleDialogRef = useRef<EditInviteRoleDialogRef>(null)
   const createInviteDialogRef = useRef<CreateInviteDialogRef>(null)
@@ -62,7 +83,7 @@ const MembersInvitationList = () => {
     if (!selectedRole && !searchQuery) return invitations
 
     return invitations.filter((invitation) => {
-      const matchesRole = !selectedRole || invitation.roles.some((role) => role === selectedRole)
+      const matchesRole = !selectedRole || invitation.roles.includes(selectedRole)
       const matchesSearch =
         !searchQuery || invitation.email?.toLowerCase().includes(searchQuery.toLowerCase())
 
@@ -85,24 +106,13 @@ const MembersInvitationList = () => {
       key: 'email',
       title: translate('text_63208b630aaf8df6bbfb2655'),
       maxSpace: true,
-      content: ({ email }) => (
-        <div className="flex flex-1 items-center gap-3">
-          <Avatar variant="user" identifier={(email || '').charAt(0)} size="big" />
-          <Typography variant="body" color="grey700">
-            {email}
-          </Typography>
-        </div>
-      ),
+      content: EmailColumn,
     },
     {
       key: 'roles.0',
       title: translate('text_664f035a68227f00e261b7ec'),
       minWidth: 170,
-      content: ({ roles: inviteRoles }) => {
-        const roleToDisplay = roles.find((r) => r.code === inviteRoles[0])
-
-        return <Chip label={getDisplayName(roleToDisplay)} />
-      },
+      content: RolesColumn,
     },
   ]
 
@@ -133,7 +143,7 @@ const MembersInvitationList = () => {
       title: translate('text_63208b630aaf8df6bbfb265f'),
       onAction: () => {
         copyToClipboard(
-          `${window.location.origin}${generatePath(INVITATION_ROUTE, {
+          `${globalThis.location.origin}${generatePath(INVITATION_ROUTE, {
             token: invite.token,
           })}`,
         )

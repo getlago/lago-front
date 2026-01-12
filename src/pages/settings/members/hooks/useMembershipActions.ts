@@ -49,7 +49,7 @@ export const useMembershipActions = () => {
 
   const [revokeMembership] = useRevokeMembershipMutation({
     onCompleted(data) {
-      if (data && data.revokeMembership) {
+      if (data?.revokeMembership) {
         addToast({
           translateKey: 'text_63208c711ce25db78140755d',
           severity: 'success',

@@ -45,10 +45,10 @@ const MembersFilters = ({
   const handleRoleFilterChange = (newRole: string | null) => {
     const newSearchParams = new URLSearchParams(searchParams)
 
-    if (!newRole) {
-      newSearchParams.delete(MEMBERS_PAGE_ROLE_FILTER_KEY)
-    } else {
+    if (newRole) {
       newSearchParams.set(MEMBERS_PAGE_ROLE_FILTER_KEY, newRole)
+    } else {
+      newSearchParams.delete(MEMBERS_PAGE_ROLE_FILTER_KEY)
     }
 
     setSearchParams(newSearchParams)
@@ -63,66 +63,64 @@ const MembersFilters = ({
   }
 
   return (
-    <>
-      <div className="flex h-16 items-center justify-between gap-3 shadow-b">
-        <div className="flex items-center gap-3">
-          <TextInput
-            cleanable
-            placeholder={getSearchPlaceholder()}
-            value={searchQuery}
-            onChange={(value) => {
-              setSearchQuery(value)
-            }}
-            InputProps={{
-              startAdornment: <Icon className="ml-4" name="magnifying-glass" />,
-            }}
-          />
-          <Popper
-            PopperProps={{ placement: 'bottom-start' }}
-            opener={
-              <Button variant="secondary" endIcon="chevron-down">
-                {getFilterRoleDisplayName()}
+    <div className="flex h-16 items-center justify-between gap-3 shadow-b">
+      <div className="flex items-center gap-3">
+        <TextInput
+          cleanable
+          placeholder={getSearchPlaceholder()}
+          value={searchQuery}
+          onChange={(value) => {
+            setSearchQuery(value)
+          }}
+          InputProps={{
+            startAdornment: <Icon className="ml-4" name="magnifying-glass" />,
+          }}
+        />
+        <Popper
+          PopperProps={{ placement: 'bottom-start' }}
+          opener={
+            <Button variant="secondary" endIcon="chevron-down">
+              {getFilterRoleDisplayName()}
+            </Button>
+          }
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <Button
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  handleRoleFilterChange(null)
+                  closePopper()
+                }}
+              >
+                {translate('text_1767710145806r6ewupk6dr8')}
               </Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
+              {roles.map((role) => (
                 <Button
                   variant="quaternary"
                   align="left"
+                  key={role.name}
                   onClick={() => {
-                    handleRoleFilterChange(null)
+                    handleRoleFilterChange(role.name)
                     closePopper()
                   }}
                 >
-                  {translate('text_1767710145806r6ewupk6dr8')}
+                  {getDisplayName({ name: role.name })}
                 </Button>
-                {roles.map((role) => (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    key={role.name}
-                    onClick={() => {
-                      handleRoleFilterChange(role.name)
-                      closePopper()
-                    }}
-                  >
-                    {getDisplayName({ name: role.name })}
-                  </Button>
-                ))}
-              </MenuPopper>
-            )}
-          </Popper>
-        </div>
-        <Button
-          variant="inline"
-          onClick={openCreateInviteDialog}
-          data-test={CREATE_INVITE_BUTTON_TEST_ID}
-        >
-          {translate('text_63208b630aaf8df6bbfb265b')}
-        </Button>
+              ))}
+            </MenuPopper>
+          )}
+        </Popper>
       </div>
-    </>
+      <Button
+        variant="inline"
+        onClick={openCreateInviteDialog}
+        data-test={CREATE_INVITE_BUTTON_TEST_ID}
+      >
+        {translate('text_63208b630aaf8df6bbfb265b')}
+      </Button>
+    </div>
   )
 }
 
