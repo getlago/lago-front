@@ -88,8 +88,15 @@ const CreateCreditNote = () => {
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { customerId, invoiceId } = useParams()
-  const { loading, invoice, feesPerInvoice, feeForAddOn, feeForCredit, onCreate } =
-    useCreateCreditNote()
+  const {
+    loading,
+    invoice,
+    feesPerInvoice,
+    feeForAddOn,
+    feeForCredit,
+    hasCreditableOrRefundableAmount,
+    onCreate,
+  } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
 
   const initialPayBack = buildInitialPayBack(invoice)
@@ -180,22 +187,31 @@ const CreateCreditNote = () => {
   })
 
   const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
-  const hasCreditableOrRefundableAmount =
-    Number(invoice?.creditableAmountCents) > 0 || Number(invoice?.refundableAmountCents) > 0
 
   const creditFeeValue = formikProps.values.creditFee?.[0]?.value
 
   useEffect(() => {
     if (isPrepaidCreditsInvoice && creditFeeValue) {
-      formikProps.setFieldValue('payBack', [
-        {
-          type: CreditTypeEnum.refund,
-          value: creditFeeValue,
-        },
-      ])
+      // For prepaid credits invoice with creditable/refundable amount, set payBack to refund
+      if (hasCreditableOrRefundableAmount) {
+        formikProps.setFieldValue('payBack', [
+          {
+            type: CreditTypeEnum.refund,
+            value: creditFeeValue,
+          },
+        ])
+      } else {
+        // When no creditable/refundable amount, use applyToInvoice
+        formikProps.setFieldValue('payBack', [
+          {
+            type: CreditTypeEnum.applyToInvoice,
+            value: creditFeeValue,
+          },
+        ])
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPrepaidCreditsInvoice, creditFeeValue])
+  }, [isPrepaidCreditsInvoice, creditFeeValue, hasCreditableOrRefundableAmount])
 
   const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
