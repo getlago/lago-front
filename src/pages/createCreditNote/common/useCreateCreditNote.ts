@@ -15,9 +15,13 @@ import { serializeCreditNoteInput } from '~/core/serializers'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreateCreditNoteInvoiceFragmentDoc,
+  CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
   Fee,
   FeeTypesEnum,
+  GetInvoiceCreditNotesDocument,
+  GetInvoiceCreditNotesQuery,
+  GetInvoiceCreditNotesQueryVariables,
   InvoiceCreateCreditNoteFragment,
   InvoiceTypeEnum,
   LagoApiError,
@@ -124,10 +128,12 @@ gql`
   mutation createCreditNote($input: CreateCreditNoteInput!) {
     createCreditNote(input: $input) {
       id
+      ...CreditNoteTableItem
     }
   }
 
   ${CreateCreditNoteInvoiceFragmentDoc}
+  ${CreditNoteTableItemFragmentDoc}
 `
 
 type UseCreateCreditNoteReturn = {
@@ -155,6 +161,40 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   const [create] = useCreateCreditNoteMutation({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
+    // Updates the invoice fields (creditableAmountCents, refundableAmountCents) in background.
+    // We can't include these fields directly in the mutation response because it would update the invoice
+    // in cache before navigation, causing a 404 redirect on back button
+    refetchQueries: ['getInvoiceCreditNotes'],
+    // Apollo only normalizes single entities, not lists. When creating a new credit note,
+    // Apollo caches the entity but doesn't know which lists should include it.
+    // We manually add the new credit note reference to the cached list for immediate UI update.
+    update(cache, { data: mutationData }) {
+      if (!mutationData?.createCreditNote) return
+
+      const newCreditNote = mutationData.createCreditNote
+
+      cache.updateQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(
+        {
+          query: GetInvoiceCreditNotesDocument,
+          variables: { invoiceId: invoiceId as string, limit: 20 },
+        },
+        (cachedData) => {
+          if (!cachedData?.invoiceCreditNotes) return cachedData
+
+          return {
+            ...cachedData,
+            invoiceCreditNotes: {
+              ...cachedData.invoiceCreditNotes,
+              metadata: {
+                ...cachedData.invoiceCreditNotes.metadata,
+                totalCount: (cachedData.invoiceCreditNotes.metadata.totalCount || 0) + 1,
+              },
+              collection: [newCreditNote, ...cachedData.invoiceCreditNotes.collection],
+            },
+          }
+        },
+      )
     },
     onCompleted({ createCreditNote }) {
       if (createCreditNote) {

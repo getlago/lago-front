@@ -12398,7 +12398,7 @@ export type CreateCreditNoteMutationVariables = Exact<{
 }>;
 
 
-export type CreateCreditNoteMutation = { __typename?: 'Mutation', createCreditNote?: { __typename?: 'CreditNote', id: string } | null };
+export type CreateCreditNoteMutation = { __typename?: 'Mutation', createCreditNote?: { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } } | null };
 
 export type GetAccountingIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34058,9 +34058,10 @@ export const CreateCreditNoteDocument = gql`
     mutation createCreditNote($input: CreateCreditNoteInput!) {
   createCreditNote(input: $input) {
     id
+    ...CreditNoteTableItem
   }
 }
-    `;
+    ${CreditNoteTableItemFragmentDoc}`;
 export type CreateCreditNoteMutationFn = Apollo.MutationFunction<CreateCreditNoteMutation, CreateCreditNoteMutationVariables>;
 
 /**
