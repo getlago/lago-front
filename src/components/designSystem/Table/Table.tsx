@@ -7,7 +7,6 @@ import {
   TableCellProps,
   TableRowProps,
 } from '@mui/material'
-import { IconName } from 'lago-design-system'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -28,9 +27,10 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PopperOpener, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
-const PADDING_SPACING_RIGHT_PX = 32
+import TableInnerCell from './TableInnerCell'
+import type { ActionColumn, ActionItem, Align } from './types'
 
-type Align = 'left' | 'center' | 'right'
+const PADDING_SPACING_RIGHT_PX = 32
 
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 
@@ -62,17 +62,6 @@ type DataItem = {
   id: string
 }
 
-export type ActionItem<T> = {
-  title: string | ReactNode
-  onAction: (item: T) => void | Promise<void>
-  startIcon?: IconName
-  endIcon?: IconName
-  disabled?: boolean
-  tooltip?: string
-  tooltipListener?: boolean
-  dataTest?: string
-}
-
 export type TableContainerSize = 0 | 4 | 16 | 48
 type RowSize = 48 | 72
 
@@ -91,7 +80,7 @@ export interface TableProps<T> {
   placeholder?: TablePlaceholder
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
-  actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
+  actionColumn?: ActionColumn<T>
   actionColumnTooltip?: (item: T) => string
   rowDataTestId?: (item: T) => string
   containerSize?: ResponsiveStyleValue<TableContainerSize>
@@ -219,46 +208,6 @@ const TableActionCell = ({
   )
 }
 
-const TableInnerCell = ({
-  align,
-  children,
-  className,
-  minWidth,
-  maxWidth,
-  style,
-  truncateOverflow,
-}: PropsWithChildren & {
-  align?: Align
-  className?: string
-  minWidth?: number
-  maxWidth?: number
-  style?: React.CSSProperties
-  truncateOverflow?: boolean
-}) => {
-  return (
-    <div
-      className={tw(
-        'lago-table-inner-cell',
-        'flex items-center',
-        {
-          'justify-start': align === 'left',
-          'justify-center': align === 'center',
-          'justify-end': align === 'right',
-          grid: !!truncateOverflow,
-        },
-        className,
-      )}
-      style={{
-        minWidth: minWidth ? `${minWidth}px` : 'auto',
-        maxWidth: maxWidth ? `${maxWidth}px` : 'auto',
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  )
-}
-
 const LoadingRows = <T,>({
   columns,
   id,
@@ -327,7 +276,11 @@ const ActionItemButton = <T,>({
   )
 
   const withTooltip = (
-    <Tooltip title={action.tooltip} disableHoverListener={action.tooltipListener}>
+    <Tooltip
+      title={action.tooltip}
+      disableHoverListener={action.tooltipListener}
+      placement={action.tooltipPlacement}
+    >
       {button}
     </Tooltip>
   )

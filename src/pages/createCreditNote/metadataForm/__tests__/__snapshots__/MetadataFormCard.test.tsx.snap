@@ -3,19 +3,19 @@
 exports[`MetadataFormCard snapshots matches snapshot with empty metadata 1`] = `
 <div>
   <div
-    class="flex flex-col gap-6 rounded-xl border border-grey-300 bg-white p-8"
+    class="flex flex-col gap-6"
   >
     <div
       class="flex flex-col gap-2"
     >
       <div
-        class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
         data-test="subhead1"
       >
         Metadata
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="caption"
       >
         Include metadata on this credit note
@@ -23,13 +23,13 @@ exports[`MetadataFormCard snapshots matches snapshot with empty metadata 1`] = `
     </div>
     <div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="add-metadata-button"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+          class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
         >
           <svg
             class="text-inherit size-4 min-w-4"
@@ -54,19 +54,19 @@ exports[`MetadataFormCard snapshots matches snapshot with empty metadata 1`] = `
 exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
 <div>
   <div
-    class="flex flex-col gap-6 rounded-xl border border-grey-300 bg-white p-8"
+    class="flex flex-col gap-6"
   >
     <div
       class="flex flex-col gap-2"
     >
       <div
-        class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
         data-test="subhead1"
       >
         Metadata
       </div>
       <div
-        class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
         data-test="caption"
       >
         Include metadata on this credit note
@@ -82,13 +82,13 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
           class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
         >
           <div
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
           >
             Key
           </div>
           <div
-            class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
             data-test="captionHl"
           >
             Value
@@ -101,14 +101,14 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
             class="flex flex-col gap-1"
           >
             <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+              class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
             >
               <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
               >
                 <input
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   id="metadata.0.key"
                   name="metadata.0.key"
                   placeholder="Enter a key"
@@ -117,10 +117,10 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
                 />
                 <fieldset
                   aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                  class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                 >
                   <legend
-                    class="css-1whs34k-MuiNotchedOutlined-root"
+                    class=css-hash-MuiNotchedOutlined-root
                   >
                     <span
                       class="notranslate"
@@ -136,14 +136,14 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
             class="flex flex-col gap-1"
           >
             <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+              class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
             >
               <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
               >
                 <input
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   id="metadata.0.value"
                   name="metadata.0.value"
                   placeholder="Enter a value"
@@ -152,10 +152,10 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
                 />
                 <fieldset
                   aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                  class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                 >
                   <legend
-                    class="css-1whs34k-MuiNotchedOutlined-root"
+                    class=css-hash-MuiNotchedOutlined-root
                   >
                     <span
                       class="notranslate"
@@ -176,7 +176,7 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
               data-mui-internal-clone-element="true"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -208,14 +208,14 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
             class="flex flex-col gap-1"
           >
             <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+              class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
             >
               <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
               >
                 <input
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   id="metadata.1.key"
                   name="metadata.1.key"
                   placeholder="Enter a key"
@@ -224,10 +224,10 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
                 />
                 <fieldset
                   aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                  class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                 >
                   <legend
-                    class="css-1whs34k-MuiNotchedOutlined-root"
+                    class=css-hash-MuiNotchedOutlined-root
                   >
                     <span
                       class="notranslate"
@@ -243,14 +243,14 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
             class="flex flex-col gap-1"
           >
             <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+              class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
             >
               <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
               >
                 <input
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                  class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                   id="metadata.1.value"
                   name="metadata.1.value"
                   placeholder="Enter a value"
@@ -259,10 +259,10 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
                 />
                 <fieldset
                   aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                  class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                 >
                   <legend
-                    class="css-1whs34k-MuiNotchedOutlined-root"
+                    class=css-hash-MuiNotchedOutlined-root
                   >
                     <span
                       class="notranslate"
@@ -283,7 +283,7 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
               data-mui-internal-clone-element="true"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
                 tabindex="0"
                 type="button"
@@ -308,13 +308,13 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
     </div>
     <div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+        class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
         data-test="add-metadata-button"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+          class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
         >
           <svg
             class="text-inherit size-4 min-w-4"

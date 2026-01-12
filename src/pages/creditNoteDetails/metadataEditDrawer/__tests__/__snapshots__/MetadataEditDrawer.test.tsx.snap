@@ -2,7 +2,7 @@
 
 exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-hash-MuiPaper-root-MuiDrawer-paper
   style="-webkit-transform: none; transform: none; transition: transform 250ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;"
   tabindex="-1"
 >
@@ -10,13 +10,13 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
     class="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
   >
     <div
-      class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="bodyHl"
     >
       Edit Metadata
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"
@@ -45,32 +45,32 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
         class="flex flex-col gap-1 px-8"
       >
         <div
-          class="MuiTypography-root MuiTypography-headline whitespace-pre-line css-lh3wu3-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
           data-test="headline"
         >
           Edit Metadata
         </div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Metadata will be linked to the credit note object payload but won’t appear on the generated pdf file.
         </div>
       </div>
       <div
-        class="flex flex-col gap-6 rounded-xl border border-grey-300 bg-white p-8"
+        class="flex flex-col gap-6"
       >
         <div
           class="flex flex-col gap-2"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Metadata
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Include metadata on this credit note
@@ -86,13 +86,13 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
               class="grid grid-cols-[200px_1fr_24px] gap-x-3 "
             >
               <div
-                class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="captionHl"
               >
                 Key
               </div>
               <div
-                class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+                class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="captionHl"
               >
                 Value
@@ -105,14 +105,14 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                 class="flex flex-col gap-1"
               >
                 <div
-                  class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                  class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                 >
                   <div
-                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                    class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
                   >
                     <input
                       aria-invalid="false"
-                      class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                      class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                       id="metadata.0.key"
                       name="metadata.0.key"
                       placeholder="Enter a key"
@@ -121,10 +121,10 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                     />
                     <fieldset
                       aria-hidden="true"
-                      class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                     >
                       <legend
-                        class="css-1whs34k-MuiNotchedOutlined-root"
+                        class=css-hash-MuiNotchedOutlined-root
                       >
                         <span
                           class="notranslate"
@@ -140,14 +140,14 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                 class="flex flex-col gap-1"
               >
                 <div
-                  class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                  class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                 >
                   <div
-                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                    class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
                   >
                     <input
                       aria-invalid="false"
-                      class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                      class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                       id="metadata.0.value"
                       name="metadata.0.value"
                       placeholder="Enter a value"
@@ -156,10 +156,10 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                     />
                     <fieldset
                       aria-hidden="true"
-                      class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                     >
                       <legend
-                        class="css-1whs34k-MuiNotchedOutlined-root"
+                        class=css-hash-MuiNotchedOutlined-root
                       >
                         <span
                           class="notranslate"
@@ -180,7 +180,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                   data-mui-internal-clone-element="true"
                 >
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                    class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                     data-test="button"
                     tabindex="0"
                     type="button"
@@ -212,14 +212,14 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                 class="flex flex-col gap-1"
               >
                 <div
-                  class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                  class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                 >
                   <div
-                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                    class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
                   >
                     <input
                       aria-invalid="false"
-                      class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                      class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                       id="metadata.1.key"
                       name="metadata.1.key"
                       placeholder="Enter a key"
@@ -228,10 +228,10 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                     />
                     <fieldset
                       aria-hidden="true"
-                      class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                     >
                       <legend
-                        class="css-1whs34k-MuiNotchedOutlined-root"
+                        class=css-hash-MuiNotchedOutlined-root
                       >
                         <span
                           class="notranslate"
@@ -247,14 +247,14 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                 class="flex flex-col gap-1"
               >
                 <div
-                  class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                  class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
                 >
                   <div
-                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+                    class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
                   >
                     <input
                       aria-invalid="false"
-                      class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+                      class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                       id="metadata.1.value"
                       name="metadata.1.value"
                       placeholder="Enter a value"
@@ -263,10 +263,10 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                     />
                     <fieldset
                       aria-hidden="true"
-                      class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                      class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
                     >
                       <legend
-                        class="css-1whs34k-MuiNotchedOutlined-root"
+                        class=css-hash-MuiNotchedOutlined-root
                       >
                         <span
                           class="notranslate"
@@ -287,7 +287,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                   data-mui-internal-clone-element="true"
                 >
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-1w4ajx2-MuiButtonBase-root-MuiButton-root"
+                    class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                     data-test="button"
                     tabindex="0"
                     type="button"
@@ -312,13 +312,13 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
         </div>
         <div>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="add-metadata-button"
             tabindex="0"
             type="button"
           >
             <span
-              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+              class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
             >
               <svg
                 class="text-inherit size-4 min-w-4"
@@ -341,7 +341,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
         class="px-8 pb-8"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-g32ohc-MuiButtonBase-root-MuiButton-root"
+          class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
           data-test="button"
           disabled=""
           tabindex="-1"
@@ -357,7 +357,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
 
 exports[`MetadataEditDrawer snapshots matches snapshot when open with no metadata 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-hash-MuiPaper-root-MuiDrawer-paper
   style="-webkit-transform: none; transform: none; transition: transform 250ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;"
   tabindex="-1"
 >
@@ -365,13 +365,13 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with no metadat
     class="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
   >
     <div
-      class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="bodyHl"
     >
       Edit Metadata
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"
@@ -400,32 +400,32 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with no metadat
         class="flex flex-col gap-1 px-8"
       >
         <div
-          class="MuiTypography-root MuiTypography-headline whitespace-pre-line css-lh3wu3-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
           data-test="headline"
         >
           Edit Metadata
         </div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-11vl04s-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Metadata will be linked to the credit note object payload but won’t appear on the generated pdf file.
         </div>
       </div>
       <div
-        class="flex flex-col gap-6 rounded-xl border border-grey-300 bg-white p-8"
+        class="flex flex-col gap-6"
       >
         <div
           class="flex flex-col gap-2"
         >
           <div
-            class="MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-uvnpl0-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
             data-test="subhead1"
           >
             Metadata
           </div>
           <div
-            class="MuiTypography-root MuiTypography-caption whitespace-pre-line css-lqi0ej-MuiTypography-root"
+            class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
             data-test="caption"
           >
             Include metadata on this credit note
@@ -433,13 +433,13 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with no metadat
         </div>
         <div>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="add-metadata-button"
             tabindex="0"
             type="button"
           >
             <span
-              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-350881-MuiButton-startIcon"
+              class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-hash-MuiButton-startIcon
             >
               <svg
                 class="text-inherit size-4 min-w-4"
@@ -462,7 +462,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with no metadat
         class="px-8 pb-8"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-g32ohc-MuiButtonBase-root-MuiButton-root"
+          class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
           data-test="button"
           disabled=""
           tabindex="-1"
