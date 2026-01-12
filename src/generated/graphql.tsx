@@ -4045,12 +4045,12 @@ export enum IntegrationTypeEnum {
 
 export type Invite = {
   __typename?: 'Invite';
-  acceptedAt: Scalars['ISO8601DateTime']['output'];
+  acceptedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   organization: Organization;
   recipient: Membership;
-  revokedAt: Scalars['ISO8601DateTime']['output'];
+  revokedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   /** @deprecated Use `roles` field instead */
   role?: Maybe<MembershipRole>;
   roles: Array<Scalars['String']['output']>;
@@ -4425,7 +4425,7 @@ export type Membership = {
   organization: Organization;
   /** @deprecated Use permissions enum instead */
   permissions: Permissions;
-  revokedAt: Scalars['ISO8601DateTime']['output'];
+  revokedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   /** @deprecated Use roles instead */
   role?: Maybe<MembershipRole>;
   roles: Array<Scalars['String']['output']>;
@@ -11896,7 +11896,7 @@ export type MembershipPermissionsFragment = { __typename?: 'Membership', id: str
 export type GetRolesListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetRolesListQuery = { __typename?: 'Query', roles: Array<{ __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> }> };
+export type GetRolesListQuery = { __typename?: 'Query', roles: Array<{ __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> }> };
 
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13802,7 +13802,7 @@ export type RevokeMembershipMutationVariables = Exact<{
 
 export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembership?: { __typename?: 'Membership', id: string } | null };
 
-export type RoleFragmentFragment = { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> };
+export type RoleFragmentFragment = { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> };
 
 export type DeleteRoleMutationVariables = Exact<{
   input: DestroyRoleInput;
@@ -13816,7 +13816,7 @@ export type GetRoleQueryVariables = Exact<{
 }>;
 
 
-export type GetRoleQuery = { __typename?: 'Query', role?: { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } | null };
+export type GetRoleQuery = { __typename?: 'Query', role?: { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> } | null };
 
 export type CreateRoleMutationVariables = Exact<{
   input: CreateRoleInput;
@@ -18260,6 +18260,7 @@ export const RoleFragmentFragmentDoc = gql`
       id
       email
     }
+    revokedAt
   }
 }
     `;
