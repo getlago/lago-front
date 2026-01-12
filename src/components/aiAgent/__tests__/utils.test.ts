@@ -72,7 +72,7 @@ describe('getHiddenAiAgentPaths', () => {
   it('should transform all routes into path objects', () => {
     const result = getHiddenAiAgentPaths()
 
-    expect(result).toHaveLength(17)
+    expect(result).toHaveLength(21)
     expect(result).toEqual([
       { path: '/create/plans' },
       { path: '/update/plan/:planId' },
@@ -89,6 +89,10 @@ describe('getHiddenAiAgentPaths', () => {
       { path: '/settings/billing-entity/:entityId/edit' },
       { path: '/settings/pricing-unit/create' },
       { path: '/settings/pricing-unit/:unitId/edit' },
+      { path: '/customer-portal/:token' },
+      { path: '/customer-portal/:token/usage/:itemId' },
+      { path: '/customer-portal/:token/wallet/:walletId' },
+      { path: '/customer-portal/:token/customer-edit-information' },
       { path: '/404' },
       { path: '/forbidden' },
     ])
