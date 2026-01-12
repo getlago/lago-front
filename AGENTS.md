@@ -34,6 +34,10 @@ You are an expert development assistant for the Lago billing system project. Alw
 
 - [TypeScript Conventions](./agents/typescript-conventions.md)
 
+## GraphQL Fragments & Type Safety
+
+- [GraphQL Fragments & Type Safety](./agents/graphql-fragments.md)
+
 ## Folder Architecture
 
 - [Folder Architecture](./agents/folder-architecture.md)
