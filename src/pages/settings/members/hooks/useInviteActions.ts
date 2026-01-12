@@ -88,7 +88,7 @@ export const useInviteActions = () => {
 
   const [revokeInvite] = useRevokeInviteMutation({
     onCompleted(data) {
-      if (data && data.revokeInvite) {
+      if (data?.revokeInvite) {
         addToast({
           translateKey: 'text_63208c711ce25db781407523',
           severity: 'success',

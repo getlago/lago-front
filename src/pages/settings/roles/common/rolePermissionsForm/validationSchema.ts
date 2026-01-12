@@ -7,7 +7,7 @@ export const validationSchema = z.object({
   code: z.string(),
   description: z.string(),
   permissions: z.record(zodOneOfPermissions, z.boolean()).refine((data) => {
-    return Object.values(data).some((value) => value === true)
+    return Object.values(data).includes(true)
   }, 'text_1767969448650g3wwpvy5f9g'),
 })
 

@@ -16,7 +16,7 @@ import { GetMembersQuery, MembershipItemForMembershipSettingsFragment } from '~/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
+import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import {
   EditMemberRoleDialog,
   EditMemberRoleDialogRef,
@@ -32,6 +32,20 @@ import { useGetMembersList } from './hooks/useGetMembersList'
 
 type Membership = GetMembersQuery['memberships']['collection'][0]
 
+const EmailColumn = ({ user }: Membership) => (
+  <div className="flex flex-1 items-center gap-3">
+    <Avatar variant="user" identifier={(user.email || '').charAt(0)} size="big" />
+    <Typography variant="body" color="grey700">
+      {user.email}
+    </Typography>
+  </div>
+)
+
+const getRolesColumn = (getDisplayName: (role: AllowedElements) => string) =>
+  function RolesColumnInside({ roles }: Membership) {
+    return <Chip label={getDisplayName({ name: roles[0] })} />
+  }
+
 const MemberList = () => {
   const { translate } = useInternationalization()
   const { members, metadata, membersLoading, membersFetchMore, membersError, membersRefetch } =
@@ -39,6 +53,8 @@ const MemberList = () => {
   const { hasPermissions } = usePermissions()
   const { currentUser } = useCurrentUser()
   const { getDisplayName } = useRoleDisplayInformation()
+
+  const RolesColumn = getRolesColumn(getDisplayName)
 
   const [searchParams] = useSearchParams()
 
@@ -56,7 +72,7 @@ const MemberList = () => {
     if (!selectedRole && !searchQuery) return members
 
     return members.filter((member) => {
-      const matchesRole = !selectedRole || member.roles.some((role) => role === selectedRole)
+      const matchesRole = !selectedRole || member.roles.includes(selectedRole)
       const matchesSearch =
         !searchQuery || member.user.email?.toLowerCase().includes(searchQuery.toLowerCase())
 
@@ -79,22 +95,13 @@ const MemberList = () => {
       key: 'user.email',
       title: translate('text_63208b630aaf8df6bbfb2655'),
       maxSpace: true,
-      content: ({ user }) => (
-        <div className="flex flex-1 items-center gap-3">
-          <Avatar variant="user" identifier={(user.email || '').charAt(0)} size="big" />
-          <Typography variant="body" color="grey700">
-            {user.email}
-          </Typography>
-        </div>
-      ),
+      content: EmailColumn,
     },
     {
       key: 'roles.0',
       title: translate('text_664f035a68227f00e261b7ec'),
       minWidth: 170,
-      content: ({ roles: memberRoles }) => (
-        <Chip label={getDisplayName({ name: memberRoles[0] })} />
-      ),
+      content: RolesColumn,
     },
   ]
 

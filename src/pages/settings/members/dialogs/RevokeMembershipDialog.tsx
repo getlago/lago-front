@@ -32,7 +32,7 @@ export const RevokeMembershipDialog = forwardRef<
   }))
 
   const isDeletingLastAdmin =
-    !!admins.find((admin) => admin.id === membershipInfos?.id) && admins.length === 1
+    admins.some((admin) => admin.id === membershipInfos?.id) && admins.length === 1
 
   return (
     <WarningDialog
