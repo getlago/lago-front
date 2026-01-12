@@ -13,7 +13,6 @@ async function prepare(
     to,
   }: {
     children?: React.ReactNode
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     props?: Record<string, any>
     type: ButtonLinkBaseProps['type']
     to: string

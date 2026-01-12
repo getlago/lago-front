@@ -8,8 +8,7 @@ import { Button } from '../Button'
 async function prepare({
   children,
   props,
-}: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-{ children?: React.ReactNode; props?: Record<string, any> } = {}) {
+}: { children?: React.ReactNode; props?: Record<string, any> } = {}) {
   await act(() =>
     render(
       <Button
