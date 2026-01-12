@@ -50,8 +50,8 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   }
 
   const validationSchema = z.object({
-    email: z.email(translate('text_620bc4d4269a55014d493fc3')),
-    role: z.string(),
+    email: z.email('text_620bc4d4269a55014d493fc3'),
+    role: z.string().min(1, 'text_1768219065391kkeiaebav23'),
   })
 
   const form = useAppForm({
