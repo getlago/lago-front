@@ -19,19 +19,16 @@ import { intlFormatDateTime } from '~/core/timezone'
 import {
   Charge,
   CurrencyEnum,
-  Customer,
   Fee,
   FeeAmountDetails,
   FeeAppliedTax,
   FetchDraftInvoiceTaxesMutation,
   FixedCharge,
-  Invoice,
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
   useGetInvoiceDetailsQuery,
   useGetInvoiceFeesQuery,
-  useGetInvoiceSubscriptionsQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -144,23 +141,6 @@ const removeEmptyKeys = (obj: object) => {
   return Object.fromEntries(keys.map((key) => [key, obj[key as keyof typeof obj]]))
 }
 
-const invoiceFeesToNonAdjusted = (invoice?: Invoice | null) => {
-  return {
-    ...invoice,
-    fees: invoice?.fees?.map((fee) => ({
-      ...fee,
-      adjustedFee: false,
-    })),
-    invoiceSubscriptions: invoice?.invoiceSubscriptions?.map((subscription) => ({
-      ...subscription,
-      fees: subscription?.fees?.map((fee) => ({
-        ...fee,
-        adjustedFee: false,
-      })),
-    })),
-  }
-}
-
 const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
 
 const CustomerInvoiceRegenerate = () => {
@@ -189,21 +169,15 @@ const CustomerInvoiceRegenerate = () => {
     skip: !invoiceId,
   })
 
-  const { data: fullInvoiceSubscriptionsRaw } = useGetInvoiceSubscriptionsQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-  })
-
   const fullFees = fullFeesInvoice?.invoice?.fees
-  const fullInvoiceSubscriptions = fullInvoiceSubscriptionsRaw?.invoice?.invoiceSubscriptions
 
-  const invoice = invoiceFeesToNonAdjusted(data?.invoice as Invoice)
+  const invoice = data?.invoice
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
   const hasTaxProvider =
     !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
 
-  const [fees, setFees] = useState(invoice?.fees || [])
+  const [fees, setFees] = useState(fullFees || [])
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
     useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
   const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =
@@ -280,7 +254,7 @@ const CustomerInvoiceRegenerate = () => {
   }
 
   const onDelete = (id: string) => {
-    const original = invoice?.fees?.find((f) => f.id === id)
+    const original = fullFees?.find((f) => f.id === id)
 
     if (original) {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
@@ -425,21 +399,22 @@ const CustomerInvoiceRegenerate = () => {
             {invoice && customer && billingEntity && (
               <InvoiceQuickInfo
                 customer={customer}
-                invoice={invoice as Invoice}
+                invoice={invoice}
                 billingEntity={billingEntity}
               />
             )}
-            <InvoiceDetailsTable
-              customer={customer as Customer}
-              invoice={invoice as Invoice}
-              editFeeDrawerRef={editFeeDrawerRef}
-              deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
-              isDraftOverride={true}
-              onAdd={onAdd}
-              onDelete={onDelete}
-              fees={fees}
-              invoiceSubscriptions={fullInvoiceSubscriptions}
-            />
+            {invoice && customer && (
+              <InvoiceDetailsTable
+                customer={customer}
+                invoice={invoice}
+                editFeeDrawerRef={editFeeDrawerRef}
+                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                isDraftOverride={true}
+                onAdd={onAdd}
+                onDelete={onDelete}
+                fees={fees}
+              />
+            )}
           </div>
         </>
       )}

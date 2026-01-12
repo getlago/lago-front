@@ -34,7 +34,10 @@ gql`
 `
 
 export interface FinalizeInvoiceDialogRef {
-  openDialog: (invoice: InvoiceForFinalizeInvoiceFragment, callback?: () => void) => unknown
+  openDialog: (
+    invoice: InvoiceForFinalizeInvoiceFragment | null | undefined,
+    callback?: () => void,
+  ) => unknown
   closeDialog: () => unknown
 }
 
@@ -86,7 +89,7 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
 
   useImperativeHandle(ref, () => ({
     openDialog: (infos, callbackFn) => {
-      setInvoice(infos)
+      !!infos && setInvoice(infos)
       callbackFn && setCallback(() => callbackFn)
       dialogRef.current?.openDialog()
     },

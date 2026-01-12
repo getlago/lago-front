@@ -1185,8 +1185,6 @@
   "text_65a6b4e2cb38d9b70ec54035": "Redefinir taxa",
   "text_65a6b4e2cb38d9b70ec53c55": "Você está prestes a perder as edições feitas na taxa; ela será redefinida para o valor calculado pelo Lago. Por favor, edite novamente para fazer as alterações desejadas.",
   "text_65a94d976d7a9700716590d9": "Pesquisar ou selecionar um ajuste",
-  "text_65b116a266d90732cac8b39b": "Exibir {{count}} taxa com 0 unidades|Exibir {{count}} taxas com 0 unidades",
-  "text_65b116a266d90732cac8b3bc": "Ocultar {{count}} taxa com 0 unidades|Ocultar {{count}} taxas com 0 unidades",
   "text_6613b48da4efd500cacc44d3": "O Lago ajustará automaticamente o preço unitário correspondente para a taxa com base no modelo de cobrança.",
   "text_659e67cd63512ef53284305a": "Gasto mínimo de {{amount}} rateado pelos dias de uso",
   "text_659e67cd63512ef532843070": "Taxa por unidade para as primeiras {{toValue}}",

@@ -4,8 +4,8 @@ import { Button, Popper } from '~/components/designSystem'
 import { FinalizeInvoiceDialogRef } from '~/components/invoices/FinalizeInvoiceDialog'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
+  AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   DownloadInvoiceItemMutationFn,
-  Invoice,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
   RefreshInvoiceMutationFn,
@@ -17,7 +17,7 @@ import { MenuPopper } from '~/styles'
 const { disablePdfGeneration } = envGlobalVar()
 
 interface InvoiceOverviewHeaderButtonsProps {
-  invoice: Invoice
+  invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
   loading: boolean
   loadingRefreshInvoice: boolean
   loadingRetryInvoice: boolean

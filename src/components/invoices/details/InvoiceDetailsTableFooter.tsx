@@ -7,7 +7,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
-  Fee,
+  FeeForInvoiceDetailsTableFooterFragment,
   InvoiceForDetailsTableFooterFragment,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
@@ -16,6 +16,11 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
+  fragment FeeForInvoiceDetailsTableFooter on Fee {
+    id
+    amountCents
+  }
+
   fragment InvoiceForDetailsTableFooter on Invoice {
     couponsAmountCents
     creditNotesAmountCents
@@ -48,7 +53,7 @@ interface InvoiceDetailsTableFooterProps {
   canHaveUnitPrice: boolean
   invoice: InvoiceForDetailsTableFooterFragment
   hasTaxProviderError?: boolean
-  invoiceFees?: Fee[] | null
+  invoiceFees?: FeeForInvoiceDetailsTableFooterFragment[] | null
   hideDiscounts?: boolean
 }
 

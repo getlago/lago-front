@@ -64,17 +64,18 @@ import {
   Customer,
   CustomerForInvoiceOverviewFragmentDoc,
   ErrorCodesEnum,
+  FeeDetailsForInvoiceOverviewFragmentDoc,
+  FeeForInvoiceDetailsTableFooterFragmentDoc,
   HubspotIntegration,
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
   InvoiceForDetailsTableFragmentDoc,
-  InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
+  InvoiceForFormatInvoiceItemMapFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoiceStatusTypeEnum,
-  InvoiceSubscriptionForInvoiceDetailsTableFragmentDoc,
   InvoiceTaxStatusTypeEnum,
   LagoApiError,
   NetsuiteIntegration,
@@ -85,7 +86,6 @@ import {
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
   useGetInvoiceFeesQuery,
-  useGetInvoiceSubscriptionsQuery,
   useIntegrationsListForCustomerInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
   useRetryInvoiceMutation,
@@ -180,17 +180,13 @@ gql`
   query getInvoiceFees($id: ID!) {
     invoice(id: $id) {
       id
-      fees {
-        ...FeeForInvoiceDetailsTable
-      }
-    }
-  }
+      ...InvoiceForInvoiceDetailsTable
+      ...InvoiceForFormatInvoiceItemMap
 
-  query getInvoiceSubscriptions($id: ID!) {
-    invoice(id: $id) {
-      id
-      invoiceSubscriptions {
-        ...InvoiceSubscriptionForInvoiceDetailsTable
+      fees {
+        ...FeeDetailsForInvoiceOverview
+        ...FeeForInvoiceDetailsTable
+        ...FeeForInvoiceDetailsTableFooter
       }
     }
   }
@@ -253,9 +249,6 @@ gql`
       fees {
         ...FeeForInvoiceDetailsTable
       }
-      invoiceSubscriptions {
-        ...InvoiceSubscriptionForInvoiceDetailsTable
-      }
     }
   }
 
@@ -300,7 +293,9 @@ gql`
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${CustomerForInvoiceOverviewFragmentDoc}
-  ${InvoiceSubscriptionForInvoiceDetailsTableFragmentDoc}
+  ${InvoiceForFormatInvoiceItemMapFragmentDoc}
+  ${FeeDetailsForInvoiceOverviewFragmentDoc}
+  ${FeeForInvoiceDetailsTableFooterFragmentDoc}
 `
 
 const getErrorMessageFromErrorDetails = (
@@ -379,18 +374,8 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
-  const {
-    data: invoiceSubscriptionData,
-    loading: invoiceSubscriptionLoading,
-    error: invoiceSubscriptionError,
-  } = useGetInvoiceSubscriptionsQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-    notifyOnNetworkStatusChange: true,
-  })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees
-  const invoiceSubscriptions = invoiceSubscriptionData?.invoice?.invoiceSubscriptions
 
   const { data: customerData, loading: customerLoading } = useGetInvoiceCustomerQuery({
     variables: { id: invoice?.customer?.id as string },
@@ -597,9 +582,8 @@ const CustomerInvoiceDetails = () => {
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
-  const isLoading = loading || customerLoading || feesLoading || invoiceSubscriptionLoading
-  const hasError =
-    (!!error || !!feesError || !!invoiceSubscriptionError || !data?.invoice) && !isLoading
+  const isLoading = loading || customerLoading || feesLoading
+  const hasError = (!!error || !!feesError || !data?.invoice) && !isLoading
   const hasTaxProviderError = errorDetails?.find(
     ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
   )
@@ -655,11 +639,10 @@ const CustomerInvoiceDetails = () => {
             downloadInvoiceXml={downloadInvoiceXml}
             hasError={hasError}
             hasTaxProviderError={!!hasTaxProviderError}
-            invoice={data?.invoice as Invoice}
+            invoice={data?.invoice}
             loading={isLoading}
             customer={customer}
             fees={invoiceFees}
-            invoiceSubscriptions={invoiceSubscriptions}
             loadingInvoiceDownload={loadingInvoiceDownload}
             loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
@@ -768,7 +751,6 @@ const CustomerInvoiceDetails = () => {
     isLoading,
     customer,
     invoiceFees,
-    invoiceSubscriptions,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
@@ -845,9 +827,7 @@ const CustomerInvoiceDetails = () => {
                         variant="quaternary"
                         align="left"
                         onClick={async () => {
-                          finalizeInvoiceRef.current?.openDialog(
-                            data?.invoice as InvoiceForFinalizeInvoiceFragment,
-                          )
+                          finalizeInvoiceRef.current?.openDialog(data?.invoice)
                           closePopper()
                         }}
                       >
