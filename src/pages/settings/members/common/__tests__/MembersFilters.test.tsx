@@ -65,7 +65,7 @@ async function prepare({
   mocks = [rolesListMock],
   props = defaultProps,
 }: { mocks?: TestMocksType; props?: MembersFiltersProps } = {}) {
-  await act(() =>
+  return await act(() =>
     render(<MembersFilters {...props} />, {
       mocks,
     }),
@@ -167,6 +167,52 @@ describe('MembersFilters', () => {
 
         expect(allRolesOptions.length).toBeGreaterThanOrEqual(1)
       })
+    })
+
+    it('clears search input when clicking clear button', async () => {
+      const setSearchQuery = jest.fn()
+      const user = userEvent.setup()
+
+      await prepare({ props: { ...defaultProps, searchQuery: 'test', setSearchQuery } })
+
+      const searchInput = screen.getByRole('textbox')
+
+      expect(searchInput).toHaveValue('test')
+
+      // Clear the input
+      await user.clear(searchInput)
+
+      await waitFor(() => {
+        expect(setSearchQuery).toHaveBeenCalledWith('')
+      })
+    })
+  })
+
+  describe('Snapshot Tests', () => {
+    it('matches snapshot with default props', async () => {
+      const { container } = await prepare()
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot with search query', async () => {
+      const { container } = await prepare({
+        props: { ...defaultProps, searchQuery: 'test@example.com' },
+      })
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot with invitations type', async () => {
+      const { container } = await prepare({ props: { ...defaultProps, type: 'invitations' } })
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot with members type', async () => {
+      const { container } = await prepare({ props: { ...defaultProps, type: 'members' } })
+
+      expect(container).toMatchSnapshot()
     })
   })
 })

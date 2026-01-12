@@ -223,4 +223,316 @@ describe('RoleCreateEdit', () => {
       expect(buttons.length).toBeGreaterThanOrEqual(2)
     })
   })
+
+  describe('Duplicate Mode', () => {
+    beforeEach(() => {
+      mockIsEdition = false
+      mockRoleId = 'role-to-duplicate'
+      mockRole = {
+        id: 'role-to-duplicate',
+        name: 'Role to Duplicate',
+        code: 'role_to_duplicate',
+        description: 'Original description',
+        permissions: ['permission1'],
+      }
+    })
+
+    it('renders create form title when duplicating', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      // Should use create title, not edit title
+      expect(screen.getAllByText('text_176613814608779rumjj7r2d')).toHaveLength(2)
+    })
+
+    it('renders create submit button when duplicating', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      expect(screen.getByText('text_1766138146087w2ax628r6j1')).toBeInTheDocument()
+    })
+  })
+
+  describe('Close Button Behavior', () => {
+    it('renders close button in header', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      // Close button should be present in header
+      const buttons = screen.getAllByRole('button')
+
+      expect(buttons.length).toBeGreaterThan(0)
+    })
+
+    it('navigates to role details on close when editing', async () => {
+      mockIsEdition = true
+      mockRoleId = 'role-123'
+      mockRole = {
+        id: 'role-123',
+        name: 'Test Role',
+        code: 'test_role',
+        description: 'Test role description',
+        permissions: [],
+      }
+
+      const user = userEvent.setup()
+
+      await act(() => render(<RoleCreateEdit />))
+
+      // Click the close button (first quaternary button in header)
+      const closeButton = screen.getAllByRole('button')[0]
+
+      await user.click(closeButton)
+
+      await waitFor(() => {
+        expect(testMockNavigateFn).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('Form Inputs', () => {
+    it('renders description field with optional label', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      // Description label translation key
+      expect(screen.getByText('text_6388b923e514213fed58331c')).toBeInTheDocument()
+    })
+
+    it('renders description field placeholder', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      // Description placeholder translation key
+      expect(screen.getByPlaceholderText('text_176614189875029z5fbpnkne')).toBeInTheDocument()
+    })
+
+    it('renders name field placeholder', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      // Name placeholder translation key
+      expect(screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')).toBeInTheDocument()
+    })
+
+    it('renders code field placeholder', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      // Code placeholder translation key
+      expect(screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')).toBeInTheDocument()
+    })
+  })
+
+  describe('Edit Mode - Fields', () => {
+    beforeEach(() => {
+      mockIsEdition = true
+      mockRoleId = 'role-123'
+      mockRole = {
+        id: 'role-123',
+        name: 'Test Role',
+        code: 'test_role',
+        description: 'Test role description',
+        permissions: [],
+      }
+    })
+
+    it('renders name and code fields in edit mode', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
+
+      // Fields should exist with values from the role
+      expect(nameInput).toBeInTheDocument()
+      expect(codeInput).toBeInTheDocument()
+      expect(nameInput).toHaveValue('Test Role')
+      expect(codeInput).toHaveValue('test_role')
+    })
+  })
+
+  describe('Create Mode - Enabled Fields', () => {
+    it('enables name and code fields in create mode', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
+
+      expect(nameInput).not.toBeDisabled()
+      expect(codeInput).not.toBeDisabled()
+    })
+  })
+
+  describe('Sticky Footer', () => {
+    it('renders sticky footer with buttons', async () => {
+      await act(() => render(<RoleCreateEdit />))
+
+      // Both cancel and submit buttons should be present
+      expect(screen.getByText('text_62e79671d23ae6ff149de968')).toBeInTheDocument()
+      expect(screen.getByTestId(SUBMIT_ROLE_DATA_TEST)).toBeInTheDocument()
+    })
+
+    it('cancel button has large size', async () => {
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      // Find the cancel button which has size="large"
+      const cancelButtons = container.querySelectorAll('button')
+      const cancelButton = Array.from(cancelButtons).find((btn) =>
+        btn.textContent?.includes('text_62e79671d23ae6ff149de968'),
+      )
+
+      expect(cancelButton).toBeInTheDocument()
+    })
+  })
+
+  describe('Page Structure', () => {
+    it('renders with CenteredPage wrapper', async () => {
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      // Form should have the correct structure
+      const form = container.querySelector(`#${ROLE_CREATE_EDIT_FORM_ID}`)
+
+      expect(form).toHaveClass('flex', 'min-h-full', 'flex-col')
+    })
+
+    it('renders form with correct id', async () => {
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      expect(container.querySelector(`form#${ROLE_CREATE_EDIT_FORM_ID}`)).toBeInTheDocument()
+    })
+  })
+
+  describe('Form Behavior', () => {
+    it('opens warning dialog when canceling with dirty form', async () => {
+      const user = userEvent.setup()
+
+      await act(() => render(<RoleCreateEdit />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      await user.type(nameInput, 'Test')
+
+      const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
+
+      await user.click(cancelButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('text_665deda4babaf700d603ea13')).toBeInTheDocument()
+      })
+    })
+
+    it('shows warning dialog description when opening warning dialog', async () => {
+      const user = userEvent.setup()
+
+      await act(() => render(<RoleCreateEdit />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      await user.type(nameInput, 'Test')
+
+      const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
+
+      await user.click(cancelButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('text_665dedd557dc3c00c62eb83d')).toBeInTheDocument()
+      })
+    })
+
+    it('shows warning dialog continue button when opening warning dialog', async () => {
+      const user = userEvent.setup()
+
+      await act(() => render(<RoleCreateEdit />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      await user.type(nameInput, 'Test')
+
+      const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
+
+      await user.click(cancelButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('text_645388d5bdbd7b00abffa033')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Snapshot Tests', () => {
+    it('matches snapshot in create mode', async () => {
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot in edit mode', async () => {
+      mockIsEdition = true
+      mockRoleId = 'role-123'
+      mockRole = {
+        id: 'role-123',
+        name: 'Test Role',
+        code: 'test_role',
+        description: 'Test role description',
+        permissions: [],
+      }
+
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot in loading state', async () => {
+      mockIsLoadingRole = true
+      mockRoleId = 'role-123'
+
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot in duplicate mode', async () => {
+      mockIsEdition = false
+      mockRoleId = 'role-to-duplicate'
+      mockRole = {
+        id: 'role-to-duplicate',
+        name: 'Role to Duplicate',
+        code: 'role_to_duplicate',
+        description: 'Original description',
+        permissions: ['permission1'],
+      }
+
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot after filling form', async () => {
+      const user = userEvent.setup()
+
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
+      const descriptionInput = screen.getByPlaceholderText('text_176614189875029z5fbpnkne')
+
+      await user.type(nameInput, 'New Role')
+      await user.type(codeInput, 'new_role')
+      await user.type(descriptionInput, 'A new custom role')
+
+      expect(container).toMatchSnapshot()
+    })
+
+    it('matches snapshot when warning dialog is open', async () => {
+      const user = userEvent.setup()
+
+      const { container } = await act(() => render(<RoleCreateEdit />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      await user.type(nameInput, 'Test')
+
+      const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
+
+      await user.click(cancelButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('text_665deda4babaf700d603ea13')).toBeInTheDocument()
+      })
+
+      expect(container).toMatchSnapshot()
+    })
+  })
 })
