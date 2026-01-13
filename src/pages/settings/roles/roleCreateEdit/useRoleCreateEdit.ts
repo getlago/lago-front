@@ -1,17 +1,19 @@
-import { FetchResult, gql } from '@apollo/client'
+import { FetchResult, gql, useApolloClient } from '@apollo/client'
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast } from '~/core/apolloClient'
-import { ROLE_DETAILS_ROUTE } from '~/core/router'
+import { HOME_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateRoleInput,
   CreateRoleMutation,
   EditRoleMutation,
+  GetCurrentUserInfosDocument,
   UpdateRoleInput,
   useCreateRoleMutation,
   useEditRoleMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   mutation createRole($input: CreateRoleInput!) {
@@ -37,7 +39,9 @@ export const useRoleCreateEdit = (): {
   const location = useLocation()
   const params = useParams()
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
+  const client = useApolloClient()
 
   const [createRoleMutation] = useCreateRoleMutation()
   const [editRoleMutation] = useEditRoleMutation()
@@ -49,20 +53,34 @@ export const useRoleCreateEdit = (): {
 
   const isEdition = !!roleIdFromEdition
 
+  const navigateToCorrectPageAfterSave = async () => {
+    // Be sure to have correct current user infos after role creation
+    await client.refetchQueries({
+      include: [GetCurrentUserInfosDocument],
+    })
+
+    if (!hasPermissions(['rolesView'])) {
+      navigate(HOME_ROUTE)
+      return
+    }
+
+    navigate(generatePath(ROLE_DETAILS_ROUTE, { roleId: roleId as string }))
+  }
+
   const createRole = async (roleParams: CreateRoleInput) => {
     return await createRoleMutation({
       variables: {
         input: roleParams,
       },
-      onCompleted: (data) => {
+      onCompleted: async (data) => {
         if (!data.createRole?.id) return
-
-        navigate(generatePath(ROLE_DETAILS_ROUTE, { roleId: data.createRole.id }))
 
         addToast({
           message: translate('text_1766158947598y30l6z5btl6'),
           severity: 'success',
         })
+
+        await navigateToCorrectPageAfterSave()
       },
     })
   }
@@ -72,15 +90,15 @@ export const useRoleCreateEdit = (): {
       variables: {
         input: roleParams,
       },
-      onCompleted: (data) => {
+      onCompleted: async (data) => {
         if (!data.updateRole?.id) return
-
-        navigate(generatePath(ROLE_DETAILS_ROUTE, { roleId: data.updateRole.id }))
 
         addToast({
           message: translate('text_176615894759841ijqrfnb29'),
           severity: 'success',
         })
+
+        await navigateToCorrectPageAfterSave()
       },
     })
   }
