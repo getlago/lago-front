@@ -52,10 +52,32 @@ describe('validationSchema', () => {
   })
 
   describe('code field', () => {
-    it('accepts valid code', () => {
+    it('accepts valid code with lowercase letters', () => {
       const result = validationSchema.safeParse({
         name: 'My Role',
-        code: 'my-role-code',
+        code: 'my_role_code',
+        description: '',
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts valid code with numbers', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: 'role123',
+        description: '',
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts valid code with underscores', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: 'my_role_123',
         description: '',
         permissions: { PlansView: true },
       })
@@ -72,6 +94,66 @@ describe('validationSchema', () => {
       })
 
       expect(result.success).toBe(true)
+    })
+
+    it('rejects code with uppercase letters', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: 'MyRole',
+        description: '',
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].path).toContain('code')
+        expect(result.error.issues[0].message).toBe('text_1767881112174odn29xztnvi')
+      }
+    })
+
+    it('rejects code with hyphens', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: 'my-role',
+        description: '',
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].path).toContain('code')
+        expect(result.error.issues[0].message).toBe('text_1767881112174odn29xztnvi')
+      }
+    })
+
+    it('rejects code with spaces', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: 'my role',
+        description: '',
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].path).toContain('code')
+        expect(result.error.issues[0].message).toBe('text_1767881112174odn29xztnvi')
+      }
+    })
+
+    it('rejects code with special characters', () => {
+      const result = validationSchema.safeParse({
+        name: 'My Role',
+        code: 'my.role@test',
+        description: '',
+        permissions: { PlansView: true },
+      })
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].path).toContain('code')
+        expect(result.error.issues[0].message).toBe('text_1767881112174odn29xztnvi')
+      }
     })
   })
 
