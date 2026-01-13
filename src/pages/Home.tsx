@@ -5,7 +5,13 @@ import { Spinner } from '~/components/designSystem'
 import { getItemFromLS } from '~/core/apolloClient'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE, CUSTOMERS_LIST_ROUTE } from '~/core/router'
+import {
+  ANALYTIC_ROUTE,
+  ANALYTIC_TABS_ROUTE,
+  CUSTOMERS_LIST_ROUTE,
+  FORBIDDEN_ROUTE,
+} from '~/core/router'
+import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -15,7 +21,7 @@ const Home = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading: isUserLoading, currentMembership } = useCurrentUser()
-  const { hasPermissions } = usePermissions()
+  const { hasPermissions, findFirstViewPermission } = usePermissions()
   const { hasOrganizationPremiumAddon, loading: isOrganizationLoading } = useOrganizationInfos()
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.AnalyticsDashboards,
@@ -53,8 +59,18 @@ const Home = () => {
           }),
           { replace: true },
         )
-      } else {
+        // Prioritize customers view
+      } else if (hasPermissions(['customersView'])) {
         navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
+      } else {
+        const firstViewPermission = findFirstViewPermission()
+        const routeForPermission = getRouteForPermission(firstViewPermission)
+
+        if (routeForPermission) {
+          navigate(routeForPermission, { replace: true })
+        } else {
+          navigate(FORBIDDEN_ROUTE, { replace: true })
+        }
       }
     }
   }, [
@@ -62,6 +78,7 @@ const Home = () => {
     currentMembership,
     isOrganizationLoading,
     hasPermissions,
+    findFirstViewPermission,
     hasAccessToAnalyticsDashboardsFeature,
     navigate,
     location.state,

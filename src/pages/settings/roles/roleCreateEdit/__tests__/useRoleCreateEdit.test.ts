@@ -4,6 +4,15 @@ import { CreateRoleInput, PermissionEnum } from '~/generated/graphql'
 
 import { useRoleCreateEdit } from '../useRoleCreateEdit'
 
+const mockRefetchQueries = jest.fn()
+
+jest.mock('@apollo/client', () => ({
+  ...jest.requireActual('@apollo/client'),
+  useApolloClient: () => ({
+    refetchQueries: mockRefetchQueries,
+  }),
+}))
+
 const mockUseParams = jest.fn()
 const mockUseLocation = jest.fn()
 const mockNavigate = jest.fn()
@@ -34,6 +43,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: () => true,
+  }),
+}))
+
 jest.mock('~/core/apolloClient', () => ({
   addToast: (params: unknown) => mockAddToast(params),
   envGlobalVar: () => ({ disableSignUp: false }),
@@ -41,6 +56,7 @@ jest.mock('~/core/apolloClient', () => ({
 
 jest.mock('~/core/router', () => ({
   ROLE_DETAILS_ROUTE: '/settings/roles/:roleId',
+  HOME_ROUTE: '/',
 }))
 
 jest.mock('~/generated/graphql', () => ({
