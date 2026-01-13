@@ -5,7 +5,7 @@ describe('validationSchema', () => {
     it('accepts valid name', () => {
       const result = validationSchema.safeParse({
         name: 'My Role',
-        code: 'my-role',
+        code: 'my_role',
         description: 'Description',
         permissions: { PlansView: true },
       })
@@ -42,7 +42,7 @@ describe('validationSchema', () => {
     it('accepts long name', () => {
       const result = validationSchema.safeParse({
         name: 'A'.repeat(100),
-        code: 'long-name',
+        code: 'long_name',
         description: '',
         permissions: { PlansView: true },
       })
@@ -85,7 +85,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('accepts empty code', () => {
+    it('does NOT accept empty code', () => {
       const result = validationSchema.safeParse({
         name: 'My Role',
         code: '',
@@ -93,7 +93,7 @@ describe('validationSchema', () => {
         permissions: { PlansView: true },
       })
 
-      expect(result.success).toBe(true)
+      expect(result.success).toBe(false)
     })
 
     it('rejects code with uppercase letters', () => {
@@ -161,7 +161,7 @@ describe('validationSchema', () => {
     it('accepts empty description', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: '',
         permissions: { PlansView: true },
       })
@@ -172,7 +172,7 @@ describe('validationSchema', () => {
     it('accepts long description', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: 'A'.repeat(500),
         permissions: { PlansView: true },
       })
@@ -183,7 +183,7 @@ describe('validationSchema', () => {
     it('accepts description with special characters', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: 'This role can: view, edit & delete items!',
         permissions: { PlansView: true },
       })
@@ -196,7 +196,7 @@ describe('validationSchema', () => {
     it('accepts valid permissions with PascalCase keys', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: 'Description',
         permissions: {
           PlansView: true,
@@ -211,7 +211,7 @@ describe('validationSchema', () => {
     it('does NOT accept empty permissions object', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: 'Description',
         permissions: {},
       })
@@ -222,7 +222,7 @@ describe('validationSchema', () => {
     it('does NOT accept all permissions set to false', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: 'Description',
         permissions: {
           PlansView: false,
@@ -236,7 +236,7 @@ describe('validationSchema', () => {
     it('accepts all permissions set to true', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: 'Description',
         permissions: {
           PlansView: true,
@@ -252,7 +252,7 @@ describe('validationSchema', () => {
     it('rejects invalid permission keys', () => {
       const result = validationSchema.safeParse({
         name: 'Role Name',
-        code: 'role-name',
+        code: 'role_name',
         description: 'Description',
         permissions: {
           invalidPermission: true,
@@ -267,7 +267,7 @@ describe('validationSchema', () => {
     it('validates a complete valid form', () => {
       const result = validationSchema.safeParse({
         name: 'Custom Admin Role',
-        code: 'custom-admin-role',
+        code: 'custom_admin_role',
         description: 'A role with custom admin permissions',
         permissions: {
           PlansView: true,
@@ -281,7 +281,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
       if (result.success) {
         expect(result.data.name).toBe('Custom Admin Role')
-        expect(result.data.code).toBe('custom-admin-role')
+        expect(result.data.code).toBe('custom_admin_role')
         expect(result.data.description).toBe('A role with custom admin permissions')
         expect(result.data.permissions.PlansView).toBe(true)
       }
