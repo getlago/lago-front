@@ -405,7 +405,6 @@ const InvoicesList = ({
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                paymentStatus: invoice?.paymentStatus,
                 creditableAmountCents: invoice?.creditableAmountCents,
                 refundableAmountCents: invoice?.refundableAmountCents,
                 applicableToSourceInvoiceAmountCents: invoice?.applicableToSourceInvoiceAmountCents,

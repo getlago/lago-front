@@ -606,7 +606,6 @@ const CustomerInvoiceDetails = () => {
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType,
-      paymentStatus,
       creditableAmountCents,
       refundableAmountCents,
       applicableToSourceInvoiceAmountCents,

@@ -5,7 +5,6 @@ import {
   CurrencyEnum,
   Invoice,
   InvoiceForCreditNoteFormCalculationFragment,
-  InvoicePaymentStatusTypeEnum,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
@@ -245,20 +244,13 @@ export const isCreditNoteCreationDisabled = (
   invoice?: Partial<
     Pick<
       Invoice,
-      | 'paymentStatus'
-      | 'creditableAmountCents'
-      | 'refundableAmountCents'
-      | 'applicableToSourceInvoiceAmountCents'
+      'creditableAmountCents' | 'refundableAmountCents' | 'applicableToSourceInvoiceAmountCents'
     >
   > | null,
 ) => {
   if (!invoice) return false
 
-  const isUnpaid =
-    invoice.paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
-    invoice.paymentStatus === InvoicePaymentStatusTypeEnum.Failed
-
-  return !isUnpaid || !canCreateCreditNote(invoice)
+  return !canCreateCreditNote(invoice)
 }
 
 // ----------------------------------------
@@ -266,7 +258,6 @@ export const isCreditNoteCreationDisabled = (
 // ----------------------------------------
 
 export const createCreditNoteForInvoiceButtonProps = ({
-  paymentStatus,
   invoiceType,
   associatedActiveWalletPresent,
   creditableAmountCents,
@@ -277,7 +268,6 @@ export const createCreditNoteForInvoiceButtonProps = ({
     invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
 
   const disabledIssueCreditNoteButton = isCreditNoteCreationDisabled({
-    paymentStatus,
     creditableAmountCents,
     refundableAmountCents,
     applicableToSourceInvoiceAmountCents,
