@@ -19,13 +19,8 @@ import {
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  MEMBERS_PAGE_ROLE_FILTER_KEY,
-  RoleItem,
-  rolesNameMapping,
-  systemRoles,
-} from '~/core/constants/roles'
-import { MEMBERS_ROUTE, ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
+import { RoleItem, rolesNameMapping, systemRoles } from '~/core/constants/roles'
+import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -84,19 +79,13 @@ const RolesList = () => {
       ? translate(rolesNameMapping[role.name as keyof typeof rolesNameMapping])
       : role.name
 
-    return <Typography color="grey600">{nameToDisplay}</Typography>
+    return <Typography color="grey700">{nameToDisplay}</Typography>
   }
 
   const displayMemberNumberCell = (role: RoleItem) => {
     const membersNumber = role.memberships.length || 0
 
-    const path = `${MEMBERS_ROUTE}?${MEMBERS_PAGE_ROLE_FILTER_KEY}=${role.name}`
-
-    return (
-      <ButtonLink type="button" to={path} buttonProps={{ variant: 'inline' }}>
-        {membersNumber}
-      </ButtonLink>
-    )
+    return <Typography color="grey600">{membersNumber}</Typography>
   }
 
   const displayRoleTypeCell = (role: RoleItem) => {
