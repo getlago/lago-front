@@ -2727,7 +2727,7 @@
   "text_1738056040178gw94jzmzckx": "No payments have been recorded for invoices. Please record a payment or connect your customer to a payment provider to view all payments here.",
   "text_17380560401785kuvb6m2yfm": "No payments have been recorded for this invoice. Please record a payment or connect your customer to a payment provider to view all payments here.",
   "text_17380560401786gmefzvw1rl": "No payments have been recorded for invoices. Please record a payment or connect your customer to a payment provider to view all payments here.",
-  "text_1738063681339ucxmt3asspd": "Amount paid",
+  "text_1738063681339ucxmt3asspd": "Amount settled",
   "text_1738063764295zomiafl8b4s": "Total",
   "text_1738071221799vib0l2z1bxe": "Partially paid",
   "text_1738751394771xq525lyxj9k": "Credit amount cannot exceed {{max}}",
