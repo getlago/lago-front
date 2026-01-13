@@ -411,9 +411,10 @@ export const InvoiceDetailsTable = memo(
               const canAnyChargeBeAdded =
                 !invoice.allChargesHaveFees || !invoice.allFixedChargesHaveFees
               const showAddNewFeeButton =
-                canAnyChargeBeAdded &&
-                subscriptionData.acceptNewChargeFees &&
-                (invoice.status === InvoiceStatusTypeEnum.Draft || !!onAdd) // onAdd is present in void and regenerate flow
+                !!onAdd || // onAdd is present in void and regenerate flow
+                (canAnyChargeBeAdded &&
+                  subscriptionData.acceptNewChargeFees &&
+                  invoice.status === InvoiceStatusTypeEnum.Draft)
 
               const addNewFeeOnClick = () => {
                 editFeeDrawerRef?.current?.openDrawer(

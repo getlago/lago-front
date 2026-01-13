@@ -2,7 +2,11 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
-import { FeeTypesEnum, InvoiceForFormatInvoiceItemMapFragment } from '~/generated/graphql'
+import {
+  FeeForDeleteAdjustmentFeeDialogFragmentDoc,
+  FeeTypesEnum,
+  InvoiceForFormatInvoiceItemMapFragment,
+} from '~/generated/graphql'
 
 gql`
   fragment InvoiceForFormatInvoiceItemMap on Invoice {
@@ -66,8 +70,12 @@ gql`
         chargeModel
         prorated
       }
+
+      ...FeeForDeleteAdjustmentFeeDialog
     }
   }
+
+  ${FeeForDeleteAdjustmentFeeDialogFragmentDoc}
 `
 // Extract the Fee type from the fragment to ensure type safety
 // This ensures TypeScript will error if we try to access fields not included in the fragment
