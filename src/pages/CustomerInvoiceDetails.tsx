@@ -952,7 +952,7 @@ const CustomerInvoiceDetails = () => {
                               )
                             }}
                           >
-                            {translate('text_6386589e4e82fa85eadcaa7a')}
+                            {translate('text_636bdef6565341dcb9cfb127')}
                           </Button>
                         </Tooltip>
                       ) : (
@@ -961,7 +961,7 @@ const CustomerInvoiceDetails = () => {
                           onClick={() => premiumWarningDialogRef.current?.openDialog()}
                           endIcon="sparkles"
                         >
-                          {translate('text_6386589e4e82fa85eadcaa7a')}
+                          {translate('text_636bdef6565341dcb9cfb127')}
                         </Button>
                       )}
                     </>

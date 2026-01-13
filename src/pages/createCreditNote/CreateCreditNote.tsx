@@ -264,14 +264,14 @@ const CreateCreditNote = () => {
             </Card>
             <div className="mb-20 px-8">
               <Button size="large" disabled fullWidth>
-                {translate('text_636bedf292786b19d3398ec4')}
+                {translate('text_636bdef6565341dcb9cfb127')}
               </Button>
             </div>
           </>
         ) : (
           <>
             <CenteredPage.PageTitle
-              title={translate('text_636bedf292786b19d3398ec4')}
+              title={translate('text_636bdef6565341dcb9cfb127')}
               description={translate('text_636bedf292786b19d3398ec6')}
             />
             <div className="flex flex-col gap-12 border-b border-grey-300 pb-12">
