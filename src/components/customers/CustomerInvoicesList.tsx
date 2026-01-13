@@ -74,6 +74,7 @@ gql`
     invoiceType
     creditableAmountCents
     refundableAmountCents
+    applicableToSourceInvoiceAmountCents
     associatedActiveWalletPresent
     voidedInvoiceId
     regeneratedInvoiceId
@@ -408,12 +409,9 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 paymentStatus: invoice?.paymentStatus,
                 creditableAmountCents: invoice?.creditableAmountCents,
                 refundableAmountCents: invoice?.refundableAmountCents,
+                applicableToSourceInvoiceAmountCents: invoice?.applicableToSourceInvoiceAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
-
-            const isPartiallyPaid =
-              Number(invoice.totalPaidAmountCents) > 0 &&
-              Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
 
             const canDownloadOrFinalize = (): ActionItem<
               InvoiceForInvoiceListFragment['collection'][number]
@@ -544,10 +542,9 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                         }),
                       )
                     },
-                    tooltip:
-                      !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
-                        ? translate(disabledIssueCreditNoteButtonLabel)
-                        : undefined,
+                    tooltip: disabledIssueCreditNoteButtonLabel
+                      ? translate(disabledIssueCreditNoteButtonLabel)
+                      : undefined,
                   }
                 : null,
 

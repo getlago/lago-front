@@ -208,10 +208,9 @@ const InvoicesList = ({
           }),
         )
       },
-      tooltip:
-        !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
-          ? translate(disabledIssueCreditNoteButtonLabel)
-          : undefined,
+      tooltip: disabledIssueCreditNoteButtonLabel
+        ? translate(disabledIssueCreditNoteButtonLabel)
+        : undefined,
     }
   }
 
@@ -409,6 +408,7 @@ const InvoicesList = ({
                 paymentStatus: invoice?.paymentStatus,
                 creditableAmountCents: invoice?.creditableAmountCents,
                 refundableAmountCents: invoice?.refundableAmountCents,
+                applicableToSourceInvoiceAmountCents: invoice?.applicableToSourceInvoiceAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 

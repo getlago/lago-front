@@ -73,6 +73,7 @@ gql`
     paymentStatus
     creditableAmountCents
     refundableAmountCents
+    applicableToSourceInvoiceAmountCents
     subTotalIncludingTaxesAmountCents
     availableToCreditAmountCents
     totalPaidAmountCents
@@ -87,6 +88,7 @@ gql`
     id
     refundableAmountCents
     creditableAmountCents
+    applicableToSourceInvoiceAmountCents
     invoiceType
     fees {
       id

@@ -4,7 +4,7 @@ import { generatePath, Link, useNavigate, useParams } from 'react-router-dom'
 import { array, number, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
-import { hasCreditableOrRefundableAmount } from '~/components/creditNote/utils'
+import { canCreateCreditNote } from '~/components/creditNote/utils'
 import {
   Alert,
   Button,
@@ -126,7 +126,7 @@ const CustomerInvoiceVoid = () => {
   const maxCreditable = deserializeAmount(invoice?.creditableAmountCents, currency)
   const maxTotal = maxCreditable
 
-  const canGenerateCreditNote = isPremium && hasCreditableOrRefundableAmount(invoice)
+  const canGenerateCreditNote = isPremium && canCreateCreditNote(invoice)
 
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {

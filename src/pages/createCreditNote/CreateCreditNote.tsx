@@ -12,8 +12,10 @@ import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
 import { useCreditNoteFormCalculation } from '~/components/creditNote/useCreditNoteFormCalculation'
 import {
   buildInitialPayBack,
+  canCreateCreditNote,
   creditNoteFormCalculationCalculation,
   creditNoteFormHasAtLeastOneFeeChecked,
+  hasApplicableToSourceInvoiceAmount,
 } from '~/components/creditNote/utils'
 import {
   Alert,
@@ -190,9 +192,10 @@ const CreateCreditNote = () => {
 
   const creditFeeValue = formikProps.values.creditFee?.[0]?.value
 
+  const hasApplicableToSourceInvoice = hasApplicableToSourceInvoiceAmount(invoice)
+
   useEffect(() => {
     if (isPrepaidCreditsInvoice && creditFeeValue) {
-      // For prepaid credits invoice with creditable/refundable amount, set payBack to refund
       if (hasCreditableOrRefundableAmount) {
         formikProps.setFieldValue('payBack', [
           {
@@ -200,8 +203,7 @@ const CreateCreditNote = () => {
             value: creditFeeValue,
           },
         ])
-      } else {
-        // When no creditable/refundable amount, use applyToInvoice
+      } else if (hasApplicableToSourceInvoice) {
         formikProps.setFieldValue('payBack', [
           {
             type: CreditTypeEnum.applyToInvoice,
@@ -211,7 +213,12 @@ const CreateCreditNote = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPrepaidCreditsInvoice, creditFeeValue, hasCreditableOrRefundableAmount])
+  }, [
+    isPrepaidCreditsInvoice,
+    creditFeeValue,
+    hasCreditableOrRefundableAmount,
+    hasApplicableToSourceInvoice,
+  ])
 
   const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
@@ -458,7 +465,7 @@ const CreateCreditNote = () => {
               )}
             </div>
 
-            {!isPrepaidCreditsInvoice && hasCreditableOrRefundableAmount && (
+            {!isPrepaidCreditsInvoice && canCreateCreditNote(invoice) && (
               <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
                 <CreditNoteFormAllocation
                   formikProps={formikProps}
