@@ -87,18 +87,11 @@ describe('RolePermissionsForm', () => {
       expect(screen.getByPlaceholderText('text_17670163638877x7zsoijho9')).toBeInTheDocument()
     })
 
-    it('renders expand button', async () => {
+    it('renders expand all button initially', async () => {
       await act(() => render(<RolePermissionsFormWrapper />))
 
-      // Expand button translation key
-      expect(screen.getByText('text_624aa79870f60300a3c4d074')).toBeInTheDocument()
-    })
-
-    it('renders collapse button', async () => {
-      await act(() => render(<RolePermissionsFormWrapper />))
-
-      // Collapse button translation key
-      expect(screen.getByText('text_624aa732d6af4e0103d40e61')).toBeInTheDocument()
+      // Initially all groups are collapsed, so button shows "Expand all"
+      expect(screen.getByText('text_1768309883114yr34e2jrvn7')).toBeInTheDocument()
     })
 
     it('renders permissions table structure', async () => {
@@ -183,36 +176,44 @@ describe('RolePermissionsForm', () => {
   })
 
   describe('Expand/Collapse Functionality', () => {
-    it('has expand and collapse buttons', async () => {
+    it('shows expand all button initially when all groups are collapsed', async () => {
       await act(() => render(<RolePermissionsFormWrapper />))
 
-      const expandButton = screen.getByText('text_624aa79870f60300a3c4d074')
-      const collapseButton = screen.getByText('text_624aa732d6af4e0103d40e61')
+      const expandButton = screen.getByText('text_1768309883114yr34e2jrvn7')
 
       expect(expandButton).toBeInTheDocument()
-      expect(collapseButton).toBeInTheDocument()
     })
 
-    it('expand button is clickable', async () => {
+    it('expand all button is clickable and changes to collapse all', async () => {
       const user = userEvent.setup()
 
       await act(() => render(<RolePermissionsFormWrapper />))
 
-      const expandButton = screen.getByText('text_624aa79870f60300a3c4d074')
+      const expandButton = screen.getByText('text_1768309883114yr34e2jrvn7')
 
-      // Should not throw when clicked
-      await expect(user.click(expandButton)).resolves.not.toThrow()
+      await user.click(expandButton)
+
+      // After expanding, button should show "Collapse all"
+      expect(screen.getByText('text_17683098831144lro3kg6rip')).toBeInTheDocument()
     })
 
-    it('collapse button is clickable', async () => {
+    it('collapse all button changes back to expand all when clicked', async () => {
       const user = userEvent.setup()
 
       await act(() => render(<RolePermissionsFormWrapper />))
 
-      const collapseButton = screen.getByText('text_624aa732d6af4e0103d40e61')
+      // First click to expand
+      const expandButton = screen.getByText('text_1768309883114yr34e2jrvn7')
 
-      // Should not throw when clicked
-      await expect(user.click(collapseButton)).resolves.not.toThrow()
+      await user.click(expandButton)
+
+      // Now click to collapse
+      const collapseButton = screen.getByText('text_17683098831144lro3kg6rip')
+
+      await user.click(collapseButton)
+
+      // Should be back to showing "Expand all"
+      expect(screen.getByText('text_1768309883114yr34e2jrvn7')).toBeInTheDocument()
     })
   })
 
@@ -571,23 +572,29 @@ describe('RolePermissionsForm', () => {
   })
 
   describe('Table Ref Methods', () => {
-    it('expand button triggers expandAll on table ref', async () => {
+    it('expand all button triggers expandAll on table ref', async () => {
       const user = userEvent.setup()
 
       await act(() => render(<RolePermissionsFormWrapper />))
 
-      const expandButton = screen.getByText('text_624aa79870f60300a3c4d074')
+      const expandButton = screen.getByText('text_1768309883114yr34e2jrvn7')
 
       // Should not throw
       await expect(user.click(expandButton)).resolves.not.toThrow()
     })
 
-    it('collapse button triggers collapseAll on table ref', async () => {
+    it('collapse all button triggers collapseAll on table ref', async () => {
       const user = userEvent.setup()
 
       await act(() => render(<RolePermissionsFormWrapper />))
 
-      const collapseButton = screen.getByText('text_624aa732d6af4e0103d40e61')
+      // First expand all
+      const expandButton = screen.getByText('text_1768309883114yr34e2jrvn7')
+
+      await user.click(expandButton)
+
+      // Then collapse all
+      const collapseButton = screen.getByText('text_17683098831144lro3kg6rip')
 
       // Should not throw
       await expect(user.click(collapseButton)).resolves.not.toThrow()
@@ -1204,10 +1211,12 @@ describe('RolePermissionsForm', () => {
       const user = userEvent.setup()
       const { container } = await act(() => render(<RolePermissionsFormWrapper />))
 
-      const expandButton = screen.getByText('text_624aa79870f60300a3c4d074')
-      const collapseButton = screen.getByText('text_624aa732d6af4e0103d40e61')
+      const expandButton = screen.getByText('text_1768309883114yr34e2jrvn7')
 
       await user.click(expandButton)
+
+      const collapseButton = screen.getByText('text_17683098831144lro3kg6rip')
+
       await user.click(collapseButton)
 
       expect(container).toMatchSnapshot()

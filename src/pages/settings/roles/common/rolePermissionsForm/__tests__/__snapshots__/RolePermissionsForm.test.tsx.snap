@@ -23,7 +23,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -95,34 +95,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -4644,7 +4617,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -4716,34 +4689,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -9337,7 +9283,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -9409,34 +9355,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -13958,7 +13877,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -14030,34 +13949,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -20453,7 +20345,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -20525,34 +20417,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -25074,7 +24939,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -25146,34 +25011,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -29695,7 +29533,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -29767,34 +29605,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -34299,7 +34110,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -34371,34 +34182,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -38956,7 +38740,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -39028,34 +38812,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -43577,7 +43334,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -43672,34 +43429,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -48204,7 +47934,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in editable mode wi
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -48276,34 +48006,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in editable mode wi
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -52883,7 +52586,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state 1`
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -52955,34 +52658,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state 1`
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -57487,7 +57163,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state wi
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -57559,34 +57235,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state wi
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -62130,7 +61779,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -62202,34 +61851,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -66734,7 +66356,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -66806,34 +66428,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -73246,7 +72841,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -73318,34 +72913,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -77904,7 +77472,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all invoice pe
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -77976,34 +77544,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all invoice pe
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -82616,7 +82157,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all permission
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -82688,34 +82229,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all permission
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -89128,7 +88642,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with default props 
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -89200,34 +88714,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with default props 
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -93732,7 +93219,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with errors 1`] = `
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -93804,34 +93291,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with errors 1`] = `
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -98387,7 +97847,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with organization p
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -98459,34 +97919,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with organization p
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -103063,7 +102496,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with single error 1
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -103135,34 +102568,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with single error 1
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div
@@ -107706,7 +107112,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with some permissio
         </div>
       </div>
       <div
-        class="grid grid-cols-[4fr_1fr_1fr] gap-4"
+        class="grid grid-cols-[4fr_1fr] gap-4"
       >
         <div
           class="flex flex-col gap-1"
@@ -107778,34 +107184,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with some permissio
               />
             </svg>
           </span>
-          text_624aa79870f60300a3c4d074
-        </button>
-        <button
-          class=MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-          data-test="button"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class=MuiButton-icon MuiButton-startIcon MuiButton-iconSizeLarge css-hash-MuiButton-startIcon
-          >
-            <svg
-              class="text-inherit size-4 min-w-4"
-              data-test="resize-reduce/medium"
-              fill="currentColor"
-              title="resize-reduce/medium"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 9.02499C7.40487 8.7936 7.22647 8.60628 7 8.49999C6.88099 8.4511 6.75366 8.42563 6.625 8.42499H2.14C1.87478 8.42499 1.62043 8.53034 1.43289 8.71788C1.24536 8.90542 1.14 9.15977 1.14 9.42499C1.14 9.6902 1.24536 9.94456 1.43289 10.1321C1.62043 10.3196 1.87478 10.425 2.14 10.425H4.205L0.29 14.31C0.175383 14.396 0.0805751 14.5055 0.0119973 14.6313C-0.0565806 14.7571 -0.0973273 14.8962 -0.107484 15.0391C-0.11764 15.182 -0.0969691 15.3254 -0.0468703 15.4597C0.00322841 15.5939 0.0815851 15.7158 0.182894 15.8171C0.284202 15.9184 0.406097 15.9968 0.540325 16.0469C0.674552 16.097 0.817978 16.1176 0.96089 16.1075C1.1038 16.0973 1.24286 16.0566 1.36866 15.988C1.49445 15.9194 1.60404 15.8246 1.69 15.71L5.605 11.795V13.86C5.605 14.1252 5.71036 14.3796 5.89789 14.5671C6.08543 14.7546 6.33978 14.86 6.605 14.86C6.87022 14.86 7.12457 14.7546 7.31211 14.5671C7.49964 14.3796 7.605 14.1252 7.605 13.86V9.39999C7.59491 9.26931 7.55924 9.1419 7.5 9.02499Z"
-              />
-              <path
-                d="M16 1.00001C15.9973 0.805443 15.938 0.615879 15.8291 0.454555C15.7203 0.293232 15.5668 0.167159 15.3874 0.0917902C15.208 0.0164211 15.0105 -0.00496966 14.8192 0.0302398C14.6278 0.0654493 14.4508 0.155729 14.31 0.290014L10.395 4.20501V2.14001C10.395 1.8748 10.2896 1.62044 10.1021 1.43291C9.91457 1.24537 9.66022 1.14001 9.395 1.14001C9.12978 1.14001 8.87543 1.24537 8.68789 1.43291C8.50036 1.62044 8.395 1.8748 8.395 2.14001V6.60001C8.40175 6.73921 8.43751 6.87545 8.5 7.00001C8.55164 7.11737 8.62453 7.22416 8.715 7.31501H8.74C8.81684 7.38945 8.9045 7.45182 9 7.50001C9.12238 7.54932 9.25306 7.57478 9.385 7.57501H13.845C14.1102 7.57501 14.3646 7.46966 14.5521 7.28212C14.7396 7.09458 14.845 6.84023 14.845 6.57501C14.845 6.3098 14.7396 6.05544 14.5521 5.86791C14.3646 5.68037 14.1102 5.57501 13.845 5.57501H11.795L15.71 1.66001C15.8879 1.48544 15.9917 1.2491 16 1.00001Z"
-              />
-            </svg>
-          </span>
-          text_624aa732d6af4e0103d40e61
+          text_1768309883114yr34e2jrvn7
         </button>
       </div>
       <div

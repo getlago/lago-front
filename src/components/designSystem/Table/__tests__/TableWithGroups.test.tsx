@@ -363,6 +363,110 @@ describe('TableWithGroups', () => {
       expect(ref.current?.isGroupExpanded('group1')).toBe(true)
       expect(ref.current?.isGroupExpanded('group2')).toBe(false)
     })
+
+    it('hasExpandedGroups returns false when all groups are collapsed', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Initially all groups are collapsed
+      expect(ref.current?.hasExpandedGroups()).toBe(false)
+    })
+
+    it('hasExpandedGroups returns true when at least one group is expanded', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Expand one group
+      await act(async () => {
+        ref.current?.toggleGroup('group1')
+      })
+
+      expect(ref.current?.hasExpandedGroups()).toBe(true)
+    })
+
+    it('hasExpandedGroups returns true when all groups are expanded', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Expand all groups
+      await act(async () => {
+        ref.current?.expandAll()
+      })
+
+      expect(ref.current?.hasExpandedGroups()).toBe(true)
+    })
+
+    it('hasCollapsedGroups returns true when all groups are collapsed', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Initially all groups are collapsed
+      expect(ref.current?.hasCollapsedGroups()).toBe(true)
+    })
+
+    it('hasCollapsedGroups returns true when at least one group is collapsed', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Expand only one group, leaving group2 collapsed
+      await act(async () => {
+        ref.current?.toggleGroup('group1')
+      })
+
+      expect(ref.current?.hasCollapsedGroups()).toBe(true)
+    })
+
+    it('hasCollapsedGroups returns false when all groups are expanded', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Expand all groups
+      await act(async () => {
+        ref.current?.expandAll()
+      })
+
+      expect(ref.current?.hasCollapsedGroups()).toBe(false)
+    })
+
+    it('hasExpandedGroups and hasCollapsedGroups work correctly together', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Initially: no expanded, all collapsed
+      expect(ref.current?.hasExpandedGroups()).toBe(false)
+      expect(ref.current?.hasCollapsedGroups()).toBe(true)
+
+      // Expand one group: some expanded, some collapsed
+      await act(async () => {
+        ref.current?.toggleGroup('group1')
+      })
+
+      expect(ref.current?.hasExpandedGroups()).toBe(true)
+      expect(ref.current?.hasCollapsedGroups()).toBe(true)
+
+      // Expand all: all expanded, none collapsed
+      await act(async () => {
+        ref.current?.expandAll()
+      })
+
+      expect(ref.current?.hasExpandedGroups()).toBe(true)
+      expect(ref.current?.hasCollapsedGroups()).toBe(false)
+
+      // Collapse all: none expanded, all collapsed
+      await act(async () => {
+        ref.current?.collapseAll()
+      })
+
+      expect(ref.current?.hasExpandedGroups()).toBe(false)
+      expect(ref.current?.hasCollapsedGroups()).toBe(true)
+    })
   })
 
   describe('Column Configuration', () => {

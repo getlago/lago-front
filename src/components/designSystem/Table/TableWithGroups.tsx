@@ -56,6 +56,8 @@ export type TableWithGroupsRef = {
   collapseAll: () => void
   toggleGroup: (groupKey: string) => void
   isGroupExpanded: (groupKey: string) => boolean
+  hasExpandedGroups: () => boolean
+  hasCollapsedGroups: () => boolean
 }
 
 export type TableWithGroupsProps = {
@@ -147,6 +149,14 @@ const TableWithGroupsInner = (
     },
     isGroupExpanded: (groupKey: string) => {
       return !!expandedGroups[groupKey]
+    },
+    hasExpandedGroups: () => {
+      return Object.values(expandedGroups).some((isExpanded) => isExpanded)
+    },
+    hasCollapsedGroups: () => {
+      const allGroups = getGroupKeys(rows)
+
+      return allGroups.some((groupKey) => !expandedGroups[groupKey])
     },
   }))
 

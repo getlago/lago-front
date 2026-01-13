@@ -1,5 +1,5 @@
 import { useStore } from '@tanstack/react-form'
-import { Icon } from 'lago-design-system'
+import { Icon, IconName } from 'lago-design-system'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Alert, Button, Typography } from '~/components/designSystem'
@@ -45,6 +45,7 @@ const RolePermissionsForm = withFieldGroup({
     const tableRef = useRef<TableWithGroupsRef>(null)
 
     const [searchTerm, setSearchTerm] = useState('')
+    const [hasCollapsedGroups, setHasCollapsedGroups] = useState(true)
 
     const getOverallCheckboxValue = (): boolean | undefined => {
       const values = Object.values(permissionsValues)
@@ -165,6 +166,7 @@ const RolePermissionsForm = withFieldGroup({
       if (!searchTerm.trim()) return
 
       const searchLower = searchTerm.toLowerCase()
+      let hasChanges = false
 
       Object.entries(permissionGrouping).forEach(([groupKey, permGroup]) => {
         const groupMatches = permGroup.displayName.toLowerCase().includes(searchLower)
@@ -175,9 +177,15 @@ const RolePermissionsForm = withFieldGroup({
         if (groupMatches || hasMatchingPermission) {
           if (!tableRef.current?.isGroupExpanded(groupKey)) {
             tableRef.current?.toggleGroup(groupKey)
+            hasChanges = true
           }
         }
       })
+
+      if (hasChanges) {
+        // Update state based on actual table state
+        setHasCollapsedGroups(tableRef.current?.hasCollapsedGroups() ?? true)
+      }
     }, [searchTerm, permissionGrouping])
 
     const getCheckboxColumn = (): Array<ColumnConfig> => {
@@ -292,12 +300,28 @@ const RolePermissionsForm = withFieldGroup({
       },
     ]
 
-    const handleExpand = () => {
-      tableRef.current?.expandAll()
+    const handleExpandCollapseAll = () => {
+      if (hasCollapsedGroups) {
+        tableRef.current?.expandAll()
+        setHasCollapsedGroups(false)
+      } else {
+        tableRef.current?.collapseAll()
+        setHasCollapsedGroups(true)
+      }
     }
 
-    const handleCollapse = () => {
-      tableRef.current?.collapseAll()
+    const getExpandCollapseButtonLabel = (): string => {
+      if (hasCollapsedGroups) {
+        return translate('text_1768309883114yr34e2jrvn7')
+      }
+      return translate('text_17683098831144lro3kg6rip')
+    }
+
+    const getExpandCollapseButtonIcon = (): IconName => {
+      if (hasCollapsedGroups) {
+        return 'resize-expand'
+      }
+      return 'resize-reduce'
     }
 
     // Get all permission names for hidden field registration
@@ -309,7 +333,7 @@ const RolePermissionsForm = withFieldGroup({
           <Typography variant="subhead1">{translate('text_17670124237009cpv09qihgr')}</Typography>
           <Typography color="grey600">{translate('text_17658096048119hpdp8kwcqd')}</Typography>
         </div>
-        <div className="grid grid-cols-[4fr_1fr_1fr] gap-4">
+        <div className="grid grid-cols-[4fr_1fr] gap-4">
           <TextInput
             cleanable
             placeholder={translate('text_17670163638877x7zsoijho9')}
@@ -321,16 +345,13 @@ const RolePermissionsForm = withFieldGroup({
               startAdornment: <Icon className="ml-4" name="magnifying-glass" />,
             }}
           />
-          <Button variant="tertiary" size="large" startIcon="resize-expand" onClick={handleExpand}>
-            {translate('text_624aa79870f60300a3c4d074')}
-          </Button>
           <Button
             variant="tertiary"
             size="large"
-            startIcon="resize-reduce"
-            onClick={handleCollapse}
+            startIcon={getExpandCollapseButtonIcon()}
+            onClick={handleExpandCollapseAll}
           >
-            {translate('text_624aa732d6af4e0103d40e61')}
+            {getExpandCollapseButtonLabel()}
           </Button>
         </div>
         {errors && errors.length > 0 && (
