@@ -19,6 +19,7 @@ interface CreditNoteFormItemProps {
   formikKey: string
   maxValue: number
   feeSucceededAt?: string
+  isReadOnly?: boolean
 }
 
 export const CreditNoteFormItem = ({
@@ -28,6 +29,7 @@ export const CreditNoteFormItem = ({
   maxValue,
   feeName,
   feeSucceededAt,
+  isReadOnly,
 }: CreditNoteFormItemProps) => {
   const { translate } = useInternationalization()
   const error = _get(formikProps.errors, `${formikKey}.value`)
@@ -82,7 +84,7 @@ export const CreditNoteFormItem = ({
           name={`${formikKey}.value`}
           currency={currency}
           displayErrorText={false}
-          disabled={!_get(formikProps.values, `${formikKey}.checked`)}
+          disabled={!_get(formikProps.values, `${formikKey}.checked`) || isReadOnly}
           beforeChangeFormatter={['positiveNumber']}
           InputProps={
             currency

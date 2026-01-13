@@ -545,6 +545,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '167',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
         {
           id: 'e94a7773-7641-4d81-a869-bb5c021c2817',
@@ -555,6 +556,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '3000',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
         {
           id: 'af3ca6df-02ba-4442-a455-c7eb6b0edc6b',
@@ -565,6 +567,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '10666',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
         {
           id: 'df9b74ff-b050-44a5-aad4-3ec87999f3c6',
@@ -575,6 +578,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '2000',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
         {
           id: '0e1bd51c-07fe-445b-aade-28fdc88a488c',
@@ -585,6 +589,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '1000',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
         {
           id: '58b6e874-7d5f-4871-a9b3-7379dfbfd787',
@@ -595,6 +600,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '3000',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
         {
           id: '0769b8c4-38ed-4248-bda9-d62218c91b37',
@@ -605,6 +611,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '3000',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
         {
           id: '18892329-3951-4134-ac57-fe7233b1c723',
@@ -615,6 +622,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           maxAmount: '40000',
           appliedTaxes: [],
           succeededAt: undefined,
+          isReadOnly: false,
         },
       ],
     },
@@ -636,6 +644,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           itemCode: 'standard_plan',
           itemName: 'Standard Plan',
           creditableAmountCents: '100',
+          applicableToInvoiceCents: '50',
           invoiceName: 'Invoice custom name',
           invoiceDisplayName: 'Invoice custom name',
           appliedTaxes: [],
@@ -648,6 +657,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           itemCode: 'sum_bm',
           itemName: 'Sum BM',
           creditableAmountCents: '0',
+          applicableToInvoiceCents: '0',
           invoiceName: 'Invoice custom name',
           invoiceDisplayName: 'Invoice custom name',
           appliedTaxes: [],
@@ -660,6 +670,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           itemCode: 'sum_bm',
           itemName: 'Sum BM',
           creditableAmountCents: '2699900',
+          applicableToInvoiceCents: '1000000',
           invoiceName: 'Invoice custom name',
           invoiceDisplayName: 'Invoice custom name',
           appliedTaxes: [],
@@ -686,6 +697,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
       maxAmount: '100',
       name: 'Invoice custom name',
       value: 1,
+      isReadOnly: false,
     },
     {
       appliedTaxes: [],
@@ -694,6 +706,77 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
       maxAmount: '2699900',
       name: 'Invoice custom name',
       value: 26999,
+      isReadOnly: false,
+    },
+  ],
+})
+
+// Invoice with no creditable/refundable amount - should use applicableToInvoiceCents
+export const invoiceWithNoCredOrRefundAmountMockAndExpect = () => ({
+  mock: {
+    invoice: {
+      id: INVOICE_FIXTURE_ID,
+      refundableAmountCents: '0',
+      creditableAmountCents: '0',
+      invoiceType: InvoiceTypeEnum.OneOff,
+      paymentDisputeLostAt: null,
+      fees: [
+        {
+          id: 'fee-1-id',
+          amountCurrency: 'EUR',
+          itemCode: 'standard_plan',
+          itemName: 'Standard Plan',
+          creditableAmountCents: '0',
+          applicableToInvoiceCents: '5000',
+          invoiceName: 'Invoice custom name',
+          invoiceDisplayName: 'Invoice custom name',
+          appliedTaxes: [],
+          trueUpFee: null,
+          __typename: 'Fee',
+        },
+        {
+          id: 'fee-2-id',
+          amountCurrency: 'EUR',
+          itemCode: 'sum_bm',
+          itemName: 'Sum BM',
+          creditableAmountCents: '0',
+          applicableToInvoiceCents: '10000',
+          invoiceName: 'Invoice custom name 2',
+          invoiceDisplayName: 'Invoice custom name 2',
+          appliedTaxes: [],
+          trueUpFee: null,
+          __typename: 'Fee',
+        },
+      ],
+      invoiceSubscriptions: [],
+      currency: 'EUR',
+      number: 'HOO-AFA3-004-003',
+      paymentStatus: 'pending',
+      subTotalIncludingTaxesAmountCents: '15000',
+      couponsAmountCents: '0',
+      feesAmountCents: '15000',
+      versionNumber: 3,
+      __typename: 'Invoice',
+    },
+  },
+  transformedObject: [
+    {
+      appliedTaxes: [],
+      checked: true,
+      id: 'fee-1-id',
+      maxAmount: '5000',
+      name: 'Invoice custom name',
+      value: 50,
+      isReadOnly: true,
+    },
+    {
+      appliedTaxes: [],
+      checked: true,
+      id: 'fee-2-id',
+      maxAmount: '10000',
+      name: 'Invoice custom name 2',
+      value: 100,
+      isReadOnly: true,
     },
   ],
 })

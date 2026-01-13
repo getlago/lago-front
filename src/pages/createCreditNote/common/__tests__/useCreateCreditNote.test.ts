@@ -7,6 +7,7 @@ import {
   fullSubscriptionInvoiceGroupTrueUpMockAndExpect,
   fullSubscriptionInvoiceMockAndExpect,
   INVOICE_FIXTURE_ID,
+  invoiceWithNoCredOrRefundAmountMockAndExpect,
 } from '~/hooks/__tests__/fixtures'
 import { AllTheProviders } from '~/test-utils'
 
@@ -79,5 +80,73 @@ describe('useCreateCreditNote()', () => {
     await act(() => wait(0))
 
     expect(result.current.feesPerInvoice).toStrictEqual(transformedObject)
+  })
+
+  describe('hasCreditableOrRefundableAmount', () => {
+    it('should return true when creditableAmountCents > 0', async () => {
+      const { mock } = fullOneOffInvoiceMockAndExpect()
+      const { result } = await prepare({ mock })
+
+      await act(() => wait(0))
+
+      expect(result.current.hasCreditableOrRefundableAmount).toBe(true)
+    })
+
+    it('should return true when refundableAmountCents > 0', async () => {
+      const { mock } = fullSubscriptionInvoiceMockAndExpect()
+      // Modify mock to have refundableAmountCents > 0
+      const modifiedMock = {
+        invoice: {
+          ...mock.invoice,
+          creditableAmountCents: '0',
+          refundableAmountCents: '1000',
+        },
+      }
+      const { result } = await prepare({ mock: modifiedMock })
+
+      await act(() => wait(0))
+
+      expect(result.current.hasCreditableOrRefundableAmount).toBe(true)
+    })
+
+    it('should return false when both creditableAmountCents and refundableAmountCents are 0', async () => {
+      const { mock } = invoiceWithNoCredOrRefundAmountMockAndExpect()
+      const { result } = await prepare({ mock })
+
+      await act(() => wait(0))
+
+      expect(result.current.hasCreditableOrRefundableAmount).toBe(false)
+    })
+  })
+
+  describe('applicableToInvoiceCents fallback', () => {
+    it('should use applicableToInvoiceCents when hasCreditableOrRefundableAmount is false', async () => {
+      const { mock, transformedObject } = invoiceWithNoCredOrRefundAmountMockAndExpect()
+      const { result } = await prepare({ mock })
+
+      await act(() => wait(0))
+
+      expect(result.current.hasCreditableOrRefundableAmount).toBe(false)
+      expect(result.current.feeForAddOn).toStrictEqual(transformedObject)
+    })
+
+    it('should set isReadOnly to true when using applicableToInvoiceCents', async () => {
+      const { mock } = invoiceWithNoCredOrRefundAmountMockAndExpect()
+      const { result } = await prepare({ mock })
+
+      await act(() => wait(0))
+
+      expect(result.current.feeForAddOn?.[0]?.isReadOnly).toBe(true)
+      expect(result.current.feeForAddOn?.[1]?.isReadOnly).toBe(true)
+    })
+
+    it('should set isReadOnly to false when using creditableAmountCents', async () => {
+      const { mock } = fullOneOffInvoiceMockAndExpect()
+      const { result } = await prepare({ mock })
+
+      await act(() => wait(0))
+
+      expect(result.current.feeForAddOn?.[0]?.isReadOnly).toBe(false)
+    })
   })
 })
