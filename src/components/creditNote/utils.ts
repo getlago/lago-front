@@ -296,15 +296,14 @@ export const creditNoteFormHasAtLeastOneFeeChecked = (
 export const buildInitialPayBack = (
   invoice?: InvoiceForCreditNoteFormCalculationFragment | null,
 ): CreditNoteForm['payBack'] => {
-  const totalAmountCents = Number(invoice?.totalAmountCents) || 0
   const totalPaidAmountCents = Number(invoice?.totalPaidAmountCents) || 0
-  const amountDueCents = totalAmountCents - totalPaidAmountCents
+  const totalDueAmountCents = Number(invoice?.totalDueAmountCents) || 0
   const hasPaymentDisputeLost = !!invoice?.paymentDisputeLostAt
 
   // Refund: available when there's been a payment and no dispute lost
   const hasRefund = totalPaidAmountCents > 0 && !hasPaymentDisputeLost
   // Apply to current invoice: available when there's amount due > 0
-  const hasApplyToInvoice = amountDueCents > 0
+  const hasApplyToInvoice = totalDueAmountCents > 0
 
   return [
     { type: CreditTypeEnum.credit, value: undefined },

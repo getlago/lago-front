@@ -28,6 +28,7 @@ const createMockInvoice = (
   paymentDisputeLostAt: null,
   totalPaidAmountCents: '10000',
   totalAmountCents: '15000',
+  totalDueAmountCents: '5000',
   invoiceType: InvoiceTypeEnum.Subscription,
   fees: [],
   ...overrides,

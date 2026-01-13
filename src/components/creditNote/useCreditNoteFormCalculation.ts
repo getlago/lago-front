@@ -30,6 +30,7 @@ gql`
     paymentDisputeLostAt
     totalPaidAmountCents
     totalAmountCents
+    totalDueAmountCents
     invoiceType
     fees {
       id
@@ -106,18 +107,17 @@ export const useCreditNoteFormCalculation = ({
   feeForEstimate,
   setPayBackValidation,
 }: UseCreditNoteFormCalculationProps): UseCreditNoteFormCalculationReturn => {
-  const totalAmountCents = Number(invoice?.totalAmountCents) || 0
   const totalPaidAmountCents = Number(invoice?.totalPaidAmountCents) || 0
+  const totalDueAmountCents = Number(invoice?.totalDueAmountCents) || 0
   const hasNoPayment = totalPaidAmountCents === 0
-  const amountDueCents = totalAmountCents - totalPaidAmountCents
-  const isInvoiceFullyPaid = totalPaidAmountCents >= totalAmountCents
+  const isInvoiceFullyPaid = totalDueAmountCents <= 0
 
   const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
   const currency = invoice?.currency || CurrencyEnum.Usd
   const currencyPrecision = getCurrencyPrecision(currency)
   const isLegacyInvoice = (invoice?.versionNumber || 0) < 3
   const hasCouponLine = Number(invoice?.couponsAmountCents || 0) > 0 && !isLegacyInvoice
-  const amountDue = deserializeAmount(amountDueCents, currency)
+  const amountDue = deserializeAmount(totalDueAmountCents, currency)
 
   const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
 

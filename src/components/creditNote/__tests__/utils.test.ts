@@ -635,6 +635,7 @@ describe('buildInitialPayBack', () => {
       id: 'invoice-1',
       totalAmountCents: '10000',
       totalPaidAmountCents: '10000',
+      totalDueAmountCents: '0',
       paymentDisputeLostAt: null,
       currency: CurrencyEnum.Usd,
       invoiceType: InvoiceTypeEnum.Subscription,
@@ -660,8 +661,8 @@ describe('buildInitialPayBack', () => {
   describe('GIVEN fully paid invoice', () => {
     it('WHEN no dispute lost THEN should include credit and refund', () => {
       const invoice = createMockInvoice({
-        totalAmountCents: '10000',
         totalPaidAmountCents: '10000',
+        totalDueAmountCents: '0',
         paymentDisputeLostAt: null,
       })
 
@@ -675,8 +676,8 @@ describe('buildInitialPayBack', () => {
 
     it('WHEN dispute lost THEN should include only credit (no refund)', () => {
       const invoice = createMockInvoice({
-        totalAmountCents: '10000',
         totalPaidAmountCents: '10000',
+        totalDueAmountCents: '0',
         paymentDisputeLostAt: '2024-01-01',
       })
 
@@ -689,8 +690,8 @@ describe('buildInitialPayBack', () => {
   describe('GIVEN partially paid invoice', () => {
     it('WHEN no dispute lost THEN should include credit, refund, and applyToInvoice', () => {
       const invoice = createMockInvoice({
-        totalAmountCents: '10000',
         totalPaidAmountCents: '5000',
+        totalDueAmountCents: '5000',
         paymentDisputeLostAt: null,
       })
 
@@ -705,8 +706,8 @@ describe('buildInitialPayBack', () => {
 
     it('WHEN dispute lost THEN should include credit and applyToInvoice (no refund)', () => {
       const invoice = createMockInvoice({
-        totalAmountCents: '10000',
         totalPaidAmountCents: '5000',
+        totalDueAmountCents: '5000',
         paymentDisputeLostAt: '2024-01-01',
       })
 
@@ -722,8 +723,8 @@ describe('buildInitialPayBack', () => {
   describe('GIVEN unpaid invoice', () => {
     it('THEN should include credit and applyToInvoice (no refund)', () => {
       const invoice = createMockInvoice({
-        totalAmountCents: '10000',
         totalPaidAmountCents: '0',
+        totalDueAmountCents: '10000',
         paymentDisputeLostAt: null,
       })
 

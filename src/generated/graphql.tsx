@@ -9292,7 +9292,7 @@ export type DownloadCreditNoteMutationVariables = Exact<{
 
 export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
 
-export type InvoiceForCreditNoteFormCalculationFragment = { __typename?: 'Invoice', id: string, couponsAmountCents: any, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, feesAmountCents: any, currency?: CurrencyEnum | null, versionNumber: number, paymentDisputeLostAt?: any | null, totalPaidAmountCents: any, totalAmountCents: any, invoiceType: InvoiceTypeEnum, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxName: string, taxRate: number }> | null }> | null };
+export type InvoiceForCreditNoteFormCalculationFragment = { __typename?: 'Invoice', id: string, couponsAmountCents: any, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, feesAmountCents: any, currency?: CurrencyEnum | null, versionNumber: number, paymentDisputeLostAt?: any | null, totalPaidAmountCents: any, totalAmountCents: any, totalDueAmountCents: any, invoiceType: InvoiceTypeEnum, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxName: string, taxRate: number }> | null }> | null };
 
 export type CreditNoteEstimateQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
@@ -17400,6 +17400,7 @@ export const InvoiceForCreditNoteFormCalculationFragmentDoc = gql`
   paymentDisputeLostAt
   totalPaidAmountCents
   totalAmountCents
+  totalDueAmountCents
   invoiceType
   fees {
     id
