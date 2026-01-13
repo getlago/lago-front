@@ -22,7 +22,6 @@ import {
 import {
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragment,
-  InvoicePaymentStatusTypeEnum,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
@@ -415,32 +414,9 @@ describe('canCreateCreditNote', () => {
 
 describe('isCreditNoteCreationDisabled', () => {
   describe('GIVEN invoice has no amounts available', () => {
-    it('WHEN unpaid (Pending) THEN should return true', () => {
+    it('THEN should return true', () => {
       expect(
         isCreditNoteCreationDisabled({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-          creditableAmountCents: '0',
-          refundableAmountCents: '0',
-          applicableToSourceInvoiceAmountCents: '0',
-        }),
-      ).toBe(true)
-    })
-
-    it('WHEN unpaid (Failed) THEN should return true', () => {
-      expect(
-        isCreditNoteCreationDisabled({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
-          creditableAmountCents: '0',
-          refundableAmountCents: '0',
-          applicableToSourceInvoiceAmountCents: '0',
-        }),
-      ).toBe(true)
-    })
-
-    it('WHEN paid (Succeeded) THEN should return true', () => {
-      expect(
-        isCreditNoteCreationDisabled({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
           applicableToSourceInvoiceAmountCents: '0',
@@ -453,7 +429,6 @@ describe('isCreditNoteCreationDisabled', () => {
     it('WHEN creditableAmountCents > 0 THEN should return false', () => {
       expect(
         isCreditNoteCreationDisabled({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '1000',
           refundableAmountCents: '0',
           applicableToSourceInvoiceAmountCents: '0',
@@ -464,7 +439,6 @@ describe('isCreditNoteCreationDisabled', () => {
     it('WHEN refundableAmountCents > 0 THEN should return false', () => {
       expect(
         isCreditNoteCreationDisabled({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '0',
           refundableAmountCents: '1000',
           applicableToSourceInvoiceAmountCents: '0',
@@ -475,21 +449,9 @@ describe('isCreditNoteCreationDisabled', () => {
     it('WHEN applicableToSourceInvoiceAmountCents > 0 THEN should return false', () => {
       expect(
         isCreditNoteCreationDisabled({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
           applicableToSourceInvoiceAmountCents: '1000',
-        }),
-      ).toBe(false)
-    })
-
-    it('WHEN unpaid but has amounts THEN should return false', () => {
-      expect(
-        isCreditNoteCreationDisabled({
-          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-          creditableAmountCents: '1000',
-          refundableAmountCents: '0',
-          applicableToSourceInvoiceAmountCents: '0',
         }),
       ).toBe(false)
     })
@@ -508,21 +470,8 @@ describe('isCreditNoteCreationDisabled', () => {
 
 describe('createCreditNoteForInvoiceButtonProps', () => {
   describe('GIVEN invoice has no amounts available', () => {
-    it('WHEN unpaid (Pending) THEN should disable button', () => {
+    it('THEN should disable button', () => {
       const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-        creditableAmountCents: '0',
-        refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '0',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(true)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
-    })
-
-    it('WHEN paid (Succeeded) THEN should disable button', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         creditableAmountCents: '0',
         refundableAmountCents: '0',
         applicableToSourceInvoiceAmountCents: '0',
@@ -536,7 +485,6 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
   describe('GIVEN invoice has amounts available', () => {
     it('WHEN creditableAmountCents > 0 THEN should enable button', () => {
       const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         creditableAmountCents: '1000',
         refundableAmountCents: '0',
         applicableToSourceInvoiceAmountCents: '0',
@@ -548,7 +496,6 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
 
     it('WHEN refundableAmountCents > 0 THEN should enable button', () => {
       const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         creditableAmountCents: '0',
         refundableAmountCents: '1000',
         applicableToSourceInvoiceAmountCents: '0',
@@ -560,22 +507,9 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
 
     it('WHEN applicableToSourceInvoiceAmountCents > 0 THEN should enable button', () => {
       const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         creditableAmountCents: '0',
         refundableAmountCents: '0',
         applicableToSourceInvoiceAmountCents: '1000',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(false)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
-    })
-
-    it('WHEN unpaid but has amounts THEN should enable button', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-        creditableAmountCents: '1000',
-        refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(false)
@@ -586,7 +520,6 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
   describe('GIVEN prepaid credits invoice with terminated wallet', () => {
     it('WHEN disabled THEN should show terminatedWallet message', () => {
       const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         invoiceType: InvoiceTypeEnum.Credit,
         associatedActiveWalletPresent: false,
         creditableAmountCents: '0',
