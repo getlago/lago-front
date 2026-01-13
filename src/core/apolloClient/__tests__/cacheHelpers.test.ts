@@ -4,11 +4,7 @@ import { createPaginatedFieldPolicy, mergePaginatedCollection } from '../cacheHe
 
 // Type helper to extract the keyArgs function from a field policy
 type KeyArgsFunction = NonNullable<
-  Extract<
-    ReturnType<typeof createPaginatedFieldPolicy>['keyArgs'],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (...args: any[]) => any
-  >
+  Extract<ReturnType<typeof createPaginatedFieldPolicy>['keyArgs'], (...args: any[]) => any>
 >
 
 // Mock context for testing keyArgs functions - matches the actual signature
