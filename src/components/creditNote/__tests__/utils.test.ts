@@ -12,6 +12,9 @@ import {
   CreditNoteFormCalculationCalculationProps,
   creditNoteFormHasAtLeastOneFeeChecked,
   getPayBackFields,
+  hasCreditableAmount,
+  hasCreditableOrRefundableAmount,
+  hasRefundableAmount,
   isCreditNoteCreationDisabled,
 } from '~/components/creditNote/utils'
 import {
@@ -239,6 +242,96 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
       // Should return false because creditFee takes precedence and none are checked
       expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
+  })
+})
+
+describe('hasCreditableAmount', () => {
+  it('should return true when creditableAmountCents > 0', () => {
+    expect(hasCreditableAmount({ creditableAmountCents: '1000' })).toBe(true)
+  })
+
+  it('should return false when creditableAmountCents is 0', () => {
+    expect(hasCreditableAmount({ creditableAmountCents: '0' })).toBe(false)
+  })
+
+  it('should return false when creditableAmountCents is undefined', () => {
+    expect(hasCreditableAmount({})).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(hasCreditableAmount(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(hasCreditableAmount(null)).toBe(false)
+  })
+})
+
+describe('hasRefundableAmount', () => {
+  it('should return true when refundableAmountCents > 0', () => {
+    expect(hasRefundableAmount({ refundableAmountCents: '1000' })).toBe(true)
+  })
+
+  it('should return false when refundableAmountCents is 0', () => {
+    expect(hasRefundableAmount({ refundableAmountCents: '0' })).toBe(false)
+  })
+
+  it('should return false when refundableAmountCents is undefined', () => {
+    expect(hasRefundableAmount({})).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(hasRefundableAmount(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(hasRefundableAmount(null)).toBe(false)
+  })
+})
+
+describe('hasCreditableOrRefundableAmount', () => {
+  it('should return true when only creditableAmountCents > 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '1000',
+        refundableAmountCents: '0',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return true when only refundableAmountCents > 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '0',
+        refundableAmountCents: '1000',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return true when both amounts > 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '1000',
+        refundableAmountCents: '500',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return false when both amounts are 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+      }),
+    ).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(hasCreditableOrRefundableAmount(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(hasCreditableOrRefundableAmount(null)).toBe(false)
   })
 })
 

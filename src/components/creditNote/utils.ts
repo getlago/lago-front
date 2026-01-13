@@ -155,18 +155,55 @@ const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
   fullyCovered: 'text_1729082994964zccpjmtotdy',
 }
 
+// ----------------------------------------
+// Invoice Amount Helpers
+// ----------------------------------------
+
+type InvoiceAmountFields = Partial<
+  Pick<Invoice, 'creditableAmountCents' | 'refundableAmountCents'>
+> | null
+
+/**
+ * Checks if the invoice has a creditable amount (creditableAmountCents > 0).
+ * This represents the amount that can be credited back to the customer's account.
+ */
+export const hasCreditableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return Number(invoice?.creditableAmountCents) > 0
+}
+
+/**
+ * Checks if the invoice has a refundable amount (refundableAmountCents > 0).
+ * This represents the amount that can be refunded as actual money.
+ */
+export const hasRefundableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return Number(invoice?.refundableAmountCents) > 0
+}
+
+/**
+ * Checks if the invoice has either a creditable or refundable amount.
+ * When true, the credit note form allows editing amounts.
+ * When false, the form uses applicableToInvoiceCents in read-only mode.
+ */
+export const hasCreditableOrRefundableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return hasCreditableAmount(invoice) || hasRefundableAmount(invoice)
+}
+
+// ----------------------------------------
+// Credit Note Creation Validation
+// ----------------------------------------
+
 export const isCreditNoteCreationDisabled = (
   invoice?: Partial<
     Pick<Invoice, 'paymentStatus' | 'creditableAmountCents' | 'refundableAmountCents'>
   > | null,
 ) => {
-  const isUnpaid =
-    invoice?.paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
-    invoice?.paymentStatus === InvoicePaymentStatusTypeEnum.Failed
+  if (!invoice) return false
 
-  return (
-    !isUnpaid && invoice?.creditableAmountCents === '0' && invoice?.refundableAmountCents === '0'
-  )
+  const isUnpaid =
+    invoice.paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
+    invoice.paymentStatus === InvoicePaymentStatusTypeEnum.Failed
+
+  return !isUnpaid && !hasCreditableOrRefundableAmount(invoice)
 }
 
 export const createCreditNoteForInvoiceButtonProps = ({

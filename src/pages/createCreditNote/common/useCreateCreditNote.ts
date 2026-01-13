@@ -3,7 +3,10 @@ import { useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
-import { isCreditNoteCreationDisabled } from '~/components/creditNote/utils'
+import {
+  hasCreditableOrRefundableAmount as hasCreditableOrRefundableAmountUtil,
+  isCreditNoteCreationDisabled,
+} from '~/components/creditNote/utils'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   composeChargeFilterDisplayName,
@@ -231,9 +234,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     navigate(ERROR_404_ROUTE)
   }
 
-  const hasCreditableOrRefundableAmount =
-    Number(data?.invoice?.creditableAmountCents) > 0 ||
-    Number(data?.invoice?.refundableAmountCents) > 0
+  const hasCreditableOrRefundableAmount = hasCreditableOrRefundableAmountUtil(data?.invoice)
 
   const feeForCredit = useMemo(() => {
     if (data?.invoice?.invoiceType === InvoiceTypeEnum.Credit) {
