@@ -318,6 +318,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 paymentDisputeLostAt,
                 totalAmountCents,
                 totalPaidAmountCents,
+                totalDueAmountCents,
               }) => {
                 if (status !== InvoiceStatusTypeEnum.Finalized) {
                   return null
@@ -329,8 +330,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 }
 
                 const isPartiallyPaid =
-                  Number(totalPaidAmountCents) > 0 &&
-                  Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+                  Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
 
                 if (isPartiallyPaid) {
                   content = {
