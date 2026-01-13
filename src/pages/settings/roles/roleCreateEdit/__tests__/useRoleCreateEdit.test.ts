@@ -20,6 +20,7 @@ const mockNavigate = jest.fn()
 const mockCreateRoleMutation = jest.fn()
 const mockEditRoleMutation = jest.fn()
 const mockAddToast = jest.fn()
+const mockHasPermissions = jest.fn()
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -45,7 +46,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
-    hasPermissions: () => true,
+    hasPermissions: mockHasPermissions,
   }),
 }))
 
@@ -71,6 +72,7 @@ describe('useRoleCreateEdit', () => {
     mockUseLocation.mockReturnValue({ search: '' })
     mockCreateRoleMutation.mockResolvedValue({ data: { createRole: { id: 'new-role-id' } } })
     mockEditRoleMutation.mockResolvedValue({ data: { updateRole: { id: 'edit-role-123' } } })
+    mockHasPermissions.mockReturnValue(true)
   })
 
   afterEach(() => {
@@ -404,6 +406,65 @@ describe('useRoleCreateEdit', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(mockAddToast).not.toHaveBeenCalled()
+    })
+
+    it('navigates to home when user does not have rolesView permission after creating', async () => {
+      mockHasPermissions.mockReturnValue(false)
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'New Role',
+        code: 'new_role',
+        description: '',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it
+      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ createRole: { id: 'new-role-id' } })
+      })
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/')
+        expect(mockNavigate).not.toHaveBeenCalledWith('/settings/roles/new-role-id')
+      })
+    })
+
+    it('navigates to home when user does not have rolesView permission after editing', async () => {
+      mockUseParams.mockReturnValue({ roleId: 'edit-role-123' })
+      mockHasPermissions.mockReturnValue(false)
+
+      const { result } = renderHook(() => useRoleCreateEdit())
+
+      const formValues = {
+        name: 'Updated Role',
+        code: 'updated_role',
+        description: '',
+        permissions: [],
+      }
+
+      await act(async () => {
+        await result.current.handleSave(formValues)
+      })
+
+      // Get the onCompleted callback and call it
+      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
+
+      await act(async () => {
+        onCompleted({ updateRole: { id: 'edit-role-123' } })
+      })
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/')
+        expect(mockNavigate).not.toHaveBeenCalledWith('/settings/roles/edit-role-123')
+      })
     })
   })
 })

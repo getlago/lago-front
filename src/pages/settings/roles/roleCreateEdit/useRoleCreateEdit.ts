@@ -53,7 +53,7 @@ export const useRoleCreateEdit = (): {
 
   const isEdition = !!roleIdFromEdition
 
-  const navigateToCorrectPageAfterSave = async () => {
+  const navigateToCorrectPageAfterSave = async (savedRoleId: string) => {
     // Be sure to have correct current user infos after role creation
     await client.refetchQueries({
       include: [GetCurrentUserInfosDocument],
@@ -64,7 +64,7 @@ export const useRoleCreateEdit = (): {
       return
     }
 
-    navigate(generatePath(ROLE_DETAILS_ROUTE, { roleId: roleId as string }))
+    navigate(generatePath(ROLE_DETAILS_ROUTE, { roleId: savedRoleId }))
   }
 
   const createRole = async (roleParams: CreateRoleInput) => {
@@ -80,7 +80,7 @@ export const useRoleCreateEdit = (): {
           severity: 'success',
         })
 
-        await navigateToCorrectPageAfterSave()
+        await navigateToCorrectPageAfterSave(data.createRole.id)
       },
     })
   }
@@ -98,7 +98,7 @@ export const useRoleCreateEdit = (): {
           severity: 'success',
         })
 
-        await navigateToCorrectPageAfterSave()
+        await navigateToCorrectPageAfterSave(data.updateRole.id)
       },
     })
   }
