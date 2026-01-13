@@ -7,6 +7,7 @@ import {
 import { CreditTypeEnum } from '~/components/creditNote/types'
 import {
   buildInitialPayBack,
+  canCreateCreditNote,
   createCreditNoteForInvoiceButtonProps,
   creditNoteFormCalculationCalculation,
   CreditNoteFormCalculationCalculationProps,
@@ -15,6 +16,10 @@ import {
   formatCreditNoteTypesForDisplay,
   getCreditNoteTypes,
   getPayBackFields,
+  hasApplicableToSourceInvoiceAmount,
+  hasCreditableAmount,
+  hasCreditableOrRefundableAmount,
+  hasRefundableAmount,
   isCreditNoteCreationDisabled,
 } from '~/components/creditNote/utils'
 import {
@@ -245,46 +250,216 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
   })
 })
 
+describe('hasCreditableAmount', () => {
+  it('should return true when creditableAmountCents > 0', () => {
+    expect(hasCreditableAmount({ creditableAmountCents: '1000' })).toBe(true)
+  })
+
+  it('should return false when creditableAmountCents is 0', () => {
+    expect(hasCreditableAmount({ creditableAmountCents: '0' })).toBe(false)
+  })
+
+  it('should return false when creditableAmountCents is undefined', () => {
+    expect(hasCreditableAmount({})).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(hasCreditableAmount(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(hasCreditableAmount(null)).toBe(false)
+  })
+})
+
+describe('hasRefundableAmount', () => {
+  it('should return true when refundableAmountCents > 0', () => {
+    expect(hasRefundableAmount({ refundableAmountCents: '1000' })).toBe(true)
+  })
+
+  it('should return false when refundableAmountCents is 0', () => {
+    expect(hasRefundableAmount({ refundableAmountCents: '0' })).toBe(false)
+  })
+
+  it('should return false when refundableAmountCents is undefined', () => {
+    expect(hasRefundableAmount({})).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(hasRefundableAmount(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(hasRefundableAmount(null)).toBe(false)
+  })
+})
+
+describe('hasCreditableOrRefundableAmount', () => {
+  it('should return true when only creditableAmountCents > 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '1000',
+        refundableAmountCents: '0',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return true when only refundableAmountCents > 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '0',
+        refundableAmountCents: '1000',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return true when both amounts > 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '1000',
+        refundableAmountCents: '500',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return false when both amounts are 0', () => {
+    expect(
+      hasCreditableOrRefundableAmount({
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+      }),
+    ).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(hasCreditableOrRefundableAmount(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(hasCreditableOrRefundableAmount(null)).toBe(false)
+  })
+})
+
+describe('hasApplicableToSourceInvoiceAmount', () => {
+  it('should return true when applicableToSourceInvoiceAmountCents > 0', () => {
+    expect(
+      hasApplicableToSourceInvoiceAmount({ applicableToSourceInvoiceAmountCents: '1000' }),
+    ).toBe(true)
+  })
+
+  it('should return false when applicableToSourceInvoiceAmountCents is 0', () => {
+    expect(hasApplicableToSourceInvoiceAmount({ applicableToSourceInvoiceAmountCents: '0' })).toBe(
+      false,
+    )
+  })
+
+  it('should return false when applicableToSourceInvoiceAmountCents is undefined', () => {
+    expect(hasApplicableToSourceInvoiceAmount({})).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(hasApplicableToSourceInvoiceAmount(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(hasApplicableToSourceInvoiceAmount(null)).toBe(false)
+  })
+})
+
+describe('canCreateCreditNote', () => {
+  it('should return true when creditableAmountCents > 0', () => {
+    expect(
+      canCreateCreditNote({
+        creditableAmountCents: '1000',
+        refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '0',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return true when refundableAmountCents > 0', () => {
+    expect(
+      canCreateCreditNote({
+        creditableAmountCents: '0',
+        refundableAmountCents: '1000',
+        applicableToSourceInvoiceAmountCents: '0',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return true when applicableToSourceInvoiceAmountCents > 0', () => {
+    expect(
+      canCreateCreditNote({
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '1000',
+      }),
+    ).toBe(true)
+  })
+
+  it('should return false when all amounts are 0', () => {
+    expect(
+      canCreateCreditNote({
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '0',
+      }),
+    ).toBe(false)
+  })
+
+  it('should return false when invoice is undefined', () => {
+    expect(canCreateCreditNote(undefined)).toBe(false)
+  })
+
+  it('should return false when invoice is null', () => {
+    expect(canCreateCreditNote(null)).toBe(false)
+  })
+})
+
 describe('isCreditNoteCreationDisabled', () => {
-  describe('GIVEN invoice is unpaid', () => {
-    it('WHEN paymentStatus is Pending THEN should return false', () => {
+  describe('GIVEN invoice has no amounts available', () => {
+    it('WHEN unpaid (Pending) THEN should return true', () => {
       expect(
         isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
+          applicableToSourceInvoiceAmountCents: '0',
         }),
-      ).toBe(false)
+      ).toBe(true)
     })
 
-    it('WHEN paymentStatus is Failed THEN should return false', () => {
+    it('WHEN unpaid (Failed) THEN should return true', () => {
       expect(
         isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
+          applicableToSourceInvoiceAmountCents: '0',
         }),
-      ).toBe(false)
+      ).toBe(true)
     })
-  })
 
-  describe('GIVEN invoice is paid', () => {
-    it('WHEN both amounts are 0 THEN should return true', () => {
+    it('WHEN paid (Succeeded) THEN should return true', () => {
       expect(
         isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '0',
           refundableAmountCents: '0',
+          applicableToSourceInvoiceAmountCents: '0',
         }),
       ).toBe(true)
     })
+  })
 
+  describe('GIVEN invoice has amounts available', () => {
     it('WHEN creditableAmountCents > 0 THEN should return false', () => {
       expect(
         isCreditNoteCreationDisabled({
           paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '1000',
           refundableAmountCents: '0',
+          applicableToSourceInvoiceAmountCents: '0',
         }),
       ).toBe(false)
     })
@@ -295,6 +470,29 @@ describe('isCreditNoteCreationDisabled', () => {
           paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
           creditableAmountCents: '0',
           refundableAmountCents: '1000',
+          applicableToSourceInvoiceAmountCents: '0',
+        }),
+      ).toBe(false)
+    })
+
+    it('WHEN applicableToSourceInvoiceAmountCents > 0 THEN should return false', () => {
+      expect(
+        isCreditNoteCreationDisabled({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+          applicableToSourceInvoiceAmountCents: '1000',
+        }),
+      ).toBe(false)
+    })
+
+    it('WHEN unpaid but has amounts THEN should return false', () => {
+      expect(
+        isCreditNoteCreationDisabled({
+          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+          creditableAmountCents: '1000',
+          refundableAmountCents: '0',
+          applicableToSourceInvoiceAmountCents: '0',
         }),
       ).toBe(false)
     })
@@ -312,47 +510,39 @@ describe('isCreditNoteCreationDisabled', () => {
 })
 
 describe('createCreditNoteForInvoiceButtonProps', () => {
-  describe('GIVEN invoice is unpaid', () => {
-    it('WHEN paymentStatus is Pending THEN should enable button even if amounts are 0', () => {
+  describe('GIVEN invoice has no amounts available', () => {
+    it('WHEN unpaid (Pending) THEN should disable button', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
         creditableAmountCents: '0',
         refundableAmountCents: '0',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(false)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
-    })
-
-    it('WHEN paymentStatus is Failed THEN should enable button even if amounts are 0', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
-        creditableAmountCents: '0',
-        refundableAmountCents: '0',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(false)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
-    })
-  })
-
-  describe('GIVEN invoice is paid', () => {
-    it('WHEN amounts are 0 THEN should disable button with fullyCovered message', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
-        creditableAmountCents: '0',
-        refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(true)
       expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
     })
 
+    it('WHEN paid (Succeeded) THEN should disable button', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '0',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(true)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
+    })
+  })
+
+  describe('GIVEN invoice has amounts available', () => {
     it('WHEN creditableAmountCents > 0 THEN should enable button', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         creditableAmountCents: '1000',
         refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(false)
@@ -364,6 +554,31 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
         paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
         creditableAmountCents: '0',
         refundableAmountCents: '1000',
+        applicableToSourceInvoiceAmountCents: '0',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+
+    it('WHEN applicableToSourceInvoiceAmountCents > 0 THEN should enable button', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '1000',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+
+    it('WHEN unpaid but has amounts THEN should enable button', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+        creditableAmountCents: '1000',
+        refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(false)
@@ -379,6 +594,7 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
         associatedActiveWalletPresent: false,
         creditableAmountCents: '0',
         refundableAmountCents: '0',
+        applicableToSourceInvoiceAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(true)
