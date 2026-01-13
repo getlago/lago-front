@@ -335,11 +335,7 @@ const CreateCreditNote = () => {
                       </Typography>
                       <Typography variant="body" color="grey700">
                         {intlFormatNumber(
-                          deserializeAmount(
-                            (Number(invoice?.totalAmountCents) || 0) -
-                              (Number(invoice?.totalPaidAmountCents) || 0),
-                            currency,
-                          ),
+                          deserializeAmount(invoice?.totalDueAmountCents || 0, currency),
                           { currency },
                         )}
                       </Typography>

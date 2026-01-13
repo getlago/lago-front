@@ -413,8 +413,7 @@ const InvoicesList = ({
               })
 
             const isPartiallyPaid =
-              Number(invoice.totalPaidAmountCents) > 0 &&
-              Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
+              Number(invoice.totalPaidAmountCents) > 0 && Number(invoice.totalDueAmountCents) > 0
 
             const hasActiveWallet = invoice?.customer?.hasActiveWallet || false
 
@@ -499,6 +498,7 @@ const InvoicesList = ({
                 paymentDisputeLostAt,
                 totalAmountCents,
                 totalPaidAmountCents,
+                totalDueAmountCents,
               }) => {
                 if (status !== InvoiceStatusTypeEnum.Finalized) {
                   return null
@@ -510,8 +510,7 @@ const InvoicesList = ({
                 }
 
                 const isPartiallyPaid =
-                  Number(totalPaidAmountCents) > 0 &&
-                  Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+                  Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
 
                 if (isPartiallyPaid) {
                   content = {

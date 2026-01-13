@@ -78,6 +78,7 @@ gql`
     availableToCreditAmountCents
     totalPaidAmountCents
     totalAmountCents
+    totalDueAmountCents
     paymentDisputeLostAt
     invoiceType
     ...InvoiceForCreditNoteFormCalculation

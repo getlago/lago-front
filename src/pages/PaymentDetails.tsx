@@ -60,6 +60,7 @@ gql`
     paymentStatus
     number
     totalAmountCents
+    totalDueAmountCents
     issuingDate
     currency
     paymentOverdue
@@ -576,6 +577,7 @@ const PaymentDetails = () => {
                   paymentOverdue,
                   totalAmountCents,
                   totalPaidAmountCents,
+                  totalDueAmountCents,
                   paymentDisputeLostAt,
                   status,
                 }) => {
@@ -591,8 +593,7 @@ const PaymentDetails = () => {
                   const isOverdue =
                     paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
                   const isPartiallyPaid =
-                    Number(totalPaidAmountCents) > 0 &&
-                    Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+                    Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
 
                   if (isPartiallyPaid) {
                     content = {
