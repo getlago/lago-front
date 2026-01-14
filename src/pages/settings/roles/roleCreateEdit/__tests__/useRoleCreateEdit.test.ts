@@ -196,13 +196,11 @@ describe('useRoleCreateEdit', () => {
         await result.current.handleSave(formValues)
       })
 
-      expect(mockCreateRoleMutation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          variables: {
-            input: formValues,
-          },
-        }),
-      )
+      expect(mockCreateRoleMutation).toHaveBeenCalledWith({
+        variables: {
+          input: formValues,
+        },
+      })
     })
 
     it('excludes code when editing a role', async () => {
@@ -221,18 +219,16 @@ describe('useRoleCreateEdit', () => {
         await result.current.handleSave(formValues)
       })
 
-      expect(mockEditRoleMutation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          variables: {
-            input: {
-              id: 'edit-role-123',
-              name: 'Updated Role',
-              description: 'Updated description',
-              permissions: [PermissionEnum.PlansView],
-            },
+      expect(mockEditRoleMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            id: 'edit-role-123',
+            name: 'Updated Role',
+            description: 'Updated description',
+            permissions: [PermissionEnum.PlansView],
           },
-        }),
-      )
+        },
+      })
     })
 
     it('shows success toast after creating a role', async () => {
@@ -247,13 +243,6 @@ describe('useRoleCreateEdit', () => {
 
       await act(async () => {
         await result.current.handleSave(formValues)
-      })
-
-      // Get the onCompleted callback and call it
-      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ createRole: { id: 'new-role-id' } })
       })
 
       await waitFor(() => {
@@ -280,13 +269,6 @@ describe('useRoleCreateEdit', () => {
         await result.current.handleSave(formValues)
       })
 
-      // Get the onCompleted callback and call it
-      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ updateRole: { id: 'edit-role-123' } })
-      })
-
       await waitFor(() => {
         expect(mockAddToast).toHaveBeenCalledWith({
           message: 'text_176615894759841ijqrfnb29',
@@ -307,13 +289,6 @@ describe('useRoleCreateEdit', () => {
 
       await act(async () => {
         await result.current.handleSave(formValues)
-      })
-
-      // Get the onCompleted callback and call it
-      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ createRole: { id: 'new-role-id' } })
       })
 
       await waitFor(() => {
@@ -337,13 +312,6 @@ describe('useRoleCreateEdit', () => {
         await result.current.handleSave(formValues)
       })
 
-      // Get the onCompleted callback and call it
-      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ updateRole: { id: 'edit-role-123' } })
-      })
-
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/settings/roles/edit-role-123')
       })
@@ -365,17 +333,8 @@ describe('useRoleCreateEdit', () => {
         await result.current.handleSave(formValues)
       })
 
-      // Get the onCompleted callback and call it with null
-      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ createRole: null })
-      })
-
-      // Wait to ensure nothing was called
-      await new Promise((resolve) => setTimeout(resolve, 100))
-
       expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it('does not navigate or toast when edit returns no data', async () => {
@@ -395,17 +354,8 @@ describe('useRoleCreateEdit', () => {
         await result.current.handleSave(formValues)
       })
 
-      // Get the onCompleted callback and call it with null
-      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ updateRole: null })
-      })
-
-      // Wait to ensure nothing was called
-      await new Promise((resolve) => setTimeout(resolve, 100))
-
       expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it('navigates to home when user does not have rolesView permission after creating', async () => {
@@ -422,13 +372,6 @@ describe('useRoleCreateEdit', () => {
 
       await act(async () => {
         await result.current.handleSave(formValues)
-      })
-
-      // Get the onCompleted callback and call it
-      const onCompleted = mockCreateRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ createRole: { id: 'new-role-id' } })
       })
 
       await waitFor(() => {
@@ -452,13 +395,6 @@ describe('useRoleCreateEdit', () => {
 
       await act(async () => {
         await result.current.handleSave(formValues)
-      })
-
-      // Get the onCompleted callback and call it
-      const onCompleted = mockEditRoleMutation.mock.calls[0][0].onCompleted
-
-      await act(async () => {
-        onCompleted({ updateRole: { id: 'edit-role-123' } })
       })
 
       await waitFor(() => {

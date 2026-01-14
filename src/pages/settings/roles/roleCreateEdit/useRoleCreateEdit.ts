@@ -68,39 +68,41 @@ export const useRoleCreateEdit = (): {
   }
 
   const createRole = async (roleParams: CreateRoleInput) => {
-    return await createRoleMutation({
+    const result = await createRoleMutation({
       variables: {
         input: roleParams,
       },
-      onCompleted: async (data) => {
-        if (!data.createRole?.id) return
-
-        addToast({
-          message: translate('text_1766158947598y30l6z5btl6'),
-          severity: 'success',
-        })
-
-        await navigateToCorrectPageAfterSave(data.createRole.id)
-      },
     })
+
+    if (result.data?.createRole?.id) {
+      addToast({
+        message: translate('text_1766158947598y30l6z5btl6'),
+        severity: 'success',
+      })
+
+      await navigateToCorrectPageAfterSave(result.data.createRole.id)
+    }
+
+    return result
   }
 
   const editRole = async (roleParams: UpdateRoleInput) => {
-    return await editRoleMutation({
+    const result = await editRoleMutation({
       variables: {
         input: roleParams,
       },
-      onCompleted: async (data) => {
-        if (!data.updateRole?.id) return
-
-        addToast({
-          message: translate('text_176615894759841ijqrfnb29'),
-          severity: 'success',
-        })
-
-        await navigateToCorrectPageAfterSave(data.updateRole.id)
-      },
     })
+
+    if (result.data?.updateRole?.id) {
+      addToast({
+        message: translate('text_176615894759841ijqrfnb29'),
+        severity: 'success',
+      })
+
+      await navigateToCorrectPageAfterSave(result.data.updateRole.id)
+    }
+
+    return result
   }
 
   const handleSave = async (formattedValues: CreateRoleInput) => {
