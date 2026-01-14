@@ -10,6 +10,8 @@ import {
 import {
   ActionItem,
   InfiniteScroll,
+  Status,
+  StatusType,
   Table,
   TableColumn,
   TableContainerSize,
@@ -25,7 +27,9 @@ import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { ResponsiveStyleValue } from '~/core/utils/responsiveProps'
 import {
+  CreditNoteCreditStatusEnum,
   CreditNoteForVoidCreditNoteDialogFragmentDoc,
+  CreditNoteRefundStatusEnum,
   CreditNoteTableItemFragment,
   GetCreditNotesListQuery,
   PremiumIntegrationTypeEnum,
@@ -47,6 +51,8 @@ gql`
     totalAmountCents
     refundAmountCents
     creditAmountCents
+    refundStatus
+    creditStatus
     currency
     createdAt
     canBeVoided
@@ -314,8 +320,65 @@ const CreditNotesTable = ({
                   })}
                 </Typography>
               ),
-              maxSpace: !showCustomerName,
               textAlign: 'right',
+            },
+            {
+              key: 'refundStatus',
+              title: translate('text_17270794543889mcmuhfq70p'),
+              content: ({ refundStatus }) => {
+                if (!refundStatus) return null
+
+                const statusConfig: Record<
+                  CreditNoteRefundStatusEnum,
+                  { type: StatusType; label: string }
+                > = {
+                  [CreditNoteRefundStatusEnum.Succeeded]: {
+                    type: StatusType.success,
+                    label: translate('text_1734703891144fcw46jk9gzh'),
+                  },
+                  [CreditNoteRefundStatusEnum.Pending]: {
+                    type: StatusType.default,
+                    label: translate('text_1734774653389j2meo530xlb'),
+                  },
+                  [CreditNoteRefundStatusEnum.Failed]: {
+                    type: StatusType.warning,
+                    label: translate('text_17347746533897mbptdz8x5k'),
+                  },
+                }
+
+                const config = statusConfig[refundStatus]
+
+                return <Status type={config.type} label={config.label} />
+              },
+            },
+            {
+              key: 'creditStatus',
+              title: translate('text_1727079454388x9q4uz6ah71'),
+              content: ({ creditStatus }) => {
+                if (!creditStatus) return null
+
+                const statusConfig: Record<
+                  CreditNoteCreditStatusEnum,
+                  { type: StatusType; label: string }
+                > = {
+                  [CreditNoteCreditStatusEnum.Available]: {
+                    type: StatusType.success,
+                    label: translate('text_637655cb50f04bf1c8379d0c'),
+                  },
+                  [CreditNoteCreditStatusEnum.Consumed]: {
+                    type: StatusType.outline,
+                    label: translate('text_6376641a2a9c70fff5bddcd1'),
+                  },
+                  [CreditNoteCreditStatusEnum.Voided]: {
+                    type: StatusType.disabled,
+                    label: translate('text_6376641a2a9c70fff5bddcd5'),
+                  },
+                }
+
+                const config = statusConfig[creditStatus]
+
+                return <Status type={config.type} label={config.label} />
+              },
             },
             ...(showCustomerName
               ? [
