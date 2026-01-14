@@ -12,6 +12,11 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const RESEND_INVOICE_FOR_COLLECTION_DIALOG_CANCEL_BUTTON_TEST_ID =
+  'resend-invoice-for-collection-dialog-cancel-button'
+export const RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID =
+  'resend-invoice-for-collection-dialog-submit-button'
+
 gql`
   fragment InvoiceForResendInvoiceForCollectionDialog on Invoice {
     id
@@ -102,10 +107,18 @@ export const ResendInvoiceForCollectionDialog = forwardRef<ResendInvoiceForColle
         }}
         actions={({ closeDialog }) => (
           <>
-            <Button variant="quaternary" onClick={closeDialog}>
+            <Button
+              variant="quaternary"
+              onClick={closeDialog}
+              data-test={RESEND_INVOICE_FOR_COLLECTION_DIALOG_CANCEL_BUTTON_TEST_ID}
+            >
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button
+              onClick={handleSubmit}
+              disabled={loading}
+              data-test={RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID}
+            >
               {translate('text_63ac86d897f728a87b2fa039')}
             </Button>
           </>
