@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 
 import {
