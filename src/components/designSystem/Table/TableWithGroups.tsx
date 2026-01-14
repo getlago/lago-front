@@ -151,7 +151,7 @@ const TableWithGroupsInner = (
       return !!expandedGroups[groupKey]
     },
     hasExpandedGroups: () => {
-      return Object.values(expandedGroups).some((isExpanded) => isExpanded)
+      return Object.values(expandedGroups).some(Boolean)
     },
     hasCollapsedGroups: () => {
       const allGroups = getGroupKeys(rows)
