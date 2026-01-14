@@ -17,6 +17,7 @@ import {
   ChargeModelEnum,
   CreateAdjustedFeeInput,
   CurrencyEnum,
+  FeeForCreateFeeDrawerFragment,
   FixedCharge,
   FixedChargeChargeModelEnum,
   useCreateAdjustedFeeMutation,
@@ -53,75 +54,85 @@ const calculateTotalAmount = (
 }
 
 gql`
-  fragment InvoiceSubscriptionForCreateFeeDrawer on InvoiceSubscription {
-    subscription {
+  # Fragment for subscription/plan data (charges and fixed charges available to add)
+  fragment SubscriptionForCreateFeeDrawer on Subscription {
+    id
+    plan {
       id
-      plan {
+      charges {
         id
-        charges {
-          id
-          invoiceDisplayName
-          chargeModel
-          prorated
-          properties {
-            amount
-          }
-          filters {
-            id
-            invoiceDisplayName
-            values
-          }
-          billableMetric {
-            id
-            name
-            code
-          }
+        invoiceDisplayName
+        chargeModel
+        prorated
+        properties {
+          amount
         }
-        fixedCharges {
+        filters {
           id
           invoiceDisplayName
-          chargeModel
-          prorated
-          addOn {
-            id
-            name
-            code
-          }
+          values
+        }
+        billableMetric {
+          id
+          name
+          code
+        }
+      }
+      fixedCharges {
+        id
+        invoiceDisplayName
+        chargeModel
+        prorated
+        addOn {
+          id
+          name
+          code
         }
       }
     }
-    fees {
+  }
+
+  # Fee fragment for the drawer - matches InvoiceForFormatInvoiceItemMap structure
+  # so fees can be used consistently for boundary grouping
+  fragment FeeForCreateFeeDrawer on Fee {
+    id
+    adjustedFee
+    properties {
+      fromDatetime
+      toDatetime
+    }
+    subscription {
       id
-      charge {
+    }
+    charge {
+      id
+      filters {
         id
-        filters {
-          id
-          values
+        values
+      }
+      properties {
+        graduatedRanges {
+          flatAmount
+          fromValue
+          perUnitAmount
+          toValue
         }
-        properties {
-          graduatedRanges {
-            flatAmount
-            fromValue
-            perUnitAmount
-            toValue
-          }
-          graduatedPercentageRanges {
-            flatAmount
-            fromValue
-            rate
-            toValue
-          }
+        graduatedPercentageRanges {
+          flatAmount
+          fromValue
+          rate
+          toValue
         }
       }
-      fixedCharge {
-        id
-      }
-      chargeFilter {
-        id
-      }
-      pricingUnitUsage {
-        shortName
-      }
+    }
+    fixedCharge {
+      id
+    }
+    chargeFilter {
+      id
+    }
+    pricingUnitUsage {
+      shortName
     }
   }
 
@@ -143,8 +154,12 @@ gql`
   query getInvoiceDetailsForCreateFeeDrawer($invoiceId: ID!) {
     invoice(id: $invoiceId) {
       id
-      invoiceSubscriptions {
-        ...InvoiceSubscriptionForCreateFeeDrawer
+      subscriptions {
+        ...SubscriptionForCreateFeeDrawer
+      }
+      # Fees at Invoice level (like InvoiceForFormatInvoiceItemMap)
+      fees {
+        ...FeeForCreateFeeDrawer
       }
     }
   }
@@ -168,6 +183,7 @@ type EditFeeDrawerProps =
       invoiceSubscriptionId: string
       fee?: TExtendedRemainingFee
       onAdd: OnRegeneratedFeeAdd
+      localFees?: FeeForCreateFeeDrawerFragment[]
     }
   | {
       mode: 'add'
@@ -192,6 +208,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const isEditMode = localData?.mode === 'edit'
   const isAddMode = localData?.mode === 'add'
   const fee = isEditMode || isRegenerateMode ? localData?.fee : undefined
+  const localFees = isRegenerateMode ? localData.localFees : undefined
   const currency = fee?.currency || CurrencyEnum.Usd
   const pricingUnitUsage = fee?.pricingUnitUsage
 
@@ -203,15 +220,24 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const invoiceSubscriptionId =
     isRegenerateMode || isAddMode ? localData.invoiceSubscriptionId : undefined
 
-  const { loading: invoiceLoading, data: invoiceData } =
-    useGetInvoiceDetailsForCreateFeeDrawerQuery({
-      variables: {
-        invoiceId: localData?.invoiceId || '',
-      },
-      skip: !localData?.invoiceId && !invoiceSubscriptionId,
-    })
-  const currentInvoiceSubscription = invoiceData?.invoice?.invoiceSubscriptions?.find(
-    (invoiceSubscription) => invoiceSubscription.subscription.id === invoiceSubscriptionId,
+  const {
+    loading: invoiceLoading,
+    data: invoiceData,
+    refetch: refetchInvoiceDetailsForCreateFeeDrawer,
+  } = useGetInvoiceDetailsForCreateFeeDrawerQuery({
+    variables: {
+      invoiceId: localData?.invoiceId || '',
+    },
+    skip: !localData?.invoiceId,
+  })
+
+  const currentSubscription = invoiceData?.invoice?.subscriptions?.find(
+    (subscription) => subscription.id === invoiceSubscriptionId,
+  )
+
+  // Filter invoice-level fees by subscription ID (matches InvoiceForFormatInvoiceItemMap pattern)
+  const subscriptionFees = invoiceData?.invoice?.fees?.filter(
+    (f) => f.subscription?.id === invoiceSubscriptionId,
   )
 
   const [createFee] = useCreateAdjustedFeeMutation({
@@ -297,11 +323,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       }
 
       if (isRegenerateMode) {
-        const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
+        const currentCharge = currentSubscription?.plan.charges?.find(
           (charge) => charge.id === values.chargeId,
         )
 
-        const currentFixedCharge = currentInvoiceSubscription?.subscription.plan.fixedCharges?.find(
+        const currentFixedCharge = currentSubscription?.plan.fixedCharges?.find(
           (fixedCharge) => fixedCharge.id === values.fixedChargeId,
         )
 
@@ -332,21 +358,26 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
   const setFieldValue = formikProps.setFieldValue
 
+  // Use localFees (from regenerate mode) or subscriptionFees (from invoice query)
+  const feesForCombobox = localFees ?? subscriptionFees
+
   const chargesComboboxData = useMemo(() => {
     return getChargesComboboxDataFromInvoiceSubscription({
       chargesGroupLabel: translate('text_6435888d7cc86500646d8977'),
       fixedChargesGroupLabel: translate('text_176072970726728iw4tc8ucl'),
-      invoiceSubscription: currentInvoiceSubscription,
+      subscription: currentSubscription,
+      overrideFees: feesForCombobox,
     })
-  }, [currentInvoiceSubscription, translate])
+  }, [currentSubscription, translate, feesForCombobox])
 
   const chargeFiltersComboboxData = useMemo(() => {
     return getChargesFiltersComboboxDataFromInvoiceSubscription({
       defaultFilterOptionLabel: translate('text_64e620bca31226337ffc62ad'),
-      invoiceSubscription: currentInvoiceSubscription,
+      subscription: currentSubscription,
       selectedChargeId: formikProps.values.chargeId,
+      overrideFees: feesForCombobox,
     })
-  }, [currentInvoiceSubscription, formikProps.values.chargeId, translate])
+  }, [currentSubscription, formikProps.values.chargeId, translate, feesForCombobox])
 
   // Determine if the selected item is a charge or fixed charge
   const selectedItemType = useMemo((): 'charge' | 'fixed-charge' | null => {
@@ -403,13 +434,13 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
       // If we're adding a new fee, find the selected charge or fixed charge
       if (selectedItemType === 'charge') {
-        return currentInvoiceSubscription?.subscription.plan.charges?.find(
+        return currentSubscription?.plan.charges?.find(
           (charge) => charge.id === formikProps.values.chargeId,
         )
       }
 
       if (selectedItemType === 'fixed-charge') {
-        return currentInvoiceSubscription?.subscription.plan.fixedCharges?.find(
+        return currentSubscription?.plan.fixedCharges?.find(
           (fixedCharge) => fixedCharge.id === formikProps.values.fixedChargeId,
         ) as { chargeModel?: FixedChargeChargeModelEnum; prorated?: boolean } | undefined
       }
@@ -421,8 +452,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
     return !!config && isChargeModelUnitAdjustmentDisabled(config.chargeModel, config.prorated)
   }, [
-    currentInvoiceSubscription?.subscription.plan.charges,
-    currentInvoiceSubscription?.subscription.plan.fixedCharges,
+    currentSubscription,
     fee,
     formikProps.values.chargeId,
     formikProps.values.fixedChargeId,
@@ -431,11 +461,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
   const onChargeIdChange = useCallback(
     (selectedChargeId: string) => {
-      const isUsageCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
+      const isUsageCharge = currentSubscription?.plan.charges?.find(
         (charge) => charge.id === selectedChargeId,
       )
 
-      const isFixedCharge = currentInvoiceSubscription?.subscription.plan.fixedCharges?.find(
+      const isFixedCharge = currentSubscription?.plan.fixedCharges?.find(
         (fixedCharge) => fixedCharge.id === selectedChargeId,
       )
 
@@ -445,11 +475,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         setFieldValue('fixedChargeId', selectedChargeId)
       }
     },
-    [
-      currentInvoiceSubscription?.subscription.plan.charges,
-      currentInvoiceSubscription?.subscription.plan.fixedCharges,
-      setFieldValue,
-    ],
+    [currentSubscription, setFieldValue],
   )
 
   useImperativeHandle(ref, () => ({
@@ -479,6 +505,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       withPadding={false}
       title={drawerTitle}
       onClose={resetForm}
+      onOpen={() => {
+        if (localData?.invoiceId) {
+          refetchInvoiceDetailsForCreateFeeDrawer()
+        }
+      }}
     >
       {({ closeDrawer }) => (
         <DrawerLayout.Wrapper>
@@ -567,6 +598,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                         placeholder={translate('text_1737733582553rmmlatfbk1r')}
                         data={chargesComboboxData}
                         onChange={onChargeIdChange}
+                        loading={invoiceLoading}
                         value={
                           formikProps.values.chargeId || formikProps.values.fixedChargeId || ''
                         }

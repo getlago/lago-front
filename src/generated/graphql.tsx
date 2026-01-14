@@ -10191,7 +10191,9 @@ export type DestroyAdjustedFeeMutationVariables = Exact<{
 
 export type DestroyAdjustedFeeMutation = { __typename?: 'Mutation', destroyAdjustedFee?: { __typename?: 'DestroyAdjustedFeePayload', id?: string | null } | null };
 
-export type InvoiceSubscriptionForCreateFeeDrawerFragment = { __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null };
+export type SubscriptionForCreateFeeDrawerFragment = { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } };
+
+export type FeeForCreateFeeDrawerFragment = { __typename?: 'Fee', id: string, adjustedFee: boolean, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string } | null, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null };
 
 export type FeeForEditfeeDrawerFragment = { __typename?: 'Fee', id: string, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, prorated: boolean } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null };
 
@@ -10200,7 +10202,7 @@ export type GetInvoiceDetailsForCreateFeeDrawerQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null }> | null } | null };
+export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, subscriptions?: Array<{ __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, properties?: { __typename?: 'Properties', amount?: string | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string } }> | null } }> | null, fees?: Array<{ __typename?: 'Fee', id: string, adjustedFee: boolean, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string } | null, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null } | null };
 
 export type CreateAdjustedFeeMutationVariables = Exact<{
   input: CreateAdjustedFeeInput;
@@ -12098,7 +12100,7 @@ export type PreviewAdjustedFeeMutationVariables = Exact<{
 }>;
 
 
-export type PreviewAdjustedFeeMutation = { __typename?: 'Mutation', previewAdjustedFee?: { __typename?: 'Fee', id: string, feeType: FeeTypesEnum, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, preciseUnitAmount: number, addOn?: { __typename?: 'AddOn', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, amountCents: any, taxRate: number, taxName: string }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, rate?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null } | null };
+export type PreviewAdjustedFeeMutation = { __typename?: 'Mutation', previewAdjustedFee?: { __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, succeededAt?: any | null, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, groupedBy: any, currency: CurrencyEnum, invoiceId?: string | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string, values: any } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null } | null };
 
 export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Customer', email?: string | null };
 
@@ -14760,76 +14762,84 @@ export const InvoiceForVoidInvoiceDialogFragmentDoc = gql`
   number
 }
     `;
-export const InvoiceSubscriptionForCreateFeeDrawerFragmentDoc = gql`
-    fragment InvoiceSubscriptionForCreateFeeDrawer on InvoiceSubscription {
-  subscription {
+export const SubscriptionForCreateFeeDrawerFragmentDoc = gql`
+    fragment SubscriptionForCreateFeeDrawer on Subscription {
+  id
+  plan {
     id
-    plan {
+    charges {
       id
-      charges {
-        id
-        invoiceDisplayName
-        chargeModel
-        prorated
-        properties {
-          amount
-        }
-        filters {
-          id
-          invoiceDisplayName
-          values
-        }
-        billableMetric {
-          id
-          name
-          code
-        }
+      invoiceDisplayName
+      chargeModel
+      prorated
+      properties {
+        amount
       }
-      fixedCharges {
+      filters {
         id
         invoiceDisplayName
-        chargeModel
-        prorated
-        addOn {
-          id
-          name
-          code
-        }
+        values
+      }
+      billableMetric {
+        id
+        name
+        code
+      }
+    }
+    fixedCharges {
+      id
+      invoiceDisplayName
+      chargeModel
+      prorated
+      addOn {
+        id
+        name
+        code
       }
     }
   }
-  fees {
+}
+    `;
+export const FeeForCreateFeeDrawerFragmentDoc = gql`
+    fragment FeeForCreateFeeDrawer on Fee {
+  id
+  adjustedFee
+  properties {
+    fromDatetime
+    toDatetime
+  }
+  subscription {
     id
-    charge {
+  }
+  charge {
+    id
+    filters {
       id
-      filters {
-        id
-        values
+      values
+    }
+    properties {
+      graduatedRanges {
+        flatAmount
+        fromValue
+        perUnitAmount
+        toValue
       }
-      properties {
-        graduatedRanges {
-          flatAmount
-          fromValue
-          perUnitAmount
-          toValue
-        }
-        graduatedPercentageRanges {
-          flatAmount
-          fromValue
-          rate
-          toValue
-        }
+      graduatedPercentageRanges {
+        flatAmount
+        fromValue
+        rate
+        toValue
       }
     }
-    fixedCharge {
-      id
-    }
-    chargeFilter {
-      id
-    }
-    pricingUnitUsage {
-      shortName
-    }
+  }
+  fixedCharge {
+    id
+  }
+  chargeFilter {
+    id
+  }
+  pricingUnitUsage {
+    shortName
   }
 }
     `;
@@ -23905,12 +23915,16 @@ export const GetInvoiceDetailsForCreateFeeDrawerDocument = gql`
     query getInvoiceDetailsForCreateFeeDrawer($invoiceId: ID!) {
   invoice(id: $invoiceId) {
     id
-    invoiceSubscriptions {
-      ...InvoiceSubscriptionForCreateFeeDrawer
+    subscriptions {
+      ...SubscriptionForCreateFeeDrawer
+    }
+    fees {
+      ...FeeForCreateFeeDrawer
     }
   }
 }
-    ${InvoiceSubscriptionForCreateFeeDrawerFragmentDoc}`;
+    ${SubscriptionForCreateFeeDrawerFragmentDoc}
+${FeeForCreateFeeDrawerFragmentDoc}`;
 
 /**
  * __useGetInvoiceDetailsForCreateFeeDrawerQuery__
@@ -32150,60 +32164,7 @@ export type RegenerateInvoiceMutationOptions = Apollo.BaseMutationOptions<Regene
 export const PreviewAdjustedFeeDocument = gql`
     mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
   previewAdjustedFee(input: $input) {
-    id
-    feeType
-    amountCents
-    invoiceName
-    invoiceDisplayName
-    units
-    groupedBy
-    preciseUnitAmount
-    addOn {
-      id
-    }
-    appliedTaxes {
-      id
-      amountCents
-      taxRate
-      taxName
-    }
-    amountDetails {
-      freeUnits
-      paidUnits
-      perPackageSize
-      perPackageUnitAmount
-      graduatedRanges {
-        flatUnitAmount
-        fromValue
-        perUnitAmount
-        toValue
-        units
-        perUnitTotalAmount
-      }
-      graduatedPercentageRanges {
-        flatUnitAmount
-        fromValue
-        rate
-        toValue
-        units
-        perUnitTotalAmount
-      }
-    }
-    charge {
-      id
-      payInAdvance
-      minAmountCents
-      chargeModel
-      billableMetric {
-        id
-        name
-      }
-    }
-    chargeFilter {
-      id
-      invoiceDisplayName
-      values
-    }
+    ...FeeForInvoiceDetailsTable
     subscription {
       id
       plan {
@@ -32214,7 +32175,7 @@ export const PreviewAdjustedFeeDocument = gql`
     }
   }
 }
-    `;
+    ${FeeForInvoiceDetailsTableFragmentDoc}`;
 export type PreviewAdjustedFeeMutationFn = Apollo.MutationFunction<PreviewAdjustedFeeMutation, PreviewAdjustedFeeMutationVariables>;
 
 /**

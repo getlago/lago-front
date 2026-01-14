@@ -14,6 +14,7 @@ import {
   AdjustedFeeTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
+  FeeForCreateFeeDrawerFragment,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragment,
@@ -124,6 +125,7 @@ type InvoiceDetailsTableBodyLineProps = {
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
   invoiceSubscriptionId?: string
+  localFees?: FeeForCreateFeeDrawerFragment[]
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (
@@ -201,6 +203,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     onAdd,
     onDelete,
     invoiceSubscriptionId,
+    localFees,
   }: InvoiceDetailsTableBodyLineProps) => {
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
@@ -399,6 +402,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                                 invoiceSubscriptionId,
                                 fee,
                                 onAdd,
+                                localFees,
                               })
                             } else {
                               editFeeDrawerRef?.current?.openDrawer({

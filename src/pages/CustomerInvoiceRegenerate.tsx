@@ -22,6 +22,7 @@ import {
   Fee,
   FeeAmountDetails,
   FeeAppliedTax,
+  FeeForInvoiceDetailsTableFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   FixedCharge,
   LagoApiError,
@@ -57,60 +58,7 @@ gql`
 
   mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
     previewAdjustedFee(input: $input) {
-      id
-      feeType
-      amountCents
-      invoiceName
-      invoiceDisplayName
-      units
-      groupedBy
-      preciseUnitAmount
-      addOn {
-        id
-      }
-      appliedTaxes {
-        id
-        amountCents
-        taxRate
-        taxName
-      }
-      amountDetails {
-        freeUnits
-        paidUnits
-        perPackageSize
-        perPackageUnitAmount
-        graduatedRanges {
-          flatUnitAmount
-          fromValue
-          perUnitAmount
-          toValue
-          units
-          perUnitTotalAmount
-        }
-        graduatedPercentageRanges {
-          flatUnitAmount
-          fromValue
-          rate
-          toValue
-          units
-          perUnitTotalAmount
-        }
-      }
-      charge {
-        id
-        payInAdvance
-        minAmountCents
-        chargeModel
-        billableMetric {
-          id
-          name
-        }
-      }
-      chargeFilter {
-        id
-        invoiceDisplayName
-        values
-      }
+      ...FeeForInvoiceDetailsTable
       subscription {
         id
         plan {
@@ -121,6 +69,8 @@ gql`
       }
     }
   }
+
+  ${FeeForInvoiceDetailsTableFragmentDoc}
 `
 
 export type OnRegeneratedFeeAdd = (input: {
@@ -133,6 +83,10 @@ export type OnRegeneratedFeeAdd = (input: {
   fixedCharge?: FixedCharge | null
   chargeFilterId?: string | null
   invoiceSubscriptionId?: string | null
+  properties?: {
+    fromDatetime?: string | null
+    toDatetime?: string | null
+  } | null
 }) => void
 
 const removeEmptyKeys = (obj: object) => {
@@ -239,6 +193,8 @@ const CustomerInvoiceRegenerate = () => {
 
     const calculatedFee = {
       ...feeData,
+      // Preserve properties from input if mutation doesn't return them (needed for boundary grouping)
+      properties: feeData?.properties ?? input?.properties,
       id: isUpdate ? input?.feeId : `${TEMPORARY_ID_PREFIX}-${Math.random().toString()}`,
       adjustedFee: true,
       wasOnlyUnitsUpdate: typeof input?.unitPreciseAmount === 'undefined',
@@ -413,6 +369,7 @@ const CustomerInvoiceRegenerate = () => {
                 onAdd={onAdd}
                 onDelete={onDelete}
                 fees={fees}
+                localFees={fees}
               />
             )}
           </div>

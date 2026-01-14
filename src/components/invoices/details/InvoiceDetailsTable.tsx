@@ -17,6 +17,7 @@ import {
   Customer,
   ErrorCodesEnum,
   FeeDetailsForInvoiceOverviewFragment,
+  FeeForCreateFeeDrawerFragment,
   FeeForCustomerInvoiceRegenerateFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragment,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
@@ -171,6 +172,7 @@ interface InvoiceDetailsTableProps {
   fees: FeeDetailsForInvoiceOverviewFragment[] | null | undefined
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
+  localFees?: FeeForCreateFeeDrawerFragment[]
 }
 
 export const InvoiceTableSection: FC<{
@@ -245,6 +247,7 @@ export const InvoiceDetailsTable = memo(
     fees,
     onAdd,
     onDelete,
+    localFees,
   }: InvoiceDetailsTableProps) => {
     const { translate } = useInternationalization()
 
@@ -385,6 +388,7 @@ export const InvoiceDetailsTable = memo(
                       hasTaxProviderError={hasTaxProviderError}
                       onAdd={onAdd}
                       onDelete={onDelete}
+                      localFees={localFees}
                     />
                   </tbody>
                   <InvoiceDetailsTableFooter
@@ -424,6 +428,7 @@ export const InvoiceDetailsTable = memo(
                         invoiceSubscriptionId: subscriptionId,
                         mode: 'regenerate',
                         onAdd,
+                        localFees,
                       }
                     : {
                         invoiceId: invoice.id,
@@ -478,6 +483,7 @@ export const InvoiceDetailsTable = memo(
                                 hasTaxProviderError={hasTaxProviderError}
                                 onAdd={onAdd}
                                 onDelete={onDelete}
+                                localFees={localFees}
                               />
                             )
                           })}

@@ -1,12 +1,20 @@
 import { ComboboxDataGrouped, ComboBoxProps } from '~/components/form'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
-import { InvoiceSubscriptionForCreateFeeDrawerFragment } from '~/generated/graphql'
+import {
+  FeeForCreateFeeDrawerFragment,
+  SubscriptionForCreateFeeDrawerFragment,
+} from '~/generated/graphql'
+
+// Fee type that can be used for charge selection logic
+// Matches the structure needed by both invoice-level fees and regenerate mode fees
+type FeeForChargeSelection = Pick<
+  FeeForCreateFeeDrawerFragment,
+  'charge' | 'fixedCharge' | 'chargeFilter' | 'adjustedFee'
+>
 
 function _formatChargeDataForCombobox(
-  charge: NonNullable<
-    InvoiceSubscriptionForCreateFeeDrawerFragment['subscription']['plan']['charges']
-  >[number],
+  charge: NonNullable<SubscriptionForCreateFeeDrawerFragment['plan']['charges']>[number],
   groupLabel: string,
 ): ComboboxDataGrouped {
   const { id, invoiceDisplayName, billableMetric } = charge
@@ -20,9 +28,7 @@ function _formatChargeDataForCombobox(
 }
 
 function _formatFixedChargeDataForCombobox(
-  fixedCharge: NonNullable<
-    InvoiceSubscriptionForCreateFeeDrawerFragment['subscription']['plan']['fixedCharges']
-  >[number],
+  fixedCharge: NonNullable<SubscriptionForCreateFeeDrawerFragment['plan']['fixedCharges']>[number],
   groupLabel: string,
 ): ComboboxDataGrouped {
   const { id, invoiceDisplayName, addOn } = fixedCharge
@@ -38,59 +44,100 @@ function _formatFixedChargeDataForCombobox(
 export const getChargesComboboxDataFromInvoiceSubscription = ({
   chargesGroupLabel,
   fixedChargesGroupLabel,
-  invoiceSubscription,
+  subscription,
+  overrideFees,
 }: {
   chargesGroupLabel: string
   fixedChargesGroupLabel: string
-  invoiceSubscription: InvoiceSubscriptionForCreateFeeDrawerFragment | undefined
+  subscription: SubscriptionForCreateFeeDrawerFragment | undefined
+  overrideFees?: FeeForChargeSelection[]
 }): ComboboxDataGrouped[] => {
-  if (!invoiceSubscription) return []
+  if (!subscription) return []
 
-  const planUsageChargesWithoutAssociatedFees =
-    invoiceSubscription.subscription.plan.charges?.reduce<ComboboxDataGrouped[]>((acc, charge) => {
-      const chargeFeeExistsInAllFees = !invoiceSubscription?.fees?.some(
-        (invoiceSubFee) => invoiceSubFee.charge?.id === charge.id && !invoiceSubFee.chargeFilter,
-      )
+  const feesToCheck = overrideFees
 
-      if (!charge.filters?.length) {
-        if (chargeFeeExistsInAllFees)
-          acc.push(_formatChargeDataForCombobox(charge, chargesGroupLabel))
-        return acc
+  const planUsageChargesWithoutAssociatedFees = subscription.plan.charges?.reduce<
+    ComboboxDataGrouped[]
+  >((acc, charge) => {
+    const chargeFeeExistsInAllFees = !feesToCheck?.some((invoiceSubFee) => {
+      const matchesCharge = invoiceSubFee.charge?.id === charge.id && !invoiceSubFee.chargeFilter
+
+      if (!matchesCharge) return false
+
+      // When overrideFees is provided (regenerate mode), only count fees with adjustedFee: true
+      // This allows reset fees (adjustedFee: false/undefined) to be re-added
+      if (overrideFees) {
+        return invoiceSubFee.adjustedFee === true
       }
 
-      const hasAvailableFilter = charge.filters?.some((filter) => {
-        const defaultFilterExistsInAllFees = invoiceSubscription?.fees?.find(
-          (invoiceSubFee) =>
-            invoiceSubFee.charge?.id === charge.id &&
-            !invoiceSubFee.chargeFilter &&
-            !!invoiceSubFee.charge.filters,
-        )
-        const chargeFilterExistsInAllFees = invoiceSubscription?.fees?.some(
-          (invoiceSubFee) =>
-            invoiceSubFee.charge?.id === charge.id && invoiceSubFee.chargeFilter?.id === filter.id,
-        )
+      return true
+    })
 
-        return !chargeFilterExistsInAllFees || !defaultFilterExistsInAllFees
+    if (!charge.filters?.length) {
+      if (chargeFeeExistsInAllFees)
+        acc.push(_formatChargeDataForCombobox(charge, chargesGroupLabel))
+      return acc
+    }
+
+    const hasAvailableFilter = charge.filters?.some((filter) => {
+      const defaultFilterExistsInAllFees = feesToCheck?.find((invoiceSubFee) => {
+        const matchesDefault =
+          invoiceSubFee.charge?.id === charge.id &&
+          !invoiceSubFee.chargeFilter &&
+          !!invoiceSubFee.charge.filters
+
+        if (!matchesDefault) return false
+
+        // When overrideFees is provided (regenerate mode), only count fees with adjustedFee: true
+        if (overrideFees) {
+          return invoiceSubFee.adjustedFee === true
+        }
+
+        return true
       })
 
-      if (!hasAvailableFilter) return acc
+      const chargeFilterExistsInAllFees = feesToCheck?.some((invoiceSubFee) => {
+        const matchesFilter =
+          invoiceSubFee.charge?.id === charge.id && invoiceSubFee.chargeFilter?.id === filter.id
 
-      return [...acc, _formatChargeDataForCombobox(charge, chargesGroupLabel)]
-    }, [])
+        if (!matchesFilter) return false
 
-  const planFixedChargesWithoutAssociatedFees =
-    invoiceSubscription.subscription.plan.fixedCharges?.reduce<ComboboxDataGrouped[]>(
-      (acc, fixedCharge) => {
-        const fixedChargeFeeExistsInAllFees = !invoiceSubscription?.fees?.some(
-          (invoiceSubFee) => invoiceSubFee.fixedCharge?.id === fixedCharge.id,
-        )
+        // When overrideFees is provided (regenerate mode), only count fees with adjustedFee: true
+        if (overrideFees) {
+          return invoiceSubFee.adjustedFee === true
+        }
 
-        if (!fixedChargeFeeExistsInAllFees) return acc
+        return true
+      })
 
-        return [...acc, _formatFixedChargeDataForCombobox(fixedCharge, fixedChargesGroupLabel)]
-      },
-      [],
-    )
+      return !chargeFilterExistsInAllFees || !defaultFilterExistsInAllFees
+    })
+
+    if (!hasAvailableFilter) return acc
+
+    return [...acc, _formatChargeDataForCombobox(charge, chargesGroupLabel)]
+  }, [])
+
+  const planFixedChargesWithoutAssociatedFees = subscription.plan.fixedCharges?.reduce<
+    ComboboxDataGrouped[]
+  >((acc, fixedCharge) => {
+    const fixedChargeFeeExistsInAllFees = !feesToCheck?.some((invoiceSubFee) => {
+      const matchesFixedCharge = invoiceSubFee.fixedCharge?.id === fixedCharge.id
+
+      if (!matchesFixedCharge) return false
+
+      // When overrideFees is provided (regenerate mode), only count fees with adjustedFee: true
+      if (overrideFees) {
+        return invoiceSubFee.adjustedFee === true
+      }
+
+      return true
+    })
+
+    if (!fixedChargeFeeExistsInAllFees) return acc
+
+    return [...acc, _formatFixedChargeDataForCombobox(fixedCharge, fixedChargesGroupLabel)]
+  }, [])
 
   return [
     ...(planFixedChargesWithoutAssociatedFees || []),
@@ -100,38 +147,58 @@ export const getChargesComboboxDataFromInvoiceSubscription = ({
 
 export const getChargesFiltersComboboxDataFromInvoiceSubscription = ({
   defaultFilterOptionLabel,
-  invoiceSubscription,
+  subscription,
   selectedChargeId,
+  overrideFees,
 }: {
   defaultFilterOptionLabel: string
-  invoiceSubscription: InvoiceSubscriptionForCreateFeeDrawerFragment | undefined
+  subscription: SubscriptionForCreateFeeDrawerFragment | undefined
   selectedChargeId: string | null | undefined
+  overrideFees?: FeeForChargeSelection[]
 }): ComboBoxProps['data'] => {
-  if (!invoiceSubscription || !selectedChargeId) return []
+  if (!subscription || !selectedChargeId) return []
 
-  const selectedCharge = invoiceSubscription.subscription.plan.charges?.find(
-    (charge) => charge.id === selectedChargeId,
-  )
+  const feesToCheck = overrideFees
+
+  const selectedCharge = subscription.plan.charges?.find((charge) => charge.id === selectedChargeId)
 
   if (!selectedCharge?.filters?.length) return []
 
   const selectedPlanChargeFiltersWithoutAssociatedFees = selectedCharge.filters.filter((filter) => {
-    const associatedFee = invoiceSubscription?.fees?.some(
-      (invoiceSubFee) =>
+    const associatedFee = feesToCheck?.some((invoiceSubFee) => {
+      const matchesFilter =
         invoiceSubFee.charge?.id === selectedCharge.id &&
-        invoiceSubFee.chargeFilter?.id === filter.id,
-    )
+        invoiceSubFee.chargeFilter?.id === filter.id
+
+      if (!matchesFilter) return false
+
+      // When overrideFees is provided (regenerate mode), only count fees with adjustedFee: true
+      if (overrideFees) {
+        return invoiceSubFee.adjustedFee === true
+      }
+
+      return true
+    })
 
     return !associatedFee
   })
 
   // Check if default filter is associated with a charge
-  const defaultFilterExistsInAllFees = invoiceSubscription?.fees?.find(
-    (invoiceSubFee) =>
+  const defaultFilterExistsInAllFees = feesToCheck?.find((invoiceSubFee) => {
+    const matchesDefault =
       invoiceSubFee.charge?.id === selectedCharge.id &&
       !invoiceSubFee.chargeFilter &&
-      !!invoiceSubFee.charge.filters,
-  )
+      !!invoiceSubFee.charge.filters
+
+    if (!matchesDefault) return false
+
+    // When overrideFees is provided (regenerate mode), only count fees with adjustedFee: true
+    if (overrideFees) {
+      return invoiceSubFee.adjustedFee === true
+    }
+
+    return true
+  })
 
   const comboboxData = (selectedPlanChargeFiltersWithoutAssociatedFees || []).map(
     (planChargesWithoutAssociatedFee) => {
