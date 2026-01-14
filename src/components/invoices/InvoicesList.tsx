@@ -48,6 +48,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
@@ -59,6 +60,7 @@ import {
   PremiumIntegrationTypeEnum,
   useDownloadInvoiceItemMutation,
   useGeneratePaymentUrlMutation,
+  useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -97,6 +99,7 @@ const InvoicesList = ({
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
   )
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -107,6 +110,18 @@ const InvoicesList = ({
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
       handleDownloadFile(data?.fileUrl)
+    },
+  })
+
+  const [retryCollect] = useRetryInvoicePaymentMutation({
+    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
+    onCompleted({ retryInvoicePayment: data }) {
+      if (data?.id) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_63ac86d897f728a87b2fa0b3',
+        })
+      }
     },
   })
 
@@ -261,8 +276,25 @@ const InvoicesList = ({
       ? {
           startIcon: 'push',
           title: translate('text_63ac86d897f728a87b2fa039'),
-          onAction: () => {
-            resendInvoiceForCollectionDialogRef.current?.openDialog({ invoice })
+          onAction: async () => {
+            if (hasAccessToMultiPaymentFlow) {
+              resendInvoiceForCollectionDialogRef.current?.openDialog({ invoice })
+            } else {
+              const { errors } = await retryCollect({
+                variables: {
+                  input: {
+                    id: invoice.id,
+                  },
+                },
+              })
+
+              if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+                addToast({
+                  severity: 'info',
+                  translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                })
+              }
+            }
           },
         }
       : null

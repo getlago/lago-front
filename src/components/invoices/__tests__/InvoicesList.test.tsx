@@ -95,6 +95,13 @@ jest.mock('~/hooks/useDownloadFile', () => ({
 
 const mockDownloadInvoice = jest.fn()
 const mockGeneratePaymentUrl = jest.fn()
+const mockRetryInvoicePayment = jest.fn()
+const mockIsFeatureFlagActive = jest.fn()
+
+jest.mock('~/core/utils/featureFlags', () => ({
+  ...jest.requireActual('~/core/utils/featureFlags'),
+  isFeatureFlagActive: (...args: unknown[]) => mockIsFeatureFlagActive(...args),
+}))
 
 // Store callbacks to test mutation handlers
 let downloadInvoiceCallbacks: {
@@ -103,6 +110,11 @@ let downloadInvoiceCallbacks: {
 let generatePaymentUrlCallbacks: {
   onCompleted?: (data: { generatePaymentUrl: { paymentUrl: string } | null }) => void
   onError?: (error: { graphQLErrors?: Array<{ extensions?: { code?: string } }> }) => void
+} = {}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let retryInvoicePaymentCallbacks: {
+  onCompleted?: (data: { retryInvoicePayment: { id: string } | null }) => void
 } = {}
 
 jest.mock('~/generated/graphql', () => ({
@@ -114,6 +126,10 @@ jest.mock('~/generated/graphql', () => ({
   useGeneratePaymentUrlMutation: (options: typeof generatePaymentUrlCallbacks) => {
     generatePaymentUrlCallbacks = options
     return [mockGeneratePaymentUrl]
+  },
+  useRetryInvoicePaymentMutation: (options: typeof retryInvoicePaymentCallbacks) => {
+    retryInvoicePaymentCallbacks = options
+    return [mockRetryInvoicePayment, { loading: false }]
   },
 }))
 
@@ -229,6 +245,8 @@ describe('InvoicesList', () => {
     mockCanIssueCreditNote.mockReturnValue(true)
     mockCanRecordPayment.mockReturnValue(true)
     mockHasDefinedGQLError.mockReturnValue(false)
+    mockIsFeatureFlagActive.mockReturnValue(false)
+    mockRetryInvoicePayment.mockResolvedValue({ errors: null })
   })
 
   describe('Basic Rendering', () => {
@@ -1008,6 +1026,7 @@ describe('InvoicesList', () => {
       const user = userEvent.setup()
 
       mockCanRetryCollect.mockReturnValue(true)
+      mockIsFeatureFlagActive.mockReturnValue(true) // temporary as long as we remove the feature flag
 
       await renderInvoicesList({
         invoices: [
