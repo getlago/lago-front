@@ -46,6 +46,7 @@ gql`
     number
     issuingDate
     totalAmountCents
+    totalDueAmountCents
     currency
     invoiceType
   }
@@ -347,6 +348,24 @@ const PortalInvoicesList = () => {
                   <Typography variant="bodyHl" color="textSecondary">
                     {intlFormatNumber(
                       deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd),
+                      {
+                        currency: currency || CurrencyEnum.Usd,
+                        locale: documentLocale,
+                        currencyDisplay: 'narrowSymbol',
+                      },
+                    )}
+                  </Typography>
+                ),
+              },
+              {
+                key: 'totalDueAmountCents',
+                title: translate('text_17374735502775afvcm9pqxk'),
+                textAlign: 'right',
+                minWidth: 160,
+                content: ({ totalDueAmountCents, currency }) => (
+                  <Typography variant="bodyHl" color="textSecondary">
+                    {intlFormatNumber(
+                      deserializeAmount(totalDueAmountCents, currency || CurrencyEnum.Usd),
                       {
                         currency: currency || CurrencyEnum.Usd,
                         locale: documentLocale,
