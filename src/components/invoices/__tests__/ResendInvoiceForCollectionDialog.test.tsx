@@ -40,22 +40,45 @@ jest.mock('~/generated/graphql', () => ({
   },
 }))
 
+const availablePaymentMethods = ['pm_123', 'pm_456']
+
 jest.mock('~/components/paymentMethodSelection/PaymentMethodComboBox', () => ({
-  PaymentMethodComboBox: jest.fn(({ setSelectedPaymentMethod }) => (
-    <div data-test="payment-method-combobox">
-      <button
-        data-test="select-payment-method"
-        onClick={() =>
-          setSelectedPaymentMethod({
-            paymentMethodId: 'pm_123',
-            paymentMethodType: 'card',
-          })
-        }
-      >
-        Select Payment Method
-      </button>
-    </div>
-  )),
+  PaymentMethodComboBox: jest.fn(({ setSelectedPaymentMethod, selectedPaymentMethod }) => {
+    // Simulate the validation logic: if selected ID doesn't exist, show nothing selected
+    const isValidSelection = availablePaymentMethods.includes(
+      selectedPaymentMethod?.paymentMethodId || '',
+    )
+
+    return (
+      <div data-test="payment-method-combobox">
+        <span data-test="selected-value">
+          {isValidSelection ? selectedPaymentMethod?.paymentMethodId : 'none'}
+        </span>
+        <button
+          data-test="select-payment-method-pm_123"
+          onClick={() =>
+            setSelectedPaymentMethod({
+              paymentMethodId: 'pm_123',
+              paymentMethodType: 'card',
+            })
+          }
+        >
+          Select Card 4242
+        </button>
+        <button
+          data-test="select-payment-method-pm_456"
+          onClick={() =>
+            setSelectedPaymentMethod({
+              paymentMethodId: 'pm_456',
+              paymentMethodType: 'card',
+            })
+          }
+        >
+          Select Card 5555
+        </button>
+      </div>
+    )
+  }),
 }))
 
 const mockInvoice = {
@@ -67,14 +90,16 @@ const mockInvoice = {
   },
 }
 
-function TestWrapper() {
+function TestWrapper({ preselectedPaymentMethodId }: { preselectedPaymentMethodId?: string }) {
   const dialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
 
   return (
     <>
       <button
         data-test="open-dialog"
-        onClick={() => dialogRef.current?.openDialog({ invoice: mockInvoice })}
+        onClick={() =>
+          dialogRef.current?.openDialog({ invoice: mockInvoice, preselectedPaymentMethodId })
+        }
       >
         Open Dialog
       </button>
@@ -83,8 +108,8 @@ function TestWrapper() {
   )
 }
 
-async function renderAndOpenDialog() {
-  const utils = render(<TestWrapper />)
+async function renderAndOpenDialog(preselectedPaymentMethodId?: string) {
+  const utils = render(<TestWrapper preselectedPaymentMethodId={preselectedPaymentMethodId} />)
 
   const openButton = screen.getByTestId('open-dialog')
 
@@ -138,37 +163,31 @@ describe('ResendInvoiceForCollectionDialog', () => {
   })
 
   describe('Submit Behavior', () => {
-    it('calls mutation without paymentMethod when none selected', async () => {
+    it('disables submit button when no payment method is selected', async () => {
       await renderAndOpenDialog()
 
       const resendButton = screen.getByTestId(
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
 
-      await userEvent.click(resendButton)
-
-      await waitFor(() => {
-        expect(mockRetryInvoicePayment).toHaveBeenCalledWith({
-          variables: {
-            input: {
-              id: 'invoice-123',
-            },
-          },
-        })
-      })
+      // Button should be disabled because no payment method is selected
+      expect(resendButton).toBeDisabled()
     })
 
-    it('calls mutation with paymentMethod when selected', async () => {
+    it('calls mutation with manually selected payment method', async () => {
       await renderAndOpenDialog()
 
       // Select a payment method
-      const selectButton = screen.getByTestId('select-payment-method')
+      const selectButton = screen.getByTestId('select-payment-method-pm_123')
 
       await userEvent.click(selectButton)
 
       const resendButton = screen.getByTestId(
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
+
+      // Button should now be enabled
+      expect(resendButton).not.toBeDisabled()
 
       await userEvent.click(resendButton)
 
@@ -216,6 +235,11 @@ describe('ResendInvoiceForCollectionDialog', () => {
 
       await renderAndOpenDialog()
 
+      // Select a payment method first
+      const selectButton = screen.getByTestId('select-payment-method-pm_123')
+
+      await userEvent.click(selectButton)
+
       const resendButton = screen.getByTestId(
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
@@ -246,6 +270,11 @@ describe('ResendInvoiceForCollectionDialog', () => {
     it('closes dialog after successful submission', async () => {
       await renderAndOpenDialog()
 
+      // Select a payment method first
+      const selectButton = screen.getByTestId('select-payment-method-pm_123')
+
+      await userEvent.click(selectButton)
+
       const resendButton = screen.getByTestId(
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
@@ -255,6 +284,22 @@ describe('ResendInvoiceForCollectionDialog', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('Preselection Behavior', () => {
+    it('shows no selection when preselected payment method ID does not exist', async () => {
+      await renderAndOpenDialog('non-existent-pm-id')
+
+      // ComboBox should show 'none' because the ID doesn't exist in available options
+      expect(screen.getByTestId('selected-value')).toHaveTextContent('none')
+    })
+
+    it('shows preselection when payment method ID exists in the list', async () => {
+      await renderAndOpenDialog('pm_123')
+
+      // ComboBox should show the preselected ID
+      expect(screen.getByTestId('selected-value')).toHaveTextContent('pm_123')
     })
   })
 })

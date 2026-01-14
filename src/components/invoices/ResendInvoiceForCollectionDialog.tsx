@@ -30,6 +30,7 @@ gql`
 
 type ResendInvoiceForCollectionDialogProps = {
   invoice?: InvoiceForResendInvoiceForCollectionDialogFragment | null
+  preselectedPaymentMethodId?: string
 }
 
 export interface ResendInvoiceForCollectionDialogRef {
@@ -63,7 +64,11 @@ export const ResendInvoiceForCollectionDialog = forwardRef<ResendInvoiceForColle
     useImperativeHandle(ref, () => ({
       openDialog: (data) => {
         setDialogData(data)
-        setSelectedPaymentMethod(null)
+        setSelectedPaymentMethod(
+          data.preselectedPaymentMethodId
+            ? { paymentMethodId: data.preselectedPaymentMethodId }
+            : null,
+        )
         dialogRef.current?.openDialog()
       },
       closeDialog: () => dialogRef.current?.closeDialog(),
@@ -116,7 +121,7 @@ export const ResendInvoiceForCollectionDialog = forwardRef<ResendInvoiceForColle
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || !selectedPaymentMethod?.paymentMethodId}
               data-test={RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID}
             >
               {translate('text_63ac86d897f728a87b2fa039')}
