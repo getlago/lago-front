@@ -368,6 +368,8 @@ const CreateInvoice = () => {
       customerId: customerId || '',
       currency: data?.customer?.currency || billingEntity?.defaultCurrency || CurrencyEnum.Usd,
       fees: prefillFees || [],
+      paymentMethod: undefined,
+      invoiceCustomSection: undefined,
     },
     validationSchema: object().shape({
       customerId: string().required(''),
