@@ -1,3 +1,3 @@
 export const formatCodeFromName = (name: string) => {
-  return name.toLowerCase().replaceAll(/ /g, '_')
+  return name.toLowerCase().replaceAll(' ', '_')
 }
