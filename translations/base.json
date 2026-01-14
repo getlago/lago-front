@@ -3645,5 +3645,7 @@
   "text_1766162519559r3f2pkqdp79": "Add for future invoices (max: {{max}})",
   "text_1766162940956q60f79xxr11": "Allocated so far",
   "text_1766162940956fzxpt25f23k": "Remaining to allocate",
-  "text_17661418227616cvcuga1x7m": "Optional"
+  "text_17661418227616cvcuga1x7m": "Optional",
+  "text_17683906296679tuqxj77ou9": "Resend invoice for payment collection",
+  "text_1768390629667tvmfcdlro8l": "Select the payment method to retry payment for invoice {{invoiceNumber}}."
 }

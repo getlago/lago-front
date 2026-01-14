@@ -153,6 +153,7 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
   customer: {
     __typename: 'Customer',
     id: 'customer-1',
+    externalId: 'ext-customer-1',
     name: 'John Doe',
     displayName: 'John Doe',
     applicableTimezone: TimezoneEnum.TzUtc,
@@ -177,6 +178,7 @@ const createMockInvoices = (count: number): InvoiceItem[] => {
       customer: {
         __typename: 'Customer',
         id: `customer-${index + 1}`,
+        externalId: `ext-customer-${index + 1}`,
         name: `Customer ${index + 1}`,
         displayName: `Customer ${index + 1}`,
         applicableTimezone: TimezoneEnum.TzUtc,
@@ -357,7 +359,7 @@ describe('InvoicesList', () => {
             errorDetails: [
               {
                 __typename: 'ErrorDetail',
-                errorCode: 'tax_error' as any,
+                errorCode: 'tax_error' as never,
                 errorDetails: 'Tax calculation failed',
               },
             ],
@@ -1155,6 +1157,7 @@ describe('InvoicesList', () => {
             customer: {
               __typename: 'Customer',
               id: 'customer-1',
+              externalId: 'ext-customer-1',
               name: null,
               displayName: '',
               applicableTimezone: TimezoneEnum.TzUtc,

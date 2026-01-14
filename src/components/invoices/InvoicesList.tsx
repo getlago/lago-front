@@ -27,6 +27,10 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import {
+  ResendInvoiceForCollectionDialog,
+  ResendInvoiceForCollectionDialogRef,
+} from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -55,7 +59,6 @@ import {
   PremiumIntegrationTypeEnum,
   useDownloadInvoiceItemMutation,
   useGeneratePaymentUrlMutation,
-  useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -99,22 +102,11 @@ const InvoicesList = ({
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
       handleDownloadFile(data?.fileUrl)
-    },
-  })
-
-  const [retryCollect] = useRetryInvoicePaymentMutation({
-    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-    onCompleted({ retryInvoicePayment }) {
-      if (!!retryInvoicePayment?.id) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_63ac86d897f728a87b2fa0b3',
-        })
-      }
     },
   })
 
@@ -269,21 +261,8 @@ const InvoicesList = ({
       ? {
           startIcon: 'push',
           title: translate('text_63ac86d897f728a87b2fa039'),
-          onAction: async ({ id }) => {
-            const { errors } = await retryCollect({
-              variables: {
-                input: {
-                  id,
-                },
-              },
-            })
-
-            if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-              addToast({
-                severity: 'info',
-                translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-              })
-            }
+          onAction: () => {
+            resendInvoiceForCollectionDialogRef.current?.openDialog({ invoice })
           },
         }
       : null
@@ -587,6 +566,7 @@ const InvoicesList = ({
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>
   )
 }
