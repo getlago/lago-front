@@ -120,6 +120,43 @@ describe('usePaymentMethodsList', () => {
     })
   })
 
+  describe('WHEN externalCustomerId is undefined or empty', () => {
+    it('THEN skips the query and returns empty data', async () => {
+      const customWrapper = ({ children }: { children: React.ReactNode }) =>
+        AllTheProviders({
+          children,
+          mocks: [],
+          forceTypenames: true,
+        })
+
+      const { result } = renderHook(() => usePaymentMethodsList({}), {
+        wrapper: customWrapper,
+      })
+
+      // Query should be skipped, so no loading state
+      expect(result.current.loading).toBeFalsy()
+      expect(result.current.error).toBeFalsy()
+      expect(result.current.data).toEqual([])
+    })
+
+    it('THEN skips the query when externalCustomerId is empty string', async () => {
+      const customWrapper = ({ children }: { children: React.ReactNode }) =>
+        AllTheProviders({
+          children,
+          mocks: [],
+          forceTypenames: true,
+        })
+
+      const { result } = renderHook(() => usePaymentMethodsList({ externalCustomerId: '' }), {
+        wrapper: customWrapper,
+      })
+
+      expect(result.current.loading).toBeFalsy()
+      expect(result.current.error).toBeFalsy()
+      expect(result.current.data).toEqual([])
+    })
+  })
+
   describe('WHEN withDeleted parameter is used', () => {
     it('THEN uses withDeleted=true as default', async () => {
       const { result } = await prepare()

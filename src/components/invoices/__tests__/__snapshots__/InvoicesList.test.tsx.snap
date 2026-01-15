@@ -199,6 +199,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -343,6 +355,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
             >
               <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  style="width: 128px;"
+                >
+                  <div
+                    class="flex max-w-full items-center h-6 w-full"
+                  >
+                    <div
+                      class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
                 class="lago-table-inner-cell flex items-center"
                 style="min-width: 80px; max-width: auto;"
               >
@@ -515,6 +548,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
             >
               <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  style="width: 128px;"
+                >
+                  <div
+                    class="flex max-w-full items-center h-6 w-full"
+                  >
+                    <div
+                      class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
                 class="lago-table-inner-cell flex items-center"
                 style="min-width: 80px; max-width: auto;"
               >
@@ -646,6 +700,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
             >
               <div
                 class="lago-table-inner-cell flex items-center"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  style="width: 128px;"
+                >
+                  <div
+                    class="flex max-w-full items-center h-6 w-full"
+                  >
+                    <div
+                      class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
                 style="min-width: 160px; max-width: auto;"
               >
                 <div
@@ -976,6 +1051,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -1114,6 +1201,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     data-test="body"
                   >
                     INV-DRAFT
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>
@@ -1365,6 +1473,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
               </div>
             </td>
             <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
               class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
             >
@@ -1585,6 +1714,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     data-test="body"
                   >
                     INV-VOIDED
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>
@@ -1938,6 +2088,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -2076,6 +2238,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     data-test="body"
                   >
                     INV-PENDING
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>
@@ -2348,6 +2531,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
               </div>
             </td>
             <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
               class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
             >
@@ -2568,6 +2772,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     data-test="body"
                   >
                     INV-FAILED
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>
@@ -2942,6 +3167,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot with empty state 1`] = `
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -2999,7 +3236,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with empty state 1`] = `
           >
             <td
               class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
-              colspan="8"
+              colspan="9"
               style="width: auto; box-shadow: none;"
             >
               <div
@@ -3240,6 +3477,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot with error state 1`] = `
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -3302,7 +3551,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with error state 1`] = `
           >
             <td
               class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
-              colspan="9"
+              colspan="10"
               style="width: auto; box-shadow: none;"
             >
               <div
@@ -3551,6 +3800,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -3689,6 +3950,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     data-test="body"
                   >
                     INV-001
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>
@@ -3961,6 +4243,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
               </div>
             </td>
             <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
               class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
             >
@@ -4181,6 +4484,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     data-test="body"
                   >
                     INV-003
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>
@@ -4555,6 +4879,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -4693,6 +5029,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                     data-test="body"
                   >
                     INV-001
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>
@@ -5079,6 +5436,18 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
               </div>
             </th>
             <th
+              class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
+              scope="col"
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end min-h-10 text-grey-600"
+                style="min-width: auto; max-width: auto; font-size: 14px; font-weight: 500; line-height: 24px;"
+              >
+                text_17374735502775afvcm9pqxk
+              </div>
+            </th>
+            <th
               class=MuiTableCell-root MuiTableCell-head MuiTableCell-alignLeft MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 sticky top-0 z-sectionHead border-b-0 bg-white shadow-b css-hash-MuiTableCell-root
               scope="col"
               style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
@@ -5217,6 +5586,27 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                     data-test="body"
                   >
                     INV-001
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td
+              class=MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+              style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+            >
+              <div
+                class="lago-table-inner-cell flex items-center justify-end"
+                style="min-width: 160px; max-width: auto;"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                  data-test="body"
+                >
+                  <div
+                    class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
+                    data-test="bodyHl"
+                  >
+                    $100.00
                   </div>
                 </div>
               </div>

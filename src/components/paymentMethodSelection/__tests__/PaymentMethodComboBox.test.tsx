@@ -188,6 +188,28 @@ describe('PaymentMethodComboBox', () => {
 
       expect(data).toHaveLength(0)
     })
+
+    it('THEN handles undefined externalCustomerId by passing it directly to the hook', () => {
+      mockUsePaymentMethodsList.mockReturnValue({
+        data: [],
+        loading: false,
+        error: false,
+        refetch: jest.fn(),
+      })
+
+      prepare({ externalCustomerId: undefined })
+
+      expect(mockUsePaymentMethodsList).toHaveBeenCalledWith({
+        externalCustomerId: undefined,
+        withDeleted: false,
+        skip: false,
+      })
+
+      const comboboxCall = mockComboBox.mock.calls[0]
+      const data = comboboxCall[0]?.data
+
+      expect(data).toHaveLength(0)
+    })
   })
 
   describe('WHEN paymentMethodsList prop is empty array', () => {

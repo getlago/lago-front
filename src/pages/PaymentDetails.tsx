@@ -648,6 +648,21 @@ const PaymentDetails = () => {
                 ),
               },
               {
+                key: 'totalDueAmountCents',
+                title: translate('text_17374735502775afvcm9pqxk'),
+                textAlign: 'right',
+                content: ({ totalDueAmountCents, currency }) => (
+                  <Typography variant="bodyHl" color="textSecondary" noWrap>
+                    {intlFormatNumber(
+                      deserializeAmount(totalDueAmountCents, currency || CurrencyEnum.Usd),
+                      {
+                        currency: currency || CurrencyEnum.Usd,
+                      },
+                    )}
+                  </Typography>
+                ),
+              },
+              {
                 key: 'issuingDate',
                 title: translate('text_6419c64eace749372fc72b39'),
                 content: ({ issuingDate }) => intlFormatDateTime(issuingDate, { timezone }).date,
