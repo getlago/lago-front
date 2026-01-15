@@ -74,7 +74,7 @@ gql`
     invoiceType
     creditableAmountCents
     refundableAmountCents
-    applicableToSourceInvoiceAmountCents
+    offsettableAmountCents
     associatedActiveWalletPresent
     voidedInvoiceId
     regeneratedInvoiceId
@@ -421,7 +421,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 invoiceType: invoice?.invoiceType,
                 creditableAmountCents: invoice?.creditableAmountCents,
                 refundableAmountCents: invoice?.refundableAmountCents,
-                applicableToSourceInvoiceAmountCents: invoice?.applicableToSourceInvoiceAmountCents,
+                offsettableAmountCents: invoice?.offsettableAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 

@@ -25,7 +25,7 @@ const defaultProps = {
   currency: CurrencyEnum.Usd,
   maxCreditableAmount: 100,
   maxRefundableAmount: 100,
-  maxApplicableToSourceInvoiceAmount: 50,
+  maxOffsettableAmount: 50,
   totalTaxIncluded: 120,
   estimationLoading: false,
 }

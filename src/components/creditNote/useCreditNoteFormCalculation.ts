@@ -60,7 +60,7 @@ gql`
       }
       maxCreditableAmountCents
       maxRefundableAmountCents
-      maxApplicableToSourceInvoiceAmountCents
+      maxOffsettableAmountCents
       subTotalExcludingTaxesAmountCents
       taxesAmountCents
       taxesRate
@@ -85,7 +85,7 @@ interface UseCreditNoteFormCalculationReturn {
   // Calculated values
   maxCreditableAmount: number
   maxRefundableAmount: number
-  maxApplicableToSourceInvoiceAmount: number
+  maxOffsettableAmount: number
   proRatedCouponAmount: number
   taxes: Map<string, TaxInfo>
   totalExcludedTax: number
@@ -153,7 +153,7 @@ export const useCreditNoteFormCalculation = ({
   const {
     maxCreditableAmount,
     maxRefundableAmount,
-    maxApplicableToSourceInvoiceAmount,
+    maxOffsettableAmount,
     proRatedCouponAmount,
     taxes,
     totalExcludedTax,
@@ -168,7 +168,7 @@ export const useCreditNoteFormCalculation = ({
       return {
         maxCreditableAmount: 0,
         maxRefundableAmount: 0,
-        maxApplicableToSourceInvoiceAmount: 0,
+        maxOffsettableAmount: 0,
         totalTaxIncluded: 0,
         proRatedCouponAmount: 0,
         totalExcludedTax: 0,
@@ -180,7 +180,7 @@ export const useCreditNoteFormCalculation = ({
     const {
       maxCreditableAmountCents,
       maxRefundableAmountCents,
-      maxApplicableToSourceInvoiceAmountCents,
+      maxOffsettableAmountCents,
       subTotalExcludingTaxesAmountCents,
       taxesAmountCents,
       couponsAdjustmentAmountCents,
@@ -190,10 +190,7 @@ export const useCreditNoteFormCalculation = ({
     return {
       maxCreditableAmount: deserializeAmount(maxCreditableAmountCents || 0, currency),
       maxRefundableAmount: deserializeAmount(maxRefundableAmountCents || 0, currency),
-      maxApplicableToSourceInvoiceAmount: deserializeAmount(
-        maxApplicableToSourceInvoiceAmountCents || 0,
-        currency,
-      ),
+      maxOffsettableAmount: deserializeAmount(maxOffsettableAmountCents || 0, currency),
       totalTaxIncluded: deserializeAmount(
         (Number(subTotalExcludingTaxesAmountCents) || 0) + (Number(taxesAmountCents) || 0),
         currency,
@@ -280,10 +277,7 @@ export const useCreditNoteFormCalculation = ({
                 }),
               )
             }
-            if (
-              applyToInvoiceFields.show &&
-              applyToInvoiceFields.value > maxApplicableToSourceInvoiceAmount
-            ) {
+            if (applyToInvoiceFields.show && applyToInvoiceFields.value > maxOffsettableAmount) {
               errors.push(
                 createError({
                   message: PayBackErrorEnum.maxApplyToInvoice,
@@ -305,7 +299,7 @@ export const useCreditNoteFormCalculation = ({
     currencyPrecision,
     canOnlyCredit,
     isPrepaidCreditsInvoice,
-    maxApplicableToSourceInvoiceAmount,
+    maxOffsettableAmount,
     maxCreditableAmount,
     maxRefundableAmount,
     setPayBackValidation,
@@ -316,7 +310,7 @@ export const useCreditNoteFormCalculation = ({
     // Calculated values
     maxCreditableAmount,
     maxRefundableAmount,
-    maxApplicableToSourceInvoiceAmount,
+    maxOffsettableAmount,
     proRatedCouponAmount,
     taxes,
     totalExcludedTax,

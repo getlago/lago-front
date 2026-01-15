@@ -15,7 +15,7 @@ interface CreditNoteFormAllocationProps {
   currency: CurrencyEnum
   maxCreditableAmount: number
   maxRefundableAmount: number
-  maxApplicableToSourceInvoiceAmount: number
+  maxOffsettableAmount: number
   totalTaxIncluded: number
   estimationLoading?: boolean
 }
@@ -29,7 +29,7 @@ export const CreditNoteFormAllocation = ({
   currency,
   maxCreditableAmount,
   maxRefundableAmount,
-  maxApplicableToSourceInvoiceAmount,
+  maxOffsettableAmount,
   totalTaxIncluded,
   estimationLoading,
 }: CreditNoteFormAllocationProps) => {
@@ -37,10 +37,7 @@ export const CreditNoteFormAllocation = ({
 
   const maxRefundableAmountFormatted = intlFormatNumber(maxRefundableAmount, { currency })
   const maxCreditableAmountFormatted = intlFormatNumber(maxCreditableAmount, { currency })
-  const maxApplicableToSourceInvoiceAmountFormatted = intlFormatNumber(
-    maxApplicableToSourceInvoiceAmount,
-    { currency },
-  )
+  const maxOffsettableAmountFormatted = intlFormatNumber(maxOffsettableAmount, { currency })
 
   const { credit, refund, applyToInvoice } = getPayBackFields(formikProps.values.payBack)
 
@@ -131,7 +128,7 @@ export const CreditNoteFormAllocation = ({
         {applyToInvoice.show && (
           <CreditNoteActionsLine
             details={translate('text_1767883339944hsqsrt3tg8a', {
-              max: maxApplicableToSourceInvoiceAmountFormatted,
+              max: maxOffsettableAmountFormatted,
             })}
             formikProps={formikProps}
             name={applyToInvoice.path}
@@ -141,7 +138,7 @@ export const CreditNoteFormAllocation = ({
             error={
               getIn(formikProps.errors, applyToInvoice.path) === PayBackErrorEnum.maxApplyToInvoice
                 ? translate('text_1767890728665ukf38vdx6t3', {
-                    max: maxApplicableToSourceInvoiceAmountFormatted,
+                    max: maxOffsettableAmountFormatted,
                   })
                 : undefined
             }

@@ -122,7 +122,7 @@ describe('useCreditNoteFormCalculation', () => {
       // Calculated values
       expect(result.current).toHaveProperty('maxCreditableAmount')
       expect(result.current).toHaveProperty('maxRefundableAmount')
-      expect(result.current).toHaveProperty('maxApplicableToSourceInvoiceAmount')
+      expect(result.current).toHaveProperty('maxOffsettableAmount')
       expect(result.current).toHaveProperty('proRatedCouponAmount')
       expect(result.current).toHaveProperty('taxes')
       expect(result.current).toHaveProperty('totalExcludedTax')

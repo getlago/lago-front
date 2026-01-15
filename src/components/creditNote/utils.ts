@@ -185,10 +185,7 @@ const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
 // ----------------------------------------
 
 type InvoiceAmountFields = Partial<
-  Pick<
-    Invoice,
-    'creditableAmountCents' | 'refundableAmountCents' | 'applicableToSourceInvoiceAmountCents'
-  >
+  Pick<Invoice, 'creditableAmountCents' | 'refundableAmountCents' | 'offsettableAmountCents'>
 > | null
 
 /**
@@ -208,17 +205,17 @@ export const hasRefundableAmount = (invoice?: InvoiceAmountFields): boolean => {
 }
 
 /**
- * Checks if the invoice has an applicable to source invoice amount (applicableToSourceInvoiceAmountCents > 0).
- * This represents the amount that can be applied to the source invoice.
+ * Checks if the invoice has an offsettable amount (offsettableAmountCents > 0).
+ * This represents the amount that can be offset against the source invoice.
  */
-export const hasApplicableToSourceInvoiceAmount = (invoice?: InvoiceAmountFields): boolean => {
-  return Number(invoice?.applicableToSourceInvoiceAmountCents) > 0
+export const hasOffsettableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return Number(invoice?.offsettableAmountCents) > 0
 }
 
 /**
  * Checks if the invoice has either a creditable or refundable amount.
  * When true, the credit note form allows editing amounts.
- * When false, the form uses applicableToInvoiceCents in read-only mode.
+ * When false, the form uses offsettableAmountCents in read-only mode.
  */
 export const hasCreditableOrRefundableAmount = (invoice?: InvoiceAmountFields): boolean => {
   return hasCreditableAmount(invoice) || hasRefundableAmount(invoice)
@@ -230,9 +227,7 @@ export const hasCreditableOrRefundableAmount = (invoice?: InvoiceAmountFields): 
  */
 export const canCreateCreditNote = (invoice?: InvoiceAmountFields): boolean => {
   return (
-    hasCreditableAmount(invoice) ||
-    hasRefundableAmount(invoice) ||
-    hasApplicableToSourceInvoiceAmount(invoice)
+    hasCreditableAmount(invoice) || hasRefundableAmount(invoice) || hasOffsettableAmount(invoice)
   )
 }
 
@@ -242,10 +237,7 @@ export const canCreateCreditNote = (invoice?: InvoiceAmountFields): boolean => {
 
 export const isCreditNoteCreationDisabled = (
   invoice?: Partial<
-    Pick<
-      Invoice,
-      'creditableAmountCents' | 'refundableAmountCents' | 'applicableToSourceInvoiceAmountCents'
-    >
+    Pick<Invoice, 'creditableAmountCents' | 'refundableAmountCents' | 'offsettableAmountCents'>
   > | null,
 ) => {
   if (!invoice) return false
@@ -262,7 +254,7 @@ export const createCreditNoteForInvoiceButtonProps = ({
   associatedActiveWalletPresent,
   creditableAmountCents,
   refundableAmountCents,
-  applicableToSourceInvoiceAmountCents,
+  offsettableAmountCents,
 }: Partial<Invoice>) => {
   const isAssociatedWithTerminatedWallet =
     invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
@@ -270,7 +262,7 @@ export const createCreditNoteForInvoiceButtonProps = ({
   const disabledIssueCreditNoteButton = isCreditNoteCreationDisabled({
     creditableAmountCents,
     refundableAmountCents,
-    applicableToSourceInvoiceAmountCents,
+    offsettableAmountCents,
   })
 
   const getDisabledReason = (): keyof typeof TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED => {

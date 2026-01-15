@@ -147,7 +147,7 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
   invoiceType: InvoiceTypeEnum.Subscription,
   creditableAmountCents: '10000',
   refundableAmountCents: '0',
-  applicableToSourceInvoiceAmountCents: '0',
+  offsettableAmountCents: '0',
   associatedActiveWalletPresent: false,
   voidedInvoiceId: null,
   regeneratedInvoiceId: null,

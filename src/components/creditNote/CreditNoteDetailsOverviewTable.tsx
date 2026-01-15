@@ -111,7 +111,7 @@ gql`
       taxRate
       taxName
     }
-    appliedToSourceInvoiceAmountCents
+    offsetAmountCents
     creditAmountCents
     refundAmountCents
     totalAmountCents
@@ -381,7 +381,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
               </>
             )}
 
-            {Number(creditNote?.appliedToSourceInvoiceAmountCents || 0) > 0 && (
+            {Number(creditNote?.offsetAmountCents || 0) > 0 && (
               <tr data-test={CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.appliedToSourceInvoiceRow}>
                 <td></td>
                 <td>
@@ -396,7 +396,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
                     -
                     {intlFormatNumber(
                       deserializeAmount(
-                        creditNote?.appliedToSourceInvoiceAmountCents || 0,
+                        creditNote?.offsetAmountCents || 0,
                         creditNote?.currency || CurrencyEnum.Usd,
                       ),
                       {

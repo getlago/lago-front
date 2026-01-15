@@ -407,7 +407,7 @@ const InvoicesList = ({
                 invoiceType: invoice?.invoiceType,
                 creditableAmountCents: invoice?.creditableAmountCents,
                 refundableAmountCents: invoice?.refundableAmountCents,
-                applicableToSourceInvoiceAmountCents: invoice?.applicableToSourceInvoiceAmountCents,
+                offsettableAmountCents: invoice?.offsettableAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 
