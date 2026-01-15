@@ -22,7 +22,7 @@ interface CreditNoteFormAllocationProps {
 
 export const CREDIT_AMOUNT_INPUT_TEST_ID = 'credit-amount-input'
 export const REFUND_AMOUNT_INPUT_TEST_ID = 'refund-amount-input'
-export const APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID = 'apply-to-invoice-amount-input'
+export const OFFSET_AMOUNT_INPUT_TEST_ID = 'offset-amount-input'
 
 export const CreditNoteFormAllocation = ({
   formikProps,
@@ -39,9 +39,9 @@ export const CreditNoteFormAllocation = ({
   const maxCreditableAmountFormatted = intlFormatNumber(maxCreditableAmount, { currency })
   const maxOffsettableAmountFormatted = intlFormatNumber(maxOffsettableAmount, { currency })
 
-  const { credit, refund, applyToInvoice } = getPayBackFields(formikProps.values.payBack)
+  const { credit, refund, offset } = getPayBackFields(formikProps.values.payBack)
 
-  const allocatedSoFar = credit.value + refund.value + applyToInvoice.value
+  const allocatedSoFar = credit.value + refund.value + offset.value
   const remainingToAllocate = totalTaxIncluded - allocatedSoFar
 
   const hasPayBackErrors = !!getIn(formikProps.errors, 'payBackErrors')
@@ -125,24 +125,24 @@ export const CreditNoteFormAllocation = ({
       )}
 
       <div className="flex flex-col gap-4">
-        {applyToInvoice.show && (
+        {offset.show && (
           <CreditNoteActionsLine
             details={translate('text_1767883339944hsqsrt3tg8a', {
               max: maxOffsettableAmountFormatted,
             })}
             formikProps={formikProps}
-            name={applyToInvoice.path}
+            name={offset.path}
             currency={currency}
             label={translate('text_1767883339943r32jn2ioyeu')}
-            hasError={!!getIn(formikProps.errors, applyToInvoice.path)}
+            hasError={!!getIn(formikProps.errors, offset.path)}
             error={
-              getIn(formikProps.errors, applyToInvoice.path) === PayBackErrorEnum.maxApplyToInvoice
+              getIn(formikProps.errors, offset.path) === PayBackErrorEnum.maxOffset
                 ? translate('text_1767890728665ukf38vdx6t3', {
                     max: maxOffsettableAmountFormatted,
                   })
                 : undefined
             }
-            testId={APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID}
+            testId={OFFSET_AMOUNT_INPUT_TEST_ID}
           />
         )}
 

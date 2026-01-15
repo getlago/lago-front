@@ -2,8 +2,8 @@ import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
-  APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID,
   CREDIT_AMOUNT_INPUT_TEST_ID,
+  OFFSET_AMOUNT_INPUT_TEST_ID,
   REFUND_AMOUNT_INPUT_TEST_ID,
 } from '~/components/creditNote/CreditNoteFormAllocation'
 import { CREDIT_ONLY_AMOUNT_LINE_TEST_ID } from '~/components/creditNote/CreditNoteFormCalculation'
@@ -497,7 +497,7 @@ describe('CreateCreditNote', () => {
           // Credit input should be available
           expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
           // Apply to invoice should be available since totalDueAmountCents > 0
-          expect(screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          expect(screen.queryByTestId(OFFSET_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
           // Refund should NOT be available since no payment was made
           expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
         },
@@ -531,9 +531,7 @@ describe('CreateCreditNote', () => {
           expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
           expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
           // Apply to invoice should NOT be available since totalDueAmountCents is 0
-          expect(
-            screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID),
-          ).not.toBeInTheDocument()
+          expect(screen.queryByTestId(OFFSET_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
         },
         { timeout: 3000 },
       )
@@ -564,7 +562,7 @@ describe('CreateCreditNote', () => {
           // All three allocation options should be available
           expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
           expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
-          expect(screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          expect(screen.queryByTestId(OFFSET_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
         },
         { timeout: 3000 },
       )

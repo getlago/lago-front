@@ -93,7 +93,7 @@ describe('serializeCreditNoteInput', () => {
     })
   })
 
-  describe('GIVEN a credit note with applyToInvoice allocation', () => {
+  describe('GIVEN a credit note with offset allocation', () => {
     it('THEN should serialize offsetAmountCents', () => {
       const result = serializeCreditNoteInput(
         invoiceId,
@@ -118,7 +118,7 @@ describe('serializeCreditNoteInput', () => {
           },
           payBack: [
             { value: 50, type: CreditTypeEnum.credit },
-            { value: 50, type: CreditTypeEnum.applyToInvoice },
+            { value: 50, type: CreditTypeEnum.offset },
           ],
           metadata: [],
         },
@@ -164,7 +164,7 @@ describe('serializeCreditNoteInput', () => {
           payBack: [
             { value: 40, type: CreditTypeEnum.credit },
             { value: 35, type: CreditTypeEnum.refund },
-            { value: 25, type: CreditTypeEnum.applyToInvoice },
+            { value: 25, type: CreditTypeEnum.offset },
           ],
           metadata: [],
         },

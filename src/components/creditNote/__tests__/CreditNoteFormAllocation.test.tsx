@@ -5,9 +5,9 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import {
-  APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID,
   CREDIT_AMOUNT_INPUT_TEST_ID,
   CreditNoteFormAllocation,
+  OFFSET_AMOUNT_INPUT_TEST_ID,
   REFUND_AMOUNT_INPUT_TEST_ID,
 } from '../CreditNoteFormAllocation'
 import { CreditNoteForm, CreditTypeEnum, PayBackErrorEnum } from '../types'
@@ -18,7 +18,7 @@ const defaultProps = {
       payBack: [
         { type: CreditTypeEnum.credit, value: undefined },
         { type: CreditTypeEnum.refund, value: undefined },
-        { type: CreditTypeEnum.applyToInvoice, value: undefined },
+        { type: CreditTypeEnum.offset, value: undefined },
       ],
     },
   }),
@@ -43,7 +43,7 @@ describe('CreditNoteFormAllocation', () => {
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(OFFSET_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
     })
   })
 
@@ -59,7 +59,7 @@ describe('CreditNoteFormAllocation', () => {
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
-      expect(screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(OFFSET_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
@@ -78,17 +78,17 @@ describe('CreditNoteFormAllocation', () => {
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
-      expect(screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(OFFSET_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
-  describe('GIVEN credit and applyToInvoice types in payBack', () => {
-    it('THEN should render credit and apply to invoice inputs only', () => {
+  describe('GIVEN credit and offset types in payBack', () => {
+    it('THEN should render credit and offset inputs only', () => {
       const formikProps = createMockFormikProps<CreditNoteForm>({
         values: {
           payBack: [
             { type: CreditTypeEnum.credit, value: undefined },
-            { type: CreditTypeEnum.applyToInvoice, value: undefined },
+            { type: CreditTypeEnum.offset, value: undefined },
           ],
         },
       })
@@ -97,7 +97,7 @@ describe('CreditNoteFormAllocation', () => {
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
-      expect(screen.getByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(OFFSET_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
     })
   })
 
@@ -120,13 +120,13 @@ describe('CreditNoteFormAllocation', () => {
       expect(screen.getByText('$40.00')).toBeInTheDocument()
     })
 
-    it('WHEN applyToInvoice has value THEN should include it in allocation calculation', () => {
+    it('WHEN offset has value THEN should include it in allocation calculation', () => {
       const formikProps = createMockFormikProps<CreditNoteForm>({
         values: {
           payBack: [
             { type: CreditTypeEnum.credit, value: 30 },
             { type: CreditTypeEnum.refund, value: 20 },
-            { type: CreditTypeEnum.applyToInvoice, value: 10 },
+            { type: CreditTypeEnum.offset, value: 10 },
           ],
         },
       })

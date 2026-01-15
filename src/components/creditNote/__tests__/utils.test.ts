@@ -536,7 +536,7 @@ describe('getPayBackFields', () => {
 
       expect(result.credit).toEqual({ path: '', value: 0, show: false })
       expect(result.refund).toEqual({ path: '', value: 0, show: false })
-      expect(result.applyToInvoice).toEqual({ path: '', value: 0, show: false })
+      expect(result.offset).toEqual({ path: '', value: 0, show: false })
     })
   })
 
@@ -546,7 +546,7 @@ describe('getPayBackFields', () => {
 
       expect(result.credit.show).toBe(false)
       expect(result.refund.show).toBe(false)
-      expect(result.applyToInvoice.show).toBe(false)
+      expect(result.offset.show).toBe(false)
     })
   })
 
@@ -558,7 +558,7 @@ describe('getPayBackFields', () => {
 
       expect(result.credit).toEqual({ path: 'payBack.0.value', value: 50, show: true })
       expect(result.refund.show).toBe(false)
-      expect(result.applyToInvoice.show).toBe(false)
+      expect(result.offset.show).toBe(false)
     })
   })
 
@@ -573,7 +573,7 @@ describe('getPayBackFields', () => {
 
       expect(result.credit).toEqual({ path: 'payBack.0.value', value: 30, show: true })
       expect(result.refund).toEqual({ path: 'payBack.1.value', value: 20, show: true })
-      expect(result.applyToInvoice.show).toBe(false)
+      expect(result.offset.show).toBe(false)
     })
   })
 
@@ -582,14 +582,14 @@ describe('getPayBackFields', () => {
       const payBack = [
         { type: CreditTypeEnum.credit, value: 30 },
         { type: CreditTypeEnum.refund, value: 20 },
-        { type: CreditTypeEnum.applyToInvoice, value: 10 },
+        { type: CreditTypeEnum.offset, value: 10 },
       ]
 
       const result = getPayBackFields(payBack)
 
       expect(result.credit).toEqual({ path: 'payBack.0.value', value: 30, show: true })
       expect(result.refund).toEqual({ path: 'payBack.1.value', value: 20, show: true })
-      expect(result.applyToInvoice).toEqual({ path: 'payBack.2.value', value: 10, show: true })
+      expect(result.offset).toEqual({ path: 'payBack.2.value', value: 10, show: true })
     })
   })
 
@@ -610,14 +610,14 @@ describe('getPayBackFields', () => {
   describe('GIVEN payBack with different order', () => {
     it('THEN should find correct index regardless of order', () => {
       const payBack = [
-        { type: CreditTypeEnum.applyToInvoice, value: 10 },
+        { type: CreditTypeEnum.offset, value: 10 },
         { type: CreditTypeEnum.credit, value: 30 },
       ]
 
       const result = getPayBackFields(payBack)
 
       expect(result.credit).toEqual({ path: 'payBack.1.value', value: 30, show: true })
-      expect(result.applyToInvoice).toEqual({ path: 'payBack.0.value', value: 10, show: true })
+      expect(result.offset).toEqual({ path: 'payBack.0.value', value: 10, show: true })
       expect(result.refund.show).toBe(false)
     })
   })
@@ -684,7 +684,7 @@ describe('buildInitialPayBack', () => {
   })
 
   describe('GIVEN partially paid invoice', () => {
-    it('WHEN no dispute lost THEN should include credit, refund, and applyToInvoice', () => {
+    it('WHEN no dispute lost THEN should include credit, refund, and offset', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '5000',
         totalDueAmountCents: '5000',
@@ -696,11 +696,11 @@ describe('buildInitialPayBack', () => {
       expect(result).toEqual([
         { type: CreditTypeEnum.credit, value: undefined },
         { type: CreditTypeEnum.refund, value: undefined },
-        { type: CreditTypeEnum.applyToInvoice, value: undefined },
+        { type: CreditTypeEnum.offset, value: undefined },
       ])
     })
 
-    it('WHEN dispute lost THEN should include credit and applyToInvoice (no refund)', () => {
+    it('WHEN dispute lost THEN should include credit and offset (no refund)', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '5000',
         totalDueAmountCents: '5000',
@@ -711,13 +711,13 @@ describe('buildInitialPayBack', () => {
 
       expect(result).toEqual([
         { type: CreditTypeEnum.credit, value: undefined },
-        { type: CreditTypeEnum.applyToInvoice, value: undefined },
+        { type: CreditTypeEnum.offset, value: undefined },
       ])
     })
   })
 
   describe('GIVEN unpaid invoice', () => {
-    it('THEN should include credit and applyToInvoice (no refund)', () => {
+    it('THEN should include credit and offset (no refund)', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '0',
         totalDueAmountCents: '10000',
@@ -728,7 +728,7 @@ describe('buildInitialPayBack', () => {
 
       expect(result).toEqual([
         { type: CreditTypeEnum.credit, value: undefined },
-        { type: CreditTypeEnum.applyToInvoice, value: undefined },
+        { type: CreditTypeEnum.offset, value: undefined },
       ])
     })
   })
