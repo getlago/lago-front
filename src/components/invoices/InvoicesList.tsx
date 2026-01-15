@@ -511,7 +511,6 @@ const InvoicesList = ({
                 status,
                 paymentStatus,
                 paymentDisputeLostAt,
-                totalAmountCents,
                 totalPaidAmountCents,
                 totalDueAmountCents,
               }) => {
@@ -546,7 +545,7 @@ const InvoicesList = ({
                         status,
                         paymentStatus,
                         totalPaidAmountCents,
-                        totalAmountCents,
+                        totalDueAmountCents,
                       })}
                       endIcon={content.statusEndIcon}
                     />

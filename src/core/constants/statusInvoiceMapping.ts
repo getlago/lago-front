@@ -32,18 +32,14 @@ export const paymentStatusMapping = ({
   status,
   paymentStatus,
   totalPaidAmountCents,
-  totalAmountCents,
+  totalDueAmountCents,
 }: {
   status?: InvoiceStatusTypeEnum
   paymentStatus?: InvoicePaymentStatusTypeEnum
   totalPaidAmountCents?: number
-  totalAmountCents?: number
+  totalDueAmountCents?: number
 }): StatusProps => {
-  const isPartiallyPaid =
-    totalAmountCents &&
-    totalPaidAmountCents &&
-    Number(totalPaidAmountCents) > 0 &&
-    Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+  const isPartiallyPaid = Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
 
   const endIcon: IconName | undefined = isPartiallyPaid ? 'partially-filled' : undefined
 

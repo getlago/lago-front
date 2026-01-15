@@ -575,7 +575,6 @@ const PaymentDetails = () => {
                 content: ({
                   paymentStatus,
                   paymentOverdue,
-                  totalAmountCents,
                   totalPaidAmountCents,
                   totalDueAmountCents,
                   paymentDisputeLostAt,
@@ -619,7 +618,7 @@ const PaymentDetails = () => {
                               status,
                               paymentStatus,
                               totalPaidAmountCents,
-                              totalAmountCents,
+                              totalDueAmountCents,
                             }))}
                         endIcon={content.statusEndIcon}
                       />

@@ -330,7 +330,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 status,
                 paymentStatus,
                 paymentDisputeLostAt,
-                totalAmountCents,
                 totalPaidAmountCents,
                 totalDueAmountCents,
               }) => {
@@ -365,7 +364,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                         status,
                         paymentStatus,
                         totalPaidAmountCents,
-                        totalAmountCents,
+                        totalDueAmountCents,
                       })}
                       endIcon={content.statusEndIcon}
                     />
