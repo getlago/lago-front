@@ -320,7 +320,7 @@ const CustomerInvoiceVoid = () => {
                       paymentStatus,
                       status,
                       totalPaidAmountCents,
-                      totalAmountCents,
+                      totalDueAmountCents,
                     }) => {
                       return (
                         <Status
@@ -328,7 +328,7 @@ const CustomerInvoiceVoid = () => {
                             paymentStatus,
                             status,
                             totalPaidAmountCents,
-                            totalAmountCents,
+                            totalDueAmountCents,
                           })}
                         />
                       )
