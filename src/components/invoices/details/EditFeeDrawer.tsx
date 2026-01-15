@@ -377,7 +377,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       selectedChargeId: formikProps.values.chargeId,
       overrideFees: feesForCombobox,
     })
-  }, [currentSubscription, formikProps.values.chargeId, translate, feesForCombobox])
+  }, [currentSubscription, feesForCombobox, formikProps.values.chargeId, translate])
 
   // Determine if the selected item is a charge or fixed charge
   const selectedItemType = useMemo((): 'charge' | 'fixed-charge' | null => {

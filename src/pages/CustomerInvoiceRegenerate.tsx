@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Alert, Button, GenericPlaceholder, Typography } from '~/components/designSystem'
@@ -132,6 +132,16 @@ const CustomerInvoiceRegenerate = () => {
     !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
 
   const [fees, setFees] = useState(fullFees || [])
+
+  // Update fees state when fullFees becomes available from the query.
+  // This is needed because useState only uses its initial value on the first render,
+  // but fullFees is typically undefined at that point since the query hasn't completed yet.
+  useEffect(() => {
+    if (fullFees?.length) {
+      setFees(fullFees)
+    }
+  }, [fullFees])
+
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
     useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
   const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =

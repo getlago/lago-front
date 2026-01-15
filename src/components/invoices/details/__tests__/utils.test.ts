@@ -232,9 +232,9 @@ describe('Invoices >  Details > Utils', () => {
     })
   })
 
-  describe('overrideFees (regenerate mode) with adjustedFee logic', () => {
-    describe('getChargesComboboxDataFromInvoiceSubscription with overrideFees', () => {
-      it('excludes charges with adjustedFee: true when overrideFees is provided', () => {
+  describe('excludes charges with any fee regardless of adjustedFee status', () => {
+    describe('getChargesComboboxDataFromInvoiceSubscription', () => {
+      it('excludes all charges that have fees, regardless of adjustedFee status', () => {
         const result = getChargesComboboxDataFromInvoiceSubscription({
           chargesGroupLabel: 'Usage-based charges',
           fixedChargesGroupLabel: 'Fixed charges',
@@ -242,44 +242,8 @@ describe('Invoices >  Details > Utils', () => {
           overrideFees: overrideFeesWithMixedAdjustedStatus,
         })
 
-        // charge-adj-true-1 has adjustedFee: true, should NOT appear
-        // charge-adj-true-2 has adjustedFee: false, should appear (can be re-added)
-        // fixed-charge-adj-true has adjustedFee: true, should NOT appear
-        // fixed-charge-not-adj has adjustedFee: undefined, should appear (can be re-added)
-        expect(result).toEqual([
-          {
-            description: 'not_adjusted_addon',
-            label: 'Not Adjusted Fixed Charge',
-            value: 'fixed-charge-not-adj',
-            group: 'Fixed charges',
-          },
-          {
-            description: 'non_adjusted_bm',
-            label: 'Non-Adjusted Charge',
-            value: 'charge-adj-true-2',
-            group: 'Usage-based charges',
-          },
-        ])
-      })
-
-      it('excludes all charges when all fees have adjustedFee: true', () => {
-        // When all fees have adjustedFee: true, they count as existing
-        // and their corresponding charges should be excluded
-        const feesWithAdjustedFlag =
-          invoiceSubWithAdjustedFeesTrue.fees?.map((fee) => ({
-            ...fee,
-            adjustedFee: true, // All fees are considered as existing
-          })) || []
-
-        const result = getChargesComboboxDataFromInvoiceSubscription({
-          chargesGroupLabel: 'Usage-based charges',
-          fixedChargesGroupLabel: 'Fixed charges',
-          subscription: invoiceSubWithAdjustedFeesTrue,
-          overrideFees: feesWithAdjustedFlag,
-        })
-
-        // All charges that have fees with adjustedFee: true should be excluded
-        // Both charges and both fixed charges have fees
+        // All charges with fees should be excluded, regardless of adjustedFee value
+        // All 4 charges have fees, so none should appear
         expect(result).toEqual([])
       })
 
@@ -321,8 +285,8 @@ describe('Invoices >  Details > Utils', () => {
       })
     })
 
-    describe('getChargesFiltersComboboxDataFromInvoiceSubscription with overrideFees', () => {
-      it('excludes filters with adjustedFee: true when overrideFees is provided', () => {
+    describe('getChargesFiltersComboboxDataFromInvoiceSubscription', () => {
+      it('excludes all filters that have fees, regardless of adjustedFee status', () => {
         const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
           defaultFilterOptionLabel: 'Default filter',
           subscription: invoiceSubWithFiltersForOverride,
@@ -330,38 +294,7 @@ describe('Invoices >  Details > Utils', () => {
           overrideFees: overrideFeesWithFilters,
         })
 
-        // filter-1-override has adjustedFee: true, should NOT appear
-        // filter-2-override has adjustedFee: false, should appear
-        // Default filter option should appear since there's no default filter fee with adjustedFee: true
-        expect(result).toEqual([
-          {
-            label: 'Default filter',
-            value: '__ALL_FILTER_VALUES__',
-          },
-          {
-            label: 'payment_type • eu',
-            value: 'filter-2-override',
-          },
-        ])
-      })
-
-      it('excludes all filters when all fees have adjustedFee: true', () => {
-        // When all fees have adjustedFee: true, they count as existing
-        // and their corresponding filters should be excluded
-        const feesWithAdjustedFlag =
-          invoiceSubWithFiltersForOverride.fees?.map((fee) => ({
-            ...fee,
-            adjustedFee: true, // All fees are considered as existing
-          })) || []
-
-        const result = getChargesFiltersComboboxDataFromInvoiceSubscription({
-          defaultFilterOptionLabel: 'Default filter',
-          subscription: invoiceSubWithFiltersForOverride,
-          selectedChargeId: 'charge-with-filters-override',
-          overrideFees: feesWithAdjustedFlag,
-        })
-
-        // All filters that have fees with adjustedFee: true should be excluded
+        // Both filters have fees, so neither should appear
         // Default filter should appear since there's no fee for it
         expect(result).toEqual([
           {
