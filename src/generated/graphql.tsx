@@ -3534,6 +3534,7 @@ export type Fee = InvoiceItem & {
   groupedBy: Scalars['JSON']['output'];
   id: Scalars['ID']['output'];
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  invoiceId?: Maybe<Scalars['ID']['output']>;
   invoiceName?: Maybe<Scalars['String']['output']>;
   itemCode: Scalars['String']['output'];
   itemName: Scalars['String']['output'];
@@ -5716,6 +5717,7 @@ export type Payment = {
   id: Scalars['ID']['output'];
   payable: Payable;
   payablePaymentStatus?: Maybe<PayablePaymentStatusEnum>;
+  paymentMethodId?: Maybe<Scalars['ID']['output']>;
   paymentProvider?: Maybe<PaymentProvider>;
   paymentProviderType?: Maybe<ProviderTypeEnum>;
   paymentReceipt?: Maybe<PaymentReceipt>;
@@ -5829,6 +5831,7 @@ export type PaymentRequestCreateInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   externalCustomerId: Scalars['String']['input'];
   lagoInvoiceIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
 };
 
 export enum PaymentTypeEnum {
