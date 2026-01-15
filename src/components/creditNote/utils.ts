@@ -124,17 +124,17 @@ export enum CreditNoteType {
 export const getCreditNoteTypes = ({
   creditAmountCents,
   refundAmountCents,
-  appliedToSourceInvoiceAmountCents,
+  offsetAmountCents,
 }: Pick<
   CreditNoteTableItemFragment,
-  'creditAmountCents' | 'refundAmountCents' | 'appliedToSourceInvoiceAmountCents'
+  'creditAmountCents' | 'refundAmountCents' | 'offsetAmountCents'
 >): CreditNoteType[] => {
   const types: CreditNoteType[] = []
 
   if (Number(creditAmountCents) > 0) {
     types.push(CreditNoteType.CREDIT)
   }
-  if (Number(appliedToSourceInvoiceAmountCents) > 0) {
+  if (Number(offsetAmountCents) > 0) {
     types.push(CreditNoteType.ON_INVOICE)
   }
   if (Number(refundAmountCents) > 0) {

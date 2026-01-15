@@ -69,7 +69,7 @@ gql`
       totalAmountCents
       creditAmountCents
       refundAmountCents
-      appliedToSourceInvoiceAmountCents
+      offsetAmountCents
       currency
       integrationSyncable
       taxProviderSyncable
@@ -374,7 +374,7 @@ const CreditNoteDetails = () => {
                 {getCreditNoteTypes({
                   creditAmountCents: creditNote?.creditAmountCents,
                   refundAmountCents: creditNote?.refundAmountCents,
-                  appliedToSourceInvoiceAmountCents: creditNote?.appliedToSourceInvoiceAmountCents,
+                  offsetAmountCents: creditNote?.offsetAmountCents,
                 }).map((type) => (
                   <Chip
                     key={type}

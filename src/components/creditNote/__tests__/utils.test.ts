@@ -743,7 +743,7 @@ describe('getCreditNoteTypes', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '1000',
         refundAmountCents: '0',
-        appliedToSourceInvoiceAmountCents: '0',
+        offsetAmountCents: '0',
       })
 
       expect(result).toEqual([CreditNoteType.CREDIT])
@@ -755,19 +755,19 @@ describe('getCreditNoteTypes', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '0',
         refundAmountCents: '1000',
-        appliedToSourceInvoiceAmountCents: '0',
+        offsetAmountCents: '0',
       })
 
       expect(result).toEqual([CreditNoteType.REFUND])
     })
   })
 
-  describe('GIVEN only appliedToSourceInvoiceAmountCents > 0', () => {
+  describe('GIVEN only offsetAmountCents > 0', () => {
     it('THEN should return [ON_INVOICE]', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '0',
         refundAmountCents: '0',
-        appliedToSourceInvoiceAmountCents: '1000',
+        offsetAmountCents: '1000',
       })
 
       expect(result).toEqual([CreditNoteType.ON_INVOICE])
@@ -779,31 +779,31 @@ describe('getCreditNoteTypes', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '1000',
         refundAmountCents: '500',
-        appliedToSourceInvoiceAmountCents: '0',
+        offsetAmountCents: '0',
       })
 
       expect(result).toEqual([CreditNoteType.CREDIT, CreditNoteType.REFUND])
     })
   })
 
-  describe('GIVEN creditAmountCents and appliedToSourceInvoiceAmountCents > 0', () => {
+  describe('GIVEN creditAmountCents and offsetAmountCents > 0', () => {
     it('THEN should return [CREDIT, ON_INVOICE]', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '1000',
         refundAmountCents: '0',
-        appliedToSourceInvoiceAmountCents: '500',
+        offsetAmountCents: '500',
       })
 
       expect(result).toEqual([CreditNoteType.CREDIT, CreditNoteType.ON_INVOICE])
     })
   })
 
-  describe('GIVEN refundAmountCents and appliedToSourceInvoiceAmountCents > 0', () => {
+  describe('GIVEN refundAmountCents and offsetAmountCents > 0', () => {
     it('THEN should return [ON_INVOICE, REFUND]', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '0',
         refundAmountCents: '1000',
-        appliedToSourceInvoiceAmountCents: '500',
+        offsetAmountCents: '500',
       })
 
       expect(result).toEqual([CreditNoteType.ON_INVOICE, CreditNoteType.REFUND])
@@ -815,7 +815,7 @@ describe('getCreditNoteTypes', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '1000',
         refundAmountCents: '500',
-        appliedToSourceInvoiceAmountCents: '300',
+        offsetAmountCents: '300',
       })
 
       expect(result).toEqual([
@@ -831,7 +831,7 @@ describe('getCreditNoteTypes', () => {
       const result = getCreditNoteTypes({
         creditAmountCents: '0',
         refundAmountCents: '0',
-        appliedToSourceInvoiceAmountCents: '0',
+        offsetAmountCents: '0',
       })
 
       expect(result).toEqual([])

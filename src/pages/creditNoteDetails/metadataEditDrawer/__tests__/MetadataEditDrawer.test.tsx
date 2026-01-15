@@ -27,7 +27,7 @@ const createMockCreditNote = (
   totalAmountCents: '10000',
   creditAmountCents: '5000',
   refundAmountCents: '5000',
-  appliedToSourceInvoiceAmountCents: '0',
+  offsetAmountCents: '0',
   currency: CurrencyEnum.Usd,
   integrationSyncable: false,
   taxProviderSyncable: false,

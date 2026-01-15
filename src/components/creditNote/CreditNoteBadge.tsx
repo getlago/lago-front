@@ -17,13 +17,8 @@ const CreditNoteBadge = ({
 
   if (!creditNote) return null
 
-  const {
-    creditAmountCents,
-    refundAmountCents,
-    appliedToSourceInvoiceAmountCents,
-    voidedAt,
-    taxProviderSyncable,
-  } = creditNote
+  const { creditAmountCents, refundAmountCents, offsetAmountCents, voidedAt, taxProviderSyncable } =
+    creditNote
 
   // Handle voided credit notes
   if (voidedAt) {
@@ -33,7 +28,7 @@ const CreditNoteBadge = ({
   const types = getCreditNoteTypes({
     creditAmountCents,
     refundAmountCents,
-    appliedToSourceInvoiceAmountCents,
+    offsetAmountCents,
   })
 
   if (types.length === 0) return null

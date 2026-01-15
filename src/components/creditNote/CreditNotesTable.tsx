@@ -47,7 +47,7 @@ gql`
     totalAmountCents
     refundAmountCents
     creditAmountCents
-    appliedToSourceInvoiceAmountCents
+    offsetAmountCents
     currency
     createdAt
     canBeVoided
