@@ -264,7 +264,7 @@ const _getFeeDisplayName = (
     return getSubscriptionFeeDisplayName(fee, subscription)
   }
   if (fee.feeType === FeeTypesEnum.FixedCharge) {
-    return fee.invoiceDisplayName || fee.itemName
+    return fee?.invoiceName || fee?.itemName
   }
   if (fee.feeType === FeeTypesEnum.Commitment) {
     return fee.invoiceDisplayName || 'Minimum commitment - True up'
