@@ -23,7 +23,7 @@ export interface PayBackFieldInfo {
 export interface PayBackFields {
   credit: PayBackFieldInfo
   refund: PayBackFieldInfo
-  applyToInvoice: PayBackFieldInfo
+  offset: PayBackFieldInfo
 }
 
 type PayBackItem = { type?: CreditTypeEnum | string; value?: number }
@@ -38,7 +38,7 @@ export const getPayBackFields = (payBack: PayBackItem[] | undefined): PayBackFie
 
   const creditIndex = items.findIndex((p) => p?.type === CreditTypeEnum.credit)
   const refundIndex = items.findIndex((p) => p?.type === CreditTypeEnum.refund)
-  const applyToInvoiceIndex = items.findIndex((p) => p?.type === CreditTypeEnum.applyToInvoice)
+  const offsetIndex = items.findIndex((p) => p?.type === CreditTypeEnum.offset)
 
   return {
     credit: {
@@ -51,10 +51,10 @@ export const getPayBackFields = (payBack: PayBackItem[] | undefined): PayBackFie
       value: refundIndex >= 0 ? Number(items[refundIndex]?.value || 0) : 0,
       show: refundIndex >= 0,
     },
-    applyToInvoice: {
-      path: applyToInvoiceIndex >= 0 ? `payBack.${applyToInvoiceIndex}.value` : '',
-      value: applyToInvoiceIndex >= 0 ? Number(items[applyToInvoiceIndex]?.value || 0) : 0,
-      show: applyToInvoiceIndex >= 0,
+    offset: {
+      path: offsetIndex >= 0 ? `payBack.${offsetIndex}.value` : '',
+      value: offsetIndex >= 0 ? Number(items[offsetIndex]?.value || 0) : 0,
+      show: offsetIndex >= 0,
     },
   }
 }
@@ -309,7 +309,7 @@ export const creditNoteFormHasAtLeastOneFeeChecked = (
 
 /**
  * Builds the initial payBack array based on invoice payment status.
- * Determines which allocation options (credit, refund, applyToInvoice) should be available.
+ * Determines which allocation options (credit, refund, offset) should be available.
  */
 export const buildInitialPayBack = (
   invoice?: InvoiceForCreditNoteFormCalculationFragment | null,
@@ -320,12 +320,12 @@ export const buildInitialPayBack = (
 
   // Refund: available when there's been a payment and no dispute lost
   const hasRefund = totalPaidAmountCents > 0 && !hasPaymentDisputeLost
-  // Apply to current invoice: available when there's amount due > 0
-  const hasApplyToInvoice = totalDueAmountCents > 0
+  // Offset: available when there's amount due > 0
+  const hasOffset = totalDueAmountCents > 0
 
   return [
     { type: CreditTypeEnum.credit, value: undefined },
     ...(hasRefund ? [{ type: CreditTypeEnum.refund, value: undefined }] : []),
-    ...(hasApplyToInvoice ? [{ type: CreditTypeEnum.applyToInvoice, value: undefined }] : []),
+    ...(hasOffset ? [{ type: CreditTypeEnum.offset, value: undefined }] : []),
   ]
 }

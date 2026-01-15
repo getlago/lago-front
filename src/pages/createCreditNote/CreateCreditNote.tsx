@@ -206,7 +206,7 @@ const CreateCreditNote = () => {
       } else if (hasOffsettable) {
         formikProps.setFieldValue('payBack', [
           {
-            type: CreditTypeEnum.applyToInvoice,
+            type: CreditTypeEnum.offset,
             value: creditFeeValue,
           },
         ])

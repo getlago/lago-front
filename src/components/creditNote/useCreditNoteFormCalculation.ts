@@ -242,12 +242,12 @@ export const useCreditNoteFormCalculation = ({
             const {
               credit: creditFields,
               refund: refundFields,
-              applyToInvoice: applyToInvoiceFields,
+              offset: offsetFields,
             } = getPayBackFields(payback)
             const errors: ValidationError[] = []
 
-            // Check if the sum of credit, refund and applyToInvoice is different than the total tax included
-            const sum = creditFields.value + refundFields.value + applyToInvoiceFields.value
+            // Check if the sum of credit, refund and offset is different than the total tax included
+            const sum = creditFields.value + refundFields.value + offsetFields.value
             const sumPrecision = Number(sum.toFixed(currencyPrecision))
             const totalPrecision = Number(totalTaxIncluded.toFixed(currencyPrecision))
 
@@ -277,11 +277,11 @@ export const useCreditNoteFormCalculation = ({
                 }),
               )
             }
-            if (applyToInvoiceFields.show && applyToInvoiceFields.value > maxOffsettableAmount) {
+            if (offsetFields.show && offsetFields.value > maxOffsettableAmount) {
               errors.push(
                 createError({
-                  message: PayBackErrorEnum.maxApplyToInvoice,
-                  path: applyToInvoiceFields.path,
+                  message: PayBackErrorEnum.maxOffset,
+                  path: offsetFields.path,
                 }),
               )
             }
