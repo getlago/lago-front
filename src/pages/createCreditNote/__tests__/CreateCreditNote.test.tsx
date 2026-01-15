@@ -136,7 +136,9 @@ describe('CreateCreditNote', () => {
 
       // Form elements should not be present when loading
       expect(screen.queryByText('Reason')).not.toBeInTheDocument()
-      expect(screen.queryByText('Issue credit note')).not.toBeInTheDocument()
+      const submitButton = screen.getByText('Issue credit note')
+
+      expect(submitButton.closest('button')).toBeDisabled()
     })
   })
 

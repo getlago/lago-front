@@ -140,6 +140,33 @@ export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-sec
 export const CREATE_PRICING_UNIT = `${INVOICE_SETTINGS_ROUTE}/pricing-unit/create`
 export const EDIT_PRICING_UNIT = `${INVOICE_SETTINGS_ROUTE}/pricing-unit/:pricingUnitId/edit`
 
+export const settingsObjectCreationRoutes: CustomRouteObject[] = [
+  {
+    path: [CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE],
+    private: true,
+    element: <CreateDunning />,
+    permissions: ['dunningCampaignsCreate', 'dunningCampaignsView', 'dunningCampaignsUpdate'],
+  },
+  {
+    path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
+    private: true,
+    element: <CreateInvoiceCustomSection />,
+    permissions: ['invoiceCustomSectionsCreate', 'invoiceCustomSectionsUpdate'],
+  },
+  {
+    path: [BILLING_ENTITY_CREATE_ROUTE, BILLING_ENTITY_UPDATE_ROUTE],
+    private: true,
+    element: <BillingEntityCreateEdit />,
+    permissions: ['billingEntitiesCreate', 'billingEntitiesUpdate'],
+  },
+  {
+    path: [CREATE_PRICING_UNIT, EDIT_PRICING_UNIT],
+    private: true,
+    element: <CreatePricingUnit />,
+    permissions: ['pricingUnitsCreate', 'pricingUnitsUpdate'],
+  },
+]
+
 export const settingRoutes: CustomRouteObject[] = [
   {
     private: true,
@@ -399,28 +426,5 @@ export const settingRoutes: CustomRouteObject[] = [
       },
     ],
   },
-  {
-    path: [CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE],
-    private: true,
-    element: <CreateDunning />,
-    permissions: ['dunningCampaignsCreate', 'dunningCampaignsView', 'dunningCampaignsUpdate'],
-  },
-  {
-    path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
-    private: true,
-    element: <CreateInvoiceCustomSection />,
-    permissions: ['invoiceCustomSectionsCreate', 'invoiceCustomSectionsUpdate'],
-  },
-  {
-    path: [BILLING_ENTITY_CREATE_ROUTE, BILLING_ENTITY_UPDATE_ROUTE],
-    private: true,
-    element: <BillingEntityCreateEdit />,
-    permissions: ['billingEntitiesCreate', 'billingEntitiesUpdate'],
-  },
-  {
-    path: [CREATE_PRICING_UNIT, EDIT_PRICING_UNIT],
-    private: true,
-    element: <CreatePricingUnit />,
-    permissions: ['pricingUnitsCreate', 'pricingUnitsUpdate'],
-  },
+  ...settingsObjectCreationRoutes,
 ]

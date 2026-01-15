@@ -2,7 +2,7 @@
 
 exports[`Drawer Snapshot Tests matches snapshot with ReactNode title 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
@@ -12,7 +12,7 @@ exports[`Drawer Snapshot Tests matches snapshot with ReactNode title 1`] = `
       Custom Title
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"
@@ -43,20 +43,20 @@ exports[`Drawer Snapshot Tests matches snapshot with ReactNode title 1`] = `
 
 exports[`Drawer Snapshot Tests matches snapshot with children as function 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
     class="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
   >
     <div
-      class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="bodyHl"
     >
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"
@@ -92,20 +92,20 @@ exports[`Drawer Snapshot Tests matches snapshot with children as function 1`] = 
 
 exports[`Drawer Snapshot Tests matches snapshot with drawer open 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
     class="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
   >
     <div
-      class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="bodyHl"
     >
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"
@@ -136,20 +136,20 @@ exports[`Drawer Snapshot Tests matches snapshot with drawer open 1`] = `
 
 exports[`Drawer Snapshot Tests matches snapshot with fullContentHeight and no padding 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
     class="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
   >
     <div
-      class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="bodyHl"
     >
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"
@@ -180,20 +180,20 @@ exports[`Drawer Snapshot Tests matches snapshot with fullContentHeight and no pa
 
 exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_80px] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_80px] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
     class="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
   >
     <div
-      class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="bodyHl"
     >
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"
@@ -236,20 +236,20 @@ exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
 
 exports[`Drawer Snapshot Tests matches snapshot with stickyBottomBar and custom className 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_80px] css-14ur55i-MuiPaper-root-MuiDrawer-paper"
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_80px] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
     class="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
   >
     <div
-      class="MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-1pulniy-MuiTypography-root"
+      class=MuiTypography-root MuiTypography-bodyHl MuiTypography-noWrap css-hash-MuiTypography-root
       data-test="bodyHl"
     >
       Test Drawer
     </div>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-xxn0p4-MuiButtonBase-root-MuiButton-root"
+      class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
       data-test="button"
       tabindex="0"
       type="button"

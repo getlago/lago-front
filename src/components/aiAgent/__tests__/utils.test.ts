@@ -42,6 +42,27 @@ jest.mock('~/core/router/CustomerRoutes', () => ({
   ] as CustomRouteObject[],
 }))
 
+jest.mock('~/core/router/SettingRoutes', () => ({
+  settingsObjectCreationRoutes: [
+    {
+      path: ['/settings/dunnings/create', '/settings/dunnings/:campaignId/edit'],
+      private: true,
+    },
+    {
+      path: ['/settings/custom-section/create', '/settings/custom-section/:sectionId/edit'],
+      private: true,
+    },
+    {
+      path: ['/settings/billing-entity/create', '/settings/billing-entity/:entityId/edit'],
+      private: true,
+    },
+    {
+      path: ['/settings/pricing-unit/create', '/settings/pricing-unit/:unitId/edit'],
+      private: true,
+    },
+  ] as CustomRouteObject[],
+}))
+
 jest.mock('~/core/router/index', () => ({
   ERROR_404_ROUTE: '/404',
   FORBIDDEN_ROUTE: '/forbidden',
@@ -51,7 +72,7 @@ describe('getHiddenAiAgentPaths', () => {
   it('should transform all routes into path objects', () => {
     const result = getHiddenAiAgentPaths()
 
-    expect(result).toHaveLength(9)
+    expect(result).toHaveLength(21)
     expect(result).toEqual([
       { path: '/create/plans' },
       { path: '/update/plan/:planId' },
@@ -60,6 +81,18 @@ describe('getHiddenAiAgentPaths', () => {
       { path: '/customer/:customerId/invoice/:invoiceId/create/credit-notes' },
       { path: '/customer/:customerId/invoice/void/:invoiceId' },
       { path: '/customer/:customerId/invoice/regenerate/:invoiceId' },
+      { path: '/settings/dunnings/create' },
+      { path: '/settings/dunnings/:campaignId/edit' },
+      { path: '/settings/custom-section/create' },
+      { path: '/settings/custom-section/:sectionId/edit' },
+      { path: '/settings/billing-entity/create' },
+      { path: '/settings/billing-entity/:entityId/edit' },
+      { path: '/settings/pricing-unit/create' },
+      { path: '/settings/pricing-unit/:unitId/edit' },
+      { path: '/customer-portal/:token' },
+      { path: '/customer-portal/:token/usage/:itemId' },
+      { path: '/customer-portal/:token/wallet/:walletId' },
+      { path: '/customer-portal/:token/customer-edit-information' },
       { path: '/404' },
       { path: '/forbidden' },
     ])
@@ -91,7 +124,7 @@ describe('getHiddenAiAgentPaths', () => {
     expect(result.every((p) => p.path !== undefined)).toBe(true)
   })
 
-  it('should include paths from objectCreationRoutes, customerObjectCreationRoutes, and customerVoidRoutes', () => {
+  it('should include paths from objectCreationRoutes, customerObjectCreationRoutes, customerVoidRoutes, and settingsObjectCreationRoutes', () => {
     const result = getHiddenAiAgentPaths()
 
     // Check objectCreationRoutes paths
@@ -113,6 +146,10 @@ describe('getHiddenAiAgentPaths', () => {
     expect(
       result.some((p) => p.path === '/customer/:customerId/invoice/regenerate/:invoiceId'),
     ).toBe(true)
+
+    // Check settingsObjectCreationRoutes paths
+    expect(result.some((p) => p.path === '/settings/dunnings/create')).toBe(true)
+    expect(result.some((p) => p.path === '/settings/billing-entity/create')).toBe(true)
   })
 
   it('should include error routes (404 and forbidden)', () => {

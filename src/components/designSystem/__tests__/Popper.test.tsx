@@ -13,7 +13,6 @@ async function prepare({
 }: {
   children?: React.ReactNode
   opener?: React.ReactElement
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props?: Record<string, any>
 } = {}) {
   await act(() =>

@@ -9,22 +9,26 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
           placeholder="Type a Xero customer ID"
@@ -33,10 +37,10 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -51,7 +55,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":r7:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -63,7 +67,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Xero"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":r7:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -89,7 +93,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Xero
@@ -109,22 +113,26 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
           placeholder="Type a Xero customer ID"
@@ -133,10 +141,10 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -151,7 +159,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":rf:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -163,7 +171,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Test Xero Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":rf:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -189,7 +197,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Xero Integration
@@ -209,22 +217,26 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
           placeholder="Type a Xero customer ID"
@@ -233,10 +245,10 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -251,7 +263,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
   <label
     class="flex flex-col cursor-pointer"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":rb:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -263,7 +275,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           aria-checked="false"
           aria-labelledby="Create automatically this customer in Test Xero Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
-          id=":rb:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -289,7 +301,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1519owo-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Xero Integration
@@ -309,22 +321,26 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       class="flex items-center gap-1"
     >
       <label
-        class="MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-kunl3q-MuiTypography-root"
+        class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
         data-test="captionHl"
         for="accountingCustomer.accountingCustomerId"
       >
-        Xero customer ID
+        <span
+          class="flex flex-row gap-1"
+        >
+          Xero customer ID
+        </span>
       </label>
     </div>
     <div
-      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+      class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-15zoexi-MuiInputBase-root-MuiOutlinedInput-root"
+        class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-hash-MuiInputBase-root-MuiOutlinedInput-root
       >
         <input
           aria-invalid="false"
-          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-17ucnmd-MuiInputBase-input-MuiOutlinedInput-input"
+          class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-hash-MuiInputBase-input-MuiOutlinedInput-input
           disabled=""
           id="accountingCustomer.accountingCustomerId"
           name="accountingCustomer.accountingCustomerId"
@@ -334,10 +350,10 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
         />
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-15dynev-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+          class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
         >
           <legend
-            class="css-1whs34k-MuiNotchedOutlined-root"
+            class=css-hash-MuiNotchedOutlined-root
           >
             <span
               class="notranslate"
@@ -352,7 +368,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
   <label
     class="flex flex-col"
     data-test="checkbox-accountingCustomer.syncWithProvider"
-    for=":rj:"
+    for=:r-mui-id:
   >
     <div
       class="mx-0 flex items-start align-middle *:leading-7"
@@ -365,7 +381,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
           aria-labelledby="Create automatically this customer in Test Xero Integration"
           class="absolute m-0 size-0 p-0 opacity-0"
           disabled=""
-          id=":rj:"
+          id=:r-mui-id:
           readonly=""
           type="checkbox"
         />
@@ -391,7 +407,7 @@ exports[`XeroAccountingProviderContent Integration Tests WHEN rendering the comp
       </div>
       <div>
         <div
-          class="MuiTypography-root MuiTypography-body whitespace-pre-line css-1lkb4zy-MuiTypography-root"
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
           data-test="body"
         >
           Create automatically this customer in Test Xero Integration
