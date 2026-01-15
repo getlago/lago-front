@@ -1261,7 +1261,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
                   data-test="body"
                 >
-                  $100.00
+                  $0.00
                 </div>
               </div>
               <div>
@@ -1872,72 +1872,6 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
           <div
             class="flex flex-col gap-4"
           >
-            <div>
-              <div
-                class="flex items-center justify-between"
-              >
-                <div>
-                  <div
-                    class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
-                    data-test="bodyHl"
-                  >
-                    Apply to current invoice
-                  </div>
-                  <div
-                    class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
-                    data-test="caption"
-                  >
-                    Reduce this invoice’s amount due (max: $0.00)
-                  </div>
-                </div>
-                <div
-                  class="flex flex-col gap-1 max-w-42"
-                >
-                  <div
-                    class=MuiFormControl-root MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
-                    data-test="apply-to-invoice-amount-input"
-                  >
-                    <div
-                      class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart css-hash-MuiInputBase-root-MuiOutlinedInput-root
-                    >
-                      <div
-                        class=MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
-                      >
-                        <p
-                          class=MuiTypography-root MuiTypography-body1 css-hash-MuiTypography-root
-                        >
-                          $
-                        </p>
-                      </div>
-                      <input
-                        aria-invalid="false"
-                        class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                        id="payBack.1.value"
-                        name="payBack.1.value"
-                        placeholder="0.00"
-                        style="text-align: right;"
-                        type="text"
-                        value=""
-                      />
-                      <fieldset
-                        aria-hidden="true"
-                        class=MuiOutlinedInput-notchedOutline css-hash-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline
-                      >
-                        <legend
-                          class=css-hash-MuiNotchedOutlined-root
-                        >
-                          <span
-                            class="notranslate"
-                          >
-                            ​
-                          </span>
-                        </legend>
-                      </fieldset>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div>
               <div
                 class="flex items-center justify-between"

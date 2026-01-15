@@ -2,6 +2,7 @@ import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
+  APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID,
   CREDIT_AMOUNT_INPUT_TEST_ID,
   REFUND_AMOUNT_INPUT_TEST_ID,
 } from '~/components/creditNote/CreditNoteFormAllocation'
@@ -195,10 +196,12 @@ describe('CreateCreditNote', () => {
           ...defaultMockInvoice,
           paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
           totalPaidAmountCents: '0',
+          refundableAmountCents: '0',
         },
         feesPerInvoice: defaultMockFeesPerInvoice,
         feeForAddOn: undefined,
         feeForCredit: undefined,
+        hasCreditableOrRefundableAmount: true,
         onCreate: mockOnCreate,
       })
     })
@@ -209,12 +212,12 @@ describe('CreateCreditNote', () => {
       await act(() => render(<CreateCreditNote />, { mocks }))
 
       // Wait for the GraphQL query to complete
-      // For credit-only mode (no payment), there are no input fields
-      // The credit amount is automatically set to the total
+      // For credit-only mode (no payment), only credit input is shown, not refund
       await waitFor(
         () => {
-          // Both input fields should NOT exist in credit-only mode
-          expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
+          // Credit input should exist since creditableAmountCents > 0
+          expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          // Refund input should NOT exist since no payment was made
           expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
         },
         { timeout: 2000, interval: 100 },
@@ -246,11 +249,13 @@ describe('CreateCreditNote', () => {
           ...defaultMockInvoice,
           paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
           totalPaidAmountCents: '0',
+          refundableAmountCents: '0',
           paymentDisputeLostAt: '2024-01-15T00:00:00Z',
         },
         feesPerInvoice: defaultMockFeesPerInvoice,
         feeForAddOn: undefined,
         feeForCredit: undefined,
+        hasCreditableOrRefundableAmount: true,
         onCreate: mockOnCreate,
       })
 
@@ -258,10 +263,12 @@ describe('CreateCreditNote', () => {
 
       await act(() => render(<CreateCreditNote />, { mocks }))
 
-      // For dispute lost, it's also credit-only mode - no input fields
+      // For dispute lost, only credit input is shown, refund is not available
       await waitFor(
         () => {
-          expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
+          // Credit input should exist since creditableAmountCents > 0
+          expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          // Refund input should NOT exist due to payment dispute
           expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
         },
         { timeout: 2000, interval: 100 },
@@ -463,6 +470,107 @@ describe('CreateCreditNote', () => {
     })
   })
 
+  describe('PayBack Scenarios - Apply to Invoice Mode', () => {
+    it('should show apply to invoice field when there is amount due', async () => {
+      mockUseCreateCreditNote.mockReturnValue({
+        loading: false,
+        invoice: {
+          ...defaultMockInvoice,
+          totalPaidAmountCents: '0',
+          totalDueAmountCents: '10000',
+          refundableAmountCents: '0',
+          applicableToSourceInvoiceAmountCents: '10000',
+        },
+        feesPerInvoice: defaultMockFeesPerInvoice,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        hasCreditableOrRefundableAmount: true,
+        onCreate: mockOnCreate,
+      })
+
+      const mocks = [createCreditNoteEstimateMock('10000', '0')]
+
+      await act(() => render(<CreateCreditNote />, { mocks }))
+
+      await waitFor(
+        () => {
+          // Credit input should be available
+          expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          // Apply to invoice should be available since totalDueAmountCents > 0
+          expect(screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          // Refund should NOT be available since no payment was made
+          expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
+        },
+        { timeout: 3000 },
+      )
+    })
+
+    it('should not show apply to invoice field when there is no amount due', async () => {
+      mockUseCreateCreditNote.mockReturnValue({
+        loading: false,
+        invoice: {
+          ...defaultMockInvoice,
+          totalPaidAmountCents: '10000', // Fully paid
+          totalDueAmountCents: '0', // No amount due
+          applicableToSourceInvoiceAmountCents: '0',
+        },
+        feesPerInvoice: defaultMockFeesPerInvoice,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        hasCreditableOrRefundableAmount: true,
+        onCreate: mockOnCreate,
+      })
+
+      const mocks = [createCreditNoteEstimateMock('10000', '10000')]
+
+      await act(() => render(<CreateCreditNote />, { mocks }))
+
+      await waitFor(
+        () => {
+          // Credit and refund should be available
+          expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          // Apply to invoice should NOT be available since totalDueAmountCents is 0
+          expect(
+            screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID),
+          ).not.toBeInTheDocument()
+        },
+        { timeout: 3000 },
+      )
+    })
+
+    it('should show all three allocation options for partially paid invoice with amount due', async () => {
+      mockUseCreateCreditNote.mockReturnValue({
+        loading: false,
+        invoice: {
+          ...defaultMockInvoice,
+          totalPaidAmountCents: '5000',
+          totalDueAmountCents: '5000',
+          applicableToSourceInvoiceAmountCents: '5000',
+        },
+        feesPerInvoice: defaultMockFeesPerInvoice,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        hasCreditableOrRefundableAmount: true,
+        onCreate: mockOnCreate,
+      })
+
+      const mocks = [createCreditNoteEstimateMock('10000', '5000')]
+
+      await act(() => render(<CreateCreditNote />, { mocks }))
+
+      await waitFor(
+        () => {
+          // All three allocation options should be available
+          expect(screen.queryByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+          expect(screen.queryByTestId(APPLY_TO_INVOICE_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
+        },
+        { timeout: 3000 },
+      )
+    })
+  })
+
   describe('PayBack Scenarios - API Error Handling', () => {
     it('should handle DoesNotMatchItemAmounts error from API', async () => {
       // Mock onCreate to return DoesNotMatchItemAmounts error
@@ -524,6 +632,7 @@ describe('CreateCreditNote', () => {
             appliedTaxes: [],
           },
         ],
+        hasCreditableOrRefundableAmount: true,
         onCreate: mockOnCreate,
       })
 
