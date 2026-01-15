@@ -302,18 +302,18 @@ export const theme = createTheme({
         },
         multiline: {
           padding: '5px',
+          textarea: {
+            padding: '5px 11px',
+            minHeight: '38px',
+            resize: 'vertical',
+            whiteSpace: 'pre-wrap',
+          },
           '&.Mui-disabled': {
             backgroundColor: palette.grey[100],
             borderRadius: 12,
             '&::placeholder': {
               color: palette.grey[400],
             },
-          },
-          textarea: {
-            padding: '5px 11px',
-            minHeight: '38px',
-            resize: 'vertical',
-            whiteSpace: 'pre-wrap',
           },
         },
         notchedOutline: {
@@ -519,10 +519,6 @@ export const theme = createTheme({
             minWidth: 'unset',
             width: '40px',
           },
-          '&.Mui-disabled': {
-            backgroundColor: palette.grey[100],
-            color: palette.grey[400],
-          },
           '&:active': {
             transform: 'scale(0.99)',
           },
@@ -530,6 +526,10 @@ export const theme = createTheme({
             height: 'auto',
             minWidth: 'unset',
             padding: '0px',
+          },
+          '&.Mui-disabled': {
+            backgroundColor: palette.grey[100],
+            color: palette.grey[400],
           },
         },
         endIcon: {
@@ -586,14 +586,6 @@ export const theme = createTheme({
           },
           '&:active': {
             backgroundColor: palette.grey[300],
-          },
-          '&.Mui-disabled': {
-            backgroundColor: 'transparent',
-            color: palette.grey[400],
-          },
-          '&$disabled': {
-            color: palette.grey[400],
-            backgroundColor: 'transparent',
           },
           '&.button-danger': {
             '&:hover': {
@@ -665,6 +657,14 @@ export const theme = createTheme({
               },
             },
           },
+          '&.Mui-disabled': {
+            backgroundColor: 'transparent',
+            color: palette.grey[400],
+          },
+          '&$disabled': {
+            color: palette.grey[400],
+            backgroundColor: 'transparent',
+          },
         },
         outlined: {
           padding: '5px 11px',
@@ -715,10 +715,6 @@ export const theme = createTheme({
           '&:active': {
             backgroundColor: palette.grey[400],
           },
-          '&$disabled &.Mui-disabled': {
-            color: palette.grey[400],
-            backgroundColor: palette.grey[100],
-          },
           '&.button-danger': {
             color: palette.error.main,
             backgroundColor: palette.error[100],
@@ -733,6 +729,10 @@ export const theme = createTheme({
               backgroundColor: palette.grey[100],
             },
           },
+          '&$disabled &.Mui-disabled': {
+            color: palette.grey[400],
+            backgroundColor: palette.grey[100],
+          },
         },
         containedPrimary: {
           color: palette.common.white,
@@ -742,10 +742,6 @@ export const theme = createTheme({
           },
           '&:active': {
             backgroundColor: palette.primary[800],
-          },
-          '&$disabled': {
-            color: palette.grey[400],
-            backgroundColor: palette.grey[100],
           },
           '&.button-danger': {
             '&:hover': {
@@ -760,6 +756,10 @@ export const theme = createTheme({
             },
             color: palette.common.white,
             backgroundColor: palette.error.main,
+          },
+          '&$disabled': {
+            color: palette.grey[400],
+            backgroundColor: palette.grey[100],
           },
         },
       },
