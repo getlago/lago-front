@@ -9308,7 +9308,7 @@ export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never;
 
 export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null };
 
-export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum };
+export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum };
 
 export type CustomerPortalInvoicesQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9318,7 +9318,7 @@ export type CustomerPortalInvoicesQueryVariables = Exact<{
 }>;
 
 
-export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum }> } };
+export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum }> } };
 
 export type DownloadCustomerPortalInvoiceMutationVariables = Exact<{
   input: DownloadCustomerPortalInvoiceInput;
@@ -11879,7 +11879,7 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14007,6 +14007,7 @@ export const PortalInvoiceListItemFragmentDoc = gql`
   number
   issuingDate
   totalAmountCents
+  totalDueAmountCents
   currency
   invoiceType
 }
@@ -31518,6 +31519,7 @@ export const GetInfosForCreateInvoiceDocument = gql`
     query getInfosForCreateInvoice($id: ID!) {
   customer(id: $id) {
     id
+    externalId
     addressLine1
     addressLine2
     city

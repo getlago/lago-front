@@ -21,7 +21,7 @@ export const PaymentMethodComboBox = ({
 
   // If paymentMethodsListProp is provided, use it, otherwise fetch the payment methods list as fallback.
   const { data: fetchedPaymentMethodsList, loading } = usePaymentMethodsList({
-    externalCustomerId: externalCustomerId || '',
+    externalCustomerId,
     withDeleted: false,
     skip: hasPaymentMethodsListProp,
   })
