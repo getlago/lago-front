@@ -41,7 +41,7 @@ describe('serializeCreditNoteInput', () => {
         creditAmountCents: 74,
         description: undefined,
         refundAmountCents: 0,
-        appliedToSourceInvoiceAmountCents: 0,
+        offsetAmountCents: 0,
         items: [{ feeId: 'd185efb0-dd54-4676-84ae-8feb9e5d58b6', amountCents: 74 }],
         metadata: [],
       })
@@ -86,7 +86,7 @@ describe('serializeCreditNoteInput', () => {
         creditAmountCents: 5000,
         description: undefined,
         refundAmountCents: 3000,
-        appliedToSourceInvoiceAmountCents: 0,
+        offsetAmountCents: 0,
         items: [{ feeId: 'fee-1', amountCents: 8000 }],
         metadata: [],
       })
@@ -94,7 +94,7 @@ describe('serializeCreditNoteInput', () => {
   })
 
   describe('GIVEN a credit note with applyToInvoice allocation', () => {
-    it('THEN should serialize appliedToSourceInvoiceAmountCents', () => {
+    it('THEN should serialize offsetAmountCents', () => {
       const result = serializeCreditNoteInput(
         invoiceId,
         {
@@ -131,7 +131,7 @@ describe('serializeCreditNoteInput', () => {
         creditAmountCents: 5000,
         description: undefined,
         refundAmountCents: 0,
-        appliedToSourceInvoiceAmountCents: 5000,
+        offsetAmountCents: 5000,
         items: [{ feeId: 'fee-1', amountCents: 10000 }],
         metadata: [],
       })
@@ -177,7 +177,7 @@ describe('serializeCreditNoteInput', () => {
         creditAmountCents: 4000,
         description: undefined,
         refundAmountCents: 3500,
-        appliedToSourceInvoiceAmountCents: 2500,
+        offsetAmountCents: 2500,
         items: [{ feeId: 'fee-1', amountCents: 10000 }],
         metadata: [],
       })
@@ -260,7 +260,7 @@ describe('serializeCreditNoteInput', () => {
         creditAmountCents: 90674,
         description: undefined,
         refundAmountCents: 0,
-        appliedToSourceInvoiceAmountCents: 0,
+        offsetAmountCents: 0,
         items: [
           { feeId: 'd185efb0-dd54-4676-84ae-8feb9e5d58b6', amountCents: 74 },
           { feeId: '42b948dc-cd51-4951-bc7e-8a25414e994f', amountCents: 27400 },
@@ -340,7 +340,7 @@ describe('serializeCreditNoteInput', () => {
 
       expect(result.creditAmountCents).toBe(0)
       expect(result.refundAmountCents).toBe(0)
-      expect(result.appliedToSourceInvoiceAmountCents).toBe(0)
+      expect(result.offsetAmountCents).toBe(0)
     })
   })
 

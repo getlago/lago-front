@@ -36,7 +36,7 @@ gql`
       paymentStatus
       refundableAmountCents
       creditableAmountCents
-      applicableToSourceInvoiceAmountCents
+      offsettableAmountCents
       totalPaidAmountCents
       totalDueAmountCents
       status
@@ -69,7 +69,7 @@ export const InvoiceCreditNoteList = () => {
       invoiceType: invoice?.invoiceType,
       creditableAmountCents: invoice?.creditableAmountCents,
       refundableAmountCents: invoice?.refundableAmountCents,
-      applicableToSourceInvoiceAmountCents: invoice?.applicableToSourceInvoiceAmountCents,
+      offsettableAmountCents: invoice?.offsettableAmountCents,
       associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
     })
 

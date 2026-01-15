@@ -30,7 +30,7 @@ export const serializeCreditNoteInput: (
           payBack.find((p) => p.type === CreditTypeEnum.refund)?.value || 0,
           currency,
         ) || 0,
-    appliedToSourceInvoiceAmountCents: !payBack
+    offsetAmountCents: !payBack
       ? 0
       : serializeAmount(
           payBack.find((p) => p.type === CreditTypeEnum.applyToInvoice)?.value || 0,

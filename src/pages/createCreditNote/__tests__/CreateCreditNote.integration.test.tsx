@@ -479,7 +479,7 @@ describe('CreateCreditNote', () => {
           totalPaidAmountCents: '0',
           totalDueAmountCents: '10000',
           refundableAmountCents: '0',
-          applicableToSourceInvoiceAmountCents: '10000',
+          offsettableAmountCents: '10000',
         },
         feesPerInvoice: defaultMockFeesPerInvoice,
         feeForAddOn: undefined,
@@ -512,7 +512,7 @@ describe('CreateCreditNote', () => {
           ...defaultMockInvoice,
           totalPaidAmountCents: '10000', // Fully paid
           totalDueAmountCents: '0', // No amount due
-          applicableToSourceInvoiceAmountCents: '0',
+          offsettableAmountCents: '0',
         },
         feesPerInvoice: defaultMockFeesPerInvoice,
         feeForAddOn: undefined,
@@ -546,7 +546,7 @@ describe('CreateCreditNote', () => {
           ...defaultMockInvoice,
           totalPaidAmountCents: '5000',
           totalDueAmountCents: '5000',
-          applicableToSourceInvoiceAmountCents: '5000',
+          offsettableAmountCents: '5000',
         },
         feesPerInvoice: defaultMockFeesPerInvoice,
         feeForAddOn: undefined,

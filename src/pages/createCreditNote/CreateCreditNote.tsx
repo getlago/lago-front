@@ -15,7 +15,7 @@ import {
   canCreateCreditNote,
   creditNoteFormCalculationCalculation,
   creditNoteFormHasAtLeastOneFeeChecked,
-  hasApplicableToSourceInvoiceAmount,
+  hasOffsettableAmount,
 } from '~/components/creditNote/utils'
 import {
   Alert,
@@ -192,7 +192,7 @@ const CreateCreditNote = () => {
 
   const creditFeeValue = formikProps.values.creditFee?.[0]?.value
 
-  const hasApplicableToSourceInvoice = hasApplicableToSourceInvoiceAmount(invoice)
+  const hasOffsettable = hasOffsettableAmount(invoice)
 
   useEffect(() => {
     if (isPrepaidCreditsInvoice && creditFeeValue) {
@@ -203,7 +203,7 @@ const CreateCreditNote = () => {
             value: creditFeeValue,
           },
         ])
-      } else if (hasApplicableToSourceInvoice) {
+      } else if (hasOffsettable) {
         formikProps.setFieldValue('payBack', [
           {
             type: CreditTypeEnum.applyToInvoice,
@@ -213,12 +213,7 @@ const CreateCreditNote = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    isPrepaidCreditsInvoice,
-    creditFeeValue,
-    hasCreditableOrRefundableAmount,
-    hasApplicableToSourceInvoice,
-  ])
+  }, [isPrepaidCreditsInvoice, creditFeeValue, hasCreditableOrRefundableAmount, hasOffsettable])
 
   const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
@@ -468,9 +463,7 @@ const CreateCreditNote = () => {
                   currency={creditNoteCalculation.currency}
                   maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
                   maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
-                  maxApplicableToSourceInvoiceAmount={
-                    creditNoteCalculation.maxApplicableToSourceInvoiceAmount
-                  }
+                  maxOffsettableAmount={creditNoteCalculation.maxOffsettableAmount}
                   totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
                   estimationLoading={creditNoteCalculation.estimationLoading}
                 />

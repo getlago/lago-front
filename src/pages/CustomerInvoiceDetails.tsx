@@ -118,7 +118,7 @@ gql`
     currency
     refundableAmountCents
     creditableAmountCents
-    applicableToSourceInvoiceAmountCents
+    offsettableAmountCents
     voidable
     paymentDisputeLostAt
     integrationSyncable
@@ -583,7 +583,7 @@ const CustomerInvoiceDetails = () => {
     taxStatus,
     creditableAmountCents,
     refundableAmountCents,
-    applicableToSourceInvoiceAmountCents,
+    offsettableAmountCents,
     errorDetails,
     taxProviderVoidable,
     associatedActiveWalletPresent,
@@ -608,7 +608,7 @@ const CustomerInvoiceDetails = () => {
       invoiceType,
       creditableAmountCents,
       refundableAmountCents,
-      applicableToSourceInvoiceAmountCents,
+      offsettableAmountCents,
       associatedActiveWalletPresent,
     })
 

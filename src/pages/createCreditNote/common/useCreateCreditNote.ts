@@ -47,7 +47,7 @@ gql`
       taxRate
     }
     creditableAmountCents
-    applicableToInvoiceCents
+    offsettableAmountCents
     trueUpFee {
       id
     }
@@ -73,7 +73,7 @@ gql`
     paymentStatus
     creditableAmountCents
     refundableAmountCents
-    applicableToSourceInvoiceAmountCents
+    offsettableAmountCents
     subTotalIncludingTaxesAmountCents
     availableToCreditAmountCents
     totalPaidAmountCents
@@ -89,7 +89,7 @@ gql`
     id
     refundableAmountCents
     creditableAmountCents
-    applicableToSourceInvoiceAmountCents
+    offsettableAmountCents
     invoiceType
     fees {
       id
@@ -99,7 +99,7 @@ gql`
       invoiceName
       invoiceDisplayName
       creditableAmountCents
-      applicableToInvoiceCents
+      offsettableAmountCents
       succeededAt
       appliedTaxes {
         id
@@ -244,7 +244,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
       return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
         const amountCents = hasCreditableOrRefundableAmount
           ? fee?.creditableAmountCents
-          : fee?.applicableToInvoiceCents
+          : fee?.offsettableAmountCents
 
         if (Number(amountCents) > 0) {
           acc.push({
@@ -273,7 +273,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
       return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
         const amountCents = hasCreditableOrRefundableAmount
           ? fee?.creditableAmountCents
-          : fee?.applicableToInvoiceCents
+          : fee?.offsettableAmountCents
 
         if (Number(amountCents) > 0) {
           acc.push({
@@ -352,7 +352,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
 
           const amountCents = hasCreditableOrRefundableAmount
             ? fee.creditableAmountCents
-            : fee.applicableToInvoiceCents
+            : fee.offsettableAmountCents
 
           if (Number(amountCents) <= 0) {
             return acc

@@ -40,7 +40,7 @@ const baseCreditNote = {
   couponsAdjustmentAmountCents: '0',
   creditAmountCents: '0',
   refundAmountCents: '0',
-  appliedToSourceInvoiceAmountCents: '0',
+  offsetAmountCents: '0',
   appliedTaxes: [],
   items: [
     {
@@ -224,7 +224,7 @@ describe('CreditNoteDetailsOverviewTable', () => {
   describe('GIVEN applied to source invoice allocation', () => {
     it('WHEN amount > 0 THEN should render applied to source invoice row', () => {
       renderComponent({
-        creditNote: { ...baseCreditNote, appliedToSourceInvoiceAmountCents: '2000' },
+        creditNote: { ...baseCreditNote, offsetAmountCents: '2000' },
       })
 
       expect(

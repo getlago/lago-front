@@ -13,9 +13,9 @@ import {
   CreditNoteFormCalculationCalculationProps,
   creditNoteFormHasAtLeastOneFeeChecked,
   getPayBackFields,
-  hasApplicableToSourceInvoiceAmount,
   hasCreditableAmount,
   hasCreditableOrRefundableAmount,
+  hasOffsettableAmount,
   hasRefundableAmount,
   isCreditNoteCreationDisabled,
 } from '~/components/creditNote/utils'
@@ -336,29 +336,25 @@ describe('hasCreditableOrRefundableAmount', () => {
   })
 })
 
-describe('hasApplicableToSourceInvoiceAmount', () => {
-  it('should return true when applicableToSourceInvoiceAmountCents > 0', () => {
-    expect(
-      hasApplicableToSourceInvoiceAmount({ applicableToSourceInvoiceAmountCents: '1000' }),
-    ).toBe(true)
+describe('hasOffsettableAmount', () => {
+  it('should return true when offsettableAmountCents > 0', () => {
+    expect(hasOffsettableAmount({ offsettableAmountCents: '1000' })).toBe(true)
   })
 
-  it('should return false when applicableToSourceInvoiceAmountCents is 0', () => {
-    expect(hasApplicableToSourceInvoiceAmount({ applicableToSourceInvoiceAmountCents: '0' })).toBe(
-      false,
-    )
+  it('should return false when offsettableAmountCents is 0', () => {
+    expect(hasOffsettableAmount({ offsettableAmountCents: '0' })).toBe(false)
   })
 
-  it('should return false when applicableToSourceInvoiceAmountCents is undefined', () => {
-    expect(hasApplicableToSourceInvoiceAmount({})).toBe(false)
+  it('should return false when offsettableAmountCents is undefined', () => {
+    expect(hasOffsettableAmount({})).toBe(false)
   })
 
   it('should return false when invoice is undefined', () => {
-    expect(hasApplicableToSourceInvoiceAmount(undefined)).toBe(false)
+    expect(hasOffsettableAmount(undefined)).toBe(false)
   })
 
   it('should return false when invoice is null', () => {
-    expect(hasApplicableToSourceInvoiceAmount(null)).toBe(false)
+    expect(hasOffsettableAmount(null)).toBe(false)
   })
 })
 
@@ -368,7 +364,7 @@ describe('canCreateCreditNote', () => {
       canCreateCreditNote({
         creditableAmountCents: '1000',
         refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '0',
+        offsettableAmountCents: '0',
       }),
     ).toBe(true)
   })
@@ -378,17 +374,17 @@ describe('canCreateCreditNote', () => {
       canCreateCreditNote({
         creditableAmountCents: '0',
         refundableAmountCents: '1000',
-        applicableToSourceInvoiceAmountCents: '0',
+        offsettableAmountCents: '0',
       }),
     ).toBe(true)
   })
 
-  it('should return true when applicableToSourceInvoiceAmountCents > 0', () => {
+  it('should return true when offsettableAmountCents > 0', () => {
     expect(
       canCreateCreditNote({
         creditableAmountCents: '0',
         refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '1000',
+        offsettableAmountCents: '1000',
       }),
     ).toBe(true)
   })
@@ -398,7 +394,7 @@ describe('canCreateCreditNote', () => {
       canCreateCreditNote({
         creditableAmountCents: '0',
         refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '0',
+        offsettableAmountCents: '0',
       }),
     ).toBe(false)
   })
@@ -419,7 +415,7 @@ describe('isCreditNoteCreationDisabled', () => {
         isCreditNoteCreationDisabled({
           creditableAmountCents: '0',
           refundableAmountCents: '0',
-          applicableToSourceInvoiceAmountCents: '0',
+          offsettableAmountCents: '0',
         }),
       ).toBe(true)
     })
@@ -431,7 +427,7 @@ describe('isCreditNoteCreationDisabled', () => {
         isCreditNoteCreationDisabled({
           creditableAmountCents: '1000',
           refundableAmountCents: '0',
-          applicableToSourceInvoiceAmountCents: '0',
+          offsettableAmountCents: '0',
         }),
       ).toBe(false)
     })
@@ -441,17 +437,17 @@ describe('isCreditNoteCreationDisabled', () => {
         isCreditNoteCreationDisabled({
           creditableAmountCents: '0',
           refundableAmountCents: '1000',
-          applicableToSourceInvoiceAmountCents: '0',
+          offsettableAmountCents: '0',
         }),
       ).toBe(false)
     })
 
-    it('WHEN applicableToSourceInvoiceAmountCents > 0 THEN should return false', () => {
+    it('WHEN offsettableAmountCents > 0 THEN should return false', () => {
       expect(
         isCreditNoteCreationDisabled({
           creditableAmountCents: '0',
           refundableAmountCents: '0',
-          applicableToSourceInvoiceAmountCents: '1000',
+          offsettableAmountCents: '1000',
         }),
       ).toBe(false)
     })
@@ -474,7 +470,7 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         creditableAmountCents: '0',
         refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '0',
+        offsettableAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(true)
@@ -487,7 +483,7 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         creditableAmountCents: '1000',
         refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '0',
+        offsettableAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(false)
@@ -498,18 +494,18 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         creditableAmountCents: '0',
         refundableAmountCents: '1000',
-        applicableToSourceInvoiceAmountCents: '0',
+        offsettableAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(false)
       expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
     })
 
-    it('WHEN applicableToSourceInvoiceAmountCents > 0 THEN should enable button', () => {
+    it('WHEN offsettableAmountCents > 0 THEN should enable button', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         creditableAmountCents: '0',
         refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '1000',
+        offsettableAmountCents: '1000',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(false)
@@ -524,7 +520,7 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
         associatedActiveWalletPresent: false,
         creditableAmountCents: '0',
         refundableAmountCents: '0',
-        applicableToSourceInvoiceAmountCents: '0',
+        offsettableAmountCents: '0',
       })
 
       expect(result.disabledIssueCreditNoteButton).toBe(true)

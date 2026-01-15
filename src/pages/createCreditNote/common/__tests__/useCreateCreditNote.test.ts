@@ -119,8 +119,8 @@ describe('useCreateCreditNote()', () => {
     })
   })
 
-  describe('applicableToInvoiceCents fallback', () => {
-    it('should use applicableToInvoiceCents when hasCreditableOrRefundableAmount is false', async () => {
+  describe('offsettableAmountCents fallback', () => {
+    it('should use offsettableAmountCents when hasCreditableOrRefundableAmount is false', async () => {
       const { mock, transformedObject } = invoiceWithNoCredOrRefundAmountMockAndExpect()
       const { result } = await prepare({ mock })
 
@@ -130,7 +130,7 @@ describe('useCreateCreditNote()', () => {
       expect(result.current.feeForAddOn).toStrictEqual(transformedObject)
     })
 
-    it('should set isReadOnly to true when using applicableToInvoiceCents', async () => {
+    it('should set isReadOnly to true when using offsettableAmountCents', async () => {
       const { mock } = invoiceWithNoCredOrRefundAmountMockAndExpect()
       const { result } = await prepare({ mock })
 

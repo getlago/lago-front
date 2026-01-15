@@ -644,7 +644,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           itemCode: 'standard_plan',
           itemName: 'Standard Plan',
           creditableAmountCents: '100',
-          applicableToInvoiceCents: '50',
+          offsettableAmountCents: '50',
           invoiceName: 'Invoice custom name',
           invoiceDisplayName: 'Invoice custom name',
           appliedTaxes: [],
@@ -657,7 +657,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           itemCode: 'sum_bm',
           itemName: 'Sum BM',
           creditableAmountCents: '0',
-          applicableToInvoiceCents: '0',
+          offsettableAmountCents: '0',
           invoiceName: 'Invoice custom name',
           invoiceDisplayName: 'Invoice custom name',
           appliedTaxes: [],
@@ -670,7 +670,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           itemCode: 'sum_bm',
           itemName: 'Sum BM',
           creditableAmountCents: '2699900',
-          applicableToInvoiceCents: '1000000',
+          offsettableAmountCents: '1000000',
           invoiceName: 'Invoice custom name',
           invoiceDisplayName: 'Invoice custom name',
           appliedTaxes: [],
@@ -711,7 +711,7 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
   ],
 })
 
-// Invoice with no creditable/refundable amount - should use applicableToInvoiceCents
+// Invoice with no creditable/refundable amount - should use offsettableAmountCents
 export const invoiceWithNoCredOrRefundAmountMockAndExpect = () => ({
   mock: {
     invoice: {
@@ -727,7 +727,7 @@ export const invoiceWithNoCredOrRefundAmountMockAndExpect = () => ({
           itemCode: 'standard_plan',
           itemName: 'Standard Plan',
           creditableAmountCents: '0',
-          applicableToInvoiceCents: '5000',
+          offsettableAmountCents: '5000',
           invoiceName: 'Invoice custom name',
           invoiceDisplayName: 'Invoice custom name',
           appliedTaxes: [],
@@ -740,7 +740,7 @@ export const invoiceWithNoCredOrRefundAmountMockAndExpect = () => ({
           itemCode: 'sum_bm',
           itemName: 'Sum BM',
           creditableAmountCents: '0',
-          applicableToInvoiceCents: '10000',
+          offsettableAmountCents: '10000',
           invoiceName: 'Invoice custom name 2',
           invoiceDisplayName: 'Invoice custom name 2',
           appliedTaxes: [],
