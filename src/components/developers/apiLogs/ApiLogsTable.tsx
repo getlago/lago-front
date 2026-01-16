@@ -3,7 +3,7 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { InfiniteScroll, Status, StatusType, Table, Typography } from '~/components/designSystem'
 import { variantByHTTPMethod } from '~/components/developers/apiLogs/mapping'
-import { API_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { API_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { GetApiLogsQueryResult } from '~/generated/graphql'

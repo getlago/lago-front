@@ -2,7 +2,7 @@ import { FC, RefObject, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
-import { EVENT_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { EventsQueryResult } from '~/generated/graphql'
