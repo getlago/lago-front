@@ -26,7 +26,7 @@ gql`
     paymentOverdue
     status
     totalPaidAmountCents
-    totalAmountCents
+    totalDueAmountCents
     paymentStatus
     paymentDisputeLostAt
     taxProviderVoidable
@@ -220,7 +220,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
                   status: invoice.status,
                   paymentStatus: invoice.paymentStatus,
                   totalPaidAmountCents: invoice.totalPaidAmountCents,
-                  totalAmountCents: invoice.totalAmountCents,
+                  totalDueAmountCents: invoice.totalDueAmountCents,
                 })}
               />
             ) : (

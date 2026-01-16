@@ -8,9 +8,6 @@ import { AmountInputField } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 
-export const CREDIT_AMOUNT_INPUT_TEST_ID = 'credit-amount-input'
-export const REFUND_AMOUNT_INPUT_TEST_ID = 'refund-amount-input'
-
 interface CreditNoteActionsLineProps {
   details: string
   label: string
@@ -20,6 +17,7 @@ interface CreditNoteActionsLineProps {
   error?: string
   hasError?: boolean
   disabled?: boolean
+  testId?: string
 }
 
 export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
@@ -31,16 +29,9 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   hasError,
   error,
   disabled,
+  testId = '',
 }) => {
   const currencySymbol = getCurrencySymbol(currency)
-
-  let testId: string | undefined
-
-  if (name === 'payBack.0.value') {
-    testId = CREDIT_AMOUNT_INPUT_TEST_ID
-  } else if (name === 'payBack.1.value') {
-    testId = REFUND_AMOUNT_INPUT_TEST_ID
-  }
 
   return (
     <div>

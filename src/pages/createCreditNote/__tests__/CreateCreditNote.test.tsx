@@ -83,7 +83,7 @@ describe('CreateCreditNote', () => {
     it('renders the credit note title', async () => {
       await act(() => render(<CreateCreditNote />))
 
-      // Title is "Issue a credit note" (text_636bedf292786b19d3398ec4)
+      // Title is "Issue a credit note"
       expect(screen.getByText('Issue a credit note')).toBeInTheDocument()
     })
 

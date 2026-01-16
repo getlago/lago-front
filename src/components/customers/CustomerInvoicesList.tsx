@@ -74,6 +74,7 @@ gql`
     invoiceType
     creditableAmountCents
     refundableAmountCents
+    offsettableAmountCents
     associatedActiveWalletPresent
     voidedInvoiceId
     regeneratedInvoiceId
@@ -329,8 +330,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 status,
                 paymentStatus,
                 paymentDisputeLostAt,
-                totalAmountCents,
                 totalPaidAmountCents,
+                totalDueAmountCents,
               }) => {
                 if (status !== InvoiceStatusTypeEnum.Finalized) {
                   return null
@@ -342,8 +343,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 }
 
                 const isPartiallyPaid =
-                  Number(totalPaidAmountCents) > 0 &&
-                  Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+                  Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
 
                 if (isPartiallyPaid) {
                   content = {
@@ -364,7 +364,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                         status,
                         paymentStatus,
                         totalPaidAmountCents,
-                        totalAmountCents,
+                        totalDueAmountCents,
                       })}
                       endIcon={content.statusEndIcon}
                     />
@@ -419,15 +419,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                paymentStatus: invoice?.paymentStatus,
                 creditableAmountCents: invoice?.creditableAmountCents,
                 refundableAmountCents: invoice?.refundableAmountCents,
+                offsettableAmountCents: invoice?.offsettableAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
-
-            const isPartiallyPaid =
-              Number(invoice.totalPaidAmountCents) > 0 &&
-              Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
 
             const canDownloadOrFinalize = (): ActionItem<
               InvoiceForInvoiceListFragment['collection'][number]
@@ -558,10 +554,9 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                         }),
                       )
                     },
-                    tooltip:
-                      !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
-                        ? translate(disabledIssueCreditNoteButtonLabel)
-                        : undefined,
+                    tooltip: disabledIssueCreditNoteButtonLabel
+                      ? translate(disabledIssueCreditNoteButtonLabel)
+                      : undefined,
                   }
                 : null,
 

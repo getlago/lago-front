@@ -36,6 +36,7 @@ gql`
       paymentStatus
       refundableAmountCents
       creditableAmountCents
+      offsettableAmountCents
       totalPaidAmountCents
       totalDueAmountCents
       status
@@ -62,15 +63,13 @@ export const InvoiceCreditNoteList = () => {
   const creditNotes = data?.invoiceCreditNotes?.collection
 
   const invoice = data?.invoice
-  const isPartiallyPaid =
-    Number(invoice?.totalPaidAmountCents || 0) > 0 && Number(invoice?.totalDueAmountCents || 0) > 0
 
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType: invoice?.invoiceType,
-      paymentStatus: invoice?.paymentStatus,
       creditableAmountCents: invoice?.creditableAmountCents,
       refundableAmountCents: invoice?.refundableAmountCents,
+      offsettableAmountCents: invoice?.offsettableAmountCents,
       associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
     })
 
@@ -86,7 +85,6 @@ export const InvoiceCreditNoteList = () => {
                   {isPremium ? (
                     <Tooltip
                       title={
-                        !isPartiallyPaid &&
                         disabledIssueCreditNoteButtonLabel &&
                         translate(disabledIssueCreditNoteButtonLabel)
                       }

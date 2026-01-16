@@ -118,6 +118,7 @@ gql`
     currency
     refundableAmountCents
     creditableAmountCents
+    offsettableAmountCents
     voidable
     paymentDisputeLostAt
     integrationSyncable
@@ -577,12 +578,12 @@ const CustomerInvoiceDetails = () => {
     number,
     paymentStatus,
     totalAmountCents,
-    totalPaidAmountCents,
     currency,
     status,
     taxStatus,
     creditableAmountCents,
     refundableAmountCents,
+    offsettableAmountCents,
     errorDetails,
     taxProviderVoidable,
     associatedActiveWalletPresent,
@@ -591,9 +592,6 @@ const CustomerInvoiceDetails = () => {
     integrationHubspotSyncable,
     regeneratedInvoiceId,
   } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
-
-  const isPartiallyPaid =
-    Number(totalPaidAmountCents) > 0 && Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
@@ -608,9 +606,9 @@ const CustomerInvoiceDetails = () => {
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType,
-      paymentStatus,
       creditableAmountCents,
       refundableAmountCents,
+      offsettableAmountCents,
       associatedActiveWalletPresent,
     })
 
@@ -932,7 +930,6 @@ const CustomerInvoiceDetails = () => {
                             },
                           }}
                           title={
-                            !isPartiallyPaid &&
                             disabledIssueCreditNoteButtonLabel &&
                             translate(disabledIssueCreditNoteButtonLabel)
                           }
@@ -952,7 +949,7 @@ const CustomerInvoiceDetails = () => {
                               )
                             }}
                           >
-                            {translate('text_6386589e4e82fa85eadcaa7a')}
+                            {translate('text_636bdef6565341dcb9cfb127')}
                           </Button>
                         </Tooltip>
                       ) : (
@@ -961,7 +958,7 @@ const CustomerInvoiceDetails = () => {
                           onClick={() => premiumWarningDialogRef.current?.openDialog()}
                           endIcon="sparkles"
                         >
-                          {translate('text_6386589e4e82fa85eadcaa7a')}
+                          {translate('text_636bdef6565341dcb9cfb127')}
                         </Button>
                       )}
                     </>

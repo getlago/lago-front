@@ -4,11 +4,60 @@ import {
   CreditNoteTableItemFragment,
   CurrencyEnum,
   Invoice,
-  InvoicePaymentStatusTypeEnum,
+  InvoiceForCreditNoteFormCalculationFragment,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
-import { CreditNoteForm, FeesPerInvoice, FromFee } from './types'
+import { CreditNoteForm, CreditTypeEnum, FeesPerInvoice, FromFee } from './types'
+
+// ----------------------------------------
+// PayBack Fields Helper
+// ----------------------------------------
+
+export interface PayBackFieldInfo {
+  path: string
+  value: number
+  show: boolean
+}
+
+export interface PayBackFields {
+  credit: PayBackFieldInfo
+  refund: PayBackFieldInfo
+  offset: PayBackFieldInfo
+}
+
+type PayBackItem = { type?: CreditTypeEnum | string; value?: number }
+
+/**
+ * Helper to get payBack field info by type.
+ * Visibility (`show`) is derived from presence in the array - if an item exists, it should be shown.
+ * This avoids passing visibility flags around since the array structure already encodes visibility.
+ */
+export const getPayBackFields = (payBack: PayBackItem[] | undefined): PayBackFields => {
+  const items = payBack || []
+
+  const creditIndex = items.findIndex((p) => p?.type === CreditTypeEnum.credit)
+  const refundIndex = items.findIndex((p) => p?.type === CreditTypeEnum.refund)
+  const offsetIndex = items.findIndex((p) => p?.type === CreditTypeEnum.offset)
+
+  return {
+    credit: {
+      path: creditIndex >= 0 ? `payBack.${creditIndex}.value` : '',
+      value: creditIndex >= 0 ? Number(items[creditIndex]?.value || 0) : 0,
+      show: creditIndex >= 0,
+    },
+    refund: {
+      path: refundIndex >= 0 ? `payBack.${refundIndex}.value` : '',
+      value: refundIndex >= 0 ? Number(items[refundIndex]?.value || 0) : 0,
+      show: refundIndex >= 0,
+    },
+    offset: {
+      path: offsetIndex >= 0 ? `payBack.${offsetIndex}.value` : '',
+      value: offsetIndex >= 0 ? Number(items[offsetIndex]?.value || 0) : 0,
+      show: offsetIndex >= 0,
+    },
+  }
+}
 
 export type CreditNoteFormCalculationCalculationProps = {
   currency: CurrencyEnum
@@ -101,30 +150,96 @@ export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP = {
 }
 
 const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
-  unpaid: 'text_17290829949642fgof01loxo',
   terminatedWallet: 'text_172908299496461z9ejmm2j7',
   fullyCovered: 'text_1729082994964zccpjmtotdy',
 }
 
+// ----------------------------------------
+// Invoice Amount Helpers
+// ----------------------------------------
+
+type InvoiceAmountFields = Partial<
+  Pick<Invoice, 'creditableAmountCents' | 'refundableAmountCents' | 'offsettableAmountCents'>
+> | null
+
+/**
+ * Checks if the invoice has a creditable amount (creditableAmountCents > 0).
+ * This represents the amount that can be credited back to the customer's account.
+ */
+export const hasCreditableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return Number(invoice?.creditableAmountCents) > 0
+}
+
+/**
+ * Checks if the invoice has a refundable amount (refundableAmountCents > 0).
+ * This represents the amount that can be refunded as actual money.
+ */
+export const hasRefundableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return Number(invoice?.refundableAmountCents) > 0
+}
+
+/**
+ * Checks if the invoice has an offsettable amount (offsettableAmountCents > 0).
+ * This represents the amount that can be offset against the source invoice.
+ */
+export const hasOffsettableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return Number(invoice?.offsettableAmountCents) > 0
+}
+
+/**
+ * Checks if the invoice has either a creditable or refundable amount.
+ * When true, the credit note form allows editing amounts.
+ * When false, the form uses offsettableAmountCents in read-only mode.
+ */
+export const hasCreditableOrRefundableAmount = (invoice?: InvoiceAmountFields): boolean => {
+  return hasCreditableAmount(invoice) || hasRefundableAmount(invoice)
+}
+
+/**
+ * Checks if credit note creation is possible for this invoice.
+ * Returns true if any of the three amount types is available.
+ */
+export const canCreateCreditNote = (invoice?: InvoiceAmountFields): boolean => {
+  return (
+    hasCreditableAmount(invoice) || hasRefundableAmount(invoice) || hasOffsettableAmount(invoice)
+  )
+}
+
+// ----------------------------------------
+// Credit Note Creation Validation
+// ----------------------------------------
+
+export const isCreditNoteCreationDisabled = (
+  invoice?: Partial<
+    Pick<Invoice, 'creditableAmountCents' | 'refundableAmountCents' | 'offsettableAmountCents'>
+  > | null,
+) => {
+  if (!invoice) return false
+
+  return !canCreateCreditNote(invoice)
+}
+
+// ----------------------------------------
+// Credit Note Creation Button Props
+// ----------------------------------------
+
 export const createCreditNoteForInvoiceButtonProps = ({
-  paymentStatus,
   invoiceType,
   associatedActiveWalletPresent,
   creditableAmountCents,
   refundableAmountCents,
+  offsettableAmountCents,
 }: Partial<Invoice>) => {
-  const isUnpaid =
-    paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
-    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
-
   const isAssociatedWithTerminatedWallet =
     invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
 
-  const disabledIssueCreditNoteButton =
-    creditableAmountCents === '0' && refundableAmountCents === '0'
+  const disabledIssueCreditNoteButton = isCreditNoteCreationDisabled({
+    creditableAmountCents,
+    refundableAmountCents,
+    offsettableAmountCents,
+  })
 
   const getDisabledReason = (): keyof typeof TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED => {
-    if (isUnpaid) return 'unpaid'
     if (isAssociatedWithTerminatedWallet) return 'terminatedWallet'
     return 'fullyCovered'
   }
@@ -160,4 +275,31 @@ export const creditNoteFormHasAtLeastOneFeeChecked = (
   }
 
   return false
+}
+
+// ----------------------------------------
+// Initial PayBack Builder
+// ----------------------------------------
+
+/**
+ * Builds the initial payBack array based on invoice payment status.
+ * Determines which allocation options (credit, refund, offset) should be available.
+ */
+export const buildInitialPayBack = (
+  invoice?: InvoiceForCreditNoteFormCalculationFragment | null,
+): CreditNoteForm['payBack'] => {
+  const totalPaidAmountCents = Number(invoice?.totalPaidAmountCents) || 0
+  const totalDueAmountCents = Number(invoice?.totalDueAmountCents) || 0
+  const hasPaymentDisputeLost = !!invoice?.paymentDisputeLostAt
+
+  // Refund: available when there's been a payment and no dispute lost
+  const hasRefund = totalPaidAmountCents > 0 && !hasPaymentDisputeLost
+  // Offset: available when there's amount due > 0
+  const hasOffset = totalDueAmountCents > 0
+
+  return [
+    { type: CreditTypeEnum.credit, value: undefined },
+    ...(hasRefund ? [{ type: CreditTypeEnum.refund, value: undefined }] : []),
+    ...(hasOffset ? [{ type: CreditTypeEnum.offset, value: undefined }] : []),
+  ]
 }

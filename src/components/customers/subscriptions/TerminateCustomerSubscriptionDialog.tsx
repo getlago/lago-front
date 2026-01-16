@@ -2,12 +2,11 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
+import { hasRefundableAmount } from '~/components/creditNote/utils'
 import { DialogRef, Typography, WarningDialog } from '~/components/designSystem'
 import { RadioGroupField, SwitchField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  CurrencyEnum,
   InvoiceTypeEnum,
   OnTerminationCreditNoteEnum,
   OnTerminationInvoiceEnum,
@@ -17,7 +16,6 @@ import {
   useTerminateCustomerSubscriptionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   mutation terminateCustomerSubscription($input: TerminateSubscriptionInput!) {
@@ -69,8 +67,6 @@ export const TerminateCustomerSubscriptionDialog =
     const dialogRef = useRef<DialogRef>(null)
     const [context, setContext] = useState<TerminateCustomerSubscriptionDialogContext>()
 
-    const { organization } = useOrganizationInfos()
-
     const { data: invoicesData } = useGetInvoicesForTerminationQuery({
       variables: {
         subscriptionId: context?.id as string,
@@ -81,9 +77,6 @@ export const TerminateCustomerSubscriptionDialog =
     })
 
     const invoice = invoicesData?.invoices?.collection?.[0]
-    const currency = invoice?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
-
-    const refundAmount = deserializeAmount(invoice?.refundableAmountCents, currency)
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
       onCompleted({ terminateSubscription }) {
@@ -201,7 +194,7 @@ export const TerminateCustomerSubscriptionDialog =
                       sublabel: translate('text_17531988251808so7qch9zrf'),
                       value: OnTerminationCreditNoteEnum.Credit,
                     },
-                    refundAmount > 0
+                    hasRefundableAmount(invoice)
                       ? {
                           label: translate('text_1753198825180jnk5xbdev57'),
                           sublabel: translate('text_1753198825180bu4iaf2tczy'),
