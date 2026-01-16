@@ -31,6 +31,17 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'BillingEntitiesEmailsUpdate',
     'BillingEntitiesDunningCampaignsUpdate',
   ],
+  charges: [
+    'ChargesCreate',
+    'ChargesUpdate',
+    'ChargesDelete',
+    'ChargeFiltersCreate',
+    'ChargeFiltersUpdate',
+    'ChargeFiltersDelete',
+    'FixedChargesCreate',
+    'FixedChargesUpdate',
+    'FixedChargesDelete',
+  ],
   coupons: [
     'CouponsAttach',
     'CouponsCreate',
@@ -114,6 +125,7 @@ export const groupNameMapping: Record<string, string> = {
   authenticationMethods: 'text_664c732c264d7eed1c74fd96',
   billableMetrics: 'text_623b497ad05b960101be3438',
   billingEntities: 'text_1743077296189ms0shds6g53',
+  charges: 'text_1768572142436xubwd6sei3b',
   coupons: 'text_637ccf8133d2c9a7d11ce705',
   creditNotes: 'text_637ccf8133d2c9a7d11ce708',
   customerSettings: 'text_1765882497985wd35gnobdvl',
@@ -174,6 +186,17 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   BillingEntitiesEmailsView: 'text_1766047581848rcnco2ugb5s',
   BillingEntitiesEmailsUpdate: 'text_1766047581848cpeb24fwlbr',
   BillingEntitiesDunningCampaignsUpdate: 'text_1766047581848kxklc7ctt9m',
+
+  // Charges
+  ChargesCreate: 'text_1768572142437iellff897qo',
+  ChargesUpdate: 'text_1768572142437tyh61d8ed6t',
+  ChargesDelete: 'text_1768572142437ch7vfimm1ts',
+  ChargeFiltersCreate: 'text_1768572142437tzwypf0fjow',
+  ChargeFiltersUpdate: 'text_1768572142437jqyp9c8iypv',
+  ChargeFiltersDelete: 'text_17685721424373vryawn8e49',
+  FixedChargesCreate: 'text_1768572142437bfqs1z4xcqa',
+  FixedChargesUpdate: 'text_1768572142437nrsy4d3ur3o',
+  FixedChargesDelete: 'text_17685721424376jnyixmgrsk',
 
   // Coupons
   CouponsAttach: 'text_17660475818481lrad2tzefh',

@@ -3793,5 +3793,15 @@
   "text_1767969448650g3wwpvy5f9g": "Select at least one permission",
   "text_1768219065391kkeiaebav23": "Please select a role",
   "text_1768309883114yr34e2jrvn7": "Expand all",
-  "text_17683098831144lro3kg6rip": "Collapse all"
+  "text_17683098831144lro3kg6rip": "Collapse all",
+  "text_1768572142436xubwd6sei3b": "Charges",
+  "text_1768572142437iellff897qo": "Create a new charge",
+  "text_1768572142437tyh61d8ed6t": "Update a charge",
+  "text_1768572142437ch7vfimm1ts": "Delete a charge",
+  "text_1768572142437tzwypf0fjow": "Create a new charge filter",
+  "text_1768572142437jqyp9c8iypv": "Update a charge filter",
+  "text_17685721424373vryawn8e49": "Delete a charge filter",
+  "text_1768572142437bfqs1z4xcqa": "Create a new fixed charge",
+  "text_1768572142437nrsy4d3ur3o": "Update a fixed charge",
+  "text_17685721424376jnyixmgrsk": "Delete a fixed charge"
 }
