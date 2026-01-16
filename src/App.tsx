@@ -47,8 +47,8 @@ const App = () => {
         ])
 
         // Set up auth error handler with the client instance
-        setAuthErrorHandler(() => {
-          logOut(apolloClient)
+        setAuthErrorHandler(async () => {
+          await logOut(apolloClient)
         })
 
         setClient(apolloClient)

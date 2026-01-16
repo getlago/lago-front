@@ -16,10 +16,6 @@ import {
   VerticalMenu,
   VerticalMenuSectionTitle,
 } from '~/components/designSystem'
-<<<<<<< HEAD
-=======
-import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
->>>>>>> f03f7180 (misc: extract routes consts to prevent circular dependency)
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
@@ -124,11 +120,7 @@ const MainNavLayout = () => {
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
   })
-  const {
-    openPanel: openInspector,
-    closePanel: closeInspector,
-    panelOpen: isInspectorOpen,
-  } = useDeveloperTool()
+  const { openPanel: openInspector } = useDeveloperTool()
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
@@ -165,8 +157,6 @@ const MainNavLayout = () => {
 
     try {
       await switchCurrentOrganization(client, organizationId)
-
-      if (isInspectorOpen) closeInspector()
 
       navigate(HOME_ROUTE)
 
