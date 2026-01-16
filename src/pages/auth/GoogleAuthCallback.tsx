@@ -28,6 +28,7 @@ const GoogleAuthCallback = () => {
   const state = JSON.parse(searchParams.get('state') || '{}')
   const invitationToken = state.invitationToken || ''
   const mode = state.mode as GoogleAuthModeEnum
+  const redirectPath = state.redirectPath
 
   if (!code) {
     navigate(LOGIN_ROUTE)
@@ -60,6 +61,12 @@ const GoogleAuthCallback = () => {
           }
         } else if (!!res.data?.googleLoginUser) {
           await onLogIn(client, res.data?.googleLoginUser?.token)
+
+          if (redirectPath) {
+            navigate({
+              pathname: redirectPath,
+            })
+          }
         }
       } else if (mode === 'signup') {
         navigate({
