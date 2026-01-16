@@ -864,7 +864,7 @@ describe('formatCreditNoteTypesForDisplay', () => {
 
   describe('GIVEN three types', () => {
     it('THEN should format as "First, second & third"', () => {
-      expect(formatCreditNoteTypesForDisplay(['Credit', 'On invoice', 'Refund'])).toBe(
+      expect(formatCreditNoteTypesForDisplay(['Credit', 'Offset', 'Refund'])).toBe(
         'Credit, on invoice & refund',
       )
     })

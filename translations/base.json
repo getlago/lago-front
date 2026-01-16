@@ -3645,7 +3645,7 @@
   "text_1767883339944hsqsrt3tg8a": "Reduce this invoice’s amount due (max: {{max}})",
   "text_17678874117919zdg2q55od0": "Offset invoice {{invoiceNumber}}",
   "text_1767890728665ukf38vdx6t3": "Reduce amount due cannot exceed {{max}}",
-  "text_1736431648426rjb1s8vq61n": "On invoice",
+  "text_1736431648426rjb1s8vq61n": "Offset",
   "text_1736431648426vz8s9kj2f4p": "Multiple types",
   "text_17661418227616cvcuga1x7m": "Optional"
 }
