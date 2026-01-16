@@ -2,16 +2,21 @@ import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { CreditNoteDetailsActivityLogs } from '~/components/creditNote/CreditNoteDetailsActivityLogs'
 import { CreditNoteDetailsExternalSync } from '~/components/creditNote/CreditNoteDetailsExternalSync'
 import { CreditNoteDetailsOverview } from '~/components/creditNote/CreditNoteDetailsOverview'
+import {
+  CREDIT_NOTE_TYPE_TRANSLATIONS_MAP,
+  CreditNoteType,
+  getCreditNoteTypes,
+} from '~/components/creditNote/utils'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import {
   Button,
+  Chip,
   GenericPlaceholder,
   NavigationTab,
   Popper,
@@ -37,7 +42,6 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
-  CreditNote,
   CurrencyEnum,
   CustomerForCreditNoteDetailsExternalSyncFragmentDoc,
   useGetCreditNoteForDetailsQuery,
@@ -63,6 +67,9 @@ gql`
       number
       canBeVoided
       totalAmountCents
+      creditAmountCents
+      refundAmountCents
+      offsetAmountCents
       currency
       integrationSyncable
       taxProviderSyncable
@@ -360,11 +367,20 @@ const CreditNoteDetails = () => {
             isLoading={loading}
             icon="document"
             title={
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <Typography variant="headline" color="grey700">
                   {creditNote?.number}
                 </Typography>
-                <CreditNoteBadge creditNote={creditNote as CreditNote} />
+                {getCreditNoteTypes({
+                  creditAmountCents: creditNote?.creditAmountCents,
+                  refundAmountCents: creditNote?.refundAmountCents,
+                  offsetAmountCents: creditNote?.offsetAmountCents,
+                }).map((type) => (
+                  <Chip
+                    key={type}
+                    label={translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type as CreditNoteType])}
+                  />
+                ))}
               </div>
             }
             description={`${translate('text_637655cb50f04bf1c8379cf2', {
