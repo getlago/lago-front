@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { hasDefinedGQLError } from '~/core/apolloClient'
@@ -81,6 +81,10 @@ const GoogleAuthButton = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const location = useLocation()
+
+  const previousLocation = location.state?.from?.pathname
+
   return (
     <Stack spacing={8}>
       {!!errorCode && !hideAlert && (
@@ -126,6 +130,7 @@ const GoogleAuthButton = ({
               stateType: 'object',
               values: {
                 mode,
+                redirectPath: previousLocation,
                 ...(!!invitationToken && { invitationToken }),
               },
             })
