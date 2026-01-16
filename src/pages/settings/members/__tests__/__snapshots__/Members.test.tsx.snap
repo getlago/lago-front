@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Members Snapshot matches snapshot 1`] = `
+<div>
+  <header
+    class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white px-17 shadow-b md:px-12"
+  >
+    <div
+      class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
+      data-test="bodyHl"
+    >
+      Members
+    </div>
+  </header>
+  <div
+    class="container flex flex-col gap-12 pb-20 pt-8"
+  >
+    <div
+      class="flex flex-col gap-1"
+    >
+      <div
+        class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
+        data-test="headline"
+      >
+        Members
+      </div>
+      <div
+        class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+        data-test="body"
+      >
+        See the list of members and generate access links for new teammates.
+      </div>
+    </div>
+    <div>
+      <div
+        class="flex flex-row shadow-b"
+      >
+        <div
+          class=MuiTabs-root w-full flex-1 items-center overflow-visible min-h-13 css-hash-MuiTabs-root
+          role="navigation"
+        >
+          <div
+            class="MuiTabs-scrollableX MuiTabs-hideScrollbar css-oqr85h"
+            style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"
+          />
+          <div
+            class=MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-hash-MuiTabs-scroller
+            style="margin-bottom: 0px;"
+          >
+            <div
+              aria-label="Navigation tab"
+              class=MuiTabs-flexContainer css-hash-MuiTabs-flexContainer
+              role="tablist"
+            >
+              <button
+                aria-controls="simple-tabpanel-0"
+                aria-selected="true"
+                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
+                id="simple-tab-0"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class=MuiTypography-root MuiTypography-captionHl css-hash-MuiTypography-root
+                >
+                  Members
+                </span>
+              </button>
+              <button
+                aria-controls="simple-tabpanel-1"
+                aria-selected="false"
+                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
+                id="simple-tab-1"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class=MuiTypography-root MuiTypography-captionHl css-hash-MuiTypography-root
+                >
+                  Invitations
+                </span>
+              </button>
+            </div>
+            <span
+              class=MuiTabs-indicator css-hash-MuiTabs-indicator
+              style="left: 0px; width: 0px;"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        aria-labelledby="simple-tab-0"
+        id="simple-tabpanel-0"
+        role="tabpanel"
+      >
+        <div
+          data-test="members-list"
+        >
+          Members List
+        </div>
+      </div>
+      <div
+        aria-labelledby="simple-tab-1"
+        hidden=""
+        id="simple-tabpanel-1"
+        role="tabpanel"
+      />
+    </div>
+  </div>
+</div>
+`;

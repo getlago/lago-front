@@ -487,7 +487,7 @@ const CustomerDetails = () => {
                         tab: CustomerDetailsTabsOptions.settings,
                       }),
                       component: <CustomerSettings customerId={customerId as string} />,
-                      hidden: !hasPermissions(['customerSettingsView']),
+                      hidden: !hasPermissions(['customersView']),
                     },
                     {
                       title: translate('text_1747314141347qq6rasuxisl'),
