@@ -16,6 +16,7 @@ import {
   VerticalMenu,
   VerticalMenuSectionTitle,
 } from '~/components/designSystem'
+import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
@@ -57,7 +58,7 @@ import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { resetDevtoolsNavigation, useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
@@ -124,6 +125,7 @@ const MainNavLayout = () => {
     openPanel: openInspector,
     closePanel: closeInspector,
     panelOpen: isInspectorOpen,
+    setUrl: setDevtoolUrl,
   } = useDeveloperTool()
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
@@ -161,6 +163,11 @@ const MainNavLayout = () => {
 
     try {
       await switchCurrentOrganization(client, organizationId)
+
+      // Reset devtools navigation to prevent stale data queries.
+      // The MemoryRouter preserves its route state, so without this reset,
+      // reopening devtools could cause queries to fire with transactionIds from the previous org.
+      setDevtoolUrl(DEVTOOL_ROUTE)
 
       if (isInspectorOpen) closeInspector()
 
@@ -333,7 +340,10 @@ const MainNavLayout = () => {
                       size="small"
                       startIcon="logout"
                       data-test="side-nav-logout"
-                      onClick={async () => await logOut(client, true)}
+                      onClick={async () => {
+                        resetDevtoolsNavigation()
+                        await logOut(client, true)
+                      }}
                     >
                       {translate('text_623b497ad05b960101be3444')}
                     </Button>

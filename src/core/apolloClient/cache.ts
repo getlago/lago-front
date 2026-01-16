@@ -15,6 +15,7 @@ export const cache = new InMemoryCache({
         creditNotes: createPaginatedFieldPolicy(),
         customerInvoices: createPaginatedFieldPolicy(),
         customers: createPaginatedFieldPolicy(),
+        events: createPaginatedFieldPolicy(),
         features: createPaginatedFieldPolicy(),
         invites: createPaginatedFieldPolicy(),
         invoiceCreditNotes: createPaginatedFieldPolicy(),
@@ -61,10 +62,10 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
-        events: {
-          keyArgs: false,
-          merge: mergePaginatedCollection,
-        },
+        // events: {
+        //   keyArgs: false,
+        //   merge: mergePaginatedCollection,
+        // },
 
         // Non-paginated field (no merge function needed)
         appliedtaxes: {
