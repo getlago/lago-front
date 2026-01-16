@@ -30,7 +30,7 @@ gql`
 
 type ResendInvoiceForCollectionDialogProps = {
   invoice?: InvoiceForResendInvoiceForCollectionDialogFragment | null
-  preselectedPaymentMethodId?: string
+  preselectedPaymentMethodId?: string | null
 }
 
 export interface ResendInvoiceForCollectionDialogRef {

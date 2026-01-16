@@ -32,6 +32,7 @@ import {
   ResendInvoiceForCollectionDialogRef,
 } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
+import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -278,7 +279,10 @@ const InvoicesList = ({
           title: translate('text_63ac86d897f728a87b2fa039'),
           onAction: async () => {
             if (hasAccessToMultiPaymentFlow) {
-              resendInvoiceForCollectionDialogRef.current?.openDialog({ invoice })
+              resendInvoiceForCollectionDialogRef.current?.openDialog({
+                invoice,
+                preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
+              })
             } else {
               const { errors } = await retryCollect({
                 variables: {
