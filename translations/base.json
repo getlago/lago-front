@@ -3642,9 +3642,9 @@
   "text_1766162519559r3f2pkqdp79": "Add for future invoices (max: {{max}})",
   "text_1766162940956q60f79xxr11": "Allocated so far",
   "text_1766162940956fzxpt25f23k": "Remaining to allocate",
-  "text_1767883339943r32jn2ioyeu": "Apply to current invoice",
+  "text_1767883339943r32jn2ioyeu": "Offset invoice",
   "text_1767883339944hsqsrt3tg8a": "Reduce this invoice’s amount due (max: {{max}})",
-  "text_17678874117919zdg2q55od0": "Applied on invoice {{invoiceNumber}}",
+  "text_17678874117919zdg2q55od0": "Offset invoice {{invoiceNumber}}",
   "text_1767890728665ukf38vdx6t3": "Reduce amount due cannot exceed {{max}}",
   "text_17661418227616cvcuga1x7m": "Optional"
 }
