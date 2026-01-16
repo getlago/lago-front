@@ -3,9 +3,9 @@ import { gql } from '@apollo/client'
 import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem'
-import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
+import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
 
 import { useGetRangeLabel } from './useGetRangeLabel'
 
@@ -35,7 +35,7 @@ gql`
 
 type InvoiceDetailsTableBodyLineGraduatedPercentageProps = {
   currency: CurrencyEnum
-  fee: TExtendedRemainingFee | undefined
+  fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
   isDraftInvoice: boolean
   hideVat?: boolean
 }

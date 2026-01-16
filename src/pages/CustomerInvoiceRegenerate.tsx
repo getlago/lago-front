@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Alert, Button, GenericPlaceholder, Typography } from '~/components/designSystem'
@@ -19,18 +19,17 @@ import { intlFormatDateTime } from '~/core/timezone'
 import {
   Charge,
   CurrencyEnum,
-  Customer,
   Fee,
   FeeAmountDetails,
   FeeAppliedTax,
+  FeeForInvoiceDetailsTableFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
-  Invoice,
+  FixedCharge,
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
   useGetInvoiceDetailsQuery,
   useGetInvoiceFeesQuery,
-  useGetInvoiceSubscriptionsQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -59,60 +58,7 @@ gql`
 
   mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
     previewAdjustedFee(input: $input) {
-      id
-      feeType
-      amountCents
-      invoiceName
-      invoiceDisplayName
-      units
-      groupedBy
-      preciseUnitAmount
-      addOn {
-        id
-      }
-      appliedTaxes {
-        id
-        amountCents
-        taxRate
-        taxName
-      }
-      amountDetails {
-        freeUnits
-        paidUnits
-        perPackageSize
-        perPackageUnitAmount
-        graduatedRanges {
-          flatUnitAmount
-          fromValue
-          perUnitAmount
-          toValue
-          units
-          perUnitTotalAmount
-        }
-        graduatedPercentageRanges {
-          flatUnitAmount
-          fromValue
-          rate
-          toValue
-          units
-          perUnitTotalAmount
-        }
-      }
-      charge {
-        id
-        payInAdvance
-        minAmountCents
-        chargeModel
-        billableMetric {
-          id
-          name
-        }
-      }
-      chargeFilter {
-        id
-        invoiceDisplayName
-        values
-      }
+      ...FeeForInvoiceDetailsTable
       subscription {
         id
         plan {
@@ -123,6 +69,8 @@ gql`
       }
     }
   }
+
+  ${FeeForInvoiceDetailsTableFragmentDoc}
 `
 
 export type OnRegeneratedFeeAdd = (input: {
@@ -132,31 +80,19 @@ export type OnRegeneratedFeeAdd = (input: {
   units?: number | null
   amountDetails?: FeeAmountDetails | null
   charge?: Charge | null
+  fixedCharge?: FixedCharge | null
   chargeFilterId?: string | null
   invoiceSubscriptionId?: string | null
+  properties?: {
+    fromDatetime?: string | null
+    toDatetime?: string | null
+  } | null
 }) => void
 
 const removeEmptyKeys = (obj: object) => {
   const keys = Object.keys(obj).filter((key) => !!obj[key as keyof typeof obj])
 
   return Object.fromEntries(keys.map((key) => [key, obj[key as keyof typeof obj]]))
-}
-
-const invoiceFeesToNonAdjusted = (invoice?: Invoice | null) => {
-  return {
-    ...invoice,
-    fees: invoice?.fees?.map((fee) => ({
-      ...fee,
-      adjustedFee: false,
-    })),
-    invoiceSubscriptions: invoice?.invoiceSubscriptions?.map((subscription) => ({
-      ...subscription,
-      fees: subscription?.fees?.map((fee) => ({
-        ...fee,
-        adjustedFee: false,
-      })),
-    })),
-  }
 }
 
 const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
@@ -187,21 +123,25 @@ const CustomerInvoiceRegenerate = () => {
     skip: !invoiceId,
   })
 
-  const { data: fullInvoiceSubscriptionsRaw } = useGetInvoiceSubscriptionsQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-  })
-
   const fullFees = fullFeesInvoice?.invoice?.fees
-  const fullInvoiceSubscriptions = fullInvoiceSubscriptionsRaw?.invoice?.invoiceSubscriptions
 
-  const invoice = invoiceFeesToNonAdjusted(data?.invoice as Invoice)
+  const invoice = data?.invoice
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
   const hasTaxProvider =
     !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
 
-  const [fees, setFees] = useState(invoice?.fees || [])
+  const [fees, setFees] = useState(fullFees || [])
+
+  // Update fees state when fullFees becomes available from the query.
+  // This is needed because useState only uses its initial value on the first render,
+  // but fullFees is typically undefined at that point since the query hasn't completed yet.
+  useEffect(() => {
+    if (fullFees?.length) {
+      setFees(fullFees)
+    }
+  }, [fullFees])
+
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
     useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
   const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =
@@ -234,7 +174,9 @@ const CustomerInvoiceRegenerate = () => {
   })
 
   const [voidInvoice] = useVoidInvoiceMutation()
-  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
+  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation({
+    refetchQueries: ['getInvoiceFees'],
+  })
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
@@ -247,6 +189,7 @@ const CustomerInvoiceRegenerate = () => {
             unitPreciseAmount: input?.unitPreciseAmount,
             invoiceSubscriptionId: input?.invoiceSubscriptionId,
             chargeId: input?.charge?.id,
+            fixedChargeId: input?.fixedCharge?.id,
             chargeFilterId: input?.chargeFilterId,
             invoiceDisplayName: input?.invoiceDisplayName,
           }),
@@ -260,6 +203,8 @@ const CustomerInvoiceRegenerate = () => {
 
     const calculatedFee = {
       ...feeData,
+      // Preserve properties from input if mutation doesn't return them (needed for boundary grouping)
+      properties: feeData?.properties ?? input?.properties,
       id: isUpdate ? input?.feeId : `${TEMPORARY_ID_PREFIX}-${Math.random().toString()}`,
       adjustedFee: true,
       wasOnlyUnitsUpdate: typeof input?.unitPreciseAmount === 'undefined',
@@ -275,9 +220,9 @@ const CustomerInvoiceRegenerate = () => {
   }
 
   const onDelete = (id: string) => {
-    const original = invoice?.fees?.find((f) => f.id === id)
+    const original = fullFees?.find((f) => f.id === id)
 
-    if (original) {
+    if (original && !original.adjustedFee) {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
     }
 
@@ -420,21 +365,23 @@ const CustomerInvoiceRegenerate = () => {
             {invoice && customer && billingEntity && (
               <InvoiceQuickInfo
                 customer={customer}
-                invoice={invoice as Invoice}
+                invoice={invoice}
                 billingEntity={billingEntity}
               />
             )}
-            <InvoiceDetailsTable
-              customer={customer as Customer}
-              invoice={invoice as Invoice}
-              editFeeDrawerRef={editFeeDrawerRef}
-              deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
-              isDraftOverride={true}
-              onAdd={onAdd}
-              onDelete={onDelete}
-              fees={fees}
-              invoiceSubscriptions={fullInvoiceSubscriptions}
-            />
+            {invoice && customer && (
+              <InvoiceDetailsTable
+                customer={customer}
+                invoice={invoice}
+                editFeeDrawerRef={editFeeDrawerRef}
+                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                isDraftOverride={true}
+                onAdd={onAdd}
+                onDelete={onDelete}
+                fees={fees}
+                localFees={fees}
+              />
+            )}
           </div>
         </>
       )}

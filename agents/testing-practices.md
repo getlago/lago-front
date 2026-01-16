@@ -82,3 +82,81 @@ it('displays default badge', () => {
 - Type safety, easier refactoring, consistency, and semantic clarity
 
 **Note**: The project is configured to use `data-test` as the test ID attribute (configured in `src/test-utils.tsx`), so always use `data-test` instead of `data-testid`.
+
+### Real-World Example: InvoiceDetailsTable
+
+Here's a complete example from the codebase showing proper use of test ID constants:
+
+**Component file** (`src/components/invoices/details/InvoiceDetailsTable.tsx`):
+
+```tsx
+// Test ID constants exported after imports
+export const INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID = 'invoice-details-subscription-table'
+export const INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID = 'invoice-details-add-fee-button'
+
+export const InvoiceDetailsTable = memo(({ invoice, ... }) => {
+  return (
+    <table
+      key={`subscription-${subscriptionId}`}
+      data-test={INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID}
+    >
+      <tbody>
+        {/* ... */}
+        {showAddNewFeeButton && (
+          <tr>
+            <td>
+              <Button
+                data-test={INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID}
+                onClick={addNewFeeOnClick}
+              >
+                Add fee
+              </Button>
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  )
+})
+```
+
+**Test file** (`src/components/invoices/details/__tests__/InvoiceDetailsTable.integration.test.tsx`):
+
+```tsx
+import {
+  INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID,
+  INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID,
+  InvoiceDetailsTable,
+} from '~/components/invoices/details/InvoiceDetailsTable'
+
+describe('InvoiceDetailsTable', () => {
+  it('should render subscription table with correct data-test attribute', () => {
+    render(<InvoiceDetailsTable invoice={mockInvoice} />)
+
+    // Using the constant instead of hardcoded string
+    const subscriptionTable = screen.getByTestId(INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID)
+    expect(subscriptionTable).toBeInTheDocument()
+  })
+
+  it('should render add fee button when conditions are met', () => {
+    render(<InvoiceDetailsTable invoice={mockDraftInvoice} />)
+
+    const addFeeButton = screen.getByTestId(INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID)
+    expect(addFeeButton).toBeInTheDocument()
+  })
+
+  it('should not render add fee button when conditions are not met', () => {
+    render(<InvoiceDetailsTable invoice={mockFinalizedInvoice} />)
+
+    const addFeeButton = screen.queryByTestId(INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID)
+    expect(addFeeButton).not.toBeInTheDocument()
+  })
+})
+```
+
+**Benefits demonstrated**:
+- Constants are defined once in the component file
+- Tests import and use the same constants
+- Refactoring the test ID only requires changing it in one place
+- TypeScript provides autocomplete and catches typos
+- No coupling with translation keys or hardcoded strings

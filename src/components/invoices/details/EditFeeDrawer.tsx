@@ -2,13 +2,13 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { number, object, string } from 'yup'
 
 import { Alert, Button, Drawer, DrawerRef, Skeleton, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { DrawerLayout } from '~/components/layouts/Drawer'
-import { ALL_FILTER_VALUES } from '~/core/constants/form'
+import { ALL_CHARGE_MODELS, ALL_FILTER_VALUES } from '~/core/constants/form'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -17,6 +17,9 @@ import {
   ChargeModelEnum,
   CreateAdjustedFeeInput,
   CurrencyEnum,
+  FeeForCreateFeeDrawerFragment,
+  FixedCharge,
+  FixedChargeChargeModelEnum,
   useCreateAdjustedFeeMutation,
   useGetInvoiceDetailsForCreateFeeDrawerQuery,
 } from '~/generated/graphql'
@@ -30,13 +33,16 @@ import {
   getChargesFiltersComboboxDataFromInvoiceSubscription,
 } from './utils'
 
-const isChargeModelUnitAdjustmentDisabled = (chargeModel?: ChargeModelEnum, prorated?: boolean) => {
+const isChargeModelUnitAdjustmentDisabled = (
+  chargeModel?: ChargeModelEnum | FixedChargeChargeModelEnum,
+  prorated?: boolean,
+): boolean => {
   if (!chargeModel) return false
 
-  return (
-    chargeModel === ChargeModelEnum.Percentage ||
-    chargeModel === ChargeModelEnum.Dynamic ||
-    (chargeModel === ChargeModelEnum.Graduated && prorated)
+  return !!(
+    chargeModel === ALL_CHARGE_MODELS.Percentage ||
+    chargeModel === ALL_CHARGE_MODELS.Dynamic ||
+    (chargeModel === ALL_CHARGE_MODELS.Graduated && prorated)
   )
 }
 
@@ -48,73 +54,85 @@ const calculateTotalAmount = (
 }
 
 gql`
-  fragment InvoiceSubscriptionForCreateFeeDrawer on InvoiceSubscription {
-    subscription {
+  # Fragment for subscription/plan data (charges and fixed charges available to add)
+  fragment SubscriptionForCreateFeeDrawer on Subscription {
+    id
+    plan {
       id
-      plan {
+      charges {
         id
-        charges {
-          id
-          invoiceDisplayName
-          chargeModel
-          prorated
-          properties {
-            amount
-          }
-          filters {
-            id
-            invoiceDisplayName
-            values
-          }
-          billableMetric {
-            id
-            name
-            code
-          }
+        invoiceDisplayName
+        chargeModel
+        prorated
+        properties {
+          amount
         }
-        fixedCharges {
+        filters {
           id
           invoiceDisplayName
-          addOn {
-            id
-            name
-            code
-          }
+          values
+        }
+        billableMetric {
+          id
+          name
+          code
+        }
+      }
+      fixedCharges {
+        id
+        invoiceDisplayName
+        chargeModel
+        prorated
+        addOn {
+          id
+          name
+          code
         }
       }
     }
-    fees {
+  }
+
+  # Fee fragment for the drawer - matches InvoiceForFormatInvoiceItemMap structure
+  # so fees can be used consistently for boundary grouping
+  fragment FeeForCreateFeeDrawer on Fee {
+    id
+    adjustedFee
+    properties {
+      fromDatetime
+      toDatetime
+    }
+    subscription {
       id
-      charge {
+    }
+    charge {
+      id
+      filters {
         id
-        filters {
-          id
-          values
+        values
+      }
+      properties {
+        graduatedRanges {
+          flatAmount
+          fromValue
+          perUnitAmount
+          toValue
         }
-        properties {
-          graduatedRanges {
-            flatAmount
-            fromValue
-            perUnitAmount
-            toValue
-          }
-          graduatedPercentageRanges {
-            flatAmount
-            fromValue
-            rate
-            toValue
-          }
+        graduatedPercentageRanges {
+          flatAmount
+          fromValue
+          rate
+          toValue
         }
       }
-      fixedCharge {
-        id
-      }
-      chargeFilter {
-        id
-      }
-      pricingUnitUsage {
-        shortName
-      }
+    }
+    fixedCharge {
+      id
+    }
+    chargeFilter {
+      id
+    }
+    pricingUnitUsage {
+      shortName
     }
   }
 
@@ -126,13 +144,22 @@ gql`
       chargeModel
       prorated
     }
+    fixedCharge {
+      id
+      chargeModel
+      prorated
+    }
   }
 
   query getInvoiceDetailsForCreateFeeDrawer($invoiceId: ID!) {
     invoice(id: $invoiceId) {
       id
-      invoiceSubscriptions {
-        ...InvoiceSubscriptionForCreateFeeDrawer
+      subscriptions {
+        ...SubscriptionForCreateFeeDrawer
+      }
+      # Fees at Invoice level (like InvoiceForFormatInvoiceItemMap)
+      fees {
+        ...FeeForCreateFeeDrawer
       }
     }
   }
@@ -144,12 +171,25 @@ gql`
   }
 `
 
-type EditFeeDrawerProps = {
-  invoiceId: string
-  invoiceSubscriptionId?: string
-  fee?: TExtendedRemainingFee | undefined
-  onAdd?: OnRegeneratedFeeAdd
-}
+type EditFeeDrawerProps =
+  | {
+      mode: 'edit'
+      invoiceId: string
+      fee: TExtendedRemainingFee
+    }
+  | {
+      mode: 'regenerate'
+      invoiceId: string
+      invoiceSubscriptionId: string
+      fee?: TExtendedRemainingFee
+      onAdd: OnRegeneratedFeeAdd
+      localFees?: FeeForCreateFeeDrawerFragment[]
+    }
+  | {
+      mode: 'add'
+      invoiceId: string
+      invoiceSubscriptionId: string
+    }
 
 export interface EditFeeDrawerRef {
   openDrawer: (data: EditFeeDrawerProps) => unknown
@@ -164,26 +204,40 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const { translate } = useInternationalization()
   const drawerRef = useRef<DrawerRef>(null)
   const [localData, setLocalData] = useState<EditFeeDrawerProps | undefined>(undefined)
-  const fee = localData?.fee
+  const isRegenerateMode = localData?.mode === 'regenerate'
+  const isEditMode = localData?.mode === 'edit'
+  const isAddMode = localData?.mode === 'add'
+  const fee = isEditMode || isRegenerateMode ? localData?.fee : undefined
+  const localFees = isRegenerateMode ? localData.localFees : undefined
   const currency = fee?.currency || CurrencyEnum.Usd
   const pricingUnitUsage = fee?.pricingUnitUsage
-  const isEditingFeeForInvoiceRegenerate = !!localData?.onAdd
 
   const resetForm = () => {
     formikProps.resetForm()
     formikProps.validateForm()
   }
 
-  const { loading: invoiceLoading, data: invoiceData } =
-    useGetInvoiceDetailsForCreateFeeDrawerQuery({
-      variables: {
-        invoiceId: localData?.invoiceId || '',
-      },
-      skip: !localData?.invoiceId && !localData?.invoiceSubscriptionId,
-    })
-  const currentInvoiceSubscription = invoiceData?.invoice?.invoiceSubscriptions?.find(
-    (invoiceSubscription) =>
-      invoiceSubscription.subscription.id === localData?.invoiceSubscriptionId,
+  const invoiceSubscriptionId =
+    isRegenerateMode || isAddMode ? localData.invoiceSubscriptionId : undefined
+
+  const {
+    loading: invoiceLoading,
+    data: invoiceData,
+    refetch: refetchInvoiceDetailsForCreateFeeDrawer,
+  } = useGetInvoiceDetailsForCreateFeeDrawerQuery({
+    variables: {
+      invoiceId: localData?.invoiceId || '',
+    },
+    skip: !localData?.invoiceId,
+  })
+
+  const currentSubscription = invoiceData?.invoice?.subscriptions?.find(
+    (subscription) => subscription.id === invoiceSubscriptionId,
+  )
+
+  // Filter invoice-level fees by subscription ID (matches InvoiceForFormatInvoiceItemMap pattern)
+  const subscriptionFees = invoiceData?.invoice?.fees?.filter(
+    (f) => f.subscription?.id === invoiceSubscriptionId,
   )
 
   const [createFee] = useCreateAdjustedFeeMutation({
@@ -194,7 +248,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         resetForm()
       }
     },
-    refetchQueries: ['getInvoiceSubscriptions'],
+    refetchQueries: ['getInvoiceDetails'],
   })
 
   const initialValues = useMemo(() => {
@@ -202,32 +256,27 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       invoiceDisplayName: fee?.invoiceDisplayName || '',
       chargeFilterId: '',
       chargeId: '',
+      fixedChargeId: '',
       unitPreciseAmount: undefined,
       units: undefined,
       adjustmentType: undefined,
     }
 
-    if (isEditingFeeForInvoiceRegenerate) {
+    if (isRegenerateMode) {
       values.unitPreciseAmount = fee?.preciseUnitAmount?.toString()
       values.units = fee?.units
     }
 
     return values
-  }, [fee, isEditingFeeForInvoiceRegenerate])
+  }, [fee, isRegenerateMode])
 
   const formikProps = useFormik<formikValues>({
     initialValues,
     validationSchema: object().shape({
       invoiceDisplayName: string(),
-      chargeId: string().test({
-        test: function (value) {
-          // If it's a fee edition context, this validation is not needed
-          if (!!fee) return true
-
-          return !!value
-        },
-      }),
       chargeFilterId: string(),
+      chargeId: string(),
+      fixedChargeId: string(),
       unitPreciseAmount: number().test({
         test: function (value, { from }) {
           if (
@@ -258,116 +307,187 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       const chargeFilterId =
         values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined
 
-      const basePayload: CreateAdjustedFeeInput = {
-        invoiceId: localData?.invoiceId || '',
+      const input: CreateAdjustedFeeInput = {
+        chargeFilterId,
+        chargeId: values.chargeId,
+        feeId: fee?.id,
+        fixedChargeId: values.fixedChargeId,
         invoiceDisplayName: values.invoiceDisplayName || undefined,
-        units: adjustmentType ? Number(units || 0) : undefined,
+        invoiceId: localData?.invoiceId || '',
+
         unitPreciseAmount:
           adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
             ? String(unitPreciseAmount)
             : undefined,
+        units: adjustmentType ? Number(units || 0) : undefined,
       }
 
-      const input: CreateAdjustedFeeInput = !!fee
-        ? { ...basePayload, feeId: fee.id }
-        : {
-            ...basePayload,
-            chargeId: values.chargeId,
-            chargeFilterId,
-            subscriptionId: localData?.invoiceSubscriptionId || '',
-          }
-
-      if (localData?.onAdd) {
-        drawerRef.current?.closeDrawer()
-        resetForm()
-
-        const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
+      if (isRegenerateMode) {
+        const currentCharge = currentSubscription?.plan.charges?.find(
           (charge) => charge.id === values.chargeId,
         )
 
-        return localData.onAdd({
+        const currentFixedCharge = currentSubscription?.plan.fixedCharges?.find(
+          (fixedCharge) => fixedCharge.id === values.fixedChargeId,
+        )
+
+        localData.onAdd({
           ...(localData.fee || {}),
           ...input,
+          invoiceSubscriptionId: invoiceSubscriptionId || '',
           charge: currentCharge as Charge,
-          chargeFilterId,
-          invoiceSubscriptionId: localData?.invoiceSubscriptionId,
+          fixedCharge: currentFixedCharge as FixedCharge,
         })
+
+        drawerRef.current?.closeDrawer()
+        resetForm()
+
+        return
       }
 
       await createFee({
         variables: {
-          input,
+          input: {
+            ...input,
+            subscriptionId: invoiceSubscriptionId || '',
+          },
         },
       })
     },
   })
 
+  const setFieldValue = formikProps.setFieldValue
+
+  // Use localFees (from regenerate mode) or subscriptionFees (from invoice query)
+  const feesForCombobox = localFees ?? subscriptionFees
+
   const chargesComboboxData = useMemo(() => {
     return getChargesComboboxDataFromInvoiceSubscription({
       chargesGroupLabel: translate('text_6435888d7cc86500646d8977'),
       fixedChargesGroupLabel: translate('text_176072970726728iw4tc8ucl'),
-      invoiceSubscription: currentInvoiceSubscription,
+      subscription: currentSubscription,
+      overrideFees: feesForCombobox,
     })
-  }, [currentInvoiceSubscription, translate])
+  }, [currentSubscription, translate, feesForCombobox])
 
   const chargeFiltersComboboxData = useMemo(() => {
     return getChargesFiltersComboboxDataFromInvoiceSubscription({
       defaultFilterOptionLabel: translate('text_64e620bca31226337ffc62ad'),
-      invoiceSubscription: currentInvoiceSubscription,
+      subscription: currentSubscription,
       selectedChargeId: formikProps.values.chargeId,
+      overrideFees: feesForCombobox,
     })
-  }, [currentInvoiceSubscription, formikProps.values.chargeId, translate])
+  }, [currentSubscription, feesForCombobox, formikProps.values.chargeId, translate])
+
+  // Determine if the selected item is a charge or fixed charge
+  const selectedItemType = useMemo((): 'charge' | 'fixed-charge' | null => {
+    if (fee?.charge || formikProps.values.chargeId) return 'charge'
+    if (fee?.fixedCharge || formikProps.values.fixedChargeId) return 'fixed-charge'
+
+    return null
+  }, [fee, formikProps.values.chargeId, formikProps.values.fixedChargeId])
 
   const isChargeFilterIdValid: boolean = useMemo(() => {
+    // Fixed charges don't have filters, so they're always valid
+    if (selectedItemType === 'fixed-charge') return true
+
     if (!fee && !!chargeFiltersComboboxData?.length && !formikProps.values.chargeFilterId) {
       return false
     }
 
     return true
-  }, [chargeFiltersComboboxData?.length, fee, formikProps.values.chargeFilterId])
-
-  useImperativeHandle(ref, () => ({
-    openDrawer: (data) => {
-      setLocalData(data)
-      drawerRef.current?.openDrawer()
-    },
-    closeDrawer: () => drawerRef.current?.closeDrawer(),
-  }))
+  }, [chargeFiltersComboboxData?.length, fee, formikProps.values.chargeFilterId, selectedItemType])
 
   const { displayChargeIdField, displayChargeFilterIdField, displayAdjustmentInputs } =
     useMemo(() => {
       const hasChargeFiltersComboboxData = !!chargeFiltersComboboxData?.length
+      const isUsageCharge = selectedItemType === 'charge'
 
       return {
         displayChargeIdField: !fee,
-        displayChargeFilterIdField: !fee && hasChargeFiltersComboboxData,
+        displayChargeFilterIdField: !fee && isUsageCharge && hasChargeFiltersComboboxData,
         displayAdjustmentInputs:
           !!fee ||
-          (hasChargeFiltersComboboxData
+          (hasChargeFiltersComboboxData && isUsageCharge
             ? !!formikProps.values.chargeFilterId
-            : !!formikProps.values.chargeId),
+            : !!formikProps.values.chargeId || !!formikProps.values.fixedChargeId),
       }
     }, [
       chargeFiltersComboboxData?.length,
       fee,
       formikProps.values.chargeFilterId,
       formikProps.values.chargeId,
+      formikProps.values.fixedChargeId,
+      selectedItemType,
     ])
 
-  const isUnitAdjustmentTypeDisabled = useMemo(() => {
-    if (fee) {
-      return isChargeModelUnitAdjustmentDisabled(fee.charge?.chargeModel, fee.charge?.prorated)
+  const isUnitAdjustmentTypeDisabled = useMemo((): boolean => {
+    const getChargeConfig = ():
+      | { chargeModel?: ChargeModelEnum | FixedChargeChargeModelEnum; prorated?: boolean }
+      | undefined => {
+      // If we have an existing fee, extract from fee's charge or fixedCharge
+      if (fee) {
+        const source = fee.charge || fee.fixedCharge
+
+        return source ? { chargeModel: source.chargeModel, prorated: source.prorated } : undefined
+      }
+
+      // If we're adding a new fee, find the selected charge or fixed charge
+      if (selectedItemType === 'charge') {
+        return currentSubscription?.plan.charges?.find(
+          (charge) => charge.id === formikProps.values.chargeId,
+        )
+      }
+
+      if (selectedItemType === 'fixed-charge') {
+        return currentSubscription?.plan.fixedCharges?.find(
+          (fixedCharge) => fixedCharge.id === formikProps.values.fixedChargeId,
+        ) as { chargeModel?: FixedChargeChargeModelEnum; prorated?: boolean } | undefined
+      }
+
+      return undefined
     }
 
-    const selectedCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
-      (charge) => charge.id === formikProps.values.chargeId,
-    )
+    const config = getChargeConfig()
 
-    return isChargeModelUnitAdjustmentDisabled(
-      selectedCharge?.chargeModel,
-      selectedCharge?.prorated,
-    )
-  }, [currentInvoiceSubscription?.subscription.plan.charges, fee, formikProps.values.chargeId])
+    return !!config && isChargeModelUnitAdjustmentDisabled(config.chargeModel, config.prorated)
+  }, [
+    currentSubscription,
+    fee,
+    formikProps.values.chargeId,
+    formikProps.values.fixedChargeId,
+    selectedItemType,
+  ])
+
+  const onChargeIdChange = useCallback(
+    (selectedChargeId: string) => {
+      const isUsageCharge = currentSubscription?.plan.charges?.find(
+        (charge) => charge.id === selectedChargeId,
+      )
+
+      const isFixedCharge = currentSubscription?.plan.fixedCharges?.find(
+        (fixedCharge) => fixedCharge.id === selectedChargeId,
+      )
+
+      if (isUsageCharge) {
+        setFieldValue('chargeId', selectedChargeId)
+      } else if (isFixedCharge) {
+        setFieldValue('fixedChargeId', selectedChargeId)
+      }
+    },
+    [currentSubscription, setFieldValue],
+  )
+
+  useImperativeHandle(ref, () => ({
+    openDrawer: (data) => {
+      setLocalData(data)
+      drawerRef.current?.openDrawer()
+    },
+    closeDrawer: () => {
+      drawerRef.current?.closeDrawer()
+      resetForm()
+    },
+  }))
 
   const feeName = fee?.metadata?.displayName || fee?.itemName || ''
   const drawerTitle = !!fee
@@ -385,6 +505,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       withPadding={false}
       title={drawerTitle}
       onClose={resetForm}
+      onOpen={() => {
+        if (localData?.invoiceId) {
+          refetchInvoiceDetailsForCreateFeeDrawer()
+        }
+      }}
     >
       {({ closeDrawer }) => (
         <DrawerLayout.Wrapper>
@@ -468,12 +593,15 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
                   <div className="flex flex-col gap-6">
                     {displayChargeIdField && (
-                      <ComboBoxField
-                        name="chargeId"
+                      <ComboBox
                         label={translate('text_1737731953885tbem8s4xo8t')}
                         placeholder={translate('text_1737733582553rmmlatfbk1r')}
-                        formikProps={formikProps}
                         data={chargesComboboxData}
+                        onChange={onChargeIdChange}
+                        loading={invoiceLoading}
+                        value={
+                          formikProps.values.chargeId || formikProps.values.fixedChargeId || ''
+                        }
                       />
                     )}
 
@@ -520,7 +648,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
                             // NOTE: During invoice re-generate, we don't want to reset the unitPreciseAmount and units for fee already existing.
                             // Because the fee is already existing and we don't want to lose the data.
-                            if (!isEditingFeeForInvoiceRegenerate) {
+                            if (!isRegenerateMode) {
                               formValues.unitPreciseAmount = undefined
                               formValues.units = undefined
                             }

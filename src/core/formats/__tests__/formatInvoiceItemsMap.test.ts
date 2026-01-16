@@ -1,81 +1,275 @@
-import { InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
+
 import {
-  _newDeepFormatFees,
+  AssociatedInvoiceSubscription,
+  AssociatedSubscription,
   composeChargeFilterDisplayName,
   composeGroupedByDisplayName,
   composeMultipleValuesWithSepator,
+  createBoundaryKey,
   getSubscriptionFeeDisplayName,
   groupAndFormatFees,
-  TExtendedRemainingFee,
-} from '~/core/formats/formatInvoiceItemsMap'
-import {
-  AggregationTypeEnum,
-  ChargeModelEnum,
-  CurrencyEnum,
-  FeeTypesEnum,
-} from '~/generated/graphql'
-
-import {
-  chargeZeroAmount,
-  chargeZeroAmountDraftInvoice,
-  chargeZeroAmountDraftInvoiceResult,
-  chargeZeroAmountResult,
-  newChargeZeroAmountDraftInvoiceResult,
-  newNoFeesResult,
-  newOrderedSubscriptionWithFees,
-  noFees,
-  noFeesResult,
-  oneSubscription,
-  oneSubscriptionResult,
-  orderedSubscriptionWithFees,
-  subZeroAmount,
-  subZeroAmountResult,
-  twoSubscriptions,
-  twoSubscriptionsResult,
-  unorderedSubscriptionWithFees,
-} from './fixture'
+} from '../formatInvoiceItemsMap'
 
 describe('formatInvoiceItemsMap', () => {
-  describe('getSubscriptionFeeDisplayName', () => {
-    it('should return the plan name formated by default', () => {
-      const fee = {
-        invoiceDisplayName: null,
-        subscription: {
-          plan: {
-            name: 'Plan name',
-            interval: 'monthly',
-          },
-        },
-      }
+  describe('createBoundaryKey', () => {
+    it('should normalize dates to date-only format (YYYY-MM-DD)', () => {
+      const from = '2024-01-15T10:30:00Z'
+      const to = '2024-01-31T23:59:59Z'
 
-      const result = getSubscriptionFeeDisplayName(fee as TExtendedRemainingFee)
+      const result = createBoundaryKey(from, to)
 
-      expect(result).toEqual('Monthly subscription fee - Plan name')
+      expect(result).toBe('2024-01-15_2024-01-31')
     })
 
-    it('should return the invoiceDisplayName if it exists', () => {
+    it('should group fees with same date but different times', () => {
+      const from1 = '2024-01-15T10:30:00Z'
+      const from2 = '2024-01-15T14:45:00Z'
+      const to = '2024-01-31T23:59:59Z'
+
+      const result1 = createBoundaryKey(from1, to)
+      const result2 = createBoundaryKey(from2, to)
+
+      expect(result1).toBe(result2)
+      expect(result1).toBe('2024-01-15_2024-01-31')
+    })
+
+    it('should handle null fromDatetime', () => {
+      const result = createBoundaryKey(null, '2024-01-31T00:00:00Z')
+
+      expect(result).toBe('no-from_2024-01-31')
+    })
+
+    it('should handle undefined fromDatetime', () => {
+      const result = createBoundaryKey(undefined, '2024-01-31T00:00:00Z')
+
+      expect(result).toBe('no-from_2024-01-31')
+    })
+
+    it('should handle null toDatetime', () => {
+      const result = createBoundaryKey('2024-01-01T00:00:00Z', null)
+
+      expect(result).toBe('2024-01-01_no-to')
+    })
+
+    it('should handle both dates as null', () => {
+      const result = createBoundaryKey(null, null)
+
+      expect(result).toBe('no-from_no-to')
+    })
+
+    it('should handle invalid ISO strings gracefully', () => {
+      const result = createBoundaryKey('invalid-date', '2024-01-31T00:00:00Z')
+
+      // Should fallback to the original string if parsing fails
+      expect(result).toContain('invalid-date')
+    })
+
+    it('should work with different timezones (UTC offset)', () => {
+      const from1 = '2024-01-15T00:00:00Z'
+      const from2 = '2024-01-15T05:00:00+05:00' // Same day in different timezone
+
+      const result1 = createBoundaryKey(from1, '2024-01-31T00:00:00Z')
+      const result2 = createBoundaryKey(from2, '2024-01-31T00:00:00Z')
+
+      expect(result1).toBe(result2)
+    })
+  })
+
+  describe('getSubscriptionFeeDisplayName', () => {
+    it('should return invoiceDisplayName when present', () => {
       const fee = {
-        invoiceDisplayName: 'Custom invoice display name',
-        subscription: {
-          plan: {
-            interval: 'monthly',
-          },
+        invoiceDisplayName: 'Custom Subscription Name',
+      }
+      const subscription = {
+        plan: {
+          name: 'Plan Name',
+          interval: 'monthly',
         },
       }
 
-      const result = getSubscriptionFeeDisplayName(fee as TExtendedRemainingFee)
+      const result = getSubscriptionFeeDisplayName(fee as any, subscription as any)
 
-      expect(result).toEqual('Custom invoice display name')
+      expect(result).toBe('Custom Subscription Name')
+    })
+
+    it('should generate display name from plan when invoiceDisplayName is null', () => {
+      const fee = {
+        invoiceDisplayName: null,
+      }
+      const subscription = {
+        plan: {
+          name: 'Premium Plan',
+          interval: 'yearly',
+        },
+      }
+
+      const result = getSubscriptionFeeDisplayName(fee as any, subscription as any)
+
+      expect(result).toBe('Yearly subscription fee - Premium Plan')
+    })
+
+    it('should handle monthly interval', () => {
+      const fee = {
+        invoiceDisplayName: null,
+      }
+      const subscription = {
+        plan: {
+          name: 'Basic Plan',
+          interval: 'monthly',
+        },
+      }
+
+      const result = getSubscriptionFeeDisplayName(fee as any, subscription as any)
+
+      expect(result).toBe('Monthly subscription fee - Basic Plan')
+    })
+  })
+
+  describe('composeChargeFilterDisplayName', () => {
+    it('should return empty string when no filter provided', () => {
+      const result = composeChargeFilterDisplayName()
+
+      expect(result).toBe('')
+    })
+
+    it('should return empty string when filter is null', () => {
+      const result = composeChargeFilterDisplayName(null as any)
+
+      expect(result).toBe('')
+    })
+
+    it('should return invoiceDisplayName when present', () => {
+      const result = composeChargeFilterDisplayName({
+        id: 'filter-1',
+        invoiceDisplayName: 'Custom Filter Name',
+        values: { key: ['value'] },
+      })
+
+      expect(result).toBe('Custom Filter Name')
+    })
+
+    it('should compose values when invoiceDisplayName is null', () => {
+      const result = composeChargeFilterDisplayName({
+        id: 'filter-1',
+        invoiceDisplayName: null,
+        values: {
+          region: ['US', 'EU'],
+          tier: ['premium'],
+        },
+      })
+
+      expect(result).toBe('US • EU • premium')
+    })
+
+    it('should handle ALL_FILTER_VALUES special value', () => {
+      const result = composeChargeFilterDisplayName({
+        id: 'filter-1',
+        invoiceDisplayName: null,
+        values: {
+          region: [ALL_FILTER_VALUES],
+          tier: ['basic'],
+        },
+      })
+
+      expect(result).toBe('region • basic')
+    })
+  })
+
+  describe('composeGroupedByDisplayName', () => {
+    it('should return empty string when no groupedBy provided', () => {
+      const result = composeGroupedByDisplayName()
+
+      expect(result).toBe('')
+    })
+
+    it('should return empty string when groupedBy is null', () => {
+      const result = composeGroupedByDisplayName(null as any)
+
+      expect(result).toBe('')
+    })
+
+    it('should compose grouped by values', () => {
+      const result = composeGroupedByDisplayName({
+        region: 'US-East',
+        environment: 'production',
+      })
+
+      expect(result).toBe('US-East • production')
+    })
+
+    it('should filter out empty values', () => {
+      const result = composeGroupedByDisplayName({
+        region: 'US-East',
+        empty: '',
+        environment: 'production',
+      })
+
+      expect(result).toBe('US-East • production')
+    })
+  })
+
+  describe('composeMultipleValuesWithSepator', () => {
+    it('should return empty string for empty array', () => {
+      const result = composeMultipleValuesWithSepator([])
+
+      expect(result).toBe('')
+    })
+
+    it('should return empty string for no arguments', () => {
+      const result = composeMultipleValuesWithSepator()
+
+      expect(result).toBe('')
+    })
+
+    it('should compose multiple values', () => {
+      const result = composeMultipleValuesWithSepator(['value1', 'value2', 'value3'])
+
+      expect(result).toBe('value1 • value2 • value3')
+    })
+
+    it('should filter out null and undefined values', () => {
+      const result = composeMultipleValuesWithSepator(['value1', null, undefined, 'value2'])
+
+      expect(result).toBe('value1 • value2')
+    })
+
+    it('should handle nested calls', () => {
+      const result = composeMultipleValuesWithSepator([
+        'value1',
+        composeMultipleValuesWithSepator(['nested1', 'nested2']),
+        'value2',
+      ])
+
+      expect(result).toBe('value1 • nested1 • nested2 • value2')
     })
   })
 
   describe('groupAndFormatFees', () => {
-    describe('if hasOldZeroFeeManagement: true', () => {
-      it('should return default values if there are no data', () => {
+    const mockSubscription: AssociatedSubscription = {
+      id: 'sub-1',
+      name: 'My Subscription',
+      plan: {
+        id: 'plan-1',
+        name: 'Premium Plan',
+        interval: 'monthly',
+        invoiceDisplayName: null,
+      },
+    }
+
+    const mockInvoiceSubscription: AssociatedInvoiceSubscription = {
+      subscription: { id: 'sub-1' },
+      invoice: { id: 'inv-1' },
+      acceptNewChargeFees: true,
+    }
+
+    describe('empty states', () => {
+      it('should return empty result when no fees provided', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: [],
-          hasOldZeroFeeManagement: true,
+          fees: [],
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
 
         expect(result).toEqual({
@@ -86,795 +280,777 @@ describe('formatInvoiceItemsMap', () => {
           },
         })
       })
-      it('should return default values if there are no fees', () => {
-        const result = groupAndFormatFees({
-          invoiceSubscriptions: noFees as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: true,
-        })
 
-        expect(result).toEqual(noFeesResult)
-      })
-      it('should return default values if there are only sub fee with 0 amountCents', () => {
+      it('should return empty result when fees is null', () => {
         const result = groupAndFormatFees({
-          invoiceSubscriptions: subZeroAmount as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: true,
-        })
-
-        expect(result).toEqual(subZeroAmountResult)
-      })
-      it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
-        const result = groupAndFormatFees({
-          invoiceSubscriptions: chargeZeroAmount as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: true,
-        })
-
-        expect(result).toEqual(noFeesResult)
-      })
-      it('should return all values if invoice has draft status', () => {
-        const result = groupAndFormatFees({
-          invoiceSubscriptions:
-            chargeZeroAmountDraftInvoice as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: true,
-        })
-
-        expect(result).toEqual(chargeZeroAmountDraftInvoiceResult)
-      })
-      it('should return the correct values if there are 1 subscription', () => {
-        const result = groupAndFormatFees({
-          invoiceSubscriptions: oneSubscription as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: true,
-        })
-
-        expect(result).toEqual(oneSubscriptionResult)
-      })
-      it('should return the correct values if there are 2 subscription', () => {
-        const result = groupAndFormatFees({
-          invoiceSubscriptions: twoSubscriptions as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: true,
-        })
-
-        expect(result).toEqual(twoSubscriptionsResult)
-      })
-      it('should return the correct order for a given subscription', () => {
-        const result = groupAndFormatFees({
-          invoiceSubscriptions:
-            unorderedSubscriptionWithFees as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: true,
-        })
-
-        expect(result).toEqual(orderedSubscriptionWithFees)
-      })
-    })
-
-    describe('if hasOldZeroFeeManagement: false', () => {
-      it('should return default values if there are no data', () => {
-        const result = groupAndFormatFees({
-          invoiceSubscriptions: [],
-          hasOldZeroFeeManagement: false,
+          fees: null,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
 
         expect(result).toEqual({
           subscriptions: {},
-          metadata: { hasAnyFeeParsed: false, hasAnyPositiveFeeParsed: false },
+          metadata: {
+            hasAnyFeeParsed: false,
+            hasAnyPositiveFeeParsed: false,
+          },
         })
       })
-      it('should return default values if there are no fees', () => {
+
+      it('should skip fees without subscription ID', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            subscription: null,
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+          },
+        ]
+
         const result = groupAndFormatFees({
-          invoiceSubscriptions: noFees as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: false,
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
 
-        expect(result).toEqual(newNoFeesResult)
+        expect(result.subscriptions).toEqual({})
       })
-      it('should return default values if there are only sub fee with 0 amountCents', () => {
+    })
+
+    describe('single subscription with single boundary', () => {
+      it('should group fees correctly', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'API Calls',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'API Calls',
+              },
+            },
+          },
+        ]
+
         const result = groupAndFormatFees({
-          invoiceSubscriptions: subZeroAmount as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: false,
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
 
-        expect(result).toEqual(subZeroAmountResult)
+        expect(result.metadata).toEqual({
+          hasAnyFeeParsed: true,
+          hasAnyPositiveFeeParsed: true,
+        })
+
+        expect(Object.keys(result.subscriptions)).toHaveLength(1)
+        expect(result.subscriptions['sub-1']).toBeDefined()
+        expect(result.subscriptions['sub-1'].acceptNewChargeFees).toBe(true)
+        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('My Subscription')
+
+        const boundaries = result.subscriptions['sub-1'].boundaries
+
+        expect(Object.keys(boundaries)).toHaveLength(1)
+
+        const boundaryKey = Object.keys(boundaries)[0]
+
+        expect(boundaries[boundaryKey].fromDatetime).toBe('2024-01-01T00:00:00Z')
+        expect(boundaries[boundaryKey].toDatetime).toBe('2024-01-31T23:59:59Z')
+        expect(boundaries[boundaryKey].fees).toHaveLength(1)
       })
-      it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
+
+      it('should use subscription name as display name when available', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
         const result = groupAndFormatFees({
-          invoiceSubscriptions: chargeZeroAmount as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: false,
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
 
-        expect(result).toEqual(chargeZeroAmountResult)
+        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('My Subscription')
       })
-      it('should return all values if invoice has draft status', () => {
+
+      it('should fallback to plan name when subscription name is null', () => {
+        const subscriptionWithoutName = {
+          ...mockSubscription,
+          name: null,
+        }
+
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
         const result = groupAndFormatFees({
-          invoiceSubscriptions:
-            chargeZeroAmountDraftInvoice as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: false,
+          fees: fees as any,
+          subscriptions: [subscriptionWithoutName],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
 
-        expect(result).toEqual(newChargeZeroAmountDraftInvoiceResult)
+        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('Premium Plan')
       })
-      it('should return the correct values if there are 1 subscription', () => {
+
+      it('should set acceptNewChargeFees from invoiceSubscription', () => {
+        const invSubWithFalse: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-1' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: false,
+        }
+
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
         const result = groupAndFormatFees({
-          invoiceSubscriptions: oneSubscription as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: false,
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [invSubWithFalse],
+          invoiceId: 'inv-1',
         })
 
-        expect(result).toEqual(oneSubscriptionResult)
+        expect(result.subscriptions['sub-1'].acceptNewChargeFees).toBe(false)
       })
-      it('should return the correct values if there are 2 subscription', () => {
+
+      it('should default acceptNewChargeFees to false when not found', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
         const result = groupAndFormatFees({
-          invoiceSubscriptions: twoSubscriptions as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: false,
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [], // Empty - no match
+          invoiceId: 'inv-1',
         })
 
-        expect(result).toEqual(twoSubscriptionsResult)
+        expect(result.subscriptions['sub-1'].acceptNewChargeFees).toBe(false)
       })
-      it('should return the correct order for a given subscription', () => {
+    })
+
+    describe('single subscription with multiple boundaries', () => {
+      it('should group fees by date boundaries', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          {
+            id: 'fee-2',
+            amountCents: 2000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 2',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-02-01T00:00:00Z',
+              toDatetime: '2024-02-29T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
         const result = groupAndFormatFees({
-          invoiceSubscriptions:
-            unorderedSubscriptionWithFees as unknown as InvoiceSubscriptionsForDisplay,
-          hasOldZeroFeeManagement: false,
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
 
-        expect(result).toEqual(newOrderedSubscriptionWithFees)
-      })
-    })
-  })
+        const boundaries = result.subscriptions['sub-1'].boundaries
 
-  describe('composeChargeFilterDisplayName', () => {
-    it('should return empty string if there are no values', () => {
-      const result = composeChargeFilterDisplayName()
+        expect(Object.keys(boundaries)).toHaveLength(2)
 
-      expect(result).toEqual('')
-    })
+        // Check boundaries are sorted by date
+        const boundaryKeys = Object.keys(boundaries)
 
-    it('should return empty string if value passed is null', () => {
-      const result = composeChargeFilterDisplayName(null)
-
-      expect(result).toEqual('')
-    })
-
-    it('should return data correctly formated', () => {
-      const result = composeChargeFilterDisplayName({
-        id: 'id',
-        invoiceDisplayName: null,
-        values: {
-          key1: ['value1', 'value2'],
-          key2: [ALL_FILTER_VALUES],
-        },
+        expect(boundaryKeys[0]).toBe('2024-01-01_2024-01-31')
+        expect(boundaryKeys[1]).toBe('2024-02-01_2024-02-29')
       })
 
-      expect(result).toEqual('value1 • value2 • key2')
-    })
-
-    it('should return invoiceDisplayName is present', () => {
-      const result = composeChargeFilterDisplayName({
-        id: 'id',
-        invoiceDisplayName: 'This is my custom display name',
-        values: {
-          key1: ['value1', 'value2'],
-          key2: [ALL_FILTER_VALUES],
-        },
-      })
-
-      expect(result).toEqual('This is my custom display name')
-    })
-  })
-
-  describe('composeGroupedByDisplayName', () => {
-    it('should return empty string if there are no values', () => {
-      const result = composeGroupedByDisplayName()
-
-      expect(result).toEqual('')
-    })
-
-    it('should return empty string if value passed is null', () => {
-      const result = composeGroupedByDisplayName(null)
-
-      expect(result).toEqual('')
-    })
-
-    it('should return data correctly formated', () => {
-      const result = composeGroupedByDisplayName({
-        toto: 'value1',
-        tata: 'value2',
-      })
-
-      expect(result).toEqual('value1 • value2')
-    })
-  })
-
-  describe('composeMultipleValuesWithSepator', () => {
-    it('should return empty string if there are no values', () => {
-      const result = composeMultipleValuesWithSepator()
-
-      expect(result).toEqual('')
-    })
-
-    it('should return empty string if value passed is an empty array', () => {
-      const result = composeMultipleValuesWithSepator([])
-
-      expect(result).toEqual('')
-    })
-
-    it('should return data correctly formated', () => {
-      const result = composeMultipleValuesWithSepator([
-        'value1',
-        'value2',
-        'key2',
-        null,
-        undefined,
-        composeMultipleValuesWithSepator(['toto', null, undefined, 'tata']),
-      ])
-
-      expect(result).toEqual('value1 • value2 • key2 • toto • tata')
-    })
-  })
-
-  describe('_newDeepFormatFees', () => {
-    describe('Subscription fees', () => {
-      it('should format subscription fee with custom display name', () => {
-        const fee = {
-          id: 'fee-sub',
-          feeType: FeeTypesEnum.Subscription,
-          invoiceDisplayName: 'Custom Subscription Name',
-          subscription: {
-            plan: {
-              name: 'Plan name',
-              interval: 'monthly',
+      it('should group fees with same date but different times into same boundary', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T10:00:00Z',
+              toDatetime: '2024-01-31T10:00:00Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
             },
           },
-          amountCents: 5000,
-        } as TExtendedRemainingFee
+          {
+            id: 'fee-2',
+            amountCents: 2000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 2',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T14:30:00Z',
+              toDatetime: '2024-01-31T14:30:00Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
 
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isSubscriptionFee: true,
-          displayName: 'Custom Subscription Name',
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
+
+        const boundaries = result.subscriptions['sub-1'].boundaries
+
+        expect(Object.keys(boundaries)).toHaveLength(1)
+        expect(boundaries['2024-01-01_2024-01-31'].fees).toHaveLength(2)
       })
 
-      it('should format subscription fee with generated display name', () => {
-        const fee = {
-          id: 'fee-sub',
-          feeType: FeeTypesEnum.Subscription,
-          invoiceDisplayName: null,
-          subscription: {
-            plan: {
-              name: 'Premium Plan',
-              interval: 'yearly',
+      it('should sort boundaries by fromDatetime, then toDatetime', () => {
+        const fees = [
+          {
+            id: 'fee-3',
+            amountCents: 3000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 3',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-02-01T00:00:00Z',
+              toDatetime: '2024-02-15T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
             },
           },
-          amountCents: 5000,
-        } as TExtendedRemainingFee
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          {
+            id: 'fee-4',
+            amountCents: 4000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 4',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-02-01T00:00:00Z',
+              toDatetime: '2024-02-29T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          {
+            id: 'fee-2',
+            amountCents: 2000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 2',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-15T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
 
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isSubscriptionFee: true,
-          displayName: 'Yearly subscription fee - Premium Plan',
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
         })
-      })
-    })
 
-    describe('Fixed charge fees', () => {
-      it('should format fixed charge fee with invoiceName as display name', () => {
-        const fee = {
-          id: 'fee-1',
-          feeType: FeeTypesEnum.FixedCharge,
-          invoiceName: 'Fixed Fee Invoice Name',
-          itemName: 'Fixed Fee Item Name',
-          amountCents: 1000,
-        } as TExtendedRemainingFee
+        const boundaryKeys = Object.keys(result.subscriptions['sub-1'].boundaries)
 
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isFixedCharge: true,
-          displayName: 'Fixed Fee Invoice Name',
-        })
-      })
-
-      it('should format fixed charge fee with itemName as fallback display name', () => {
-        const fee = {
-          id: 'fee-1',
-          feeType: FeeTypesEnum.FixedCharge,
-          invoiceName: null,
-          itemName: 'Fixed Fee Item Name',
-          amountCents: 1000,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isFixedCharge: true,
-          displayName: 'Fixed Fee Item Name',
-        })
-      })
-    })
-
-    describe('Commitment fees', () => {
-      it('should format commitment fee with custom display name', () => {
-        const fee = {
-          id: 'fee-commitment',
-          feeType: FeeTypesEnum.Commitment,
-          invoiceDisplayName: 'Custom Commitment Display',
-          amountCents: 2000,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isCommitmentFee: true,
-          displayName: 'Custom Commitment Display',
-        })
-      })
-
-      it('should format commitment fee with default display name', () => {
-        const fee = {
-          id: 'fee-commitment',
-          feeType: FeeTypesEnum.Commitment,
-          invoiceDisplayName: null,
-          amountCents: 2000,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isCommitmentFee: true,
-          displayName: 'Minimum commitment - True up',
-        })
-      })
-    })
-
-    describe('True-up fees', () => {
-      it('should format true-up fee with all components', () => {
-        const fee = {
-          id: 'fee-trueup',
-          feeType: FeeTypesEnum.Charge,
-          invoiceName: 'API Calls',
-          trueUpParentFee: { id: 'parent-fee-id' },
-          groupedBy: { region: 'US-East' },
-          chargeFilter: {
-            id: 'filter-id',
-            invoiceDisplayName: null,
-            values: { tier: ['premium'] },
-          },
-          charge: {
-            id: 'charge-id',
-            payInAdvance: false,
-            invoiceDisplayName: null,
-            chargeModel: ChargeModelEnum.Standard,
-            minAmountCents: 0,
-            prorated: false,
-            billableMetric: {
-              id: 'bm-id',
-              name: 'API Calls Metric',
-              aggregationType: AggregationTypeEnum.CountAgg,
-              recurring: false,
-            },
-          },
-          amountCents: 1500,
-          units: 1,
-          itemName: 'API Calls',
-          preciseUnitAmount: 1,
-          adjustedFee: false,
-          currency: CurrencyEnum.Usd,
-        } as unknown as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata.isTrueUpFee).toBe(true)
-        expect(result[0].metadata.displayName).toBe('API Calls • US-East • premium - True-up')
-        expect(result[0].trueUpParentFee?.id).toBe('parent-fee-id')
-      })
-
-      it('should format true-up fee using billable metric name as fallback', () => {
-        const fee = {
-          id: 'fee-trueup',
-          feeType: FeeTypesEnum.Charge,
-          invoiceName: null,
-          trueUpParentFee: { id: 'parent-fee-id' },
-          charge: {
-            billableMetric: {
-              name: 'Bandwidth Usage',
-            },
-          },
-          amountCents: 1500,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata.isTrueUpFee).toBe(true)
-        expect(result[0].metadata.displayName).toBe('Bandwidth Usage - True-up')
-        expect(result[0].trueUpParentFee?.id).toBe('parent-fee-id')
-      })
-
-      it('should NOT mark fee as true-up when trueUpParentFee is null', () => {
-        const fee = {
-          id: 'fee-normal',
-          feeType: FeeTypesEnum.Charge,
-          invoiceName: 'Normal Charge',
-          trueUpParentFee: null,
-          charge: {
-            id: 'charge-id',
-            payInAdvance: false,
-            invoiceDisplayName: null,
-            chargeModel: ChargeModelEnum.Standard,
-            minAmountCents: 0,
-            prorated: false,
-            billableMetric: {
-              id: 'bm-id',
-              name: 'Normal Metric',
-              aggregationType: AggregationTypeEnum.CountAgg,
-              recurring: false,
-            },
-          },
-          amountCents: 2000,
-          units: 1,
-          groupedBy: {},
-          itemName: 'Normal Charge',
-          preciseUnitAmount: 1,
-          adjustedFee: false,
-          currency: CurrencyEnum.Usd,
-        } as unknown as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata.isTrueUpFee).toBeUndefined()
-        expect(result[0].metadata.isNormalFee).toBe(true)
-        expect(result[0].metadata.displayName).toBe('Normal Charge')
-        expect(result[0].trueUpParentFee).toBeNull()
-      })
-
-      it('should NOT mark fee as true-up when trueUpParentFee is undefined', () => {
-        const fee = {
-          id: 'fee-normal',
-          feeType: FeeTypesEnum.Charge,
-          invoiceName: 'Normal Charge',
-          charge: {
-            id: 'charge-id',
-            payInAdvance: false,
-            invoiceDisplayName: null,
-            chargeModel: ChargeModelEnum.Standard,
-            minAmountCents: 0,
-            prorated: false,
-            billableMetric: {
-              id: 'bm-id',
-              name: 'Normal Metric',
-              aggregationType: AggregationTypeEnum.CountAgg,
-              recurring: false,
-            },
-          },
-          amountCents: 2000,
-          units: 1,
-          groupedBy: {},
-          itemName: 'Normal Charge',
-          preciseUnitAmount: 1,
-          adjustedFee: false,
-          currency: CurrencyEnum.Usd,
-        } as unknown as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata.isTrueUpFee).toBeUndefined()
-        expect(result[0].metadata.isNormalFee).toBe(true)
-        expect(result[0].metadata.displayName).toBe('Normal Charge')
-        expect(result[0].trueUpParentFee).toBeUndefined()
-      })
-    })
-
-    describe('Filter child fees', () => {
-      it('should format filter child fee with custom invoiceDisplayName', () => {
-        const fee = {
-          id: 'fee-filter',
-          feeType: FeeTypesEnum.Charge,
-          invoiceDisplayName: 'Custom Filter Display',
-          chargeFilter: {
-            id: 'filter-id',
-            invoiceDisplayName: 'Filter Display Name',
-            values: { type: ['basic'] },
-          },
-          amountCents: 800,
-          units: 1,
-          groupedBy: {},
-          itemName: 'Filter Fee',
-          preciseUnitAmount: 1,
-          adjustedFee: false,
-          currency: CurrencyEnum.Usd,
-        } as unknown as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isFilterChildFee: true,
-          displayName: 'Custom Filter Display',
-        })
-      })
-
-      it('should format filter child fee with composed display name', () => {
-        const fee = {
-          id: 'fee-filter',
-          feeType: FeeTypesEnum.Charge,
-          invoiceDisplayName: null,
-          invoiceName: 'Storage Usage',
-          groupedBy: { datacenter: 'DC1' },
-          chargeFilter: {
-            id: 'filter-id',
-            invoiceDisplayName: null,
-            values: { storage_type: ['ssd', 'nvme'] },
-          },
-          charge: {
-            id: 'charge-id',
-            payInAdvance: false,
-            invoiceDisplayName: null,
-            chargeModel: ChargeModelEnum.Standard,
-            minAmountCents: 0,
-            prorated: false,
-            billableMetric: {
-              id: 'bm-id',
-              name: 'Storage Metric',
-              aggregationType: AggregationTypeEnum.CountAgg,
-              recurring: false,
-            },
-          },
-          amountCents: 1200,
-          units: 1,
-          itemName: 'Storage Usage',
-          preciseUnitAmount: 1,
-          adjustedFee: false,
-          currency: CurrencyEnum.Usd,
-        } as unknown as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata.isFilterChildFee).toBe(true)
-        expect(result[0].metadata.displayName).toBe('Storage Usage • DC1 • ssd • nvme')
-      })
-    })
-
-    describe('Normal fees', () => {
-      it('should format normal fee with invoiceDisplayName', () => {
-        const fee = {
-          id: 'fee-normal',
-          feeType: FeeTypesEnum.Charge,
-          invoiceDisplayName: 'Custom Normal Display',
-          invoiceName: 'Compute Usage',
-          charge: {
-            billableMetric: {
-              name: 'Compute Metric',
-            },
-          },
-          amountCents: 3000,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isNormalFee: true,
-          displayName: 'Custom Normal Display',
-        })
-      })
-
-      it('should format normal fee with invoiceName', () => {
-        const fee = {
-          id: 'fee-normal',
-          feeType: FeeTypesEnum.Charge,
-          invoiceDisplayName: null,
-          invoiceName: 'Network Transfer',
-          charge: {
-            billableMetric: {
-              name: 'Network Metric',
-            },
-          },
-          amountCents: 2500,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isNormalFee: true,
-          displayName: 'Network Transfer',
-        })
-      })
-
-      it('should format normal fee with billable metric name as fallback', () => {
-        const fee = {
-          id: 'fee-normal',
-          feeType: FeeTypesEnum.Charge,
-          invoiceDisplayName: null,
-          invoiceName: null,
-          charge: {
-            billableMetric: {
-              name: 'Database Operations',
-            },
-          },
-          amountCents: 1800,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata).toEqual({
-          isNormalFee: true,
-          displayName: 'Database Operations',
-        })
-      })
-
-      it('should format normal fee with groupedBy values', () => {
-        const fee = {
-          id: 'fee-normal',
-          feeType: FeeTypesEnum.Charge,
-          invoiceDisplayName: null,
-          invoiceName: 'Requests',
-          groupedBy: { region: 'EU-West', environment: 'production' },
-          charge: {
-            billableMetric: {
-              name: 'Request Count',
-            },
-          },
-          amountCents: 2200,
-        } as TExtendedRemainingFee
-
-        const result = _newDeepFormatFees([fee])
-
-        expect(result).toHaveLength(1)
-        expect(result[0].metadata.isNormalFee).toBe(true)
-        expect(result[0].metadata.displayName).toBe('Requests • EU-West • production')
-      })
-    })
-
-    describe('Sorting and ordering', () => {
-      it('should sort all fee types in correct order', () => {
-        const subscriptionFee = {
-          id: 'fee-sub',
-          feeType: FeeTypesEnum.Subscription,
-          invoiceDisplayName: 'Custom name',
-          subscription: {
-            plan: {
-              name: 'Custom name',
-              interval: 'monthly',
-            },
-          },
-          amountCents: 5000,
-        } as TExtendedRemainingFee
-
-        const fixedChargeFee = {
-          id: 'fee-fixed',
-          feeType: FeeTypesEnum.FixedCharge,
-          invoiceName: 'Custom name',
-          amountCents: 1000,
-        } as TExtendedRemainingFee
-
-        const commitmentFee = {
-          id: 'fee-commitment',
-          feeType: FeeTypesEnum.Commitment,
-          invoiceDisplayName: 'Custom name',
-          amountCents: 2000,
-        } as TExtendedRemainingFee
-
-        const normalFee = {
-          id: 'fee-normal',
-          feeType: FeeTypesEnum.Charge,
-          invoiceName: 'Custom name',
-          charge: {
-            billableMetric: {
-              name: 'Custom name',
-            },
-          },
-          amountCents: 3000,
-        } as TExtendedRemainingFee
-
-        const trueUpFee = {
-          id: 'fee-trueup',
-          feeType: FeeTypesEnum.Charge,
-          invoiceName: 'Custom name',
-          trueUpParentFee: { id: 'parent' },
-          charge: {
-            billableMetric: {
-              name: 'Custom name',
-            },
-          },
-          amountCents: 500,
-        } as TExtendedRemainingFee
-
-        const filterFee = {
-          id: 'fee-filter',
-          feeType: FeeTypesEnum.Charge,
-          invoiceName: 'Custom name',
-          chargeFilter: {
-            id: 'filter',
-            invoiceDisplayName: null,
-            values: { key: ['value'] },
-          },
-          charge: {
-            id: 'charge-id',
-            payInAdvance: false,
-            invoiceDisplayName: null,
-            chargeModel: ChargeModelEnum.Standard,
-            minAmountCents: 0,
-            prorated: false,
-            billableMetric: {
-              id: 'bm-id',
-              name: 'Custom name',
-              aggregationType: AggregationTypeEnum.CountAgg,
-              recurring: false,
-            },
-          },
-          amountCents: 700,
-          units: 1,
-          groupedBy: {},
-          itemName: 'Custom name',
-          preciseUnitAmount: 1,
-          adjustedFee: false,
-          currency: CurrencyEnum.Usd,
-        } as unknown as TExtendedRemainingFee
-
-        // Test with fees in random order
-        const result = _newDeepFormatFees([
-          commitmentFee,
-          normalFee,
-          trueUpFee,
-          fixedChargeFee,
-          filterFee,
-          subscriptionFee,
+        expect(boundaryKeys).toEqual([
+          '2024-01-01_2024-01-31',
+          '2024-01-15_2024-01-31',
+          '2024-02-01_2024-02-15',
+          '2024-02-01_2024-02-29',
         ])
+      })
+    })
 
-        expect(result).toHaveLength(6)
-        // Subscription fees should always be first
-        expect(result[0].metadata.isSubscriptionFee).toBe(true)
-        // Fixed charge fees should always be second
-        expect(result[1].metadata.isFixedCharge).toBe(true)
-        // Normal, Filter, and True-up fees are sorted alphabetically within the middle group
-        // "Custom name" < "Custom name - True-up" < "Custom name • value"
-        expect(result[2].metadata.isNormalFee).toBe(true)
-        expect(result[3].metadata.isTrueUpFee).toBe(true)
-        expect(result[4].metadata.isFilterChildFee).toBe(true)
-        // Commitment fees should always be last
-        expect(result[5].metadata.isCommitmentFee).toBe(true)
+    describe('multiple subscriptions', () => {
+      it('should maintain insertion order of subscriptions', () => {
+        const sub1: AssociatedSubscription = {
+          id: 'sub-1',
+          name: 'First Subscription',
+          plan: {
+            id: 'plan-1',
+            name: 'Plan 1',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
+
+        const sub2: AssociatedSubscription = {
+          id: 'sub-2',
+          name: 'Second Subscription',
+          plan: {
+            id: 'plan-2',
+            name: 'Plan 2',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
+
+        const invSub1: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-1' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
+
+        const invSub2: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-2' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: false,
+        }
+
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          {
+            id: 'fee-2',
+            amountCents: 2000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 2',
+            subscription: { id: 'sub-2' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [sub1, sub2],
+          invoiceSubscriptions: [invSub1, invSub2],
+          invoiceId: 'inv-1',
+        })
+
+        const subscriptionIds = Object.keys(result.subscriptions)
+
+        expect(subscriptionIds).toEqual(['sub-1', 'sub-2'])
+
+        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('First Subscription')
+        expect(result.subscriptions['sub-1'].acceptNewChargeFees).toBe(true)
+
+        expect(result.subscriptions['sub-2'].subscriptionDisplayName).toBe('Second Subscription')
+        expect(result.subscriptions['sub-2'].acceptNewChargeFees).toBe(false)
       })
 
-      it('should sort fees of same type alphabetically by display name', () => {
-        const fixedChargeFeeZ = {
-          id: 'fee-fixed-z',
-          feeType: FeeTypesEnum.FixedCharge,
-          invoiceName: 'Zebra Fixed Fee',
-          amountCents: 1000,
-        } as TExtendedRemainingFee
+      it('should handle each subscription independently with different boundaries', () => {
+        const sub1: AssociatedSubscription = {
+          id: 'sub-1',
+          name: 'Subscription 1',
+          plan: {
+            id: 'plan-1',
+            name: 'Plan 1',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
 
-        const fixedChargeFeeA = {
-          id: 'fee-fixed-a',
-          feeType: FeeTypesEnum.FixedCharge,
-          invoiceName: 'Apple Fixed Fee',
-          amountCents: 2000,
-        } as TExtendedRemainingFee
+        const sub2: AssociatedSubscription = {
+          id: 'sub-2',
+          name: 'Subscription 2',
+          plan: {
+            id: 'plan-2',
+            name: 'Plan 2',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
 
-        const fixedChargeFeeM = {
-          id: 'fee-fixed-m',
-          feeType: FeeTypesEnum.FixedCharge,
-          invoiceName: 'Mango Fixed Fee',
-          amountCents: 1500,
-        } as TExtendedRemainingFee
+        const invSub1: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-1' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
 
-        const result = _newDeepFormatFees([fixedChargeFeeZ, fixedChargeFeeM, fixedChargeFeeA])
+        const invSub2: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-2' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
 
-        expect(result).toHaveLength(3)
-        expect(result[0].metadata.displayName).toBe('Apple Fixed Fee')
-        expect(result[1].metadata.displayName).toBe('Mango Fixed Fee')
-        expect(result[2].metadata.displayName).toBe('Zebra Fixed Fee')
+        const fees = [
+          // Sub 1 - Jan
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          // Sub 2 - Jan
+          {
+            id: 'fee-2',
+            amountCents: 2000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 2',
+            subscription: { id: 'sub-2' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          // Sub 1 - Feb
+          {
+            id: 'fee-3',
+            amountCents: 1500,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 3',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-02-01T00:00:00Z',
+              toDatetime: '2024-02-29T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          // Sub 2 - Feb
+          {
+            id: 'fee-4',
+            amountCents: 2500,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 4',
+            subscription: { id: 'sub-2' },
+            properties: {
+              fromDatetime: '2024-02-01T00:00:00Z',
+              toDatetime: '2024-02-29T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [sub1, sub2],
+          invoiceSubscriptions: [invSub1, invSub2],
+          invoiceId: 'inv-1',
+        })
+
+        // Check sub-1 has 2 boundaries
+        expect(Object.keys(result.subscriptions['sub-1'].boundaries)).toHaveLength(2)
+        expect(result.subscriptions['sub-1'].boundaries['2024-01-01_2024-01-31'].fees).toHaveLength(
+          1,
+        )
+        expect(result.subscriptions['sub-1'].boundaries['2024-02-01_2024-02-29'].fees).toHaveLength(
+          1,
+        )
+
+        // Check sub-2 has 2 boundaries
+        expect(Object.keys(result.subscriptions['sub-2'].boundaries)).toHaveLength(2)
+        expect(result.subscriptions['sub-2'].boundaries['2024-01-01_2024-01-31'].fees).toHaveLength(
+          1,
+        )
+        expect(result.subscriptions['sub-2'].boundaries['2024-02-01_2024-02-29'].fees).toHaveLength(
+          1,
+        )
+      })
+    })
+
+    describe('metadata flags', () => {
+      it('should set hasAnyFeeParsed to true when fees exist', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 0,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
+        })
+
+        expect(result.metadata.hasAnyFeeParsed).toBe(true)
+      })
+
+      it('should set hasAnyPositiveFeeParsed to true when positive amount exists', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
+        })
+
+        expect(result.metadata.hasAnyPositiveFeeParsed).toBe(true)
+      })
+
+      it('should set hasAnyPositiveFeeParsed to false when all amounts are zero', () => {
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 0,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [mockSubscription],
+          invoiceSubscriptions: [mockInvoiceSubscription],
+          invoiceId: 'inv-1',
+        })
+
+        expect(result.metadata.hasAnyFeeParsed).toBe(true)
+        expect(result.metadata.hasAnyPositiveFeeParsed).toBe(false)
       })
     })
   })
