@@ -501,6 +501,22 @@ const InvoicesList = ({
               },
             },
             {
+              key: 'totalDueAmountCents',
+              title: translate('text_17374735502775afvcm9pqxk'),
+              textAlign: 'right',
+              minWidth: 160,
+              content: ({ totalDueAmountCents, currency }) => (
+                <Typography variant="bodyHl" color="textSecondary" noWrap>
+                  {intlFormatNumber(
+                    deserializeAmount(totalDueAmountCents, currency || CurrencyEnum.Usd),
+                    {
+                      currency: currency || CurrencyEnum.Usd,
+                    },
+                  )}
+                </Typography>
+              ),
+            },
+            {
               key: 'paymentStatus',
               title: translate('text_6419c64eace749372fc72b40'),
               minWidth: 80,

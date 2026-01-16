@@ -320,6 +320,20 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               },
             },
             {
+              key: 'totalDueAmountCents',
+              textAlign: 'right',
+              minWidth: 160,
+              title: translate('text_17374735502775afvcm9pqxk'),
+              content: ({ totalDueAmountCents, currency }) => (
+                <Typography variant="bodyHl" color="textSecondary" noWrap>
+                  {intlFormatNumber(
+                    deserializeAmount(totalDueAmountCents, currency || CurrencyEnum.Usd),
+                    { currency: currency || CurrencyEnum.Usd },
+                  )}
+                </Typography>
+              ),
+            },
+            {
               key: 'paymentStatus',
               minWidth: 120,
               title: translate('text_63b5d225b075850e0fe489f4'),
