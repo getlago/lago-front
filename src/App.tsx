@@ -9,7 +9,7 @@ import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 import { AiAgent } from '~/components/aiAgent/AiAgent'
 import { Spinner, ToastContainer } from '~/components/designSystem'
 import { DevtoolsErrorBoundary } from '~/components/developers/DevtoolsErrorBoundary'
-import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
@@ -24,7 +24,11 @@ import {
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
-import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
+import {
+  DeveloperToolProvider,
+  DEVTOOL_AUTO_SAVE_ID,
+  resetDevtoolsNavigation,
+} from '~/hooks/useDeveloperTool'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { theme } from '~/styles'
 
@@ -48,6 +52,7 @@ const App = () => {
 
         // Set up auth error handler with the client instance
         setAuthErrorHandler(() => {
+          resetDevtoolsNavigation()
           logOut(apolloClient)
         })
 

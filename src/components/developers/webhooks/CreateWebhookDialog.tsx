@@ -5,7 +5,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { WEBHOOK_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { RadioField, TextInput } from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {

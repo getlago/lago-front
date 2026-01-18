@@ -5,6 +5,7 @@ import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 import { logOut } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
 const InvitationInit = () => {
   const { token } = useParams()
@@ -14,6 +15,7 @@ const InvitationInit = () => {
 
   useEffect(() => {
     const triggerLogout = async () => {
+      resetDevtoolsNavigation()
       await logOut(client, true)
     }
 

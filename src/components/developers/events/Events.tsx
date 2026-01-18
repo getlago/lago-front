@@ -3,7 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, Typography } from '~/components/designSystem'
-import { EVENT_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { EventDetails } from '~/components/developers/events/EventDetails'
 import { EventTable } from '~/components/developers/events/EventTable'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
