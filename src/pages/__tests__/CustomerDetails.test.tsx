@@ -88,6 +88,8 @@ describe('CustomerDetails', () => {
       },
       loading: false,
       error: undefined,
+      startPolling: jest.fn(),
+      stopPolling: jest.fn(),
     })
   })
 
