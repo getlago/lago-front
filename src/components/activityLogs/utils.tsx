@@ -1,7 +1,7 @@
 import { generatePath } from 'react-router-dom'
 
 import { AvailableFiltersEnum, setFilterValue } from '~/components/designSystem/Filters'
-import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import {
   BillableMetricDetailsTabsOptionsEnum,
