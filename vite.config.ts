@@ -135,6 +135,20 @@ export default defineConfig(({ mode }) => {
       host: true,
       strictPort: true,
       allowedHosts: ['app.lago.dev'],
+      watch: {
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/dist/**',
+          '**/coverage/**',
+          '**/.vite/**',
+          '**/packages/**/dist/**',
+          '**/*.log',
+          '**/cypress/**',
+          '**/__generated__/**',
+          '**/.pnpm-store/**',
+        ],
+      },
     },
     preview: {
       port,
