@@ -2,7 +2,7 @@ import { DateTime, Settings } from 'luxon'
 
 import {
   getDateRef,
-  getNextRecurringDate,
+  getRecurringStartDate,
   getWordingForWalletCreationAlert,
   toNumber,
 } from '~/components/wallets/utils'
@@ -62,85 +62,37 @@ describe('Wallet Utils', () => {
     })
   })
 
-  describe('getNextRecurringDate', () => {
+  describe('getRecurringStartDate', () => {
     beforeEach(() => {
       const expectedNow = DateTime.local(2024, 5, 5)
 
       Settings.now = () => expectedNow.toMillis()
     })
 
-    it('Weekly - should return May 12nd when current date is May 5th', () => {
+    it('should return the startedAt date directly without adding intervals', () => {
       expect(
-        getNextRecurringDate({
+        getRecurringStartDate({
           timezone: TimezoneEnum.TzEuropeParis,
-          interval: RecurringTransactionIntervalEnum.Weekly,
+          date: DateTime.local(2024, 6, 15),
         }),
-      ).toBe('May 12, 2024')
+      ).toBe('June 15, 2024')
     })
 
-    it('Weekly - should return June 4th when current date is May 28th', () => {
-      const expectedNow = DateTime.local(2024, 5, 28)
-
-      Settings.now = () => expectedNow.toMillis()
-
+    it('should return today date when no date is provided', () => {
       expect(
-        getNextRecurringDate({
+        getRecurringStartDate({
           timezone: TimezoneEnum.TzEuropeParis,
-          interval: RecurringTransactionIntervalEnum.Weekly,
         }),
-      ).toBe('June 4, 2024')
+      ).toBe('May 5, 2024')
     })
 
-    it('Monthly - should return June 5th when current date is May 5th', () => {
+    it('should handle different timezones', () => {
       expect(
-        getNextRecurringDate({
-          timezone: TimezoneEnum.TzEuropeParis,
-          interval: RecurringTransactionIntervalEnum.Monthly,
+        getRecurringStartDate({
+          timezone: TimezoneEnum.TzAmericaNewYork,
+          date: DateTime.local(2024, 12, 25),
         }),
-      ).toBe('June 5, 2024')
-    })
-
-    it('Monthly - should return Feb 29th when current date is January 31st', () => {
-      const expectedNow = DateTime.local(2024, 1, 31)
-
-      Settings.now = () => expectedNow.toMillis()
-      expect(
-        getNextRecurringDate({
-          timezone: TimezoneEnum.TzEuropeParis,
-          interval: RecurringTransactionIntervalEnum.Monthly,
-        }),
-      ).toBe('February 29, 2024')
-    })
-
-    it('Quarterly - should return Aug 5th when current date is May 5th', () => {
-      expect(
-        getNextRecurringDate({
-          timezone: TimezoneEnum.TzEuropeParis,
-          interval: RecurringTransactionIntervalEnum.Quarterly,
-        }),
-      ).toBe('August 5, 2024')
-    })
-
-    it('Yearly - should return May 5, 2025 when current date is May 5, 2024', () => {
-      expect(
-        getNextRecurringDate({
-          timezone: TimezoneEnum.TzEuropeParis,
-          interval: RecurringTransactionIntervalEnum.Yearly,
-        }),
-      ).toBe('May 5, 2025')
-    })
-
-    it('Yearly - should return Feb 28, 2025 when current date is Feb 29, 2024', () => {
-      const expectedNow = DateTime.local(2024, 2, 29)
-
-      Settings.now = () => expectedNow.toMillis()
-
-      expect(
-        getNextRecurringDate({
-          timezone: TimezoneEnum.TzEuropeParis,
-          interval: RecurringTransactionIntervalEnum.Yearly,
-        }),
-      ).toBe('February 28, 2025')
+      ).toBe('December 25, 2024')
     })
   })
 
