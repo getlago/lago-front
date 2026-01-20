@@ -142,7 +142,7 @@ const LagoTaxManagementIntegration = () => {
             </Typography>
           )}
         </PageHeader.Group>
-        {hasPermissions(['billingEntitiesTaxesUpdate']) && (
+        {hasPermissions(['billingEntitiesUpdate']) && (
           <Button
             variant="secondary"
             disabled={loading}
@@ -222,7 +222,7 @@ const LagoTaxManagementIntegration = () => {
 
         <section>
           <IntegrationsPage.Headline label={translate('text_657078c28394d6b1ae1b9743')}>
-            {hasPermissions(['billingEntitiesTaxesView']) && (
+            {hasPermissions(['billingEntitiesView']) && (
               <Button
                 variant="inline"
                 disabled={loading}

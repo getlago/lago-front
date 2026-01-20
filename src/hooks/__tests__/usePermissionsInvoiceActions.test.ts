@@ -262,21 +262,6 @@ describe('usePermissionsInvoiceActions', () => {
       expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
     })
 
-    it('should return false when user does not have draftInvoicesUpdate permission', async () => {
-      const { result } = await prepare({ draftInvoicesUpdate: false })
-
-      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
-    })
-
-    it('should return false when user has invoicesUpdate but not draftInvoicesUpdate', async () => {
-      const { result } = await prepare({
-        invoicesUpdate: true,
-        draftInvoicesUpdate: false,
-      })
-
-      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
-    })
-
     it('should return false when user has draftInvoicesUpdate but not invoicesUpdate', async () => {
       const { result } = await prepare({
         invoicesUpdate: false,

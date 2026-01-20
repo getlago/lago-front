@@ -119,11 +119,8 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   useEffect(() => {
     if (!externalCustomerId) return
 
-    if (hasPermissions(['analyticsOverdueBalancesView'])) {
-      getCustomerOverdueBalances()
-    }
-
     if (hasPermissions(['analyticsView'])) {
+      getCustomerOverdueBalances()
       getCustomerGrossRevenues()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -253,7 +250,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                   )}
                 />
               )}
-              {hasPermissions(['analyticsOverdueBalancesView']) && !overdueBalancesError && (
+              {hasPermissions(['analyticsView']) && !overdueBalancesError && (
                 <OverviewCard
                   isLoading={overdueBalancesLoading}
                   title={translate('text_6670a7222702d70114cc795a')}
