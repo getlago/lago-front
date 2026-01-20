@@ -45,7 +45,7 @@ export const DisputeInvoiceDialog = forwardRef<DisputeInvoiceDialogRef>((_, ref)
         })
       }
     },
-    refetchQueries: ['getInvoiceSubscriptions'],
+    refetchQueries: ['getInvoiceDetails'],
   })
 
   useImperativeHandle(ref, () => ({

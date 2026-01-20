@@ -1,114 +1,150 @@
 import { gql } from '@apollo/client'
+import { DateTime } from 'luxon'
 
-import { InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import {
+  FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeTypesEnum,
-  InvoiceStatusTypeEnum,
-  InvoiceSubscription,
-  InvoiceSubscriptionForInvoiceDetailsTableFragment,
+  InvoiceForFormatInvoiceItemMapFragment,
 } from '~/generated/graphql'
 
 gql`
-  fragment InvoiceSubscriptionFormating on InvoiceSubscription {
-    fromDatetime
-    toDatetime
-    chargesFromDatetime
-    chargesToDatetime
-    inAdvanceChargesFromDatetime
-    inAdvanceChargesToDatetime
-    fees {
-      id
-      trueUpParentFee {
+  fragment InvoiceForFormatInvoiceItemMap on Invoice {
+    id
+    status
+    invoiceSubscriptions {
+      subscription {
         id
       }
+      invoice {
+        id
+      }
+      acceptNewChargeFees
+    }
+    fees {
+      id
       amountCents
-      invoiceName
-      invoiceDisplayName
-      units
-      groupedBy
+      currency
+      preciseUnitAmount
+      adjustedFee
       charge {
         id
         payInAdvance
         minAmountCents
+        chargeModel
+        prorated
         billableMetric {
           id
           name
+          recurring
         }
       }
       chargeFilter {
         invoiceDisplayName
         values
       }
+      feeType
+      groupedBy
+      itemName
+      invoiceDisplayName
+      invoiceName
+      properties {
+        fromDatetime
+        toDatetime
+      }
+      pricingUnitUsage {
+        amountCents
+        conversionRate
+        shortName
+        preciseUnitAmount
+      }
       subscription {
         id
-        plan {
-          id
-          interval
-        }
       }
-    }
-    subscription {
-      id
-      name
-      plan {
+      trueUpParentFee {
         id
-        name
-        invoiceDisplayName
       }
-    }
-    invoice {
-      id
-      status
-      chargeAmountCents
-      progressiveBillingCreditAmountCents
+      units
+      fixedCharge {
+        id
+        chargeModel
+        prorated
+      }
+
+      ...FeeForDeleteAdjustmentFeeDialog
     }
   }
+
+  ${FeeForDeleteAdjustmentFeeDialogFragmentDoc}
 `
 // Extract the Fee type from the fragment to ensure type safety
 // This ensures TypeScript will error if we try to access fields not included in the fragment
 type FeeFromFragment = NonNullable<
-  NonNullable<InvoiceSubscriptionForInvoiceDetailsTableFragment['fees']>[number]
+  NonNullable<InvoiceForFormatInvoiceItemMapFragment['fees']>[number]
 >
 
-export type TExtendedRemainingFee = FeeFromFragment & {
-  metadata: {
-    displayName: string
-    isCommitmentFee?: boolean
-    isFilterChildFee?: boolean
-    isFixedCharge?: boolean
-    isNormalFee?: boolean
-    isSubscriptionFee?: boolean
-    isTrueUpFee?: boolean
+// AssociatedSubscription type should come from a fragment that includes subscriptions
+// (like InvoiceForInvoiceDetailsTableFragment) rather than this fragment
+export type AssociatedSubscription = {
+  id: string
+  name?: string | null
+  currentBillingPeriodStartedAt?: string | null
+  currentBillingPeriodEndingAt?: string | null
+  plan: {
+    id: string
+    name: string
+    interval: string
+    invoiceDisplayName?: string | null
   }
 }
-export type TSubscriptionDataForDisplay = {
-  [invoiceSubscriptionId: string]: {
-    feesInArrears: TExtendedRemainingFee[]
-    feesInArrearsZero: TExtendedRemainingFee[]
-    feesInAdvance: TExtendedRemainingFee[]
-    feesInAdvanceZero: TExtendedRemainingFee[]
-    metadata: {
-      acceptNewChargeFees: boolean
-      chargesFromDatetime: string
-      chargesToDatetime: string
-      differentBoundariesForSubscriptionAndCharges: boolean
-      fromDatetime: string
-      inAdvanceChargesFromDatetime: string
-      inAdvanceChargesToDatetime: string
-      invoiceId: string
-      subscriptionDisplayName: string
-      toDatetime: string
-      isMonthlyBilled: boolean
-      shouldDisplaySubscriptionFee: boolean
-    }
+
+// InvoiceSubscription type for the join table between Invoice and Subscription
+export type AssociatedInvoiceSubscription = {
+  subscription: {
+    id: string
   }
+  invoice: {
+    id: string
+  }
+  acceptNewChargeFees: boolean
 }
-type TFormatedInvoiceSubscriptionDataForDisplay = {
-  subscriptions: TSubscriptionDataForDisplay
-  metadata: {
-    hasAnyFeeParsed: boolean
-    hasAnyPositiveFeeParsed: boolean
+
+// Metadata added to fees during processing
+export type FeeMetadata = {
+  displayName: string
+  isCommitmentFee?: boolean
+  isFilterChildFee?: boolean
+  isFixedCharge?: boolean
+  isNormalFee?: boolean
+  isSubscriptionFee?: boolean
+  isTrueUpFee?: boolean
+}
+
+// Generic type for fees with metadata - works with any fee fragment
+export type TExtendedFee<T> = T & {
+  metadata: FeeMetadata
+}
+
+// Specific type for fees from this fragment
+export type TExtendedRemainingFee = TExtendedFee<FeeFromFragment>
+
+// Generic boundary data type that works with any fee type
+export type TBoundaryDataForDisplay<TFee = TExtendedRemainingFee> = {
+  fromDatetime: string
+  toDatetime: string
+  fees: TFee[]
+}
+
+export type TBoundariesForDisplay<TFee = TExtendedRemainingFee> = {
+  [boundaryKey: string]: TBoundaryDataForDisplay<TFee>
+}
+
+// Subscription data grouped by subscription ID with boundaries inside
+export type TSubscriptionDataForDisplay<TFee = TExtendedRemainingFee> = {
+  [subscriptionId: string]: {
+    acceptNewChargeFees: boolean
+    boundaries: TBoundariesForDisplay<TFee>
+    subscriptionDisplayName: string
   }
 }
 
@@ -154,12 +190,45 @@ export const composeMultipleValuesWithSepator = (
   return values.filter((v) => !!v).join(' • ')
 }
 
-export const getSubscriptionFeeDisplayName = (fee: TExtendedRemainingFee) => {
+/**
+ * Creates a unique boundary key from fromDatetime and toDatetime
+ * Normalizes dates to YYYY-MM-DD format to ensure fees with the same date
+ * but different times are grouped together
+ *
+ * @param fromDatetime - Start date of the boundary (ISO string)
+ * @param toDatetime - End date of the boundary (ISO string)
+ * @returns A unique key for the boundary based on dates only (without time)
+ */
+export const createBoundaryKey = (
+  fromDatetime: string | null | undefined,
+  toDatetime: string | null | undefined,
+): string => {
+  const fromDate = !!fromDatetime
+    ? DateTime.fromISO(fromDatetime, { zone: 'utc' }).toISODate() || fromDatetime
+    : 'no-from'
+  const toDate = !!toDatetime
+    ? DateTime.fromISO(toDatetime, { zone: 'utc' }).toISODate() || toDatetime
+    : 'no-to'
+
+  return `${fromDate}_${toDate}`
+}
+
+/**
+ * Generates display name for subscription fees
+ * Works with any fee that has invoiceDisplayName field
+ */
+export const getSubscriptionFeeDisplayName = <
+  TFee extends Pick<FeeFromFragment, 'invoiceDisplayName'>,
+  TSub extends Pick<AssociatedSubscription, 'plan'>,
+>(
+  fee: TFee,
+  subscription: TSub,
+): string => {
   if (!!fee.invoiceDisplayName) {
     return fee.invoiceDisplayName
   }
 
-  const plan = fee.subscription?.plan
+  const plan = subscription?.plan
   const capitalizedPlanInterval = `${plan?.interval
     ?.charAt(0)
     ?.toUpperCase()}${plan?.interval?.slice(1)}`
@@ -167,134 +236,278 @@ export const getSubscriptionFeeDisplayName = (fee: TExtendedRemainingFee) => {
   return `${capitalizedPlanInterval} subscription fee - ${plan?.name}`
 }
 
-const shouldDisplaySubscriptionFee = (sub: InvoiceSubscription) => {
-  if (sub?.invoice?.progressiveBillingCreditAmountCents > 0) {
-    return false
+/**
+ * Minimum fields required from a fee to generate its display name
+ */
+type FeeForDisplayName = Pick<
+  FeeFromFragment,
+  | 'feeType'
+  | 'invoiceDisplayName'
+  | 'itemName'
+  | 'invoiceName'
+  | 'groupedBy'
+  | 'chargeFilter'
+  | 'trueUpParentFee'
+  | 'charge'
+>
+
+/**
+ * Minimum fields required from a subscription for fee display names
+ */
+type SubscriptionForDisplayName = Pick<AssociatedSubscription, 'plan'>
+
+const _getFeeDisplayName = (
+  fee: FeeForDisplayName,
+  subscription: SubscriptionForDisplayName,
+): string => {
+  if (fee.feeType === FeeTypesEnum.Subscription) {
+    return getSubscriptionFeeDisplayName(fee, subscription)
+  }
+  if (fee.feeType === FeeTypesEnum.FixedCharge) {
+    return fee?.invoiceName || fee?.itemName
+  }
+  if (fee.feeType === FeeTypesEnum.Commitment) {
+    return fee.invoiceDisplayName || 'Minimum commitment - True up'
+  }
+  if (!!fee?.trueUpParentFee?.id) {
+    return (
+      composeMultipleValuesWithSepator([
+        fee.invoiceName || fee.charge?.billableMetric?.name,
+        composeGroupedByDisplayName(fee.groupedBy),
+        composeChargeFilterDisplayName(fee.chargeFilter),
+      ]) + ' - True-up'
+    )
   }
 
-  if (sub?.invoice?.chargeAmountCents === 0) {
-    return true
+  if (!!fee.chargeFilter) {
+    return (
+      fee.invoiceDisplayName ||
+      composeMultipleValuesWithSepator([
+        fee.invoiceName || fee.charge?.billableMetric?.name,
+        composeGroupedByDisplayName(fee.groupedBy),
+        composeChargeFilterDisplayName(fee.chargeFilter),
+      ])
+    )
   }
 
-  return sub?.subscriptionAmountCents > 0
+  return (
+    fee.invoiceDisplayName ||
+    composeMultipleValuesWithSepator([
+      fee.invoiceName || fee.charge?.billableMetric?.name,
+      composeGroupedByDisplayName(fee.groupedBy),
+    ])
+  )
 }
 
-export const groupAndFormatFees = ({
+/**
+ * Adds metadata to a fee
+ * Generic function that works with any fee type having the required fields
+ */
+const _formatFeeWithMetadata = <TFee extends FeeForDisplayName>(
+  fee: TFee,
+  subscription: SubscriptionForDisplayName,
+): TExtendedFee<TFee> => {
+  return {
+    ...fee,
+    metadata: {
+      displayName: _getFeeDisplayName(fee, subscription),
+      isNormalFee: fee.feeType === FeeTypesEnum.Charge,
+      isFixedCharge: fee.feeType === FeeTypesEnum.FixedCharge,
+      isCommitmentFee: fee.feeType === FeeTypesEnum.Commitment,
+      isTrueUpFee: !!fee.trueUpParentFee?.id,
+      isFilterChildFee: !!fee.chargeFilter,
+      isSubscriptionFee: fee.feeType === FeeTypesEnum.Subscription,
+    },
+  }
+}
+
+/**
+ * Minimum fields required from a fee to group and format
+ */
+type FeeForGrouping = FeeForDisplayName &
+  Pick<FeeFromFragment, 'id' | 'amountCents' | 'currency' | 'units' | 'subscription' | 'properties'>
+
+/**
+ * Groups and formats fees by subscription ID first, then by boundaries within each subscription
+ *
+ * @param fees Array of invoice fees with required fields
+ * @param subscriptions Array of invoice subscriptions (needed for fee metadata and display names)
+ * @param invoiceSubscriptions Array of invoice subscription join records (contains acceptNewChargeFees per subscription)
+ * @param invoiceId Current invoice ID (used to match the correct invoiceSubscription record)
+ * @returns An object containing fees grouped by subscription (with boundaries inside) and metadata
+ *
+ * @example
+ * ```ts
+ * groupAndFormatFees({
+ *   fees: [...],
+ *   subscriptions: [...],
+ *   invoiceSubscriptions: invoice.invoiceSubscriptions,
+ *   invoiceId: invoice.id,
+ * })
+ * Returns: {
+ *   subscriptions: {
+ *     [subscriptionId]: {
+ *       acceptNewChargeFees: boolean
+ *       boundaries: {
+ *         [boundaryKey]: {
+ *           fromDatetime: string
+ *           toDatetime: string
+ *           fees: [...TExtendedFee<...>]
+ *         }
+ *       }
+ *       subscriptionDisplayName: string
+ *     }
+ *   }
+ *   metadata: {
+ *     hasAnyFeeParsed: boolean
+ *     hasAnyPositiveFeeParsed: boolean
+ *   }
+ * }
+ * ```
+ */
+export const groupAndFormatFees = <TFee extends FeeForGrouping>({
+  fees,
+  subscriptions,
   invoiceSubscriptions,
-  hasOldZeroFeeManagement,
+  invoiceId,
 }: {
-  invoiceSubscriptions: InvoiceSubscriptionsForDisplay
-  hasOldZeroFeeManagement: boolean
-}): TFormatedInvoiceSubscriptionDataForDisplay => {
+  fees: TFee[] | null | undefined
+  subscriptions: AssociatedSubscription[] | null | undefined
+  invoiceSubscriptions: AssociatedInvoiceSubscription[] | null | undefined
+  invoiceId: string
+}): {
+  subscriptions: TSubscriptionDataForDisplay<TExtendedFee<TFee>>
+  metadata: {
+    hasAnyFeeParsed: boolean
+    hasAnyPositiveFeeParsed: boolean
+  }
+} => {
   let hasAnyFeeParsed = false
   let hasAnyPositiveFeeParsed = false
 
-  if (!invoiceSubscriptions?.length)
-    return { subscriptions: {}, metadata: { hasAnyFeeParsed, hasAnyPositiveFeeParsed } }
+  if (!fees?.length) {
+    return {
+      subscriptions: {},
+      metadata: {
+        hasAnyFeeParsed,
+        hasAnyPositiveFeeParsed,
+      },
+    }
+  }
 
-  const feesGroupedBySubscription = invoiceSubscriptions?.reduce<TSubscriptionDataForDisplay>(
-    (acc, invoiceSub) => {
-      const subscriptionId = invoiceSub?.subscription?.id
-
-      if (!subscriptionId) return acc
-
-      const differentBoundariesForSubscriptionAndCharges: boolean =
-        invoiceSub.fromDatetime !== invoiceSub.chargesFromDatetime &&
-        invoiceSub.toDatetime !== invoiceSub.chargesToDatetime
-
-      if (!acc[subscriptionId]) {
-        acc[subscriptionId] = {
-          feesInArrears: [],
-          feesInArrearsZero: [],
-          feesInAdvance: [],
-          feesInAdvanceZero: [],
-          metadata: {
-            acceptNewChargeFees: invoiceSub.acceptNewChargeFees,
-            chargesFromDatetime: invoiceSub?.chargesFromDatetime,
-            chargesToDatetime: invoiceSub?.chargesToDatetime,
-            differentBoundariesForSubscriptionAndCharges,
-            fromDatetime: invoiceSub?.fromDatetime,
-            inAdvanceChargesFromDatetime: invoiceSub?.inAdvanceChargesFromDatetime,
-            inAdvanceChargesToDatetime: invoiceSub?.inAdvanceChargesToDatetime,
-            invoiceId: invoiceSub?.invoice?.id,
-            subscriptionDisplayName:
-              invoiceSub.subscription.name || invoiceSub.subscription.plan.name,
-            toDatetime: invoiceSub?.toDatetime,
-            isMonthlyBilled: !!invoiceSub?.subscription?.plan?.billChargesMonthly,
-            shouldDisplaySubscriptionFee: shouldDisplaySubscriptionFee(
-              invoiceSub as InvoiceSubscription,
-            ),
-          },
-        }
+  // First group by subscription ID, maintaining insertion order
+  const feesGroupedBySubscription = fees.reduce<
+    Record<
+      string,
+      {
+        subscription: AssociatedSubscription
+        boundaries: Record<
+          string,
+          { fromDatetime: string; toDatetime: string; fees: TExtendedFee<TFee>[] }
+        >
       }
+    >
+  >((acc, fee) => {
+    const subscriptionId = fee.subscription?.id
 
-      if (!invoiceSub?.fees?.length) return acc
+    // Skip fees without subscription ID (they belong to one-off invoices)
+    if (!subscriptionId) return acc
 
-      // Group fees advance / arrear
-      for (let i = 0; i < invoiceSub?.fees?.length; i++) {
-        const currentFee = invoiceSub?.fees[i] as TExtendedRemainingFee
+    const associatedSubscription = subscriptions?.find((s) => s.id === subscriptionId)
 
-        const isZeroFee = hasOldZeroFeeManagement && currentFee.units === 0
+    if (!associatedSubscription) return acc
 
-        const isFeeInAdvance =
-          currentFee.charge?.payInAdvance ||
-          (currentFee.feeType === FeeTypesEnum.Subscription &&
-            differentBoundariesForSubscriptionAndCharges)
-
-        // Populate zero fees array for draft invoice
-        if (invoiceSub?.invoice?.status === InvoiceStatusTypeEnum.Draft && isZeroFee) {
-          if (isFeeInAdvance) {
-            acc[subscriptionId]?.feesInAdvanceZero?.push(currentFee)
-          } else {
-            acc[subscriptionId]?.feesInArrearsZero?.push(currentFee)
-          }
-
-          !hasAnyFeeParsed && (hasAnyFeeParsed = true)
-        } else if (!isZeroFee) {
-          if (isFeeInAdvance) {
-            acc[subscriptionId]?.feesInAdvance?.push(currentFee)
-          } else {
-            acc[subscriptionId]?.feesInArrears?.push(currentFee)
-          }
-
-          !hasAnyFeeParsed && (hasAnyFeeParsed = true)
-          !hasAnyPositiveFeeParsed && (hasAnyPositiveFeeParsed = true)
-        }
+    // Initialize subscription entry if it doesn't exist (maintains insertion order)
+    if (!acc[subscriptionId]) {
+      acc[subscriptionId] = {
+        subscription: associatedSubscription,
+        boundaries: {},
       }
+    }
 
-      return acc
-    },
-    {},
-  )
+    // Create a unique key based on the fee's boundary dates
+    const fromDatetime = fee.properties?.fromDatetime || ''
+    const toDatetime = fee.properties?.toDatetime || ''
+    const boundaryKey = createBoundaryKey(fromDatetime, toDatetime)
 
-  // Format fees
+    // Initialize boundary entry if it doesn't exist
+    if (!acc[subscriptionId].boundaries[boundaryKey]) {
+      acc[subscriptionId].boundaries[boundaryKey] = {
+        fromDatetime,
+        toDatetime,
+        fees: [],
+      }
+    }
+
+    // Add the formatted fee to the boundary
+    acc[subscriptionId].boundaries[boundaryKey].fees.push(
+      _formatFeeWithMetadata(fee, associatedSubscription),
+    )
+    hasAnyFeeParsed = true
+
+    if (fee.amountCents > 0) {
+      hasAnyPositiveFeeParsed = true
+    }
+
+    return acc
+  }, {})
+
+  // Process each subscription: sort fees within boundaries, sort boundaries by date
+  const result: TSubscriptionDataForDisplay<TExtendedFee<TFee>> = {}
+
   Object.keys(feesGroupedBySubscription).forEach((subscriptionId) => {
-    const subscription = feesGroupedBySubscription[subscriptionId]
+    const subscriptionData = feesGroupedBySubscription[subscriptionId]
+    const { subscription, boundaries } = subscriptionData
 
-    if (subscription?.feesInArrears?.length) {
-      feesGroupedBySubscription[subscriptionId].feesInArrears = _newDeepFormatFees(
-        subscription.feesInArrears,
-      )
-    }
-    if (subscription?.feesInArrearsZero?.length) {
-      feesGroupedBySubscription[subscriptionId].feesInArrearsZero = _newDeepFormatFees(
-        subscription.feesInArrearsZero,
-      )
-    }
-    if (subscription?.feesInAdvance?.length) {
-      feesGroupedBySubscription[subscriptionId].feesInAdvance = _newDeepFormatFees(
-        subscription.feesInAdvance,
-      )
-    }
-    if (subscription?.feesInAdvanceZero?.length) {
-      feesGroupedBySubscription[subscriptionId].feesInAdvanceZero = _newDeepFormatFees(
-        subscription.feesInAdvanceZero,
-      )
+    // Sort fees within each boundary
+    Object.keys(boundaries).forEach((boundaryKey) => {
+      const boundary = boundaries[boundaryKey]
+
+      if (boundary?.fees?.length) {
+        boundaries[boundaryKey].fees = _newDeepFormatFees(boundary.fees)
+      }
+    })
+
+    // Sort boundaries by fromDatetime, then by toDatetime (earliest first)
+    const sortedBoundaries: typeof boundaries = {}
+    const sortedBoundaryKeys = Object.keys(boundaries).sort((a, b) => {
+      const boundaryA = boundaries[a]
+      const boundaryB = boundaries[b]
+
+      // Compare fromDatetime first
+      if (boundaryA.fromDatetime < boundaryB.fromDatetime) return -1
+      if (boundaryA.fromDatetime > boundaryB.fromDatetime) return 1
+
+      // If fromDatetime is equal, compare toDatetime
+      if (boundaryA.toDatetime < boundaryB.toDatetime) return -1
+      if (boundaryA.toDatetime > boundaryB.toDatetime) return 1
+
+      return 0
+    })
+
+    // Rebuild boundaries with sorted keys
+    sortedBoundaryKeys.forEach((key) => {
+      sortedBoundaries[key] = boundaries[key]
+    })
+
+    // Create subscription display name
+    const subscriptionDisplayName = subscription.name || subscription.plan.name
+
+    // Find the acceptNewChargeFees value for this subscription from invoiceSubscriptions
+    const invoiceSubscription = invoiceSubscriptions?.find(
+      (invSub) => invSub.subscription.id === subscriptionId && invSub.invoice.id === invoiceId,
+    )
+    const acceptNewChargeFees = invoiceSubscription?.acceptNewChargeFees ?? false
+
+    result[subscriptionId] = {
+      acceptNewChargeFees,
+      boundaries: sortedBoundaries,
+      subscriptionDisplayName,
     }
   })
 
   return {
-    subscriptions: feesGroupedBySubscription,
+    subscriptions: result,
     metadata: {
       hasAnyFeeParsed,
       hasAnyPositiveFeeParsed,
@@ -302,83 +515,12 @@ export const groupAndFormatFees = ({
   }
 }
 
-export const _newDeepFormatFees = (
-  feesToFormat: TExtendedRemainingFee[],
-): TExtendedRemainingFee[] => {
-  const feesData: TExtendedRemainingFee[] = []
-
-  // Mark fees depending on their type and add a display name
-  for (let i = 0; i < feesToFormat.length; i++) {
-    const fee = feesToFormat[i]
-
-    if (fee.feeType === FeeTypesEnum.Subscription) {
-      feesData.push({
-        ...fee,
-        metadata: {
-          isSubscriptionFee: true,
-          displayName: getSubscriptionFeeDisplayName(fee),
-        },
-      })
-    } else if (fee.feeType === FeeTypesEnum.FixedCharge) {
-      feesData.push({
-        ...fee,
-        metadata: {
-          isFixedCharge: true,
-          displayName: fee?.invoiceName || fee?.itemName,
-        },
-      })
-    } else if (fee.feeType === FeeTypesEnum.Commitment) {
-      feesData.push({
-        ...fee,
-        metadata: {
-          isCommitmentFee: true,
-          displayName: fee.invoiceDisplayName || 'Minimum commitment - True up',
-        },
-      })
-    } else if (!!fee?.trueUpParentFee?.id) {
-      feesData.push({
-        ...fee,
-        metadata: {
-          isTrueUpFee: true,
-          displayName:
-            composeMultipleValuesWithSepator([
-              fee.invoiceName || fee.charge?.billableMetric?.name,
-              composeGroupedByDisplayName(fee.groupedBy),
-              composeChargeFilterDisplayName(fee.chargeFilter),
-            ]) + ' - True-up',
-        },
-      })
-    } else if (!!fee.chargeFilter) {
-      feesData.push({
-        ...fee,
-        metadata: {
-          isFilterChildFee: true,
-          displayName:
-            fee.invoiceDisplayName ||
-            composeMultipleValuesWithSepator([
-              fee.invoiceName || fee.charge?.billableMetric?.name,
-              composeGroupedByDisplayName(fee.groupedBy),
-              composeChargeFilterDisplayName(fee.chargeFilter),
-            ]),
-        },
-      })
-    } else {
-      feesData.push({
-        ...fee,
-        metadata: {
-          isNormalFee: true,
-          displayName:
-            fee.invoiceDisplayName ||
-            composeMultipleValuesWithSepator([
-              fee.invoiceName || fee.charge?.billableMetric?.name,
-              composeGroupedByDisplayName(fee.groupedBy),
-            ]),
-        },
-      })
-    }
-  }
-
-  return feesData.sort((a, b) => {
+/**
+ * Sorts fees by type and display name
+ * Works with any fee type that has metadata attached
+ */
+export const _newDeepFormatFees = <T extends { metadata: FeeMetadata }>(feesToFormat: T[]): T[] => {
+  return feesToFormat.sort((a, b) => {
     const aDisplayName = a?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')
     const bDisplayName = b?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')
 
