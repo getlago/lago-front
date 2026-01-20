@@ -1,6 +1,18 @@
 import { useRoutes } from 'react-router-dom'
 
 import {
+  ACTIVITY_LOG_ROUTE,
+  ACTIVITY_ROUTE,
+  API_KEYS_ROUTE,
+  API_LOG_ROUTE,
+  API_LOGS_ROUTE,
+  EVENT_LOG_ROUTE,
+  EVENTS_ROUTE,
+  WEBHOOK_LOGS_ROUTE,
+  WEBHOOK_ROUTE,
+  WEBHOOKS_ROUTE,
+} from '~/components/developers/devtoolsRoutes'
+import {
   ActivityLogs,
   ApiKeys,
   ApiLogs,
@@ -10,23 +22,6 @@ import {
 } from '~/components/developers/views'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-
-export const DEVTOOL_ROUTE = '/devtool'
-
-export const API_KEYS_ROUTE = `${DEVTOOL_ROUTE}`
-
-export const WEBHOOKS_ROUTE = `${DEVTOOL_ROUTE}/webhooks`
-export const WEBHOOK_ROUTE = `${DEVTOOL_ROUTE}/webhooks/:webhookId`
-export const WEBHOOK_LOGS_ROUTE = `${DEVTOOL_ROUTE}/webhooks/:webhookId/logs/:logId`
-
-export const EVENTS_ROUTE = `${DEVTOOL_ROUTE}/events`
-export const EVENT_LOG_ROUTE = `${DEVTOOL_ROUTE}/events/:eventId`
-
-export const API_LOGS_ROUTE = `${DEVTOOL_ROUTE}/api-logs`
-export const API_LOG_ROUTE = `${DEVTOOL_ROUTE}/api-logs/:logId`
-
-export const ACTIVITY_ROUTE = `${DEVTOOL_ROUTE}/activity-logs`
-export const ACTIVITY_LOG_ROUTE = `${DEVTOOL_ROUTE}/activity-logs/:logId`
 
 export const DevtoolsRouter = () => {
   const routes = useRoutes([

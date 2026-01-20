@@ -120,11 +120,7 @@ const MainNavLayout = () => {
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
   })
-  const {
-    openPanel: openInspector,
-    closePanel: closeInspector,
-    panelOpen: isInspectorOpen,
-  } = useDeveloperTool()
+  const { openPanel: openInspector } = useDeveloperTool()
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
@@ -161,8 +157,6 @@ const MainNavLayout = () => {
 
     try {
       await switchCurrentOrganization(client, organizationId)
-
-      if (isInspectorOpen) closeInspector()
 
       navigate(HOME_ROUTE)
 
