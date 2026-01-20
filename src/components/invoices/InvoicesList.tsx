@@ -32,7 +32,11 @@ import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/V
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
-import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import {
+  invoiceStatusMapping,
+  isInvoicePartiallyPaid,
+  paymentStatusMapping,
+} from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -411,8 +415,10 @@ const InvoicesList = ({
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 
-            const isPartiallyPaid =
-              Number(invoice.totalPaidAmountCents) > 0 && Number(invoice.totalDueAmountCents) > 0
+            const isPartiallyPaid = isInvoicePartiallyPaid(
+              invoice.totalPaidAmountCents,
+              invoice.totalDueAmountCents,
+            )
 
             const hasActiveWallet = invoice?.customer?.hasActiveWallet || false
 
@@ -523,8 +529,10 @@ const InvoicesList = ({
                   statusEndIcon: undefined,
                 }
 
-                const isPartiallyPaid =
-                  Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
+                const isPartiallyPaid = isInvoicePartiallyPaid(
+                  totalPaidAmountCents,
+                  totalDueAmountCents,
+                )
 
                 if (isPartiallyPaid) {
                   content = {

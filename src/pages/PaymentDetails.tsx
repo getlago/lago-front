@@ -19,6 +19,7 @@ import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
 import {
+  isInvoicePartiallyPaid,
   payablePaymentStatusMapping,
   paymentStatusMapping,
 } from '~/core/constants/statusInvoiceMapping'
@@ -591,8 +592,10 @@ const PaymentDetails = () => {
 
                   const isOverdue =
                     paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
-                  const isPartiallyPaid =
-                    Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
+                  const isPartiallyPaid = isInvoicePartiallyPaid(
+                    totalPaidAmountCents,
+                    totalDueAmountCents,
+                  )
 
                   if (isPartiallyPaid) {
                     content = {

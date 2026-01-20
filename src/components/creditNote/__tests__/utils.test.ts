@@ -6,6 +6,7 @@ import {
 } from '~/components/creditNote/__tests__/fixtures'
 import { CreditTypeEnum } from '~/components/creditNote/types'
 import {
+  buildCreditNoteFees,
   buildInitialPayBack,
   canCreateCreditNote,
   createCreditNoteForInvoiceButtonProps,
@@ -875,6 +876,147 @@ describe('formatCreditNoteTypesForDisplay', () => {
       expect(formatCreditNoteTypesForDisplay(['Type1', 'Type2', 'Type3', 'Type4'])).toBe(
         'Type1, type2, type3 & type4',
       )
+    })
+  })
+})
+
+describe('buildCreditNoteFees', () => {
+  const createMockFee = (
+    overrides: Partial<{
+      id: string
+      amountCurrency: CurrencyEnum
+      invoiceName: string | null
+      itemName: string | null
+      creditableAmountCents: string
+      offsettableAmountCents: string
+      appliedTaxes: Array<{ id: string; taxName: string; taxRate: number }> | null
+    }> = {},
+  ) => ({
+    id: 'fee-1',
+    amountCurrency: CurrencyEnum.Eur,
+    invoiceName: 'Test Fee',
+    itemName: 'Item Name',
+    creditableAmountCents: '1000',
+    offsettableAmountCents: '500',
+    appliedTaxes: [{ id: 'tax-1', taxName: 'VAT', taxRate: 20 }],
+    ...overrides,
+  })
+
+  describe('GIVEN undefined fees', () => {
+    it('THEN should return empty array', () => {
+      expect(buildCreditNoteFees(undefined, true)).toEqual([])
+    })
+  })
+
+  describe('GIVEN null fees', () => {
+    it('THEN should return empty array', () => {
+      expect(buildCreditNoteFees(null, true)).toEqual([])
+    })
+  })
+
+  describe('GIVEN empty fees array', () => {
+    it('THEN should return empty array', () => {
+      expect(buildCreditNoteFees([], true)).toEqual([])
+    })
+  })
+
+  describe('GIVEN hasCreditableOrRefundableAmount is true', () => {
+    it('THEN should use creditableAmountCents', () => {
+      const fees = [createMockFee()]
+
+      const result = buildCreditNoteFees(fees, true)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual({
+        id: 'fee-1',
+        checked: true,
+        value: 10, // 1000 cents = 10 EUR
+        name: 'Test Fee',
+        maxAmount: 1000,
+        appliedTaxes: [{ id: 'tax-1', taxName: 'VAT', taxRate: 20 }],
+        isReadOnly: false,
+      })
+    })
+
+    it('WHEN creditableAmountCents is 0 THEN should skip the fee', () => {
+      const fees = [createMockFee({ creditableAmountCents: '0' })]
+
+      const result = buildCreditNoteFees(fees, true)
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('GIVEN hasCreditableOrRefundableAmount is false', () => {
+    it('THEN should use offsettableAmountCents and set isReadOnly to true', () => {
+      const fees = [createMockFee()]
+
+      const result = buildCreditNoteFees(fees, false)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual({
+        id: 'fee-1',
+        checked: true,
+        value: 5, // 500 cents = 5 EUR
+        name: 'Test Fee',
+        maxAmount: 500,
+        appliedTaxes: [{ id: 'tax-1', taxName: 'VAT', taxRate: 20 }],
+        isReadOnly: true,
+      })
+    })
+
+    it('WHEN offsettableAmountCents is 0 THEN should skip the fee', () => {
+      const fees = [createMockFee({ offsettableAmountCents: '0' })]
+
+      const result = buildCreditNoteFees(fees, false)
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('GIVEN fee with no invoiceName', () => {
+    it('THEN should use itemName as fallback', () => {
+      const fees = [createMockFee({ invoiceName: null })]
+
+      const result = buildCreditNoteFees(fees, true)
+
+      expect(result[0].name).toBe('Item Name')
+    })
+  })
+
+  describe('GIVEN fee with no invoiceName and no itemName', () => {
+    it('THEN should use empty string', () => {
+      const fees = [createMockFee({ invoiceName: null, itemName: null })]
+
+      const result = buildCreditNoteFees(fees, true)
+
+      expect(result[0].name).toBe('')
+    })
+  })
+
+  describe('GIVEN fee with no appliedTaxes', () => {
+    it('THEN should use empty array', () => {
+      const fees = [createMockFee({ appliedTaxes: null })]
+
+      const result = buildCreditNoteFees(fees, true)
+
+      expect(result[0].appliedTaxes).toEqual([])
+    })
+  })
+
+  describe('GIVEN multiple fees', () => {
+    it('THEN should convert all valid fees', () => {
+      const fees = [
+        createMockFee({ id: 'fee-1', creditableAmountCents: '1000' }),
+        createMockFee({ id: 'fee-2', creditableAmountCents: '2000' }),
+        createMockFee({ id: 'fee-3', creditableAmountCents: '0' }), // Should be skipped
+      ]
+
+      const result = buildCreditNoteFees(fees, true)
+
+      expect(result).toHaveLength(2)
+      expect(result[0].id).toBe('fee-1')
+      expect(result[1].id).toBe('fee-2')
     })
   })
 })

@@ -7,6 +7,11 @@ import {
   PayablePaymentStatusEnum,
 } from '~/generated/graphql'
 
+export const isInvoicePartiallyPaid = (
+  totalPaidAmountCents?: string | number,
+  totalDueAmountCents?: string | number,
+): boolean => Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
+
 export const invoiceStatusMapping = ({
   status,
 }: {
@@ -39,7 +44,7 @@ export const paymentStatusMapping = ({
   totalPaidAmountCents?: number
   totalDueAmountCents?: number
 }): StatusProps => {
-  const isPartiallyPaid = Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
+  const isPartiallyPaid = isInvoicePartiallyPaid(totalPaidAmountCents, totalDueAmountCents)
 
   const endIcon: IconName | undefined = isPartiallyPaid ? 'partially-filled' : undefined
 

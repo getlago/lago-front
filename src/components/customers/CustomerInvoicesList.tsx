@@ -24,7 +24,11 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import {
+  invoiceStatusMapping,
+  isInvoicePartiallyPaid,
+  paymentStatusMapping,
+} from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -342,8 +346,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   statusEndIcon: undefined,
                 }
 
-                const isPartiallyPaid =
-                  Number(totalPaidAmountCents) > 0 && Number(totalDueAmountCents) > 0
+                const isPartiallyPaid = isInvoicePartiallyPaid(
+                  totalPaidAmountCents,
+                  totalDueAmountCents,
+                )
 
                 if (isPartiallyPaid) {
                   content = {

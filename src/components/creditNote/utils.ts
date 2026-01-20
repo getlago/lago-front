@@ -1,4 +1,4 @@
-import { serializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteItemInput,
   CreditNoteTableItemFragment,
@@ -328,4 +328,55 @@ export const buildInitialPayBack = (
     ...(hasRefund ? [{ type: CreditTypeEnum.refund, value: undefined }] : []),
     ...(hasOffset ? [{ type: CreditTypeEnum.offset, value: undefined }] : []),
   ]
+}
+
+// ----------------------------------------
+// Credit Note Fees Builder
+// ----------------------------------------
+
+type InvoiceFeeForCreditNote = {
+  id: string
+  amountCurrency: CurrencyEnum
+  invoiceName?: string | null
+  itemName?: string | null
+  creditableAmountCents: string
+  offsettableAmountCents: string
+  appliedTaxes?: Array<{
+    id: string
+    taxName: string
+    taxRate: number
+  }> | null
+}
+
+/**
+ * Converts invoice fees to credit note form fees (FromFee[]).
+ * Used for add-on and credit invoice types where fees need to be mapped to the credit note form.
+ *
+ * @param fees - The invoice fees to convert
+ * @param canCreditOrRefund - Whether the invoice has creditable/refundable amounts (determines which amount field to use)
+ * @returns Array of FromFee objects for the credit note form, or empty array if no valid fees
+ */
+export const buildCreditNoteFees = (
+  fees: InvoiceFeeForCreditNote[] | undefined | null,
+  canCreditOrRefund: boolean,
+): FromFee[] => {
+  if (!fees) return []
+
+  return fees.reduce<FromFee[]>((acc, fee) => {
+    const amountCents = canCreditOrRefund ? fee.creditableAmountCents : fee.offsettableAmountCents
+
+    if (Number(amountCents) > 0) {
+      acc.push({
+        id: fee.id,
+        checked: true,
+        value: deserializeAmount(amountCents, fee.amountCurrency),
+        name: fee.invoiceName || fee.itemName || '',
+        maxAmount: Number(amountCents),
+        appliedTaxes: fee.appliedTaxes || [],
+        isReadOnly: !canCreditOrRefund,
+      })
+    }
+
+    return acc
+  }, [])
 }

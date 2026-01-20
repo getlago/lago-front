@@ -4,6 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
 import {
+  buildCreditNoteFees,
   hasCreditableOrRefundableAmount as hasCreditableOrRefundableAmountUtil,
   isCreditNoteCreationDisabled,
 } from '~/components/creditNote/utils'
@@ -241,25 +242,9 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
 
   const feeForCredit = useMemo(() => {
     if (data?.invoice?.invoiceType === InvoiceTypeEnum.Credit) {
-      return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
-        const amountCents = hasCreditableOrRefundableAmount
-          ? fee?.creditableAmountCents
-          : fee?.offsettableAmountCents
+      const result = buildCreditNoteFees(data?.invoice?.fees, hasCreditableOrRefundableAmount)
 
-        if (Number(amountCents) > 0) {
-          acc.push({
-            id: fee?.id,
-            checked: true,
-            value: deserializeAmount(amountCents, fee.amountCurrency),
-            name: fee?.invoiceName || fee.itemName,
-            maxAmount: amountCents,
-            appliedTaxes: fee?.appliedTaxes || [],
-            isReadOnly: !hasCreditableOrRefundableAmount,
-          })
-        }
-
-        return acc
-      }, [])
+      return result.length > 0 ? result : undefined
     }
 
     return undefined
@@ -270,25 +255,9 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
       data?.invoice?.invoiceType === InvoiceTypeEnum.AddOn ||
       data?.invoice?.invoiceType === InvoiceTypeEnum.OneOff
     ) {
-      return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
-        const amountCents = hasCreditableOrRefundableAmount
-          ? fee?.creditableAmountCents
-          : fee?.offsettableAmountCents
+      const result = buildCreditNoteFees(data?.invoice?.fees, hasCreditableOrRefundableAmount)
 
-        if (Number(amountCents) > 0) {
-          acc.push({
-            id: fee?.id,
-            checked: true,
-            value: deserializeAmount(amountCents, fee.amountCurrency),
-            name: fee?.invoiceName || fee.itemName,
-            maxAmount: amountCents,
-            appliedTaxes: fee?.appliedTaxes || [],
-            isReadOnly: !hasCreditableOrRefundableAmount,
-          })
-        }
-
-        return acc
-      }, [])
+      return result.length > 0 ? result : undefined
     }
 
     return undefined
