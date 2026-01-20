@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client'
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
+import { Provider as NiceModalProvider } from '@ebay/nice-modal-react'
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles'
 import { captureException } from '@sentry/react'
 import { useEffect, useState } from 'react'
@@ -22,6 +23,7 @@ import {
   setAuthErrorHandler,
 } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import '~/core/dialogs/registeredDialogs'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
@@ -112,26 +114,28 @@ const App = () => {
           <ErrorBoundary>
             <DeveloperToolProvider>
               <AiAgentProvider>
-                <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                  <BrowserRouter basename="/">
-                    <Panel id="app-panel-group">
-                      <PanelGroup direction="horizontal">
-                        <Panel id="app-panel">
-                          <div className="h-full overflow-auto" data-app-wrapper>
-                            <RouteWrapper />
-                          </div>
-                        </Panel>
+                <NiceModalProvider>
+                  <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                    <BrowserRouter basename="/">
+                      <Panel id="app-panel-group">
+                        <PanelGroup direction="horizontal">
+                          <Panel id="app-panel">
+                            <div className="h-full overflow-auto" data-app-wrapper>
+                              <RouteWrapper />
+                            </div>
+                          </Panel>
 
-                        <AiAgent />
-                      </PanelGroup>
-                    </Panel>
-                  </BrowserRouter>
-                  <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
-                    <DevtoolsErrorBoundary>
-                      <DevtoolsView />
-                    </DevtoolsErrorBoundary>
-                  </MemoryRouter>
-                </PanelGroup>
+                          <AiAgent />
+                        </PanelGroup>
+                      </Panel>
+                    </BrowserRouter>
+                    <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                      <DevtoolsErrorBoundary>
+                        <DevtoolsView />
+                      </DevtoolsErrorBoundary>
+                    </MemoryRouter>
+                  </PanelGroup>
+                </NiceModalProvider>
               </AiAgentProvider>
             </DeveloperToolProvider>
           </ErrorBoundary>
