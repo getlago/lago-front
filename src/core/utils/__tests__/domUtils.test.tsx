@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import '@testing-library/jest-dom'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'

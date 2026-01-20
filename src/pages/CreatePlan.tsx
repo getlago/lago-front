@@ -42,7 +42,6 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   FeatureEntitlementForPlanFragmentDoc,
   FixedChargeAccordionFragmentDoc,
@@ -167,7 +166,6 @@ const CreatePlan = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
-  const hasAccessToFixedChargesFeature = isFeatureFlagActive(FeatureFlags.FIXED_CHARGES)
 
   const canBeEdited = !plan?.subscriptionsCount
   const alreadyExistingFixedChargesIds =
@@ -279,16 +277,14 @@ const CreatePlan = () => {
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
 
-                    {hasAccessToFixedChargesFeature && (
-                      <FixedChargesSection
-                        alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
-                        canBeEdited={canBeEdited}
-                        formikProps={formikProps}
-                        isEdition={isEdition}
-                        editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
-                      />
-                    )}
+                    <FixedChargesSection
+                      alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
+                      canBeEdited={canBeEdited}
+                      formikProps={formikProps}
+                      isEdition={isEdition}
+                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
+                    />
 
                     <UsageChargesSection
                       canBeEdited={canBeEdited}

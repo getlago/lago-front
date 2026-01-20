@@ -135,6 +135,33 @@ export default defineConfig(({ mode }) => {
       host: true,
       strictPort: true,
       allowedHosts: ['app.lago.dev'],
+      watch: {
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/dist/**',
+          '**/coverage/**',
+          '**/.vite/**',
+          '**/packages/**/dist/**',
+          '**/*.log',
+          '**/cypress/**',
+          '**/.pnpm-store/**',
+          '**/src/generated/**',
+        ],
+      },
+    },
+    optimizeDeps: {
+      include: [
+        '@apollo/client',
+        '@mui/material',
+        'react',
+        'react-dom',
+        'lodash-es',
+        'recharts',
+        'formik',
+        'yup',
+      ],
+      exclude: ['lago-design-system', 'lago-configs'],
     },
     preview: {
       port,
