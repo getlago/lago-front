@@ -21,7 +21,6 @@ import {
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { InvoiceOverviewHeaderButtons } from '~/components/invoices/InvoiceOverviewHeaderButtons'
 import { Metadatas } from '~/components/invoices/Metadatas'
-import { InvoiceFeesForDisplay, InvoiceSubscriptionsForDisplay } from '~/components/invoices/types'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokInvoiceUrl,
@@ -35,14 +34,16 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import {
+  AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AvalaraIntegrationInfosForInvoiceOverviewFragment,
   BillingEntity,
-  Customer,
   CustomerAccountTypeEnum,
   CustomerForInvoiceOverviewFragment,
   DownloadInvoiceItemMutationFn,
+  FeeDetailsForInvoiceOverviewFragment,
+  FeeForInvoiceDetailsTableBodyLineFragmentDoc,
+  FeeForInvoiceDetailsTableFooterFragmentDoc,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
-  Invoice,
   InvoiceStatusTypeEnum,
   LagoApiError,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
@@ -77,44 +78,67 @@ gql`
     integrationSalesforceSyncable
     externalSalesforceIntegrationId
     xmlUrl
-    fees {
-      id
-      addOn {
-        id
-      }
-      amountCents
-      invoiceName
-      invoiceDisplayName
-      units
-      groupedBy
-      charge {
-        id
-        payInAdvance
-        minAmountCents
-        billableMetric {
-          id
-          name
-        }
-      }
-      chargeFilter {
-        invoiceDisplayName
-        values
-      }
-      subscription {
-        id
-        plan {
-          id
-          interval
-          name
-        }
-      }
-    }
     billingEntity {
       id
       name
       code
       einvoicing
     }
+  }
+
+  fragment FeeDetailsForInvoiceOverview on Fee {
+    id
+    succeededAt
+    addOn {
+      id
+    }
+    amountCents
+    currency
+    feeType
+    invoiceName
+    invoiceDisplayName
+    itemName
+    units
+    groupedBy
+    properties {
+      fromDatetime
+      toDatetime
+    }
+    trueUpParentFee {
+      id
+    }
+    walletTransaction {
+      id
+      name
+      wallet {
+        id
+        name
+      }
+    }
+    charge {
+      id
+      payInAdvance
+      minAmountCents
+      billableMetric {
+        id
+        name
+      }
+    }
+    chargeFilter {
+      invoiceDisplayName
+      values
+    }
+    subscription {
+      id
+      plan {
+        id
+        interval
+        name
+      }
+    }
+
+    ...FeeForInvoiceDetailsTableBodyLine
+    ...FeeForInvoiceDetailsTableFooter
   }
 
   fragment CustomerForInvoiceOverview on Customer {
@@ -163,6 +187,9 @@ gql`
     accountId
     companyId
   }
+
+  ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
+  ${FeeForInvoiceDetailsTableFooterFragmentDoc}
 `
 
 interface InvoiceOverviewProps {
@@ -171,7 +198,7 @@ interface InvoiceOverviewProps {
   downloadInvoiceXml: DownloadInvoiceItemMutationFn
   hasError: boolean
   hasTaxProviderError: boolean
-  invoice: Invoice
+  invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
   loading: boolean
   loadingInvoiceDownload: boolean
   loadingInvoiceXmlDownload: boolean
@@ -190,8 +217,7 @@ interface InvoiceOverviewProps {
   syncSalesforceIntegrationInvoice: SyncSalesforceInvoiceMutationFn
   loadingSyncHubspotIntegrationInvoice: boolean
   loadingSyncSalesforceIntegrationInvoice: boolean
-  fees: InvoiceFeesForDisplay
-  invoiceSubscriptions: InvoiceSubscriptionsForDisplay
+  fees: FeeDetailsForInvoiceOverviewFragment[] | null | undefined
 }
 
 const InlineLink = ({ children, ...props }: LinkProps) => {
@@ -216,7 +242,7 @@ const LinkToInvoice = ({
   label,
   invoiceNumberPrefix,
 }: {
-  invoice?: Partial<Invoice>
+  invoice?: AllInvoiceDetailsForCustomerInvoiceDetailsFragment
   redirectToInvoiceId?: string | null
   label: string
   invoiceNumberPrefix?: string
@@ -263,9 +289,9 @@ export const InvoiceQuickInfo = ({
   billingEntity,
   customer,
 }: {
-  invoice: Invoice
-  billingEntity: Partial<BillingEntity>
-  customer?: Partial<Customer> | null
+  invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
+  billingEntity: Pick<BillingEntity, 'id' | 'name' | 'code' | 'einvoicing'> | null | undefined
+  customer?: CustomerForInvoiceOverviewFragment | null
 }) => {
   const { translate } = useInternationalization()
   const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
@@ -343,7 +369,6 @@ const InvoiceOverview = memo(
     loadingSyncSalesforceIntegrationInvoice,
     customer,
     fees,
-    invoiceSubscriptions,
   }: InvoiceOverviewProps) => {
     const { formattedDateWithTimezone } = useFormatterDateHelper()
     const { translate } = useInternationalization()
@@ -379,8 +404,7 @@ const InvoiceOverview = memo(
 
     const showTaxProviderReSyncButton = invoice?.taxProviderVoidable
     const showAnrokLink = isInvoiceFinalizedOrVoided && !!customer?.anrokCustomer?.externalAccountId
-    const showAnrokSection =
-      (showTaxProviderReSyncButton || showAnrokLink) && !!invoice?.fees?.length
+    const showAnrokSection = (showTaxProviderReSyncButton || showAnrokLink) && !!fees?.length
 
     const showAvalaraLink =
       isInvoiceFinalizedOrVoided &&
@@ -389,8 +413,7 @@ const InvoiceOverview = memo(
       !!connectedAvalaraIntegration?.accountId &&
       !!invoice?.taxProviderId
 
-    const showAvalaraSection =
-      (showAvalaraLink || showTaxProviderReSyncButton) && !!invoice?.fees?.length
+    const showAvalaraSection = (showAvalaraLink || showTaxProviderReSyncButton) && !!fees?.length
 
     const showHubspotReSyncButton = invoice?.integrationHubspotSyncable
     const showHubspotLink =
@@ -404,7 +427,7 @@ const InvoiceOverview = memo(
     const showSalesforceLink =
       customer?.salesforceCustomer?.externalCustomerId &&
       connectedSalesforceIntegration?.instanceId &&
-      !!invoice.externalSalesforceIntegrationId &&
+      !!invoice?.externalSalesforceIntegrationId &&
       isInvoiceFinalizedOrVoided
 
     const showSalesforceSection = showSalesforceLink || showSalesforceReSyncButton
@@ -518,17 +541,16 @@ const InvoiceOverview = memo(
                 </div>
               )}
               <InvoiceQuickInfo
-                customer={customer as Customer}
+                customer={customer}
                 invoice={invoice}
                 billingEntity={billingEntity}
               />
               <InvoiceDetailsTable
-                customer={customer as Customer}
-                invoice={invoice as Invoice}
+                customer={customer}
+                invoice={invoice}
                 editFeeDrawerRef={editFeeDrawerRef}
                 deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                 fees={fees}
-                invoiceSubscriptions={invoiceSubscriptions}
               />
               {showExternalAppsSection && (
                 <Stack marginTop={8} gap={6}>
