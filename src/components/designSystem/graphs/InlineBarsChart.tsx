@@ -86,7 +86,6 @@ const InlineBarsChart = ({
               shape={(props: TShapeBarProps) => (
                 <>
                   <BarWithBorder
-                    // eslint-disable-next-line tailwindcss/no-custom-classname
                     className="bar-with-border"
                     opacity={!localHoveredBarId || localHoveredBarId === key ? 1 : 0.2}
                     {...props}

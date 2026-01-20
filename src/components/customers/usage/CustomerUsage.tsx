@@ -56,7 +56,6 @@ export const CustomerUsage = ({ premiumWarningDialogRef }: CustomerUsageProps) =
 
       <AnalyticsStateProvider>
         <Gross
-          // eslint-disable-next-line tailwindcss/no-custom-classname
           className="analytics-graph py-0"
           currency={data?.customer?.currency || organization?.defaultCurrency}
           period={periodScope}
