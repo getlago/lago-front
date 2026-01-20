@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint no-console: ["error", { allow: ["info"] }] */
 import { GettextExtractor, JsExtractors } from 'gettext-extractor'
 import { globSync } from 'glob'
@@ -9,14 +10,25 @@ const SRC_DIR = './src/'
 const TRANSLATION_FILES_PATH = './translations/base.json' // './translations/**.json' for when we'll support several languages
 
 async function extract(replaceMode) {
+  // Silence console.error temporarily - gettext-extractor 4.0.4 has debug logs
+  // eslint-disable-next-line newline-after-var
+  const originalConsoleError = console.error
+  console.error = () => {}
+
   // Extract all the translation keys by parsing the 'translate' function
+  // Exclude test files as they don't contain translation keys
   const extracts = new GettextExtractor()
     .createJsParser([
       JsExtractors.callExpression('translate', {
         arguments: { text: 0 },
       }),
     ])
-    .parseFilesGlob(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'))
+    .parseFilesGlob(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'), {
+      ignore: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    })
+
+  // Restore console.error
+  console.error = originalConsoleError
 
   const foundKeys = Object.values(extracts.builder.contexts['']).reduce((acc, extracted) => {
     acc.push(extracted.text)
@@ -24,7 +36,9 @@ async function extract(replaceMode) {
   }, [])
 
   // Extract all the translation keys not used with 'translate' by matching 'text_[all]'
-  const files = globSync(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'))
+  const files = globSync(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'), {
+    ignore: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+  })
   const usedKeysWithoutTranslate = files.reduce((acc, file) => {
     const content = fs.readFileSync(file, 'utf-8')
     const usedKeys = content.match(/'text_(.*?)'/g)

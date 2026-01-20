@@ -343,7 +343,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             value: deserializeAmount(amountCents, fee.amountCurrency),
             name: composableName,
             isTrueUpFee: trueUpFeeIds?.includes(fee.id),
-            maxAmount: amountCents,
+            maxAmount: Number(amountCents),
             appliedTaxes: fee.appliedTaxes || [],
             succeededAt: fee.succeededAt,
             isReadOnly: !hasCreditableOrRefundableAmount,
