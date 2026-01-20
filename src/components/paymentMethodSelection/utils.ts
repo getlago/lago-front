@@ -7,9 +7,9 @@ export const formatPaymentMethodLabel = (
   paymentMethod: PaymentMethodItem,
 ): { label: string; headerText: string; footerText: string; isDefault: boolean } => {
   const { details, isDefault, paymentProviderType, paymentProviderCode } = paymentMethod
-  const { brand, type } = details || {}
+  const { brand, type, last4 } = details || {}
 
-  const baseLabel = formatPaymentMethodDetails({ type, brand })
+  const baseLabel = formatPaymentMethodDetails({ type, brand, last4 })
   const footerLabel = [paymentProviderType, paymentProviderCode].filter(Boolean).join(' • ')
 
   const labelText = isDefault

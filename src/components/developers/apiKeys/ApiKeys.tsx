@@ -22,7 +22,7 @@ import {
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
-import { obfuscateValue } from '~/core/formats/obfuscate'
+import { maskValue } from '~/core/formats/maskValue'
 import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -201,7 +201,9 @@ export const ApiKeys = () => {
                                   : undefined
                               }
                             >
-                              {showOrganizationId ? id : obfuscateValue(id)}
+                              {showOrganizationId
+                                ? id
+                                : maskValue(id, { dotsCount: 8, visibleChars: 3 })}
                             </Typography>
                           </Tooltip>
 
