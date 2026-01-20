@@ -1,7 +1,10 @@
-import { Icon } from 'lago-design-system'
-
-import { CREDIT_NOTE_TYPE_TRANSLATIONS_MAP, creditNoteType } from '~/components/creditNote/utils'
-import { Tooltip, Typography } from '~/components/designSystem'
+import {
+  CREDIT_NOTE_TYPE_TRANSLATIONS_MAP,
+  CreditNoteType,
+  formatCreditNoteTypesForDisplay,
+  getCreditNoteTypes,
+} from '~/components/creditNote/utils'
+import { Chip, Tooltip } from '~/components/designSystem'
 import { CreditNote, CreditNoteTableItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -14,32 +17,51 @@ const CreditNoteBadge = ({
 
   if (!creditNote) return null
 
-  const { creditAmountCents, refundAmountCents, voidedAt, taxProviderSyncable } = creditNote
+  const { creditAmountCents, refundAmountCents, offsetAmountCents, voidedAt, taxProviderSyncable } =
+    creditNote
 
-  const type = creditNoteType({
+  // Handle voided credit notes
+  if (voidedAt) {
+    return <Chip label={translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[CreditNoteType.VOIDED])} />
+  }
+
+  const types = getCreditNoteTypes({
     creditAmountCents,
     refundAmountCents,
-    voidedAt,
+    offsetAmountCents,
   })
 
-  if (type === null) return null
+  if (types.length === 0) return null
 
-  const label = translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type])
-
+  const hasMultipleTypes = types.length > 1
   const hasError = taxProviderSyncable
 
-  return (
-    <Tooltip
-      title={hasError ? translate('text_1727090499191gqzispoy1qz') : null}
-      placement="top-start"
-    >
-      <div className="flex items-center gap-2 rounded-lg border border-grey-400 bg-grey-100 px-2 py-1">
-        <Typography variant="bodyHl" color="grey700" className="whitespace-nowrap">
-          {label}
-        </Typography>
+  // Build tooltip content
+  const getTooltipContent = () => {
+    if (hasMultipleTypes) {
+      const translatedTypes = types.map((type) =>
+        translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type]),
+      )
 
-        {hasError && <Icon name="warning-unfilled" />}
-      </div>
+      return formatCreditNoteTypesForDisplay(translatedTypes)
+    }
+
+    if (hasError) {
+      return translate('text_1727090499191gqzispoy1qz')
+    }
+
+    return null
+  }
+
+  const tooltipContent = getTooltipContent()
+
+  const label = hasMultipleTypes
+    ? translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP.MULTIPLE_TYPES)
+    : translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[types[0]])
+
+  return (
+    <Tooltip title={tooltipContent} placement="top-start">
+      <Chip label={label} icon={hasError ? 'warning-unfilled' : undefined} />
     </Tooltip>
   )
 }

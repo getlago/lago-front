@@ -12,6 +12,9 @@ import {
   creditNoteFormCalculationCalculation,
   CreditNoteFormCalculationCalculationProps,
   creditNoteFormHasAtLeastOneFeeChecked,
+  CreditNoteType,
+  formatCreditNoteTypesForDisplay,
+  getCreditNoteTypes,
   getPayBackFields,
   hasCreditableAmount,
   hasCreditableOrRefundableAmount,
@@ -730,6 +733,148 @@ describe('buildInitialPayBack', () => {
         { type: CreditTypeEnum.credit, value: undefined },
         { type: CreditTypeEnum.offset, value: undefined },
       ])
+    })
+  })
+})
+
+describe('getCreditNoteTypes', () => {
+  describe('GIVEN only creditAmountCents > 0', () => {
+    it('THEN should return [CREDIT]', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '1000',
+        refundAmountCents: '0',
+        offsetAmountCents: '0',
+      })
+
+      expect(result).toEqual([CreditNoteType.CREDIT])
+    })
+  })
+
+  describe('GIVEN only refundAmountCents > 0', () => {
+    it('THEN should return [REFUND]', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '0',
+        refundAmountCents: '1000',
+        offsetAmountCents: '0',
+      })
+
+      expect(result).toEqual([CreditNoteType.REFUND])
+    })
+  })
+
+  describe('GIVEN only offsetAmountCents > 0', () => {
+    it('THEN should return [ON_INVOICE]', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '0',
+        refundAmountCents: '0',
+        offsetAmountCents: '1000',
+      })
+
+      expect(result).toEqual([CreditNoteType.ON_INVOICE])
+    })
+  })
+
+  describe('GIVEN creditAmountCents and refundAmountCents > 0', () => {
+    it('THEN should return [CREDIT, REFUND]', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '1000',
+        refundAmountCents: '500',
+        offsetAmountCents: '0',
+      })
+
+      expect(result).toEqual([CreditNoteType.CREDIT, CreditNoteType.REFUND])
+    })
+  })
+
+  describe('GIVEN creditAmountCents and offsetAmountCents > 0', () => {
+    it('THEN should return [CREDIT, ON_INVOICE]', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '1000',
+        refundAmountCents: '0',
+        offsetAmountCents: '500',
+      })
+
+      expect(result).toEqual([CreditNoteType.CREDIT, CreditNoteType.ON_INVOICE])
+    })
+  })
+
+  describe('GIVEN refundAmountCents and offsetAmountCents > 0', () => {
+    it('THEN should return [ON_INVOICE, REFUND]', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '0',
+        refundAmountCents: '1000',
+        offsetAmountCents: '500',
+      })
+
+      expect(result).toEqual([CreditNoteType.ON_INVOICE, CreditNoteType.REFUND])
+    })
+  })
+
+  describe('GIVEN all three amounts > 0', () => {
+    it('THEN should return [CREDIT, ON_INVOICE, REFUND]', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '1000',
+        refundAmountCents: '500',
+        offsetAmountCents: '300',
+      })
+
+      expect(result).toEqual([
+        CreditNoteType.CREDIT,
+        CreditNoteType.ON_INVOICE,
+        CreditNoteType.REFUND,
+      ])
+    })
+  })
+
+  describe('GIVEN all amounts are 0', () => {
+    it('THEN should return empty array', () => {
+      const result = getCreditNoteTypes({
+        creditAmountCents: '0',
+        refundAmountCents: '0',
+        offsetAmountCents: '0',
+      })
+
+      expect(result).toEqual([])
+    })
+  })
+})
+
+describe('formatCreditNoteTypesForDisplay', () => {
+  describe('GIVEN empty array', () => {
+    it('THEN should return empty string', () => {
+      expect(formatCreditNoteTypesForDisplay([])).toBe('')
+    })
+  })
+
+  describe('GIVEN single type', () => {
+    it('THEN should return the type as-is', () => {
+      expect(formatCreditNoteTypesForDisplay(['Credit'])).toBe('Credit')
+    })
+  })
+
+  describe('GIVEN two types', () => {
+    it('THEN should format as "First & second"', () => {
+      expect(formatCreditNoteTypesForDisplay(['Credit', 'Refund'])).toBe('Credit & refund')
+    })
+
+    it('WHEN types have different casing THEN should normalize to lowercase except first', () => {
+      expect(formatCreditNoteTypesForDisplay(['CREDIT', 'REFUND'])).toBe('Credit & refund')
+    })
+  })
+
+  describe('GIVEN three types', () => {
+    it('THEN should format as "First, second & third"', () => {
+      expect(formatCreditNoteTypesForDisplay(['Credit', 'Offset', 'Refund'])).toBe(
+        'Credit, offset & refund',
+      )
+    })
+  })
+
+  describe('GIVEN four types', () => {
+    it('THEN should format as "First, second, third & fourth"', () => {
+      expect(formatCreditNoteTypesForDisplay(['Type1', 'Type2', 'Type3', 'Type4'])).toBe(
+        'Type1, type2, type3 & type4',
+      )
     })
   })
 })
