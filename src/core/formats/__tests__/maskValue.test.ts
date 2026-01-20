@@ -1,6 +1,12 @@
 import { maskValue } from '~/core/formats/maskValue'
 
 describe('maskValue', () => {
+  describe('GIVEN empty value', () => {
+    it('THEN should return dash', () => {
+      expect(maskValue('')).toBe('-')
+    })
+  })
+
   describe('GIVEN no options', () => {
     it('THEN should prepend 4 dots without space', () => {
       expect(maskValue('4242')).toBe('••••4242')

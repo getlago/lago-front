@@ -16,6 +16,8 @@ type MaskOptions = {
  * maskValue('abc123xyz', { visibleChars: 4 }) // '••••3xyz'
  */
 export const maskValue = (value: string, options: MaskOptions = {}) => {
+  if (!value) return '-'
+
   const { dotsCount = 4, visibleChars, withSpace = false } = options
   const displayValue = visibleChars ? value.slice(-visibleChars) : value
   const separator = withSpace ? ' ' : ''
