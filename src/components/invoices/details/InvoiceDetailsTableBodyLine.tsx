@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { tw } from 'lago-design-system'

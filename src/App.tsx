@@ -9,7 +9,7 @@ import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 import { AiAgent } from '~/components/aiAgent/AiAgent'
 import { Spinner, ToastContainer } from '~/components/designSystem'
 import { DevtoolsErrorBoundary } from '~/components/developers/DevtoolsErrorBoundary'
-import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
@@ -47,8 +47,8 @@ const App = () => {
         ])
 
         // Set up auth error handler with the client instance
-        setAuthErrorHandler(() => {
-          logOut(apolloClient)
+        setAuthErrorHandler(async () => {
+          await logOut(apolloClient)
         })
 
         setClient(apolloClient)

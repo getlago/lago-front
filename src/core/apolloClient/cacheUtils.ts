@@ -6,7 +6,7 @@ import {
   GetCurrentUserInfosForLoginQuery,
   LagoApiError,
 } from '~/generated/graphql'
-import { DEVTOOL_AUTO_SAVE_KEY } from '~/hooks/useDeveloperTool'
+import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
 import {
   addToast,
@@ -56,6 +56,8 @@ export const removeItemFromLS = (key: string) => {
 
 // --------------------- Auth utils ---------------------
 export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
+  // Reset devtools navigation to prevent stale queries with old transactionIds
+  resetDevtoolsNavigation()
   // Cancels active operations
   client.stop()
   // Removes cached data and prevents active queries re-fetch
@@ -149,7 +151,7 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
     removeItemFromLS(ORGANIZATION_LS_KEY_ID)
 
     // In case of error, we want to log out the user
-    logOut(client, true)
+    await logOut(client, true)
   }
 }
 
@@ -157,17 +159,20 @@ export const switchCurrentOrganization = async (
   client: ApolloClient<object>,
   organizationId: string,
 ) => {
-  // 1. Stop all active queries to prevent race conditions
+  // 1. Reset devtools navigation to prevent stale queries with old transactionIds
+  resetDevtoolsNavigation()
+
+  // 2. Stop all active queries to prevent race conditions
   client.stop()
 
-  // 2. Clear the cache BEFORE updating organization context
+  // 3. Clear the cache BEFORE updating organization context
   // This prevents queries from firing with new org ID against stale cache
   await client.clearStore()
 
-  // 3. NOW update the organization ID - safe because cache is cleared and queries are stopped
+  // 4. NOW update the organization ID - safe because cache is cleared and queries are stopped
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 
-  // 4. Clear other org-specific state
+  // 5. Clear other org-specific state
   removeItemFromLS(DEVTOOL_AUTO_SAVE_KEY)
 }
 

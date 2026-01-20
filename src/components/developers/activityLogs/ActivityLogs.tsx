@@ -10,7 +10,7 @@ import {
 } from '~/components/designSystem/Filters'
 import { ActivityLogDetails } from '~/components/developers/activityLogs/ActivityLogDetails'
 import { ActivityLogTable } from '~/components/developers/activityLogs/ActivityLogTable'
-import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'

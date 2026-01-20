@@ -14,7 +14,7 @@ import {
   Filters,
   formatFiltersForWebhookLogsQuery,
 } from '~/components/designSystem/Filters'
-import { WEBHOOK_LOGS_ROUTE, WEBHOOKS_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { WEBHOOK_LOGS_ROUTE, WEBHOOKS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'
 import { WebhookLogTable } from '~/components/developers/webhooks/WebhookLogTable'
