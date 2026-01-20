@@ -135,7 +135,6 @@ describe('GenericPlaceholder', () => {
     it('applies custom className', () => {
       render(
         <GenericPlaceholder
-          // eslint-disable-next-line tailwindcss/no-custom-classname
           className="custom-class"
           subtitle="Test subtitle"
           image={<img src="test.png" alt="Test" />}
@@ -410,7 +409,6 @@ describe('GenericPlaceholder', () => {
           buttonTitle="Retry"
           buttonVariant="primary"
           buttonAction={jest.fn()}
-          // eslint-disable-next-line tailwindcss/no-custom-classname
           className="custom-class"
         />,
       )
