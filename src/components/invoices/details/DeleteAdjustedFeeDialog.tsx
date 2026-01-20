@@ -4,12 +4,13 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
-import { useDestroyAdjustedFeeMutation } from '~/generated/graphql'
+import { useDestroyAdjustedFeeMutation, useGetInvoiceDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment FeeForDeleteAdjustmentFeeDialog on Fee {
     id
+    invoiceId
   }
 
   mutation destroyAdjustedFee($input: DestroyAdjustedFeeInput!) {
@@ -34,6 +35,11 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
   const dialogRef = useRef<WarningDialogRef>(null)
   const [dialogData, setDialogData] = useState<DeleteAdjustedFeeDialogProps | undefined>(undefined)
 
+  const { refetch: refetchInvoiceDetails } = useGetInvoiceDetailsQuery({
+    variables: { id: dialogData?.fee?.invoiceId || '' },
+    skip: !dialogData?.fee?.invoiceId,
+  })
+
   const [destroyFee] = useDestroyAdjustedFeeMutation({
     onCompleted({ destroyAdjustedFee }) {
       if (destroyAdjustedFee?.id) {
@@ -45,7 +51,7 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
         })
       }
     },
-    refetchQueries: ['getInvoiceSubscriptions'],
+    refetchQueries: ['getInvoiceDetails'],
   })
 
   useImperativeHandle(ref, () => ({
@@ -63,7 +69,8 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
       description={<Typography>{translate('text_65a6b4e2cb38d9b70ec53c55')}</Typography>}
       onContinue={async () => {
         if (dialogData?.onDelete) {
-          return dialogData.onDelete(dialogData?.fee?.id || '')
+          dialogData.onDelete(dialogData?.fee?.id || '')
+          return await refetchInvoiceDetails()
         }
 
         await destroyFee({

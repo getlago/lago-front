@@ -44,43 +44,25 @@ export const getDateRef = (
   return dateRefForDisplay.setLocale(locale)
 }
 
-export const getNextRecurringDate = ({
+export const getRecurringStartDate = ({
   timezone,
-  interval,
   date,
 }: {
   timezone: TGetWordingForWalletAlert['customerTimezone']
-  interval?: RecurringTransactionIntervalEnum | null
   date?: DateTime
 }): string => {
-  let nextRecurringDate = null
-  const dateRef = getDateRef(timezone).set({
-    day: date?.day,
-    month: date?.month,
-    year: date?.year,
-  })
-
-  switch (interval) {
-    case RecurringTransactionIntervalEnum.Weekly:
-      nextRecurringDate = dateRef.plus({ days: 7 })
-      break
-    case RecurringTransactionIntervalEnum.Monthly:
-      nextRecurringDate = dateRef.plus({ months: 1 })
-      break
-    case RecurringTransactionIntervalEnum.Quarterly:
-      nextRecurringDate = dateRef.plus({ months: 3 })
-      break
-    case RecurringTransactionIntervalEnum.Semiannual:
-      nextRecurringDate = dateRef.plus({ months: 6 })
-      break
-    case RecurringTransactionIntervalEnum.Yearly:
-      nextRecurringDate = dateRef.plus({ years: 1 })
-      break
-    default:
-      break
+  // If no date is provided, return today's date
+  if (!date) {
+    date = DateTime.now()
   }
 
-  return nextRecurringDate?.toLocaleString(DateTime.DATE_FULL) ?? ''
+  const dateRef = getDateRef(timezone).set({
+    day: date.day,
+    month: date.month,
+    year: date.year,
+  })
+
+  return dateRef.toLocaleString(DateTime.DATE_FULL)
 }
 
 const setStartOfSentence = ({
@@ -99,21 +81,20 @@ const setStartOfSentence = ({
     const rrule = walletValues.recurringTransactionRules?.[0]
 
     const totalCreditCount = toNumber(rrule?.paidCredits) + toNumber(rrule?.grantedCredits)
-    const nextRecurringTopUpDate = getNextRecurringDate({
+    const recurringStartDate = getRecurringStartDate({
       timezone: customerTimezone,
-      interval: rrule?.interval,
       date: rrule?.startedAt ? DateTime.fromISO(rrule?.startedAt) : undefined,
     })
 
     if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
       text = translate('text_6657be42151661006d2f3b6f', {
         totalCreditCount,
-        nextRecurringTopUpDate,
+        recurringStartDate,
       })
     } else if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Target) {
       text = translate('text_6657be42151661006d2f3b71', {
         totalCreditCount,
-        nextRecurringTopUpDate,
+        recurringStartDate,
       })
     }
   }

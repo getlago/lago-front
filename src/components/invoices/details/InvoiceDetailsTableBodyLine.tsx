@@ -6,7 +6,7 @@ import { memo, RefObject, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
-import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
+import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -14,8 +14,10 @@ import {
   AdjustedFeeTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
+  FeeForCreateFeeDrawerFragment,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLineFragment,
   FeeForInvoiceDetailsTableBodyLineGraduatedFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineGraduatedPercentageFragmentDoc,
   FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc,
@@ -45,6 +47,10 @@ gql`
     adjustedFee
     adjustedFeeType
     succeededAt
+    feeType
+    description
+    groupedBy
+    itemName
     properties {
       fromDatetime
       toDatetime
@@ -63,8 +69,12 @@ gql`
       prorated
       billableMetric {
         id
+        name
         recurring
       }
+    }
+    trueUpParentFee {
+      id
     }
     appliedTaxes {
       id
@@ -104,7 +114,7 @@ type InvoiceDetailsTableBodyLineProps = {
   canHaveUnitPrice: boolean
   currency: CurrencyEnum
   displayName: string
-  fee: TExtendedRemainingFee | undefined
+  fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
   isDraftInvoice: boolean
   hideVat?: boolean
   displayFeeBoundaries?: boolean
@@ -114,10 +124,12 @@ type InvoiceDetailsTableBodyLineProps = {
   hasTaxProviderError?: boolean
   onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
+  invoiceSubscriptionId?: string
+  localFees?: FeeForCreateFeeDrawerFragment[]
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (
-  fee: TExtendedRemainingFee | undefined,
+  fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined,
   isTrueUpFee: boolean,
   canHaveUnitPrice: boolean,
 ): boolean => {
@@ -158,11 +170,13 @@ export const calculateIfDetailsShouldBeDisplayed = (
       !!Number(fee?.amountDetails?.freeEvents) ||
       !!Number(fee?.amountDetails?.minMaxAdjustmentTotalAmount))
 
+  const isSubscriptionFee = !!fee?.metadata?.isSubscriptionFee
+
   const shouldDisplayFeeDetail =
     !!fee &&
     !isTrueUpFee &&
     fee.adjustedFeeType !== AdjustedFeeTypeEnum.AdjustedAmount &&
-    !fee?.metadata?.isSubscriptionFee &&
+    !isSubscriptionFee &&
     (isInArrears || isAdvanceRecurring || isPercentageWithDetailsAndNotOnlyRate) &&
     fee?.charge?.chargeModel !== ChargeModelEnum.Standard &&
     fee.feeType !== FeeTypesEnum.AddOn &&
@@ -188,11 +202,14 @@ export const InvoiceDetailsTableBodyLine = memo(
     hasTaxProviderError,
     onAdd,
     onDelete,
+    invoiceSubscriptionId,
+    localFees,
   }: InvoiceDetailsTableBodyLineProps) => {
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
     const chargeModel = fee?.charge?.chargeModel
-    const isTrueUpFee = !!fee?.metadata?.isTrueUpFee && !!fee?.charge?.minAmountCents
+    const isTrueUpFee = !!fee?.metadata?.isTrueUpFee
+    const isCommitmentFee = !!fee?.metadata?.isCommitmentFee
     const isAdjustedFee = !!fee?.adjustedFee
     const pricingUnitUsage = fee?.pricingUnitUsage
     const subLabel = useMemo(() => {
@@ -349,7 +366,7 @@ export const InvoiceDetailsTableBodyLine = memo(
 
           {isDraftInvoice && (
             <td>
-              {!isTrueUpFee && !fee?.metadata?.isCommitmentFee && (
+              {!isTrueUpFee && !isCommitmentFee && (
                 <Popper
                   PopperProps={{ placement: 'bottom-end' }}
                   opener={({ isOpen }) => (
@@ -377,8 +394,23 @@ export const InvoiceDetailsTableBodyLine = memo(
                         onClick={() => {
                           if (isAdjustedFee) {
                             deleteAdjustedFeeDialogRef?.current?.openDialog({ fee, onDelete })
-                          } else {
-                            editFeeDrawerRef?.current?.openDrawer({ fee, invoiceId, onAdd })
+                          } else if (fee) {
+                            if (onAdd && invoiceSubscriptionId) {
+                              editFeeDrawerRef?.current?.openDrawer({
+                                mode: 'regenerate',
+                                invoiceId,
+                                invoiceSubscriptionId,
+                                fee,
+                                onAdd,
+                                localFees,
+                              })
+                            } else {
+                              editFeeDrawerRef?.current?.openDrawer({
+                                mode: 'edit',
+                                invoiceId,
+                                fee,
+                              })
+                            }
                           }
                           closePopper()
                         }}

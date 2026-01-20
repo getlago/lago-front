@@ -41,7 +41,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return false if fee.adjustedFeeType is AdjustedAmount', () => {
     const fee = {
       adjustedFeeType: AdjustedFeeTypeEnum.AdjustedAmount,
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(false)
@@ -50,7 +50,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return false if fee.metadata.isSubscriptionFee is true', () => {
     const fee = {
       metadata: { isSubscriptionFee: true },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(false)
@@ -59,25 +59,25 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return false if fee.charge.chargeModel is Standard', () => {
     const fee = {
       charge: { chargeModel: ChargeModelEnum.Standard },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(false)
   })
 
   it('should return false if fee.feeType is AddOn or Credit', () => {
-    let fee = { feeType: FeeTypesEnum.AddOn } as TExtendedRemainingFee
+    let fee = { feeType: FeeTypesEnum.AddOn } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(false)
-    fee = { feeType: FeeTypesEnum.Credit } as TExtendedRemainingFee
+    fee = { feeType: FeeTypesEnum.Credit } as unknown as TExtendedRemainingFee
     expect(result).toBe(false)
   })
 
   it('should return false if fee is in advance', () => {
     const fee = {
       charge: { payInAdvance: true },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(false)
@@ -86,7 +86,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return false if fee is recurring', () => {
     const fee = {
       charge: { billableMetric: { recurring: true } },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(false)
@@ -95,7 +95,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return true for graduated full charges', () => {
     const fee = {
       charge: { chargeModel: ChargeModelEnum.Graduated, prorated: false },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -104,7 +104,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return true for volume charges', () => {
     const fee = {
       charge: { chargeModel: ChargeModelEnum.Volume },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -113,7 +113,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return true for package charges', () => {
     const fee = {
       charge: { chargeModel: ChargeModelEnum.Package },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -122,7 +122,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return true for percentage charges', () => {
     const fee = {
       charge: { chargeModel: ChargeModelEnum.Percentage },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -131,7 +131,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return true for graduated percentage charges', () => {
     const fee = {
       charge: { chargeModel: ChargeModelEnum.GraduatedPercentage },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -140,7 +140,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
   it('should return true if fee is in arrears', () => {
     const fee = {
       charge: { payInAdvance: false },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(false)
@@ -154,7 +154,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
         payInAdvance: true,
         billableMetric: { recurring: true },
       },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -168,7 +168,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
         payInAdvance: true,
         billableMetric: { recurring: true },
       },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -182,7 +182,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
         payInAdvance: true,
         billableMetric: { recurring: true },
       },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -196,7 +196,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
         payInAdvance: true,
         billableMetric: { recurring: true },
       },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
@@ -210,7 +210,7 @@ describe('calculateIfDetailsShouldBeDisplayed', () => {
         payInAdvance: true,
         billableMetric: { recurring: true },
       },
-    } as TExtendedRemainingFee
+    } as unknown as TExtendedRemainingFee
     const result = prepare({ fee })
 
     expect(result).toBe(true)
