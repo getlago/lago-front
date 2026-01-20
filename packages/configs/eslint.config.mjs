@@ -6,7 +6,13 @@ import pluginPrettier from 'eslint-plugin-prettier/recommended'
 import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import pluginTailwind from 'eslint-plugin-tailwindcss'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
 import globals from 'globals'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const tailwindConfigPath = resolve(__dirname, 'tailwind.config.ts')
 import pluginTypescriptEslint from 'typescript-eslint'
 
 import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
@@ -22,6 +28,7 @@ export default [
       'cypress/**/*',
       'coverage/**/*',
       '**/node_modules/**/*',
+      '**/.pnpm-store/**/*',
     ],
   },
 
@@ -40,7 +47,24 @@ export default [
   ...pluginTypescriptEslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat['jsx-runtime'],
-  ...pluginTailwind.configs['flat/recommended'],
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,jsx,tsx}'],
+    plugins: {
+      tailwindcss: pluginTailwind,
+    },
+    settings: {
+      tailwindcss: {
+        config: tailwindConfigPath,
+      },
+    },
+    rules: {
+      'tailwindcss/classnames-order': 'warn',
+      'tailwindcss/enforces-negative-arbitrary-values': 'warn',
+      'tailwindcss/enforces-shorthand': 'warn',
+      'tailwindcss/no-custom-classname': 'off',
+      'tailwindcss/no-contradicting-classname': 'warn',
+    },
+  },
 
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,jsx,tsx}'],
