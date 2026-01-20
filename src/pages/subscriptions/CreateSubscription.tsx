@@ -256,7 +256,6 @@ const CreateSubscription = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const isResponsive = useMediaQuery(`(max-width:${BREAKPOINT_LG - 1}px)`)
-  const hasAccessToFixedChargesFeature = isFeatureFlagActive(FeatureFlags.FIXED_CHARGES)
   const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
@@ -921,17 +920,15 @@ const CreateSubscription = () => {
                               subscriptionFormType={formType}
                             />
 
-                            {hasAccessToFixedChargesFeature && (
-                              <FixedChargesSection
-                                alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
-                                canBeEdited={formType === FORM_TYPE_ENUM.edition}
-                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                                formikProps={planFormikProps}
-                                isEdition={formType === FORM_TYPE_ENUM.edition}
-                                isInSubscriptionForm={isInSubscriptionForm}
-                                premiumWarningDialogRef={premiumWarningDialogRef}
-                              />
-                            )}
+                            <FixedChargesSection
+                              alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
+                              canBeEdited={formType === FORM_TYPE_ENUM.edition}
+                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                              formikProps={planFormikProps}
+                              isEdition={formType === FORM_TYPE_ENUM.edition}
+                              isInSubscriptionForm={isInSubscriptionForm}
+                              premiumWarningDialogRef={premiumWarningDialogRef}
+                            />
 
                             <UsageChargesSection
                               alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
