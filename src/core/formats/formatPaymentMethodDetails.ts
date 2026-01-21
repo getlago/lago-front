@@ -1,6 +1,5 @@
 import { capitalizeWords } from './capitalizeWords'
-
-export const OBFUSCATED_LAST4_PREFIX = '••••'
+import { maskValue } from './maskValue'
 
 /**
  * Formats payment method details into a readable string.
@@ -46,7 +45,7 @@ export const formatPaymentMethodDetails = (
   if (details.last4) {
     const prefix = parts.length > 0 ? ' ' : ''
 
-    parts.push(`${prefix}${OBFUSCATED_LAST4_PREFIX} ${details.last4}`)
+    parts.push(`${prefix}${maskValue(details.last4, { dotsCount: 4, withSpace: true })}`)
   }
 
   return parts.join('')
