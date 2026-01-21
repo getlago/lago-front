@@ -235,5 +235,54 @@ describe('TerminateCustomerSubscriptionDialog', () => {
         expect(refundRadio).not.toBeInTheDocument()
       })
     })
+
+    describe('WHEN invoice data is loading', () => {
+      it('THEN disables the terminate button', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue({
+          loading: true,
+          data: undefined,
+        })
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        const terminateButton = screen.getByTestId('warning-confirm')
+
+        expect(terminateButton).toBeDisabled()
+      })
+    })
+
+    describe('WHEN invoice data is loaded', () => {
+      it('THEN enables the terminate button', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '1000' }),
+        )
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        await waitFor(() => {
+          const terminateButton = screen.getByTestId('warning-confirm')
+
+          expect(terminateButton).not.toBeDisabled()
+        })
+      })
+    })
+
+    describe('WHEN subscription is NOT pay-in-advance', () => {
+      it('THEN enables the terminate button (no radio options needed)', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(createMockInvoiceQueryResult())
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={false} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        const terminateButton = screen.getByTestId('warning-confirm')
+
+        expect(terminateButton).not.toBeDisabled()
+      })
+    })
   })
 })

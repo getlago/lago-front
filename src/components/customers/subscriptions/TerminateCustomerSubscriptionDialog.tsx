@@ -192,6 +192,10 @@ export const TerminateCustomerSubscriptionDialog =
       }
     }, [context, translate])
 
+    const isTerminateButtonDisabled =
+      isCreditNoteOptionsLoading ||
+      (shouldShowCreditNoteOptions && !formikProps.values.onTerminationCreditNote)
+
     return (
       <WarningDialog
         ref={dialogRef}
@@ -199,6 +203,7 @@ export const TerminateCustomerSubscriptionDialog =
         description={content.description}
         continueText={content.continueText}
         onContinue={() => formikProps.handleSubmit()}
+        disableOnContinue={isTerminateButtonDisabled}
       >
         {context?.status === StatusTypeEnum.Active && (
           <div className="mb-8 flex flex-col gap-8">
