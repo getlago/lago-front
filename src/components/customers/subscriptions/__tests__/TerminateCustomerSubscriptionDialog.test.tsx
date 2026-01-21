@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useRef } from 'react'
 
@@ -60,6 +60,7 @@ const createMockInvoiceQueryResult = ({
   offsettableAmountCents?: string
   refundableAmountCents?: string
 } = {}) => ({
+  loading: false,
   data: {
     invoices: {
       collection: [
@@ -137,6 +138,27 @@ describe('TerminateCustomerSubscriptionDialog', () => {
 
         expect(offsetRadio).toBeInTheDocument()
       })
+
+      it('THEN selects Offset as default (first option)', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '1000' }),
+        )
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        // Wait for useEffect to sync the form value
+        // RadioCheckedIcon has 3 circles (one with r="4"), RadioUncheckedIcon has 2
+        await waitFor(() => {
+          const offsetRadioLabel = document
+            .querySelector('input[type="radio"][value="offset"]')
+            ?.closest('label')
+          const checkedIndicator = offsetRadioLabel?.querySelector('circle[r="4"]')
+
+          expect(checkedIndicator).toBeInTheDocument()
+        })
+      })
     })
 
     describe('WHEN invoice has NO offsettable amount', () => {
@@ -154,6 +176,27 @@ describe('TerminateCustomerSubscriptionDialog', () => {
         const offsetRadio = document.querySelector('input[type="radio"][value="offset"]')
 
         expect(offsetRadio).not.toBeInTheDocument()
+      })
+
+      it('THEN selects Credit as default (first option)', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '0' }),
+        )
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        // Wait for useEffect to sync the form value
+        // RadioCheckedIcon has 3 circles (one with r="4"), RadioUncheckedIcon has 2
+        await waitFor(() => {
+          const creditRadioLabel = document
+            .querySelector('input[type="radio"][value="credit"]')
+            ?.closest('label')
+          const checkedIndicator = creditRadioLabel?.querySelector('circle[r="4"]')
+
+          expect(checkedIndicator).toBeInTheDocument()
+        })
       })
     })
 
