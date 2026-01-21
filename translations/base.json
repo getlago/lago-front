@@ -3646,5 +3646,6 @@
   "text_1766162940956fzxpt25f23k": "Remaining to allocate",
   "text_17661418227616cvcuga1x7m": "Optional",
   "text_17683906296679tuqxj77ou9": "Resend invoice for payment collection",
-  "text_1768390629667tvmfcdlro8l": "Select the payment method to retry payment for invoice {{invoiceNumber}}."
+  "text_1768390629667tvmfcdlro8l": "Select the payment method to retry payment for invoice {{invoiceNumber}}.",
+  "text_1737477631498hwm4np3kbnd": "This alert no longer exists"
 }

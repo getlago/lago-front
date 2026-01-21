@@ -24,6 +24,7 @@ import {
   AlertTypeEnum,
   CreateSubscriptionAlertInput,
   CurrencyEnum,
+  LagoApiError,
   ThresholdInput,
   useCreateSubscriptionAlertMutation,
   useGetExistingAlertsOfSubscriptionQuery,
@@ -136,9 +137,14 @@ const AlertForm = () => {
     variables: { id: subscriptionId },
   })
 
-  const { data: alertData, loading: alertLoading } = useGetSubscriptionAlertToEditQuery({
+  const {
+    data: alertData,
+    loading: alertLoading,
+    error: alertError,
+  } = useGetSubscriptionAlertToEditQuery({
     variables: { id: alertId },
     skip: !isEdition,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const { data: existingAlertsData, loading: existingAlertsLoading } =
@@ -173,25 +179,42 @@ const AlertForm = () => {
   const existingAlert = alertData?.alert
   const currency = subscriptionData?.subscription?.plan?.amountCurrency || CurrencyEnum.Usd
 
-  const onLeave = useCallback(() => {
-    if (!!customerId) {
-      navigate(
-        generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-          customerId,
-          subscriptionId,
-          tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-        }),
-      )
-    } else if (!!planId) {
-      navigate(
-        generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-          planId,
-          subscriptionId,
-          tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-        }),
-      )
+  const onLeave = useCallback(
+    ({ replace = false }: { replace?: boolean } = {}) => {
+      if (!!customerId) {
+        navigate(
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId,
+            subscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+          }),
+          { replace },
+        )
+      } else if (!!planId) {
+        navigate(
+          generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+            planId,
+            subscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+          }),
+          { replace },
+        )
+      }
+    },
+    [customerId, navigate, planId, subscriptionId],
+  )
+
+  // Redirect to alerts list if alert is not found (e.g., deleted while on edit page)
+  useEffect(() => {
+    if (isEdition && !alertLoading && hasDefinedGQLError('NotFound', alertError)) {
+      addToast({
+        severity: 'info',
+        translateKey: 'text_1737477631498hwm4np3kbnd',
+      })
+      // Use replace to prevent back button from returning to this deleted alert page
+      onLeave({ replace: true })
     }
-  }, [customerId, navigate, planId, subscriptionId])
+  }, [isEdition, alertLoading, alertError, onLeave])
 
   const [updateAlert, { error: updateError }] = useUpdateSubscriptionAlertMutation({
     onCompleted({ updateSubscriptionAlert }) {
