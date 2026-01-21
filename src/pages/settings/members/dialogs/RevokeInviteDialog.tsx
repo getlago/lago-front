@@ -1,18 +1,9 @@
-import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef, Typography, WarningDialog } from '~/components/designSystem'
-import { addToast } from '~/core/apolloClient'
-import { useRevokeInviteMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-gql`
-  mutation revokeInvite($input: RevokeInviteInput!) {
-    revokeInvite(input: $input) {
-      id
-    }
-  }
-`
+import { useInviteActions } from '../hooks/useInviteActions'
 
 export interface RevokeInviteDialogRef {
   openDialog: (inviteInfos: { id: string; email: string; organizationName: string }) => unknown
@@ -22,17 +13,7 @@ export interface RevokeInviteDialogRef {
 export const RevokeInviteDialog = forwardRef<RevokeInviteDialogRef>((_, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
-  const [revokeInvite] = useRevokeInviteMutation({
-    onCompleted(data) {
-      if (data && data.revokeInvite) {
-        addToast({
-          message: translate('text_63208c711ce25db781407523'),
-          severity: 'success',
-        })
-      }
-    },
-    refetchQueries: ['getInvites'],
-  })
+  const { revokeInvite } = useInviteActions()
 
   const [inviteInfos, setInviteInfos] = useState<
     { id: string; email: string; organizationName: string } | undefined
