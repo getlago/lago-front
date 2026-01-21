@@ -93,6 +93,25 @@ describe('formatPaymentMethodLabel', () => {
       expect(result.footerText).toBe(`${String(ProviderTypeEnum.Stripe)} • 1234`)
     })
 
+    it('THEN handles payment method with type and brand only (no last4)', () => {
+      const paymentMethod = createMockPaymentMethod({
+        details: {
+          __typename: 'PaymentMethodDetails',
+          type: 'card',
+          brand: 'visa',
+          expirationYear: '2025',
+          expirationMonth: '12',
+          last4: null,
+        },
+        isDefault: false,
+      })
+
+      const result = formatPaymentMethodLabel(mockTranslate, paymentMethod)
+
+      expect(result.label).toBe('Card - Visa')
+      expect(result.headerText).toBe('Card - Visa')
+    })
+
     it('THEN handles payment method with only type and last4 (no brand)', () => {
       const paymentMethod = createMockPaymentMethod({
         details: {
