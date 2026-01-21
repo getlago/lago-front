@@ -10,7 +10,7 @@ import {
 } from '~/components/designSystem/Filters'
 import { ApiLogDetails } from '~/components/developers/apiLogs/ApiLogDetails'
 import { ApiLogsTable } from '~/components/developers/apiLogs/ApiLogsTable'
-import { API_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { API_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { API_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'

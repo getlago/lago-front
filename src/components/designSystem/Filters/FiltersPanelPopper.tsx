@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'

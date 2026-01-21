@@ -534,6 +534,7 @@ const Integrations = () => {
                           </Avatar>
                         }
                         endIcon={getEndIcon({
+                          showConnectedBadge: hasSalesforceIntegration,
                           showSparkles: !hasAccessToSalesforcePremiumIntegration,
                         })}
                         onClick={() => {

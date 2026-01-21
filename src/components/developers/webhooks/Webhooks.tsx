@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
-import { WEBHOOK_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
 import {
   CreateWebhookDialog,
   CreateWebhookDialogRef,

@@ -3,7 +3,7 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLogsTable'
 import { InfiniteScroll } from '~/components/designSystem'
-import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { ActivityLogsQueryResult } from '~/generated/graphql'

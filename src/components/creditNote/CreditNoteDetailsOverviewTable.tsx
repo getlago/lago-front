@@ -178,7 +178,6 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
 
         return (
           <Fragment key={`groupSubscriptionItem-${i}`}>
-            {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
             <table className="main-table">
               <thead>
                 <tr>

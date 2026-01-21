@@ -2,7 +2,7 @@ import { FC } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { InfiniteScroll, Status, Table, Typography } from '~/components/designSystem'
-import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
