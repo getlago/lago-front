@@ -1760,6 +1760,7 @@ export type CreateCustomerWalletInput = {
   ignorePaidTopUpLimitsOnCreation?: InputMaybe<Scalars['Boolean']['input']>;
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
+  metadata?: InputMaybe<Array<MetadataInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
   paidCredits: Scalars['String']['input'];
   paidTopUpMaxAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
@@ -5897,6 +5898,7 @@ export type OktaLoginInput = {
 
 export enum OnTerminationCreditNoteEnum {
   Credit = 'credit',
+  Offset = 'offset',
   Refund = 'refund',
   Skip = 'skip'
 }
@@ -8703,6 +8705,7 @@ export type UpdateCustomerWalletInput = {
   id: Scalars['ID']['input'];
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
+  metadata?: InputMaybe<Array<MetadataInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
   paidTopUpMaxAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
@@ -9147,6 +9150,7 @@ export type Wallet = {
   lastBalanceSyncAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   lastConsumedCreditAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   lastOngoingBalanceSyncAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  metadata?: Maybe<Array<ItemMetadata>>;
   name?: Maybe<Scalars['String']['output']>;
   ongoingBalanceCents: Scalars['BigInt']['output'];
   ongoingUsageBalanceCents: Scalars['BigInt']['output'];
