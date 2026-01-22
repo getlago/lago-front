@@ -6246,6 +6246,9 @@ export type Permissions = {
   featuresDelete: Scalars['Boolean']['output'];
   featuresUpdate: Scalars['Boolean']['output'];
   featuresView: Scalars['Boolean']['output'];
+  fixedChargesCreate: Scalars['Boolean']['output'];
+  fixedChargesDelete: Scalars['Boolean']['output'];
+  fixedChargesUpdate: Scalars['Boolean']['output'];
   invoiceCustomSectionsCreate: Scalars['Boolean']['output'];
   invoiceCustomSectionsDelete: Scalars['Boolean']['output'];
   invoiceCustomSectionsUpdate: Scalars['Boolean']['output'];
@@ -10112,7 +10115,7 @@ export type GetInvoicesForTerminationQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoicesForTerminationQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum, refundableAmountCents: any }> } };
+export type GetInvoicesForTerminationQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum, refundableAmountCents: any, offsettableAmountCents: any }> } };
 
 export type GetCustomerSubscriptionForUsageQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -22447,6 +22450,7 @@ export const GetInvoicesForTerminationDocument = gql`
       currency
       invoiceType
       refundableAmountCents
+      offsettableAmountCents
     }
   }
 }

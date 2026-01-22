@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
-import { hasRefundableAmount } from '~/components/creditNote/utils'
+import { hasOffsettableAmount, hasRefundableAmount } from '~/components/creditNote/utils'
 import { DialogRef, Typography, WarningDialog } from '~/components/designSystem'
 import { RadioGroupField, SwitchField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
@@ -43,6 +43,7 @@ gql`
         currency
         invoiceType
         refundableAmountCents
+        offsettableAmountCents
       }
     }
   }
@@ -189,6 +190,13 @@ export const TerminateCustomerSubscriptionDialog =
                   name="onTerminationCreditNote"
                   optionLabelVariant="body"
                   options={[
+                    hasOffsettableAmount(invoice)
+                      ? {
+                          label: translate('text_1767883339943r32jn2ioyeu'),
+                          sublabel: translate('text_1768993189751mlil3uubnse'),
+                          value: OnTerminationCreditNoteEnum.Offset,
+                        }
+                      : undefined,
                     {
                       label: translate('text_1753198825180a94n1872cz4'),
                       sublabel: translate('text_17531988251808so7qch9zrf'),
