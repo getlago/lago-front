@@ -1,6 +1,6 @@
 import { create, useModal } from '@ebay/nice-modal-react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem'
 import BaseDialog from '~/components/dialogs/BaseDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -50,7 +50,7 @@ const PremiumWarningDialog = create(
           </>
         }
       >
-        <Typography color="grey600">{displayDescription}</Typography>
+        {displayDescription}
       </BaseDialog>
     )
   },
