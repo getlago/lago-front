@@ -1,8 +1,6 @@
 import { FormikProps } from 'formik'
 
-const formatCodeFromName = (name: string) => {
-  return name.toLowerCase().replace(/ /g, '_')
-}
+import { formatCodeFromName } from './formatCodeFromName'
 
 export const updateNameAndMaybeCode = <T extends { name?: string | null; code?: string | null }>({
   name,

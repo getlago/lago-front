@@ -51,6 +51,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Populate db
+        run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env exec api bundle exec rails db:seed
+
       - name: Cache Cypress binary
         uses: actions/cache@v4
         id: cypress-cache

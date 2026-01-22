@@ -259,9 +259,13 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
         <section
           class="[&>table]:w-full [&>table]:table-fixed [&>table]:border-collapse [&>.main-table:not(:first-child)]:mt-10 [&>table>thead>tr>th]:sticky [&>table>thead>tr>th]:top-[theme("spacing.nav")] [&>table>thead>tr>th]:z-10 [&>table>thead>tr>th]:box-border [&>table>thead>tr>th]:overflow-hidden [&>table>thead>tr>th]:bg-white [&>table>thead>tr>th]:py-8 [&>table>thead>tr>th]:pb-3 [&>table>thead>tr>th]:text-right [&>table>thead>tr>th]:shadow-b [&>table>thead>tr>th]:line-break-anywhere [&>table>thead>tr>th:not(:last-child)]:pr-3 [&>table>thead>tr>th:nth-child(1)]:w-[70%] [&>table>thead>tr>th:nth-child(1)]:text-left [&>table>thead>tr>th:nth-child(2)]:w-[10%] [&>table>thead>tr>th:nth-child(3)]:w-1/5 [&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td:not(:last-child)]:pr-3 [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere [&>table>tfoot>tr>td:nth-child(2)]:text-left [&>table>tfoot>tr>td:nth-child(2)]:shadow-b [&>table>tfoot>tr>td:nth-child(3)]:shadow-b [&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right [&>table>tfoot>tr>td:nth-child(1)]:w-[50%] [&>table>tfoot>tr>td:nth-child(2)]:w-[40%] [&>table>tfoot>tr>td:nth-child(3)]:w-[10%]"
         >
-          <table>
+          <table
+            data-test="credit-note-footer"
+          >
             <tfoot>
-              <tr>
+              <tr
+                data-test="credit-note-sub-total-row"
+              >
                 <td />
                 <td>
                   <div
@@ -281,7 +285,9 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                   </div>
                 </td>
               </tr>
-              <tr>
+              <tr
+                data-test="credit-note-zero-tax-row"
+              >
                 <td />
                 <td>
                   <div
@@ -301,7 +307,9 @@ exports[`CreditNoteDetails snapshots matches snapshot in loading state 1`] = `
                   </div>
                 </td>
               </tr>
-              <tr>
+              <tr
+                data-test="credit-note-total-row"
+              >
                 <td />
                 <td>
                   <div
@@ -454,7 +462,7 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
       class="flex flex-col gap-1"
     >
       <div
-        class="flex flex-row gap-2"
+        class="flex flex-row items-center gap-2"
       >
         <div
           class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
@@ -595,9 +603,13 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
         <section
           class="[&>table]:w-full [&>table]:table-fixed [&>table]:border-collapse [&>.main-table:not(:first-child)]:mt-10 [&>table>thead>tr>th]:sticky [&>table>thead>tr>th]:top-[theme("spacing.nav")] [&>table>thead>tr>th]:z-10 [&>table>thead>tr>th]:box-border [&>table>thead>tr>th]:overflow-hidden [&>table>thead>tr>th]:bg-white [&>table>thead>tr>th]:py-8 [&>table>thead>tr>th]:pb-3 [&>table>thead>tr>th]:text-right [&>table>thead>tr>th]:shadow-b [&>table>thead>tr>th]:line-break-anywhere [&>table>thead>tr>th:not(:last-child)]:pr-3 [&>table>thead>tr>th:nth-child(1)]:w-[70%] [&>table>thead>tr>th:nth-child(1)]:text-left [&>table>thead>tr>th:nth-child(2)]:w-[10%] [&>table>thead>tr>th:nth-child(3)]:w-1/5 [&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td:not(:last-child)]:pr-3 [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere [&>table>tfoot>tr>td:nth-child(2)]:text-left [&>table>tfoot>tr>td:nth-child(2)]:shadow-b [&>table>tfoot>tr>td:nth-child(3)]:shadow-b [&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right [&>table>tfoot>tr>td:nth-child(1)]:w-[50%] [&>table>tfoot>tr>td:nth-child(2)]:w-[40%] [&>table>tfoot>tr>td:nth-child(3)]:w-[10%]"
         >
-          <table>
+          <table
+            data-test="credit-note-footer"
+          >
             <tfoot>
-              <tr>
+              <tr
+                data-test="credit-note-sub-total-row"
+              >
                 <td />
                 <td>
                   <div
@@ -617,7 +629,9 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                   </div>
                 </td>
               </tr>
-              <tr>
+              <tr
+                data-test="credit-note-zero-tax-row"
+              >
                 <td />
                 <td>
                   <div
@@ -637,7 +651,9 @@ exports[`CreditNoteDetails snapshots matches snapshot with credit note data 1`] 
                   </div>
                 </td>
               </tr>
-              <tr>
+              <tr
+                data-test="credit-note-total-row"
+              >
                 <td />
                 <td>
                   <div

@@ -37,7 +37,11 @@ import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/V
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
-import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import {
+  invoiceStatusMapping,
+  isInvoicePartiallyPaid,
+  paymentStatusMapping,
+} from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -216,10 +220,9 @@ const InvoicesList = ({
           }),
         )
       },
-      tooltip:
-        !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
-          ? translate(disabledIssueCreditNoteButtonLabel)
-          : undefined,
+      tooltip: disabledIssueCreditNoteButtonLabel
+        ? translate(disabledIssueCreditNoteButtonLabel)
+        : undefined,
     }
   }
 
@@ -421,15 +424,16 @@ const InvoicesList = ({
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                paymentStatus: invoice?.paymentStatus,
                 creditableAmountCents: invoice?.creditableAmountCents,
                 refundableAmountCents: invoice?.refundableAmountCents,
+                offsettableAmountCents: invoice?.offsettableAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 
-            const isPartiallyPaid =
-              Number(invoice.totalPaidAmountCents) > 0 &&
-              Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
+            const isPartiallyPaid = isInvoicePartiallyPaid(
+              invoice.totalPaidAmountCents,
+              invoice.totalDueAmountCents,
+            )
 
             const hasActiveWallet = invoice?.customer?.hasActiveWallet || false
 
@@ -528,8 +532,8 @@ const InvoicesList = ({
                 status,
                 paymentStatus,
                 paymentDisputeLostAt,
-                totalAmountCents,
                 totalPaidAmountCents,
+                totalDueAmountCents,
               }) => {
                 if (status !== InvoiceStatusTypeEnum.Finalized) {
                   return null
@@ -540,9 +544,10 @@ const InvoicesList = ({
                   statusEndIcon: undefined,
                 }
 
-                const isPartiallyPaid =
-                  Number(totalPaidAmountCents) > 0 &&
-                  Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+                const isPartiallyPaid = isInvoicePartiallyPaid(
+                  totalPaidAmountCents,
+                  totalDueAmountCents,
+                )
 
                 if (isPartiallyPaid) {
                   content = {
@@ -563,7 +568,7 @@ const InvoicesList = ({
                         status,
                         paymentStatus,
                         totalPaidAmountCents,
-                        totalAmountCents,
+                        totalDueAmountCents,
                       })}
                       endIcon={content.statusEndIcon}
                     />

@@ -92,6 +92,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
             feeName={translate('text_1729262241097k3cnpci6p5j')}
             formikKey={`creditFee.${i}`}
             maxValue={fee?.maxAmount}
+            isReadOnly={fee?.isReadOnly}
           />
         ))}
 
@@ -104,6 +105,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
             feeName={fee?.name}
             formikKey={`addOnFee.${i}`}
             maxValue={fee?.maxAmount}
+            isReadOnly={fee?.isReadOnly}
           />
         ))}
 
@@ -151,6 +153,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
                       ? DateTime.fromISO(fee?.succeededAt).toFormat('LLL. dd, yyyy')
                       : undefined
                   }
+                  isReadOnly={fee?.isReadOnly}
                 />
               ))}
             </div>

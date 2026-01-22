@@ -7,6 +7,7 @@ export type FromFee = {
   name: string
   value: string | number
   isTrueUpFee?: boolean
+  isReadOnly?: boolean
   succeededAt?: string
   appliedTaxes?: {
     id: string
@@ -25,6 +26,7 @@ export interface FeesPerInvoice {
 export enum CreditTypeEnum {
   credit = 'credit',
   refund = 'refund',
+  offset = 'offset',
 }
 
 export interface CreditNoteForm {
@@ -51,5 +53,6 @@ export enum CreditNoteFeeErrorEnum {
 export enum PayBackErrorEnum {
   maxRefund = 'maxRefund',
   maxCredit = 'maxCredit',
+  maxOffset = 'maxOffset',
   maxTotalInvoice = 'maxTotalInvoice',
 }

@@ -11,7 +11,11 @@ const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockHasPermissions = jest.fn()
+const mockFindFirstViewPermission = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
+const mockGetRouteForPermission = jest.fn()
+const mockUseCurrentUser = jest.fn()
+const mockUseOrganizationInfos = jest.fn()
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -28,23 +32,22 @@ jest.mock('~/core/apolloClient', () => ({
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({
-    loading: false,
-    currentMembership: { id: 'membership-1' },
-  }),
+  useCurrentUser: () => mockUseCurrentUser(),
 }))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    loading: false,
-    hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
-  }),
+  useOrganizationInfos: () => mockUseOrganizationInfos(),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
+    findFirstViewPermission: mockFindFirstViewPermission,
   }),
+}))
+
+jest.mock('~/core/router/utils/permissionRouteMap', () => ({
+  getRouteForPermission: (permission: string | null) => mockGetRouteForPermission(permission),
 }))
 
 describe('Home', () => {
@@ -52,8 +55,22 @@ describe('Home', () => {
     mockNavigate.mockClear()
     mockGetItemFromLS.mockClear()
     mockHasPermissions.mockClear()
+    mockFindFirstViewPermission.mockClear()
     mockHasOrganizationPremiumAddon.mockClear()
+    mockGetRouteForPermission.mockClear()
+    mockUseCurrentUser.mockClear()
+    mockUseOrganizationInfos.mockClear()
     mockUseLocation.mockReturnValue({ state: null })
+
+    // Default mock values for a logged-in user
+    mockUseCurrentUser.mockReturnValue({
+      loading: false,
+      currentMembership: { id: 'membership-1' },
+    })
+    mockUseOrganizationInfos.mockReturnValue({
+      loading: false,
+      hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+    })
   })
 
   describe('redirect from login with saved location', () => {
@@ -105,7 +122,9 @@ describe('Home', () => {
         },
       })
       mockGetItemFromLS.mockReturnValue('org-b')
-      mockHasPermissions.mockReturnValue(false)
+      mockHasPermissions.mockImplementation((perms: string[]) => {
+        return perms.includes('customersView')
+      })
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
 
       renderHook(() => Home())
@@ -127,7 +146,9 @@ describe('Home', () => {
         },
       })
       mockGetItemFromLS.mockReturnValue('org-a')
-      mockHasPermissions.mockReturnValue(false)
+      mockHasPermissions.mockImplementation((perms: string[]) => {
+        return perms.includes('customersView')
+      })
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
 
       renderHook(() => Home())
@@ -171,13 +192,183 @@ describe('Home', () => {
       })
     })
 
-    it('should redirect to customers list when user has no special permissions', async () => {
-      mockHasPermissions.mockReturnValue(false)
+    it('should redirect to customers list when user has customersView but no analytics permissions', async () => {
+      mockHasPermissions.mockImplementation((perms: string[]) => {
+        return perms.includes('customersView')
+      })
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
 
       renderHook(() => Home())
 
       await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
+      })
+    })
+
+    it('should use findFirstViewPermission when user has no customersView', async () => {
+      mockHasPermissions.mockReturnValue(false)
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+      mockFindFirstViewPermission.mockReturnValue('plansView')
+      mockGetRouteForPermission.mockReturnValue('/plans')
+
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        expect(mockFindFirstViewPermission).toHaveBeenCalled()
+        expect(mockGetRouteForPermission).toHaveBeenCalledWith('plansView')
+        expect(mockNavigate).toHaveBeenCalledWith('/plans', { replace: true })
+      })
+    })
+
+    it('should redirect to forbidden route when no accessible routes exist', async () => {
+      mockHasPermissions.mockReturnValue(false)
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+      mockFindFirstViewPermission.mockReturnValue(null)
+      mockGetRouteForPermission.mockReturnValue(null)
+
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
+      })
+    })
+
+    it('should redirect to forbidden when permission has no associated route', async () => {
+      mockHasPermissions.mockReturnValue(false)
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+      mockFindFirstViewPermission.mockReturnValue('auditLogsView')
+      mockGetRouteForPermission.mockReturnValue(null)
+
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        expect(mockGetRouteForPermission).toHaveBeenCalledWith('auditLogsView')
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
+      })
+    })
+  })
+
+  describe('loading states', () => {
+    it('should not navigate when user is loading', async () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: true,
+        currentMembership: null,
+      })
+
+      renderHook(() => Home())
+
+      // Wait a bit to ensure no navigation happens
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('should not navigate when organization is loading', async () => {
+      mockUseOrganizationInfos.mockReturnValue({
+        loading: true,
+        hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+      })
+
+      renderHook(() => Home())
+
+      // Wait a bit to ensure no navigation happens
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('should not navigate when currentMembership is null', async () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentMembership: null,
+      })
+
+      renderHook(() => Home())
+
+      // Wait a bit to ensure no navigation happens
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('should navigate only after all loading completes and membership exists', async () => {
+      mockHasPermissions.mockImplementation((perms: string[]) => {
+        return perms.includes('customersView')
+      })
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+      // Initially loading
+      mockUseCurrentUser.mockReturnValue({
+        loading: true,
+        currentMembership: null,
+      })
+
+      const { rerender } = renderHook(() => Home())
+
+      // Wait a bit to ensure no navigation happens during loading
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      expect(mockNavigate).not.toHaveBeenCalled()
+
+      // Now loaded
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentMembership: { id: 'membership-1' },
+      })
+
+      rerender()
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
+      })
+    })
+  })
+
+  describe('permission priority', () => {
+    it('should prioritize analyticsView over customersView when no dashboard feature', async () => {
+      mockHasPermissions.mockImplementation((perms: string[]) => {
+        // User has both analyticsView and customersView
+        return perms.includes('analyticsView') || perms.includes('customersView')
+      })
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/analytics', { replace: true })
+      })
+    })
+
+    it('should prioritize dataApiView + dashboard feature over customersView', async () => {
+      mockHasPermissions.mockImplementation((perms: string[]) => {
+        // User has both dataApiView and customersView
+        return perms.includes('dataApiView') || perms.includes('customersView')
+      })
+      mockHasOrganizationPremiumAddon.mockImplementation((addon: PremiumIntegrationTypeEnum) => {
+        return addon === PremiumIntegrationTypeEnum.AnalyticsDashboards
+      })
+
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/analytics/revenue-streams', { replace: true })
+      })
+    })
+
+    it('should fall back to customersView when analyticsView exists but dashboard feature is enabled', async () => {
+      // analyticsView without dashboard feature = analytics route
+      // analyticsView with dashboard feature = need dataApiView, so fall through
+      mockHasPermissions.mockImplementation((perms: string[]) => {
+        return perms.includes('analyticsView') || perms.includes('customersView')
+      })
+      mockHasOrganizationPremiumAddon.mockImplementation((addon: PremiumIntegrationTypeEnum) => {
+        return addon === PremiumIntegrationTypeEnum.AnalyticsDashboards
+      })
+
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        // With dashboard feature, analyticsView check passes but condition requires !hasAccessToAnalyticsDashboardsFeature
+        // So it falls through to check dataApiView (false), then customersView (true)
         expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
       })
     })

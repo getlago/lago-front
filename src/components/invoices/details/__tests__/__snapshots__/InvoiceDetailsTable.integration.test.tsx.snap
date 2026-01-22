@@ -245,7 +245,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                 class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
-                Amount paid
+                Amount settled
               </div>
             </td>
             <td>
@@ -668,7 +668,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                 class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
                 data-test="bodyHl"
               >
-                Amount paid
+                Amount settled
               </div>
             </td>
             <td>

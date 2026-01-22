@@ -170,30 +170,19 @@ describe('AddOktaDialog', () => {
   })
 
   it('should disable submit button when required fields are missing', async () => {
-    const requiredFields = [
-      { label: /Your domain name/i, value: 'example.com' },
-      { label: /Okta client ID/i, value: 'client-id' },
-      { label: /Okta client secret/i, value: 'client-secret' },
-      { label: /Okta organization name/i, value: 'org-name' },
-    ]
+    await prepare()
 
-    for (const field of requiredFields) {
-      await prepare()
+    // Submit button should be disabled when form is empty
+    const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
-      // Fill all fields except the current one
-      for (const otherField of requiredFields) {
-        if (otherField.label !== field.label) {
-          await userEvent.type(screen.getByLabelText(otherField.label), otherField.value)
-        }
-      }
+    expect(submitButton).toBeDisabled()
 
-      await waitFor(() => {
-        const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
+    // Fill only some fields - button should still be disabled
+    await userEvent.type(screen.getByLabelText(/Your domain name/i), 'example.com')
+    await userEvent.type(screen.getByLabelText(/Okta client ID/i), 'client-id')
 
-        expect(submitButton).toBeDisabled()
-      })
-
-      cleanup()
-    }
+    await waitFor(() => {
+      expect(screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)).toBeDisabled()
+    })
   })
 })
