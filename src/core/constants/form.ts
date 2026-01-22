@@ -5,7 +5,6 @@ import {
   FixedChargeChargeModelEnum,
   HubspotTargetedObjectsEnum,
   InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
-  MembershipRole,
   PlanInterval,
   PrivilegeValueTypeEnum,
 } from '~/generated/graphql'
@@ -93,12 +92,6 @@ export const getCouponFrequencyTranslationKey = {
   [CouponFrequency.Once]: 'text_632d68358f1fedc68eed3ea3',
   [CouponFrequency.Recurring]: 'text_632d68358f1fedc68eed3e64',
   [CouponFrequency.Forever]: 'text_63c83a3476e46bc6ab9d85d6',
-}
-
-export const getRoleTranslationKey = {
-  [MembershipRole.Admin]: 'text_664f035a68227f00e261b7ee',
-  [MembershipRole.Finance]: 'text_664f035a68227f00e261b7f2',
-  [MembershipRole.Manager]: 'text_664f035a68227f00e261b7f0',
 }
 
 export enum LocalTaxProviderErrorsEnum {

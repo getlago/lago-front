@@ -93,7 +93,7 @@ const BillingEntityInvoiceCustomSections = () => {
                   sublabel={translate('text_17490246341927ohcf309qh6')}
                   action={
                     <>
-                      {hasPermissions(['billingEntitiesInvoicesUpdate']) && (
+                      {hasPermissions(['billingEntitiesUpdate']) && (
                         <Button
                           variant="inline"
                           disabled={loading}
@@ -136,7 +136,7 @@ const BillingEntityInvoiceCustomSections = () => {
                       },
                     ]}
                     actionColumn={(customSection) => {
-                      if (!hasPermissions(['billingEntitiesInvoicesUpdate'])) return null
+                      if (!hasPermissions(['billingEntitiesUpdate'])) return null
 
                       return (
                         <Tooltip placement="top" title={translate('text_174902676760530x3yon7tqg')}>

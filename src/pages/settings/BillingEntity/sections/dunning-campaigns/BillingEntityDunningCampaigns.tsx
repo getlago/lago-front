@@ -102,7 +102,7 @@ const BillingEntityDunningCampaigns = () => {
                   sublabel={translate('text_1750663218390kr7cu0gamqt')}
                   action={
                     <>
-                      {hasPermissions(['billingEntitiesDunningCampaignsUpdate']) && (
+                      {hasPermissions(['billingEntitiesUpdate']) && (
                         <Button
                           variant="inline"
                           disabled={loading || !!appliedDunningCampaign?.id}
@@ -180,7 +180,7 @@ const BillingEntityDunningCampaigns = () => {
                         </div>
                       </div>
 
-                      {hasPermissions(['billingEntitiesDunningCampaignsUpdate']) && (
+                      {hasPermissions(['billingEntitiesUpdate']) && (
                         <Tooltip placement="top" title={translate('text_175066321839172gm0lkz8eu')}>
                           <Button
                             icon="trash"

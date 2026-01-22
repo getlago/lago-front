@@ -161,7 +161,7 @@ const BillingEntityInvoiceSettings = () => {
   const invoiceFooter = billingEntity?.billingConfiguration?.invoiceFooter || ''
   const invoiceGracePeriod = billingEntity?.billingConfiguration?.invoiceGracePeriod || 0
   const documentLocale = billingEntity?.billingConfiguration?.documentLocale || 'en'
-  const canEditInvoiceSettings = hasPermissions(['billingEntitiesInvoicesUpdate'])
+  const canEditInvoiceSettings = hasPermissions(['billingEntitiesUpdate'])
 
   if (!!error && !loading) {
     return (

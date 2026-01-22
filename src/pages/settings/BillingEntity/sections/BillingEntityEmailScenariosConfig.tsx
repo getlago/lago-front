@@ -130,7 +130,7 @@ const BillingEntityEmailScenariosConfig = () => {
         customLabel={translate(translationsKey.title)}
         action={
           <>
-            {hasPermissions(['billingEntitiesEmailsUpdate']) && (
+            {hasPermissions(['billingEntitiesUpdate']) && (
               <div className="flex flex-row items-center gap-3">
                 <Typography variant="caption">
                   {translate('text_6408b5ae7f629d008bc8af7c')}

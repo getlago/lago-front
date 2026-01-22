@@ -9,7 +9,7 @@ export const hiddenPermissions: Array<PermissionName> = []
 export const permissionGroupMapping: PermissionGroupMapping = {
   addons: ['AddonsCreate', 'AddonsDelete', 'AddonsUpdate', 'AddonsView'],
   aiAgent: ['AiConversationsCreate', 'AiConversationsView'],
-  analytics: ['AnalyticsView', 'AnalyticsOverdueBalancesView'],
+  analytics: ['AnalyticsView'],
   auditLogs: ['AuditLogsView'],
   authenticationMethods: ['AuthenticationMethodsView', 'AuthenticationMethodsUpdate'],
   billableMetrics: [
@@ -23,25 +23,8 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'BillingEntitiesCreate',
     'BillingEntitiesUpdate',
     'BillingEntitiesDelete',
-    'BillingEntitiesInvoicesView',
-    'BillingEntitiesInvoicesUpdate',
-    'BillingEntitiesTaxesView',
-    'BillingEntitiesTaxesUpdate',
-    'BillingEntitiesEmailsView',
-    'BillingEntitiesEmailsUpdate',
-    'BillingEntitiesDunningCampaignsUpdate',
   ],
-  charges: [
-    'ChargesCreate',
-    'ChargesUpdate',
-    'ChargesDelete',
-    'ChargeFiltersCreate',
-    'ChargeFiltersUpdate',
-    'ChargeFiltersDelete',
-    'FixedChargesCreate',
-    'FixedChargesUpdate',
-    'FixedChargesDelete',
-  ],
+  charges: ['ChargesCreate', 'ChargesUpdate', 'ChargesDelete'],
   coupons: [
     'CouponsAttach',
     'CouponsCreate',
@@ -80,7 +63,6 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'InvoicesView',
     'InvoicesVoid',
     'InvoicesExport',
-    'DraftInvoicesUpdate',
   ],
   organization: [
     'OrganizationView',
@@ -107,12 +89,10 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'PaymentMethodsDelete',
     'PaymentMethodsUpdate',
     'PaymentMethodsView',
-    'PaymentRequestsCreate',
-    'PaymentRequestsView',
   ],
   plans: ['PlansCreate', 'PlansDelete', 'PlansUpdate', 'PlansView'],
   pricingUnits: ['PricingUnitsCreate', 'PricingUnitsUpdate', 'PricingUnitsView'],
-  roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView', 'PermissionsView'],
+  roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
   subscriptions: ['SubscriptionsCreate', 'SubscriptionsUpdate', 'SubscriptionsView'],
   wallets: ['WalletsCreate', 'WalletsTerminate', 'WalletsTopUp', 'WalletsUpdate'],
 }
@@ -159,7 +139,6 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
 
   // Analytics
   AnalyticsView: 'text_17660475818478stwv9xgjcy',
-  AnalyticsOverdueBalancesView: 'text_1766047581847g5oodpiy6tz',
 
   // Audit Logs
   AuditLogsView: 'text_1766047581847c14q5h7q7e9',
@@ -179,24 +158,11 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   BillingEntitiesCreate: 'text_1766047581848utclfbiju0p',
   BillingEntitiesUpdate: 'text_1766047581848f4j4bz8lqg8',
   BillingEntitiesDelete: 'text_17660475818481vz8uookjpd',
-  BillingEntitiesInvoicesView: 'text_1766047581848pg9e5ce0lrc',
-  BillingEntitiesInvoicesUpdate: 'text_1766047581848jq2tauvwet9',
-  BillingEntitiesTaxesView: 'text_1766047581848w9nbrd8szrv',
-  BillingEntitiesTaxesUpdate: 'text_1766047581848glb94bpx4r4',
-  BillingEntitiesEmailsView: 'text_1766047581848rcnco2ugb5s',
-  BillingEntitiesEmailsUpdate: 'text_1766047581848cpeb24fwlbr',
-  BillingEntitiesDunningCampaignsUpdate: 'text_1766047581848kxklc7ctt9m',
 
   // Charges
   ChargesCreate: 'text_1768572142437iellff897qo',
   ChargesUpdate: 'text_1768572142437tyh61d8ed6t',
   ChargesDelete: 'text_1768572142437ch7vfimm1ts',
-  ChargeFiltersCreate: 'text_1768572142437tzwypf0fjow',
-  ChargeFiltersUpdate: 'text_1768572142437jqyp9c8iypv',
-  ChargeFiltersDelete: 'text_17685721424373vryawn8e49',
-  FixedChargesCreate: 'text_1768572142437bfqs1z4xcqa',
-  FixedChargesUpdate: 'text_1768572142437nrsy4d3ur3o',
-  FixedChargesDelete: 'text_17685721424376jnyixmgrsk',
 
   // Coupons
   CouponsAttach: 'text_17660475818481lrad2tzefh',
@@ -225,9 +191,6 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   // Developers
   DevelopersKeysManage: 'text_1766047581849yy0i21nnxj2',
   DevelopersManage: 'text_1766047581849do7xbzegoz9',
-
-  // Draft Invoices
-  DraftInvoicesUpdate: 'text_1766047581849evplz89r17u',
 
   // Dunning Campaigns
   DunningCampaignsCreate: 'text_17660475818496c0nexqgglo',
@@ -279,10 +242,6 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   PaymentMethodsUpdate: 'text_1766047581850pd2fl4vp3op',
   PaymentMethodsView: 'text_1766047581850j2zvnyrxs3v',
 
-  // Payment Requests
-  PaymentRequestsCreate: 'text_17660475818504u438p1vxlo',
-  PaymentRequestsView: 'text_1766047581850nhr0mzhyxs1',
-
   // Payments
   PaymentsCreate: 'text_1766047581850ukn3u9te9qh',
   PaymentsView: 'text_1766047581850xz434boveds',
@@ -297,9 +256,6 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   PricingUnitsCreate: 'text_1766047581851sjxfx26kocx',
   PricingUnitsUpdate: 'text_1766047581851z3d9is40izc',
   PricingUnitsView: 'text_17660476446747j5vtzpcqea',
-
-  // Permissions
-  PermissionsView: 'text_17669998218393cj9rscmtoj',
 
   // Roles
   RolesCreate: 'text_1766999821840apnk9dhpeud',
