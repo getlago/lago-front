@@ -15,7 +15,6 @@ gql`
       addonsUpdate
       addonsView
       analyticsView
-      analyticsOverdueBalancesView
       auditLogsView
       authenticationMethodsView
       authenticationMethodsUpdate
@@ -27,13 +26,6 @@ gql`
       billingEntitiesCreate
       billingEntitiesUpdate
       billingEntitiesDelete
-      billingEntitiesInvoicesView
-      billingEntitiesInvoicesUpdate
-      billingEntitiesTaxesView
-      billingEntitiesTaxesUpdate
-      billingEntitiesEmailsView
-      billingEntitiesEmailsUpdate
-      billingEntitiesDunningCampaignsUpdate
       couponsAttach
       couponsCreate
       couponsDelete
@@ -50,7 +42,6 @@ gql`
       dataApiView
       developersKeysManage
       developersManage
-      draftInvoicesUpdate
       dunningCampaignsCreate
       dunningCampaignsUpdate
       dunningCampaignsView
@@ -94,7 +85,6 @@ gql`
       rolesDelete
       rolesUpdate
       rolesView
-      permissionsView
       subscriptionsCreate
       subscriptionsUpdate
       subscriptionsView
