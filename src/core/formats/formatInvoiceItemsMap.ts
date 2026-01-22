@@ -455,7 +455,21 @@ export const groupAndFormatFees = <TFee extends FeeForGrouping>({
   // Process each subscription: sort fees within boundaries, sort boundaries by date
   const result: TSubscriptionDataForDisplay<TExtendedFee<TFee>> = {}
 
-  Object.keys(feesGroupedBySubscription).forEach((subscriptionId) => {
+  // Sort subscriptions by display name (subscription name or plan name)
+  const sortedSubscriptionIds = Object.keys(feesGroupedBySubscription).sort((a, b) => {
+    const subDataA = feesGroupedBySubscription[a]
+    const subDataB = feesGroupedBySubscription[b]
+    const displayNameA = (
+      subDataA.subscription.name || subDataA.subscription.plan.name
+    ).toLowerCase()
+    const displayNameB = (
+      subDataB.subscription.name || subDataB.subscription.plan.name
+    ).toLowerCase()
+
+    return displayNameA.localeCompare(displayNameB)
+  })
+
+  sortedSubscriptionIds.forEach((subscriptionId) => {
     const subscriptionData = feesGroupedBySubscription[subscriptionId]
     const { subscription, boundaries } = subscriptionData
 
