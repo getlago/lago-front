@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, Schema, string } from 'yup'
 
@@ -214,6 +214,53 @@ const CreateCreditNote = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPrepaidCreditsInvoice, creditFeeValue, hasCreditableOrRefundableAmount, hasOffsettable])
+
+  // Reset payBack values, errors, and touched state when fee items change (for non-prepaid credits invoices)
+  const isInitialFeesMount = useRef(true)
+  const resetPayBackAllocation = useCallback(() => {
+    // Reset payBack values to 0
+    const currentPayBack = formikProps.values.payBack || []
+    const resetPayBack = currentPayBack.map((item) => ({
+      ...item,
+      value: 0,
+    }))
+
+    formikProps.setFieldValue('payBack', resetPayBack)
+
+    // Clear payBack errors (payBackErrors is a custom error field added dynamically)
+    const errors = formikProps.errors as Record<string, unknown>
+
+    if (errors.payBack || errors.payBackErrors) {
+      const cleanedErrors = { ...errors, payBack: undefined, payBackErrors: undefined }
+
+      formikProps.setErrors(cleanedErrors as typeof formikProps.errors)
+    }
+
+    // Reset touched state for payBack fields
+    const currentTouched = formikProps.touched as Record<string, unknown>
+
+    if (currentTouched.payBack) {
+      formikProps.setTouched({
+        ...currentTouched,
+        payBack: undefined,
+      } as typeof formikProps.touched)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.payBack])
+
+  useEffect(() => {
+    // Skip reset on initial mount
+    if (isInitialFeesMount.current) {
+      isInitialFeesMount.current = false
+      return
+    }
+
+    // Only reset for non-prepaid credits invoices
+    if (!isPrepaidCreditsInvoice) {
+      resetPayBackAllocation()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.fees, formikProps.values.addOnFee])
 
   const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)

@@ -643,23 +643,23 @@ describe('buildInitialPayBack', () => {
     }) as InvoiceForCreditNoteFormCalculationFragment
 
   describe('GIVEN undefined invoice', () => {
-    it('THEN should return only credit type', () => {
+    it('THEN should return only credit type with value 0', () => {
       const result = buildInitialPayBack(undefined)
 
-      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
+      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: 0 }])
     })
   })
 
   describe('GIVEN null invoice', () => {
-    it('THEN should return only credit type', () => {
+    it('THEN should return only credit type with value 0', () => {
       const result = buildInitialPayBack(null)
 
-      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
+      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: 0 }])
     })
   })
 
   describe('GIVEN fully paid invoice', () => {
-    it('WHEN no dispute lost THEN should include credit and refund', () => {
+    it('WHEN no dispute lost THEN should include credit and refund with value 0', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '10000',
         totalDueAmountCents: '0',
@@ -669,12 +669,12 @@ describe('buildInitialPayBack', () => {
       const result = buildInitialPayBack(invoice)
 
       expect(result).toEqual([
-        { type: CreditTypeEnum.credit, value: undefined },
-        { type: CreditTypeEnum.refund, value: undefined },
+        { type: CreditTypeEnum.credit, value: 0 },
+        { type: CreditTypeEnum.refund, value: 0 },
       ])
     })
 
-    it('WHEN dispute lost THEN should include only credit (no refund)', () => {
+    it('WHEN dispute lost THEN should include only credit (no refund) with value 0', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '10000',
         totalDueAmountCents: '0',
@@ -683,12 +683,12 @@ describe('buildInitialPayBack', () => {
 
       const result = buildInitialPayBack(invoice)
 
-      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
+      expect(result).toEqual([{ type: CreditTypeEnum.credit, value: 0 }])
     })
   })
 
   describe('GIVEN partially paid invoice', () => {
-    it('WHEN no dispute lost THEN should include credit, refund, and offset', () => {
+    it('WHEN no dispute lost THEN should include credit, refund, and offset with value 0', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '5000',
         totalDueAmountCents: '5000',
@@ -698,13 +698,13 @@ describe('buildInitialPayBack', () => {
       const result = buildInitialPayBack(invoice)
 
       expect(result).toEqual([
-        { type: CreditTypeEnum.credit, value: undefined },
-        { type: CreditTypeEnum.refund, value: undefined },
-        { type: CreditTypeEnum.offset, value: undefined },
+        { type: CreditTypeEnum.credit, value: 0 },
+        { type: CreditTypeEnum.refund, value: 0 },
+        { type: CreditTypeEnum.offset, value: 0 },
       ])
     })
 
-    it('WHEN dispute lost THEN should include credit and offset (no refund)', () => {
+    it('WHEN dispute lost THEN should include credit and offset (no refund) with value 0', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '5000',
         totalDueAmountCents: '5000',
@@ -714,14 +714,14 @@ describe('buildInitialPayBack', () => {
       const result = buildInitialPayBack(invoice)
 
       expect(result).toEqual([
-        { type: CreditTypeEnum.credit, value: undefined },
-        { type: CreditTypeEnum.offset, value: undefined },
+        { type: CreditTypeEnum.credit, value: 0 },
+        { type: CreditTypeEnum.offset, value: 0 },
       ])
     })
   })
 
   describe('GIVEN unpaid invoice', () => {
-    it('THEN should include credit and offset (no refund)', () => {
+    it('THEN should include credit and offset (no refund) with value 0', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '0',
         totalDueAmountCents: '10000',
@@ -731,8 +731,8 @@ describe('buildInitialPayBack', () => {
       const result = buildInitialPayBack(invoice)
 
       expect(result).toEqual([
-        { type: CreditTypeEnum.credit, value: undefined },
-        { type: CreditTypeEnum.offset, value: undefined },
+        { type: CreditTypeEnum.credit, value: 0 },
+        { type: CreditTypeEnum.offset, value: 0 },
       ])
     })
   })
