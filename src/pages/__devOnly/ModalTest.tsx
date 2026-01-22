@@ -1,4 +1,4 @@
-import { Button } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import {
   CentralizedDialogProps,
   useCentralizedDialog,
@@ -10,6 +10,7 @@ import {
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { HookDialogReturnType } from '~/components/dialogs/types'
 import { useWarningDialog } from '~/components/dialogs/WarningDialog'
+import { TextInput } from '~/components/form'
 
 const ModalTestActions = ({
   modal,
@@ -35,6 +36,32 @@ const ModalTestActions = ({
       </Button>
       <Button onClick={handleSuccess}>Success</Button>
     </>
+  )
+}
+
+const LongModalContent = () => {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2 px-8">
+        <div className="flex flex-row gap-4">
+          <Typography>To</Typography>
+          <TextInput />
+        </div>
+        <div className="flex flex-row gap-4">
+          <Typography>Cc</Typography>
+          <TextInput />
+        </div>
+        <div className="flex flex-row gap-4">
+          <Typography>Bcc</Typography>
+          <TextInput />
+        </div>
+        <div className="flex flex-row gap-4">
+          <Typography>Subject</Typography>
+          <TextInput />
+        </div>
+      </div>
+      <div className="h-[600px] bg-grey-100 py-8 text-center">Email content</div>
+    </div>
   )
 }
 
@@ -100,7 +127,7 @@ const ModalTest = (): JSX.Element => {
   const handleOpenLongDialog = (): void => {
     modal.open({
       title: 'Test Modal',
-      children: <div className="h-[1200px] bg-grey-100">This is a long modal</div>,
+      children: <LongModalContent />,
       actions: <ModalTestActions modal={modal} />,
     })
   }
