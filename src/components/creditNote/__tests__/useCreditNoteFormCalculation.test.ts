@@ -172,11 +172,11 @@ describe('useCreditNoteFormCalculation', () => {
   })
 
   describe('GIVEN non-prepaid credits invoice', () => {
-    it('THEN should initialize payBack credit value', () => {
+    it('THEN should NOT automatically prefill payBack credit value', () => {
       const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Subscription })
       const formikProps = createMockFormikProps<CreditNoteForm>({
         values: {
-          payBack: [{ type: CreditTypeEnum.credit, value: undefined }],
+          payBack: [{ type: CreditTypeEnum.credit, value: 0 }],
         },
       })
 
@@ -187,7 +187,7 @@ describe('useCreditNoteFormCalculation', () => {
         call[0]?.startsWith('payBack.'),
       )
 
-      expect(payBackInitCalls.length).toBeGreaterThan(0)
+      expect(payBackInitCalls.length).toBe(0)
     })
   })
 })

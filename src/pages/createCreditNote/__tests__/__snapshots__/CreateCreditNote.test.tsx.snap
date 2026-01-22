@@ -930,7 +930,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
-                        value=""
+                        value="0"
                       />
                       <fieldset
                         aria-hidden="true"
@@ -996,7 +996,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
-                        value=""
+                        value="0"
                       />
                       <fieldset
                         aria-hidden="true"
@@ -1917,7 +1917,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
-                        value=""
+                        value="0"
                       />
                       <fieldset
                         aria-hidden="true"
@@ -2838,7 +2838,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
-                        value=""
+                        value="0"
                       />
                       <fieldset
                         aria-hidden="true"
