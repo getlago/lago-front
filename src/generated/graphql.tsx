@@ -112,6 +112,8 @@ export enum ActivityTypeEnum {
   CustomerDeleted = 'customer_deleted',
   /** customer.updated */
   CustomerUpdated = 'customer_updated',
+  /** email.sent */
+  EmailSent = 'email_sent',
   /** feature.created */
   FeatureCreated = 'feature_created',
   /** feature.deleted */
@@ -7774,6 +7776,8 @@ export enum ResourceTypeEnum {
   Feature = 'feature',
   /** Invoice */
   Invoice = 'invoice',
+  /** PaymentReceipt */
+  PaymentReceipt = 'payment_receipt',
   /** PaymentRequest */
   PaymentRequest = 'payment_request',
   /** Plan */
