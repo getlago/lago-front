@@ -41,20 +41,41 @@ const NavBurgerButton = ({ onClick }: { onClick: () => void }) => {
   )
 }
 
-const NavStickyElementContainer = ({ children }: PropsWithChildren) => {
+const NavStickyElementContainer = ({
+  children,
+  'data-test': dataTest,
+}: PropsWithChildren<{ 'data-test'?: string }>) => {
   return (
-    <div className="sticky left-0 top-0 z-sideNav flex h-29 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-nav">
+    <div
+      className="sticky left-0 top-0 z-sideNav flex h-29 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-nav"
+      data-test={dataTest}
+    >
       {children}
     </div>
   )
 }
 
-const NavSectionGroup = ({ children }: PropsWithChildren) => {
-  return <div className="flex flex-1 flex-col gap-4 px-4">{children}</div>
+const NavSectionGroup = ({
+  children,
+  'data-test': dataTest,
+}: PropsWithChildren<{ 'data-test'?: string }>) => {
+  return (
+    <div className="flex flex-1 flex-col gap-4 px-4" data-test={dataTest}>
+      {children}
+    </div>
+  )
 }
 
-const NavSection = ({ children, className }: PropsWithChildren<{ className?: string }>) => {
-  return <div className={tw('flex w-full flex-col gap-1', className)}>{children}</div>
+const NavSection = ({
+  children,
+  className,
+  'data-test': dataTest,
+}: PropsWithChildren<{ className?: string; 'data-test'?: string }>) => {
+  return (
+    <div className={tw('flex w-full flex-col gap-1', className)} data-test={dataTest}>
+      {children}
+    </div>
+  )
 }
 
 const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren>(({ children }, ref) => {
