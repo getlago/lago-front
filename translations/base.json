@@ -3788,5 +3788,7 @@
   "text_1768572142437tyh61d8ed6t": "Update a charge",
   "text_1768572142437ch7vfimm1ts": "Delete a charge",
   "text_1768993189751mlil3uubnse": "Use the unused amount to reduce this invoice's amount due.",
-  "text_620bc4d4269a55014d493f3d": "Email is required"
+  "text_620bc4d4269a55014d493f3d": "Email is required",
+  "text_17691652749726aa4es5s80q": "{{resource}} {{resourceNumber}} was sent by email",
+  "text_1769180515750z7jxssqkdvu": "Payment receipt"
 }
