@@ -13,6 +13,8 @@ export const WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID = 'warning-confirm'
 
 export type WarningDialogProps = {
   title: string
+  description?: ReactNode
+  headerContent?: ReactNode
   children?: ReactNode
   onContinue: () => unknown | Promise<unknown>
   continueText: string
@@ -23,6 +25,8 @@ export type WarningDialogProps = {
 const WarningDialog = create(
   ({
     title,
+    description,
+    headerContent,
     children,
     onContinue,
     continueText,
@@ -49,6 +53,8 @@ const WarningDialog = create(
         closeDialog={handleCancel}
         removeDialog={modal.remove}
         title={title}
+        description={description}
+        headerContent={headerContent}
         data-test={WARNING_DIALOG_TEST_ID}
         actions={
           <>

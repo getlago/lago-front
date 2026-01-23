@@ -13,6 +13,8 @@ export const DIALOG_TITLE_TEST_ID = 'dialog-title'
 
 export type DialogOpeningWarningDialogProps = {
   title: ReactNode
+  description?: ReactNode
+  headerContent?: ReactNode
   children?: ReactNode
   actions: ReactNode
   canOpenWarningDialog?: boolean
@@ -23,6 +25,8 @@ export type DialogOpeningWarningDialogProps = {
 const DialogOpeningWarningDialog = create(
   ({
     title,
+    description,
+    headerContent,
     children,
     actions,
     canOpenWarningDialog,
@@ -63,6 +67,8 @@ const DialogOpeningWarningDialog = create(
     return (
       <BaseDialog
         title={title}
+        description={description}
+        headerContent={headerContent}
         actions={definedActions}
         isOpen={modal.visible}
         closeDialog={handleClose}
