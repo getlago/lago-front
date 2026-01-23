@@ -39,7 +39,7 @@ export const ERROR_404_ROUTE = '/404'
 // Route Available only on dev mode
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
 export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
-export const ONLY_DEV_MODAL_TEST_ROUTE = `/modal-test`
+export const MODAL_TEST_ROUTE = `/modal-test`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -92,6 +92,10 @@ export const routes: CustomRouteObject[] = [
         element: <Dashboards />,
         permissions: ['analyticsView', 'dataApiView'],
       },
+      {
+        path: MODAL_TEST_ROUTE,
+        element: <ModalTest />,
+      },
       ...customerRoutes,
       ...objectListRoutes,
       ...objectDetailsRoutes,
@@ -100,10 +104,6 @@ export const routes: CustomRouteObject[] = [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
               element: <DesignSystem />,
-            },
-            {
-              path: [ONLY_DEV_MODAL_TEST_ROUTE],
-              element: <ModalTest />,
             },
           ]
         : []),
