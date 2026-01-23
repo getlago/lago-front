@@ -3786,5 +3786,7 @@
   "text_1768572142436xubwd6sei3b": "Charges",
   "text_1768572142437iellff897qo": "Create a new charge",
   "text_1768572142437tyh61d8ed6t": "Update a charge",
-  "text_1768572142437ch7vfimm1ts": "Delete a charge"
+  "text_1768572142437ch7vfimm1ts": "Delete a charge",
+  "text_17691652749726aa4es5s80q": "{{resource}} {{resourceNb}} was sent by email",
+  "text_1769180515750z7jxssqkdvu": "Payment receipt"
 }
