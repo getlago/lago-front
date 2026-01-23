@@ -4494,6 +4494,7 @@ export enum LagoApiError {
   InvoicesNotReadyForPaymentProcessing = 'invoices_not_ready_for_payment_processing',
   LoginMethodNotAuthorized = 'login_method_not_authorized',
   MissingPaymentProviderCustomer = 'missing_payment_provider_customer',
+  NoActiveSubscription = 'no_active_subscription',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
   OktaLoginMethodNotAuthorized = 'okta_login_method_not_authorized',
