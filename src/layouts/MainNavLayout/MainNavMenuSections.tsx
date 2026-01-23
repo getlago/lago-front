@@ -1,5 +1,3 @@
-import { IconName } from 'lago-design-system'
-
 import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem'
 import {
   ADD_ON_DETAILS_ROUTE,
@@ -37,6 +35,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
 import { BadgeAI } from '~/pages/forecasts/Forecasts'
 
+import { getNavTabs, NavTab } from './utils'
 import { VerticalMenuSkeleton } from './VerticalMenuSkeleton'
 
 export const MAIN_NAV_MENU_SECTIONS_TEST_ID = 'main-nav-menu-sections'
@@ -53,13 +52,140 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
 
-  const canSeeReportsSection = hasPermissions(['analyticsView'])
   const canSeeSupersetDashboards = isFeatureFlagActive(FeatureFlags.SUPERSET_ANALYTICS)
+
+  const getReportsTabs = (): NavTab[] => [
+    {
+      title: translate('text_6553885df387fd0097fd7384'),
+      icon: 'chart-bar',
+      link: ANALYTIC_ROUTE,
+      match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
+      hidden: !hasPermissions(['analyticsView']),
+    },
+    {
+      title: translate('text_1753014457040hxp6wkphkvw'),
+      icon: 'forecast',
+      link: FORECASTS_ROUTE,
+      match: [FORECASTS_ROUTE],
+      hidden: !hasPermissions(['analyticsView']),
+      extraComponent: <BadgeAI />,
+    },
+    {
+      title: translate('text_1762346890583hgqcnuvj2rh'),
+      icon: 'eye',
+      link: ANALYTIC_NEW_ROUTE,
+      match: [ANALYTIC_NEW_ROUTE],
+      hidden: !hasPermissions(['analyticsView']) || !canSeeSupersetDashboards,
+    },
+  ]
+
+  const getConfigurationTabs = (): NavTab[] => [
+    {
+      title: translate('text_623b497ad05b960101be3448'),
+      icon: 'pulse',
+      link: BILLABLE_METRICS_ROUTE,
+      canBeClickedOnActive: true,
+      match: [BILLABLE_METRICS_ROUTE, BILLABLE_METRIC_DETAILS_ROUTE],
+      hidden: !hasPermissions(['billableMetricsView']),
+    },
+    {
+      title: translate('text_62442e40cea25600b0b6d85a'),
+      icon: 'board',
+      link: PLANS_ROUTE,
+      canBeClickedOnActive: true,
+      match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
+      hidden: !hasPermissions(['plansView']),
+    },
+    {
+      title: translate('text_1752692673070k7z0mmf0494'),
+      icon: 'switch',
+      link: FEATURES_ROUTE,
+      canBeClickedOnActive: true,
+      match: [FEATURES_ROUTE, FEATURE_DETAILS_ROUTE],
+      hidden: !hasPermissions(['featuresView']),
+    },
+    {
+      title: translate('text_629728388c4d2300e2d3801a'),
+      icon: 'puzzle',
+      link: ADD_ONS_ROUTE,
+      canBeClickedOnActive: true,
+      match: [ADD_ONS_ROUTE, ADD_ON_DETAILS_ROUTE],
+      hidden: !hasPermissions(['addonsView']),
+    },
+    {
+      title: translate('text_62865498824cc10126ab2940'),
+      icon: 'coupon',
+      link: COUPONS_ROUTE,
+      canBeClickedOnActive: true,
+      match: [COUPONS_ROUTE, COUPON_DETAILS_ROUTE],
+      hidden: !hasPermissions(['couponsView']),
+    },
+  ]
+
+  const getBillingTabs = (): NavTab[] => [
+    {
+      title: translate('text_624efab67eb2570101d117a5'),
+      icon: 'user-multiple',
+      link: CUSTOMERS_LIST_ROUTE,
+      canBeClickedOnActive: true,
+      match: [CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
+      hidden: !hasPermissions(['customersView']),
+    },
+    {
+      title: translate('text_6250304370f0f700a8fdc28d'),
+      icon: 'clock',
+      link: SUBSCRIPTIONS_ROUTE,
+      match: [
+        SUBSCRIPTIONS_ROUTE,
+        CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+        PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+      ],
+      canBeClickedOnActive: true,
+      hidden: !hasPermissions(['subscriptionsView']),
+    },
+    {
+      title: translate('text_63ac86d797f728a87b2f9f85'),
+      icon: 'document',
+      link: INVOICES_ROUTE,
+      canBeClickedOnActive: true,
+      match: [INVOICES_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE],
+      hidden: !hasPermissions(['invoicesView']),
+    },
+    {
+      title: translate('text_6672ebb8b1b50be550eccbed'),
+      icon: 'coin-dollar',
+      link: PAYMENTS_ROUTE,
+      match: [PAYMENTS_ROUTE, PAYMENT_DETAILS_ROUTE],
+      canBeClickedOnActive: true,
+      hidden: !hasPermissions(['paymentsView']),
+    },
+    {
+      title: translate('text_66461ada56a84401188e8c63'),
+      icon: 'receipt',
+      link: CREDIT_NOTES_ROUTE,
+      match: [
+        CREDIT_NOTES_ROUTE,
+        CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+        CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
+      ],
+      canBeClickedOnActive: true,
+      hidden: !hasPermissions(['creditNotesView']),
+    },
+  ]
+
+  const reportsTabs = getNavTabs(getReportsTabs())
+  const configurationTabs = getNavTabs(getConfigurationTabs())
+  const billingTabs = getNavTabs(getBillingTabs())
+
+  // Don't render the section group if all sections are hidden
+  if (reportsTabs.allTabsHidden && configurationTabs.allTabsHidden && billingTabs.allTabsHidden) {
+    return null
+  }
 
   return (
     <NavLayout.NavSectionGroup data-test={MAIN_NAV_MENU_SECTIONS_TEST_ID}>
       {/* Reports */}
-      {canSeeReportsSection && (
+      {!reportsTabs.allTabsHidden && (
         <NavLayout.NavSection data-test={MAIN_NAV_REPORTS_SECTION_TEST_ID}>
           <VerticalMenuSectionTitle
             title={translate('text_1750864025932bnohjbzci3f')}
@@ -69,151 +195,42 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
             loading={isLoading}
             loadingComponent={<VerticalMenuSkeleton numberOfElements={1} />}
             onClick={onItemClick}
-            tabs={[
-              {
-                title: translate('text_6553885df387fd0097fd7384'),
-                icon: 'chart-bar',
-                link: ANALYTIC_ROUTE,
-                match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
-                hidden: !hasPermissions(['analyticsView']),
-              },
-              {
-                title: translate('text_1753014457040hxp6wkphkvw'),
-                icon: 'forecast',
-                link: FORECASTS_ROUTE,
-                match: [FORECASTS_ROUTE],
-                hidden: !hasPermissions(['analyticsView']),
-                extraComponent: <BadgeAI />,
-              },
-              {
-                title: translate('text_1762346890583hgqcnuvj2rh'),
-                icon: 'eye' as IconName,
-                link: ANALYTIC_NEW_ROUTE,
-                match: [ANALYTIC_NEW_ROUTE],
-                hidden: !hasPermissions(['analyticsView']) || !canSeeSupersetDashboards,
-              },
-            ]}
+            tabs={reportsTabs.tabs}
           />
         </NavLayout.NavSection>
       )}
 
       {/* Configuration */}
-      <NavLayout.NavSection data-test={MAIN_NAV_CONFIGURATION_SECTION_TEST_ID}>
-        <VerticalMenuSectionTitle
-          title={translate('text_1750864088654kxz304zdo2z')}
-          loading={isLoading}
-        />
-        <VerticalMenu
-          loading={isLoading}
-          loadingComponent={<VerticalMenuSkeleton numberOfElements={5} />}
-          onClick={onItemClick}
-          tabs={[
-            {
-              title: translate('text_623b497ad05b960101be3448'),
-              icon: 'pulse',
-              link: BILLABLE_METRICS_ROUTE,
-              canBeClickedOnActive: true,
-              match: [BILLABLE_METRICS_ROUTE, BILLABLE_METRIC_DETAILS_ROUTE],
-              hidden: !hasPermissions(['billableMetricsView']),
-            },
-            {
-              title: translate('text_62442e40cea25600b0b6d85a'),
-              icon: 'board',
-              link: PLANS_ROUTE,
-              canBeClickedOnActive: true,
-              match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
-              hidden: !hasPermissions(['plansView']),
-            },
-            {
-              title: translate('text_1752692673070k7z0mmf0494'),
-              icon: 'switch',
-              link: FEATURES_ROUTE,
-              canBeClickedOnActive: true,
-              match: [FEATURES_ROUTE, FEATURE_DETAILS_ROUTE],
-              hidden: !hasPermissions(['featuresView']),
-            },
-            {
-              title: translate('text_629728388c4d2300e2d3801a'),
-              icon: 'puzzle',
-              link: ADD_ONS_ROUTE,
-              canBeClickedOnActive: true,
-              match: [ADD_ONS_ROUTE, ADD_ON_DETAILS_ROUTE],
-              hidden: !hasPermissions(['addonsView']),
-            },
-            {
-              title: translate('text_62865498824cc10126ab2940'),
-              icon: 'coupon',
-              link: COUPONS_ROUTE,
-              canBeClickedOnActive: true,
-              match: [COUPONS_ROUTE, COUPON_DETAILS_ROUTE],
-              hidden: !hasPermissions(['couponsView']),
-            },
-          ]}
-        />
-      </NavLayout.NavSection>
+      {!configurationTabs.allTabsHidden && (
+        <NavLayout.NavSection data-test={MAIN_NAV_CONFIGURATION_SECTION_TEST_ID}>
+          <VerticalMenuSectionTitle
+            title={translate('text_1750864088654kxz304zdo2z')}
+            loading={isLoading}
+          />
+          <VerticalMenu
+            loading={isLoading}
+            loadingComponent={<VerticalMenuSkeleton numberOfElements={5} />}
+            onClick={onItemClick}
+            tabs={configurationTabs.tabs}
+          />
+        </NavLayout.NavSection>
+      )}
 
       {/* Billing & operations */}
-      <NavLayout.NavSection data-test={MAIN_NAV_BILLING_SECTION_TEST_ID}>
-        <VerticalMenuSectionTitle
-          title={translate('text_1750864088654s9qo2h9fvp7')}
-          loading={isLoading}
-        />
-        <VerticalMenu
-          loading={isLoading}
-          loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
-          onClick={onItemClick}
-          tabs={[
-            {
-              title: translate('text_624efab67eb2570101d117a5'),
-              icon: 'user-multiple',
-              link: CUSTOMERS_LIST_ROUTE,
-              canBeClickedOnActive: true,
-              match: [CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
-              hidden: !hasPermissions(['customersView']),
-            },
-            {
-              title: translate('text_6250304370f0f700a8fdc28d'),
-              icon: 'clock',
-              link: SUBSCRIPTIONS_ROUTE,
-              match: [
-                SUBSCRIPTIONS_ROUTE,
-                CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
-                PLAN_SUBSCRIPTION_DETAILS_ROUTE,
-              ],
-              canBeClickedOnActive: true,
-              hidden: !hasPermissions(['subscriptionsView']),
-            },
-            {
-              title: translate('text_63ac86d797f728a87b2f9f85'),
-              icon: 'document',
-              link: INVOICES_ROUTE,
-              canBeClickedOnActive: true,
-              match: [INVOICES_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE],
-              hidden: !hasPermissions(['invoicesView']),
-            },
-            {
-              title: translate('text_6672ebb8b1b50be550eccbed'),
-              icon: 'coin-dollar',
-              link: PAYMENTS_ROUTE,
-              match: [PAYMENTS_ROUTE, PAYMENT_DETAILS_ROUTE],
-              canBeClickedOnActive: true,
-              hidden: !hasPermissions(['paymentsView']),
-            },
-            {
-              title: translate('text_66461ada56a84401188e8c63'),
-              icon: 'receipt',
-              link: CREDIT_NOTES_ROUTE,
-              match: [
-                CREDIT_NOTES_ROUTE,
-                CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
-                CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
-              ],
-              canBeClickedOnActive: true,
-              hidden: !hasPermissions(['creditNotesView']),
-            },
-          ]}
-        />
-      </NavLayout.NavSection>
+      {!billingTabs.allTabsHidden && (
+        <NavLayout.NavSection data-test={MAIN_NAV_BILLING_SECTION_TEST_ID}>
+          <VerticalMenuSectionTitle
+            title={translate('text_1750864088654s9qo2h9fvp7')}
+            loading={isLoading}
+          />
+          <VerticalMenu
+            loading={isLoading}
+            loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
+            onClick={onItemClick}
+            tabs={billingTabs.tabs}
+          />
+        </NavLayout.NavSection>
+      )}
     </NavLayout.NavSectionGroup>
   )
 }

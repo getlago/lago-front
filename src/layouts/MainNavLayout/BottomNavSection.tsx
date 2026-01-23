@@ -1,5 +1,4 @@
 import { Stack } from '@mui/material'
-import { IconName } from 'lago-design-system'
 
 import { Skeleton, VerticalMenu } from '~/components/designSystem'
 import { envGlobalVar } from '~/core/apolloClient'
@@ -14,18 +13,9 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
 
-const { appEnv } = envGlobalVar()
+import { getNavTabs, NavTab } from './utils'
 
-interface TabProps {
-  title: string
-  icon: IconName
-  link?: string
-  match?: string[]
-  external?: boolean
-  onAction?: () => void
-  canBeClickedOnActive?: boolean
-  hidden?: boolean
-}
+const { appEnv } = envGlobalVar()
 
 export const BOTTOM_NAV_SECTION_TEST_ID = 'bottom-nav-section'
 
@@ -39,10 +29,10 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
   const { hasPermissions } = usePermissions()
   const { openPanel: openInspector } = useDeveloperTool()
 
-  const tabs: TabProps[] = [
+  const getBottomNavTabs = (): NavTab[] => [
     {
       title: 'Design System',
-      icon: 'rocket' as IconName,
+      icon: 'rocket',
       link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
       match: [ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
       hidden: ![AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv),
@@ -61,6 +51,13 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
       hidden: !hasPermissions(['developersManage']),
     },
   ]
+
+  const bottomNavTabs = getNavTabs(getBottomNavTabs())
+
+  // Don't render the section if all tabs are hidden
+  if (bottomNavTabs.allTabsHidden) {
+    return null
+  }
 
   return (
     <NavLayout.NavSection
@@ -86,7 +83,7 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
           </Stack>
         }
         onClick={onItemClick}
-        tabs={tabs}
+        tabs={bottomNavTabs.tabs}
       />
     </NavLayout.NavSection>
   )

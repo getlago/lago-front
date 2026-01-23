@@ -103,6 +103,90 @@ describe('MainNavMenuSections', () => {
     })
   })
 
+  describe('Section visibility based on tab permissions', () => {
+    it('does not render configuration section when all configuration tabs are hidden', () => {
+      mockHasPermissions.mockImplementation((permissions: string[]) => {
+        const configPermissions = [
+          'billableMetricsView',
+          'plansView',
+          'featuresView',
+          'addonsView',
+          'couponsView',
+        ]
+
+        // Hide all configuration permissions, allow others
+        if (configPermissions.some((p) => permissions.includes(p))) {
+          return false
+        }
+
+        return true
+      })
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('does not render billing section when all billing tabs are hidden', () => {
+      mockHasPermissions.mockImplementation((permissions: string[]) => {
+        const billingPermissions = [
+          'customersView',
+          'subscriptionsView',
+          'invoicesView',
+          'paymentsView',
+          'creditNotesView',
+        ]
+
+        // Hide all billing permissions, allow others
+        if (billingPermissions.some((p) => permissions.includes(p))) {
+          return false
+        }
+
+        return true
+      })
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('does not render entire component when all sections are hidden', () => {
+      mockHasPermissions.mockReturnValue(false)
+
+      const { container } = render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)).not.toBeInTheDocument()
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('renders only sections with visible tabs', () => {
+      mockHasPermissions.mockImplementation((permissions: string[]) => {
+        // Only allow billing permissions
+        const billingPermissions = [
+          'customersView',
+          'subscriptionsView',
+          'invoicesView',
+          'paymentsView',
+          'creditNotesView',
+        ]
+
+        return billingPermissions.some((p) => permissions.includes(p))
+      })
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      // Menu sections container should be rendered
+      expect(screen.getByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)).toBeInTheDocument()
+
+      // Only billing section should be visible
+      expect(screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).toBeInTheDocument()
+
+      // Reports and configuration should be hidden
+      expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
+
   describe('Permission-based visibility', () => {
     it('calls hasPermissions with correct permissions for reports section', () => {
       render(<MainNavMenuSections {...defaultProps} />)
