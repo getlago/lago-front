@@ -34,6 +34,8 @@ import {
   Wallet,
 } from '~/generated/graphql'
 
+import { isEmailActivity } from './typeguards'
+
 // This function is used to check if all activity types are handled
 const exhaustiveCheck = (value: never): never => {
   try {
@@ -63,6 +65,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.CustomerCreated]: 'text_1747404656632oqee107ov8u',
   [ActivityTypeEnum.CustomerDeleted]: 'text_1747404656632qp9qrpp0k7g',
   [ActivityTypeEnum.CustomerUpdated]: 'text_1747404656632j5yxb9h6lsu',
+  [ActivityTypeEnum.EmailSent]: 'text_17691652749726aa4es5s80q',
   [ActivityTypeEnum.FeatureCreated]: 'text_1754570508183f0dl9q0pqtx',
   [ActivityTypeEnum.FeatureDeleted]: 'text_1754570508183pw3m9k2lv68',
   [ActivityTypeEnum.FeatureUpdated]: 'text_1754570508183pw3m9k2lv69',
@@ -94,16 +97,32 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.WalletUpdated]: 'text_1747404806714x0expgzlcnt',
 }
 
+export const resourceTypeTranslations: Record<string, string> = {
+  BillableMetric: 'text_64352657267c3d916f962757',
+  BillingEntity: 'text_1743077296189ms0shds6g53',
+  Coupon: 'text_628b8c693e464200e00e4677',
+  CreditNote: 'text_1748341883774iypsrgem3hr',
+  Customer: 'text_65201c5a175a4b0238abf29a',
+  Invoice: 'text_63fcc3218d35b9377840f5b3',
+  Plan: 'text_63d3a658c6d84a5843032145',
+  PaymentRequest: 'text_17495622741665lrk6dp6czk',
+  Subscription: 'text_1728472697691k6k2e9m5ibb',
+  Wallet: 'text_62d175066d2dbf1d50bc9384',
+  PaymentReceipt: 'text_1769180515750z7jxssqkdvu',
+}
+
 export function getActivityDescription(
   activityType: ActivityTypeEnum,
   {
     activityObject,
     externalCustomerId,
     externalSubscriptionId,
+    translate,
   }: {
     activityObject: Record<string, unknown>
     externalCustomerId?: string
     externalSubscriptionId?: string
+    translate?: (key: string) => string
   },
 ): [string, Record<string, string | number>] {
   let parameters = {}
@@ -158,6 +177,18 @@ export function getActivityDescription(
     case ActivityTypeEnum.CustomerUpdated:
       parameters = {
         externalCustomerId: externalCustomerId,
+      }
+      break
+    case ActivityTypeEnum.EmailSent:
+      if (!isEmailActivity(activityObject)) {
+        break
+      }
+
+      parameters = {
+        resource: translate
+          ? translate(resourceTypeTranslations[activityObject.document.type])
+          : activityObject.document.type,
+        resourceNb: activityObject.document.number,
       }
       break
     case ActivityTypeEnum.InvoiceCreated:
@@ -273,6 +304,7 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
     'voided',
     'recorded',
     'started',
+    'sent',
   ]
 
   for (const action of actions) {
@@ -372,19 +404,6 @@ export function formatResourceObject(
   ) : (
     resource.id
   )
-}
-
-export const resourceTypeTranslations: Record<string, string> = {
-  BillableMetric: 'text_64352657267c3d916f962757',
-  BillingEntity: 'text_1743077296189ms0shds6g53',
-  Coupon: 'text_628b8c693e464200e00e4677',
-  CreditNote: 'text_1748341883774iypsrgem3hr',
-  Customer: 'text_65201c5a175a4b0238abf29a',
-  Invoice: 'text_63fcc3218d35b9377840f5b3',
-  Plan: 'text_63d3a658c6d84a5843032145',
-  PaymentRequest: 'text_17495622741665lrk6dp6czk',
-  Subscription: 'text_1728472697691k6k2e9m5ibb',
-  Wallet: 'text_62d175066d2dbf1d50bc9384',
 }
 
 export function buildLinkToActivityLog(activityId: string, filter?: AvailableFiltersEnum): string {
