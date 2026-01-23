@@ -10,30 +10,36 @@ export const DIALOG_TITLE_TEST_ID = 'dialog-title'
 
 export type CentralizedDialogProps = {
   title: ReactNode
+  description?: ReactNode
+  headerContent?: ReactNode
   children?: ReactNode
   actions: ReactNode
 }
 
-const CentralizedDialog = create(({ title, children, actions }: CentralizedDialogProps) => {
-  const modal = useModal()
+const CentralizedDialog = create(
+  ({ title, description, headerContent, children, actions }: CentralizedDialogProps) => {
+    const modal = useModal()
 
-  const handleClose = async () => {
-    modal.reject()
-    modal.hide()
-  }
+    const handleClose = async () => {
+      modal.reject()
+      modal.hide()
+    }
 
-  return (
-    <BaseDialog
-      title={title}
-      actions={actions}
-      isOpen={modal.visible}
-      closeDialog={handleClose}
-      removeDialog={modal.remove}
-    >
-      {children}
-    </BaseDialog>
-  )
-})
+    return (
+      <BaseDialog
+        title={title}
+        description={description}
+        headerContent={headerContent}
+        actions={actions}
+        isOpen={modal.visible}
+        closeDialog={handleClose}
+        removeDialog={modal.remove}
+      >
+        {children}
+      </BaseDialog>
+    )
+  },
+)
 
 export default CentralizedDialog
 

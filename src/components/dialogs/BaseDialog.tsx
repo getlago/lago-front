@@ -8,6 +8,8 @@ export const DIALOG_TITLE_TEST_ID = 'dialog-title'
 
 export type BaseDialogProps = {
   title: ReactNode
+  description?: ReactNode
+  headerContent?: ReactNode
   children?: ReactNode
   actions: ReactNode
   isOpen: boolean
@@ -17,6 +19,8 @@ export type BaseDialogProps = {
 
 const BaseDialog = ({
   title,
+  description,
+  headerContent,
   children,
   actions,
   isOpen,
@@ -29,7 +33,7 @@ const BaseDialog = ({
     <MuiDialog
       className="z-dialog box-border"
       classes={{
-        container: 'px-4 py-20 box-border',
+        container: 'px-4 py-20 box-border overflow-hidden',
         scrollBody: 'after:h-20',
         paper: 'max-h-[calc(100vh-10rem)]', // 10 rem because of py-20 on the container
       }}
@@ -63,16 +67,23 @@ const BaseDialog = ({
     >
       {/* Header */}
       <header className="p-8">
-        <Typography variant="headline" data-test={DIALOG_TITLE_TEST_ID}>
-          {title}
-        </Typography>
+        <div className="flex flex-col gap-8">
+          {/* Header is made of two main parts: title/description and optional header content */}
+          <div className="flex flex-col gap-2">
+            <Typography variant="subhead1" data-test={DIALOG_TITLE_TEST_ID}>
+              {title}
+            </Typography>
+            {description && <Typography variant="body">{description}</Typography>}
+          </div>
+          {headerContent && <div>{headerContent}</div>}
+        </div>
       </header>
 
       {/* Content */}
       {children && (
         <div
-          className={tw('max-h-[calc(100vh-20.5rem)] overflow-auto', {
-            'px-8 pb-8': childrenNeedsWrapping,
+          className={tw('overflow-auto shadow-t', {
+            'p-8': childrenNeedsWrapping,
           })}
         >
           {children}
@@ -80,7 +91,7 @@ const BaseDialog = ({
       )}
 
       {/* Footer */}
-      <div className="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 md:flex-row">
+      <div className="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row">
         {actions}
       </div>
     </MuiDialog>

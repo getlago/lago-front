@@ -36,6 +36,7 @@ const PremiumWarningDialog = create(
         closeDialog={handleClose}
         removeDialog={modal.remove}
         title={displayTitle}
+        description={displayDescription}
         actions={
           <>
             <Button variant="quaternary" onClick={handleClose}>
@@ -49,9 +50,7 @@ const PremiumWarningDialog = create(
             </a>
           </>
         }
-      >
-        {displayDescription}
-      </BaseDialog>
+      />
     )
   },
 )
