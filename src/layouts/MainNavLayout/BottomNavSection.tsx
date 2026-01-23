@@ -4,6 +4,7 @@ import { Skeleton, VerticalMenu } from '~/components/designSystem'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
+  MODAL_TEST_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
   SETTINGS_ROUTE,
@@ -36,6 +37,11 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
       link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
       match: [ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
       hidden: ![AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv),
+    },
+    {
+      title: 'Modal Test',
+      icon: 'rocket',
+      link: MODAL_TEST_ROUTE,
     },
     {
       title: translate('text_62728ff857d47b013204c726'),
