@@ -96,17 +96,6 @@ export const TerminateCustomerSubscriptionDialog =
       },
     })
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (infos) => {
-        formikProps.resetForm()
-        setContext(infos)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => {
-        dialogRef.current?.closeDialog()
-      },
-    }))
-
     // Build options array - used for both rendering and computing default
     const creditNoteOptions = useMemo(
       () =>
@@ -164,13 +153,37 @@ export const TerminateCustomerSubscriptionDialog =
       },
     })
 
-    // Sync form value with computed default when dialog opens or invoice data changes
+    // Track previous context.id to detect reopening same subscription
+    const prevContextIdRef = useRef<string | undefined>(undefined)
+
+    useImperativeHandle(ref, () => ({
+      openDialog: (infos) => {
+        // Clear context first to ensure useEffect triggers even for same subscription
+        setContext(undefined)
+        prevContextIdRef.current = undefined
+
+        // Use microtask to set new context after state clears
+        queueMicrotask(() => {
+          setContext(infos)
+          dialogRef.current?.openDialog()
+        })
+      },
+      closeDialog: () => {
+        dialogRef.current?.closeDialog()
+      },
+    }))
+
+    // Sync form value with computed default when context changes
     useEffect(() => {
-      if (context?.id) {
-        formikProps.setFieldValue('onTerminationCreditNote', defaultCreditNoteOption)
+      if (context?.id && context.id !== prevContextIdRef.current) {
+        prevContextIdRef.current = context.id
+        formikProps.setValues({
+          onTerminationInvoice: true,
+          onTerminationCreditNote: defaultCreditNoteOption,
+        })
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [defaultCreditNoteOption, context?.id])
+    }, [context?.id, defaultCreditNoteOption])
 
     const content = useMemo(() => {
       if (context?.status === StatusTypeEnum.Pending) {
