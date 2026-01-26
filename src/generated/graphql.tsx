@@ -6247,9 +6247,6 @@ export type Permissions = {
   featuresDelete: Scalars['Boolean']['output'];
   featuresUpdate: Scalars['Boolean']['output'];
   featuresView: Scalars['Boolean']['output'];
-  fixedChargesCreate: Scalars['Boolean']['output'];
-  fixedChargesDelete: Scalars['Boolean']['output'];
-  fixedChargesUpdate: Scalars['Boolean']['output'];
   invoiceCustomSectionsCreate: Scalars['Boolean']['output'];
   invoiceCustomSectionsDelete: Scalars['Boolean']['output'];
   invoiceCustomSectionsUpdate: Scalars['Boolean']['output'];
