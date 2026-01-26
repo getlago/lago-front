@@ -148,7 +148,7 @@ const BillingEntityEmailScenarios = () => {
                         </div>
                       ),
                     },
-                    ...(hasPermissions(['billingEntitiesEmailsUpdate'])
+                    ...(hasPermissions(['billingEntitiesUpdate'])
                       ? [
                           {
                             key: 'setting',

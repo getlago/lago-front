@@ -643,7 +643,7 @@ describe('buildInitialPayBack', () => {
     }) as InvoiceForCreditNoteFormCalculationFragment
 
   describe('GIVEN undefined invoice', () => {
-    it('THEN should return only credit type', () => {
+    it('THEN should return only credit type with value undefined', () => {
       const result = buildInitialPayBack(undefined)
 
       expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
@@ -651,7 +651,7 @@ describe('buildInitialPayBack', () => {
   })
 
   describe('GIVEN null invoice', () => {
-    it('THEN should return only credit type', () => {
+    it('THEN should return only credit type with value undefined', () => {
       const result = buildInitialPayBack(null)
 
       expect(result).toEqual([{ type: CreditTypeEnum.credit, value: undefined }])
@@ -659,7 +659,7 @@ describe('buildInitialPayBack', () => {
   })
 
   describe('GIVEN fully paid invoice', () => {
-    it('WHEN no dispute lost THEN should include credit and refund', () => {
+    it('WHEN no dispute lost THEN should include credit and refund with value undefined', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '10000',
         totalDueAmountCents: '0',
@@ -674,7 +674,7 @@ describe('buildInitialPayBack', () => {
       ])
     })
 
-    it('WHEN dispute lost THEN should include only credit (no refund)', () => {
+    it('WHEN dispute lost THEN should include only credit (no refund) with value undefined', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '10000',
         totalDueAmountCents: '0',
@@ -688,7 +688,7 @@ describe('buildInitialPayBack', () => {
   })
 
   describe('GIVEN partially paid invoice', () => {
-    it('WHEN no dispute lost THEN should include credit, refund, and offset', () => {
+    it('WHEN no dispute lost THEN should include credit, refund, and offset with value undefined', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '5000',
         totalDueAmountCents: '5000',
@@ -704,7 +704,7 @@ describe('buildInitialPayBack', () => {
       ])
     })
 
-    it('WHEN dispute lost THEN should include credit and offset (no refund)', () => {
+    it('WHEN dispute lost THEN should include credit and offset (no refund) with value undefined', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '5000',
         totalDueAmountCents: '5000',
@@ -721,7 +721,7 @@ describe('buildInitialPayBack', () => {
   })
 
   describe('GIVEN unpaid invoice', () => {
-    it('THEN should include credit and offset (no refund)', () => {
+    it('THEN should include credit and offset (no refund) with value undefined', () => {
       const invoice = createMockInvoice({
         totalPaidAmountCents: '0',
         totalDueAmountCents: '10000',

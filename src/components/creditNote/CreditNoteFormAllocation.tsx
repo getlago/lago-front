@@ -44,10 +44,17 @@ export const CreditNoteFormAllocation = ({
   const allocatedSoFar = credit.value + refund.value + offset.value
   const remainingToAllocate = totalTaxIncluded - allocatedSoFar
 
-  const hasPayBackErrors = !!getIn(formikProps.errors, 'payBackErrors')
+  // Check if any payBack field has been touched
+  const isAnyPayBackFieldTouched =
+    (credit.path && getIn(formikProps.touched, credit.path)) ||
+    (refund.path && getIn(formikProps.touched, refund.path)) ||
+    (offset.path && getIn(formikProps.touched, offset.path))
 
-  const allocationCaptionColor = hasPayBackErrors ? 'danger600' : 'grey600'
-  const allocationValueColor = hasPayBackErrors ? 'danger600' : 'grey700'
+  const hasPayBackErrors = !!getIn(formikProps.errors, 'payBackErrors')
+  const shouldShowPayBackErrors = hasPayBackErrors && isAnyPayBackFieldTouched
+
+  const allocationCaptionColor = shouldShowPayBackErrors ? 'danger600' : 'grey600'
+  const allocationValueColor = shouldShowPayBackErrors ? 'danger600' : 'grey700'
 
   const alertTypographyProps = useMemo(() => {
     const payBackErrors = getIn(formikProps.errors, 'payBackErrors')
@@ -115,7 +122,7 @@ export const CreditNoteFormAllocation = ({
         </div>
       </div>
 
-      {getIn(formikProps.errors, 'payBackErrors') && (
+      {shouldShowPayBackErrors && (
         <Alert type="danger">
           <Typography variant="bodyHl" color="textSecondary">
             {translate('text_1767884759747gd07dh4ihn9')}
@@ -143,6 +150,7 @@ export const CreditNoteFormAllocation = ({
                 : undefined
             }
             testId={OFFSET_AMOUNT_INPUT_TEST_ID}
+            showErrorOnlyWhenTouched
           />
         )}
 
@@ -164,6 +172,7 @@ export const CreditNoteFormAllocation = ({
                 : undefined
             }
             testId={REFUND_AMOUNT_INPUT_TEST_ID}
+            showErrorOnlyWhenTouched
           />
         )}
 
@@ -185,6 +194,7 @@ export const CreditNoteFormAllocation = ({
                 : undefined
             }
             testId={CREDIT_AMOUNT_INPUT_TEST_ID}
+            showErrorOnlyWhenTouched
           />
         )}
       </div>

@@ -16,9 +16,9 @@ const defaultProps = {
   formikProps: createMockFormikProps<CreditNoteForm>({
     values: {
       payBack: [
-        { type: CreditTypeEnum.credit, value: undefined },
-        { type: CreditTypeEnum.refund, value: undefined },
-        { type: CreditTypeEnum.offset, value: undefined },
+        { type: CreditTypeEnum.credit, value: 0 },
+        { type: CreditTypeEnum.refund, value: 0 },
+        { type: CreditTypeEnum.offset, value: 0 },
       ],
     },
   }),
@@ -51,7 +51,7 @@ describe('CreditNoteFormAllocation', () => {
     it('THEN should render only credit input', () => {
       const formikProps = createMockFormikProps<CreditNoteForm>({
         values: {
-          payBack: [{ type: CreditTypeEnum.credit, value: undefined }],
+          payBack: [{ type: CreditTypeEnum.credit, value: 0 }],
         },
       })
 
@@ -68,8 +68,8 @@ describe('CreditNoteFormAllocation', () => {
       const formikProps = createMockFormikProps<CreditNoteForm>({
         values: {
           payBack: [
-            { type: CreditTypeEnum.credit, value: undefined },
-            { type: CreditTypeEnum.refund, value: undefined },
+            { type: CreditTypeEnum.credit, value: 0 },
+            { type: CreditTypeEnum.refund, value: 0 },
           ],
         },
       })
@@ -87,8 +87,8 @@ describe('CreditNoteFormAllocation', () => {
       const formikProps = createMockFormikProps<CreditNoteForm>({
         values: {
           payBack: [
-            { type: CreditTypeEnum.credit, value: undefined },
-            { type: CreditTypeEnum.offset, value: undefined },
+            { type: CreditTypeEnum.credit, value: 0 },
+            { type: CreditTypeEnum.offset, value: 0 },
           ],
         },
       })
@@ -141,16 +141,44 @@ describe('CreditNoteFormAllocation', () => {
   })
 
   describe('GIVEN error alert', () => {
-    it('WHEN payBackErrors exists THEN should show danger alert', () => {
+    it('WHEN payBackErrors exists AND at least one field is touched THEN should show danger alert', () => {
       const formikProps = createMockFormikProps<CreditNoteForm>({
+        values: {
+          payBack: [
+            { type: CreditTypeEnum.credit, value: 0 },
+            { type: CreditTypeEnum.refund, value: 0 },
+          ],
+        },
         errors: {
           payBackErrors: PayBackErrorEnum.maxTotalInvoice,
+        } as Record<string, unknown>,
+        touched: {
+          payBack: [{ value: true }, { value: false }],
         } as Record<string, unknown>,
       })
 
       renderComponent({ formikProps })
 
       expect(screen.getByTestId('alert-type-danger')).toBeInTheDocument()
+    })
+
+    it('WHEN payBackErrors exists BUT no field is touched THEN should not show alert', () => {
+      const formikProps = createMockFormikProps<CreditNoteForm>({
+        values: {
+          payBack: [
+            { type: CreditTypeEnum.credit, value: 0 },
+            { type: CreditTypeEnum.refund, value: 0 },
+          ],
+        },
+        errors: {
+          payBackErrors: PayBackErrorEnum.maxTotalInvoice,
+        } as Record<string, unknown>,
+        touched: {},
+      })
+
+      renderComponent({ formikProps })
+
+      expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
     })
 
     it('WHEN no errors THEN should not show alert', () => {

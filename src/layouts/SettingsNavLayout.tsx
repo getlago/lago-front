@@ -56,6 +56,13 @@ import { TMembershipPermissions, usePermissions } from '~/hooks/usePermissions'
 
 import { NavLayout } from './NavLayout'
 
+// Test IDs
+export const SETTINGS_NAV_BURGER_BUTTON_TEST_ID = 'settings-nav-burger-button'
+export const SETTINGS_NAV_BACK_BUTTON_TEST_ID = 'settings-nav-back-button'
+export const SETTINGS_NAV_CREATE_BILLING_ENTITY_BUTTON_TEST_ID =
+  'settings-nav-create-billing-entity-button'
+export const SETTINGS_NAV_BILLING_ENTITY_ITEM_TEST_ID = 'settings-nav-billing-entity-item'
+
 const generateTabs = ({
   translate,
   hasPermissions,
@@ -87,7 +94,7 @@ const generateTabs = ({
     title: translate('text_1765448879791epmkg4xijkn'),
     link: ROLES_LIST_ROUTE,
     match: [ROLES_LIST_ROUTE, ROLE_DETAILS_ROUTE],
-    hidden: !hasPermissions(['rolesView', 'permissionsView']),
+    hidden: !hasPermissions(['rolesView']),
   },
   {
     title: translate('text_63ac86d797f728a87b2f9f85'),
@@ -168,7 +175,10 @@ const SettingsNavLayout = () => {
 
   return (
     <NavLayout.NavWrapper>
-      <NavLayout.NavBurgerButton onClick={() => setOpen((prev) => !prev)} />
+      <NavLayout.NavBurgerButton
+        data-test={SETTINGS_NAV_BURGER_BUTTON_TEST_ID}
+        onClick={() => setOpen((prev) => !prev)}
+      />
       <ClickAwayListener
         onClickAway={() => {
           if (open) setOpen(false)
@@ -177,6 +187,7 @@ const SettingsNavLayout = () => {
         <NavLayout.Nav isOpen={open}>
           <NavLayout.NavStickyElementContainer>
             <Button
+              data-test={SETTINGS_NAV_BACK_BUTTON_TEST_ID}
               variant="quaternary"
               startIcon="arrow-left"
               size="small"
@@ -214,6 +225,7 @@ const SettingsNavLayout = () => {
                       type="tab"
                       active={isEntityActive(entity.code, billingEntityCode || '')}
                       canBeClickedOnActive={true}
+                      data-test={`${SETTINGS_NAV_BILLING_ENTITY_ITEM_TEST_ID}-${entity.code}`}
                       buttonProps={{
                         size: 'small',
                       }}
@@ -226,6 +238,7 @@ const SettingsNavLayout = () => {
 
                 <div className="px-3 py-1">
                   <Button
+                    data-test={SETTINGS_NAV_CREATE_BILLING_ENTITY_BUTTON_TEST_ID}
                     variant="inline"
                     align="left"
                     size="small"

@@ -118,7 +118,7 @@ const BillingEntityTaxesSettings = () => {
                   sublabel={translate('text_17432414198712tgdfmlnxb0')}
                   action={
                     <>
-                      {hasPermissions(['billingEntitiesTaxesUpdate']) && (
+                      {hasPermissions(['billingEntitiesUpdate']) && (
                         <Button
                           variant="inline"
                           disabled={loading}
@@ -184,7 +184,7 @@ const BillingEntityTaxesSettings = () => {
                       },
                     ]}
                     actionColumn={(tax) => {
-                      if (!hasPermissions(['billingEntitiesTaxesUpdate'])) return null
+                      if (!hasPermissions(['billingEntitiesUpdate'])) return null
 
                       return (
                         <Tooltip placement="top" title={translate('text_1743600025133r2npxfa25sy')}>
