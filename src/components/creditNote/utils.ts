@@ -324,9 +324,9 @@ export const buildInitialPayBack = (
   const hasOffset = totalDueAmountCents > 0
 
   return [
-    { type: CreditTypeEnum.credit, value: 0 },
-    ...(hasRefund ? [{ type: CreditTypeEnum.refund, value: 0 }] : []),
-    ...(hasOffset ? [{ type: CreditTypeEnum.offset, value: 0 }] : []),
+    { type: CreditTypeEnum.credit, value: undefined },
+    ...(hasRefund ? [{ type: CreditTypeEnum.refund, value: undefined }] : []),
+    ...(hasOffset ? [{ type: CreditTypeEnum.offset, value: undefined }] : []),
   ]
 }
 

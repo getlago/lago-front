@@ -222,7 +222,7 @@ const CreateCreditNote = () => {
     const currentPayBack = formikProps.values.payBack || []
     const resetPayBack = currentPayBack.map((item) => ({
       ...item,
-      value: 0,
+      value: undefined,
     }))
 
     formikProps.setFieldValue('payBack', resetPayBack)
