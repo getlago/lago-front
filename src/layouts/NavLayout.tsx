@@ -78,13 +78,15 @@ const NavSection = ({
   )
 }
 
-const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren>(({ children }, ref) => {
-  return (
-    <div className="flex-1 overflow-y-auto" ref={ref}>
-      {children}
-    </div>
-  )
-})
+const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren<{ 'data-test'?: string }>>(
+  ({ children, 'data-test': dataTest }, ref) => {
+    return (
+      <div className="flex-1 overflow-y-auto" ref={ref} data-test={dataTest}>
+        {children}
+      </div>
+    )
+  },
+)
 
 ContentWrapper.displayName = 'ContentWrapper'
 

@@ -15,7 +15,7 @@ import { OrganizationSwitcher } from './OrganizationSwitcher'
 
 export const MAIN_NAV_LAYOUT_WRAPPER_TEST_ID = 'main-nav-layout-wrapper'
 export const MAIN_NAV_LAYOUT_SPINNER_TEST_ID = 'main-nav-layout-spinner'
-export const MAIN_NAV_LAYOUT_CONTENT_TEST_ID = 'main-nav-layout-content'
+export const MAIN_NAV_LAYOUT_CONTENT_TEST_ID = 'main-nav-layout-content-wrapper'
 
 gql`
   query SideNavInfos {
@@ -82,13 +82,9 @@ const MainNavLayout = () => {
           </NavLayout.Nav>
         </ClickAwayListener>
 
-        <NavLayout.ContentWrapper ref={contentRef}>
-          {isLoading && <Spinner />}
-          {!isLoading && (
-            <div data-test={MAIN_NAV_LAYOUT_CONTENT_TEST_ID}>
-              <Outlet />
-            </div>
-          )}
+        <NavLayout.ContentWrapper ref={contentRef} data-test={MAIN_NAV_LAYOUT_CONTENT_TEST_ID}>
+          {isLoading && <Spinner data-test={MAIN_NAV_LAYOUT_SPINNER_TEST_ID} />}
+          {!isLoading && <Outlet />}
         </NavLayout.ContentWrapper>
       </NavLayout.NavWrapper>
     </div>
