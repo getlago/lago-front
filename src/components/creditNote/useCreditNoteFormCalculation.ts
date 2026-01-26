@@ -219,16 +219,6 @@ export const useCreditNoteFormCalculation = ({
       return
     }
 
-    // Set initial credit value using path from helper
-    const { credit } = getPayBackFields(formikProps.values.payBack)
-
-    if (credit.path) {
-      formikProps.setFieldValue(
-        credit.path,
-        !totalTaxIncluded ? undefined : Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision),
-      )
-    }
-
     setPayBackValidation(
       array()
         .of(
@@ -290,11 +280,6 @@ export const useCreditNoteFormCalculation = ({
           },
         }),
     )
-
-    formikProps.setTouched({ payBack: true })
-
-    // NEVER watch formikProps as a dependency to avoid re-rendering loop: https://github.com/getlago/lago-front/pull/2689
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currencyPrecision,
     canOnlyCredit,

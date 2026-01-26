@@ -1,5 +1,5 @@
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikProps, getIn } from 'formik'
 import { FC } from 'react'
 
 import { CreditNoteForm } from '~/components/creditNote/types'
@@ -18,6 +18,7 @@ interface CreditNoteActionsLineProps {
   hasError?: boolean
   disabled?: boolean
   testId?: string
+  showErrorOnlyWhenTouched?: boolean
 }
 
 export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
@@ -30,8 +31,13 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   error,
   disabled,
   testId = '',
+  showErrorOnlyWhenTouched = false,
 }) => {
   const currencySymbol = getCurrencySymbol(currency)
+  const isTouched = getIn(formikProps.touched, name)
+  const shouldShowError = showErrorOnlyWhenTouched
+    ? isTouched && (!!error || hasError)
+    : !!error || hasError
 
   return (
     <div>
@@ -53,7 +59,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
           currency={currency}
           className="max-w-42"
           beforeChangeFormatter={['positiveNumber']}
-          error={!!error || hasError}
+          error={shouldShowError}
           disabled={disabled}
           inputProps={{ style: { textAlign: 'right' } }}
           InputProps={
@@ -64,7 +70,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
           data-test={testId}
         />
       </div>
-      {(!!error || hasError) && (
+      {shouldShowError && (
         <Typography variant="caption" color="danger600" className="mt-1 text-right">
           {error}
         </Typography>
