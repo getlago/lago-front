@@ -15,8 +15,6 @@ import { NavLayout } from '~/layouts/NavLayout'
 
 import { getNavTabs, NavTab } from './utils'
 
-const { appEnv } = envGlobalVar()
-
 export const BOTTOM_NAV_SECTION_TEST_ID = 'bottom-nav-section'
 
 interface BottomNavSectionProps {
@@ -28,6 +26,8 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { openPanel: openInspector } = useDeveloperTool()
+
+  const { appEnv } = envGlobalVar()
 
   const getBottomNavTabs = (): NavTab[] => [
     {

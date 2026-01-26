@@ -19,10 +19,14 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
   }),
 }))
 
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
-  envGlobalVar: () => ({ appEnv: 'development' }),
-}))
+jest.mock('~/core/apolloClient', () => {
+  const actual = jest.requireActual('~/core/apolloClient')
+
+  return {
+    ...actual,
+    envGlobalVar: jest.fn(() => ({ appEnv: 'development' })),
+  }
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -30,6 +34,9 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
     locale: 'en',
   }),
 }))
+
+// Import the mocked function after jest.mock is defined
+const { envGlobalVar } = jest.requireMock('~/core/apolloClient')
 
 describe('BottomNavSection', () => {
   const defaultProps = {
@@ -40,6 +47,7 @@ describe('BottomNavSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    envGlobalVar.mockReturnValue({ appEnv: 'development' })
   })
 
   describe('Test ID constants', () => {
@@ -61,27 +69,35 @@ describe('BottomNavSection', () => {
   })
 
   describe('Section visibility based on tab permissions', () => {
-    it('does not render section when all tabs are hidden', () => {
-      mockHasPermissions.mockReturnValue(false)
+    it('does not render section when all tabs are hidden in production with no permissions', () => {
+      // Mock production environment where design system tab is hidden
+      envGlobalVar.mockReturnValue({ appEnv: 'production' })
 
-      // Mock production environment where design system tab is also hidden
-      jest.doMock('~/core/apolloClient', () => ({
-        ...jest.requireActual('~/core/apolloClient'),
-        envGlobalVar: () => ({ appEnv: 'production' }),
-      }))
+      // No permissions for settings or developer tools
+      mockHasPermissions.mockReturnValue(false)
 
       const { container } = render(<BottomNavSection {...defaultProps} />)
 
-      // In production with no permissions, all tabs would be hidden
-      // But since we're mocking development, design system tab is still visible
-      // So the section should still render in this test setup
-      expect(screen.getByTestId(BOTTOM_NAV_SECTION_TEST_ID)).toBeInTheDocument()
-
-      // Note: To fully test "all tabs hidden" scenario, we'd need to mock production env
-      expect(container).toBeDefined()
+      // When all tabs are hidden (production env + no permissions), component should return null
+      expect(screen.queryByTestId(BOTTOM_NAV_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(container.firstChild).toBeNull()
     })
 
-    it('renders section when at least one tab is visible', () => {
+    it('does not render section when all tabs are hidden in staging with no permissions', () => {
+      // Mock staging environment where design system tab is hidden
+      envGlobalVar.mockReturnValue({ appEnv: 'staging' })
+
+      // No permissions for settings or developer tools
+      mockHasPermissions.mockReturnValue(false)
+
+      const { container } = render(<BottomNavSection {...defaultProps} />)
+
+      // All tabs should be hidden
+      expect(screen.queryByTestId(BOTTOM_NAV_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('renders section when at least one tab is visible (settings)', () => {
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         // Only allow organizationView (settings)
         return permissions.includes('organizationView')
@@ -89,6 +105,33 @@ describe('BottomNavSection', () => {
 
       render(<BottomNavSection {...defaultProps} />)
 
+      expect(screen.getByTestId(BOTTOM_NAV_SECTION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('renders section when at least one tab is visible (developer tools)', () => {
+      // Production environment (design system hidden)
+      envGlobalVar.mockReturnValue({ appEnv: 'production' })
+
+      mockHasPermissions.mockImplementation((permissions: string[]) => {
+        // Only allow developersManage (developer tools)
+        return permissions.includes('developersManage')
+      })
+
+      render(<BottomNavSection {...defaultProps} />)
+
+      expect(screen.getByTestId(BOTTOM_NAV_SECTION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('renders section when at least one tab is visible (design system in QA)', () => {
+      // QA environment where design system tab is visible
+      envGlobalVar.mockReturnValue({ appEnv: 'qa' })
+
+      // No permissions for settings or developer tools
+      mockHasPermissions.mockReturnValue(false)
+
+      render(<BottomNavSection {...defaultProps} />)
+
+      // Design system tab should be visible in QA, so section renders
       expect(screen.getByTestId(BOTTOM_NAV_SECTION_TEST_ID)).toBeInTheDocument()
     })
   })
