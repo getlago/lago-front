@@ -489,7 +489,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
       expect(screen.getByText('Storage')).toBeInTheDocument()
     })
 
-    it('should maintain insertion order of subscriptions', () => {
+    it('should sort subscriptions alphabetically by display name', () => {
       const mockInvoice: InvoiceForDetailsTableFragment = {
         id: 'invoice-1',
         invoiceType: InvoiceTypeEnum.Subscription,
@@ -608,13 +608,13 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
       // Should have 2 subscription tables
       expect(subscriptionTables).toHaveLength(2)
 
-      // Subscription B should appear before Subscription A (insertion order)
+      // Subscription A should appear before Subscription B (alphabetically sorted)
       // Check the text content of each table
       const firstTableText = subscriptionTables[0].textContent || ''
       const secondTableText = subscriptionTables[1].textContent || ''
 
-      expect(firstTableText).toContain('Subscription B')
-      expect(secondTableText).toContain('Subscription A')
+      expect(firstTableText).toContain('Subscription A')
+      expect(secondTableText).toContain('Subscription B')
     })
   })
 

@@ -17,24 +17,25 @@ export const typeDefs = gql`
     login_method_not_authorized
 
     # Validation errors
-    invite_email_mistmatch
-    user_already_exists
-    user_does_not_exist
     coupon_is_not_reusable
     currencies_does_not_match
+    does_not_match_item_amounts
+    email_already_used
+    invite_already_exists
+    invite_email_mistmatch
     invite_not_found
+    invoices_not_overdue
+    invoices_not_ready_for_payment_processing
+    no_active_subscription
+    payment_processor_is_currently_handling_payment
+    plan_overlapping
+    url_is_invalid
+    user_already_exists
+    user_does_not_exist
     value_already_exist
     value_is_duplicated
     value_is_invalid
     value_is_out_of_range
-    url_is_invalid
-    invite_already_exists
-    email_already_used
-    does_not_match_item_amounts
-    payment_processor_is_currently_handling_payment
-    plan_overlapping
-    invoices_not_overdue
-    invoices_not_ready_for_payment_processing
 
     # Object not found
     missing_payment_provider_customer
