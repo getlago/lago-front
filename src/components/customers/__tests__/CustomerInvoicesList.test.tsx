@@ -59,6 +59,7 @@ const createMockInvoice = (
   invoiceType: InvoiceTypeEnum.Subscription,
   creditableAmountCents: '10000',
   refundableAmountCents: '0',
+  offsettableAmountCents: '0',
   associatedActiveWalletPresent: false,
   voidedInvoiceId: null,
   regeneratedInvoiceId: null,
