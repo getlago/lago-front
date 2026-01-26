@@ -12,7 +12,7 @@ import { lazyLoad } from './utils'
 const { appEnv } = envGlobalVar()
 
 // ----------- Layouts -----------
-const SideNavLayout = lazyLoad(() => import('~/layouts/MainNavLayout'))
+const SideNavLayout = lazyLoad(() => import('~/layouts/MainNavLayout/MainNavLayout'))
 
 // ----------- Pages -----------
 const Home = lazyLoad(() => import('~/pages/Home'))
