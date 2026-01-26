@@ -263,8 +263,8 @@ export const FixedChargesSection = memo(
                     data={addOnsForFixedChargesSectionComboboxData}
                     searchQuery={getAddOnsForFixedChargesSection}
                     loading={addOnsForFixedChargesSectionLoading}
-                    placeholder={translate('text_6435888d7cc86500646d8981')}
-                    emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
+                    placeholder={translate('text_6453819268763979024ad0ad')}
+                    emptyText={translate('text_655633c844bc8a00577061b0')}
                     onChange={onAddFixedCharge}
                   />
                   <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
