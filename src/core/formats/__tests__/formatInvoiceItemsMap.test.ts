@@ -722,10 +722,10 @@ describe('formatInvoiceItemsMap', () => {
     })
 
     describe('multiple subscriptions', () => {
-      it('should maintain insertion order of subscriptions', () => {
+      it('should sort subscriptions alphabetically by display name', () => {
         const sub1: AssociatedSubscription = {
           id: 'sub-1',
-          name: 'First Subscription',
+          name: 'Zebra Subscription',
           plan: {
             id: 'plan-1',
             name: 'Plan 1',
@@ -736,7 +736,7 @@ describe('formatInvoiceItemsMap', () => {
 
         const sub2: AssociatedSubscription = {
           id: 'sub-2',
-          name: 'Second Subscription',
+          name: 'Alpha Subscription',
           plan: {
             id: 'plan-2',
             name: 'Plan 2',
@@ -757,6 +757,7 @@ describe('formatInvoiceItemsMap', () => {
           acceptNewChargeFees: false,
         }
 
+        // Fees are added with sub-1 (Zebra) first, then sub-2 (Alpha)
         const fees = [
           {
             id: 'fee-1',
@@ -805,13 +806,232 @@ describe('formatInvoiceItemsMap', () => {
 
         const subscriptionIds = Object.keys(result.subscriptions)
 
-        expect(subscriptionIds).toEqual(['sub-1', 'sub-2'])
+        // Alpha should come before Zebra (alphabetically sorted)
+        expect(subscriptionIds).toEqual(['sub-2', 'sub-1'])
 
-        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('First Subscription')
-        expect(result.subscriptions['sub-1'].acceptNewChargeFees).toBe(true)
-
-        expect(result.subscriptions['sub-2'].subscriptionDisplayName).toBe('Second Subscription')
+        expect(result.subscriptions['sub-2'].subscriptionDisplayName).toBe('Alpha Subscription')
         expect(result.subscriptions['sub-2'].acceptNewChargeFees).toBe(false)
+
+        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('Zebra Subscription')
+        expect(result.subscriptions['sub-1'].acceptNewChargeFees).toBe(true)
+      })
+
+      it('should sort subscriptions by plan name when subscription name is null', () => {
+        const sub1: AssociatedSubscription = {
+          id: 'sub-1',
+          name: null,
+          plan: {
+            id: 'plan-1',
+            name: 'Zulu Plan',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
+
+        const sub2: AssociatedSubscription = {
+          id: 'sub-2',
+          name: null,
+          plan: {
+            id: 'plan-2',
+            name: 'Beta Plan',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
+
+        const invSub1: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-1' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
+
+        const invSub2: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-2' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
+
+        // Fees are added with sub-1 (Zulu Plan) first, then sub-2 (Beta Plan)
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          {
+            id: 'fee-2',
+            amountCents: 2000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 2',
+            subscription: { id: 'sub-2' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [sub1, sub2],
+          invoiceSubscriptions: [invSub1, invSub2],
+          invoiceId: 'inv-1',
+        })
+
+        const subscriptionIds = Object.keys(result.subscriptions)
+
+        // Beta Plan should come before Zulu Plan (alphabetically sorted by plan name)
+        expect(subscriptionIds).toEqual(['sub-2', 'sub-1'])
+
+        expect(result.subscriptions['sub-2'].subscriptionDisplayName).toBe('Beta Plan')
+        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('Zulu Plan')
+      })
+
+      it('should sort subscriptions case-insensitively', () => {
+        const sub1: AssociatedSubscription = {
+          id: 'sub-1',
+          name: 'zebra subscription', // lowercase
+          plan: {
+            id: 'plan-1',
+            name: 'Plan 1',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
+
+        const sub2: AssociatedSubscription = {
+          id: 'sub-2',
+          name: 'ALPHA SUBSCRIPTION', // uppercase
+          plan: {
+            id: 'plan-2',
+            name: 'Plan 2',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
+
+        const sub3: AssociatedSubscription = {
+          id: 'sub-3',
+          name: 'Beta Subscription', // mixed case
+          plan: {
+            id: 'plan-3',
+            name: 'Plan 3',
+            interval: 'monthly',
+            invoiceDisplayName: null,
+          },
+        }
+
+        const invSub1: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-1' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
+
+        const invSub2: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-2' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
+
+        const invSub3: AssociatedInvoiceSubscription = {
+          subscription: { id: 'sub-3' },
+          invoice: { id: 'inv-1' },
+          acceptNewChargeFees: true,
+        }
+
+        // Fees are added in order: sub-1 (zebra), sub-2 (ALPHA), sub-3 (Beta)
+        const fees = [
+          {
+            id: 'fee-1',
+            amountCents: 1000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 1',
+            subscription: { id: 'sub-1' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          {
+            id: 'fee-2',
+            amountCents: 2000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 2',
+            subscription: { id: 'sub-2' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+          {
+            id: 'fee-3',
+            amountCents: 3000,
+            currency: 'USD',
+            units: 1,
+            feeType: 'charge',
+            invoiceName: 'Fee 3',
+            subscription: { id: 'sub-3' },
+            properties: {
+              fromDatetime: '2024-01-01T00:00:00Z',
+              toDatetime: '2024-01-31T23:59:59Z',
+            },
+            charge: {
+              billableMetric: {
+                name: 'Metric',
+              },
+            },
+          },
+        ]
+
+        const result = groupAndFormatFees({
+          fees: fees as any,
+          subscriptions: [sub1, sub2, sub3],
+          invoiceSubscriptions: [invSub1, invSub2, invSub3],
+          invoiceId: 'inv-1',
+        })
+
+        const subscriptionIds = Object.keys(result.subscriptions)
+
+        // Should be sorted case-insensitively: ALPHA, Beta, zebra
+        expect(subscriptionIds).toEqual(['sub-2', 'sub-3', 'sub-1'])
+
+        expect(result.subscriptions['sub-2'].subscriptionDisplayName).toBe('ALPHA SUBSCRIPTION')
+        expect(result.subscriptions['sub-3'].subscriptionDisplayName).toBe('Beta Subscription')
+        expect(result.subscriptions['sub-1'].subscriptionDisplayName).toBe('zebra subscription')
       })
 
       it('should handle each subscription independently with different boundaries', () => {

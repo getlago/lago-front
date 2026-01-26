@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
@@ -13,9 +13,12 @@ import {
   UsageData,
 } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import { SubscriptionUsageLifetimeGraphComponent } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/CustomerPortalRoutes'
 import {
   CustomerProjectedUsageForUsageDetailsFragmentDoc,
   CustomerUsageForUsageDetailsFragmentDoc,
+  LagoApiError,
   PremiumIntegrationTypeEnum,
   SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmentDoc,
   SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc,
@@ -89,7 +92,8 @@ const UsagePage = () => {
   const { goHome } = useCustomerPortalNavigation()
   const { translate, documentLocale } = useCustomerPortalTranslate()
   const customerId = 'cdef1dac-c55f-4d25-985b-cb25c2c8edc1'
-  const { itemId } = useParams()
+  const { itemId, token } = useParams()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<number>(0)
 
   const showProjected = activeTab === 1
@@ -128,6 +132,7 @@ const UsagePage = () => {
   } = useGetCustomerUsageForPortalQuery({
     ...queryParams,
     skip: queryParams.skip || fetchProjected,
+    context: { silentErrorCodes: [LagoApiError.NoActiveSubscription] },
   })
 
   const {
@@ -138,10 +143,24 @@ const UsagePage = () => {
   } = useGetCustomerProjectedUsageForPortalQuery({
     ...queryParams,
     skip: queryParams.skip || !fetchProjected,
+    context: { silentErrorCodes: [LagoApiError.NoActiveSubscription] },
   })
 
   const refetchUsage = (forceProjected?: boolean) =>
     fetchProjected || forceProjected ? usageRefetchProjected() : usageRefetch()
+
+  useEffect(() => {
+    if (
+      hasDefinedGQLError('NoActiveSubscription', usageError) ||
+      hasDefinedGQLError('NoActiveSubscription', usageErrorProjected)
+    ) {
+      addToast({
+        severity: 'info',
+        translateKey: 'text_173142196943714qsq737sre',
+      })
+      navigate(generatePath(CUSTOMER_PORTAL_ROUTE, { token: token as string }), { replace: true })
+    }
+  }, [usageError, navigate, token, translate, usageErrorProjected])
 
   const customerPortalSubscription = customerPortalSubscriptionData?.customerPortalSubscription
 

@@ -132,7 +132,11 @@ const CreateCustomer = () => {
 
   return (
     <CenteredPage.Wrapper>
-      <form id="create-customer" className="flex min-h-full flex-col" onSubmit={handleSubmit}>
+      <form
+        id="create-customer"
+        className="flex size-full min-h-full flex-col overflow-auto"
+        onSubmit={handleSubmit}
+      >
         <CenteredPage.Header>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
             {isEdition

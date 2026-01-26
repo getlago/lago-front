@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, Schema, string } from 'yup'
 
@@ -11,8 +11,11 @@ import { CreditNoteItemsForm } from '~/components/creditNote/CreditNoteItemsForm
 import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
 import { useCreditNoteFormCalculation } from '~/components/creditNote/useCreditNoteFormCalculation'
 import {
+  buildInitialPayBack,
+  canCreateCreditNote,
   creditNoteFormCalculationCalculation,
   creditNoteFormHasAtLeastOneFeeChecked,
+  hasOffsettableAmount,
 } from '~/components/creditNote/utils'
 import {
   Alert,
@@ -87,12 +90,18 @@ const CreateCreditNote = () => {
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { customerId, invoiceId } = useParams()
-  const { loading, invoice, feesPerInvoice, feeForAddOn, feeForCredit, onCreate } =
-    useCreateCreditNote()
+  const {
+    loading,
+    invoice,
+    feesPerInvoice,
+    feeForAddOn,
+    feeForCredit,
+    hasCreditableOrRefundableAmount,
+    onCreate,
+  } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
 
-  const hasNoPayment = Number(invoice?.totalPaidAmountCents) === 0
-  const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
+  const initialPayBack = buildInitialPayBack(invoice)
 
   const addOnFeesValidation = useMemo(
     () => generateAddOnFeesSchema(feeForAddOn || [], currency),
@@ -120,12 +129,7 @@ const CreateCreditNote = () => {
       fees: feesPerInvoice,
       addOnFee: feeForAddOn,
       creditFee: feeForCredit,
-      payBack: canOnlyCredit
-        ? [{ type: CreditTypeEnum.credit, value: undefined }]
-        : [
-            { type: CreditTypeEnum.credit, value: undefined },
-            { type: CreditTypeEnum.refund, value: undefined },
-          ],
+      payBack: initialPayBack,
       creditAmount: undefined,
       refundAmount: undefined,
       metadata: [],
@@ -188,17 +192,75 @@ const CreateCreditNote = () => {
 
   const creditFeeValue = formikProps.values.creditFee?.[0]?.value
 
+  const hasOffsettable = hasOffsettableAmount(invoice)
+
   useEffect(() => {
     if (isPrepaidCreditsInvoice && creditFeeValue) {
-      formikProps.setFieldValue('payBack', [
-        {
-          type: CreditTypeEnum.refund,
-          value: creditFeeValue,
-        },
-      ])
+      if (hasCreditableOrRefundableAmount) {
+        formikProps.setFieldValue('payBack', [
+          {
+            type: CreditTypeEnum.refund,
+            value: creditFeeValue,
+          },
+        ])
+      } else if (hasOffsettable) {
+        formikProps.setFieldValue('payBack', [
+          {
+            type: CreditTypeEnum.offset,
+            value: creditFeeValue,
+          },
+        ])
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPrepaidCreditsInvoice, creditFeeValue])
+  }, [isPrepaidCreditsInvoice, creditFeeValue, hasCreditableOrRefundableAmount, hasOffsettable])
+
+  // Reset payBack values, errors, and touched state when fee items change (for non-prepaid credits invoices)
+  const isInitialFeesMount = useRef(true)
+  const resetPayBackAllocation = useCallback(() => {
+    // Reset payBack values to 0
+    const currentPayBack = formikProps.values.payBack || []
+    const resetPayBack = currentPayBack.map((item) => ({
+      ...item,
+      value: undefined,
+    }))
+
+    formikProps.setFieldValue('payBack', resetPayBack)
+
+    // Clear payBack errors (payBackErrors is a custom error field added dynamically)
+    const errors = formikProps.errors as Record<string, unknown>
+
+    if (errors.payBack || errors.payBackErrors) {
+      const cleanedErrors = { ...errors, payBack: undefined, payBackErrors: undefined }
+
+      formikProps.setErrors(cleanedErrors as typeof formikProps.errors)
+    }
+
+    // Reset touched state for payBack fields
+    const currentTouched = formikProps.touched as Record<string, unknown>
+
+    if (currentTouched.payBack) {
+      formikProps.setTouched({
+        ...currentTouched,
+        payBack: undefined,
+      } as typeof formikProps.touched)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.payBack])
+
+  useEffect(() => {
+    // Skip reset on initial mount
+    if (isInitialFeesMount.current) {
+      isInitialFeesMount.current = false
+      return
+    }
+
+    // Only reset for non-prepaid credits invoices
+    if (!isPrepaidCreditsInvoice) {
+      resetPayBackAllocation()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.fees, formikProps.values.addOnFee])
 
   const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
@@ -251,14 +313,14 @@ const CreateCreditNote = () => {
             </Card>
             <div className="mb-20 px-8">
               <Button size="large" disabled fullWidth>
-                {translate('text_636bedf292786b19d3398ec4')}
+                {translate('text_636bdef6565341dcb9cfb127')}
               </Button>
             </div>
           </>
         ) : (
           <>
             <CenteredPage.PageTitle
-              title={translate('text_636bedf292786b19d3398ec4')}
+              title={translate('text_636bdef6565341dcb9cfb127')}
               description={translate('text_636bedf292786b19d3398ec6')}
             />
             <div className="flex flex-col gap-12 border-b border-grey-300 pb-12">
@@ -315,11 +377,7 @@ const CreateCreditNote = () => {
                       </Typography>
                       <Typography variant="body" color="grey700">
                         {intlFormatNumber(
-                          deserializeAmount(
-                            (Number(invoice?.totalAmountCents) || 0) -
-                              (Number(invoice?.totalPaidAmountCents) || 0),
-                            currency,
-                          ),
+                          deserializeAmount(invoice?.totalDueAmountCents || 0, currency),
                           { currency },
                         )}
                       </Typography>
@@ -406,7 +464,11 @@ const CreateCreditNote = () => {
                 <>
                   <div className="ml-auto w-full max-w-100">
                     <CreditNoteEstimationLine
-                      label={translate('text_1729262339446mk289ygp31g')}
+                      label={
+                        hasCreditableOrRefundableAmount
+                          ? translate('text_17270794543889mcmuhfq70p')
+                          : translate('text_1767883339943r32jn2ioyeu')
+                      }
                       value={intlFormatNumber(
                         Number(formikProps.values.creditFee?.[0]?.value || 0),
                         {
@@ -416,13 +478,15 @@ const CreateCreditNote = () => {
                     />
                   </div>
 
-                  <Alert
-                    className="mt-6"
-                    type="info"
-                    data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
-                  >
-                    {translate('text_1729084495407pcn1mei0hyd')}
-                  </Alert>
+                  {hasCreditableOrRefundableAmount && (
+                    <Alert
+                      className="mt-6"
+                      type="info"
+                      data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
+                    >
+                      {translate('text_1729084495407pcn1mei0hyd')}
+                    </Alert>
+                  )}
                 </>
               ) : (
                 <CreditNoteFormCalculation
@@ -439,13 +503,14 @@ const CreateCreditNote = () => {
               )}
             </div>
 
-            {creditNoteCalculation.canRefund && !isPrepaidCreditsInvoice && (
+            {!isPrepaidCreditsInvoice && canCreateCreditNote(invoice) && (
               <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
                 <CreditNoteFormAllocation
                   formikProps={formikProps}
                   currency={creditNoteCalculation.currency}
                   maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
                   maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
+                  maxOffsettableAmount={creditNoteCalculation.maxOffsettableAmount}
                   totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
                   estimationLoading={creditNoteCalculation.estimationLoading}
                 />

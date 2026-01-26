@@ -47,6 +47,7 @@ gql`
     totalAmountCents
     refundAmountCents
     creditAmountCents
+    offsetAmountCents
     currency
     createdAt
     canBeVoided

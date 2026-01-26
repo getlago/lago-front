@@ -11,7 +11,7 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { CreditNoteForm } from '../types'
+import { CreditNoteForm, CreditTypeEnum } from '../types'
 import { useCreditNoteFormCalculation } from '../useCreditNoteFormCalculation'
 
 const createMockInvoice = (
@@ -27,6 +27,8 @@ const createMockInvoice = (
   versionNumber: 4,
   paymentDisputeLostAt: null,
   totalPaidAmountCents: '10000',
+  totalAmountCents: '15000',
+  totalDueAmountCents: '5000',
   invoiceType: InvoiceTypeEnum.Subscription,
   fees: [],
   ...overrides,
@@ -43,7 +45,7 @@ type SetupOptions = {
 function setup(options: SetupOptions = {}) {
   const {
     invoice = createMockInvoice(),
-    formikProps = createMockFormikProps(),
+    formikProps = createMockFormikProps<CreditNoteForm>(),
     feeForEstimate = mockFeeForEstimate,
   } = options
 
@@ -74,41 +76,9 @@ describe('useCreditNoteFormCalculation', () => {
     jest.clearAllMocks()
   })
 
-  describe('derived flags', () => {
-    describe('canOnlyCredit', () => {
-      it('should return true when totalPaidAmountCents is 0', () => {
-        const invoice = createMockInvoice({ totalPaidAmountCents: '0' })
-        const { result } = setup({ invoice })
-
-        expect(result.current.canOnlyCredit).toBe(true)
-        expect(result.current.canRefund).toBe(false)
-      })
-
-      it('should return true when paymentDisputeLostAt is set', () => {
-        const invoice = createMockInvoice({
-          totalPaidAmountCents: '10000',
-          paymentDisputeLostAt: '2024-01-01',
-        })
-        const { result } = setup({ invoice })
-
-        expect(result.current.canOnlyCredit).toBe(true)
-        expect(result.current.canRefund).toBe(false)
-      })
-
-      it('should return false when totalPaidAmountCents > 0 and no paymentDisputeLostAt', () => {
-        const invoice = createMockInvoice({
-          totalPaidAmountCents: '10000',
-          paymentDisputeLostAt: null,
-        })
-        const { result } = setup({ invoice })
-
-        expect(result.current.canOnlyCredit).toBe(false)
-        expect(result.current.canRefund).toBe(true)
-      })
-    })
-
-    describe('hasCouponLine', () => {
-      it('should return true when couponsAmountCents > 0 and versionNumber >= 3', () => {
+  describe('GIVEN derived flags', () => {
+    describe('GIVEN hasCouponLine', () => {
+      it('WHEN couponsAmountCents > 0 and versionNumber >= 3 THEN should return true', () => {
         const invoice = createMockInvoice({
           couponsAmountCents: '1000',
           versionNumber: 3,
@@ -118,7 +88,7 @@ describe('useCreditNoteFormCalculation', () => {
         expect(result.current.hasCouponLine).toBe(true)
       })
 
-      it('should return false when couponsAmountCents is 0', () => {
+      it('WHEN couponsAmountCents is 0 THEN should return false', () => {
         const invoice = createMockInvoice({
           couponsAmountCents: '0',
           versionNumber: 4,
@@ -129,15 +99,15 @@ describe('useCreditNoteFormCalculation', () => {
       })
     })
 
-    describe('currency', () => {
-      it('should return invoice currency', () => {
+    describe('GIVEN currency', () => {
+      it('WHEN invoice has currency THEN should return invoice currency', () => {
         const invoice = createMockInvoice({ currency: CurrencyEnum.Eur })
         const { result } = setup({ invoice })
 
         expect(result.current.currency).toBe(CurrencyEnum.Eur)
       })
 
-      it('should default to USD when invoice is undefined', () => {
+      it('WHEN invoice is undefined THEN should default to USD', () => {
         const { result } = setup({ invoice: undefined })
 
         expect(result.current.currency).toBe(CurrencyEnum.Usd)
@@ -145,22 +115,23 @@ describe('useCreditNoteFormCalculation', () => {
     })
   })
 
-  describe('return values structure', () => {
-    it('should return all expected properties', () => {
+  describe('GIVEN return values structure', () => {
+    it('THEN should return all expected properties', () => {
       const { result } = setup()
 
       // Calculated values
       expect(result.current).toHaveProperty('maxCreditableAmount')
       expect(result.current).toHaveProperty('maxRefundableAmount')
+      expect(result.current).toHaveProperty('maxOffsettableAmount')
       expect(result.current).toHaveProperty('proRatedCouponAmount')
       expect(result.current).toHaveProperty('taxes')
       expect(result.current).toHaveProperty('totalExcludedTax')
       expect(result.current).toHaveProperty('totalTaxIncluded')
+      expect(result.current).toHaveProperty('amountDue')
 
       // Derived flags
-      expect(result.current).toHaveProperty('canOnlyCredit')
-      expect(result.current).toHaveProperty('canRefund')
       expect(result.current).toHaveProperty('hasCouponLine')
+      expect(result.current).toHaveProperty('isInvoiceFullyPaid')
 
       // Loading state
       expect(result.current).toHaveProperty('estimationLoading')
@@ -169,22 +140,21 @@ describe('useCreditNoteFormCalculation', () => {
       expect(result.current).toHaveProperty('currency')
     })
 
-    it('should return taxes as a Map', () => {
+    it('THEN should return taxes as a Map', () => {
       const { result } = setup()
 
       expect(result.current.taxes).toBeInstanceOf(Map)
     })
   })
 
-  describe('prepaid credits invoice handling', () => {
-    it('should skip payBack initialization for prepaid credits invoices', () => {
+  describe('GIVEN prepaid credits invoice', () => {
+    it('THEN should skip payBack initialization', () => {
       const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Credit })
-      const formikProps = createMockFormikProps()
+      const formikProps = createMockFormikProps<CreditNoteForm>()
 
       setup({ invoice, formikProps })
 
       // For prepaid credits, setFieldValue should NOT be called for payBack initialization
-      // The hook skips initialization for prepaid credits invoices
       const setFieldValueCalls = (formikProps.setFieldValue as jest.Mock).mock.calls
       const payBackInitCalls = setFieldValueCalls.filter(
         (call: string[]) => call[0] === 'payBack.0.type' || call[0] === 'payBack.1.type',
@@ -193,27 +163,31 @@ describe('useCreditNoteFormCalculation', () => {
       expect(payBackInitCalls.length).toBe(0)
     })
 
-    it('should set empty validation for prepaid credits invoices', () => {
+    it('THEN should set empty validation', () => {
       const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Credit })
       const { setPayBackValidation } = setup({ invoice })
 
-      // For prepaid credits, validation should be set to empty array
       expect(setPayBackValidation).toHaveBeenCalled()
     })
+  })
 
-    it('should initialize payBack for non-prepaid credits invoices', () => {
+  describe('GIVEN non-prepaid credits invoice', () => {
+    it('THEN should NOT automatically prefill payBack credit value', () => {
       const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Subscription })
-      const formikProps = createMockFormikProps()
+      const formikProps = createMockFormikProps<CreditNoteForm>({
+        values: {
+          payBack: [{ type: CreditTypeEnum.credit, value: 0 }],
+        },
+      })
 
       setup({ invoice, formikProps })
 
-      // For non-prepaid credits, setFieldValue should be called for payBack initialization
       const setFieldValueCalls = (formikProps.setFieldValue as jest.Mock).mock.calls
-      const payBackInitCalls = setFieldValueCalls.filter(
-        (call: string[]) => call[0] === 'payBack.0.type' || call[0] === 'payBack.1.type',
+      const payBackInitCalls = setFieldValueCalls.filter((call: string[]) =>
+        call[0]?.startsWith('payBack.'),
       )
 
-      expect(payBackInitCalls.length).toBeGreaterThan(0)
+      expect(payBackInitCalls.length).toBe(0)
     })
   })
 })

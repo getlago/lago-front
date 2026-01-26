@@ -3,6 +3,11 @@ import { useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
+import {
+  buildCreditNoteFees,
+  hasCreditableOrRefundableAmount as hasCreditableOrRefundableAmountUtil,
+  isCreditNoteCreationDisabled,
+} from '~/components/creditNote/utils'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   composeChargeFilterDisplayName,
@@ -14,9 +19,13 @@ import { serializeCreditNoteInput } from '~/core/serializers'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreateCreditNoteInvoiceFragmentDoc,
+  CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
   Fee,
   FeeTypesEnum,
+  GetInvoiceCreditNotesDocument,
+  GetInvoiceCreditNotesQuery,
+  GetInvoiceCreditNotesQueryVariables,
   InvoiceCreateCreditNoteFragment,
   InvoiceTypeEnum,
   LagoApiError,
@@ -39,6 +48,7 @@ gql`
       taxRate
     }
     creditableAmountCents
+    offsettableAmountCents
     trueUpFee {
       id
     }
@@ -64,10 +74,12 @@ gql`
     paymentStatus
     creditableAmountCents
     refundableAmountCents
+    offsettableAmountCents
     subTotalIncludingTaxesAmountCents
     availableToCreditAmountCents
     totalPaidAmountCents
     totalAmountCents
+    totalDueAmountCents
     paymentDisputeLostAt
     invoiceType
     ...InvoiceForCreditNoteFormCalculation
@@ -78,6 +90,7 @@ gql`
     id
     refundableAmountCents
     creditableAmountCents
+    offsettableAmountCents
     invoiceType
     fees {
       id
@@ -87,6 +100,7 @@ gql`
       invoiceName
       invoiceDisplayName
       creditableAmountCents
+      offsettableAmountCents
       succeededAt
       appliedTaxes {
         id
@@ -123,10 +137,12 @@ gql`
   mutation createCreditNote($input: CreateCreditNoteInput!) {
     createCreditNote(input: $input) {
       id
+      ...CreditNoteTableItem
     }
   }
 
   ${CreateCreditNoteInvoiceFragmentDoc}
+  ${CreditNoteTableItemFragmentDoc}
 `
 
 type UseCreateCreditNoteReturn = {
@@ -135,6 +151,7 @@ type UseCreateCreditNoteReturn = {
   feesPerInvoice?: FeesPerInvoice
   feeForAddOn?: FromFee[]
   feeForCredit?: FromFee[]
+  hasCreditableOrRefundableAmount: boolean
   onCreate: (
     value: CreditNoteForm,
   ) => Promise<{ data?: { createCreditNote?: { id?: string } }; errors?: ApolloError }>
@@ -155,6 +172,40 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
+    // Updates the invoice fields (creditableAmountCents, refundableAmountCents) in background.
+    // We can't include these fields directly in the mutation response because it would update the invoice
+    // in cache before navigation, causing a 404 redirect on back button
+    refetchQueries: ['getInvoiceCreditNotes'],
+    // Apollo only normalizes single entities, not lists. When creating a new credit note,
+    // Apollo caches the entity but doesn't know which lists should include it.
+    // We manually add the new credit note reference to the cached list for immediate UI update.
+    update(cache, { data: mutationData }) {
+      if (!mutationData?.createCreditNote) return
+
+      const newCreditNote = mutationData.createCreditNote
+
+      cache.updateQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(
+        {
+          query: GetInvoiceCreditNotesDocument,
+          variables: { invoiceId: invoiceId as string, limit: 20 },
+        },
+        (cachedData) => {
+          if (!cachedData?.invoiceCreditNotes) return cachedData
+
+          return {
+            ...cachedData,
+            invoiceCreditNotes: {
+              ...cachedData.invoiceCreditNotes,
+              metadata: {
+                ...cachedData.invoiceCreditNotes.metadata,
+                totalCount: (cachedData.invoiceCreditNotes.metadata.totalCount || 0) + 1,
+              },
+              collection: [newCreditNote, ...cachedData.invoiceCreditNotes.collection],
+            },
+          }
+        },
+      )
+    },
     onCompleted({ createCreditNote }) {
       if (createCreditNote) {
         addToast({
@@ -171,60 +222,46 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
         )
       }
     },
+    onError() {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_622f7a3dc32ce100c46a5154',
+      })
+    },
   })
 
   if (
     !invoiceId ||
     hasDefinedGQLError('NotFound', error, 'invoice') ||
-    (data?.invoice?.refundableAmountCents === '0' && data?.invoice?.creditableAmountCents === '0')
+    isCreditNoteCreationDisabled(data?.invoice)
   ) {
     navigate(ERROR_404_ROUTE)
   }
 
+  const hasCreditableOrRefundableAmount = hasCreditableOrRefundableAmountUtil(data?.invoice)
+
   const feeForCredit = useMemo(() => {
     if (data?.invoice?.invoiceType === InvoiceTypeEnum.Credit) {
-      return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
-        if (Number(fee?.creditableAmountCents) > 0) {
-          acc.push({
-            id: fee?.id,
-            checked: true,
-            value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
-            name: fee?.invoiceName || fee.itemName,
-            maxAmount: fee?.creditableAmountCents,
-            appliedTaxes: fee?.appliedTaxes || [],
-          })
-        }
+      const result = buildCreditNoteFees(data?.invoice?.fees, hasCreditableOrRefundableAmount)
 
-        return acc
-      }, [])
+      return result.length > 0 ? result : undefined
     }
 
     return undefined
-  }, [data?.invoice])
+  }, [data?.invoice, hasCreditableOrRefundableAmount])
 
   const feeForAddOn = useMemo(() => {
     if (
       data?.invoice?.invoiceType === InvoiceTypeEnum.AddOn ||
       data?.invoice?.invoiceType === InvoiceTypeEnum.OneOff
     ) {
-      return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
-        if (Number(fee?.creditableAmountCents) > 0) {
-          acc.push({
-            id: fee?.id,
-            checked: true,
-            value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
-            name: fee?.invoiceName || fee.itemName,
-            maxAmount: fee?.creditableAmountCents,
-            appliedTaxes: fee?.appliedTaxes || [],
-          })
-        }
+      const result = buildCreditNoteFees(data?.invoice?.fees, hasCreditableOrRefundableAmount)
 
-        return acc
-      }, [])
+      return result.length > 0 ? result : undefined
     }
 
     return undefined
-  }, [data?.invoice])
+  }, [data?.invoice, hasCreditableOrRefundableAmount])
 
   const feesPerInvoice = useMemo(() => {
     return data?.invoice?.invoiceSubscriptions?.reduce<FeesPerInvoice>(
@@ -278,7 +315,15 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
         })
 
         const subscriptionFees = orderedData.reduce<FromFee[]>((acc, fee) => {
-          if (!fee || Number(fee.creditableAmountCents) <= 0) {
+          if (!fee) {
+            return acc
+          }
+
+          const amountCents = hasCreditableOrRefundableAmount
+            ? fee.creditableAmountCents
+            : fee.offsettableAmountCents
+
+          if (Number(amountCents) <= 0) {
             return acc
           }
 
@@ -295,12 +340,13 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
           acc.push({
             id: fee.id,
             checked: true,
-            value: deserializeAmount(fee.creditableAmountCents, fee.amountCurrency),
+            value: deserializeAmount(amountCents, fee.amountCurrency),
             name: composableName,
             isTrueUpFee: trueUpFeeIds?.includes(fee.id),
-            maxAmount: fee.creditableAmountCents,
+            maxAmount: Number(amountCents),
             appliedTaxes: fee.appliedTaxes || [],
             succeededAt: fee.succeededAt,
+            isReadOnly: !hasCreditableOrRefundableAmount,
           })
 
           return acc
@@ -318,7 +364,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
       },
       {},
     )
-  }, [data?.invoice])
+  }, [data?.invoice, hasCreditableOrRefundableAmount])
 
   return {
     loading,
@@ -326,6 +372,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     feesPerInvoice,
     feeForAddOn,
     feeForCredit,
+    hasCreditableOrRefundableAmount,
     onCreate: async (values) => {
       const answer = await create({
         variables: {

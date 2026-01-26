@@ -28,7 +28,7 @@ gql`
     subTotalIncludingTaxesAmountCents
     totalAmountCents
     totalDueAmountCents
-    totalPaidAmountCents
+    totalSettledAmountCents
     currency
     invoiceType
     status
@@ -79,7 +79,7 @@ const computeSubtotal = (
       subTotalExcludingTax,
       subTotalIncludingTaxesAmountCents,
       totalAmountCents: subTotalIncludingTaxesAmountCents,
-      totalDueAmountCents: subTotalIncludingTaxesAmountCents - invoice?.totalPaidAmountCents,
+      totalDueAmountCents: subTotalIncludingTaxesAmountCents - invoice?.totalSettledAmountCents,
     }
   }
 
@@ -429,7 +429,7 @@ export const InvoiceDetailsTableFooter = memo(
               {shouldDisplayPlaceholder
                 ? '-'
                 : intlFormatNumber(
-                    deserializeAmount(-invoice?.totalPaidAmountCents || 0, currency),
+                    deserializeAmount(-invoice?.totalSettledAmountCents || 0, currency),
                     {
                       currencyDisplay: 'symbol',
                       currency,

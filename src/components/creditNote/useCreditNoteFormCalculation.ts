@@ -14,7 +14,8 @@ import {
 } from '~/generated/graphql'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 
-import { CreditNoteForm, CreditTypeEnum, PayBackErrorEnum } from './types'
+import { CreditNoteForm, PayBackErrorEnum } from './types'
+import { getPayBackFields } from './utils'
 
 gql`
   fragment InvoiceForCreditNoteFormCalculation on Invoice {
@@ -28,6 +29,8 @@ gql`
     versionNumber
     paymentDisputeLostAt
     totalPaidAmountCents
+    totalAmountCents
+    totalDueAmountCents
     invoiceType
     fees {
       id
@@ -57,6 +60,7 @@ gql`
       }
       maxCreditableAmountCents
       maxRefundableAmountCents
+      maxOffsettableAmountCents
       subTotalExcludingTaxesAmountCents
       taxesAmountCents
       taxesRate
@@ -81,14 +85,16 @@ interface UseCreditNoteFormCalculationReturn {
   // Calculated values
   maxCreditableAmount: number
   maxRefundableAmount: number
+  maxOffsettableAmount: number
   proRatedCouponAmount: number
   taxes: Map<string, TaxInfo>
   totalExcludedTax: number
   totalTaxIncluded: number
+  amountDue: number
   // Derived flags
   canOnlyCredit: boolean
-  canRefund: boolean
   hasCouponLine: boolean
+  isInvoiceFullyPaid: boolean
   // Loading/error state
   estimationLoading: boolean
   // Invoice-derived values
@@ -101,15 +107,19 @@ export const useCreditNoteFormCalculation = ({
   feeForEstimate,
   setPayBackValidation,
 }: UseCreditNoteFormCalculationProps): UseCreditNoteFormCalculationReturn => {
-  const hasNoPayment = Number(invoice?.totalPaidAmountCents) === 0
-  const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
-  const canRefund = !canOnlyCredit
-  const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
+  const totalPaidAmountCents = Number(invoice?.totalPaidAmountCents) || 0
+  const totalDueAmountCents = Number(invoice?.totalDueAmountCents) || 0
+  const hasNoPayment = totalPaidAmountCents === 0
+  const isInvoiceFullyPaid = totalDueAmountCents <= 0
 
+  const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
   const currency = invoice?.currency || CurrencyEnum.Usd
   const currencyPrecision = getCurrencyPrecision(currency)
   const isLegacyInvoice = (invoice?.versionNumber || 0) < 3
   const hasCouponLine = Number(invoice?.couponsAmountCents || 0) > 0 && !isLegacyInvoice
+  const amountDue = deserializeAmount(totalDueAmountCents, currency)
+
+  const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
 
   const [
     getEstimate,
@@ -143,6 +153,7 @@ export const useCreditNoteFormCalculation = ({
   const {
     maxCreditableAmount,
     maxRefundableAmount,
+    maxOffsettableAmount,
     proRatedCouponAmount,
     taxes,
     totalExcludedTax,
@@ -157,6 +168,7 @@ export const useCreditNoteFormCalculation = ({
       return {
         maxCreditableAmount: 0,
         maxRefundableAmount: 0,
+        maxOffsettableAmount: 0,
         totalTaxIncluded: 0,
         proRatedCouponAmount: 0,
         totalExcludedTax: 0,
@@ -168,6 +180,7 @@ export const useCreditNoteFormCalculation = ({
     const {
       maxCreditableAmountCents,
       maxRefundableAmountCents,
+      maxOffsettableAmountCents,
       subTotalExcludingTaxesAmountCents,
       taxesAmountCents,
       couponsAdjustmentAmountCents,
@@ -177,6 +190,7 @@ export const useCreditNoteFormCalculation = ({
     return {
       maxCreditableAmount: deserializeAmount(maxCreditableAmountCents || 0, currency),
       maxRefundableAmount: deserializeAmount(maxRefundableAmountCents || 0, currency),
+      maxOffsettableAmount: deserializeAmount(maxOffsettableAmountCents || 0, currency),
       totalTaxIncluded: deserializeAmount(
         (Number(subTotalExcludingTaxesAmountCents) || 0) + (Number(taxesAmountCents) || 0),
         currency,
@@ -197,45 +211,12 @@ export const useCreditNoteFormCalculation = ({
   }, [currency, estimationData?.creditNoteEstimate, estimationError])
 
   useEffect(() => {
-    // Skip initialization for prepaid credits invoices
-    // They use a different payBack structure managed by CreateCreditNote component
-    if (isPrepaidCreditsInvoice) {
-      return
-    }
-
-    // Set the default values for credit payback fields
-    formikProps.setFieldValue('payBack.0.type', CreditTypeEnum.credit)
-    formikProps.setFieldValue('payBack.0.value', undefined)
-
-    // Initialize the refund field if possible
-    if (canRefund) {
-      formikProps.setFieldValue('payBack.1', {
-        type: CreditTypeEnum.refund,
-        value: undefined,
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
     // Skip validation setup for prepaid credits invoices
     // They use a different payBack structure (single refund element)
     // and don't use the estimation API
     if (isPrepaidCreditsInvoice) {
       setPayBackValidation(array())
       return
-    }
-
-    formikProps.setFieldValue(
-      'payBack.0.value',
-      !totalTaxIncluded ? undefined : Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision),
-    )
-
-    if (canRefund) {
-      formikProps.setFieldValue('payBack.1', {
-        type: CreditTypeEnum.refund,
-        value: undefined,
-      })
     }
 
     setPayBackValidation(
@@ -248,59 +229,62 @@ export const useCreditNoteFormCalculation = ({
         )
         .test({
           test: (payback, { createError }) => {
-            if (canRefund) {
-              const credit = payback?.[0]?.value ?? 0
-              const refund = payback?.[1]?.value ?? 0
-              const errors: ValidationError[] = []
+            const {
+              credit: creditFields,
+              refund: refundFields,
+              offset: offsetFields,
+            } = getPayBackFields(payback)
+            const errors: ValidationError[] = []
 
-              // Check if the sum of credit and refund is different than the total tax included
-              const sum = credit + refund
-              const sumPrecision = Number(sum.toFixed(currencyPrecision))
-              const totalPrecision = Number(totalTaxIncluded.toFixed(currencyPrecision))
+            // Check if the sum of credit, refund and offset is different than the total tax included
+            const sum = creditFields.value + refundFields.value + offsetFields.value
+            const sumPrecision = Number(sum.toFixed(currencyPrecision))
+            const totalPrecision = Number(totalTaxIncluded.toFixed(currencyPrecision))
 
-              if (sumPrecision !== totalPrecision) {
-                errors.push(
-                  createError({
-                    message: PayBackErrorEnum.maxTotalInvoice,
-                    path: 'payBackErrors',
-                  }),
-                )
-              }
-              // Check if refund is greater than the max refundable amount
-              if (refund > maxRefundableAmount) {
-                errors.push(
-                  createError({
-                    message: PayBackErrorEnum.maxRefund,
-                    path: 'payBack.1.value',
-                  }),
-                )
-              }
-              // Check if credit is greater than the max creditable amount
-              if (credit > maxCreditableAmount) {
-                errors.push(
-                  createError({
-                    message: PayBackErrorEnum.maxCredit,
-                    path: 'payBack.0.value',
-                  }),
-                )
-              }
-
-              return errors.length ? new ValidationError(errors) : true
+            // Sum error goes to payBackErrors to show Alert
+            if (sumPrecision !== totalPrecision) {
+              errors.push(
+                createError({
+                  message: PayBackErrorEnum.maxTotalInvoice,
+                  path: 'payBackErrors',
+                }),
+              )
+            }
+            // Individual field errors go to specific field paths
+            if (refundFields.show && refundFields.value > maxRefundableAmount) {
+              errors.push(
+                createError({
+                  message: PayBackErrorEnum.maxRefund,
+                  path: refundFields.path,
+                }),
+              )
+            }
+            if (creditFields.show && creditFields.value > maxCreditableAmount) {
+              errors.push(
+                createError({
+                  message: PayBackErrorEnum.maxCredit,
+                  path: creditFields.path,
+                }),
+              )
+            }
+            if (offsetFields.show && offsetFields.value > maxOffsettableAmount) {
+              errors.push(
+                createError({
+                  message: PayBackErrorEnum.maxOffset,
+                  path: offsetFields.path,
+                }),
+              )
             }
 
-            return true
+            return errors.length ? new ValidationError(errors) : true
           },
         }),
     )
-
-    formikProps.setTouched({ payBack: true })
-
-    // NEVER watch formikProps as a dependency to avoid re-rendering loop: https://github.com/getlago/lago-front/pull/2689
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    canRefund,
     currencyPrecision,
+    canOnlyCredit,
     isPrepaidCreditsInvoice,
+    maxOffsettableAmount,
     maxCreditableAmount,
     maxRefundableAmount,
     setPayBackValidation,
@@ -311,14 +295,16 @@ export const useCreditNoteFormCalculation = ({
     // Calculated values
     maxCreditableAmount,
     maxRefundableAmount,
+    maxOffsettableAmount,
     proRatedCouponAmount,
     taxes,
     totalExcludedTax,
     totalTaxIncluded,
+    amountDue,
     // Derived flags
     canOnlyCredit,
-    canRefund,
     hasCouponLine,
+    isInvoiceFullyPaid,
     // Loading/error state
     estimationLoading,
     // Invoice-derived values

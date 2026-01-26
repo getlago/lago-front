@@ -1405,7 +1405,6 @@
   "text_636bdef6565341dcb9cfb129": "Notas de crédito",
   "text_636bdef6565341dcb9cfb12b": "Não há nota de crédito anexada a esta fatura. Se a fatura for maior que 0,00, crie uma nota de crédito para reembolsar ou creditar toda ou parte desta fatura.",
   "text_636bedf292786b19d3398eb9": "Emitir uma nota de crédito na fatura {{invoiceNumber}}",
-  "text_636bedf292786b19d3398ec4": "Emitir uma nota de crédito",
   "text_636bedf292786b19d3398ec6": "Ajuste ou reembolse faturas finalizadas com notas de crédito.",
   "text_636bedf292786b19d3398ece": "Defina o motivo desta nota de crédito",
   "text_636bedf292786b19d3398ed0": "Motivo",
@@ -1429,7 +1428,6 @@
   "text_636d12ce54c41fccdf0ef72f": "Anular crédito disponível",
   "text_636d12ce54c41fccdf0ef731": "Copiar lago_id da nota de crédito",
   "text_63720bd734e1344aea75b82d": "lago_id da nota de crédito copiado para a área de transferência",
-  "text_6386589e4e82fa85eadcaa7a": "Emitir uma nota de crédito",
   "text_63720bd734e1344aea75b7db": "Anular crédito disponível desta nota de crédito",
   "text_63720bd734e1344aea75b7e1": "Você está prestes a anular {{amount}} de créditos disponíveis desta nota de crédito. Esta ação é irreversível, você não poderá recuperar esta nota de crédito.",
   "text_63720bd734e1344aea75b7e9": "Anular créditos",
@@ -2273,7 +2271,6 @@
   "text_1727068261852148l97frl5q": "Nota de crédito sincronizada com sucesso",
   "text_1727078012568v9460bmnh8a": "Tipo",
   "text_1727079454388ekfkh3vna8m": "Anulada",
-  "text_1727079454388wxlpkmmkrmj": "Crédito e reembolso",
   "text_1727079454388x9q4uz6ah71": "Crédito",
   "text_17270794543889mcmuhfq70p": "Reembolso",
   "text_1727090499191gqzispoy1qz": "Esta nota de crédito contém um erro de imposto",
@@ -2414,7 +2411,6 @@
   "text_1729678728144lfukq2wzred": "Fatura não sincronizada com o HubSpot",
   "text_1729679289432l7pa9bgih1v": "Sincronizar fatura para o HubSpot",
   "text_1729756690073w4jrdeesayy": "Sincronização com HubSpot iniciada com sucesso.",
-  "text_17290829949642fgof01loxo": "A nota de crédito não pode ser emitida porque a fatura não está paga.",
   "text_172908299496461z9ejmm2j7": "A nota de crédito não pode ser emitida, pois a fatura está vinculada a uma carteira encerrada.",
   "text_1729082994964zccpjmtotdy": "A nota de crédito não pode ser emitida, pois o valor creditável já está totalmente coberto.",
   "text_1729084495407pcn1mei0hyd": "O reembolso desta fatura pré-paga anulará automaticamente os créditos da carteira assim que o status de reembolso da nota de crédito for marcado como bem-sucedido.",
@@ -2745,7 +2741,7 @@
   "text_1738056040178gw94jzmzckx": "Nenhum pagamento foi registrado para as faturas. Por favor, registre um pagamento ou conecte seu cliente a um provedor de pagamento para visualizar todos os pagamentos aqui.",
   "text_17380560401785kuvb6m2yfm": "Nenhum pagamento foi registrado para esta fatura. Por favor, registre um pagamento ou conecte seu cliente a um provedor de pagamento para visualizar todos os pagamentos aqui.",
   "text_17380560401786gmefzvw1rl": "Nenhum pagamento foi registrado para as faturas. Por favor, registre um pagamento ou conecte seu cliente a um provedor de pagamento para visualizar todos os pagamentos aqui.",
-  "text_1738063681339ucxmt3asspd": "Valor pago",
+  "text_1738063681339ucxmt3asspd": "Valor liquidado",
   "text_1738063764295zomiafl8b4s": "Total",
   "text_1738071221799vib0l2z1bxe": "Parcialmente pago",
   "text_1738751394771xq525lyxj9k": "O valor do crédito não pode exceder {{max}}",
@@ -3160,5 +3156,6 @@
   "text_1755599398258ce1ilgc5swg": "Desbloqueie o uso projetado para que os clientes possam ver o uso esperado no final de cada período e planejar os custos futuros.",
   "text_1755599398258mj61iwjhhfk": "Solicitar acesso ao uso projetado",
   "text_1755599398258w59pin31rfe": "Olá, gostaria de acessar seu complemento de uso projetado. \n\nEntre em contato se precisar de mais informações!",
-  "text_1756372772688ov7fcui4x30": "por semestre"
+  "text_1756372772688ov7fcui4x30": "por semestre",
+  "text_1737477631498hwm4np3kbnd": "Este alerta não existe mais"
 }

@@ -420,7 +420,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   label={translate('text_63e51ef4985f0ebd75c212fd')}
                   sublabel={translate('text_1728031300577ipb2cxnths3')}
                   action={
-                    hasPermissions(['customerSettingsUpdateLang']) ? (
+                    hasPermissions(['customersUpdate']) ? (
                       <>
                         {typeof customer?.billingConfiguration?.documentLocale !== 'string' ? (
                           <Button
@@ -606,7 +606,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   label={translate('text_638dc196fb209d551f3d8141')}
                   sublabel={translate('text_1728031300577ozl3dbfygr7')}
                   action={
-                    hasPermissions(['customerSettingsUpdateGracePeriod']) ? (
+                    hasPermissions(['customersUpdate']) ? (
                       <>
                         {typeof customer?.invoiceGracePeriod !== 'number' ? (
                           <Button
@@ -753,7 +753,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   label={translate('text_64c7a89b6c67eb6c98898167')}
                   sublabel={translate('text_1728031300577aivplw3hqav')}
                   action={
-                    hasPermissions(['customerSettingsUpdatePaymentTerms']) ? (
+                    hasPermissions(['customersUpdate']) ? (
                       <>
                         {typeof customer?.netPaymentTerm !== 'number' ? (
                           <Button
@@ -825,10 +825,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   label={translate('text_1763407530093r6zuzwr3x7p')}
                   sublabel={translate('text_1763414803053xz3x7xjr3jf')}
                   action={
-                    hasPermissions([
-                      'customerSettingsUpdateIssuingDateAnchor',
-                      'customerSettingsUpdateIssuingDateAdjustment',
-                    ]) ? (
+                    hasPermissions(['customersUpdate']) ? (
                       <Button
                         variant="inline"
                         disabled={loading}
@@ -855,7 +852,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   label={translate('text_637f819eff19cd55a56d55e6')}
                   sublabel={translate('text_1728031300577obxo6934yo7')}
                   action={
-                    hasPermissions(['customerSettingsUpdateTaxRates']) ? (
+                    hasPermissions(['customersUpdate']) ? (
                       <Button
                         variant="inline"
                         disabled={loading}
@@ -913,7 +910,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       },
                     ]}
                     actionColumn={
-                      hasPermissions(['customerSettingsUpdateTaxRates'])
+                      hasPermissions(['customersUpdate'])
                         ? (row) => {
                             return (
                               <Tooltip

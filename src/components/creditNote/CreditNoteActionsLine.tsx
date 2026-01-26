@@ -1,5 +1,5 @@
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikProps, getIn } from 'formik'
 import { FC } from 'react'
 
 import { CreditNoteForm } from '~/components/creditNote/types'
@@ -7,9 +7,6 @@ import { Typography } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
-
-export const CREDIT_AMOUNT_INPUT_TEST_ID = 'credit-amount-input'
-export const REFUND_AMOUNT_INPUT_TEST_ID = 'refund-amount-input'
 
 interface CreditNoteActionsLineProps {
   details: string
@@ -20,6 +17,8 @@ interface CreditNoteActionsLineProps {
   error?: string
   hasError?: boolean
   disabled?: boolean
+  testId?: string
+  showErrorOnlyWhenTouched?: boolean
 }
 
 export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
@@ -31,16 +30,14 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   hasError,
   error,
   disabled,
+  testId = '',
+  showErrorOnlyWhenTouched = false,
 }) => {
   const currencySymbol = getCurrencySymbol(currency)
-
-  let testId: string | undefined
-
-  if (name === 'payBack.0.value') {
-    testId = CREDIT_AMOUNT_INPUT_TEST_ID
-  } else if (name === 'payBack.1.value') {
-    testId = REFUND_AMOUNT_INPUT_TEST_ID
-  }
+  const isTouched = getIn(formikProps.touched, name)
+  const shouldShowError = showErrorOnlyWhenTouched
+    ? isTouched && (!!error || hasError)
+    : !!error || hasError
 
   return (
     <div>
@@ -62,7 +59,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
           currency={currency}
           className="max-w-42"
           beforeChangeFormatter={['positiveNumber']}
-          error={!!error || hasError}
+          error={shouldShowError}
           disabled={disabled}
           inputProps={{ style: { textAlign: 'right' } }}
           InputProps={
@@ -73,7 +70,7 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
           data-test={testId}
         />
       </div>
-      {(!!error || hasError) && (
+      {shouldShowError && (
         <Typography variant="caption" color="danger600" className="mt-1 text-right">
           {error}
         </Typography>
