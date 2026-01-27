@@ -19,6 +19,7 @@ const TextInputField = ({
   const field = useFieldContext<string>()
   const { translate } = useInternationalization()
 
+  const errorMap = useStore(field.store, (state) => state.meta.errorMap)
   const allErrors = useStore(field.store, (state) => state.meta.errors)
     .map((e) => e.message)
     .filter(Boolean)
@@ -33,7 +34,7 @@ const TextInputField = ({
 
   const finalError = getErrorToDisplay({
     error: translatedError,
-    errorMap: {},
+    errorMap,
     silentError,
     displayErrorText,
   })
