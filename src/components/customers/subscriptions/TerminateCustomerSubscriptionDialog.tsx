@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
-import { hasRefundableAmount } from '~/components/creditNote/utils'
-import { DialogRef, Typography, WarningDialog } from '~/components/designSystem'
+import { hasOffsettableAmount, hasRefundableAmount } from '~/components/creditNote/utils'
+import { DialogRef, Skeleton, Typography, WarningDialog } from '~/components/designSystem'
 import { RadioGroupField, SwitchField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -43,6 +43,7 @@ gql`
         currency
         invoiceType
         refundableAmountCents
+        offsettableAmountCents
       }
     }
   }
@@ -67,7 +68,7 @@ export const TerminateCustomerSubscriptionDialog =
     const dialogRef = useRef<DialogRef>(null)
     const [context, setContext] = useState<TerminateCustomerSubscriptionDialogContext>()
 
-    const { data: invoicesData } = useGetInvoicesForTerminationQuery({
+    const { data: invoicesData, loading: invoiceLoading } = useGetInvoicesForTerminationQuery({
       variables: {
         subscriptionId: context?.id as string,
         invoiceType: [InvoiceTypeEnum.Subscription],
@@ -77,6 +78,8 @@ export const TerminateCustomerSubscriptionDialog =
     })
 
     const invoice = invoicesData?.invoices?.collection?.[0]
+    const isCreditNoteOptionsLoading = context?.payInAdvance && invoiceLoading
+    const shouldShowCreditNoteOptions = context?.payInAdvance && !invoiceLoading
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
       onCompleted({ terminateSubscription }) {
@@ -93,16 +96,41 @@ export const TerminateCustomerSubscriptionDialog =
       },
     })
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (infos) => {
-        formikProps.resetForm()
-        setContext(infos)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => {
-        dialogRef.current?.closeDialog()
-      },
-    }))
+    // Build options array - used for both rendering and computing default
+    const creditNoteOptions = useMemo(
+      () =>
+        [
+          hasOffsettableAmount(invoice)
+            ? {
+                label: translate('text_1767883339943r32jn2ioyeu'),
+                sublabel: translate('text_1768993189751mlil3uubnse'),
+                value: OnTerminationCreditNoteEnum.Offset,
+              }
+            : undefined,
+          {
+            label: translate('text_1753198825180a94n1872cz4'),
+            sublabel: translate('text_17531988251808so7qch9zrf'),
+            value: OnTerminationCreditNoteEnum.Credit,
+          },
+          hasRefundableAmount(invoice)
+            ? {
+                label: translate('text_1753198825180jnk5xbdev57'),
+                sublabel: translate('text_1753198825180bu4iaf2tczy'),
+                value: OnTerminationCreditNoteEnum.Refund,
+              }
+            : undefined,
+          {
+            label: translate('text_1753198825180jfv0xkobkl5'),
+            sublabel: translate('text_1753198825180k6hugot9xmt'),
+            value: OnTerminationCreditNoteEnum.Skip,
+          },
+        ].filter((option) => !!option),
+      [invoice, translate],
+    )
+
+    // Default to first option in the list
+    const defaultCreditNoteOption =
+      creditNoteOptions[0]?.value ?? OnTerminationCreditNoteEnum.Credit
 
     const formikProps = useFormik({
       initialValues: {
@@ -125,6 +153,38 @@ export const TerminateCustomerSubscriptionDialog =
       },
     })
 
+    // Track previous context.id to detect reopening same subscription
+    const prevContextIdRef = useRef<string | undefined>(undefined)
+
+    useImperativeHandle(ref, () => ({
+      openDialog: (infos) => {
+        // Clear context first to ensure useEffect triggers even for same subscription
+        setContext(undefined)
+        prevContextIdRef.current = undefined
+
+        // Use microtask to set new context after state clears
+        queueMicrotask(() => {
+          setContext(infos)
+          dialogRef.current?.openDialog()
+        })
+      },
+      closeDialog: () => {
+        dialogRef.current?.closeDialog()
+      },
+    }))
+
+    // Sync form value with computed default when context changes
+    useEffect(() => {
+      if (context?.id && context.id !== prevContextIdRef.current) {
+        prevContextIdRef.current = context.id
+        formikProps.setValues({
+          onTerminationInvoice: true,
+          onTerminationCreditNote: defaultCreditNoteOption,
+        })
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [context?.id, defaultCreditNoteOption])
+
     const content = useMemo(() => {
       if (context?.status === StatusTypeEnum.Pending) {
         return {
@@ -145,6 +205,10 @@ export const TerminateCustomerSubscriptionDialog =
       }
     }, [context, translate])
 
+    const isTerminateButtonDisabled =
+      isCreditNoteOptionsLoading ||
+      (shouldShowCreditNoteOptions && !formikProps.values.onTerminationCreditNote)
+
     return (
       <WarningDialog
         ref={dialogRef}
@@ -152,6 +216,7 @@ export const TerminateCustomerSubscriptionDialog =
         description={content.description}
         continueText={content.continueText}
         onContinue={() => formikProps.handleSubmit()}
+        disableOnContinue={isTerminateButtonDisabled}
       >
         {context?.status === StatusTypeEnum.Active && (
           <div className="mb-8 flex flex-col gap-8">
@@ -171,7 +236,19 @@ export const TerminateCustomerSubscriptionDialog =
                 subLabel={translate('text_1753274319009dha80usx9zz')}
               />
             </div>
-            {context?.payInAdvance && (
+            {isCreditNoteOptionsLoading && (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <Skeleton variant="text" className="w-40" />
+                  <Skeleton variant="text" className="w-60" />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Skeleton variant="text" className="w-48" />
+                  <Skeleton variant="text" className="w-48" />
+                </div>
+              </div>
+            )}
+            {shouldShowCreditNoteOptions && (
               <div className="flex flex-col gap-4">
                 <div>
                   <Typography variant="bodyHl" color="grey700">
@@ -188,25 +265,7 @@ export const TerminateCustomerSubscriptionDialog =
                   formikProps={formikProps}
                   name="onTerminationCreditNote"
                   optionLabelVariant="body"
-                  options={[
-                    {
-                      label: translate('text_1753198825180a94n1872cz4'),
-                      sublabel: translate('text_17531988251808so7qch9zrf'),
-                      value: OnTerminationCreditNoteEnum.Credit,
-                    },
-                    hasRefundableAmount(invoice)
-                      ? {
-                          label: translate('text_1753198825180jnk5xbdev57'),
-                          sublabel: translate('text_1753198825180bu4iaf2tczy'),
-                          value: OnTerminationCreditNoteEnum.Refund,
-                        }
-                      : undefined,
-                    {
-                      label: translate('text_1753198825180jfv0xkobkl5'),
-                      sublabel: translate('text_1753198825180k6hugot9xmt'),
-                      value: OnTerminationCreditNoteEnum.Skip,
-                    },
-                  ].filter((option) => !!option)}
+                  options={creditNoteOptions}
                 />
               </div>
             )}
