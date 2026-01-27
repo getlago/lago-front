@@ -1,10 +1,10 @@
+import { PASSWORD_VALIDATION_ERRORS, validatePassword } from '~/formValidation/zodCustoms'
+
 import {
   googleRegisterValidationSchema,
-  PASSWORD_VALIDATION_ERRORS,
   PASSWORD_VALIDATION_KEYS,
   signUpDefaultValues,
   signUpValidationSchema,
-  validatePassword,
 } from '../validationSchema'
 
 describe('signUpValidationSchema', () => {

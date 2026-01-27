@@ -1,11 +1,9 @@
 import { renderHook } from '@testing-library/react'
 
+import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
+
 import { usePasswordValidation } from '../usePasswordValidation'
-import {
-  getPasswordValidationErrorKey,
-  PASSWORD_VALIDATION_ERRORS,
-  PASSWORD_VALIDATION_KEYS,
-} from '../validationSchema'
+import { getPasswordValidationErrorKey, PASSWORD_VALIDATION_KEYS } from '../validationSchema'
 
 describe('usePasswordValidation', () => {
   describe('with empty password', () => {

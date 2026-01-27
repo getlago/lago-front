@@ -10,6 +10,7 @@ import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE } from '~/core/router'
+import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import { LagoApiError, useGoogleRegisterMutation, useSignupMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -22,7 +23,6 @@ import { usePasswordValidation } from './signUpForm/usePasswordValidation'
 import {
   getPasswordValidationErrorKey,
   googleRegisterValidationSchema,
-  PASSWORD_VALIDATION_ERRORS,
   PASSWORD_VALIDATION_KEYS,
   signUpDefaultValues,
   signUpValidationSchema,

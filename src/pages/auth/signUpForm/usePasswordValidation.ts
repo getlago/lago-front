@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { validatePassword } from './validationSchema'
+import { validatePassword } from '~/formValidation/zodCustoms'
 
 type PasswordValidationResult = {
   isValid: boolean

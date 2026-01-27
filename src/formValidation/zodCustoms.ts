@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { allPermissions } from '~/pages/settings/roles/common/permissionsConst'
 import { PermissionName } from '~/pages/settings/roles/common/permissionsTypes'
 
-export const EMAIL_REGEX: RegExp =
+const EMAIL_REGEX: RegExp =
   // eslint-disable-next-line no-control-regex
   /^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/i
 
@@ -47,3 +47,55 @@ export const zodOneOfPermissions = z.string().refine((value) => {
 
   return allPermissions.includes(value as PermissionName)
 })
+
+export const zodRequiredEmail = z
+  .string()
+  .min(1, { message: 'text_620bc4d4269a55014d493f3d' })
+  .refine((val) => EMAIL_REGEX.test(val), 'text_620bc4d4269a55014d493f43')
+
+// Password validation error messages
+export const PASSWORD_VALIDATION_ERRORS = {
+  REQUIRED: 'text_620bc4d4269a55014d493f61',
+  MIN: 'text_620bc4d4269a55014d493fac',
+  LOWERCASE: 'text_620bc4d4269a55014d493f57',
+  UPPERCASE: 'text_620bc4d4269a55014d493f7b',
+  NUMBER: 'text_620bc4d4269a55014d493f8d',
+  SPECIAL: 'text_620bc4d4269a55014d493fa0',
+} as const
+
+const SPECIAL_CHARS_REGEX = /[/_!@#$%^&*(),.?":{}|<>-]/
+
+// Single source of truth for password validation
+export const validatePassword = (password: string): string[] => {
+  const errors: string[] = []
+
+  if (password.length < 8) {
+    errors.push(PASSWORD_VALIDATION_ERRORS.MIN)
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push(PASSWORD_VALIDATION_ERRORS.LOWERCASE)
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push(PASSWORD_VALIDATION_ERRORS.UPPERCASE)
+  }
+  if (!/\d/.test(password)) {
+    errors.push(PASSWORD_VALIDATION_ERRORS.NUMBER)
+  }
+  if (!SPECIAL_CHARS_REGEX.test(password)) {
+    errors.push(PASSWORD_VALIDATION_ERRORS.SPECIAL)
+  }
+
+  return errors
+}
+
+export const zodRequiredPassword = z
+  .string()
+  .min(1, { message: PASSWORD_VALIDATION_ERRORS.REQUIRED })
+  .superRefine((val, ctx) => {
+    validatePassword(val).forEach((error) => {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: error,
+      })
+    })
+  })
