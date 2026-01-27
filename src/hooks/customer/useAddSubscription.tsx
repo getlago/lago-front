@@ -46,6 +46,12 @@ gql`
         id
         name
       }
+      progressiveBillingDisabled
+      usageThresholds {
+        amountCents
+        recurring
+        thresholdDisplayName
+      }
       customer {
         id
         activeSubscriptionsCount
@@ -77,6 +83,12 @@ gql`
       selectedInvoiceCustomSections {
         id
         name
+      }
+      progressiveBillingDisabled
+      usageThresholds {
+        amountCents
+        recurring
+        thresholdDisplayName
       }
       customer {
         id
