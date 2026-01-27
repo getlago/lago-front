@@ -49,7 +49,7 @@ const BillingEntityPage = () => {
 
   useEffect(() => {
     if (!billingEntityLoading && !billingEntity) {
-      navigate(SETTINGS_ROUTE)
+      navigate(SETTINGS_ROUTE, { replace: true })
     }
   }, [billingEntity, billingEntityLoading, navigate])
 
@@ -70,7 +70,7 @@ const BillingEntityPage = () => {
         </div>
       )}
 
-      {!billingEntityLoading && (
+      {!billingEntityLoading && billingEntity && (
         <div data-test={BILLING_ENTITY_MAIN_TEST_ID}>
           <BillingEntityMain billingEntity={billingEntity as BillingEntity} />
         </div>
