@@ -3,7 +3,6 @@ import { renderHook } from '@testing-library/react'
 import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 
 import { usePasswordValidation } from '../usePasswordValidation'
-import { getPasswordValidationErrorKey, PASSWORD_VALIDATION_KEYS } from '../validationSchema'
 
 describe('usePasswordValidation', () => {
   describe('with empty password', () => {
@@ -195,33 +194,5 @@ describe('usePasswordValidation', () => {
 
       expect(firstResult).not.toBe(secondResult)
     })
-  })
-})
-
-describe('getPasswordValidationErrorKey', () => {
-  it('returns correct key for MIN error', () => {
-    expect(getPasswordValidationErrorKey(PASSWORD_VALIDATION_ERRORS.MIN)).toBe('MIN')
-  })
-
-  it('returns correct key for LOWERCASE error', () => {
-    expect(getPasswordValidationErrorKey(PASSWORD_VALIDATION_ERRORS.LOWERCASE)).toBe('LOWERCASE')
-  })
-
-  it('returns correct key for UPPERCASE error', () => {
-    expect(getPasswordValidationErrorKey(PASSWORD_VALIDATION_ERRORS.UPPERCASE)).toBe('UPPERCASE')
-  })
-
-  it('returns correct key for NUMBER error', () => {
-    expect(getPasswordValidationErrorKey(PASSWORD_VALIDATION_ERRORS.NUMBER)).toBe('NUMBER')
-  })
-
-  it('returns correct key for SPECIAL error', () => {
-    expect(getPasswordValidationErrorKey(PASSWORD_VALIDATION_ERRORS.SPECIAL)).toBe('SPECIAL')
-  })
-
-  it('returns original key for unknown error', () => {
-    const unknownError = 'unknown_error' as (typeof PASSWORD_VALIDATION_KEYS)[number]
-
-    expect(getPasswordValidationErrorKey(unknownError)).toBe('unknown_error')
   })
 })

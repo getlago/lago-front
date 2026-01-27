@@ -21,7 +21,6 @@ import { tw } from '~/styles/utils'
 
 import { usePasswordValidation } from './signUpForm/usePasswordValidation'
 import {
-  getPasswordValidationErrorKey,
   googleRegisterValidationSchema,
   PASSWORD_VALIDATION_KEYS,
   signUpDefaultValues,
@@ -260,7 +259,7 @@ const SignUp = () => {
                             <div
                               className="mb-3 flex h-5 w-1/2 flex-row items-center gap-3"
                               key={err}
-                              data-test={isErrored ? getPasswordValidationErrorKey(err) : undefined}
+                              data-test={isErrored ? err : undefined}
                             >
                               <svg height={8} width={8}>
                                 <circle

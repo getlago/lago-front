@@ -15,20 +15,6 @@ export const PASSWORD_VALIDATION_KEYS = [
   PASSWORD_VALIDATION_ERRORS.SPECIAL,
 ] as const
 
-export const getPasswordValidationErrorKey = (
-  errorKey: (typeof PASSWORD_VALIDATION_KEYS)[number],
-): string => {
-  const keyMap: Record<string, string> = {
-    [PASSWORD_VALIDATION_ERRORS.MIN]: 'MIN',
-    [PASSWORD_VALIDATION_ERRORS.LOWERCASE]: 'LOWERCASE',
-    [PASSWORD_VALIDATION_ERRORS.UPPERCASE]: 'UPPERCASE',
-    [PASSWORD_VALIDATION_ERRORS.NUMBER]: 'NUMBER',
-    [PASSWORD_VALIDATION_ERRORS.SPECIAL]: 'SPECIAL',
-  }
-
-  return keyMap[errorKey] || errorKey
-}
-
 export const signUpValidationSchema = z.object({
   organizationName: z.string().min(1, { message: 'text_620bc4d4269a55014d493f4d' }),
   email: zodRequiredEmail,
