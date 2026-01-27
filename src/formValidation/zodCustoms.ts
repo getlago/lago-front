@@ -94,7 +94,7 @@ export const zodRequiredPassword = z
   .superRefine((val, ctx) => {
     validatePassword(val).forEach((error) => {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: error,
       })
     })

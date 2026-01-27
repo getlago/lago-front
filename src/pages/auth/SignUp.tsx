@@ -240,14 +240,22 @@ const SignUp = () => {
                         />
                       )}
                     </form.AppField>
-                    {!passwordValidation.isValid ? (
+                    {passwordValidation.isValid ? (
+                      <Alert
+                        className="mt-4"
+                        type="success"
+                        data-test={SIGNUP_SUCCESS_ALERT_TEST_ID}
+                      >
+                        {translate('text_620bc4d4269a55014d493fbe')}
+                      </Alert>
+                    ) : (
                       <div
                         className={tw(
                           'flex flex-wrap overflow-hidden transition-all duration-250',
-                          !!password ? 'mt-4 max-h-124' : 'mt-0 max-h-0',
+                          password ? 'mt-4 max-h-124' : 'mt-0 max-h-0',
                         )}
                         data-test={
-                          !!password
+                          password
                             ? SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID
                             : SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID
                         }
@@ -281,14 +289,6 @@ const SignUp = () => {
                           )
                         })}
                       </div>
-                    ) : (
-                      <Alert
-                        className="mt-4"
-                        type="success"
-                        data-test={SIGNUP_SUCCESS_ALERT_TEST_ID}
-                      >
-                        {translate('text_620bc4d4269a55014d493fbe')}
-                      </Alert>
                     )}
                   </div>
                 </>
