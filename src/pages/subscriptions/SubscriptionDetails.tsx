@@ -21,6 +21,7 @@ import { SubscriptionActivityLogs } from '~/components/subscriptions/Subscriptio
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
+import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -50,6 +51,12 @@ gql`
       name
       status
       externalId
+      progressiveBillingDisabled
+      usageThresholds {
+        amountCents
+        recurring
+        thresholdDisplayName
+      }
       plan {
         id
         name
@@ -59,6 +66,11 @@ gql`
           id
           name
           code
+        }
+        usageThresholds {
+          amountCents
+          recurring
+          thresholdDisplayName
         }
       }
       customer {
@@ -301,6 +313,40 @@ const SubscriptionDetails = () => {
             component: (
               <DetailsPage.Container>
                 <SubscriptionDetailsOverview />
+              </DetailsPage.Container>
+            ),
+          },
+          {
+            title: translate('text_1724179887722baucvj7bvc1'),
+            link: !!customerId
+              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId,
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+                })
+              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                  planId: planId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+                }),
+            match: [
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+              }),
+              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                planId: planId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+              }),
+            ],
+            component: (
+              <DetailsPage.Container>
+                <SubscriptionProgressiveBillingTab
+                  subscription={subscription}
+                  loading={isSubscriptionLoading}
+                />
               </DetailsPage.Container>
             ),
           },
