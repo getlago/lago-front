@@ -63,6 +63,18 @@ export const PASSWORD_VALIDATION_ERRORS = {
   SPECIAL: 'text_620bc4d4269a55014d493fa0',
 } as const
 
+/** Stable data-test ids for password validation rules (used mainly by e2e). */
+export const PASSWORD_VALIDATION_TEST_IDS: Record<
+  (typeof PASSWORD_VALIDATION_ERRORS)[keyof Omit<typeof PASSWORD_VALIDATION_ERRORS, 'REQUIRED'>],
+  string
+> = {
+  [PASSWORD_VALIDATION_ERRORS.MIN]: 'MIN',
+  [PASSWORD_VALIDATION_ERRORS.LOWERCASE]: 'LOWERCASE',
+  [PASSWORD_VALIDATION_ERRORS.UPPERCASE]: 'UPPERCASE',
+  [PASSWORD_VALIDATION_ERRORS.NUMBER]: 'NUMBER',
+  [PASSWORD_VALIDATION_ERRORS.SPECIAL]: 'SPECIAL',
+}
+
 const SPECIAL_CHARS_REGEX = /[/_!@#$%^&*(),.?":{}|<>-]/
 
 // Single source of truth for password validation

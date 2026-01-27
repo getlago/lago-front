@@ -10,7 +10,10 @@ import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE } from '~/core/router'
-import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
+import {
+  PASSWORD_VALIDATION_ERRORS,
+  PASSWORD_VALIDATION_TEST_IDS,
+} from '~/formValidation/zodCustoms'
 import { LagoApiError, useGoogleRegisterMutation, useSignupMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -264,7 +267,7 @@ const SignUp = () => {
                             <div
                               className="mb-3 flex h-5 w-1/2 flex-row items-center gap-3"
                               key={err}
-                              data-test={isErrored ? err : undefined}
+                              data-test={isErrored ? PASSWORD_VALIDATION_TEST_IDS[err] : undefined}
                             >
                               <svg height={8} width={8}>
                                 <circle
