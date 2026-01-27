@@ -3812,5 +3812,9 @@
   "text_1738071730498disabletoggledesc": "When disabled, no usage-based invoices will be generated until the end of the billing period.",
   "text_1738071730498pqk8rj3l2sm": "Progressive billing settings updated successfully",
   "text_1738071730498disablesuccess": "Progressive billing has been disabled",
-  "text_1738071730498resetsuccess": "Progressive billing has been reset to parent plan settings"
+  "text_1738071730498resetsuccess": "Progressive billing has been reset to parent plan settings",
+  "text_1738071730498commitfreemiumtitle": "Unlock Minimum commitments",
+  "text_1738071730498commitfreemiumdesc": "Set a minimum spending threshold that customers must meet within each billing period.",
+  "text_1738071730498commitfreemiumsubject": "Request access to minimum commitments",
+  "text_1738071730498commitfreeemiumbody": "Hello, I would like to access your minimum commitments add-on. \n\nPlease let me know if you need more info!"
 }

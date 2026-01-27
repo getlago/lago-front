@@ -48,6 +48,8 @@ import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSectio
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
+import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -952,9 +954,15 @@ const CreateSubscription = () => {
                           <Card className="gap-8">
                             <CommitmentsSection
                               formikProps={planFormikProps}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
                               editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
+
+                            {formType === FORM_TYPE_ENUM.creation && (
+                              <>
+                                <ProgressiveBillingSection />
+                                <FeatureEntitlementSection />
+                              </>
+                            )}
                           </Card>
                         </div>
                       </div>

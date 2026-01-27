@@ -307,13 +307,12 @@ const CreatePlan = () => {
                   </SectionTitle>
 
                   <Card className="gap-8">
-                    <ProgressiveBillingSection formikProps={formikProps} />
                     <CommitmentsSection
                       formikProps={formikProps}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
 
+                    <ProgressiveBillingSection formikProps={formikProps} />
                     <FeatureEntitlementSection formikProps={formikProps} isEdition={isEdition} />
                   </Card>
                 </SectionWrapper>
