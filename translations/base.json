@@ -3786,5 +3786,9 @@
   "text_1768572142436xubwd6sei3b": "Charges",
   "text_1768572142437iellff897qo": "Create a new charge",
   "text_1768572142437tyh61d8ed6t": "Update a charge",
-  "text_1768572142437ch7vfimm1ts": "Delete a charge"
+  "text_1768572142437ch7vfimm1ts": "Delete a charge",
+  "text_620bc4d4269a55014d493f3d": "Email is required",
+  "text_620bc4d4269a55014d493f43": "Please enter a valid email address",
+  "text_620bc4d4269a55014d493f4d": "Organization name is required",
+  "text_620bc4d4269a55014d493f61": "Password is required"
 }
