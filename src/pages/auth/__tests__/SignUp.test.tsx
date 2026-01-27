@@ -2,14 +2,15 @@ import { MockedProvider } from '@apollo/client/testing'
 import { act, render, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import SignUp, {
+import SignUp from '../SignUp'
+import {
   SIGNUP_EMAIL_FIELD_TEST_ID,
   SIGNUP_ORGANIZATION_NAME_FIELD_TEST_ID,
   SIGNUP_PASSWORD_FIELD_TEST_ID,
   SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID,
   SIGNUP_SUBMIT_BUTTON_TEST_ID,
   SIGNUP_SUCCESS_ALERT_TEST_ID,
-} from '../SignUp'
+} from '../signUpTestIds'
 
 const getByDataTest = (testId: string) => document.querySelector(`[data-test="${testId}"]`)
 

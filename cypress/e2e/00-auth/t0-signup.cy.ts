@@ -4,7 +4,7 @@ import {
   SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID,
   SIGNUP_SUBMIT_BUTTON_TEST_ID,
   SIGNUP_SUCCESS_ALERT_TEST_ID,
-} from '~/pages/auth/SignUp'
+} from '~/pages/auth/signUpTestIds'
 
 import { userEmail, userPassword } from '../../support/reusableConstants'
 
