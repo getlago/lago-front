@@ -1,5 +1,5 @@
 import { FetchResult, gql } from '@apollo/client'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -185,6 +185,8 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { customerId } = useParams<{ customerId: string }>()
+  // Track if form has integrations configured (used for polling decision after redirect)
+  const hasIntegrationsInFormRef = useRef(false)
 
   const { data, loading, error } = useGetSingleCustomerQuery({
     variables: {
@@ -196,12 +198,16 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
 
   const customer = data?.customer
 
-  const goToCustomerInformationPage = (_customerId: string) =>
+  const goToCustomerInformationPage = (
+    _customerId: string,
+    options?: { shouldPollIntegrations?: boolean },
+  ) =>
     navigate(
       generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
         customerId: _customerId,
         tab: CustomerDetailsTabsOptions.information,
       }),
+      { state: { shouldPollIntegrations: options?.shouldPollIntegrations } },
     )
 
   const [create] = useCreateCustomerMutation({
@@ -223,18 +229,25 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
 
   const [update] = useUpdateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    refetchQueries: [
-      'getCustomer',
-      'integrationsListForCustomerMainInfos',
-      'paymentProvidersListForCustomerMainInfos',
-    ],
+    update(cache, { data: updateCustomerData }) {
+      if (updateCustomerData?.updateCustomer) {
+        // Evict the customer from cache to force a fresh fetch when CustomerDetails remounts
+        // This is necessary because the getCustomer query is not active during edit (different route)
+        cache.evict({ id: cache.identify(updateCustomerData?.updateCustomer) })
+        cache.gc()
+      }
+    },
     onCompleted({ updateCustomer }) {
       if (!!updateCustomer) {
         addToast({
           message: translate('text_626162c62f790600f850b7da'),
           severity: 'success',
         })
-        goToCustomerInformationPage(updateCustomer.id)
+
+        // Use form data to determine if polling is needed (backend processes integrations async)
+        goToCustomerInformationPage(updateCustomer.id, {
+          shouldPollIntegrations: hasIntegrationsInFormRef.current,
+        })
       }
     },
   })
@@ -247,6 +260,10 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
   }, [error])
 
   const onSave = async (values: CreateCustomerInput | UpdateCustomerInput) => {
+    // Check if form has integrations configured (for polling decision after redirect)
+    hasIntegrationsInFormRef.current =
+      Array.isArray(values.integrationCustomers) && values.integrationCustomers.length > 0
+
     if (customer && customerId) {
       return await update({
         variables: {
