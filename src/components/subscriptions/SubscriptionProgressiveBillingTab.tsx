@@ -19,13 +19,12 @@ import {
   ResetProgressiveBillingDialog,
   ResetProgressiveBillingDialogRef,
 } from '~/components/subscriptions/ResetProgressiveBillingDialog'
+import { SubscriptionProgressiveBillingTable } from '~/components/subscriptions/SubscriptionProgressiveBillingTable'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE,
   EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE,
 } from '~/core/router'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   GetSubscriptionForDetailsQuery,
@@ -114,16 +113,6 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
       subscriptionId: subscription?.id || '',
     })
   }, [customerId, planId, subscription?.id])
-
-  const nonRecurringThresholds = useMemo(
-    () => subscriptionThresholds.filter((t) => !t.recurring),
-    [subscriptionThresholds],
-  )
-
-  const recurringThreshold = useMemo(
-    () => subscriptionThresholds.find((t) => t.recurring),
-    [subscriptionThresholds],
-  )
 
   if (loading || !subscription) {
     return <DetailsPage.Skeleton />
@@ -294,53 +283,11 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
             </div>
           }
         >
-          <div className="flex flex-col gap-4">
-            <DetailsPage.TableDisplay
-              name="progressive-billing-subscription"
-              className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
-              header={[
-                '',
-                translate('text_1724179887723eh12a0kqbdw'),
-                translate('text_17241798877234jhvoho4ci9'),
-              ]}
-              body={nonRecurringThresholds.map((threshold, i) => [
-                i === 0
-                  ? translate('text_1724179887723hi673zmbvdj')
-                  : translate('text_1724179887723917j8ezkd9v'),
-                intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
-                  currency,
-                }),
-                threshold.thresholdDisplayName || '',
-              ])}
-            />
-
-            <DetailsPage.InfoGrid
-              grid={[
-                {
-                  label: translate('text_17241798877230y851fdxzqt'),
-                  value: recurringThreshold
-                    ? translate('text_65251f46339c650084ce0d57')
-                    : translate('text_65251f4cd55aeb004e5aa5ef'),
-                },
-              ]}
-            />
-
-            {recurringThreshold && (
-              <DetailsPage.TableDisplay
-                name="progressive-billing-recurring-subscription"
-                className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
-                body={[
-                  [
-                    translate('text_17241798877230y851fdxzqu'),
-                    intlFormatNumber(deserializeAmount(recurringThreshold.amountCents, currency), {
-                      currency,
-                    }),
-                    recurringThreshold.thresholdDisplayName || '',
-                  ],
-                ]}
-              />
-            )}
-          </div>
+          <SubscriptionProgressiveBillingTable
+            thresholds={subscriptionThresholds}
+            currency={currency}
+            name="progressive-billing-subscription"
+          />
         </Accordion>
       )}
 
