@@ -1,7 +1,19 @@
+import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { addToast } from '~/core/apolloClient'
+import { useDisableSubscriptionProgressiveBillingMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+gql`
+  mutation disableSubscriptionProgressiveBilling($input: UpdateSubscriptionInput!) {
+    updateSubscription(input: $input) {
+      id
+      progressiveBillingDisabled
+    }
+  }
+`
 
 type DisableProgressiveBillingDialogProps = {
   subscriptionId: string
@@ -18,6 +30,17 @@ export const DisableProgressiveBillingDialog = forwardRef<DisableProgressiveBill
     const dialogRef = useRef<DialogRef>(null)
     const { translate } = useInternationalization()
     const [localData, setLocalData] = useState<DisableProgressiveBillingDialogProps | null>(null)
+
+    const [disableProgressiveBilling] = useDisableSubscriptionProgressiveBillingMutation({
+      onCompleted({ updateSubscription: result }) {
+        if (result?.id) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_1738071730498disablesuccess',
+          })
+        }
+      },
+    })
 
     useImperativeHandle(ref, () => ({
       openDialog: (data) => {
@@ -50,8 +73,17 @@ export const DisableProgressiveBillingDialog = forwardRef<DisableProgressiveBill
             <Button
               variant="primary"
               danger
-              onClick={() => {
-                // TODO: LAGO-1109 - Implement disable mutation
+              onClick={async () => {
+                if (localData?.subscriptionId) {
+                  await disableProgressiveBilling({
+                    variables: {
+                      input: {
+                        id: localData.subscriptionId,
+                        progressiveBillingDisabled: true,
+                      },
+                    },
+                  })
+                }
                 closeDialog()
               }}
             >
