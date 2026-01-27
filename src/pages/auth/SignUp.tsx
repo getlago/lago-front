@@ -27,6 +27,16 @@ import {
   signUpValidationSchema,
 } from './signUpForm/validationSchema'
 
+// Data test ids
+export const SIGNUP_ORGANIZATION_NAME_FIELD_TEST_ID = 'signup-organization-name-field'
+export const SIGNUP_EMAIL_FIELD_TEST_ID = 'signup-email-field'
+export const SIGNUP_PASSWORD_FIELD_TEST_ID = 'signup-password-field'
+export const SIGNUP_ERROR_ALERT_TEST_ID = 'signup-error-alert'
+export const SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID = 'signup-password-validation--visible'
+export const SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID = 'signup-password-validation--hidden'
+export const SIGNUP_SUCCESS_ALERT_TEST_ID = 'signup-success-alert'
+export const SIGNUP_SUBMIT_BUTTON_TEST_ID = 'signup-submit-button'
+
 gql`
   mutation signup($input: RegisterUserInput!) {
     registerUser(input: $input) {
@@ -172,7 +182,7 @@ const SignUp = () => {
             </Stack>
 
             {!!errorTranslation && (
-              <Alert type="danger" data-test="error-alert">
+              <Alert type="danger" data-test={SIGNUP_ERROR_ALERT_TEST_ID}>
                 <Typography color="inherit" html={errorTranslation} />
               </Alert>
             )}
@@ -235,8 +245,8 @@ const SignUp = () => {
                         )}
                         data-test={
                           !!password
-                            ? 'password-validation--visible'
-                            : 'password-validation--hidden'
+                            ? SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID
+                            : SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID
                         }
                       >
                         {PASSWORD_VALIDATION_KEYS.map((err) => {
@@ -269,7 +279,11 @@ const SignUp = () => {
                         })}
                       </div>
                     ) : (
-                      <Alert className="mt-4" type="success" data-test="success">
+                      <Alert
+                        className="mt-4"
+                        type="success"
+                        data-test={SIGNUP_SUCCESS_ALERT_TEST_ID}
+                      >
                         {translate('text_620bc4d4269a55014d493fbe')}
                       </Alert>
                     )}
@@ -279,7 +293,7 @@ const SignUp = () => {
             </div>
 
             <form.AppForm>
-              <form.SubmitButton dataTest="submit-button" size="large" fullWidth>
+              <form.SubmitButton dataTest={SIGNUP_SUBMIT_BUTTON_TEST_ID} size="large" fullWidth>
                 {translate('text_620bc4d4269a55014d493fb5')}
               </form.SubmitButton>
             </form.AppForm>

@@ -178,6 +178,7 @@ describe('usePasswordValidation', () => {
       })
 
       const firstResult = result.current
+
       rerender({ password: 'Password1!' })
       const secondResult = result.current
 
@@ -190,6 +191,7 @@ describe('usePasswordValidation', () => {
       })
 
       const firstResult = result.current
+
       rerender({ password: 'DifferentPassword1!' })
       const secondResult = result.current
 

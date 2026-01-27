@@ -1,0 +1,158 @@
+import { MockedProvider } from '@apollo/client/testing'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+
+import SignUp, {
+  SIGNUP_EMAIL_FIELD_TEST_ID,
+  SIGNUP_ORGANIZATION_NAME_FIELD_TEST_ID,
+  SIGNUP_PASSWORD_FIELD_TEST_ID,
+  SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID,
+  SIGNUP_SUBMIT_BUTTON_TEST_ID,
+  SIGNUP_SUCCESS_ALERT_TEST_ID,
+} from '../SignUp'
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
+}))
+
+jest.mock('~/hooks/ui/useShortcuts', () => ({
+  useShortcuts: jest.fn(),
+}))
+
+jest.mock('~/components/auth/GoogleAuthButton', () => ({
+  __esModule: true,
+  default: ({ label }: { label: string }) => (
+    <button data-testid="google-auth-button">{label}</button>
+  ),
+}))
+
+const mockHandleSubmit = jest.fn()
+
+jest.mock('~/hooks/forms/useAppform', () => ({
+  useAppForm: () => ({
+    store: {
+      subscribe: jest.fn(() => jest.fn()),
+      getState: () => ({
+        values: { organizationName: '', email: '', password: '' },
+        canSubmit: true,
+      }),
+    },
+    handleSubmit: mockHandleSubmit,
+    AppField: ({
+      name,
+      children,
+    }: {
+      name: string
+      children: (field: unknown) => React.ReactNode
+    }) => {
+      const testIdMap: Record<string, string> = {
+        organizationName: 'signup-organization-name-field',
+        email: 'signup-email-field',
+        password: 'signup-password-field',
+      }
+
+      const fieldProps = {
+        TextInputField: ({
+          label,
+          password,
+        }: {
+          label?: string
+          placeholder?: string
+          password?: boolean
+          showOnlyErrors?: string[]
+        }) => (
+          <div>
+            {label && <label>{label}</label>}
+            <input type={password ? 'password' : 'text'} data-test={testIdMap[name]} />
+          </div>
+        ),
+      }
+
+      return <>{children(fieldProps)}</>
+    },
+    AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    SubmitButton: ({ children, dataTest }: { children: React.ReactNode; dataTest?: string }) => (
+      <button type="submit" data-test={dataTest}>
+        {children}
+      </button>
+    ),
+  }),
+}))
+
+const mockUseStore = jest.fn()
+
+jest.mock('@tanstack/react-form', () => ({
+  revalidateLogic: jest.fn(() => ({})),
+  useStore: (...args: unknown[]) => mockUseStore(...args),
+}))
+
+const setupMockUseStore = (password = '', canSubmit = true) => {
+  mockUseStore.mockImplementation((_store, selector) => {
+    const state = {
+      canSubmit,
+      values: { organizationName: '', email: '', password },
+    }
+
+    return selector(state)
+  })
+}
+
+const renderSignUp = async (initialEntries: string[] = ['/signup']) => {
+  let result
+
+  await act(async () => {
+    result = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <MemoryRouter initialEntries={initialEntries}>
+          <SignUp />
+        </MemoryRouter>
+      </MockedProvider>,
+    )
+  })
+
+  return result
+}
+
+describe('SignUp', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    setupMockUseStore('', true)
+  })
+
+  describe('when rendering the signup form', () => {
+    it('should display the form right fields', async () => {
+      await renderSignUp()
+
+      expect(screen.getByTestId(SIGNUP_ORGANIZATION_NAME_FIELD_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(SIGNUP_EMAIL_FIELD_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(SIGNUP_PASSWORD_FIELD_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(SIGNUP_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('when typing an invalid password', () => {
+    it('should show the password validation checklist', async () => {
+      setupMockUseStore('weak', true)
+
+      await renderSignUp()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('when typing a valid password', () => {
+    it('should show the success alert', async () => {
+      setupMockUseStore('ValidPass1!', true)
+
+      await renderSignUp()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(SIGNUP_SUCCESS_ALERT_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+})
