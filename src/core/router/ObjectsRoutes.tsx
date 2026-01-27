@@ -30,6 +30,9 @@ const AlertForm = lazyLoad(() => import('~/pages/AlertForm'))
 const SubscriptionEntitlementForm = lazyLoad(
   () => import('~/pages/subscriptions/SubscriptionEntitlementForm'),
 )
+const SubscriptionProgressiveBillingForm = lazyLoad(
+  () => import('~/pages/subscriptions/SubscriptionProgressiveBillingForm'),
+)
 const FeatureForm = lazyLoad(() => import('~/pages/features/FeatureForm'))
 
 // Details
@@ -111,6 +114,11 @@ export const UPDATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE =
   '/plan/:planId/subscription/:subscriptionId/entitlement/:entitlementCode/edit'
 export const UPDATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE =
   '/customer/:customerId/subscription/:subscriptionId/entitlement/:entitlementCode/edit'
+
+export const EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE =
+  '/plan/:planId/subscription/:subscriptionId/progressive-billing/edit'
+export const EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/progressive-billing/edit'
 
 export const CREATE_FEATURE_ROUTE = '/create/feature'
 export const UPDATE_FEATURE_ROUTE = '/update/feature/:featureId'
@@ -283,6 +291,15 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     ],
     private: true,
     element: <SubscriptionEntitlementForm />,
+    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
+  },
+  {
+    path: [
+      EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE,
+      EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE,
+    ],
+    private: true,
+    element: <SubscriptionProgressiveBillingForm />,
     permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {
