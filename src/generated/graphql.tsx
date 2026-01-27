@@ -11597,6 +11597,20 @@ export type RemoveSubscriptionEntitlementMutationVariables = Exact<{
 
 export type RemoveSubscriptionEntitlementMutation = { __typename?: 'Mutation', removeSubscriptionEntitlement?: { __typename?: 'RemoveSubscriptionEntitlementPayload', featureCode?: string | null } | null };
 
+export type DisableSubscriptionProgressiveBillingMutationVariables = Exact<{
+  input: UpdateSubscriptionInput;
+}>;
+
+
+export type DisableSubscriptionProgressiveBillingMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null } | null };
+
+export type ResetSubscriptionProgressiveBillingMutationVariables = Exact<{
+  input: UpdateSubscriptionInput;
+}>;
+
+
+export type ResetSubscriptionProgressiveBillingMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> } | null };
+
 export type SubscriptionActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -28532,6 +28546,79 @@ export function useRemoveSubscriptionEntitlementMutation(baseOptions?: Apollo.Mu
 export type RemoveSubscriptionEntitlementMutationHookResult = ReturnType<typeof useRemoveSubscriptionEntitlementMutation>;
 export type RemoveSubscriptionEntitlementMutationResult = Apollo.MutationResult<RemoveSubscriptionEntitlementMutation>;
 export type RemoveSubscriptionEntitlementMutationOptions = Apollo.BaseMutationOptions<RemoveSubscriptionEntitlementMutation, RemoveSubscriptionEntitlementMutationVariables>;
+export const DisableSubscriptionProgressiveBillingDocument = gql`
+    mutation disableSubscriptionProgressiveBilling($input: UpdateSubscriptionInput!) {
+  updateSubscription(input: $input) {
+    id
+    progressiveBillingDisabled
+  }
+}
+    `;
+export type DisableSubscriptionProgressiveBillingMutationFn = Apollo.MutationFunction<DisableSubscriptionProgressiveBillingMutation, DisableSubscriptionProgressiveBillingMutationVariables>;
+
+/**
+ * __useDisableSubscriptionProgressiveBillingMutation__
+ *
+ * To run a mutation, you first call `useDisableSubscriptionProgressiveBillingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDisableSubscriptionProgressiveBillingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [disableSubscriptionProgressiveBillingMutation, { data, loading, error }] = useDisableSubscriptionProgressiveBillingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDisableSubscriptionProgressiveBillingMutation(baseOptions?: Apollo.MutationHookOptions<DisableSubscriptionProgressiveBillingMutation, DisableSubscriptionProgressiveBillingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DisableSubscriptionProgressiveBillingMutation, DisableSubscriptionProgressiveBillingMutationVariables>(DisableSubscriptionProgressiveBillingDocument, options);
+      }
+export type DisableSubscriptionProgressiveBillingMutationHookResult = ReturnType<typeof useDisableSubscriptionProgressiveBillingMutation>;
+export type DisableSubscriptionProgressiveBillingMutationResult = Apollo.MutationResult<DisableSubscriptionProgressiveBillingMutation>;
+export type DisableSubscriptionProgressiveBillingMutationOptions = Apollo.BaseMutationOptions<DisableSubscriptionProgressiveBillingMutation, DisableSubscriptionProgressiveBillingMutationVariables>;
+export const ResetSubscriptionProgressiveBillingDocument = gql`
+    mutation resetSubscriptionProgressiveBilling($input: UpdateSubscriptionInput!) {
+  updateSubscription(input: $input) {
+    id
+    progressiveBillingDisabled
+    usageThresholds {
+      amountCents
+      recurring
+      thresholdDisplayName
+    }
+  }
+}
+    `;
+export type ResetSubscriptionProgressiveBillingMutationFn = Apollo.MutationFunction<ResetSubscriptionProgressiveBillingMutation, ResetSubscriptionProgressiveBillingMutationVariables>;
+
+/**
+ * __useResetSubscriptionProgressiveBillingMutation__
+ *
+ * To run a mutation, you first call `useResetSubscriptionProgressiveBillingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResetSubscriptionProgressiveBillingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resetSubscriptionProgressiveBillingMutation, { data, loading, error }] = useResetSubscriptionProgressiveBillingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useResetSubscriptionProgressiveBillingMutation(baseOptions?: Apollo.MutationHookOptions<ResetSubscriptionProgressiveBillingMutation, ResetSubscriptionProgressiveBillingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResetSubscriptionProgressiveBillingMutation, ResetSubscriptionProgressiveBillingMutationVariables>(ResetSubscriptionProgressiveBillingDocument, options);
+      }
+export type ResetSubscriptionProgressiveBillingMutationHookResult = ReturnType<typeof useResetSubscriptionProgressiveBillingMutation>;
+export type ResetSubscriptionProgressiveBillingMutationResult = Apollo.MutationResult<ResetSubscriptionProgressiveBillingMutation>;
+export type ResetSubscriptionProgressiveBillingMutationOptions = Apollo.BaseMutationOptions<ResetSubscriptionProgressiveBillingMutation, ResetSubscriptionProgressiveBillingMutationVariables>;
 export const SubscriptionActivityLogsDocument = gql`
     query SubscriptionActivityLogs($page: Int, $limit: Int, $externalSubscriptionId: String) {
   activityLogs(

@@ -1,7 +1,24 @@
+import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { addToast } from '~/core/apolloClient'
+import { useResetSubscriptionProgressiveBillingMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+gql`
+  mutation resetSubscriptionProgressiveBilling($input: UpdateSubscriptionInput!) {
+    updateSubscription(input: $input) {
+      id
+      progressiveBillingDisabled
+      usageThresholds {
+        amountCents
+        recurring
+        thresholdDisplayName
+      }
+    }
+  }
+`
 
 type ResetProgressiveBillingDialogProps = {
   subscriptionId: string
@@ -18,6 +35,17 @@ export const ResetProgressiveBillingDialog = forwardRef<ResetProgressiveBillingD
     const dialogRef = useRef<DialogRef>(null)
     const { translate } = useInternationalization()
     const [localData, setLocalData] = useState<ResetProgressiveBillingDialogProps | null>(null)
+
+    const [resetProgressiveBilling] = useResetSubscriptionProgressiveBillingMutation({
+      onCompleted({ updateSubscription: result }) {
+        if (result?.id) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_1738071730498resetsuccess',
+          })
+        }
+      },
+    })
 
     useImperativeHandle(ref, () => ({
       openDialog: (data) => {
@@ -49,8 +77,18 @@ export const ResetProgressiveBillingDialog = forwardRef<ResetProgressiveBillingD
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                // TODO: LAGO-1110 - Implement reset mutation
+              onClick={async () => {
+                if (localData?.subscriptionId) {
+                  await resetProgressiveBilling({
+                    variables: {
+                      input: {
+                        id: localData.subscriptionId,
+                        progressiveBillingDisabled: false,
+                        usageThresholds: [],
+                      },
+                    },
+                  })
+                }
                 closeDialog()
               }}
             >
