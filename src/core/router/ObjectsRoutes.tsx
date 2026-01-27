@@ -30,6 +30,9 @@ const AlertForm = lazyLoad(() => import('~/pages/AlertForm'))
 const SubscriptionEntitlementForm = lazyLoad(
   () => import('~/pages/subscriptions/SubscriptionEntitlementForm'),
 )
+const SubscriptionProgressiveBillingForm = lazyLoad(
+  () => import('~/pages/subscriptions/SubscriptionProgressiveBillingForm'),
+)
 const FeatureForm = lazyLoad(() => import('~/pages/features/FeatureForm'))
 
 // Details
@@ -288,6 +291,15 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     ],
     private: true,
     element: <SubscriptionEntitlementForm />,
+    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
+  },
+  {
+    path: [
+      EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE,
+      EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE,
+    ],
+    private: true,
+    element: <SubscriptionProgressiveBillingForm />,
     permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {
