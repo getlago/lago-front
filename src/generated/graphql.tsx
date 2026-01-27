@@ -10104,7 +10104,7 @@ export type GetInvoicesForTerminationQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoicesForTerminationQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum, refundableAmountCents: any }> } };
+export type GetInvoicesForTerminationQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum, refundableAmountCents: any, offsettableAmountCents: any }> } };
 
 export type GetCustomerSubscriptionForUsageQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -22439,6 +22439,7 @@ export const GetInvoicesForTerminationDocument = gql`
       currency
       invoiceType
       refundableAmountCents
+      offsettableAmountCents
     }
   }
 }

@@ -1,0 +1,288 @@
+import { act, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { useRef } from 'react'
+
+import { StatusTypeEnum } from '~/generated/graphql'
+import { render } from '~/test-utils'
+
+import {
+  TerminateCustomerSubscriptionDialog,
+  TerminateCustomerSubscriptionDialogRef,
+} from '../TerminateCustomerSubscriptionDialog'
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
+}))
+
+const mockUseGetInvoicesForTerminationQuery = jest.fn()
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useTerminateCustomerSubscriptionMutation: () => [jest.fn()],
+  useGetInvoicesForTerminationQuery: () => mockUseGetInvoicesForTerminationQuery(),
+}))
+
+const TestWrapper = ({
+  status = StatusTypeEnum.Active,
+  payInAdvance = false,
+}: {
+  status?: StatusTypeEnum
+  payInAdvance?: boolean
+}) => {
+  const dialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
+
+  return (
+    <>
+      <button
+        data-test="open-dialog-btn"
+        onClick={() =>
+          dialogRef.current?.openDialog({
+            id: 'sub-123',
+            name: 'Test Subscription',
+            status,
+            payInAdvance,
+          })
+        }
+      >
+        Open Dialog
+      </button>
+      <TerminateCustomerSubscriptionDialog ref={dialogRef} />
+    </>
+  )
+}
+
+const createMockInvoiceQueryResult = ({
+  offsettableAmountCents = '0',
+  refundableAmountCents = '0',
+}: {
+  offsettableAmountCents?: string
+  refundableAmountCents?: string
+} = {}) => ({
+  loading: false,
+  data: {
+    invoices: {
+      collection: [
+        {
+          id: 'invoice-123',
+          number: 'INV-001',
+          currency: 'USD',
+          invoiceType: 'subscription',
+          refundableAmountCents,
+          offsettableAmountCents,
+        },
+      ],
+    },
+  },
+})
+
+describe('TerminateCustomerSubscriptionDialog', () => {
+  beforeEach(() => {
+    mockUseGetInvoicesForTerminationQuery.mockReturnValue(createMockInvoiceQueryResult())
+  })
+
+  describe('GIVEN a subscription to terminate', () => {
+    describe('WHEN openDialog is called', () => {
+      it('THEN renders the warning dialog with title', async () => {
+        await act(() => render(<TestWrapper />))
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        expect(screen.getByTestId('warning-dialog')).toBeInTheDocument()
+        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN subscription status is Active', () => {
+      it('THEN renders dialog with title and description', async () => {
+        await act(() => render(<TestWrapper status={StatusTypeEnum.Active} />))
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        expect(screen.getByTestId('dialog-description')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN subscription status is Pending', () => {
+      it('THEN renders dialog with title and description', async () => {
+        await act(() => render(<TestWrapper status={StatusTypeEnum.Pending} />))
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        expect(screen.getByTestId('dialog-description')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN invoice has offsettable amount', () => {
+      it('THEN renders Offset radio option', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '1000' }),
+        )
+
+        await act(() => render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />))
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        const offsetRadio = document.querySelector('input[type="radio"][value="offset"]')
+
+        expect(offsetRadio).toBeInTheDocument()
+      })
+
+      it('THEN selects Offset as default (first option)', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '1000' }),
+        )
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        // Wait for useEffect to sync the form value
+        // RadioCheckedIcon has 3 circles (one with r="4"), RadioUncheckedIcon has 2
+        await waitFor(() => {
+          const offsetRadioLabel = document
+            .querySelector('input[type="radio"][value="offset"]')
+            ?.closest('label')
+          const checkedIndicator = offsetRadioLabel?.querySelector('circle[r="4"]')
+
+          expect(checkedIndicator).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN invoice has NO offsettable amount', () => {
+      it('THEN does NOT render Offset radio option', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '0' }),
+        )
+
+        await act(() => render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />))
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        const offsetRadio = document.querySelector('input[type="radio"][value="offset"]')
+
+        expect(offsetRadio).not.toBeInTheDocument()
+      })
+
+      it('THEN selects Credit as default (first option)', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '0' }),
+        )
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        // Wait for useEffect to sync the form value
+        // RadioCheckedIcon has 3 circles (one with r="4"), RadioUncheckedIcon has 2
+        await waitFor(() => {
+          const creditRadioLabel = document
+            .querySelector('input[type="radio"][value="credit"]')
+            ?.closest('label')
+          const checkedIndicator = creditRadioLabel?.querySelector('circle[r="4"]')
+
+          expect(checkedIndicator).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN invoice has refundable amount', () => {
+      it('THEN renders Refund radio option', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ refundableAmountCents: '1000' }),
+        )
+
+        await act(() => render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />))
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        const refundRadio = document.querySelector('input[type="radio"][value="refund"]')
+
+        expect(refundRadio).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN invoice has NO refundable amount', () => {
+      it('THEN does NOT render Refund radio option', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ refundableAmountCents: '0' }),
+        )
+
+        await act(() => render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />))
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        const refundRadio = document.querySelector('input[type="radio"][value="refund"]')
+
+        expect(refundRadio).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN invoice data is loading', () => {
+      it('THEN disables the terminate button', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue({
+          loading: true,
+          data: undefined,
+        })
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        const terminateButton = screen.getByTestId('warning-confirm')
+
+        expect(terminateButton).toBeDisabled()
+      })
+    })
+
+    describe('WHEN invoice data is loaded', () => {
+      it('THEN enables the terminate button', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(
+          createMockInvoiceQueryResult({ offsettableAmountCents: '1000' }),
+        )
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={true} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        await waitFor(() => {
+          const terminateButton = screen.getByTestId('warning-confirm')
+
+          expect(terminateButton).not.toBeDisabled()
+        })
+      })
+    })
+
+    describe('WHEN subscription is NOT pay-in-advance', () => {
+      it('THEN enables the terminate button (no radio options needed)', async () => {
+        mockUseGetInvoicesForTerminationQuery.mockReturnValue(createMockInvoiceQueryResult())
+
+        render(<TestWrapper status={StatusTypeEnum.Active} payInAdvance={false} />)
+
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+
+        const terminateButton = screen.getByTestId('warning-confirm')
+
+        expect(terminateButton).not.toBeDisabled()
+      })
+    })
+  })
+})
