@@ -44,7 +44,6 @@ import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
-import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
@@ -951,10 +950,6 @@ const CreateSubscription = () => {
                             </Typography>
                           </div>
                           <Card className="gap-8">
-                            <ProgressiveBillingSection
-                              formikProps={planFormikProps}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                            />
                             <CommitmentsSection
                               formikProps={planFormikProps}
                               premiumWarningDialogRef={premiumWarningDialogRef}
