@@ -14095,6 +14095,20 @@ export type CreateOrUpdateSubscriptionEntitlementMutationVariables = Exact<{
 
 export type CreateOrUpdateSubscriptionEntitlementMutation = { __typename?: 'Mutation', createOrUpdateSubscriptionEntitlement?: { __typename?: 'SubscriptionEntitlement', code: string } | null };
 
+export type GetSubscriptionForProgressiveBillingFormQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionForProgressiveBillingFormQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, name: string, amountCurrency: CurrencyEnum, usageThresholds?: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null } } | null };
+
+export type UpdateSubscriptionProgressiveBillingMutationVariables = Exact<{
+  input: UpdateSubscriptionInput;
+}>;
+
+
+export type UpdateSubscriptionProgressiveBillingMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> } | null };
+
 export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerInfosForWalletFormQueryVariables = Exact<{
@@ -39762,6 +39776,105 @@ export function useCreateOrUpdateSubscriptionEntitlementMutation(baseOptions?: A
 export type CreateOrUpdateSubscriptionEntitlementMutationHookResult = ReturnType<typeof useCreateOrUpdateSubscriptionEntitlementMutation>;
 export type CreateOrUpdateSubscriptionEntitlementMutationResult = Apollo.MutationResult<CreateOrUpdateSubscriptionEntitlementMutation>;
 export type CreateOrUpdateSubscriptionEntitlementMutationOptions = Apollo.BaseMutationOptions<CreateOrUpdateSubscriptionEntitlementMutation, CreateOrUpdateSubscriptionEntitlementMutationVariables>;
+export const GetSubscriptionForProgressiveBillingFormDocument = gql`
+    query getSubscriptionForProgressiveBillingForm($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    name
+    progressiveBillingDisabled
+    usageThresholds {
+      amountCents
+      recurring
+      thresholdDisplayName
+    }
+    plan {
+      id
+      name
+      amountCurrency
+      usageThresholds {
+        amountCents
+        recurring
+        thresholdDisplayName
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionForProgressiveBillingFormQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionForProgressiveBillingFormQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionForProgressiveBillingFormQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionForProgressiveBillingFormQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionForProgressiveBillingFormQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables> & ({ variables: GetSubscriptionForProgressiveBillingFormQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>(GetSubscriptionForProgressiveBillingFormDocument, options);
+      }
+export function useGetSubscriptionForProgressiveBillingFormLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>(GetSubscriptionForProgressiveBillingFormDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionForProgressiveBillingFormSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>;
+export function useGetSubscriptionForProgressiveBillingFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForProgressiveBillingFormQuery | undefined, GetSubscriptionForProgressiveBillingFormQueryVariables>;
+export function useGetSubscriptionForProgressiveBillingFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>(GetSubscriptionForProgressiveBillingFormDocument, options);
+        }
+export type GetSubscriptionForProgressiveBillingFormQueryHookResult = ReturnType<typeof useGetSubscriptionForProgressiveBillingFormQuery>;
+export type GetSubscriptionForProgressiveBillingFormLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForProgressiveBillingFormLazyQuery>;
+export type GetSubscriptionForProgressiveBillingFormSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForProgressiveBillingFormSuspenseQuery>;
+export type GetSubscriptionForProgressiveBillingFormQueryResult = Apollo.QueryResult<GetSubscriptionForProgressiveBillingFormQuery, GetSubscriptionForProgressiveBillingFormQueryVariables>;
+export const UpdateSubscriptionProgressiveBillingDocument = gql`
+    mutation updateSubscriptionProgressiveBilling($input: UpdateSubscriptionInput!) {
+  updateSubscription(input: $input) {
+    id
+    progressiveBillingDisabled
+    usageThresholds {
+      amountCents
+      recurring
+      thresholdDisplayName
+    }
+  }
+}
+    `;
+export type UpdateSubscriptionProgressiveBillingMutationFn = Apollo.MutationFunction<UpdateSubscriptionProgressiveBillingMutation, UpdateSubscriptionProgressiveBillingMutationVariables>;
+
+/**
+ * __useUpdateSubscriptionProgressiveBillingMutation__
+ *
+ * To run a mutation, you first call `useUpdateSubscriptionProgressiveBillingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSubscriptionProgressiveBillingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSubscriptionProgressiveBillingMutation, { data, loading, error }] = useUpdateSubscriptionProgressiveBillingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSubscriptionProgressiveBillingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSubscriptionProgressiveBillingMutation, UpdateSubscriptionProgressiveBillingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSubscriptionProgressiveBillingMutation, UpdateSubscriptionProgressiveBillingMutationVariables>(UpdateSubscriptionProgressiveBillingDocument, options);
+      }
+export type UpdateSubscriptionProgressiveBillingMutationHookResult = ReturnType<typeof useUpdateSubscriptionProgressiveBillingMutation>;
+export type UpdateSubscriptionProgressiveBillingMutationResult = Apollo.MutationResult<UpdateSubscriptionProgressiveBillingMutation>;
+export type UpdateSubscriptionProgressiveBillingMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionProgressiveBillingMutation, UpdateSubscriptionProgressiveBillingMutationVariables>;
 export const GetCustomerInfosForWalletFormDocument = gql`
     query getCustomerInfosForWalletForm($id: ID!) {
   customer(id: $id) {
