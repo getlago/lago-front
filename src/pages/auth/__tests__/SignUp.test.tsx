@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import SignUp, {
@@ -10,6 +10,8 @@ import SignUp, {
   SIGNUP_SUBMIT_BUTTON_TEST_ID,
   SIGNUP_SUCCESS_ALERT_TEST_ID,
 } from '../SignUp'
+
+const getByDataTest = (testId: string) => document.querySelector(`[data-test="${testId}"]`)
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -125,10 +127,10 @@ describe('SignUp', () => {
     it('should display the form right fields', async () => {
       await renderSignUp()
 
-      expect(screen.getByTestId(SIGNUP_ORGANIZATION_NAME_FIELD_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(SIGNUP_EMAIL_FIELD_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(SIGNUP_PASSWORD_FIELD_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(SIGNUP_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(SIGNUP_ORGANIZATION_NAME_FIELD_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(SIGNUP_EMAIL_FIELD_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(SIGNUP_PASSWORD_FIELD_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(SIGNUP_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
     })
   })
 
@@ -139,7 +141,7 @@ describe('SignUp', () => {
       await renderSignUp()
 
       await waitFor(() => {
-        expect(screen.getByTestId(SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID)).toBeInTheDocument()
+        expect(getByDataTest(SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -151,7 +153,7 @@ describe('SignUp', () => {
       await renderSignUp()
 
       await waitFor(() => {
-        expect(screen.getByTestId(SIGNUP_SUCCESS_ALERT_TEST_ID)).toBeInTheDocument()
+        expect(getByDataTest(SIGNUP_SUCCESS_ALERT_TEST_ID)).toBeInTheDocument()
       })
     })
   })
