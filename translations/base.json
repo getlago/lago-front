@@ -3786,5 +3786,16 @@
   "text_1768572142436xubwd6sei3b": "Charges",
   "text_1768572142437iellff897qo": "Create a new charge",
   "text_1768572142437tyh61d8ed6t": "Update a charge",
-  "text_1768572142437ch7vfimm1ts": "Delete a charge"
+  "text_1768572142437ch7vfimm1ts": "Delete a charge",
+  "text_1738071730498ht52blrjax6": "Reset to parent plan",
+  "text_1738071730498bsjvn56ruzp": "Disable progressive billing",
+  "text_1738071730498qg3fo3j43f8": "Progressive billing is currently disabled for this subscription.",
+  "text_1738071730498kxobqn9ebwe": "Enable progressive billing",
+  "text_17380717304985b9ufvwfxdr": "No progressive billing thresholds have been configured for this subscription or its parent plan.",
+  "text_1738071730498d65pmecuq6l": "This subscription is using the progressive billing settings from its parent plan.",
+  "text_1738071730498s3o5o6jnvhf": "Override parent plan settings",
+  "text_1738071730498n89s1p0z8b4": "Disable progressive billing",
+  "text_1738071730498xnl4qgvmzeo": "Are you sure you want to disable progressive billing for <b>{{subscriptionName}}</b>? The current threshold settings will be preserved and can be re-enabled later.",
+  "text_17380717304987v96qpfimgc": "Reset to parent plan",
+  "text_1738071730498zxzs6oy5tz3": "Are you sure you want to reset progressive billing settings for <b>{{subscriptionName}}</b>? This will remove the subscription-level overrides and use the parent plan settings instead."
 }
