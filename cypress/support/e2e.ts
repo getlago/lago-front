@@ -12,10 +12,8 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
-// Import commands.js using ES2015 syntax:
-import cypress from 'cypress'
-
 import { SIGNUP_SUBMIT_BUTTON_TEST_ID } from '~/pages/auth/signUpTestIds'
+
 import { userEmail, userPassword } from './reusableConstants'
 
 Cypress.Commands.add('login', (email = userEmail, password = userPassword) => {
