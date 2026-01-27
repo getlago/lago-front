@@ -125,6 +125,7 @@ export const cleanPlanValues = (planValues: PlanOverridesInput) => {
     billFixedChargesMonthly: undefined,
     cascadeUpdates: undefined,
     entitlements: undefined,
+    usageThresholds: undefined,
     charges: planValues?.charges?.map((charge) => ({
       ...charge,
       appliedPricingUnit: charge.appliedPricingUnit

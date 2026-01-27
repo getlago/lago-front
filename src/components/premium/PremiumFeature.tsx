@@ -12,6 +12,7 @@ type PremiumFeatureProps = {
   feature: string
   className?: string
   buttonClassName?: string
+  'data-test'?: string
 }
 
 const PremiumFeature = ({
@@ -20,6 +21,7 @@ const PremiumFeature = ({
   feature,
   className,
   buttonClassName,
+  'data-test': dataTest,
 }: PremiumFeatureProps) => {
   const { translate } = useInternationalization()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -31,6 +33,7 @@ const PremiumFeature = ({
           'flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4',
           className,
         )}
+        data-test={dataTest}
       >
         <div className="flex flex-col">
           <div className="flex flex-row items-center gap-2">
