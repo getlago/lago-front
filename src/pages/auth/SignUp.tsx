@@ -8,6 +8,7 @@ import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Typography } from '~/components/designSystem'
 import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE } from '~/core/router'
 import { LagoApiError, useGoogleRegisterMutation, useSignupMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -81,6 +82,9 @@ const SignUp = () => {
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: isGoogleRegister ? googleRegisterValidationSchema : signUpValidationSchema,
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError('sugnup-form', formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value }) => {
       if (isGoogleRegister) {
@@ -162,7 +166,7 @@ const SignUp = () => {
       <Card>
         <StyledLogo height={24} />
 
-        <form onSubmit={handleSubmit}>
+        <form id="signup-form" onSubmit={handleSubmit}>
           <Stack spacing={8}>
             <Stack spacing={3}>
               <Title>
