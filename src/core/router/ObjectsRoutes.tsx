@@ -112,6 +112,11 @@ export const UPDATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE =
 export const UPDATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE =
   '/customer/:customerId/subscription/:subscriptionId/entitlement/:entitlementCode/edit'
 
+export const EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE =
+  '/plan/:planId/subscription/:subscriptionId/progressive-billing/edit'
+export const EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/progressive-billing/edit'
+
 export const CREATE_FEATURE_ROUTE = '/create/feature'
 export const UPDATE_FEATURE_ROUTE = '/update/feature/:featureId'
 

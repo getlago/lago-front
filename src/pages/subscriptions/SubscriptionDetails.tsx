@@ -62,6 +62,7 @@ gql`
         name
         code
         payInAdvance
+        amountCurrency
         parent {
           id
           name

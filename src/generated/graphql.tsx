@@ -14071,7 +14071,7 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null }, customer: { __typename?: 'Customer', id: string } } | null };
+export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, amountCurrency: CurrencyEnum, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null }, customer: { __typename?: 'Customer', id: string } } | null };
 
 export type GetSubscriptionDataForEntitlementFormQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -39549,6 +39549,7 @@ export const GetSubscriptionForDetailsDocument = gql`
       name
       code
       payInAdvance
+      amountCurrency
       parent {
         id
         name
