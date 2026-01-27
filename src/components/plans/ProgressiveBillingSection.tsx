@@ -15,22 +15,21 @@ import {
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum, UsageThresholdInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useProgressiveBillingForm } from '~/hooks/plans/useProgressiveBillingForm'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { PlanFormInput } from './types'
 
+// Extended type for ChargeTable compatibility (requires index signature)
+type ThresholdTableData = UsageThresholdInput & { [key: string]: unknown }
+
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
-  isInSubscriptionForm?: boolean
 }
 
-export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
-  formikProps,
-  isInSubscriptionForm,
-}) => {
+export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ formikProps }) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
@@ -110,7 +109,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
       {hasPremiumIntegration && displayProgressiveBillingAccordion && (
         <Accordion
           className="w-full"
-          initiallyOpen={!isInSubscriptionForm}
+          initiallyOpen
           summary={
             <AccordionSummary
               hasErrorInGroup={hasErrorInGroup}
@@ -133,12 +132,15 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                 {translate('text_1724233213997l2ksi40t8q6')}
               </Button>
               <div className="-mx-4 -mb-1 overflow-auto px-4 pb-1">
-                <ChargeTable
+                <ChargeTable<ThresholdTableData>
                   name="graduated-percentage-charge-table"
-                  data={(nonRecurringUsageThresholds ?? []).map((localData) => ({
-                    ...localData,
-                    disabledDelete: nonRecurringUsageThresholds?.length === 1,
-                  }))}
+                  data={(nonRecurringUsageThresholds ?? []).map(
+                    (localData) =>
+                      ({
+                        ...localData,
+                        disabledDelete: nonRecurringUsageThresholds?.length === 1,
+                      }) as ThresholdTableData,
+                  )}
                   onDeleteRow={(_, i) => {
                     deleteThreshold({ index: i, isRecurring: false })
                   }}
@@ -239,7 +241,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
             />
             {displayRecurring && (
               <div className="-mx-4 -mb-1 overflow-auto px-4 pb-1">
-                <ChargeTable
+                <ChargeTable<ThresholdTableData>
                   name={'progressive-billing-recurring'}
                   columns={[
                     {
@@ -295,7 +297,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                       ),
                     },
                   ]}
-                  data={[recurringUsageThreshold ?? {}]}
+                  data={[(recurringUsageThreshold ?? {}) as ThresholdTableData]}
                 />
               </div>
             )}
