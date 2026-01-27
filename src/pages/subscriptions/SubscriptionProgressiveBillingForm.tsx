@@ -507,7 +507,7 @@ const SubscriptionProgressiveBillingForm = () => {
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
         title={translate('text_6244277fe0975300fe3fb940')}
-        description={translate('text_6244277fe0975300fe3fb944')}
+        description={translate('text_6244277fe0975300fe3fb946')}
         continueText={translate('text_6244277fe0975300fe3fb94c')}
         onContinue={onLeave}
       />
