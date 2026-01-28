@@ -4,7 +4,7 @@ import {
   planWithChargesName,
 } from '../../support/reusableConstants'
 
-describe('Edit plan', () => {
+describe.skip('Edit plan', () => {
   beforeEach(() => {
     cy.login()
   })

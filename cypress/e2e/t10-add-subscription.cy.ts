@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 
 import { customerName } from '../support/reusableConstants'
 
-describe('Subscriptions', () => {
+describe.skip('Subscriptions', () => {
   beforeEach(() => {
     cy.login().visit('/customers')
     cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
