@@ -167,7 +167,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
               </>
             )}
 
-            {retries && retries > 0 && (
+            {!!retries && retries > 0 && (
               <>
                 <Typography className="pt-1" variant="caption">
                   {translate('text_63e27c56dfe64b846474efb2')}

@@ -3333,11 +3333,11 @@
   "text_175459724137023yixxoovqg": "To date should be greater or equal to From date",
   "text_1754397427626s7wx2frw0f4": "Is greater than",
   "text_1754397427626jjvqhvplifr": "Is less than",
-  "text_1753198825180a94n1872cz4": "Credit back the unused amount via a credit note.",
-  "text_17531988251808so7qch9zrf": "The amount will be added to the credit note wallet.",
+  "text_1753198825180a94n1872cz4": "Credit to wallet",
+  "text_17531988251808so7qch9zrf": "Add the unused amount as wallet credits for future invoices.",
   "text_1753198825180jnk5xbdev57": "Refund the unused amount via a credit note.",
   "text_1753198825180bu4iaf2tczy": "A refund will be initiated to the customer payment method.",
-  "text_1753198825180jfv0xkobkl5": "Do not generate a credit note.",
+  "text_1753198825180jfv0xkobkl5": "Don't create a credit note",
   "text_1753198825180k6hugot9xmt": "No credit note will be generated.",
   "text_1753198825180qo474uj3p5f": "A credit note can be generated for pay-in-advance invoice {{invoiceNumber}}. Choose how you want to proceed.",
   "text_1753198825180e09v150qcko": "You’re about to terminate this subscription. The customer will be charged for usage and a prorated subscription fee. Choose how the invoice should be generated below.",
@@ -3790,5 +3790,7 @@
   "text_1768572142436xubwd6sei3b": "Charges",
   "text_1768572142437iellff897qo": "Create a new charge",
   "text_1768572142437tyh61d8ed6t": "Update a charge",
-  "text_1768572142437ch7vfimm1ts": "Delete a charge"
+  "text_1768572142437ch7vfimm1ts": "Delete a charge",
+  "text_1768993189751mlil3uubnse": "Use the unused amount to reduce this invoice's amount due.",
+  "text_620bc4d4269a55014d493f3d": "Email is required"
 }

@@ -6,7 +6,7 @@
   html,
   body,
   #root {
-    @apply m-0 h-full w-full overflow-auto p-0;
+    @apply m-0 h-full w-full overflow-hidden p-0;
   }
 
   body {
