@@ -71,7 +71,7 @@ describe('signUpValidationSchema', () => {
       if (!result.success) {
         const issue = result.error.issues.find((i) => i.path.includes('email'))
 
-        expect(issue?.message).toBe('text_620bc4d4269a55014d493f43')
+        expect(issue?.message).toBe('text_620bc4d4269a55014d493fc3')
       }
     })
 
