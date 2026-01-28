@@ -1,12 +1,11 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 
+import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem, PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
-import { PaymentMethodLabelNode } from './PaymentMethodLabelNode'
-
-import { formatPaymentMethodLabel } from '../paymentMethodSelection/utils'
+import { PaymentMethodInfo } from './PaymentMethodInfo'
 
 export interface PaymentMethodOption {
   value: string
@@ -20,16 +19,29 @@ const mapPaymentMethodItemToOption = (
   paymentMethod: PaymentMethodItem,
   translate: TranslateFunc,
 ): PaymentMethodOption => {
-  const formatted = formatPaymentMethodLabel(translate, paymentMethod)
+  const { id, details, isDefault, paymentProviderType } = paymentMethod
+  const { type, brand, last4 } = details || {}
+
+  const baseLabel = formatPaymentMethodDetails({ type, brand, last4 })
+  const label = isDefault
+    ? `${baseLabel} (${translate('text_65281f686a80b400c8e2f6d1')})`
+    : baseLabel
 
   return {
-    value: paymentMethod.id,
-    label: formatted.label,
+    value: id,
+    label,
     type: PaymentMethodTypeEnum.Provider,
     labelNode: (
-      <PaymentMethodLabelNode headerText={formatted.headerText} footerText={formatted.footerText} />
+      <PaymentMethodInfo
+        id={id}
+        details={details}
+        isDefault={isDefault}
+        paymentProviderType={paymentProviderType}
+        showExpiration={false}
+        showProviderAvatar={false}
+      />
     ),
-    ...(paymentMethod.isDefault && { isDefault: true }),
+    ...(isDefault && { isDefault: true }),
   }
 }
 
