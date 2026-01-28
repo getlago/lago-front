@@ -152,6 +152,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.creditNoteType]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.currency]: (value: string) => value,
   [AvailableFiltersEnum.currencies]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -294,6 +295,7 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
     [AvailableFiltersEnum.creditNoteReason]: 'reason',
     [AvailableFiltersEnum.creditNoteCreditStatus]: 'creditStatus',
     [AvailableFiltersEnum.creditNoteRefundStatus]: 'refundStatus',
+    [AvailableFiltersEnum.creditNoteType]: 'types',
   }
 
   return formatFiltersForQuery({

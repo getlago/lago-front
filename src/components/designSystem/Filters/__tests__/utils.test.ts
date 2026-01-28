@@ -3,7 +3,9 @@ import { DateTime } from 'luxon'
 import { AvailableFiltersEnum, filterDataInlineSeparator } from '../types'
 import {
   defineDefaultToDateValue,
+  FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
+  formatFiltersForCreditNotesQuery,
   formatFiltersForInvoiceQuery,
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
@@ -88,6 +90,71 @@ describe('Filters utils', () => {
         customerCountry: 'US',
         externalCustomerId: 'externalCustomerIdValue',
       })
+    })
+  })
+
+  describe('formatFiltersForCreditNotesQuery', () => {
+    it('should format filters for credit notes query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cn_creditNoteCreditStatus', 'available,consumed')
+      searchParams.set('cn_creditNoteRefundStatus', 'pending,succeeded')
+      searchParams.set('cn_creditNoteReason', 'duplicated_charge,order_change')
+      searchParams.set('cn_creditNoteType', 'credit,refund')
+      searchParams.set('cn_currency', 'USD')
+      searchParams.set('cn_invoiceNumber', 'INV-001')
+      searchParams.set('cn_selfBilled', 'true')
+      searchParams.set(
+        'cn_customerExternalId',
+        `externalCustomerIdValue${filterDataInlineSeparator}my name to be displayed`,
+      )
+
+      const result = formatFiltersForCreditNotesQuery(searchParams)
+
+      expect(result).toEqual({
+        creditStatus: ['available', 'consumed'],
+        refundStatus: ['pending', 'succeeded'],
+        reason: ['duplicated_charge', 'order_change'],
+        types: ['credit', 'refund'],
+        currency: 'USD',
+        invoiceNumber: 'INV-001',
+        selfBilled: true,
+        customerExternalId: 'externalCustomerIdValue',
+      })
+    })
+
+    it('should format credit note type filter with all types', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cn_creditNoteType', 'credit,refund,offset')
+
+      const result = formatFiltersForCreditNotesQuery(searchParams)
+
+      expect(result).toEqual({
+        types: ['credit', 'refund', 'offset'],
+      })
+    })
+
+    it('should format credit note type filter with single type', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cn_creditNoteType', 'offset')
+
+      const result = formatFiltersForCreditNotesQuery(searchParams)
+
+      expect(result).toEqual({
+        types: ['offset'],
+      })
+    })
+
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      const result = formatFiltersForCreditNotesQuery(searchParams)
+
+      expect(result).toEqual({})
     })
   })
 
@@ -776,6 +843,20 @@ describe('Filters utils', () => {
       const result = parseMetadataFilter('')
 
       expect(result).toEqual([])
+    })
+  })
+
+  describe('FILTER_VALUE_MAP', () => {
+    it('should parse creditNoteType filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.creditNoteType]('credit,refund,offset')
+
+      expect(result).toEqual(['credit', 'refund', 'offset'])
+    })
+
+    it('should parse creditNoteType filter with single value', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.creditNoteType]('credit')
+
+      expect(result).toEqual(['credit'])
     })
   })
 
