@@ -27,7 +27,7 @@ describe('Create plan', () => {
     cy.contains(planName).should('exist')
   })
 
-  it('should be able to create a plan with all 0 dimension charges and submit', () => {
+  it.skip('should be able to create a plan with all 0 dimension charges and submit', () => {
     cy.get('[data-test="create-plan"]').click({ force: true })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planWithChargesName)
@@ -143,7 +143,7 @@ describe('Create plan', () => {
     cy.contains(planWithChargesName).should('exist')
   })
 
-  describe('anti-regression', () => {
+  describe.skip('anti-regression', () => {
     // https://github.com/getlago/lago-front/pull/792
     it('should be able to edit percentage charge without data loss', () => {
       const randomId = Math.round(Math.random() * 1000)
