@@ -13,6 +13,7 @@ import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersEle
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
 import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteReason'
 import { FiltersItemCreditNoteRefundStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteRefundStatus'
+import { FiltersItemCreditNoteType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteType'
 import { FiltersItemCurrencies } from '~/components/designSystem/Filters/filtersElements/FiltersItemCurrencies'
 import { FiltersItemCurrency } from '~/components/designSystem/Filters/filtersElements/FiltersItemCurrency'
 import { FiltersItemCustomer } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomer'
@@ -81,6 +82,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.creditNoteCreditStatus]: <FiltersItemCreditNoteCreditStatus {...props} />,
     [AvailableFiltersEnum.creditNoteReason]: <FiltersItemCreditNoteReason {...props} />,
     [AvailableFiltersEnum.creditNoteRefundStatus]: <FiltersItemCreditNoteRefundStatus {...props} />,
+    [AvailableFiltersEnum.creditNoteType]: <FiltersItemCreditNoteType {...props} />,
     [AvailableFiltersEnum.currency]: <FiltersItemCurrency {...props} />,
     [AvailableFiltersEnum.currencies]: <FiltersItemCurrencies {...props} />,
     [AvailableFiltersEnum.customerType]: <FiltersItemCustomerType {...props} />,

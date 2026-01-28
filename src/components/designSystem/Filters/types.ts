@@ -54,6 +54,7 @@ export enum AvailableFiltersEnum {
   creditNoteCreditStatus = 'creditNoteCreditStatus',
   creditNoteReason = 'creditNoteReason',
   creditNoteRefundStatus = 'creditNoteRefundStatus',
+  creditNoteType = 'creditNoteType',
   currency = 'currency',
   currencies = 'currencies',
   customerType = 'customerType',
@@ -93,6 +94,7 @@ export enum AvailableFiltersEnum {
 export const CreditNoteAvailableFilters = [
   AvailableFiltersEnum.amount,
   AvailableFiltersEnum.creditNoteCreditStatus,
+  AvailableFiltersEnum.creditNoteType,
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.invoiceNumber,
@@ -282,6 +284,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.creditNoteCreditStatus]: 'text_173470389114473bzrbyh6va',
   [AvailableFiltersEnum.creditNoteReason]: 'text_1734703891144ptrs5sty2bg',
   [AvailableFiltersEnum.creditNoteRefundStatus]: 'text_1734703891144vv5iclhl4vz',
+  [AvailableFiltersEnum.creditNoteType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.currency]: 'text_632b4acf0c41206cbcb8c324',
   [AvailableFiltersEnum.currencies]: 'text_1759909828496b1rzn43dtvt',
   [AvailableFiltersEnum.customerType]: 'text_1726128938631ioz4orixel3',
