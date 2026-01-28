@@ -63,15 +63,15 @@ describe('PaymentMethodDetailsCell', () => {
       expect(defaultBadge).toBeInTheDocument()
     })
 
-    it('THEN displays payment provider type and code when both are present', () => {
+    it('THEN displays payment provider type and id when both provider type and code are present', () => {
       const paymentMethod = createMockPaymentMethod({
+        id: 'pm_test_123',
         paymentProviderType: ProviderTypeEnum.Stripe,
-        paymentProviderCode: 'stripe_prod',
       })
 
       render(<PaymentMethodDetailsCell item={paymentMethod} />)
 
-      expect(screen.getByText('stripe_prod')).toBeInTheDocument()
+      expect(screen.getByText('pm_test_123')).toBeInTheDocument()
     })
   })
 })

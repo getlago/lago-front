@@ -6,11 +6,11 @@ export const formatPaymentMethodLabel = (
   translate: TranslateFunc,
   paymentMethod: PaymentMethodItem,
 ): { label: string; headerText: string; footerText: string; isDefault: boolean } => {
-  const { details, isDefault, paymentProviderType, paymentProviderCode } = paymentMethod
+  const { id, details, isDefault, paymentProviderType } = paymentMethod
   const { brand, type, last4 } = details || {}
 
   const baseLabel = formatPaymentMethodDetails({ type, brand, last4 })
-  const footerLabel = [paymentProviderType, paymentProviderCode].filter(Boolean).join(' • ')
+  const footerLabel = [paymentProviderType, id].filter(Boolean).join(' • ')
 
   const labelText = isDefault
     ? `${baseLabel} (${translate('text_65281f686a80b400c8e2f6d1')})`

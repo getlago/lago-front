@@ -10,7 +10,7 @@ const mockTranslate = (): string => 'Default'
 
 describe('formatPaymentMethodLabel', () => {
   describe('WHEN formatting payment method label', () => {
-    it('THEN returns correct label for payment method with type, brand and last4', () => {
+    it('THEN returns correct label for payment method with id, type, brand and last4', () => {
       const paymentMethod = createMockPaymentMethod({
         details: {
           __typename: 'PaymentMethodDetails',
@@ -29,7 +29,7 @@ describe('formatPaymentMethodLabel', () => {
 
       expect(result.label).toBe(`Card - Visa ${maskedLast4}`)
       expect(result.headerText).toBe(`Card - Visa ${maskedLast4}`)
-      expect(result.footerText).toBe('')
+      expect(result.footerText).toBe('pm_001')
       expect(result.isDefault).toBe(false)
     })
 
@@ -90,7 +90,7 @@ describe('formatPaymentMethodLabel', () => {
       const result = formatPaymentMethodLabel(mockTranslate, paymentMethod)
 
       expect(result.label).toBe(`Card - Visa ${maskedLast4}`)
-      expect(result.footerText).toBe(`${String(ProviderTypeEnum.Stripe)} • 1234`)
+      expect(result.footerText).toBe(`${String(ProviderTypeEnum.Stripe)} • pm_001`)
     })
 
     it('THEN handles payment method with type and brand only (no last4)', () => {

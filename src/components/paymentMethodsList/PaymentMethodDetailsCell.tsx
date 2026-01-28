@@ -44,7 +44,7 @@ export const PaymentMethodDetailsCell = ({ item }: PaymentMethodDetailsCellProps
           )}
           {item.paymentProviderCode && (
             <Typography variant="caption" className="text-grey-500">
-              {item.paymentProviderCode}
+              {item.id}
             </Typography>
           )}
         </div>
