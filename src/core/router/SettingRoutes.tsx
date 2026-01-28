@@ -397,7 +397,7 @@ export const settingRoutes: CustomRouteObject[] = [
         permissions: ['dunningCampaignsView'],
       },
       {
-        path: BILLING_ENTITY_ROUTE,
+        path: [BILLING_ENTITY_ROUTE, BILLING_ENTITY_BASE],
         private: true,
         element: <BillingEntity />,
         permissions: ['billingEntitiesView'],
