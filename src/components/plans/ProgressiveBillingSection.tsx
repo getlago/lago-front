@@ -240,7 +240,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
               subLabel={translate('text_172423417494563qf45qet2d')}
             />
             {displayRecurring && (
-              <div className="-mx-4 -mb-1 overflow-auto px-4 pb-1">
+              <div className="-mx-4 -mb-1 overflow-auto px-4 py-1">
                 <ChargeTable<ThresholdTableData>
                   name={'progressive-billing-recurring'}
                   columns={[

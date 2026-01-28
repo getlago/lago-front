@@ -22,7 +22,6 @@ gql`
 
 type ResetProgressiveBillingDialogProps = {
   subscriptionId: string
-  subscriptionName: string
 }
 
 export interface ResetProgressiveBillingDialogRef {
@@ -62,13 +61,9 @@ export const ResetProgressiveBillingDialog = forwardRef<ResetProgressiveBillingD
         ref={dialogRef}
         title={translate('text_17380717304987v96qpfimgc')}
         description={
-          <Typography
-            variant="body"
-            color="grey600"
-            html={translate('text_1738071730498zxzs6oy5tz3', {
-              subscriptionName: localData?.subscriptionName,
-            })}
-          />
+          <Typography variant="body" color="grey600">
+            {translate('text_1738071730498zxzs6oy5tz3')}
+          </Typography>
         }
         actions={({ closeDialog }) => (
           <>
@@ -76,6 +71,7 @@ export const ResetProgressiveBillingDialog = forwardRef<ResetProgressiveBillingD
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
             <Button
+              danger
               variant="primary"
               onClick={async () => {
                 if (localData?.subscriptionId) {
