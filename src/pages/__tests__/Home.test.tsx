@@ -354,11 +354,16 @@ describe('Home', () => {
       })
     })
 
-    it('should fall back to customersView when analyticsView exists but dashboard feature is enabled', async () => {
-      // analyticsView without dashboard feature = analytics route
-      // analyticsView with dashboard feature = need dataApiView, so fall through
+    it('should fall back to customersView when user lacks full analytics permissions but dashboard feature is enabled', async () => {
+      // User has analyticsView but NOT dataApiView, and dashboard feature is enabled
+      // canSeeAnalytics requires BOTH analyticsView AND dataApiView, so it's false
+      // Should fall through to customersView
       mockHasPermissions.mockImplementation((perms: string[]) => {
-        return perms.includes('analyticsView') || perms.includes('customersView')
+        // Return false for ['analyticsView', 'dataApiView'] since user lacks dataApiView
+        if (perms.includes('analyticsView') && perms.includes('dataApiView')) {
+          return false
+        }
+        return perms.includes('customersView')
       })
       mockHasOrganizationPremiumAddon.mockImplementation((addon: PremiumIntegrationTypeEnum) => {
         return addon === PremiumIntegrationTypeEnum.AnalyticsDashboards
@@ -367,8 +372,6 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        // With dashboard feature, analyticsView check passes but condition requires !hasAccessToAnalyticsDashboardsFeature
-        // So it falls through to check dataApiView (false), then customersView (true)
         expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
       })
     })
