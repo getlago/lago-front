@@ -11,6 +11,7 @@ interface PaymentMethodDetailsProps {
     expirationYear?: string | null
   } | null
   isDefault?: boolean
+  showExpiration?: boolean
   className?: string
   'data-test'?: string
 }
@@ -18,6 +19,7 @@ interface PaymentMethodDetailsProps {
 export const PaymentMethodDetails = ({
   details,
   isDefault = false,
+  showExpiration = true,
   className = 'gap-2',
   'data-test': dataTest,
 }: PaymentMethodDetailsProps): JSX.Element | null => {
@@ -31,7 +33,7 @@ export const PaymentMethodDetails = ({
       <Typography variant="body" color="grey700">
         {formattedDetails}
       </Typography>
-      {details?.expirationMonth && details?.expirationYear && (
+      {showExpiration && details?.expirationMonth && details?.expirationYear && (
         <Chip
           label={`${translate('text_1762437511802zhw5mx0iamd')} ${details.expirationMonth}/${details.expirationYear}`}
           type="primary"

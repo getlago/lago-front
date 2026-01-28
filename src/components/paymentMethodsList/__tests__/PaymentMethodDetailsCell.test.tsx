@@ -1,11 +1,12 @@
 import { screen } from '@testing-library/react'
 
+import { DEFAULT_BADGE_TEST_ID } from '~/components/paymentMethodSelection/PaymentMethodInfo'
 import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { render } from '~/test-utils'
 
-import { DEFAULT_BADGE_TEST_ID, PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
+import { PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({

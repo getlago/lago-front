@@ -19,6 +19,7 @@ interface PaymentProviderChipProps {
   className?: string
   textVariant?: MuiTypographyProps['variant']
   textColor?: TypographyColor
+  showAvatar?: boolean
 }
 
 const providers: Record<ProviderTypeEnum, { icon: JSX.Element; label: string }> = {
@@ -54,6 +55,7 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
   className,
   textVariant = 'body',
   textColor = 'textSecondary',
+  showAvatar = true,
 }) => {
   const { translate } = useInternationalization()
 
@@ -71,13 +73,15 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
 
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
-      <Avatar className="bg-white" variant="connector" size="small">
-        {isManual ? (
-          <Icon name="receipt" color="dark" size="small" />
-        ) : (
-          providers[paymentProvider].icon
-        )}
-      </Avatar>
+      {showAvatar && (
+        <Avatar className="bg-white" variant="connector" size="small">
+          {isManual ? (
+            <Icon name="receipt" color="dark" size="small" />
+          ) : (
+            providers[paymentProvider].icon
+          )}
+        </Avatar>
+      )}
       <Typography variant={textVariant} color={textColor} noWrap>
         {displayLabel}
       </Typography>
