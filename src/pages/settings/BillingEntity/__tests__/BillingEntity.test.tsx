@@ -60,11 +60,6 @@ const mockQueryResult = {
     loading: false,
     error: undefined,
   }),
-  error: (error: GraphQLError = new GraphQLError('Not found')) => ({
-    data: { billingEntity: undefined },
-    loading: false,
-    error,
-  }),
 }
 
 describe('BillingEntityPage', () => {
