@@ -52,12 +52,15 @@ const Home = () => {
       // Org mismatch - fall through to default navigation
     }
 
+    // Defined in the router - User has to have both to have access to analytics. Maybe something we should update
+    const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
+
     // Default home navigation based on permissions
-    if (hasPermissions(['analyticsView']) && !hasAccessToAnalyticsDashboardsFeature) {
+    if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
       return navigate(ANALYTIC_ROUTE, { replace: true })
     }
 
-    if (hasPermissions(['dataApiView']) && hasAccessToAnalyticsDashboardsFeature) {
+    if (canSeeAnalytics && hasAccessToAnalyticsDashboardsFeature) {
       return navigate(
         generatePath(ANALYTIC_TABS_ROUTE, {
           tab: NewAnalyticsTabsOptionsEnum.revenueStreams,

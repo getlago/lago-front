@@ -1,12 +1,18 @@
-import { useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import {
   SettingsListItemLoadingSkeleton,
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
+import { SETTINGS_ROUTE } from '~/core/router'
 import { BillingEntity, useGetBillingEntityQuery } from '~/generated/graphql'
 import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import BillingEntityMain from '~/pages/settings/BillingEntity/sections/BillingEntityMain'
+
+export const BILLING_ENTITY_HEADER_TEST_ID = 'billing-entity-header'
+export const BILLING_ENTITY_MAIN_TEST_ID = 'billing-entity-main'
+export const BILLING_ENTITY_LOADING_TEST_ID = 'billing-entity-loading'
 
 export enum BillingEntityTab {
   GENERAL,
@@ -30,6 +36,7 @@ export const BILLING_ENTITY_SETTINGS_TABS_LABELS: Record<BillingEntityTab, strin
 
 const BillingEntityPage = () => {
   const { billingEntityCode } = useParams()
+  const navigate = useNavigate()
 
   const { data: billingEntityData, loading: billingEntityLoading } = useGetBillingEntityQuery({
     variables: {
@@ -40,21 +47,33 @@ const BillingEntityPage = () => {
 
   const billingEntity = billingEntityData?.billingEntity
 
+  useEffect(() => {
+    if (!billingEntityLoading && !billingEntity) {
+      navigate(SETTINGS_ROUTE, { replace: true })
+    }
+  }, [billingEntity, billingEntityLoading, navigate])
+
   return (
     <>
-      <BillingEntityHeader
-        billingEntity={billingEntity as BillingEntity}
-        loading={billingEntityLoading}
-      />
+      <div data-test={BILLING_ENTITY_HEADER_TEST_ID}>
+        <BillingEntityHeader
+          billingEntity={billingEntity as BillingEntity}
+          loading={billingEntityLoading}
+        />
+      </div>
 
       {billingEntityLoading && (
-        <SettingsPaddedContainer className="mt-6">
-          <SettingsListItemLoadingSkeleton count={5} />
-        </SettingsPaddedContainer>
+        <div data-test={BILLING_ENTITY_LOADING_TEST_ID}>
+          <SettingsPaddedContainer className="mt-6">
+            <SettingsListItemLoadingSkeleton count={5} />
+          </SettingsPaddedContainer>
+        </div>
       )}
 
-      {!billingEntityLoading && (
-        <BillingEntityMain billingEntity={billingEntity as BillingEntity} />
+      {!billingEntityLoading && billingEntity && (
+        <div data-test={BILLING_ENTITY_MAIN_TEST_ID}>
+          <BillingEntityMain billingEntity={billingEntity as BillingEntity} />
+        </div>
       )}
     </>
   )
