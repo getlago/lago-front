@@ -21,7 +21,7 @@ import { SubscriptionActivityLogs } from '~/components/subscriptions/Subscriptio
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
-import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab'
+import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -36,7 +36,11 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
+import {
+  StatusTypeEnum,
+  SubscriptionForProgressiveBillingTabFragmentDoc,
+  useGetSubscriptionForDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -51,34 +55,25 @@ gql`
       name
       status
       externalId
-      progressiveBillingDisabled
-      usageThresholds {
-        amountCents
-        recurring
-        thresholdDisplayName
-      }
       plan {
         id
         name
         code
         payInAdvance
-        amountCurrency
         parent {
           id
           name
           code
         }
-        usageThresholds {
-          amountCents
-          recurring
-          thresholdDisplayName
-        }
       }
       customer {
         id
       }
+      ...SubscriptionForProgressiveBillingTab
     }
   }
+
+  ${SubscriptionForProgressiveBillingTabFragmentDoc}
 `
 
 export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
