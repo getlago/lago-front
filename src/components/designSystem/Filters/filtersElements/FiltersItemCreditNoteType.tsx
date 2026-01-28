@@ -45,7 +45,14 @@ export const FiltersItemCreditNoteType = ({
       value={value
         ?.split(',')
         .filter((v) => !!v)
-        .map((v) => ({ value: v }))}
+        .map((v) => {
+          const creditNoteType = CREDIT_NOTE_TYPES.find((type) => type.type === v)
+
+          return {
+            value: v,
+            label: creditNoteType ? translate(creditNoteType.label) : v,
+          }
+        })}
     />
   )
 }
