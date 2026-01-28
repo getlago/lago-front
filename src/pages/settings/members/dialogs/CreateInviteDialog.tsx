@@ -15,6 +15,7 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { zodRequiredEmail } from '~/formValidation/zodCustoms'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -50,7 +51,7 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   }
 
   const validationSchema = z.object({
-    email: z.email('text_620bc4d4269a55014d493fc3'),
+    email: zodRequiredEmail,
     role: z.string().min(1, 'text_1768219065391kkeiaebav23'),
   })
 
