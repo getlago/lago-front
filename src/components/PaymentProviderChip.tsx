@@ -15,7 +15,7 @@ import { tw } from '~/styles/utils'
 
 interface PaymentProviderChipProps {
   paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
-  label?: string
+  label?: string | null | undefined
   className?: string
   textVariant?: MuiTypographyProps['variant']
   textColor?: TypographyColor

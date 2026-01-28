@@ -19,7 +19,7 @@ const mapPaymentMethodItemToOption = (
   paymentMethod: PaymentMethodItem,
   translate: TranslateFunc,
 ): PaymentMethodOption => {
-  const { id, details, isDefault, paymentProviderType } = paymentMethod
+  const { id, details, isDefault } = paymentMethod
   const { type, brand, last4 } = details || {}
 
   const baseLabel = formatPaymentMethodDetails({ type, brand, last4 })
@@ -33,10 +33,7 @@ const mapPaymentMethodItemToOption = (
     type: PaymentMethodTypeEnum.Provider,
     labelNode: (
       <PaymentMethodInfo
-        id={id}
-        details={details}
-        isDefault={isDefault}
-        paymentProviderType={paymentProviderType}
+        paymentMethod={paymentMethod}
         showExpiration={false}
         showProviderAvatar={false}
       />

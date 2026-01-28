@@ -1,34 +1,30 @@
 import { Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { ProviderTypeEnum } from '~/generated/graphql'
+import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
 import { PaymentMethodDetails } from './PaymentMethodDetails'
 
 export const DEFAULT_BADGE_TEST_ID = 'default-badge'
 
+type PaymentMethodData = Pick<
+  PaymentMethodItem,
+  'details' | 'isDefault' | 'paymentProviderType' | 'paymentProviderName' | 'providerMethodId'
+>
+
 interface PaymentMethodInfoProps {
-  id: string
-  details?: {
-    type?: string | null
-    brand?: string | null
-    last4?: string | null
-    expirationMonth?: string | null
-    expirationYear?: string | null
-  } | null
-  isDefault: boolean
-  paymentProviderType?: ProviderTypeEnum | null
+  paymentMethod: PaymentMethodData
   showExpiration: boolean
   showProviderAvatar: boolean
 }
 
 export const PaymentMethodInfo = ({
-  id,
-  details,
-  isDefault,
-  paymentProviderType,
+  paymentMethod,
   showExpiration,
   showProviderAvatar,
 }: PaymentMethodInfoProps): JSX.Element => {
+  const { details, isDefault, paymentProviderType, paymentProviderName, providerMethodId } =
+    paymentMethod
+
   return (
     <div className="flex flex-1 flex-col">
       <PaymentMethodDetails
@@ -44,20 +40,21 @@ export const PaymentMethodInfo = ({
         {paymentProviderType && (
           <PaymentProviderChip
             paymentProvider={paymentProviderType}
+            label={paymentProviderName}
             className="text-xs"
             textVariant="caption"
             textColor="grey500"
             showAvatar={showProviderAvatar}
           />
         )}
-        {paymentProviderType && id && (
+        {(paymentProviderType || paymentProviderName) && providerMethodId && (
           <Typography variant="caption" className="text-grey-500">
             {' • '}
           </Typography>
         )}
-        {id && (
+        {providerMethodId && (
           <Typography variant="caption" className="text-grey-500">
-            {id}
+            {providerMethodId}
           </Typography>
         )}
       </div>

@@ -15,14 +15,7 @@ export const PaymentMethodDetailsCell = ({ item }: PaymentMethodDetailsCellProps
         <Icon name="coin-dollar" color="dark" />
       </div>
 
-      <PaymentMethodInfo
-        id={item.id}
-        details={item.details}
-        isDefault={item.isDefault}
-        paymentProviderType={item.paymentProviderType}
-        showExpiration
-        showProviderAvatar
-      />
+      <PaymentMethodInfo paymentMethod={item} showExpiration showProviderAvatar />
     </div>
   )
 }

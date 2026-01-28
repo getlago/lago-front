@@ -66,7 +66,7 @@ describe('PaymentMethodDetailsCell', () => {
 
     it('THEN displays payment provider type and id when both provider type and code are present', () => {
       const paymentMethod = createMockPaymentMethod({
-        id: 'pm_test_123',
+        providerMethodId: 'pm_test_123',
         paymentProviderType: ProviderTypeEnum.Stripe,
       })
 

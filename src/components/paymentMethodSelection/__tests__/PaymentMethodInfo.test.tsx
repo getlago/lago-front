@@ -25,17 +25,33 @@ const mockDetails = {
   expirationYear: '2025',
 }
 
-const defaultProps = {
-  id: 'pm_test_001',
+const createMockPaymentMethod = (
+  overrides: Partial<{
+    details: typeof mockDetails | null
+    isDefault: boolean
+    paymentProviderType: ProviderTypeEnum | null
+    paymentProviderName: string | null
+    providerMethodId: string
+  }> = {},
+) => ({
+  details: mockDetails,
   isDefault: false,
-  showExpiration: true,
-  showProviderAvatar: true,
-}
+  paymentProviderType: null as ProviderTypeEnum | null,
+  paymentProviderName: null as string | null,
+  providerMethodId: 'pm_test_001',
+  ...overrides,
+})
 
 describe('PaymentMethodInfo', () => {
   describe('WHEN rendering with payment method details', () => {
     it('THEN displays formatted payment method details', () => {
-      render(<PaymentMethodInfo {...defaultProps} details={mockDetails} />)
+      render(
+        <PaymentMethodInfo
+          paymentMethod={createMockPaymentMethod()}
+          showExpiration
+          showProviderAvatar
+        />,
+      )
 
       const formattedDetails = formatPaymentMethodDetails(mockDetails)
 
@@ -43,19 +59,37 @@ describe('PaymentMethodInfo', () => {
     })
 
     it('THEN displays expiration date chip when showExpiration is true', () => {
-      render(<PaymentMethodInfo {...defaultProps} details={mockDetails} showExpiration />)
+      render(
+        <PaymentMethodInfo
+          paymentMethod={createMockPaymentMethod()}
+          showExpiration
+          showProviderAvatar
+        />,
+      )
 
       expect(screen.getByText(/12\/2025/)).toBeInTheDocument()
     })
 
     it('THEN hides expiration date chip when showExpiration is false', () => {
-      render(<PaymentMethodInfo {...defaultProps} details={mockDetails} showExpiration={false} />)
+      render(
+        <PaymentMethodInfo
+          paymentMethod={createMockPaymentMethod()}
+          showExpiration={false}
+          showProviderAvatar
+        />,
+      )
 
       expect(screen.queryByText(/12\/2025/)).not.toBeInTheDocument()
     })
 
     it('THEN displays default badge when isDefault is true', () => {
-      render(<PaymentMethodInfo {...defaultProps} details={mockDetails} isDefault />)
+      render(
+        <PaymentMethodInfo
+          paymentMethod={createMockPaymentMethod({ isDefault: true })}
+          showExpiration
+          showProviderAvatar
+        />,
+      )
 
       const defaultBadge = screen.getByTestId(DEFAULT_BADGE_TEST_ID)
 
@@ -63,7 +97,13 @@ describe('PaymentMethodInfo', () => {
     })
 
     it('THEN does not display default badge when isDefault is false', () => {
-      render(<PaymentMethodInfo {...defaultProps} details={mockDetails} isDefault={false} />)
+      render(
+        <PaymentMethodInfo
+          paymentMethod={createMockPaymentMethod({ isDefault: false })}
+          showExpiration
+          showProviderAvatar
+        />,
+      )
 
       expect(screen.queryByTestId(DEFAULT_BADGE_TEST_ID)).not.toBeInTheDocument()
     })
@@ -73,35 +113,39 @@ describe('PaymentMethodInfo', () => {
     it('THEN displays payment provider chip when paymentProviderType is provided', () => {
       render(
         <PaymentMethodInfo
-          {...defaultProps}
-          details={mockDetails}
-          paymentProviderType={ProviderTypeEnum.Stripe}
+          paymentMethod={createMockPaymentMethod({ paymentProviderType: ProviderTypeEnum.Stripe })}
+          showExpiration
+          showProviderAvatar
         />,
       )
 
       expect(screen.getByText('Stripe')).toBeInTheDocument()
     })
 
-    it('THEN displays id when id is provided', () => {
+    it('THEN displays providerMethodId when providerMethodId is provided', () => {
       render(
         <PaymentMethodInfo
-          {...defaultProps}
-          id="pm_test_123"
-          details={mockDetails}
-          paymentProviderType={ProviderTypeEnum.Stripe}
+          paymentMethod={createMockPaymentMethod({
+            providerMethodId: 'pm_test_123',
+            paymentProviderType: ProviderTypeEnum.Stripe,
+          })}
+          showExpiration
+          showProviderAvatar
         />,
       )
 
       expect(screen.getByText('pm_test_123')).toBeInTheDocument()
     })
 
-    it('THEN displays separator dot when both paymentProviderType and id are provided', () => {
+    it('THEN displays separator dot when both paymentProviderType and providerMethodId are provided', () => {
       const { container } = render(
         <PaymentMethodInfo
-          {...defaultProps}
-          id="pm_test_123"
-          details={mockDetails}
-          paymentProviderType={ProviderTypeEnum.Stripe}
+          paymentMethod={createMockPaymentMethod({
+            providerMethodId: 'pm_test_123',
+            paymentProviderType: ProviderTypeEnum.Stripe,
+          })}
+          showExpiration
+          showProviderAvatar
         />,
       )
 
@@ -114,8 +158,14 @@ describe('PaymentMethodInfo', () => {
       expect(pspInfoContainer?.textContent).toContain('pm_test_123')
     })
 
-    it('THEN does not display separator dot when only id is provided without paymentProviderType', () => {
-      render(<PaymentMethodInfo {...defaultProps} id="pm_test_123" details={mockDetails} />)
+    it('THEN does not display separator dot when only providerMethodId is provided without paymentProviderType', () => {
+      render(
+        <PaymentMethodInfo
+          paymentMethod={createMockPaymentMethod({ providerMethodId: 'pm_test_123' })}
+          showExpiration
+          showProviderAvatar
+        />,
+      )
 
       expect(screen.queryByText(' • ')).not.toBeInTheDocument()
     })
@@ -125,9 +175,8 @@ describe('PaymentMethodInfo', () => {
     it('THEN shows provider avatar when showProviderAvatar is true', () => {
       render(
         <PaymentMethodInfo
-          {...defaultProps}
-          details={mockDetails}
-          paymentProviderType={ProviderTypeEnum.Stripe}
+          paymentMethod={createMockPaymentMethod({ paymentProviderType: ProviderTypeEnum.Stripe })}
+          showExpiration
           showProviderAvatar
         />,
       )
@@ -141,9 +190,8 @@ describe('PaymentMethodInfo', () => {
     it('THEN hides provider avatar when showProviderAvatar is false', () => {
       render(
         <PaymentMethodInfo
-          {...defaultProps}
-          details={mockDetails}
-          paymentProviderType={ProviderTypeEnum.Stripe}
+          paymentMethod={createMockPaymentMethod({ paymentProviderType: ProviderTypeEnum.Stripe })}
+          showExpiration
           showProviderAvatar={false}
         />,
       )

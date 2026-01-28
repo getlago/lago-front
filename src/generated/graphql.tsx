@@ -1753,6 +1753,7 @@ export type CreateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
   currency: CurrencyEnum;
   customerId: Scalars['ID']['input'];
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
@@ -2776,6 +2777,7 @@ export type CustomerPortalOrganization = {
 export type CustomerPortalWallet = {
   __typename?: 'CustomerPortalWallet';
   balanceCents: Scalars['BigInt']['output'];
+  code?: Maybe<Scalars['String']['output']>;
   consumedAmountCents: Scalars['BigInt']['output'];
   consumedCredits: Scalars['Float']['output'];
   creditsBalance: Scalars['Float']['output'];
@@ -5995,7 +5997,9 @@ export type PaymentMethod = {
   isDefault: Scalars['Boolean']['output'];
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   paymentProviderCustomerId?: Maybe<Scalars['ID']['output']>;
+  paymentProviderName?: Maybe<Scalars['String']['output']>;
   paymentProviderType?: Maybe<ProviderTypeEnum>;
+  providerMethodId: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
 };
 
@@ -8660,6 +8664,7 @@ export type UpdateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
@@ -9095,6 +9100,7 @@ export type Wallet = {
   activityLogs?: Maybe<Array<ActivityLog>>;
   appliesTo?: Maybe<WalletAppliesTo>;
   balanceCents: Scalars['BigInt']['output'];
+  code?: Maybe<Scalars['String']['output']>;
   consumedAmountCents: Scalars['BigInt']['output'];
   consumedCredits: Scalars['Float']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -11781,7 +11787,7 @@ export type PaymentMethodsQueryVariables = Exact<{
 }>;
 
 
-export type PaymentMethodsQuery = { __typename?: 'Query', paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, deletedAt?: any | null, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } };
+export type PaymentMethodsQuery = { __typename?: 'Query', paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } };
 
 export type DownloadPaymentReceiptPdfMutationVariables = Exact<{
   input: DownloadPaymentReceiptInput;
@@ -29533,6 +29539,8 @@ export const PaymentMethodsDocument = gql`
       paymentProviderCode
       paymentProviderCustomerId
       paymentProviderType
+      paymentProviderName
+      providerMethodId
       deletedAt
       details {
         brand
