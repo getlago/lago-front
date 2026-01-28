@@ -1,55 +1,51 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import { z } from 'zod'
 
 import {
   Alert,
   Button,
   ChargeTable,
-  Chip,
+  Tooltip,
   Typography,
   WarningDialog,
   WarningDialogRef,
 } from '~/components/designSystem'
-import { AmountInput, Switch, TextInput } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
-import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
-import {
-  CurrencyEnum,
-  useGetSubscriptionForProgressiveBillingFormQuery,
-  useUpdateSubscriptionProgressiveBillingMutation,
-} from '~/generated/graphql'
+import { CurrencyEnum, useGetSubscriptionForProgressiveBillingFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useAppForm } from '~/hooks/forms/useAppform'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+import {
+  ERROR_ASCENDING_ORDER,
+  useProgressiveBillingTanstackForm,
+} from './useProgressiveBillingTanstackForm'
+
+// Test ID constants
+export const PROGRESSIVE_BILLING_FORM_TEST_ID = 'progressive-billing-form'
+export const PROGRESSIVE_BILLING_DISABLED_SWITCH_TEST_ID = 'progressive-billing-disabled-switch'
+export const PROGRESSIVE_BILLING_ADD_THRESHOLD_BUTTON_TEST_ID =
+  'progressive-billing-add-threshold-button'
+export const PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID =
+  'progressive-billing-has-recurring-switch'
+export const PROGRESSIVE_BILLING_CANCEL_BUTTON_TEST_ID = 'progressive-billing-cancel-button'
+export const PROGRESSIVE_BILLING_SUBMIT_BUTTON_TEST_ID = 'progressive-billing-submit-button'
+export const PROGRESSIVE_BILLING_CLOSE_BUTTON_TEST_ID = 'progressive-billing-close-button'
+export const PROGRESSIVE_BILLING_INFO_ALERT_TEST_ID = 'progressive-billing-info-alert'
 
 gql`
   query getSubscriptionForProgressiveBillingForm($subscriptionId: ID!) {
     subscription(id: $subscriptionId) {
       id
-      name
-      progressiveBillingDisabled
-      usageThresholds {
-        amountCents
-        recurring
-        thresholdDisplayName
-      }
+      ...SubscriptionForProgressiveBillingForm
       plan {
         id
-        name
         amountCurrency
-        usageThresholds {
-          amountCents
-          recurring
-          thresholdDisplayName
-        }
       }
     }
   }
@@ -59,6 +55,7 @@ gql`
       id
       progressiveBillingDisabled
       usageThresholds {
+        id
         amountCents
         recurring
         thresholdDisplayName
@@ -67,45 +64,20 @@ gql`
   }
 `
 
-interface ThresholdInput {
-  amountCents: string
-  thresholdDisplayName: string
-  recurring: boolean
-  [key: string]: unknown
-}
-
-interface FormValues {
-  progressiveBillingDisabled: boolean
-  nonRecurringThresholds: ThresholdInput[]
-  hasRecurring: boolean
-  recurringThreshold: ThresholdInput
-}
-
 const SubscriptionProgressiveBillingForm = () => {
   const { customerId = '', planId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
 
-  const { data, loading } = useGetSubscriptionForProgressiveBillingFormQuery({
-    variables: { subscriptionId },
-    skip: !subscriptionId,
-  })
+  const { data: subscriptionData, loading: subscriptionLoading } =
+    useGetSubscriptionForProgressiveBillingFormQuery({
+      variables: { subscriptionId },
+      skip: !subscriptionId,
+    })
 
-  const subscription = data?.subscription
+  const subscription = subscriptionData?.subscription
   const currency = subscription?.plan?.amountCurrency || CurrencyEnum.Usd
-
-  const [updateSubscription] = useUpdateSubscriptionProgressiveBillingMutation({
-    onCompleted({ updateSubscription: result }) {
-      if (result?.id) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_1738071730498pqk8rj3l2sm',
-        })
-        onLeave()
-      }
-    },
-  })
 
   const onLeave = useCallback(() => {
     const tab = CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling
@@ -129,205 +101,99 @@ const SubscriptionProgressiveBillingForm = () => {
     }
   }, [customerId, navigate, planId, subscriptionId])
 
-  const initialValues = useMemo((): FormValues => {
-    const thresholds = subscription?.usageThresholds || []
-    const nonRecurring = thresholds.filter((t) => !t.recurring)
-    const recurring = thresholds.find((t) => t.recurring)
-
-    return {
-      progressiveBillingDisabled: subscription?.progressiveBillingDisabled ?? false,
-      nonRecurringThresholds:
-        nonRecurring.length > 0
-          ? nonRecurring.map((t) => ({
-              amountCents: t.amountCents || '',
-              thresholdDisplayName: t.thresholdDisplayName || '',
-              recurring: false,
-            }))
-          : [{ amountCents: '', thresholdDisplayName: '', recurring: false }],
-      hasRecurring: !!recurring,
-      recurringThreshold: recurring
-        ? {
-            amountCents: recurring.amountCents || '',
-            thresholdDisplayName: recurring.thresholdDisplayName || '',
-            recurring: true,
-          }
-        : { amountCents: '', thresholdDisplayName: '', recurring: true },
-    }
-  }, [subscription])
-
-  const validationSchema = z.object({
-    progressiveBillingDisabled: z.boolean(),
-    nonRecurringThresholds: z.array(
-      z.object({
-        amountCents: z.string(),
-        thresholdDisplayName: z.string(),
-        recurring: z.boolean(),
-      }),
-    ),
-    hasRecurring: z.boolean(),
-    recurringThreshold: z.object({
-      amountCents: z.string(),
-      thresholdDisplayName: z.string(),
-      recurring: z.boolean(),
-    }),
-  })
-
-  const form = useAppForm({
-    defaultValues: initialValues,
-    validationLogic: revalidateLogic(),
-    validators: {
-      onDynamic: validationSchema,
-    },
-    onSubmit: async ({ value }) => {
-      const thresholds: Array<{
-        amountCents: string
-        thresholdDisplayName?: string
-        recurring: boolean
-      }> = []
-
-      if (!value.progressiveBillingDisabled) {
-        // Add non-recurring thresholds
-        value.nonRecurringThresholds.forEach((t) => {
-          if (t.amountCents) {
-            thresholds.push({
-              amountCents: t.amountCents,
-              thresholdDisplayName: t.thresholdDisplayName || undefined,
-              recurring: false,
-            })
-          }
-        })
-
-        // Add recurring threshold if enabled
-        if (value.hasRecurring && value.recurringThreshold.amountCents) {
-          thresholds.push({
-            amountCents: value.recurringThreshold.amountCents,
-            thresholdDisplayName: value.recurringThreshold.thresholdDisplayName || undefined,
-            recurring: true,
-          })
-        }
-      }
-
-      await updateSubscription({
-        variables: {
-          input: {
-            id: subscriptionId,
-            progressiveBillingDisabled: value.progressiveBillingDisabled,
-            usageThresholds: thresholds,
-          },
-        },
-      })
-    },
-  })
+  const onSuccess = useCallback(() => {
+    addToast({
+      severity: 'success',
+      translateKey: 'text_1738071730498pqk8rj3l2sm',
+    })
+    onLeave()
+  }, [onLeave])
 
   const {
+    form,
     progressiveBillingDisabled,
     nonRecurringThresholds,
     hasRecurring,
     recurringThreshold,
     isDirty,
-  } = useStore(form.store, (state) => ({
-    progressiveBillingDisabled: state.values.progressiveBillingDisabled,
-    nonRecurringThresholds: state.values.nonRecurringThresholds,
-    hasRecurring: state.values.hasRecurring,
-    recurringThreshold: state.values.recurringThreshold,
-    isDirty: state.isDirty,
-  }))
+    handleAddThreshold,
+    handleDeleteThreshold,
+    handleSubmit,
+  } = useProgressiveBillingTanstackForm({
+    subscriptionId,
+    subscription,
+    onSuccess,
+  })
 
-  const handleAddThreshold = useCallback(() => {
-    form.setFieldValue('nonRecurringThresholds', [
-      ...nonRecurringThresholds,
-      { amountCents: '', thresholdDisplayName: '', recurring: false },
-    ])
-  }, [form, nonRecurringThresholds])
-
-  const handleDeleteThreshold = useCallback(
-    (index: number) => {
-      const newThresholds = nonRecurringThresholds.filter((_, i) => i !== index)
-
-      form.setFieldValue(
-        'nonRecurringThresholds',
-        newThresholds.length > 0
-          ? newThresholds
-          : [{ amountCents: '', thresholdDisplayName: '', recurring: false }],
-      )
-    },
-    [form, nonRecurringThresholds],
-  )
-
-  const handleUpdateThreshold = useCallback(
-    (index: number, field: 'amountCents' | 'thresholdDisplayName', value: string) => {
-      const newThresholds = [...nonRecurringThresholds]
-
-      newThresholds[index] = { ...newThresholds[index], [field]: value }
-      form.setFieldValue('nonRecurringThresholds', newThresholds)
-    },
-    [form, nonRecurringThresholds],
-  )
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    form.handleSubmit()
+  const handleAbort = () => {
+    if (isDirty) {
+      warningDirtyAttributesDialogRef.current?.openDialog()
+    } else {
+      onLeave()
+    }
   }
 
   return (
     <>
       <CenteredPage.Wrapper>
-        <CenteredPage.Header>
-          <div className="flex gap-2">
+        <form
+          id="create-subscription-progressive-billing"
+          className="flex size-full min-h-full flex-col overflow-auto"
+          data-test={PROGRESSIVE_BILLING_FORM_TEST_ID}
+          onSubmit={handleSubmit}
+        >
+          <CenteredPage.Header>
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate('text_1738071730498edit4pb8hzw')}
             </Typography>
-            <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
-          </div>
-          <Button
-            variant="quaternary"
-            icon="close"
-            onClick={() =>
-              isDirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
-            }
-          />
-        </CenteredPage.Header>
 
-        <CenteredPage.Container>
-          {loading && <FormLoadingSkeleton id="progressive-billing-form" />}
-          {!loading && (
-            <form onSubmit={handleSubmit}>
-              <div className="not-last-child:mb-1">
-                <Typography variant="headline" color="grey700">
-                  {translate('text_1724179887722baucvj7bvc1')}
-                </Typography>
-                <Typography
-                  variant="body"
-                  color="grey600"
-                  html={translate('text_1724179887723kdf3nisf6hp', {
-                    href: PROGRESSIVE_BILLING_DOC_URL,
-                  })}
-                />
-              </div>
+            <Button
+              data-test={PROGRESSIVE_BILLING_CLOSE_BUTTON_TEST_ID}
+              icon="close"
+              variant="quaternary"
+              onClick={handleAbort}
+            />
+          </CenteredPage.Header>
 
+          <CenteredPage.Container>
+            {subscriptionLoading && <FormLoadingSkeleton id="progressive-billing-form-skeleton" />}
+
+            {!subscriptionLoading && (
               <div className="flex flex-col gap-12">
-                <section className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <Typography variant="headline">
+                    {translate('text_1738071730498edit4pb8hzw')}
+                  </Typography>
+                  <Typography variant="body">
+                    {translate('text_1738071730498settingsdesc')}
+                  </Typography>
+                </div>
+
+                <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
                     <Typography variant="subhead1">
-                      {translate('text_1738071730498settingshdr')}
+                      {translate('text_17696267519471sodhgj81od')}
                     </Typography>
                     <Typography variant="caption">
-                      {translate('text_1738071730498settingsdesc')}
+                      {translate('text_1769626753039lmsvielfb69')}
                     </Typography>
                   </div>
 
-                  <Switch
-                    name="progressiveBillingDisabled"
-                    checked={progressiveBillingDisabled}
-                    onChange={(value) => form.setFieldValue('progressiveBillingDisabled', value)}
-                    label={translate('text_1738071730498disabletoggle')}
-                    subLabel={translate('text_1738071730498disabletoggledesc')}
-                  />
+                  <form.AppField name="progressiveBillingDisabled">
+                    {(field) => (
+                      <field.SwitchField
+                        dataTest={PROGRESSIVE_BILLING_DISABLED_SWITCH_TEST_ID}
+                        label={translate('text_1738071730498disabletoggle')}
+                        subLabel={translate('text_1738071730498disabletoggledesc')}
+                      />
+                    )}
+                  </form.AppField>
 
                   {!progressiveBillingDisabled && (
                     <>
-                      <div className="flex flex-col gap-4">
+                      <div className="flex flex-col">
                         <Button
+                          data-test={PROGRESSIVE_BILLING_ADD_THRESHOLD_BUTTON_TEST_ID}
                           className="mb-2 ml-auto"
                           startIcon="plus"
                           variant="inline"
@@ -365,23 +231,42 @@ const SubscriptionProgressiveBillingForm = () => {
                                     {translate('text_1724179887723eh12a0kqbdw')}
                                   </Typography>
                                 ),
-                                content: (row, i) => (
-                                  <AmountInput
-                                    variant="outlined"
-                                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                                    currency={currency}
-                                    value={row.amountCents}
-                                    onChange={(value) =>
-                                      handleUpdateThreshold(i, 'amountCents', value || '')
-                                    }
-                                    InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          {getCurrencySymbol(currency)}
-                                        </InputAdornment>
-                                      ),
+                                content: (_, i) => (
+                                  <form.AppField name={`nonRecurringThresholds[${i}].amountCents`}>
+                                    {(field) => {
+                                      // Check if this field has the ascending order error
+                                      const hasAscendingOrderError = field.state.meta.errors.some(
+                                        (e) => e?.message === ERROR_ASCENDING_ORDER,
+                                      )
+
+                                      return (
+                                        <Tooltip
+                                          placement="top"
+                                          title={translate('text_1724252232460i4tv7384iiy', {
+                                            value: nonRecurringThresholds?.[i - 1]?.amountCents,
+                                          })}
+                                          disableHoverListener={!hasAscendingOrderError}
+                                        >
+                                          <field.AmountInputField
+                                            variant="outlined"
+                                            beforeChangeFormatter={[
+                                              'chargeDecimal',
+                                              'positiveNumber',
+                                            ]}
+                                            currency={currency}
+                                            displayErrorText={false}
+                                            InputProps={{
+                                              startAdornment: (
+                                                <InputAdornment position="start">
+                                                  {getCurrencySymbol(currency)}
+                                                </InputAdornment>
+                                              ),
+                                            }}
+                                          />
+                                        </Tooltip>
+                                      )
                                     }}
-                                  />
+                                  </form.AppField>
                                 ),
                               },
                               {
@@ -391,15 +276,17 @@ const SubscriptionProgressiveBillingForm = () => {
                                     {translate('text_17241798877234jhvoho4ci9')}
                                   </Typography>
                                 ),
-                                content: (row, i) => (
-                                  <TextInput
-                                    variant="outlined"
-                                    placeholder={translate('text_645bb193927b375079d28ace')}
-                                    value={row.thresholdDisplayName}
-                                    onChange={(value) =>
-                                      handleUpdateThreshold(i, 'thresholdDisplayName', value)
-                                    }
-                                  />
+                                content: (_, i) => (
+                                  <form.AppField
+                                    name={`nonRecurringThresholds[${i}].thresholdDisplayName`}
+                                  >
+                                    {(field) => (
+                                      <field.TextInputField
+                                        variant="outlined"
+                                        placeholder={translate('text_645bb193927b375079d28ace')}
+                                      />
+                                    )}
+                                  </form.AppField>
                                 ),
                               },
                             ]}
@@ -407,16 +294,18 @@ const SubscriptionProgressiveBillingForm = () => {
                         </div>
                       </div>
 
-                      <Switch
-                        name="hasRecurring"
-                        checked={hasRecurring}
-                        onChange={(value) => form.setFieldValue('hasRecurring', value)}
-                        label={translate('text_1724234174945ztq15pvmty3')}
-                        subLabel={translate('text_172423417494563qf45qet2d')}
-                      />
+                      <form.AppField name="hasRecurring">
+                        {(field) => (
+                          <field.SwitchField
+                            dataTest={PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID}
+                            label={translate('text_1724234174945ztq15pvmty3')}
+                            subLabel={translate('text_172423417494563qf45qet2d')}
+                          />
+                        )}
+                      </form.AppField>
 
                       {hasRecurring && (
-                        <div className="-mx-4 -mb-1 overflow-auto px-4 pb-1">
+                        <div className="-mx-4 -mb-1 overflow-auto px-4 py-1">
                           <ChargeTable
                             name="progressive-billing-recurring"
                             columns={[
@@ -431,41 +320,36 @@ const SubscriptionProgressiveBillingForm = () => {
                               {
                                 size: 197,
                                 content: () => (
-                                  <AmountInput
-                                    variant="outlined"
-                                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                                    currency={currency}
-                                    value={recurringThreshold.amountCents}
-                                    onChange={(value) =>
-                                      form.setFieldValue('recurringThreshold', {
-                                        ...recurringThreshold,
-                                        amountCents: value || '',
-                                      })
-                                    }
-                                    InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          {getCurrencySymbol(currency)}
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                  />
+                                  <form.AppField name="recurringThreshold.amountCents">
+                                    {(field) => (
+                                      <field.AmountInputField
+                                        variant="outlined"
+                                        beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                                        currency={currency}
+                                        displayErrorText={false}
+                                        InputProps={{
+                                          startAdornment: (
+                                            <InputAdornment position="start">
+                                              {getCurrencySymbol(currency)}
+                                            </InputAdornment>
+                                          ),
+                                        }}
+                                      />
+                                    )}
+                                  </form.AppField>
                                 ),
                               },
                               {
                                 size: 197,
                                 content: () => (
-                                  <TextInput
-                                    variant="outlined"
-                                    placeholder={translate('text_645bb193927b375079d28ace')}
-                                    value={recurringThreshold.thresholdDisplayName}
-                                    onChange={(value) =>
-                                      form.setFieldValue('recurringThreshold', {
-                                        ...recurringThreshold,
-                                        thresholdDisplayName: value,
-                                      })
-                                    }
-                                  />
+                                  <form.AppField name="recurringThreshold.thresholdDisplayName">
+                                    {(field) => (
+                                      <field.TextInputField
+                                        variant="outlined"
+                                        placeholder={translate('text_645bb193927b375079d28ace')}
+                                      />
+                                    )}
+                                  </form.AppField>
                                 ),
                               },
                             ]}
@@ -474,40 +358,39 @@ const SubscriptionProgressiveBillingForm = () => {
                         </div>
                       )}
 
-                      <Alert type="info">{translate('text_1724252232460iqofvwnpgnx')}</Alert>
+                      <Alert data-test={PROGRESSIVE_BILLING_INFO_ALERT_TEST_ID} type="info">
+                        {translate('text_1724252232460iqofvwnpgnx')}
+                      </Alert>
                     </>
                   )}
-                </section>
+                </div>
               </div>
-            </form>
-          )}
-        </CenteredPage.Container>
+            )}
+          </CenteredPage.Container>
 
-        <CenteredPage.StickyFooter>
-          <Button
-            variant="quaternary"
-            size="large"
-            onClick={() =>
-              isDirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
-            }
-          >
-            {translate('text_6411e6b530cb47007488b027')}
-          </Button>
-          <Button
-            variant="primary"
-            size="large"
-            disabled={!isDirty || loading}
-            onClick={() => form.handleSubmit()}
-          >
-            {translate('text_17432414198706rdwf76ek3u')}
-          </Button>
-        </CenteredPage.StickyFooter>
+          <CenteredPage.StickyFooter>
+            <Button
+              data-test={PROGRESSIVE_BILLING_CANCEL_BUTTON_TEST_ID}
+              size="large"
+              variant="quaternary"
+              onClick={handleAbort}
+            >
+              {translate('text_62e79671d23ae6ff149de968')}
+            </Button>
+
+            <form.AppForm>
+              <form.SubmitButton dataTest={PROGRESSIVE_BILLING_SUBMIT_BUTTON_TEST_ID}>
+                {translate('text_17432414198706rdwf76ek3u')}
+              </form.SubmitButton>
+            </form.AppForm>
+          </CenteredPage.StickyFooter>
+        </form>
       </CenteredPage.Wrapper>
 
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
-        title={translate('text_6244277fe0975300fe3fb940')}
-        description={translate('text_6244277fe0975300fe3fb946')}
+        title={translate('text_665deda4babaf700d603ea13')}
+        description={translate('text_665dedd557dc3c00c62eb83d')}
         continueText={translate('text_6244277fe0975300fe3fb94c')}
         onContinue={onLeave}
       />

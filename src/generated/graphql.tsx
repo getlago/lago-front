@@ -11679,6 +11679,15 @@ export type GetEntitlementsForSubscriptionDetailsQuery = { __typename?: 'Query',
 
 export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
 
+export type SubscriptionForProgressiveBillingTabFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }> };
+
+export type SwitchProgressiveBillingDisabledValueMutationVariables = Exact<{
+  input: UpdateSubscriptionInput;
+}>;
+
+
+export type SwitchProgressiveBillingDisabledValueMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null } | null };
+
 export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
 
 export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables = Exact<{
@@ -14085,7 +14094,7 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, amountCurrency: CurrencyEnum, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null }, customer: { __typename?: 'Customer', id: string } } | null };
+export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, progressiveBillingDisabled?: boolean | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string }, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }> } | null };
 
 export type GetSubscriptionDataForEntitlementFormQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -14114,14 +14123,16 @@ export type GetSubscriptionForProgressiveBillingFormQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForProgressiveBillingFormQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, name: string, amountCurrency: CurrencyEnum, usageThresholds?: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null } } | null };
+export type GetSubscriptionForProgressiveBillingFormQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum }, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> } | null };
 
 export type UpdateSubscriptionProgressiveBillingMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
 
 
-export type UpdateSubscriptionProgressiveBillingMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> } | null };
+export type UpdateSubscriptionProgressiveBillingMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> } | null };
+
+export type SubscriptionForProgressiveBillingFormFragment = { __typename?: 'Subscription', progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> };
 
 export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
@@ -16234,6 +16245,15 @@ export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
       id
       name
     }
+  }
+}
+    `;
+export const SubscriptionForProgressiveBillingTabFragmentDoc = gql`
+    fragment SubscriptionForProgressiveBillingTab on Subscription {
+  id
+  progressiveBillingDisabled
+  usageThresholds {
+    id
   }
 }
     `;
@@ -18548,6 +18568,16 @@ export const AddSubscriptionPlanFragmentDoc = gql`
   ...FeatureEntitlementForPlan
 }
     ${FeatureEntitlementForPlanFragmentDoc}`;
+export const SubscriptionForProgressiveBillingFormFragmentDoc = gql`
+    fragment SubscriptionForProgressiveBillingForm on Subscription {
+  progressiveBillingDisabled
+  usageThresholds {
+    amountCents
+    recurring
+    thresholdDisplayName
+  }
+}
+    `;
 export const WalletForTopUpFragmentDoc = gql`
     fragment WalletForTopUp on Wallet {
   id
@@ -29032,6 +29062,40 @@ export type GetEntitlementsForSubscriptionDetailsQueryHookResult = ReturnType<ty
 export type GetEntitlementsForSubscriptionDetailsLazyQueryHookResult = ReturnType<typeof useGetEntitlementsForSubscriptionDetailsLazyQuery>;
 export type GetEntitlementsForSubscriptionDetailsSuspenseQueryHookResult = ReturnType<typeof useGetEntitlementsForSubscriptionDetailsSuspenseQuery>;
 export type GetEntitlementsForSubscriptionDetailsQueryResult = Apollo.QueryResult<GetEntitlementsForSubscriptionDetailsQuery, GetEntitlementsForSubscriptionDetailsQueryVariables>;
+export const SwitchProgressiveBillingDisabledValueDocument = gql`
+    mutation switchProgressiveBillingDisabledValue($input: UpdateSubscriptionInput!) {
+  updateSubscription(input: $input) {
+    id
+    progressiveBillingDisabled
+  }
+}
+    `;
+export type SwitchProgressiveBillingDisabledValueMutationFn = Apollo.MutationFunction<SwitchProgressiveBillingDisabledValueMutation, SwitchProgressiveBillingDisabledValueMutationVariables>;
+
+/**
+ * __useSwitchProgressiveBillingDisabledValueMutation__
+ *
+ * To run a mutation, you first call `useSwitchProgressiveBillingDisabledValueMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSwitchProgressiveBillingDisabledValueMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [switchProgressiveBillingDisabledValueMutation, { data, loading, error }] = useSwitchProgressiveBillingDisabledValueMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSwitchProgressiveBillingDisabledValueMutation(baseOptions?: Apollo.MutationHookOptions<SwitchProgressiveBillingDisabledValueMutation, SwitchProgressiveBillingDisabledValueMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SwitchProgressiveBillingDisabledValueMutation, SwitchProgressiveBillingDisabledValueMutationVariables>(SwitchProgressiveBillingDisabledValueDocument, options);
+      }
+export type SwitchProgressiveBillingDisabledValueMutationHookResult = ReturnType<typeof useSwitchProgressiveBillingDisabledValueMutation>;
+export type SwitchProgressiveBillingDisabledValueMutationResult = Apollo.MutationResult<SwitchProgressiveBillingDisabledValueMutation>;
+export type SwitchProgressiveBillingDisabledValueMutationOptions = Apollo.BaseMutationOptions<SwitchProgressiveBillingDisabledValueMutation, SwitchProgressiveBillingDisabledValueMutationVariables>;
 export const GetSubscriptionForSubscriptionUsageLifetimeGraphDocument = gql`
     query getSubscriptionForSubscriptionUsageLifetimeGraph($subscriptionId: ID!) {
   subscription(id: $subscriptionId) {
@@ -39639,35 +39703,24 @@ export const GetSubscriptionForDetailsDocument = gql`
     name
     status
     externalId
-    progressiveBillingDisabled
-    usageThresholds {
-      amountCents
-      recurring
-      thresholdDisplayName
-    }
     plan {
       id
       name
       code
       payInAdvance
-      amountCurrency
       parent {
         id
         name
         code
       }
-      usageThresholds {
-        amountCents
-        recurring
-        thresholdDisplayName
-      }
     }
     customer {
       id
     }
+    ...SubscriptionForProgressiveBillingTab
   }
 }
-    `;
+    ${SubscriptionForProgressiveBillingTabFragmentDoc}`;
 
 /**
  * __useGetSubscriptionForDetailsQuery__
@@ -39867,26 +39920,14 @@ export const GetSubscriptionForProgressiveBillingFormDocument = gql`
     query getSubscriptionForProgressiveBillingForm($subscriptionId: ID!) {
   subscription(id: $subscriptionId) {
     id
-    name
-    progressiveBillingDisabled
-    usageThresholds {
-      amountCents
-      recurring
-      thresholdDisplayName
-    }
+    ...SubscriptionForProgressiveBillingForm
     plan {
       id
-      name
       amountCurrency
-      usageThresholds {
-        amountCents
-        recurring
-        thresholdDisplayName
-      }
     }
   }
 }
-    `;
+    ${SubscriptionForProgressiveBillingFormFragmentDoc}`;
 
 /**
  * __useGetSubscriptionForProgressiveBillingFormQuery__
@@ -39929,6 +39970,7 @@ export const UpdateSubscriptionProgressiveBillingDocument = gql`
     id
     progressiveBillingDisabled
     usageThresholds {
+      id
       amountCents
       recurring
       thresholdDisplayName

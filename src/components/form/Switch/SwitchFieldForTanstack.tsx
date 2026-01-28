@@ -5,15 +5,16 @@ import { Switch, SwitchProps } from './Switch'
 const SwitchField = (
   props: Omit<SwitchProps, 'name' | 'checked' | 'onChange'> & { dataTest?: string },
 ) => {
+  const { dataTest, ...restProps } = props
   const field = useFieldContext<boolean>()
 
   return (
     <Switch
-      {...props}
+      {...restProps}
       name={field.name}
       checked={field.state.value}
       onChange={(value) => field.handleChange(value)}
-      data-test={props.dataTest}
+      data-test={dataTest}
     />
   )
 }
