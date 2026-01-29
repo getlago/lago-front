@@ -12,15 +12,17 @@ export const PlanDetailsAdvancedSettingsSection = ({
   currency,
   plan,
   showEntitlementSection = true,
+  showProgressiveBillingSection = true,
 }: {
   currency: CurrencyEnum
   plan?: EditPlanFragment | null
   showEntitlementSection?: boolean
+  showProgressiveBillingSection?: boolean
 }) => {
   const { translate } = useInternationalization()
   const hasMinimumCommitment =
     !!plan?.minimumCommitment?.amountCents && !isNaN(Number(plan?.minimumCommitment?.amountCents))
-  const hasProgressiveBilling = !!plan?.usageThresholds?.length
+  const hasProgressiveBilling = !!plan?.usageThresholds?.length && showProgressiveBillingSection
   const hasEntitlements = showEntitlementSection && !!plan?.entitlements?.length
 
   if (!hasMinimumCommitment && !hasProgressiveBilling && !hasEntitlements) return null
@@ -204,7 +206,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
               <Typography
                 variant="caption"
                 color="grey600"
-                html={translate('text_1754570508182ng9t8r1iuz3')}
+                html={translate('text_17538642230602p03937fj0f')}
               />
             </div>
 

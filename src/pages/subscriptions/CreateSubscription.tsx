@@ -44,11 +44,12 @@ import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
-import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
+import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -951,15 +952,17 @@ const CreateSubscription = () => {
                             </Typography>
                           </div>
                           <Card className="gap-8">
-                            <ProgressiveBillingSection
-                              formikProps={planFormikProps}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                            />
                             <CommitmentsSection
                               formikProps={planFormikProps}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
                               editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
+
+                            {formType === FORM_TYPE_ENUM.creation && (
+                              <>
+                                <ProgressiveBillingSection />
+                                <FeatureEntitlementSection />
+                              </>
+                            )}
                           </Card>
                         </div>
                       </div>

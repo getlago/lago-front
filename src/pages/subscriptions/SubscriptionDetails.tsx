@@ -21,6 +21,7 @@ import { SubscriptionActivityLogs } from '~/components/subscriptions/Subscriptio
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
+import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -35,7 +36,11 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
+import {
+  StatusTypeEnum,
+  SubscriptionForProgressiveBillingTabFragmentDoc,
+  useGetSubscriptionForDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -64,8 +69,11 @@ gql`
       customer {
         id
       }
+      ...SubscriptionForProgressiveBillingTab
     }
   }
+
+  ${SubscriptionForProgressiveBillingTabFragmentDoc}
 `
 
 export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
@@ -301,6 +309,40 @@ const SubscriptionDetails = () => {
             component: (
               <DetailsPage.Container>
                 <SubscriptionDetailsOverview />
+              </DetailsPage.Container>
+            ),
+          },
+          {
+            title: translate('text_1724179887722baucvj7bvc1'),
+            link: !!customerId
+              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId,
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+                })
+              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                  planId: planId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+                }),
+            match: [
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+              }),
+              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                planId: planId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+              }),
+            ],
+            component: (
+              <DetailsPage.Container>
+                <SubscriptionProgressiveBillingTab
+                  subscription={subscription}
+                  loading={isSubscriptionLoading}
+                />
               </DetailsPage.Container>
             ),
           },
