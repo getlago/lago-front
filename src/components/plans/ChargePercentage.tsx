@@ -2,12 +2,12 @@ import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { FormikProps, FormikState } from 'formik'
 import _get from 'lodash/get'
-import { memo, RefObject, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 
 import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { AmountInput, TextInput } from '~/components/form'
 import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
@@ -36,7 +36,6 @@ interface ChargePercentageProps {
   currency: CurrencyEnum
   disabled?: boolean
   filterIndex?: number
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
   setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
@@ -51,13 +50,13 @@ export const ChargePercentage = memo(
     currency,
     disabled,
     filterIndex,
-    premiumWarningDialogRef,
     propertyCursor,
     setFieldValue,
     valuePointer,
   }: ChargePercentageProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
+    const premiumWarningDialog = usePremiumWarningDialog()
     const chargeErrors = _get(chargeErrorsProps, `${chargeCursor}.${chargeIndex}`)
     const showFixedAmount = valuePointer?.fixedAmount !== undefined
     const showFreeUnitsPerEvents = valuePointer?.freeUnitsPerEvents !== undefined
@@ -460,7 +459,7 @@ export const ChargePercentage = memo(
                         perTransactionMinAmount: '',
                       })
                     } else {
-                      premiumWarningDialogRef?.current?.openDialog()
+                      premiumWarningDialog.open()
                     }
 
                     closePopper()
@@ -481,7 +480,7 @@ export const ChargePercentage = memo(
                         perTransactionMaxAmount: '',
                       })
                     } else {
-                      premiumWarningDialogRef?.current?.openDialog()
+                      premiumWarningDialog.open()
                     }
 
                     closePopper()

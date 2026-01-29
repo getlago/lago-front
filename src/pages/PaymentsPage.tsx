@@ -1,10 +1,9 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button, Typography } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PaymentsList } from '~/components/invoices/PaymentsList'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { CREATE_PAYMENT_ROUTE } from '~/core/router'
 import { PaymentForPaymentsListFragmentDoc, useGetPaymentsListLazyQuery } from '~/generated/graphql'
@@ -46,8 +45,7 @@ const PaymentsPage = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
-
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const [getPayments, { data, loading, error, fetchMore, variables }] = useGetPaymentsListLazyQuery(
     {
@@ -81,7 +79,7 @@ const PaymentsPage = () => {
               if (isPremium) {
                 navigate(CREATE_PAYMENT_ROUTE)
               } else {
-                premiumWarningDialogRef.current?.openDialog()
+                premiumWarningDialog.open()
               }
             }}
             endIcon={isPremium ? undefined : 'sparkles'}
@@ -99,8 +97,6 @@ const PaymentsPage = () => {
         metadata={data?.payments?.metadata}
         variables={variables}
       />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

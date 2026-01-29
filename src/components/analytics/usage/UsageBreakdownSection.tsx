@@ -7,25 +7,19 @@ import {
   UsageBreakdownMeteredAvailableFilters,
   UsageBreakdownRecurringAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
   ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
 } from '~/core/constants/filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-type UsageBreakdownSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
-
 const TRANSLATIONS_MAP: Record<UsageBreakdownType, string> = {
   [UsageBreakdownType.Units]: 'text_17465414264637hzft31ck6c',
   [UsageBreakdownType.Amount]: 'text_1746541426463wcwfuryd12g',
 }
 
-const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectionProps) => {
+const UsageBreakdownSection = () => {
   const { translate } = useInternationalization()
-
   const [breakdownType, setBreakdownType] = useState<UsageBreakdownType>(UsageBreakdownType.Units)
 
   return (
@@ -59,7 +53,6 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
                 availableFilters={UsageBreakdownMeteredAvailableFilters}
                 filtersPrefix={ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX}
                 breakdownType={breakdownType}
-                premiumWarningDialogRef={premiumWarningDialogRef}
                 isBillableMetricRecurring={false}
               />
             ),
@@ -70,7 +63,6 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
               <UsageBreakdownIndividualSection
                 availableFilters={UsageBreakdownRecurringAvailableFilters}
                 filtersPrefix={ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX}
-                premiumWarningDialogRef={premiumWarningDialogRef}
                 breakdownType={breakdownType}
                 isBillableMetricRecurring={true}
               />

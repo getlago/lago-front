@@ -5,13 +5,13 @@ import { Icon } from 'lago-design-system'
 import { RefObject, useEffect, useMemo, useState } from 'react'
 
 import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { AmountInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -45,16 +45,15 @@ gql`
 type CommitmentsSectionProps = {
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
 export const CommitmentsSection = ({
   editInvoiceDisplayNameDialogRef,
   formikProps,
-  premiumWarningDialogRef,
 }: CommitmentsSectionProps) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const [displayMinimumCommitment, setDisplayMinimumCommitment] = useState<boolean>(
     !isNaN(Number(formikProps.initialValues.minimumCommitment?.amountCents)),
@@ -197,7 +196,7 @@ export const CommitmentsSection = ({
               // Show the minimum commitment input
               setDisplayMinimumCommitment(true)
             } else {
-              premiumWarningDialogRef.current?.openDialog()
+              premiumWarningDialog.open()
             }
           }}
         >

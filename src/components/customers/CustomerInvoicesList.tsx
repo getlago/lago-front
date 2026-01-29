@@ -13,6 +13,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { ActionItem } from '~/components/designSystem/Table'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -22,7 +23,6 @@ import {
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   invoiceStatusMapping,
@@ -167,7 +167,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const { handleDownloadFile, openNewTab } = useDownloadFile()
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
@@ -485,7 +485,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                       if (isPremium) {
                         navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
                       } else {
-                        premiumWarningDialogRef.current?.openDialog()
+                        premiumWarningDialog.open()
                       }
                     },
                   }
@@ -542,7 +542,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     endIcon: 'sparkles',
                     title: translate('text_636bdef6565341dcb9cfb127'),
                     onAction: () => {
-                      premiumWarningDialogRef.current?.openDialog()
+                      premiumWarningDialog.open()
                     },
                   }
                 : null,
@@ -586,7 +586,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

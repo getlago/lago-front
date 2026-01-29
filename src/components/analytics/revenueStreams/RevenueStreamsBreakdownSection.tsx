@@ -1,16 +1,9 @@
 import { RevenueStreamsCustomerBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsCustomerBreakdownSection'
 import { RevenueStreamsPlanBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsPlanBreakdownSection'
 import { NavigationTab, TabManagedBy, Typography } from '~/components/designSystem'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-type RevenueStreamsBreakdownSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
-
-export const RevenueStreamsBreakdownSection = ({
-  premiumWarningDialogRef,
-}: RevenueStreamsBreakdownSectionProps) => {
+export const RevenueStreamsBreakdownSection = () => {
   const { translate } = useInternationalization()
 
   return (
@@ -29,19 +22,11 @@ export const RevenueStreamsBreakdownSection = ({
         tabs={[
           {
             title: translate('text_62442e40cea25600b0b6d85a'),
-            component: (
-              <RevenueStreamsPlanBreakdownSection
-                premiumWarningDialogRef={premiumWarningDialogRef}
-              />
-            ),
+            component: <RevenueStreamsPlanBreakdownSection />,
           },
           {
             title: translate('text_624efab67eb2570101d117a5'),
-            component: (
-              <RevenueStreamsCustomerBreakdownSection
-                premiumWarningDialogRef={premiumWarningDialogRef}
-              />
-            ),
+            component: <RevenueStreamsCustomerBreakdownSection />,
           },
         ]}
       />
