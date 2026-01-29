@@ -2,11 +2,8 @@ import { create, useModal } from '@ebay/nice-modal-react'
 import { ReactNode } from 'react'
 
 import BaseDialog from './BaseDialog'
+import { CENTRALIZED_DIALOG_NAME } from './const'
 import { HookDialogReturnType } from './types'
-
-export const CENTRALIZED_DIALOG_NAME = 'CentralizedDialog'
-
-export const DIALOG_TITLE_TEST_ID = 'dialog-title'
 
 export type CentralizedDialogProps = {
   title: ReactNode

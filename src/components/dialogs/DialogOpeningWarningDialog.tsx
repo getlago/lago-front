@@ -5,11 +5,9 @@ import { ReactNode } from 'react'
 import { Button } from '~/components/designSystem'
 
 import BaseDialog from './BaseDialog'
+import { DIALOG_OPENING_WARNING_DIALOG_NAME } from './const'
 import { HookDialogReturnType } from './types'
 import { useWarningDialog, WarningDialogProps } from './WarningDialog'
-
-export const DIALOG_OPENING_WARNING_DIALOG_NAME = 'DialogOpeningWarningDialog'
-export const DIALOG_TITLE_TEST_ID = 'dialog-title'
 
 export type DialogOpeningWarningDialogProps = {
   title: ReactNode

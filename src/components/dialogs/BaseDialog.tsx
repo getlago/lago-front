@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 
-export const DIALOG_TITLE_TEST_ID = 'dialog-title'
+import { DIALOG_TITLE_TEST_ID } from './const'
 
 export type BaseDialogProps = {
   title: ReactNode
@@ -15,6 +15,7 @@ export type BaseDialogProps = {
   isOpen: boolean
   closeDialog: () => Promise<unknown>
   removeDialog: () => void
+  'data-test'?: string
 }
 
 const BaseDialog = ({
@@ -26,6 +27,7 @@ const BaseDialog = ({
   isOpen,
   closeDialog,
   removeDialog,
+  'data-test': dataTest,
 }: BaseDialogProps) => {
   const childrenNeedsWrapping = children && typeof children === 'string'
 
@@ -44,11 +46,6 @@ const BaseDialog = ({
           closeDialog()
         }
       }}
-      onKeyDown={(e) => {
-        if (e.code === 'Escape') {
-          closeDialog()
-        }
-      }}
       TransitionProps={{
         onExited: () => removeDialog(),
       }}
@@ -64,6 +61,7 @@ const BaseDialog = ({
           'flex flex-col md:max-w-xl my-0 rounded-xl z-dialog max-w-full shadow-xl mx-auto',
       }}
       transitionDuration={80}
+      data-test={dataTest}
     >
       {/* Header */}
       <header className="p-8">

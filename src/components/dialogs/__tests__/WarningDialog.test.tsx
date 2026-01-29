@@ -5,13 +5,12 @@ import { ReactNode, useEffect } from 'react'
 
 import { render } from '~/test-utils'
 
-import WarningDialog, {
-  useWarningDialog,
+import {
   WARNING_DIALOG_CANCEL_BUTTON_TEST_ID,
   WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
   WARNING_DIALOG_NAME,
-  WarningDialogProps,
-} from '../WarningDialog'
+} from '../const'
+import WarningDialog, { useWarningDialog, WarningDialogProps } from '../WarningDialog'
 
 // Register the dialog
 NiceModal.register(WARNING_DIALOG_NAME, WarningDialog)

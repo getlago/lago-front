@@ -1,13 +1,15 @@
 import NiceModal from '@ebay/nice-modal-react'
 
-import CentralizedDialog, { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/CentralizedDialog'
-import DialogOpeningWarningDialog, {
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import {
+  CENTRALIZED_DIALOG_NAME,
   DIALOG_OPENING_WARNING_DIALOG_NAME,
-} from '~/components/dialogs/DialogOpeningWarningDialog'
-import PremiumWarningDialog, {
   PREMIUM_WARNING_DIALOG_NAME,
-} from '~/components/dialogs/PremiumWarningDialog'
-import WarningDialog, { WARNING_DIALOG_NAME } from '~/components/dialogs/WarningDialog'
+  WARNING_DIALOG_NAME,
+} from '~/components/dialogs/const'
+import DialogOpeningWarningDialog from '~/components/dialogs/DialogOpeningWarningDialog'
+import PremiumWarningDialog from '~/components/dialogs/PremiumWarningDialog'
+import WarningDialog from '~/components/dialogs/WarningDialog'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 NiceModal.register(PREMIUM_WARNING_DIALOG_NAME, PremiumWarningDialog)

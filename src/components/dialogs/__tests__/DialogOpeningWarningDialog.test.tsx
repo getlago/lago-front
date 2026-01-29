@@ -5,16 +5,17 @@ import { ReactNode, useEffect } from 'react'
 
 import { render } from '~/test-utils'
 
-import { DIALOG_TITLE_TEST_ID } from '../BaseDialog'
-import DialogOpeningWarningDialog, {
+import {
   DIALOG_OPENING_WARNING_DIALOG_NAME,
+  DIALOG_TITLE_TEST_ID,
+  WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  WARNING_DIALOG_NAME,
+} from '../const'
+import DialogOpeningWarningDialog, {
   DialogOpeningWarningDialogProps,
   useDialogOpeningWarningDialog,
 } from '../DialogOpeningWarningDialog'
-import WarningDialog, {
-  WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
-  WARNING_DIALOG_NAME,
-} from '../WarningDialog'
+import WarningDialog from '../WarningDialog'
 
 // Test IDs for test-specific elements
 const DIALOG_CONTENT_TEST_ID = 'dialog-content'
