@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
 
-import BaseDialog, { BaseDialogProps, DIALOG_TITLE_TEST_ID } from '../BaseDialog'
+import BaseDialog, { BaseDialogProps } from '../BaseDialog'
+import { DIALOG_TITLE_TEST_ID } from '../const'
 
 // Test IDs for test-specific elements
 const DIALOG_CONTENT_TEST_ID = 'dialog-content'

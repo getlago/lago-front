@@ -5,18 +5,20 @@ import { Button } from '~/components/designSystem'
 import BaseDialog from '~/components/dialogs/BaseDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const WARNING_DIALOG_NAME = 'WarningDialog'
-
-export const WARNING_DIALOG_TEST_ID = 'warning-dialog'
-export const WARNING_DIALOG_CANCEL_BUTTON_TEST_ID = 'warning-cancel'
-export const WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID = 'warning-confirm'
+import {
+  WARNING_DIALOG_CANCEL_BUTTON_TEST_ID,
+  WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  WARNING_DIALOG_NAME,
+  WARNING_DIALOG_TEST_ID,
+} from './const'
+import { HookDialogReturnType } from './types'
 
 export type WarningDialogProps = {
   title: string
   description?: ReactNode
   headerContent?: ReactNode
   children?: ReactNode
-  onContinue: () => unknown | Promise<unknown>
+  onContinue: () => Promise<unknown>
   continueText: string
   mode?: 'info' | 'danger'
   disableOnContinue?: boolean
@@ -84,18 +86,11 @@ const WarningDialog = create(
 
 export default WarningDialog
 
-export type WarningDialogHookReturnType = {
-  open: (props: WarningDialogProps) => Promise<unknown>
-  close: () => void
-  resolve: (args?: unknown) => void
-  reject: (args?: unknown) => void
-}
-
-export const useWarningDialog = (): WarningDialogHookReturnType => {
+export const useWarningDialog = (): HookDialogReturnType<WarningDialogProps> => {
   const modal = useModal(WARNING_DIALOG_NAME)
 
   return {
-    open: (props: WarningDialogProps) => modal.show(props),
+    open: (props?: WarningDialogProps) => modal.show(props),
     close: () => modal.hide(),
     resolve: (args?: unknown) => modal.resolve(args),
     reject: (args?: unknown) => modal.reject(args),

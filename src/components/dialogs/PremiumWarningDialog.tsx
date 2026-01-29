@@ -4,9 +4,8 @@ import { Button } from '~/components/designSystem'
 import BaseDialog from '~/components/dialogs/BaseDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { PREMIUM_WARNING_DIALOG_NAME } from './const'
 import { HookDialogReturnType } from './types'
-
-export const PREMIUM_WARNING_DIALOG_NAME = 'PremiumWarningDialog'
 
 export type PremiumWarningDialogProps = {
   title?: string

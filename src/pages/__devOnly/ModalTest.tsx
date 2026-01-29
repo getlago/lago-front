@@ -97,7 +97,7 @@ const ModalTest = (): JSX.Element => {
       children: 'This will update your settings.',
       continueText: 'Confirm',
       mode: 'info',
-      onContinue: () => {
+      onContinue: async () => {
         // Action confirmed
       },
     })
@@ -109,7 +109,7 @@ const ModalTest = (): JSX.Element => {
       description: 'This will update your settings.',
       continueText: 'Confirm',
       mode: 'info',
-      onContinue: () => {
+      onContinue: async () => {
         // Action confirmed
       },
     })
