@@ -1,10 +1,9 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { CustomerAccountTypeEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -43,7 +42,7 @@ export const CustomerAccountTypeQuickFilter = () => {
   const navigate = useNavigate()
   const { isQuickFilterActive, buildQuickFilterUrlParams, hasAppliedFilters } = useFilters()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
@@ -71,7 +70,7 @@ export const CustomerAccountTypeQuickFilter = () => {
         isSelected={isQuickFilterActive({ accountType: CustomerAccountTypeEnum.Partner })}
         onClick={() => {
           if (!hasAccessToRevenueShare) {
-            return premiumWarningDialogRef.current?.openDialog()
+            return premiumWarningDialog.open()
           }
 
           navigate({
@@ -85,8 +84,6 @@ export const CustomerAccountTypeQuickFilter = () => {
           {!hasAccessToRevenueShare && <Icon name="sparkles" />}
         </Typography>
       </QuickFilter>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

@@ -1,17 +1,14 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { MrrBreakdownSection } from '~/components/analytics/mrr/MrrBreakdownSection'
 import { MrrOverviewSection } from '~/components/analytics/mrr/MrrOverviewSection'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const Mrr = () => {
   const { translate } = useInternationalization()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (
     <FullscreenPage.Wrapper>
@@ -26,11 +23,9 @@ const Mrr = () => {
         </Tooltip>
       </Typography>
 
-      <MrrOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
+      <MrrOverviewSection />
 
-      <MrrBreakdownSection premiumWarningDialogRef={premiumWarningDialogRef} />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <MrrBreakdownSection />
     </FullscreenPage.Wrapper>
   )
 }

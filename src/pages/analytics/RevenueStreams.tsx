@@ -1,17 +1,14 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { RevenueStreamsBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsBreakdownSection'
 import { RevenueStreamsOverviewSection } from '~/components/analytics/revenueStreams/RevenueStreamsOverviewSection'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const RevenueStreams = () => {
   const { translate } = useInternationalization()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (
     <FullscreenPage.Wrapper>
@@ -26,11 +23,9 @@ const RevenueStreams = () => {
         </Tooltip>
       </Typography>
 
-      <RevenueStreamsOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
+      <RevenueStreamsOverviewSection />
 
-      <RevenueStreamsBreakdownSection premiumWarningDialogRef={premiumWarningDialogRef} />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <RevenueStreamsBreakdownSection />
     </FullscreenPage.Wrapper>
   )
 }

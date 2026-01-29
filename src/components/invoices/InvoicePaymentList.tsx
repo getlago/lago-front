@@ -1,4 +1,4 @@
-import { FC, RefObject } from 'react'
+import { FC } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -6,8 +6,8 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_INVOICE_PAYMENT_ROUTE, PAYMENT_DETAILS_ROUTE } from '~/core/router'
@@ -21,8 +21,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 export const InvoicePaymentList: FC<{
   canRecordPayment: boolean
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
-}> = ({ canRecordPayment, premiumWarningDialogRef }) => {
+}> = ({ canRecordPayment }) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { invoiceId } = useParams()
@@ -36,6 +35,8 @@ export const InvoicePaymentList: FC<{
   const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
 
   const payments = data?.payments.collection || []
+
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   return (
     <>
@@ -54,7 +55,7 @@ export const InvoicePaymentList: FC<{
                   }),
                 )
               } else {
-                premiumWarningDialogRef.current?.openDialog()
+                premiumWarningDialog.open()
               }
             }}
           >

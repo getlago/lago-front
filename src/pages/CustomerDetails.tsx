@@ -29,7 +29,6 @@ import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
@@ -106,7 +105,6 @@ const MAX_POLLING_ATTEMPTS = 3
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const pollingAttemptsRef = useRef(0)
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -484,9 +482,7 @@ const CustomerDetails = () => {
                           tab: CustomerDetailsTabsOptions.usage,
                         }),
                         hidden: !hasPermissions(['analyticsView']),
-                        component: (
-                          <CustomerUsage premiumWarningDialogRef={premiumWarningDialogRef} />
-                        ),
+                        component: <CustomerUsage />,
                       },
                       {
                         title: translate('text_628cf761cbe6820138b8f2e6'),
@@ -585,7 +581,6 @@ const CustomerDetails = () => {
             <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
           </>
         )}
-        <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </div>
     </div>
   )

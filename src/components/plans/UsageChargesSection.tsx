@@ -9,7 +9,6 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -78,7 +77,6 @@ gql`
 interface UsageChargesSectionProps {
   alreadyExistingCharges?: LocalUsageChargeInput[] | null
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
   isInitiallyOpen?: boolean
   isInSubscriptionForm?: boolean
@@ -98,7 +96,6 @@ export const UsageChargesSection = memo(
     isInSubscriptionForm,
     formikProps,
     isEdition,
-    premiumWarningDialogRef,
     subscriptionFormType,
   }: UsageChargesSectionProps) => {
     const { translate } = useInternationalization()
@@ -340,7 +337,6 @@ export const UsageChargesSection = memo(
                         isInSubscriptionForm={isInSubscriptionForm}
                         isUsedInSubscription={!isNew && !canBeEdited}
                         key={id}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
                         removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                         subscriptionFormType={subscriptionFormType}
                       />
@@ -469,7 +465,6 @@ export const UsageChargesSection = memo(
                         isInSubscriptionForm={isInSubscriptionForm}
                         isUsedInSubscription={!isNew && !canBeEdited}
                         key={id}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
                         removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                         subscriptionFormType={subscriptionFormType}
                       />

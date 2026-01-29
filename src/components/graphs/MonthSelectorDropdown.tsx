@@ -1,11 +1,10 @@
-import { RefObject } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { MenuPopper } from '~/styles'
+
+import { usePremiumWarningDialog } from '../dialogs/PremiumWarningDialog'
 
 export const AnalyticsPeriodScopeEnum = {
   Year: 'year',
@@ -25,14 +24,14 @@ export type TPeriodScopeTranslationLookupValue =
 const MonthSelectorDropdown = ({
   periodScope,
   setPeriodScope,
-  premiumWarningDialogRef,
 }: {
   periodScope: TPeriodScopeTranslationLookupValue
   setPeriodScope: (periodScope: TPeriodScopeTranslationLookupValue) => void
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }) => {
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
+
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   return (
     <>
@@ -88,7 +87,7 @@ const MonthSelectorDropdown = ({
           variant="quaternary"
           endIcon="sparkles"
           onClick={() => {
-            premiumWarningDialogRef.current?.openDialog()
+            premiumWarningDialog.open()
           }}
         >
           {translate(PeriodScopeTranslationLookup[periodScope])}

@@ -1,5 +1,5 @@
 import { FormikProps, FormikState } from 'formik'
-import { memo, RefObject } from 'react'
+import { memo } from 'react'
 
 import { Switch } from '~/components/form'
 import FixedChargesUnits from '~/components/plans/chargeAccordion/FixedChargesUnits'
@@ -14,7 +14,6 @@ import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { StandardCharge } from '~/components/plans/StandardCharge'
 import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ALL_CHARGE_MODELS } from '~/core/constants/form'
 import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -31,7 +30,6 @@ interface ChargeWrapperSwitchProps {
   isEdition: boolean
   filterIndex?: number
   formikProps: FormikProps<PlanFormInput>
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
   setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
@@ -48,7 +46,6 @@ export const ChargeWrapperSwitch = memo(
     filterIndex,
     formikProps,
     isEdition,
-    premiumWarningDialogRef,
     propertyCursor,
     setFieldValue,
     valuePointer,
@@ -120,7 +117,6 @@ export const ChargeWrapperSwitch = memo(
             currency={currency}
             disabled={disabled}
             filterIndex={filterIndex}
-            premiumWarningDialogRef={premiumWarningDialogRef}
             propertyCursor={propertyCursor}
             setFieldValue={setFieldValue}
             valuePointer={valuePointer}

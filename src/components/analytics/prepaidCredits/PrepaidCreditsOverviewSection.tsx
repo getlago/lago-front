@@ -14,7 +14,7 @@ import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -36,10 +36,6 @@ gql`
     voidedCreditsQuantity
   }
 `
-type PrepaidCreditsOverviewSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
-
 const PREPAID_CREDITS_GRAPH_COLORS = {
   offeredAmount: '#ABF5DC',
   purchasedAmount: '#36B389',
@@ -85,10 +81,9 @@ const CreditsRowLabel = ({ label, color }: { label: string; color: string }) => 
   </div>
 )
 
-export const PrepaidCreditsOverviewSection = ({
-  premiumWarningDialogRef,
-}: PrepaidCreditsOverviewSectionProps) => {
+export const PrepaidCreditsOverviewSection = () => {
   const { translate } = useInternationalization()
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const {
     selectedCurrency,
@@ -125,7 +120,7 @@ export const PrepaidCreditsOverviewSection = ({
               onClick={(e) => {
                 if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
+                  premiumWarningDialog.open()
                 } else {
                   onClick()
                 }

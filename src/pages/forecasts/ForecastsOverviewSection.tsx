@@ -10,7 +10,7 @@ import {
   RowType,
 } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { FORECASTS_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -20,10 +20,6 @@ import { useForecastsAnalyticsOverview } from '~/pages/forecasts/useForecastsAna
 import { FORECASTS_GRAPH_COLORS } from '~/pages/forecasts/utils'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
-
-type ForecastsOverviewSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
 
 const ForecastsRowLabel = ({ label, color }: { label: string; color: string }) => (
   <div className="flex items-center gap-2">
@@ -59,10 +55,9 @@ const AmountCell = ({
   )
 }
 
-export const ForecastsOverviewSection = ({
-  premiumWarningDialogRef,
-}: ForecastsOverviewSectionProps) => {
+export const ForecastsOverviewSection = () => {
   const { translate } = useInternationalization()
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const {
     selectedCurrency,
@@ -183,7 +178,7 @@ export const ForecastsOverviewSection = ({
               onClick={(e) => {
                 if (!hasAccessToForecastsFeature) {
                   e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
+                  premiumWarningDialog.open()
                 } else {
                   onClick()
                 }

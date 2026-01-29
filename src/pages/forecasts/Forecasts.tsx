@@ -1,5 +1,4 @@
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { AiBadge } from '~/components/designSystem/AiBadge'
 import { Chip } from '~/components/designSystem/Chip'
@@ -7,7 +6,6 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -38,7 +36,6 @@ export const BadgeAI = ({
 
 const Forecasts = () => {
   const { translate } = useInternationalization()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const hasAccessToForecastsFeature = hasOrganizationPremiumAddon(
@@ -89,12 +86,8 @@ const Forecasts = () => {
           </div>
         )}
 
-        {hasAccessToForecastsFeature && (
-          <ForecastsOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
-        )}
+        {hasAccessToForecastsFeature && <ForecastsOverviewSection />}
       </FullscreenPage.Wrapper>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

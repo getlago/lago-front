@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -15,13 +15,13 @@ import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   AnalyticsPeriodScopeEnum,
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
 import { ChartWrapper } from '~/components/layouts/Charts'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ANALYTICS_INVOICES_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -183,7 +183,7 @@ const Invoices = () => {
   const { translate } = useInternationalization()
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const [searchParams] = useSearchParams()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const [hoveredBarId, setHoveredBarId] = useState<string | undefined>(undefined)
 
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
@@ -301,7 +301,7 @@ const Invoices = () => {
                 onClick={(e) => {
                   if (!hasAccessToAnalyticsDashboardsFeature) {
                     e.stopPropagation()
-                    premiumWarningDialogRef.current?.openDialog()
+                    premiumWarningDialog.open()
                   } else {
                     onClick()
                   }
@@ -453,8 +453,6 @@ const Invoices = () => {
           </ChartWrapper>
         </>
       )}
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </FullscreenPage.Wrapper>
   )
 }

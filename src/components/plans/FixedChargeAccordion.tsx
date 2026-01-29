@@ -22,7 +22,6 @@ import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -107,7 +106,6 @@ interface FixedChargeAccordionProps {
   isInitiallyOpen?: boolean
   isInSubscriptionForm?: boolean
   isUsedInSubscription?: boolean
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
 }
 
@@ -124,7 +122,6 @@ export const FixedChargeAccordion = memo(
     isInitiallyOpen,
     isInSubscriptionForm,
     isUsedInSubscription,
-    premiumWarningDialogRef,
     removeChargeWarningDialogRef,
   }: FixedChargeAccordionProps) => {
     const { translate } = useInternationalization()
@@ -301,7 +298,6 @@ export const FixedChargeAccordion = memo(
                   currency={currency}
                   isEdition={isEdition}
                   formikProps={formikProps}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
                   propertyCursor="properties"
                   setFieldValue={formikProps.setFieldValue}
                   valuePointer={localCharge?.properties}

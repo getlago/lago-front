@@ -11,7 +11,7 @@ import {
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -42,14 +42,9 @@ gql`
   }
 `
 
-type RevenueStreamsCustomerBreakdownSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
-
-export const RevenueStreamsCustomerBreakdownSection = ({
-  premiumWarningDialogRef,
-}: RevenueStreamsCustomerBreakdownSectionProps) => {
+export const RevenueStreamsCustomerBreakdownSection = () => {
   const [searchParams] = useSearchParams()
+  const premiumWarningDialog = usePremiumWarningDialog()
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { translate } = useInternationalization()
 
@@ -100,7 +95,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
               onClick={(e) => {
                 if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
+                  premiumWarningDialog.open()
                 } else {
                   onClick()
                 }

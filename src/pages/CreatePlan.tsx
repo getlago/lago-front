@@ -25,7 +25,6 @@ import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBilling
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -158,7 +157,6 @@ const CreatePlan = () => {
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
@@ -280,14 +278,12 @@ const CreatePlan = () => {
                       formikProps={formikProps}
                       isEdition={isEdition}
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                     />
 
                     <UsageChargesSection
                       canBeEdited={canBeEdited}
                       isEdition={isEdition}
                       formikProps={formikProps}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                       alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
@@ -307,7 +303,6 @@ const CreatePlan = () => {
                     <ProgressiveBillingSection formikProps={formikProps} />
                     <CommitmentsSection
                       formikProps={formikProps}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                       editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     />
 
@@ -363,7 +358,6 @@ const CreatePlan = () => {
       />
       <ImpactOverridenSubscriptionsDialog ref={impactOverridenSubscriptionsDialogRef} />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
 }

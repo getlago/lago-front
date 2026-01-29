@@ -8,9 +8,9 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { MEMBERS_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -37,11 +37,11 @@ const RoleDetails = () => {
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
 
   const openPremiumDialog = () => {
-    premiumWarningDialogRef.current?.openDialog()
+    premiumWarningDialog.open()
   }
 
   const openDeleteRoleDialog = () => {
@@ -204,7 +204,6 @@ const RoleDetails = () => {
           )}
         </div>
       </DetailsPage.Container>
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <DeleteRoleDialog ref={deleteRoleDialogRef} />
     </>
   )

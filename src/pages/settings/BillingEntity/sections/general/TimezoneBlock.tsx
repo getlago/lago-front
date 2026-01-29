@@ -2,8 +2,8 @@ import { useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { SettingsListItem, SettingsListItemHeader } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getTimezoneConfig } from '~/core/timezone'
 import { BillingEntity, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,12 +22,12 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const { id, timezone } = billingEntity
   const timezoneConfig = getTimezoneConfig(timezone)
 
   const editTimezoneDialogRef = useRef<EditBillingEntityTimezoneDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (
     <SettingsListItem>
@@ -43,7 +43,7 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
                 onClick={() => {
                   isPremium
                     ? editTimezoneDialogRef?.current?.openDialog()
-                    : premiumWarningDialogRef.current?.openDialog()
+                    : premiumWarningDialog.open()
                 }}
               >
                 {translate('text_638906e7b4f1a919cb61d0f2')}
@@ -61,7 +61,6 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
       </Typography>
 
       <EditBillingEntityTimezoneDialog ref={editTimezoneDialogRef} id={id} timezone={timezone} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </SettingsListItem>
   )
 }

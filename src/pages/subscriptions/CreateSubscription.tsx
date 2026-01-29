@@ -23,6 +23,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   BasicComboBoxData,
   ButtonSelectorField,
@@ -45,7 +46,6 @@ import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBilling
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -250,7 +250,7 @@ const CreateSubscription = () => {
 
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const isResponsive = useMediaQuery(`(max-width:${BREAKPOINT_LG - 1}px)`)
   const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
@@ -859,7 +859,7 @@ const CreateSubscription = () => {
                           <Button
                             variant="secondary"
                             onClick={() => {
-                              premiumWarningDialogRef.current?.openDialog()
+                              premiumWarningDialog.open()
                             }}
                           >
                             {translate('text_65118a52df984447c18694d0')}
@@ -924,7 +924,6 @@ const CreateSubscription = () => {
                               formikProps={planFormikProps}
                               isEdition={formType === FORM_TYPE_ENUM.edition}
                               isInSubscriptionForm={isInSubscriptionForm}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
                             />
 
                             <UsageChargesSection
@@ -933,7 +932,6 @@ const CreateSubscription = () => {
                               formikProps={planFormikProps}
                               isEdition={formType === FORM_TYPE_ENUM.edition}
                               isInSubscriptionForm={isInSubscriptionForm}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
                               subscriptionFormType={formType}
                             />
                           </div>
@@ -954,7 +952,6 @@ const CreateSubscription = () => {
                             />
                             <CommitmentsSection
                               formikProps={planFormikProps}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
                               editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
                           </Card>
@@ -985,7 +982,6 @@ const CreateSubscription = () => {
       />
 
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
 }

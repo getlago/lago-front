@@ -1,5 +1,5 @@
 import { Icon } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -7,8 +7,8 @@ import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { Switch } from '~/components/form'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
 import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
 import { envGlobalVar } from '~/core/apolloClient'
@@ -91,7 +91,7 @@ const mapTranslationsKey = (type?: BillingEntityEmailSettingsEnum) => {
 }
 
 const BillingEntityEmailScenariosConfig = () => {
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const [invoiceLanguage, setInvoiceLanguage] = useState<LocaleEnum>(LocaleEnum.en)
   const [display, setDisplay] = useState<DisplayEnum>(DisplayEnum.desktop)
@@ -149,7 +149,7 @@ const BillingEntityEmailScenariosConfig = () => {
                     if (hasAccess) {
                       await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
                     } else {
-                      premiumWarningDialogRef.current?.openDialog()
+                      premiumWarningDialog.open()
                     }
                   }}
                 />
@@ -392,8 +392,6 @@ const BillingEntityEmailScenariosConfig = () => {
             </PreviewEmailLayout>
           </div>
         </div>
-
-        <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </div>
     </>
   )

@@ -1,10 +1,11 @@
 import { Icon } from 'lago-design-system'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { TextInput } from '~/components/form'
 import Gross from '~/components/graphs/Gross'
 import Invoices from '~/components/graphs/Invoices'
@@ -15,7 +16,6 @@ import MonthSelectorDropdown, {
 import Mrr from '~/components/graphs/Mrr'
 import Overview from '~/components/graphs/Overview'
 import Usage from '~/components/graphs/Usage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -26,7 +26,7 @@ const Analytics = () => {
   const { translate } = useInternationalization()
   const { isPremium, currentUser, loading: currentUserDataLoading } = useCurrentUser()
   const { organization, loading: currentOrganizationDataLoading } = useOrganizationInfos()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const [periodScope, setPeriodScope] = useState<TPeriodScopeTranslationLookupValue>(
     AnalyticsPeriodScopeEnum.Year,
@@ -136,11 +136,7 @@ const Analytics = () => {
               </MenuPopper>
             )}
           </Popper>
-          <MonthSelectorDropdown
-            periodScope={periodScope}
-            setPeriodScope={setPeriodScope}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />
+          <MonthSelectorDropdown periodScope={periodScope} setPeriodScope={setPeriodScope} />
         </PageHeader.Group>
       </PageHeader.Wrapper>
 
@@ -162,7 +158,7 @@ const Analytics = () => {
             variant="tertiary"
             endIcon="sparkles"
             onClick={() => {
-              premiumWarningDialogRef.current?.openDialog()
+              premiumWarningDialog.open()
             }}
           >
             {translate('text_65ae73ebe3a66bec2b91d72d')}
@@ -204,8 +200,6 @@ const Analytics = () => {
           period={periodScope}
         />
       </div>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

@@ -1,5 +1,4 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -7,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { Switch } from '~/components/form'
 import {
   SettingsListItem,
@@ -16,7 +16,6 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE } from '~/core/router'
 import {
   BillingEntity,
@@ -71,7 +70,7 @@ const BillingEntityEmailScenarios = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const { billingEntityCode } = useParams()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
@@ -174,7 +173,7 @@ const BillingEntityEmailScenarios = () => {
                                       if (hasAccess) {
                                         await updateEmailSettings(setting, value)
                                       } else {
-                                        premiumWarningDialogRef.current?.openDialog()
+                                        premiumWarningDialog.open()
                                       }
                                     }}
                                   />
@@ -216,8 +215,6 @@ const BillingEntityEmailScenarios = () => {
           )}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

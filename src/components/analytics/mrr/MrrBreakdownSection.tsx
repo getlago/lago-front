@@ -11,7 +11,7 @@ import {
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { MRR_BREAKDOWN_PLANS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -47,12 +47,9 @@ gql`
   }
 `
 
-type MrrBreakdownSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
-
-export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSectionProps) => {
+export const MrrBreakdownSection = () => {
   const [searchParams] = useSearchParams()
+  const premiumWarningDialog = usePremiumWarningDialog()
   const { translate } = useInternationalization()
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
 
@@ -112,7 +109,7 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
               onClick={(e) => {
                 if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
+                  premiumWarningDialog.open()
                 } else {
                   onClick()
                 }

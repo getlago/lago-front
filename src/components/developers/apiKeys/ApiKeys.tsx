@@ -18,6 +18,7 @@ import {
   RotateApiKeyDialog,
   RotateApiKeyDialogRef,
 } from '~/components/developers/apiKeys/RotateApiKeyDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -25,7 +26,6 @@ import {
   SettingsListWrapper,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { obfuscateValue } from '~/core/formats/obfuscate'
 import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE } from '~/core/router'
@@ -101,7 +101,7 @@ export const ApiKeys = () => {
 
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
   const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const [showOrganizationId, setShowOrganizationId] = useState(false)
   const [shownApiKeysMap, setShownApiKeysMap] = useState<Map<string, string>>(new Map())
 
@@ -281,7 +281,7 @@ export const ApiKeys = () => {
                         endIcon={showPremiumAddApiKeyState ? 'sparkles' : undefined}
                         onClick={() => {
                           if (showPremiumAddApiKeyState) {
-                            premiumWarningDialogRef.current?.openDialog()
+                            premiumWarningDialog.open()
                           } else {
                             close()
 
@@ -536,11 +536,7 @@ export const ApiKeys = () => {
         </SettingsListWrapper>
       </div>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <RotateApiKeyDialog
-        ref={rotateApiKeyDialogRef}
-        openPremiumDialog={() => premiumWarningDialogRef.current?.openDialog()}
-      />
+      <RotateApiKeyDialog ref={rotateApiKeyDialogRef} />
       <DeleteApiKeyDialog ref={deleteApiKeyDialogRef} />
     </>
   )

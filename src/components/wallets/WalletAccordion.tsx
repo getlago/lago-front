@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { FC, PropsWithChildren, RefObject, useMemo, useRef } from 'react'
+import { FC, PropsWithChildren, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
@@ -14,7 +14,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import {
   TerminateCustomerWalletDialog,
@@ -81,7 +81,6 @@ const TODAY = DateTime.now().toISODate()
 
 interface WalletAccordionProps {
   wallet: WalletAccordionFragment
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   customerTimezone?: TimezoneEnum
 }
 
@@ -100,11 +99,7 @@ const mapStatus = (type?: WalletStatusEnum | undefined): StatusProps => {
   }
 }
 
-export const WalletAccordion: FC<WalletAccordionProps> = ({
-  customerTimezone,
-  premiumWarningDialogRef,
-  wallet,
-}) => {
+export const WalletAccordion: FC<WalletAccordionProps> = ({ customerTimezone, wallet }) => {
   const {
     balanceCents,
     consumedAmountCents,
@@ -130,6 +125,8 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { setUrl, openPanel: open } = useDeveloperTool()
+
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
   const voidWalletDialogRef = useRef<VoidWalletDialogRef>(null)
@@ -350,7 +347,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                 <Button
                   variant="tertiary"
                   endIcon="sparkles"
-                  onClick={() => premiumWarningDialogRef.current?.openDialog()}
+                  onClick={() => premiumWarningDialog.open()}
                 >
                   {translate('text_65ae73ebe3a66bec2b91d72d')}
                 </Button>

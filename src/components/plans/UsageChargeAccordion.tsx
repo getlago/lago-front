@@ -9,6 +9,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { Switch } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
@@ -28,7 +29,6 @@ import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   ALL_FILTER_VALUES,
@@ -153,7 +153,6 @@ interface UsageChargeAccordionProps {
   isInitiallyOpen?: boolean
   isInSubscriptionForm?: boolean
   isUsedInSubscription?: boolean
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
 }
@@ -171,12 +170,12 @@ export const UsageChargeAccordion = memo(
     isInitiallyOpen,
     isInSubscriptionForm,
     isUsedInSubscription,
-    premiumWarningDialogRef,
     removeChargeWarningDialogRef,
     subscriptionFormType,
   }: UsageChargeAccordionProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
+    const premiumWarningDialog = usePremiumWarningDialog()
     const {
       getUsageChargeModelComboboxData,
       getIsPayInAdvanceOptionDisabledForUsageCharge,
@@ -243,13 +242,13 @@ export const UsageChargeAccordion = memo(
           isPremium,
           localCharge,
           name,
-          premiumWarningDialogRef,
+          premiumWarningDialog,
           value,
         })
       },
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [index, isPremium, localCharge, premiumWarningDialogRef],
+      [index, isPremium, localCharge, premiumWarningDialog],
     )
 
     const taxValueForBadgeDisplay = useMemo((): string | undefined => {
@@ -453,7 +452,6 @@ export const UsageChargeAccordion = memo(
                       currency={currency}
                       formikProps={formikProps}
                       isEdition={isEdition}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                       propertyCursor="properties"
                       setFieldValue={formikProps.setFieldValue}
                       valuePointer={localCharge?.properties}
@@ -567,7 +565,6 @@ export const UsageChargeAccordion = memo(
                             filterIndex={filterIndex}
                             formikProps={formikProps}
                             isEdition={isEdition}
-                            premiumWarningDialogRef={premiumWarningDialogRef}
                             propertyCursor={`filters.${filterIndex}.properties`}
                             setFieldValue={formikProps.setFieldValue}
                             valuePointer={filter.properties}
@@ -660,7 +657,7 @@ export const UsageChargeAccordion = memo(
               <ChargeInvoicingStrategyOption
                 localCharge={localCharge}
                 disabled={isInSubscriptionForm || disabled}
-                openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
+                openPremiumDialog={() => premiumWarningDialog.open()}
                 handleUpdate={({ regroupPaidFees, invoiceable }) => {
                   const currentChargeValues: LocalUsageChargeInput = {
                     ...localCharge,
@@ -713,7 +710,6 @@ export const UsageChargeAccordion = memo(
                   chargePricingUnitShortName={chargePricingUnitShortName}
                   currency={currency}
                   isPremium={isPremium}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
                   chargeIndex={index}
                   handleUpdate={handleUpdate}
                   handleRemoveSpendingMinimum={() => {

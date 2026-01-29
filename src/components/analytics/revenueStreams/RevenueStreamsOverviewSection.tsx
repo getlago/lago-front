@@ -15,7 +15,7 @@ import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChar
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { HorizontalDataTable, RowType } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -46,14 +46,9 @@ gql`
   }
 `
 
-type RevenueStreamsOverviewSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
-
-export const RevenueStreamsOverviewSection = ({
-  premiumWarningDialogRef,
-}: RevenueStreamsOverviewSectionProps) => {
+export const RevenueStreamsOverviewSection = () => {
   const { translate } = useInternationalization()
+  const premiumWarningDialog = usePremiumWarningDialog()
   const {
     selectedCurrency,
     defaultCurrency,
@@ -91,7 +86,7 @@ export const RevenueStreamsOverviewSection = ({
               onClick={(e) => {
                 if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
+                  premiumWarningDialog.open()
                 } else {
                   onClick()
                 }

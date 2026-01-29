@@ -1,9 +1,8 @@
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type PremiumFeatureProps = {
@@ -22,52 +21,49 @@ const PremiumFeature = ({
   buttonClassName,
 }: PremiumFeatureProps) => {
   const { translate } = useInternationalization()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   return (
-    <>
-      <div
-        className={tw(
-          'flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4',
-          className,
-        )}
-      >
-        <div className="flex flex-col">
-          <div className="flex flex-row items-center gap-2">
-            <Typography variant="bodyHl" color="grey700">
-              {title}
-            </Typography>
-
-            <Icon name="sparkles" />
-          </div>
-
-          <Typography variant="caption" color="grey600">
-            {description}
+    <div
+      className={tw(
+        'flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4',
+        className,
+      )}
+    >
+      <div className="flex flex-col">
+        <div className="flex flex-row items-center gap-2">
+          <Typography variant="bodyHl" color="grey700">
+            {title}
           </Typography>
+
+          <Icon name="sparkles" />
         </div>
 
-        <Button
-          className={buttonClassName}
-          endIcon="sparkles"
-          variant="tertiary"
-          onClick={() =>
-            premiumWarningDialogRef.current?.openDialog({
-              title,
-              description,
-              mailtoSubject: translate('text_1759493418045b173t4qhktb', {
-                feature,
-              }),
-              mailtoBody: translate('text_1759493745332hiuejhksn15', {
-                feature,
-              }),
-            })
-          }
-        >
-          {translate('text_65ae73ebe3a66bec2b91d72d')}
-        </Button>
+        <Typography variant="caption" color="grey600">
+          {description}
+        </Typography>
       </div>
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </>
+
+      <Button
+        className={buttonClassName}
+        endIcon="sparkles"
+        variant="tertiary"
+        onClick={() =>
+          premiumWarningDialog.open({
+            title,
+            description,
+            mailtoSubject: translate('text_1759493418045b173t4qhktb', {
+              feature,
+            }),
+            mailtoBody: translate('text_1759493745332hiuejhksn15', {
+              feature,
+            }),
+          })
+        }
+      >
+        {translate('text_65ae73ebe3a66bec2b91d72d')}
+      </Button>
+    </div>
   )
 }
 

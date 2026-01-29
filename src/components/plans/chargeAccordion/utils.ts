@@ -1,13 +1,13 @@
 import { FormikProps } from 'formik'
-import { RefObject } from 'react'
 
+import { PremiumWarningDialogProps } from '~/components/dialogs/PremiumWarningDialog'
+import { PremiumWarningHookDialogReturnType } from '~/components/dialogs/types'
 import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import {
   LocalFixedChargeInput,
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { ChargeModelEnum } from '~/generated/graphql'
 
@@ -17,7 +17,7 @@ export type HandleUpdateUsageChargesProps = {
   isPremium: boolean
   localCharge: LocalUsageChargeInput
   name: string
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef> | undefined
+  premiumWarningDialog: PremiumWarningHookDialogReturnType<PremiumWarningDialogProps>
   value: unknown
 }
 
@@ -49,14 +49,14 @@ export const handleUpdateUsageCharges = ({
   isPremium,
   localCharge,
   name,
-  premiumWarningDialogRef,
+  premiumWarningDialog,
   value,
 }: HandleUpdateUsageChargesProps) => {
   // IMPORTANT: This check should stay first in this function
   // If user is not premium and try to switch to graduated percentage pricing
   // We should show the premium modal and prevent any formik value change
   if (name === 'chargeModel' && !isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-    premiumWarningDialogRef?.current?.openDialog()
+    premiumWarningDialog.open()
     return
   }
 
