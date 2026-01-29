@@ -5,11 +5,12 @@ import { Button } from '~/components/designSystem'
 import BaseDialog from '~/components/dialogs/BaseDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const WARNING_DIALOG_NAME = 'WarningDialog'
-
-export const WARNING_DIALOG_TEST_ID = 'warning-dialog'
-export const WARNING_DIALOG_CANCEL_BUTTON_TEST_ID = 'warning-cancel'
-export const WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID = 'warning-confirm'
+import {
+  WARNING_DIALOG_CANCEL_BUTTON_TEST_ID,
+  WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  WARNING_DIALOG_NAME,
+  WARNING_DIALOG_TEST_ID,
+} from './const'
 
 export type WarningDialogProps = {
   title: string

@@ -5,9 +5,8 @@ import { ReactNode, useEffect } from 'react'
 
 import { render } from '~/test-utils'
 
-import { DIALOG_TITLE_TEST_ID } from '../BaseDialog'
+import { DIALOG_TITLE_TEST_ID, PREMIUM_WARNING_DIALOG_NAME } from '../const'
 import PremiumWarningDialog, {
-  PREMIUM_WARNING_DIALOG_NAME,
   PremiumWarningDialogProps,
   usePremiumWarningDialog,
 } from '../PremiumWarningDialog'

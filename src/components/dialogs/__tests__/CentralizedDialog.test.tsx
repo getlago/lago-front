@@ -5,12 +5,11 @@ import { ReactNode, useEffect } from 'react'
 
 import { render } from '~/test-utils'
 
-import { DIALOG_TITLE_TEST_ID } from '../BaseDialog'
 import CentralizedDialog, {
-  CENTRALIZED_DIALOG_NAME,
   CentralizedDialogProps,
   useCentralizedDialog,
 } from '../CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME, DIALOG_TITLE_TEST_ID } from '../const'
 
 // Test IDs for test-specific elements
 const DIALOG_CONTENT_TEST_ID = 'dialog-content'

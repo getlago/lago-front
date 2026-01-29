@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 
-export const DIALOG_TITLE_TEST_ID = 'dialog-title'
+import { DIALOG_TITLE_TEST_ID } from './const'
 
 export type BaseDialogProps = {
   title: ReactNode
