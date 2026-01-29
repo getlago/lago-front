@@ -106,6 +106,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription: undefined,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -137,6 +138,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -166,6 +168,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -188,6 +191,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -215,6 +219,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription: undefined,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -247,6 +252,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -275,6 +281,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -300,6 +307,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription: undefined,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -316,6 +324,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription: undefined,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -345,6 +354,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -367,6 +377,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -391,6 +402,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -425,6 +437,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper(mocks) },
@@ -460,6 +473,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper(mocks) },
@@ -501,6 +515,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper(mocks) },
@@ -532,6 +547,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -554,6 +570,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription: subscriptionWithRecurring,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -572,6 +589,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription: subscriptionWithoutRecurring,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },
@@ -594,6 +612,7 @@ describe('useProgressiveBillingTanstackForm', () => {
           useProgressiveBillingTanstackForm({
             subscriptionId,
             subscription,
+            currency: CurrencyEnum.Usd,
             onSuccess: mockOnSuccess,
           }),
         { wrapper: createWrapper() },

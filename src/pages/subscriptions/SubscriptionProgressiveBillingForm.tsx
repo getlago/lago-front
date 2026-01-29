@@ -122,6 +122,7 @@ const SubscriptionProgressiveBillingForm = () => {
   } = useProgressiveBillingTanstackForm({
     subscriptionId,
     subscription,
+    currency,
     onSuccess,
   })
 
@@ -140,7 +141,14 @@ const SubscriptionProgressiveBillingForm = () => {
           id="create-subscription-progressive-billing"
           className="flex size-full min-h-full flex-col overflow-auto"
           data-test={PROGRESSIVE_BILLING_FORM_TEST_ID}
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            if (!isDirty) {
+              e.preventDefault()
+              onLeave()
+            } else {
+              handleSubmit(e)
+            }
+          }}
         >
           <CenteredPage.Header>
             <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -203,6 +211,7 @@ const SubscriptionProgressiveBillingForm = () => {
                         </Button>
                         <div className="-mx-4 -mb-1 overflow-auto px-4 pb-1">
                           <ChargeTable
+                            className="w-full"
                             name="progressive-billing-thresholds"
                             data={nonRecurringThresholds.map((t, i) => ({
                               ...t,
@@ -307,6 +316,7 @@ const SubscriptionProgressiveBillingForm = () => {
                       {hasRecurring && (
                         <div className="-mx-4 -mb-1 overflow-auto px-4 py-1">
                           <ChargeTable
+                            className="w-full"
                             name="progressive-billing-recurring"
                             columns={[
                               {

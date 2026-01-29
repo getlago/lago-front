@@ -11679,7 +11679,9 @@ export type GetEntitlementsForSubscriptionDetailsQuery = { __typename?: 'Query',
 
 export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
 
-export type SubscriptionForProgressiveBillingTabFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }> };
+export type ThresholdForRecurringThresholdsTableFragment = { __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null };
+
+export type SubscriptionForProgressiveBillingTabFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null } };
 
 export type SwitchProgressiveBillingDisabledValueMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
@@ -11687,6 +11689,8 @@ export type SwitchProgressiveBillingDisabledValueMutationVariables = Exact<{
 
 
 export type SwitchProgressiveBillingDisabledValueMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null } | null };
+
+export type ThresholdForThresholdsTableFragment = { __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null };
 
 export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
 
@@ -14094,7 +14098,7 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, progressiveBillingDisabled?: boolean | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string }, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }> } | null };
+export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, progressiveBillingDisabled?: boolean | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, amountCurrency: CurrencyEnum, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null }, customer: { __typename?: 'Customer', id: string }, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> } | null };
 
 export type GetSubscriptionDataForEntitlementFormQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -16248,15 +16252,43 @@ export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
   }
 }
     `;
+export const ThresholdForThresholdsTableFragmentDoc = gql`
+    fragment ThresholdForThresholdsTable on UsageThreshold {
+  id
+  amountCents
+  recurring
+  thresholdDisplayName
+}
+    `;
+export const ThresholdForRecurringThresholdsTableFragmentDoc = gql`
+    fragment ThresholdForRecurringThresholdsTable on UsageThreshold {
+  id
+  amountCents
+  recurring
+  thresholdDisplayName
+}
+    `;
 export const SubscriptionForProgressiveBillingTabFragmentDoc = gql`
     fragment SubscriptionForProgressiveBillingTab on Subscription {
   id
   progressiveBillingDisabled
   usageThresholds {
     id
+    ...ThresholdForThresholdsTable
+    ...ThresholdForRecurringThresholdsTable
+  }
+  plan {
+    id
+    amountCurrency
+    usageThresholds {
+      id
+      ...ThresholdForThresholdsTable
+      ...ThresholdForRecurringThresholdsTable
+    }
   }
 }
-    `;
+    ${ThresholdForThresholdsTableFragmentDoc}
+${ThresholdForRecurringThresholdsTableFragmentDoc}`;
 export const SubscriptionUsageLifetimeGraphForLifetimeGraphFragmentDoc = gql`
     fragment SubscriptionUsageLifetimeGraphForLifetimeGraph on Subscription {
   id

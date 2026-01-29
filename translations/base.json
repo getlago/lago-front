@@ -3818,5 +3818,8 @@
   "text_17696267549792unv7l25frt": "Usage thresholds",
   "text_1769626753039lmsvielfb69": "Define the different threshold to trigger progressive billing invoices.",
   "text_1769642763701xwuflld9biu": "Edit, reset or {{enableDisableCopy}}",
-  "text_17696427637012io81h0jc2w": "Edit or {{enableDisableCopy}}"
+  "text_17696427637012io81h0jc2w": "Edit or {{enableDisableCopy}}",
+  "text_1769712384134peknn5jyojg": "Subscription values",
+  "text_17697123841349drggrw2qur": "Parent values",
+  "text_1769714542183sxbznn2i3v0": "Progressive billing is disabled on this subscription. Edit the subscription’s progressive billing to start invoicing based on threshold amounts."
 }
