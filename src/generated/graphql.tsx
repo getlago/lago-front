@@ -4401,6 +4401,11 @@ export enum InvoicePaymentStatusTypeEnum {
   Succeeded = 'succeeded'
 }
 
+export enum InvoiceSettlementTypeEnum {
+  CreditNote = 'credit_note',
+  Payment = 'payment'
+}
+
 export enum InvoiceStatusTypeEnum {
   Closed = 'closed',
   Draft = 'draft',
@@ -7369,6 +7374,7 @@ export type QueryInvoicesArgs = {
   positiveDueAmount?: InputMaybe<Scalars['Boolean']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  settlements?: InputMaybe<Array<InvoiceSettlementTypeEnum>>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -12557,6 +12563,7 @@ export type GetInvoicesListQueryVariables = Exact<{
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum> | InvoicePaymentStatusTypeEnum>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  settlements?: InputMaybe<Array<InvoiceSettlementTypeEnum> | InvoiceSettlementTypeEnum>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
@@ -33410,7 +33417,7 @@ export type OktaAcceptInviteMutationHookResult = ReturnType<typeof useOktaAccept
 export type OktaAcceptInviteMutationResult = Apollo.MutationResult<OktaAcceptInviteMutation>;
 export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 export const GetInvoicesListDocument = gql`
-    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
+    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $settlements: [InvoiceSettlementTypeEnum!], $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   invoices(
     currency: $currency
     customerExternalId: $customerExternalId
@@ -33424,6 +33431,7 @@ export const GetInvoicesListDocument = gql`
     paymentOverdue: $paymentOverdue
     paymentStatus: $paymentStatus
     searchTerm: $searchTerm
+    settlements: $settlements
     status: $status
     amountFrom: $amountFrom
     amountTo: $amountTo
@@ -33467,6 +33475,7 @@ export const GetInvoicesListDocument = gql`
  *      paymentOverdue: // value for 'paymentOverdue'
  *      paymentStatus: // value for 'paymentStatus'
  *      searchTerm: // value for 'searchTerm'
+ *      settlements: // value for 'settlements'
  *      status: // value for 'status'
  *      amountFrom: // value for 'amountFrom'
  *      amountTo: // value for 'amountTo'
