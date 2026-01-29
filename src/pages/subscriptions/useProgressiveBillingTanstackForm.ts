@@ -4,7 +4,9 @@ import { useCallback, useMemo } from 'react'
 import { z } from 'zod'
 
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  CurrencyEnum,
   SubscriptionForProgressiveBillingFormFragment,
   useUpdateSubscriptionProgressiveBillingMutation,
 } from '~/generated/graphql'
@@ -48,12 +50,14 @@ export interface ProgressiveBillingFormValues {
 interface UseProgressiveBillingTanstackFormProps {
   subscriptionId: string
   subscription: SubscriptionForProgressiveBillingFormFragment | null | undefined
+  currency: CurrencyEnum
   onSuccess: () => void
 }
 
 export const useProgressiveBillingTanstackForm = ({
   subscriptionId,
   subscription,
+  currency,
   onSuccess,
 }: UseProgressiveBillingTanstackFormProps) => {
   const [updateSubscription] = useUpdateSubscriptionProgressiveBillingMutation({
@@ -74,7 +78,7 @@ export const useProgressiveBillingTanstackForm = ({
       nonRecurringThresholds:
         nonRecurring.length > 0
           ? nonRecurring.map((t) => ({
-              amountCents: t.amountCents || '',
+              amountCents: t.amountCents ? String(deserializeAmount(t.amountCents, currency)) : '',
               thresholdDisplayName: t.thresholdDisplayName || '',
               recurring: false,
             }))
@@ -82,13 +86,15 @@ export const useProgressiveBillingTanstackForm = ({
       hasRecurring: !!recurring,
       recurringThreshold: recurring
         ? {
-            amountCents: recurring.amountCents || '',
+            amountCents: recurring.amountCents
+              ? String(deserializeAmount(recurring.amountCents, currency))
+              : '',
             thresholdDisplayName: recurring.thresholdDisplayName || '',
             recurring: true,
           }
         : { amountCents: '', thresholdDisplayName: '', recurring: true },
     }
-  }, [subscription])
+  }, [subscription, currency])
 
   const thresholdSchema = z.object({
     amountCents: z.string(),
@@ -164,7 +170,7 @@ export const useProgressiveBillingTanstackForm = ({
     },
     onSubmit: async ({ value }) => {
       const thresholds: Array<{
-        amountCents: string
+        amountCents: number
         thresholdDisplayName?: string
         recurring: boolean
       }> = []
@@ -173,7 +179,7 @@ export const useProgressiveBillingTanstackForm = ({
       value.nonRecurringThresholds.forEach((t) => {
         if (t.amountCents) {
           thresholds.push({
-            amountCents: t.amountCents,
+            amountCents: Number(serializeAmount(t.amountCents, currency)),
             thresholdDisplayName: t.thresholdDisplayName || undefined,
             recurring: false,
           })
@@ -183,7 +189,7 @@ export const useProgressiveBillingTanstackForm = ({
       // Add recurring threshold if enabled
       if (value.hasRecurring && value.recurringThreshold.amountCents) {
         thresholds.push({
-          amountCents: value.recurringThreshold.amountCents,
+          amountCents: Number(serializeAmount(value.recurringThreshold.amountCents, currency)),
           thresholdDisplayName: value.recurringThreshold.thresholdDisplayName || undefined,
           recurring: true,
         })
