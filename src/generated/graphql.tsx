@@ -4402,8 +4402,7 @@ export enum InvoicePaymentStatusTypeEnum {
 }
 
 export enum InvoiceSettlementTypeEnum {
-  CreditNote = 'credit_note',
-  Payment = 'payment'
+  CreditNote = 'credit_note'
 }
 
 export enum InvoiceStatusTypeEnum {
@@ -6007,7 +6006,9 @@ export type PaymentMethod = {
   isDefault: Scalars['Boolean']['output'];
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   paymentProviderCustomerId?: Maybe<Scalars['ID']['output']>;
+  paymentProviderName?: Maybe<Scalars['String']['output']>;
   paymentProviderType?: Maybe<ProviderTypeEnum>;
+  providerMethodId: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
 };
 
