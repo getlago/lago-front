@@ -45,6 +45,17 @@ import { FreemiumBlock } from './FreemiumBlock'
 import { RecurringThresholdsTable } from './RecurringThresholdsTable'
 import { ThresholdsTable } from './ThresholdsTable'
 
+// Test ID constants
+export const PROGRESSIVE_BILLING_TAB_TEST_ID = 'progressive-billing-tab'
+export const PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID = 'progressive-billing-freemium-block'
+export const PROGRESSIVE_BILLING_CARD_TEST_ID = 'progressive-billing-card'
+export const PROGRESSIVE_BILLING_OVERRIDDEN_CHIP_TEST_ID = 'progressive-billing-overridden-chip'
+export const PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID = 'progressive-billing-menu-button'
+export const PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID = 'progressive-billing-edit-button'
+export const PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID = 'progressive-billing-reset-button'
+export const PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID = 'progressive-billing-toggle-button'
+export const PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID = 'progressive-billing-disabled-message'
+
 gql`
   fragment SubscriptionForProgressiveBillingTab on Subscription {
     id
@@ -154,7 +165,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
       (subscription.plan?.usageThresholds?.length || 0) > 0)
 
   return (
-    <section className="flex flex-col gap-6 pt-6">
+    <section data-test={PROGRESSIVE_BILLING_TAB_TEST_ID} className="flex flex-col gap-6 pt-6">
       <div className="flex flex-col items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <Typography variant="subhead1">{translate('text_1724179887722baucvj7bvc1')}</Typography>
@@ -165,7 +176,9 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
           />
         </div>
 
-        {!hasPremiumIntegration && <FreemiumBlock />}
+        {!hasPremiumIntegration && (
+          <FreemiumBlock data-test={PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID} />
+        )}
 
         {hasPremiumIntegration && (
           <Card className="w-full gap-0 p-0">
@@ -178,6 +191,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
               <div className="flex items-center gap-3">
                 {shouldDisplayOverriddenBadge && (
                   <Chip
+                    data-test={PROGRESSIVE_BILLING_OVERRIDDEN_CHIP_TEST_ID}
                     className="border-purple-200 bg-purple-100"
                     color="infoMain"
                     label={translate('text_65281f686a80b400c8e2f6dd')}
@@ -190,6 +204,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
                     opener={({ onClick }) => (
                       <Tooltip placement="top-start" title={tooltipTitle}>
                         <Button
+                          data-test={PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID}
                           variant="quaternary"
                           icon="dots-horizontal"
                           onClick={(e) => {
@@ -203,6 +218,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
                     {({ closePopper }) => (
                       <MenuPopper>
                         <Button
+                          data-test={PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID}
                           fullWidth
                           align="left"
                           startIcon="pen"
@@ -218,6 +234,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
 
                         {subscriptionThresholds.length > 0 && (
                           <Button
+                            data-test={PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID}
                             fullWidth
                             align="left"
                             startIcon="history"
@@ -235,6 +252,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
                         )}
 
                         <Button
+                          data-test={PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID}
                           fullWidth
                           align="left"
                           startIcon={
@@ -279,7 +297,11 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
                   component: (
                     <div className="flex flex-col gap-4 p-4">
                       {subscription.progressiveBillingDisabled && (
-                        <Typography variant="body" color="grey500">
+                        <Typography
+                          data-test={PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID}
+                          variant="body"
+                          color="grey500"
+                        >
                           {translate('text_1769714542183sxbznn2i3v0')}
                         </Typography>
                       )}

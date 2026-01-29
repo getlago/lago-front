@@ -1,13 +1,19 @@
 import { Icon } from 'lago-design-system'
+import { HTMLAttributes } from 'react'
 
 import { ButtonLink, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const FreemiumBlock = () => {
+type FreemiumBlockProps = HTMLAttributes<HTMLDivElement>
+
+export const FreemiumBlock = (props: FreemiumBlockProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
+    <div
+      className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4"
+      {...props}
+    >
       <div>
         <div className="flex items-center gap-2">
           <Typography variant="bodyHl" color="textSecondary">

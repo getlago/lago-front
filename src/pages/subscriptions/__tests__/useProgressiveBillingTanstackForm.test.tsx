@@ -52,7 +52,7 @@ const createUpdateMutationMock = (
     id: string
     progressiveBillingDisabled: boolean
     usageThresholds: Array<{
-      amountCents: string
+      amountCents: number
       thresholdDisplayName?: string
       recurring: boolean
     }>
@@ -147,12 +147,14 @@ describe('useProgressiveBillingTanstackForm', () => {
       await act(() => Promise.resolve())
 
       expect(result.current.progressiveBillingDisabled).toBe(false)
+      // 100 cents -> '1' USD (deserialized)
       expect(result.current.nonRecurringThresholds).toEqual([
-        { amountCents: '100', thresholdDisplayName: 'First', recurring: false },
+        { amountCents: '1', thresholdDisplayName: 'First', recurring: false },
       ])
       expect(result.current.hasRecurring).toBe(true)
+      // 500 cents -> '5' USD (deserialized)
       expect(result.current.recurringThreshold).toEqual({
-        amountCents: '500',
+        amountCents: '5',
         thresholdDisplayName: 'Recurring',
         recurring: true,
       })
@@ -206,8 +208,9 @@ describe('useProgressiveBillingTanstackForm', () => {
       })
 
       expect(result.current.nonRecurringThresholds).toHaveLength(2)
+      // 100 cents -> '1' USD (deserialized) + 1 = '2'
       expect(result.current.nonRecurringThresholds[1]).toEqual({
-        amountCents: '101',
+        amountCents: '2',
         thresholdDisplayName: '',
         recurring: false,
       })
@@ -410,17 +413,24 @@ describe('useProgressiveBillingTanstackForm', () => {
 
       await act(() => Promise.resolve())
 
-      // Should correctly initialize the form state
+      // Should correctly initialize the form state (deserialized from cents)
       expect(result.current.nonRecurringThresholds).toHaveLength(2)
-      expect(result.current.nonRecurringThresholds[0].amountCents).toBe('100')
-      expect(result.current.nonRecurringThresholds[1].amountCents).toBe('200')
+      // 100 cents -> '1' USD (deserialized)
+      expect(result.current.nonRecurringThresholds[0].amountCents).toBe('1')
+      // 200 cents -> '2' USD (deserialized)
+      expect(result.current.nonRecurringThresholds[1].amountCents).toBe('2')
     })
   })
 
   describe('form submission', () => {
+    // Note: amountCents from API is in cents (e.g., '100' = 100 cents = $1.00 USD)
+    // Form displays deserialized values (e.g., '1' for $1.00)
+    // On submit, values are serialized back to cents (e.g., '1' -> 100)
+
     it('submits with correct data when progressive billing is enabled', async () => {
       const subscription = createMockSubscription({
         progressiveBillingDisabled: false,
+        // 100 cents from API
         usageThresholds: [{ amountCents: '100', recurring: false, thresholdDisplayName: 'Test' }],
       })
 
@@ -428,7 +438,8 @@ describe('useProgressiveBillingTanstackForm', () => {
         createUpdateMutationMock({
           id: subscriptionId,
           progressiveBillingDisabled: false,
-          usageThresholds: [{ amountCents: '100', thresholdDisplayName: 'Test', recurring: false }],
+          // Serialized back to 100 cents (number)
+          usageThresholds: [{ amountCents: 100, thresholdDisplayName: 'Test', recurring: false }],
         }),
       ]
 
@@ -464,7 +475,7 @@ describe('useProgressiveBillingTanstackForm', () => {
         createUpdateMutationMock({
           id: subscriptionId,
           progressiveBillingDisabled: true,
-          usageThresholds: [{ amountCents: '100', thresholdDisplayName: 'Test', recurring: false }],
+          usageThresholds: [{ amountCents: 100, thresholdDisplayName: 'Test', recurring: false }],
         }),
       ]
 
@@ -504,8 +515,8 @@ describe('useProgressiveBillingTanstackForm', () => {
           id: subscriptionId,
           progressiveBillingDisabled: false,
           usageThresholds: [
-            { amountCents: '100', recurring: false },
-            { amountCents: '500', thresholdDisplayName: 'Recurring', recurring: true },
+            { amountCents: 100, recurring: false },
+            { amountCents: 500, thresholdDisplayName: 'Recurring', recurring: true },
           ],
         }),
       ]
@@ -534,6 +545,9 @@ describe('useProgressiveBillingTanstackForm', () => {
   })
 
   describe('form values', () => {
+    // Note: Form values are deserialized from cents to display values
+    // 100 cents -> '1' USD, 200 cents -> '2' USD, etc.
+
     it('exposes nonRecurringThresholds from form state', async () => {
       const subscription = createMockSubscription({
         usageThresholds: [
@@ -556,8 +570,10 @@ describe('useProgressiveBillingTanstackForm', () => {
       await act(() => Promise.resolve())
 
       expect(result.current.nonRecurringThresholds).toHaveLength(2)
-      expect(result.current.nonRecurringThresholds[0].amountCents).toBe('100')
-      expect(result.current.nonRecurringThresholds[1].amountCents).toBe('200')
+      // 100 cents -> '1' USD (deserialized)
+      expect(result.current.nonRecurringThresholds[0].amountCents).toBe('1')
+      // 200 cents -> '2' USD (deserialized)
+      expect(result.current.nonRecurringThresholds[1].amountCents).toBe('2')
     })
 
     it('exposes hasRecurring from form state', async () => {
@@ -620,7 +636,8 @@ describe('useProgressiveBillingTanstackForm', () => {
 
       await act(() => Promise.resolve())
 
-      expect(result.current.recurringThreshold.amountCents).toBe('1000')
+      // 1000 cents -> '10' USD (deserialized)
+      expect(result.current.recurringThreshold.amountCents).toBe('10')
       expect(result.current.recurringThreshold.thresholdDisplayName).toBe('Monthly')
       expect(result.current.recurringThreshold.recurring).toBe(true)
     })
