@@ -11,7 +11,6 @@ gql`
   fragment ThresholdForThresholdsTable on UsageThreshold {
     id
     amountCents
-    recurring
     thresholdDisplayName
   }
 `
@@ -36,17 +35,15 @@ export const ThresholdsTable = ({
         translate('text_17241798877234jhvoho4ci9'),
       ]}
       body={[
-        ...(thresholds
-          ?.filter((t) => !t.recurring)
-          .map((threshold, i) => [
-            i === 0
-              ? translate('text_1724179887723hi673zmbvdj')
-              : translate('text_1724179887723917j8ezkd9v'),
-            intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
-              currency,
-            }),
-            threshold.thresholdDisplayName || '',
-          ]) || []),
+        ...(thresholds.map((threshold, i) => [
+          i === 0
+            ? translate('text_1724179887723hi673zmbvdj')
+            : translate('text_1724179887723917j8ezkd9v'),
+          intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
+            currency,
+          }),
+          threshold.thresholdDisplayName || '',
+        ]) || []),
       ]}
     />
   )

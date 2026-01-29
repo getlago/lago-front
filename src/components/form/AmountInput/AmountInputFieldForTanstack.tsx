@@ -27,8 +27,14 @@ const AmountInputField = ({
   // Combine external error with form validation error
   const combinedError = externalError || formError
 
+  const getErrorString = (): string => {
+    if (typeof combinedError === 'string') return combinedError
+    if (combinedError) return ' '
+    return ''
+  }
+
   const finalError = getErrorToDisplay({
-    error: typeof combinedError === 'string' ? combinedError : combinedError ? ' ' : '',
+    error: getErrorString(),
     errorMap,
     silentError,
     displayErrorText,

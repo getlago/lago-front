@@ -461,5 +461,245 @@ describe('SubscriptionProgressiveBillingTab', () => {
       expect(screen.getByText('Non-recurring')).toBeInTheDocument()
       expect(screen.getByText('Recurring threshold')).toBeInTheDocument()
     })
+
+    it('filters non-recurring thresholds to ThresholdsTable only', () => {
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            usageThresholds: [
+              {
+                id: 'threshold-1',
+                amountCents: '10000',
+                recurring: false,
+                thresholdDisplayName: 'Non-recurring only',
+              },
+            ],
+          })}
+          loading={false}
+        />,
+      )
+
+      // Non-recurring threshold should be displayed
+      expect(screen.getByText('Non-recurring only')).toBeInTheDocument()
+
+      // The recurring label should not appear (no recurring thresholds)
+      expect(screen.queryByText('text_17241798877230y851fdxzqu')).not.toBeInTheDocument()
+    })
+
+    it('filters recurring thresholds to RecurringThresholdsTable only', () => {
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            usageThresholds: [
+              {
+                id: 'threshold-1',
+                amountCents: '10000',
+                recurring: false,
+                thresholdDisplayName: 'Non-recurring item',
+              },
+              {
+                id: 'threshold-2',
+                amountCents: '50000',
+                recurring: true,
+                thresholdDisplayName: 'Recurring item',
+              },
+            ],
+          })}
+          loading={false}
+        />,
+      )
+
+      // Both should be displayed but in separate tables
+      expect(screen.getByText('Non-recurring item')).toBeInTheDocument()
+      expect(screen.getByText('Recurring item')).toBeInTheDocument()
+
+      // The recurring label should appear for the recurring table
+      expect(screen.getByText('text_17241798877230y851fdxzqu')).toBeInTheDocument()
+    })
+
+    it('does not show recurring table when no recurring thresholds exist', () => {
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            usageThresholds: [
+              {
+                id: 'threshold-1',
+                amountCents: '10000',
+                recurring: false,
+                thresholdDisplayName: 'Only non-recurring',
+              },
+              {
+                id: 'threshold-2',
+                amountCents: '20000',
+                recurring: false,
+                thresholdDisplayName: 'Another non-recurring',
+              },
+            ],
+          })}
+          loading={false}
+        />,
+      )
+
+      // Non-recurring thresholds should be displayed
+      expect(screen.getByText('Only non-recurring')).toBeInTheDocument()
+      expect(screen.getByText('Another non-recurring')).toBeInTheDocument()
+
+      // Recurring table label should not appear
+      expect(screen.queryByText('text_17241798877230y851fdxzqu')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('plan thresholds tab', () => {
+    it('displays plan thresholds in the plan tab', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            plan: {
+              id: 'plan-123',
+              amountCurrency: CurrencyEnum.Usd,
+              usageThresholds: [
+                {
+                  id: 'plan-threshold-1',
+                  amountCents: '5000',
+                  recurring: false,
+                  thresholdDisplayName: 'Plan non-recurring',
+                },
+                {
+                  id: 'plan-threshold-2',
+                  amountCents: '15000',
+                  recurring: true,
+                  thresholdDisplayName: 'Plan recurring',
+                },
+              ],
+            },
+          })}
+          loading={false}
+        />,
+      )
+
+      // Click on the plan tab (second tab)
+      const planTab = screen.getByText('text_17697123841349drggrw2qur')
+
+      await act(async () => {
+        await user.click(planTab)
+      })
+
+      // Plan thresholds should be displayed
+      await waitFor(() => {
+        expect(screen.getByText('Plan non-recurring')).toBeInTheDocument()
+        expect(screen.getByText('Plan recurring')).toBeInTheDocument()
+      })
+    })
+
+    it('filters plan thresholds correctly between tables', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            usageThresholds: [],
+            progressiveBillingDisabled: true,
+            plan: {
+              id: 'plan-123',
+              amountCurrency: CurrencyEnum.Usd,
+              usageThresholds: [
+                {
+                  id: 'plan-threshold-1',
+                  amountCents: '5000',
+                  recurring: false,
+                  thresholdDisplayName: 'Plan threshold A',
+                },
+                {
+                  id: 'plan-threshold-2',
+                  amountCents: '10000',
+                  recurring: false,
+                  thresholdDisplayName: 'Plan threshold B',
+                },
+              ],
+            },
+          })}
+          loading={false}
+        />,
+      )
+
+      // Click on the plan tab
+      const planTab = screen.getByText('text_17697123841349drggrw2qur')
+
+      await act(async () => {
+        await user.click(planTab)
+      })
+
+      // Plan thresholds should be displayed
+      await waitFor(() => {
+        expect(screen.getByText('Plan threshold A')).toBeInTheDocument()
+        expect(screen.getByText('Plan threshold B')).toBeInTheDocument()
+      })
+
+      // Recurring table label should not appear (no recurring plan thresholds)
+      expect(screen.queryByText('text_17241798877230y851fdxzqu')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('route generation', () => {
+    it('generates edit path with planId when customerId is not provided', async () => {
+      const user = userEvent.setup()
+
+      // Set planId instead of customerId
+      useParams.mockReturnValue({ customerId: '', planId: 'plan-456' })
+
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription()}
+          loading={false}
+        />,
+      )
+
+      await act(async () => {
+        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
+      })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      await act(async () => {
+        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID))
+      })
+
+      // Should navigate with planId path
+      expect(testMockNavigateFn).toHaveBeenCalledWith(expect.stringContaining('plan-456'))
+    })
+  })
+
+  describe('reset dialog', () => {
+    it('opens reset dialog when reset button is clicked', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription()}
+          loading={false}
+        />,
+      )
+
+      await act(async () => {
+        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
+      })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      await act(async () => {
+        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID))
+      })
+
+      // Dialog should be opened (check for dialog content)
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+      })
+    })
   })
 })
