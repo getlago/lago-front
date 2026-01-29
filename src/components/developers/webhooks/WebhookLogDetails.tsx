@@ -46,7 +46,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { translate } = useInternationalization()
 
-  const { data, loading } = useGetSingleWebhookLogQuery({
+  const { data, loading, refetch } = useGetSingleWebhookLogQuery({
     variables: { id: logId || '' },
     skip: !logId,
   })
@@ -68,6 +68,25 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
 
   const hasError = status === WebhookStatusEnum.Failed
 
+  // Launch the webhook retry and then wait for the status to be other than 'PENDING'
+  // We check every second if the status has changed or not. Until then, the retry button is disabled
+  const retryWebhookAndWait = async () => {
+    await retry()
+
+    const maxAttempts = 3
+    const pollInterval = 1000
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, pollInterval))
+
+      const { data: refreshedData } = await refetch()
+
+      if (refreshedData?.webhook?.status !== WebhookStatusEnum.Pending) {
+        return
+      }
+    }
+  }
+
   return (
     <>
       <Typography
@@ -81,7 +100,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
           <>
             {webhookType}
             {hasError && (
-              <Button variant="quaternary" onClick={async () => await retry()}>
+              <Button variant="quaternary" onClick={async () => await retryWebhookAndWait()}>
                 {translate('text_63e27c56dfe64b846474efa3')}
               </Button>
             )}
