@@ -14,20 +14,14 @@ import {
 } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
-  DisableProgressiveBillingDialog,
-  DisableProgressiveBillingDialogRef,
-} from '~/components/subscriptions/DisableProgressiveBillingDialog'
-import {
   ResetProgressiveBillingDialog,
   ResetProgressiveBillingDialogRef,
 } from '~/components/subscriptions/ResetProgressiveBillingDialog'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE,
   EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE,
 } from '~/core/router'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   PremiumIntegrationTypeEnum,
@@ -41,9 +35,10 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
-import { FreemiumBlock } from './FreemiumBlock'
 import { RecurringThresholdsTable } from './RecurringThresholdsTable'
 import { ThresholdsTable } from './ThresholdsTable'
+
+import { FreemiumBlock } from '../FreemiumBlock'
 
 // Test ID constants
 export const PROGRESSIVE_BILLING_TAB_TEST_ID = 'progressive-billing-tab'
@@ -62,6 +57,7 @@ gql`
     progressiveBillingDisabled
     usageThresholds {
       id
+      recurring
       ...ThresholdForThresholdsTable
       ...ThresholdForRecurringThresholdsTable
     }
@@ -70,6 +66,7 @@ gql`
       amountCurrency
       usageThresholds {
         id
+        recurring
         ...ThresholdForThresholdsTable
         ...ThresholdForRecurringThresholdsTable
       }
@@ -102,7 +99,6 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
   const { hasPermissions } = usePermissions()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
-  const disableDialogRef = useRef<DisableProgressiveBillingDialogRef>(null)
   const resetDialogRef = useRef<ResetProgressiveBillingDialogRef>(null)
 
   const currency = subscription?.plan?.amountCurrency || CurrencyEnum.Usd
@@ -125,6 +121,10 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
     () => subscription?.plan?.usageThresholds || [],
     [subscription?.plan?.usageThresholds],
   )
+  const nonRecurringSubscriptionThresholds = subscriptionThresholds.filter((t) => !t.recurring)
+  const recurringSubscriptionThresholds = subscriptionThresholds.filter((t) => t.recurring)
+  const nonRecurringPlanThresholds = planThresholds.filter((t) => !t.recurring)
+  const recurringPlanThresholds = planThresholds.filter((t) => t.recurring)
 
   const editProgressiveBillingFormPath = useMemo(() => {
     if (customerId) {
@@ -308,13 +308,13 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
                       {!subscription.progressiveBillingDisabled && (
                         <>
                           <ThresholdsTable
-                            thresholds={subscriptionThresholds}
+                            thresholds={nonRecurringSubscriptionThresholds}
                             currency={currency}
                           />
 
-                          {subscriptionThresholds?.some((threshold) => threshold.recurring) && (
+                          {recurringSubscriptionThresholds.length > 0 && (
                             <RecurringThresholdsTable
-                              thresholds={subscriptionThresholds}
+                              thresholds={recurringSubscriptionThresholds}
                               currency={currency}
                             />
                           )}
@@ -325,49 +325,17 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
                 },
                 {
                   title: translate('text_17697123841349drggrw2qur'),
-                  // hidden: !planThresholds.length,
                   component: (
                     <div className="flex flex-col gap-4 p-4">
-                      <DetailsPage.TableDisplay
-                        name="progressive-billing"
-                        className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
-                        header={[
-                          '',
-                          translate('text_1724179887723eh12a0kqbdw'),
-                          translate('text_17241798877234jhvoho4ci9'),
-                        ]}
-                        body={[
-                          ...(planThresholds
-                            ?.filter((t) => !t.recurring)
-                            .map((threshold, i) => [
-                              i === 0
-                                ? translate('text_1724179887723hi673zmbvdj')
-                                : translate('text_1724179887723917j8ezkd9v'),
-                              intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
-                                currency,
-                              }),
-                              threshold.thresholdDisplayName || '',
-                            ]) || []),
-                        ]}
+                      <ThresholdsTable
+                        thresholds={nonRecurringPlanThresholds}
+                        currency={currency}
                       />
 
-                      {planThresholds?.some((threshold) => threshold.recurring) && (
-                        <DetailsPage.TableDisplay
-                          name="progressive-billing-recurring"
-                          className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
-                          // Only take the first recurring threshold
-                          body={[
-                            ...([planThresholds?.find((t) => t.recurring)]?.map((threshold) => [
-                              translate('text_17241798877230y851fdxzqu'),
-                              intlFormatNumber(
-                                deserializeAmount(threshold?.amountCents, currency),
-                                {
-                                  currency,
-                                },
-                              ),
-                              threshold?.thresholdDisplayName || '',
-                            ]) || []),
-                          ]}
+                      {recurringPlanThresholds.length > 0 && (
+                        <RecurringThresholdsTable
+                          thresholds={recurringPlanThresholds}
+                          currency={currency}
                         />
                       )}
                     </div>
@@ -379,7 +347,6 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
         )}
       </div>
 
-      <DisableProgressiveBillingDialog ref={disableDialogRef} />
       <ResetProgressiveBillingDialog ref={resetDialogRef} />
     </section>
   )

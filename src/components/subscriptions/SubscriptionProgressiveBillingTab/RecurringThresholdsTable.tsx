@@ -11,7 +11,6 @@ gql`
   fragment ThresholdForRecurringThresholdsTable on UsageThreshold {
     id
     amountCents
-    recurring
     thresholdDisplayName
   }
 `
@@ -34,7 +33,7 @@ export const RecurringThresholdsTable = ({
       className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
       // Only take the first recurring threshold
       body={[
-        ...([thresholds?.find((t) => t.recurring)]?.map((threshold) => [
+        ...(thresholds?.map((threshold) => [
           translate('text_17241798877230y851fdxzqu'),
           intlFormatNumber(deserializeAmount(threshold?.amountCents, currency), {
             currency,

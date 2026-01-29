@@ -127,40 +127,36 @@ describe('SubscriptionProgressiveBillingForm', () => {
   })
 
   describe('progressive billing disabled toggle', () => {
-    it('hides add button and has recurring switch when disabled', async () => {
+    it('hides add button and has recurring switch when toggle is clicked', async () => {
       const user = userEvent.setup()
 
-      const subscriptionWithDisabled = {
-        ...mockSubscriptionData,
-        progressiveBillingDisabled: true,
-      }
-
-      renderComponent([createQueryMock(subscriptionWithDisabled)])
+      renderComponent()
 
       await waitFor(() => {
         expect(screen.getByTestId(PROGRESSIVE_BILLING_DISABLED_SWITCH_TEST_ID)).toBeInTheDocument()
       })
 
-      // With progressiveBillingDisabled: true, these should not be visible
+      // By default, progressive billing is enabled, so these should be visible
       expect(
-        screen.queryByTestId(PROGRESSIVE_BILLING_ADD_THRESHOLD_BUTTON_TEST_ID),
-      ).not.toBeInTheDocument()
+        screen.getByTestId(PROGRESSIVE_BILLING_ADD_THRESHOLD_BUTTON_TEST_ID),
+      ).toBeInTheDocument()
       expect(
-        screen.queryByTestId(PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID),
-      ).not.toBeInTheDocument()
+        screen.getByTestId(PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID),
+      ).toBeInTheDocument()
 
-      // Toggle to enable
+      // Toggle to disable
       const disabledSwitch = screen.getByTestId(PROGRESSIVE_BILLING_DISABLED_SWITCH_TEST_ID)
 
       await user.click(disabledSwitch)
 
+      // After disabling, these should not be visible
       await waitFor(() => {
         expect(
-          screen.getByTestId(PROGRESSIVE_BILLING_ADD_THRESHOLD_BUTTON_TEST_ID),
-        ).toBeInTheDocument()
+          screen.queryByTestId(PROGRESSIVE_BILLING_ADD_THRESHOLD_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
         expect(
-          screen.getByTestId(PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID),
-        ).toBeInTheDocument()
+          screen.queryByTestId(PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })
@@ -179,15 +175,17 @@ describe('SubscriptionProgressiveBillingForm', () => {
 
       const addButton = screen.getByTestId(PROGRESSIVE_BILLING_ADD_THRESHOLD_BUTTON_TEST_ID)
 
-      // Initially there should be 2 rows (row-0 and row-1 from the mock data)
-      expect(screen.getByTestId('row-0')).toBeInTheDocument()
-      expect(screen.getByTestId('row-1')).toBeInTheDocument()
+      // Initially there should be 1 row (default threshold)
+      await waitFor(() => {
+        expect(screen.getByTestId('row-0')).toBeInTheDocument()
+      })
+      expect(screen.queryByTestId('row-1')).not.toBeInTheDocument()
 
       await user.click(addButton)
 
-      // After adding, there should be a third row
+      // After adding, there should be a second row
       await waitFor(() => {
-        expect(screen.getByTestId('row-2')).toBeInTheDocument()
+        expect(screen.getByTestId('row-1')).toBeInTheDocument()
       })
     })
   })
