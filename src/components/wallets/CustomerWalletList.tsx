@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
@@ -10,7 +9,6 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
 import { CREATE_WALLET_ROUTE } from '~/core/router'
@@ -61,7 +59,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 10 },
@@ -151,7 +148,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
             {walletsCollection.map((wallet) => (
               <WalletAccordion
                 key={`wallet-${wallet.id}`}
-                premiumWarningDialogRef={premiumWarningDialogRef}
                 wallet={wallet}
                 customerTimezone={customerTimezone}
               />
@@ -159,8 +155,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
           </div>
         </InfiniteScroll>
       )}
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

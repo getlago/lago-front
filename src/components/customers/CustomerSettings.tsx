@@ -57,6 +57,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -64,7 +65,6 @@ import {
   SettingsListWrapper,
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   EditFinalizeZeroAmountInvoiceDialog,
   EditFinalizeZeroAmountInvoiceDialogRef,
@@ -230,7 +230,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editCustomerInvoiceCustomSectionsDialogRef =
     useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
   const deleteCustomerDocumentLocale = useRef<DeleteCustomerDocumentLocaleDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const deleteOrganizationNetPaymentTermDialogRef =
     useRef<DeleteOrganizationNetPaymentTermDialogRef>(null)
@@ -430,7 +430,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             onClick={() =>
                               isPremium
                                 ? editCustomerDocumentLocale?.current?.openDialog()
-                                : premiumWarningDialogRef.current?.openDialog()
+                                : premiumWarningDialog.open()
                             }
                           >
                             {translate('text_645bb193927b375079d28ad2')}
@@ -616,7 +616,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             onClick={() =>
                               isPremium
                                 ? editInvoiceGracePeriodDialogRef?.current?.openDialog()
-                                : premiumWarningDialogRef.current?.openDialog()
+                                : premiumWarningDialog.open()
                             }
                           >
                             {translate('text_645bb193927b375079d28ad2')}
@@ -993,7 +993,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           />
         </>
       )}
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

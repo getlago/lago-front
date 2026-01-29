@@ -17,7 +17,7 @@ import {
   VerticalMenu,
   VerticalMenuSectionTitle,
 } from '~/components/designSystem'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   AUTHENTICATION_ROUTE,
@@ -131,7 +131,7 @@ const SettingsNavLayout = () => {
 
   const { data: billingEntities, loading: billingEntitiesLoading } = useGetBillingEntitiesQuery({})
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const TABS_ORGANIZATION = generateTabs({
     translate,
@@ -248,7 +248,7 @@ const SettingsNavLayout = () => {
                       if (canCreateBillingEntity) {
                         navigate(generatePath(BILLING_ENTITY_CREATE_ROUTE))
                       } else {
-                        premiumWarningDialogRef.current?.openDialog()
+                        premiumWarningDialog.open()
                       }
                     }}
                   >
@@ -274,8 +274,6 @@ const SettingsNavLayout = () => {
           </NavLayout.NavSectionGroup>
         </NavLayout.Nav>
       </ClickAwayListener>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
 
       <NavLayout.ContentWrapper ref={contentRef}>
         <Outlet />

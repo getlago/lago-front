@@ -1,11 +1,11 @@
 import { InputAdornment } from '@mui/material'
-import { RefObject, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button, Tooltip } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { AmountInput } from '~/components/form'
 import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
 import { LocalUsageChargeInput } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -19,7 +19,6 @@ export const SpendingMinimumOptionSection = ({
   chargePricingUnitShortName,
   currency,
   isPremium,
-  premiumWarningDialogRef,
   chargeIndex,
   handleUpdate,
   handleRemoveSpendingMinimum,
@@ -31,7 +30,6 @@ export const SpendingMinimumOptionSection = ({
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   isPremium: boolean
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef> | undefined
   chargeIndex: number
   handleUpdate: (
     name: HandleUpdateUsageChargesProps['name'],
@@ -40,6 +38,7 @@ export const SpendingMinimumOptionSection = ({
   handleRemoveSpendingMinimum: () => void
 }) => {
   const { translate } = useInternationalization()
+  const premiumWarningDialog = usePremiumWarningDialog()
   const [showSpendingMinimum, setShowSpendingMinimum] = useState(
     !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
   )
@@ -66,7 +65,7 @@ export const SpendingMinimumOptionSection = ({
                 document.getElementById(`spending-minimum-input-${chargeIndex}`)?.focus()
               }, 0)
             } else {
-              premiumWarningDialogRef?.current?.openDialog()
+              premiumWarningDialog.open()
             }
           }}
         >
