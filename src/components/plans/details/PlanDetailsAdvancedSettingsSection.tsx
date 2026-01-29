@@ -204,7 +204,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
               <Typography
                 variant="caption"
                 color="grey600"
-                html={translate('text_1754570508182ng9t8r1iuz3')}
+                html={translate('text_17538642230602p03937fj0f')}
               />
             </div>
 

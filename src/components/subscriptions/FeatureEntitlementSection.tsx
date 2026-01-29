@@ -15,7 +15,7 @@ export const FeatureEntitlementSection = () => {
           <Typography
             variant="caption"
             color="grey600"
-            html={translate('text_17538642230602p03937fj0f')}
+            html={translate('text_17697190237699e4t0knd8hj')}
           />
         </div>
       </div>

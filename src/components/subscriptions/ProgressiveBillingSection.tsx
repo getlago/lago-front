@@ -2,7 +2,6 @@ import { Icon } from 'lago-design-system'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Typography } from '~/components/designSystem/Typography'
-import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -25,7 +24,7 @@ export const ProgressiveBillingSection = () => {
           <Typography
             variant="caption"
             color="grey600"
-            html={translate('text_1724179887723kdf3nisf6hp', { href: PROGRESSIVE_BILLING_DOC_URL })}
+            html={translate('text_17697190237696lh0e8n9vog')}
           />
         </div>
 

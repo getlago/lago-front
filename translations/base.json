@@ -3369,7 +3369,6 @@
   "text_1753864223060ji5l38phiya": "Select a boolean",
   "text_1753864223060bxskzw3877s": "Type a number",
   "text_1753864223060d5jej59ti86": "Type a custom value",
-  "text_1754570508182ng9t8r1iuz3": "Control when customers gain or lose access to product features. Entitlements let you define which features are included in a plan or subscription.",
   "text_1754570508183nhpg3qqdpt8": "Entitlement privileges",
   "text_1754570508183hxl33n573yk": "No privilege defined for this entitlement.",
   "text_17558572087883esukvz2ejb": "You can add, edit, or delete any entitlement for this subscription, overriding the plan’s default entitlements.",
@@ -3821,5 +3820,7 @@
   "text_17696427637012io81h0jc2w": "Edit or {{enableDisableCopy}}",
   "text_1769712384134peknn5jyojg": "Subscription values",
   "text_17697123841349drggrw2qur": "Parent values",
-  "text_1769714542183sxbznn2i3v0": "Progressive billing is disabled on this subscription. Edit the subscription’s progressive billing to start invoicing based on threshold amounts."
+  "text_1769714542183sxbznn2i3v0": "Progressive billing is disabled on this subscription. Edit the subscription’s progressive billing to start invoicing based on threshold amounts.",
+  "text_17697190237699e4t0knd8hj": "By default, plan entitlements are applied to each subscription. After creating a subscription, you can override these entitlements at any time from the Entitlements tab.",
+  "text_17697190237696lh0e8n9vog": "By default, plan progressive billing are applied to each subscription. After creating a subscription, you can override these usage thresholds at any time from the Progressive billing tab."
 }
