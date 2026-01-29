@@ -6,6 +6,7 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone/utils'
@@ -63,10 +64,7 @@ export interface RotateApiKeyDialogRef {
   closeDialog: () => unknown
 }
 
-export const RotateApiKeyDialog = forwardRef<
-  RotateApiKeyDialogRef,
-  { openPremiumDialog: VoidFunction }
->(({ openPremiumDialog }, ref) => {
+export const RotateApiKeyDialog = forwardRef<RotateApiKeyDialogRef>((_, ref) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
@@ -137,6 +135,8 @@ export const RotateApiKeyDialog = forwardRef<
       dialogRef.current?.closeDialog()
     },
   }))
+
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   return (
     <Dialog
@@ -209,7 +209,11 @@ export const RotateApiKeyDialog = forwardRef<
                     {translate('text_1732286530467gnhwm6q5ftl')}
                   </Typography>
                 </div>
-                <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
+                <Button
+                  endIcon="sparkles"
+                  variant="tertiary"
+                  onClick={() => premiumWarningDialog.open}
+                >
                   {translate('text_65ae73ebe3a66bec2b91d72d')}
                 </Button>
               </div>

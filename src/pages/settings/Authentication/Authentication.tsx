@@ -12,6 +12,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
@@ -20,7 +21,6 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
 import {
   DeleteOktaIntegrationDialog,
@@ -72,7 +72,7 @@ const Authentication = () => {
   } = useOrganizationInfos()
   const navigate = useNavigate()
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
   const deleteOktaDialogRef = useRef<DeleteOktaIntegrationDialogRef>(null)
   const updateLoginMethodDialogRef = useRef<UpdateLoginMethodDialogRef>(null)
@@ -151,7 +151,7 @@ const Authentication = () => {
                 loading={authIntegrationsLoading}
                 onClick={() => {
                   if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialogRef.current?.openDialog()
+                    return premiumWarningDialog.open()
                   }
 
                   return addOktaDialogRef.current?.openDialog({
@@ -343,7 +343,7 @@ const Authentication = () => {
                 }
                 onClick={() => {
                   if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialogRef.current?.openDialog()
+                    return premiumWarningDialog.open()
                   }
 
                   if (oktaIntegration?.id) {
@@ -372,7 +372,6 @@ const Authentication = () => {
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <AddOktaDialog ref={addOktaDialogRef} />
       <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
       <UpdateLoginMethodDialog ref={updateLoginMethodDialogRef} />

@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button, GenericPlaceholder, ShowMoreText, Typography } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -11,7 +12,6 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   EditBillingEntityDocumentLocaleDialog,
   EditBillingEntityDocumentLocaleDialogRef,
@@ -147,7 +147,7 @@ const BillingEntityInvoiceSettings = () => {
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const { data, error, loading } = useGetBillingEntitySettingsQuery({
     variables: {
@@ -252,7 +252,7 @@ const BillingEntityInvoiceSettings = () => {
           onClick={() => {
             isPremium
               ? editGracePeriodDialogRef?.current?.openDialog()
-              : premiumWarningDialogRef.current?.openDialog()
+              : premiumWarningDialog.open()
           }}
         >
           {translate('text_637f819eff19cd55a56d55e4')}
@@ -459,8 +459,6 @@ const BillingEntityInvoiceSettings = () => {
       {items.map((item) => (
         <div key={`billing-entity-invoice-settings-dialog-${item.id}`}>{item.dialog}</div>
       ))}
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

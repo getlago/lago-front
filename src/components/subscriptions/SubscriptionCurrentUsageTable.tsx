@@ -18,7 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
 import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
@@ -274,7 +274,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
   isUsedinCustomerPortal,
   hasAccessToProjectedUsage,
 }: SubscriptionCurrentUsageTableComponentProps) => {
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
@@ -443,7 +443,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
             endIcon="sparkles"
             variant="tertiary"
             onClick={() =>
-              premiumWarningDialogRef.current?.openDialog({
+              premiumWarningDialog.open({
                 title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                 description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                 mailtoSubject: translate('text_1755599398258mj61iwjhhfk'),
@@ -604,8 +604,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
         translate={translate}
         locale={locale}
       />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </section>
   )
 }

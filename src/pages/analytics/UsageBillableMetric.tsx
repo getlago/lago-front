@@ -1,5 +1,5 @@
 import { tw } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
@@ -18,9 +18,9 @@ import {
 } from '~/components/designSystem/Filters'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX } from '~/core/constants/filters'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -63,7 +63,7 @@ const AmountCell = ({ value, currency, displayFormat }: AmountCellProps) => {
 
 const UsageBillableMetric = () => {
   const { translate } = useInternationalization()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const navigate = useNavigate()
 
   const { billableMetricCode } = useParams()
@@ -146,7 +146,7 @@ const UsageBillableMetric = () => {
                 onClick={(e) => {
                   if (!hasAccessToAnalyticsDashboardsFeature) {
                     e.stopPropagation()
-                    premiumWarningDialogRef.current?.openDialog()
+                    premiumWarningDialog.open()
                   } else {
                     onClick()
                   }
@@ -259,8 +259,6 @@ const UsageBillableMetric = () => {
           </div>
         </div>
       </FullscreenPage.Wrapper>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

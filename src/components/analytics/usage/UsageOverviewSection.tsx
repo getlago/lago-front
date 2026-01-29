@@ -9,19 +9,16 @@ import {
   UsageOverviewAvailableFilters,
 } from '~/components/designSystem/Filters'
 import AreaChart from '~/components/designSystem/graphs/AreaChart'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-type UsageOverviewSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
-
-const UsageOverviewSection = ({ premiumWarningDialogRef }: UsageOverviewSectionProps) => {
+const UsageOverviewSection = () => {
   const { translate } = useInternationalization()
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const {
     selectedCurrency,
@@ -57,7 +54,7 @@ const UsageOverviewSection = ({ premiumWarningDialogRef }: UsageOverviewSectionP
             onClick={(e) => {
               if (!hasAccessToAnalyticsDashboardsFeature) {
                 e.stopPropagation()
-                premiumWarningDialogRef.current?.openDialog()
+                premiumWarningDialog.open()
               } else {
                 onClick()
               }

@@ -4,8 +4,8 @@ import { useMemo, useRef } from 'react'
 
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button, Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { PremiumIntegrationTypeEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
@@ -30,7 +30,7 @@ import MetadataAccordion from './metadataAccordion/MetadataAccordion'
 const CreateCustomer = () => {
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { getPaymentProvider } = usePaymentProviders()
   const { taxProviders } = useTaxProviders()
@@ -182,7 +182,7 @@ const CreateCustomer = () => {
                   type="button"
                   className="flex items-center justify-between"
                   onClick={() => {
-                    premiumWarningDialogRef.current?.openDialog()
+                    premiumWarningDialog.open()
                   }}
                 >
                   <form.AppField name="isPartner">
@@ -232,8 +232,6 @@ const CreateCustomer = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={onClose}
       />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </CenteredPage.Wrapper>
   )
 }
