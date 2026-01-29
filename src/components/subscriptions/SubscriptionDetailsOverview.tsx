@@ -69,7 +69,11 @@ export const SubscriptionDetailsOverview = () => {
           skipInvoiceCustomSections={subscription?.skipInvoiceCustomSections}
         />
       )}
-      <PlanDetailsOverview planId={subscription?.plan.id} showEntitlementSection={false} />
+      <PlanDetailsOverview
+        planId={subscription?.plan.id}
+        showEntitlementSection={false}
+        showProgressiveBillingSection={false}
+      />
     </div>
   )
 }
