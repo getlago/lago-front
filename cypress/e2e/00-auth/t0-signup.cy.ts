@@ -1,3 +1,11 @@
+import {
+  SIGNUP_ERROR_ALERT_TEST_ID,
+  SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID,
+  SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID,
+  SIGNUP_SUBMIT_BUTTON_TEST_ID,
+  SIGNUP_SUCCESS_ALERT_TEST_ID,
+} from '~/pages/auth/signUpTestIds'
+
 import { userEmail, userPassword } from '../../support/reusableConstants'
 
 describe('Sign up', () => {
@@ -7,41 +15,35 @@ describe('Sign up', () => {
     cy.get('input[name="organizationName"]').type('Company name')
     cy.get('input[name="email"]').type(userEmail)
     cy.get('input[name="password"]').type(userPassword)
-    cy.get('[data-test="submit-button"]').click()
+    cy.get(`[data-test="${SIGNUP_SUBMIT_BUTTON_TEST_ID}"]`).click()
 
     cy.url().should('be.equal', Cypress.config().baseUrl + '/')
     cy.get('[data-test="side-nav-name"]').contains('Company name')
   })
 
-  it('should have a disabled button on visiting', () => {
+  it('should show password validation feedback when typing', () => {
     cy.visit('sign-up')
 
-    cy.get('[data-test="submit-button"]').should('be.disabled')
-    cy.get('[data-test="password-validation--hidden"]').should('exist')
-
-    cy.get('input[name="organizationName"]').type('Lago')
-    cy.get('[data-test="submit-button"]').should('be.disabled')
-
-    cy.get('input[name="email"]').type(userEmail)
-    cy.get('[data-test="submit-button"]').should('be.disabled')
+    cy.get(`[data-test="${SIGNUP_SUBMIT_BUTTON_TEST_ID}"]`).should('not.be.disabled')
+    cy.get(`[data-test="${SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID}"]`).should('exist')
 
     cy.get('input[name="password"]').type('P@ss')
-    cy.get('[data-test="password-validation--visible"]').should('exist')
-    cy.get('[data-test="success"]').should('not.exist')
+    cy.get(`[data-test="${SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID}"]`).should('exist')
+    cy.get(`[data-test="${SIGNUP_SUCCESS_ALERT_TEST_ID}"]`).should('not.exist')
 
     cy.get('input[name="password"]').type('P@ssw0rd')
-    cy.get('[data-test="submit-button"]').should('not.be.disabled')
+    cy.get(`[data-test="${SIGNUP_SUCCESS_ALERT_TEST_ID}"]`).should('exist')
   })
 
   it('should display an error message if user already exists', () => {
     cy.visit('sign-up')
 
-    cy.get('[data-test="success"]').should('not.exist')
+    cy.get(`[data-test="${SIGNUP_SUCCESS_ALERT_TEST_ID}"]`).should('not.exist')
     cy.get('input[name="organizationName"]').type('Lago')
     cy.get('input[name="email"]').type(userEmail)
     cy.get('input[name="password"]').type('P@ssw0rdd')
-    cy.get('[data-test="submit-button"]').click()
-    cy.get('[data-test="error-alert"]').should('exist')
+    cy.get(`[data-test="${SIGNUP_SUBMIT_BUTTON_TEST_ID}"]`).click()
+    cy.get(`[data-test="${SIGNUP_ERROR_ALERT_TEST_ID}"]`).should('exist')
   })
 
   it('should display the right password error message', () => {
