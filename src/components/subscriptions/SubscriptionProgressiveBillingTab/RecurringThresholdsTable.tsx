@@ -31,7 +31,6 @@ export const RecurringThresholdsTable = ({
     <DetailsPage.TableDisplay
       name={name || `recurring-thresholds-table-${id.replace(/:/g, '')}`}
       className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
-      // Only take the first recurring threshold
       body={[
         ...(thresholds?.map((threshold) => [
           translate('text_17241798877230y851fdxzqu'),

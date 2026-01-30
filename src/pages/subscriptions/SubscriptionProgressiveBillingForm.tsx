@@ -142,12 +142,10 @@ const SubscriptionProgressiveBillingForm = () => {
           className="flex size-full min-h-full flex-col overflow-auto"
           data-test={PROGRESSIVE_BILLING_FORM_TEST_ID}
           onSubmit={(e) => {
-            if (!isDirty) {
-              e.preventDefault()
-              onLeave()
-            } else {
-              handleSubmit(e)
-            }
+            if (isDirty) return handleSubmit(e)
+
+            e.preventDefault()
+            onLeave()
           }}
         >
           <CenteredPage.Header>

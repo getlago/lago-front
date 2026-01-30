@@ -3818,5 +3818,5 @@
   "text_17697123841349drggrw2qur": "Parent values",
   "text_1769714542183sxbznn2i3v0": "Progressive billing is disabled on this subscription. Edit the subscription’s progressive billing to start invoicing based on threshold amounts.",
   "text_17697190237699e4t0knd8hj": "By default, plan entitlements are applied to each subscription. After creating a subscription, you can override these entitlements at any time from the Entitlements tab.",
-  "text_17697190237696lh0e8n9vog": "By default, plan progressive billing are applied to each subscription. After creating a subscription, you can override these usage thresholds at any time from the Progressive billing tab."
+  "text_17697190237696lh0e8n9vog": "By default, plan progressive billing is applied to each subscription. After creating a subscription, you can override these usage thresholds at any time from the Progressive billing tab."
 }

@@ -11,15 +11,17 @@ import { render, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
 import {
   PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID,
-  PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID,
   PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID,
+  PROGRESSIVE_BILLING_TAB_TEST_ID,
+  SubscriptionProgressiveBillingTab,
+} from '../SubscriptionProgressiveBillingTab'
+import {
+  PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID,
   PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID,
   PROGRESSIVE_BILLING_OVERRIDDEN_CHIP_TEST_ID,
   PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID,
-  PROGRESSIVE_BILLING_TAB_TEST_ID,
   PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID,
-  SubscriptionProgressiveBillingTab,
-} from '../SubscriptionProgressiveBillingTab'
+} from '../SubscriptionProgressiveBillingTabThresholdsHeader'
 
 // Get mocked useParams from test-utils mock
 const { useParams } = jest.requireMock('react-router-dom')

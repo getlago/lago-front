@@ -11687,6 +11687,12 @@ export type ThresholdForRecurringThresholdsTableFragment = { __typename?: 'Usage
 
 export type SubscriptionForProgressiveBillingTabFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, recurring: boolean, amountCents: any, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, recurring: boolean, amountCents: any, thresholdDisplayName?: string | null }> | null } };
 
+export type SubscriptionForProgressiveBillingTabThresholdsHeaderFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }>, plan: { __typename?: 'Plan', id: string, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string }> | null } };
+
+export type ThresholdForThresholdsTableFragment = { __typename?: 'UsageThreshold', id: string, amountCents: any, thresholdDisplayName?: string | null };
+
+export type SubscriptionForUseProgressiveBillingTabFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, recurring: boolean, amountCents: any, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, recurring: boolean, amountCents: any, thresholdDisplayName?: string | null }> | null } };
+
 export type SwitchProgressiveBillingDisabledValueMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
@@ -11694,7 +11700,7 @@ export type SwitchProgressiveBillingDisabledValueMutationVariables = Exact<{
 
 export type SwitchProgressiveBillingDisabledValueMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null } | null };
 
-export type ThresholdForThresholdsTableFragment = { __typename?: 'UsageThreshold', id: string, amountCents: any, thresholdDisplayName?: string | null };
+export type SubscriptionForUseProgressiveBillingTabThresholdsHeaderFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }>, plan: { __typename?: 'Plan', id: string, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string }> | null } };
 
 export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
 
@@ -16270,8 +16276,8 @@ export const ThresholdForRecurringThresholdsTableFragmentDoc = gql`
   thresholdDisplayName
 }
     `;
-export const SubscriptionForProgressiveBillingTabFragmentDoc = gql`
-    fragment SubscriptionForProgressiveBillingTab on Subscription {
+export const SubscriptionForUseProgressiveBillingTabFragmentDoc = gql`
+    fragment SubscriptionForUseProgressiveBillingTab on Subscription {
   id
   progressiveBillingDisabled
   usageThresholds {
@@ -16293,6 +16299,45 @@ export const SubscriptionForProgressiveBillingTabFragmentDoc = gql`
 }
     ${ThresholdForThresholdsTableFragmentDoc}
 ${ThresholdForRecurringThresholdsTableFragmentDoc}`;
+export const SubscriptionForProgressiveBillingTabFragmentDoc = gql`
+    fragment SubscriptionForProgressiveBillingTab on Subscription {
+  id
+  progressiveBillingDisabled
+  usageThresholds {
+    id
+    recurring
+  }
+  plan {
+    id
+    amountCurrency
+    usageThresholds {
+      id
+      recurring
+    }
+  }
+  ...SubscriptionForUseProgressiveBillingTab
+}
+    ${SubscriptionForUseProgressiveBillingTabFragmentDoc}`;
+export const SubscriptionForUseProgressiveBillingTabThresholdsHeaderFragmentDoc = gql`
+    fragment SubscriptionForUseProgressiveBillingTabThresholdsHeader on Subscription {
+  id
+  progressiveBillingDisabled
+  usageThresholds {
+    id
+  }
+  plan {
+    id
+    usageThresholds {
+      id
+    }
+  }
+}
+    `;
+export const SubscriptionForProgressiveBillingTabThresholdsHeaderFragmentDoc = gql`
+    fragment SubscriptionForProgressiveBillingTabThresholdsHeader on Subscription {
+  ...SubscriptionForUseProgressiveBillingTabThresholdsHeader
+}
+    ${SubscriptionForUseProgressiveBillingTabThresholdsHeaderFragmentDoc}`;
 export const SubscriptionUsageLifetimeGraphForLifetimeGraphFragmentDoc = gql`
     fragment SubscriptionUsageLifetimeGraphForLifetimeGraph on Subscription {
   id

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core'
-import { useId } from 'react'
+import { useId, useMemo } from 'react'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -25,6 +25,18 @@ export const ThresholdsTable = ({
   const id = useId()
   const { translate } = useInternationalization()
 
+  const thresholdsForDisplay = useMemo(() => {
+    return thresholds.map((threshold, i) => [
+      i === 0
+        ? translate('text_1724179887723hi673zmbvdj')
+        : translate('text_1724179887723917j8ezkd9v'),
+      intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
+        currency,
+      }),
+      threshold.thresholdDisplayName || '',
+    ])
+  }, [thresholds, currency, translate])
+
   return (
     <DetailsPage.TableDisplay
       name={`thresholds-table-${id.replace(/:/g, '')}`}
@@ -34,17 +46,7 @@ export const ThresholdsTable = ({
         translate('text_1724179887723eh12a0kqbdw'),
         translate('text_17241798877234jhvoho4ci9'),
       ]}
-      body={[
-        ...(thresholds.map((threshold, i) => [
-          i === 0
-            ? translate('text_1724179887723hi673zmbvdj')
-            : translate('text_1724179887723917j8ezkd9v'),
-          intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
-            currency,
-          }),
-          threshold.thresholdDisplayName || '',
-        ]) || []),
-      ]}
+      body={[...(thresholdsForDisplay || [])]}
     />
   )
 }
