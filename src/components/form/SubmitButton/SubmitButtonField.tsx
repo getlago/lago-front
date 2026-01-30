@@ -5,6 +5,7 @@ const SubmitButtonField = ({
   children,
   size,
   variant,
+  fullWidth,
   dataTest,
 }: ButtonProps & { dataTest?: string }) => {
   const form = useFormContext()
@@ -20,6 +21,7 @@ const SubmitButtonField = ({
         <Button
           size={size}
           variant={variant}
+          fullWidth={fullWidth}
           disabled={!canSubmit || isSubmitting}
           loading={isSubmitting}
           type="submit"
