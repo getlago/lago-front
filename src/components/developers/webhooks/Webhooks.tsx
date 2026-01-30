@@ -18,7 +18,7 @@ import {
   SettingsListItemLoadingSkeleton,
 } from '~/components/layouts/Settings'
 import { addToast } from '~/core/apolloClient'
-import { obfuscateValue } from '~/core/formats/obfuscate'
+import { maskValue } from '~/core/formats/maskValue'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   useGetOrganizationHmacDataQuery,
@@ -180,7 +180,9 @@ export const Webhooks = () => {
                                   : undefined
                               }
                             >
-                              {showOrganizationHmac ? hmacKey : obfuscateValue(hmacKey || '')}
+                              {showOrganizationHmac
+                                ? hmacKey
+                                : maskValue(hmacKey || '', { dotsCount: 8, visibleChars: 3 })}
                             </Typography>
                           </Tooltip>
 

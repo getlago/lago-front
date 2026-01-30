@@ -32,6 +32,12 @@ export const PaymentMethodComboBox = ({
 
   const paymentMethodOptions = usePaymentMethodOptions(paymentMethodsList, translate)
 
+  const selectedValue = paymentMethodOptions.some(
+    (option) => option.value === selectedPaymentMethod?.paymentMethodId,
+  )
+    ? selectedPaymentMethod?.paymentMethodId || undefined
+    : undefined
+
   const onChange = (value: string) => {
     const selectedPaymentMethodOption = paymentMethodOptions.find(
       (option) => option.value === value,
@@ -51,7 +57,7 @@ export const PaymentMethodComboBox = ({
       data={paymentMethodOptions}
       placeholder={translate('text_176433192749240fjx4tced9')}
       emptyText={translate('text_176432831893806loy6xo6qt')}
-      value={selectedPaymentMethod?.paymentMethodId || undefined}
+      value={selectedValue}
       onChange={onChange}
       disabled={disabled}
       sortValues={false}
