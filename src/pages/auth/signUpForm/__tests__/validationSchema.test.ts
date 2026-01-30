@@ -1,8 +1,8 @@
+import { PASSWORD_VALIDATION_KEYS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { PASSWORD_VALIDATION_ERRORS, validatePassword } from '~/formValidation/zodCustoms'
 
 import {
   googleRegisterValidationSchema,
-  PASSWORD_VALIDATION_KEYS,
   signUpDefaultValues,
   signUpValidationSchema,
 } from '../validationSchema'
