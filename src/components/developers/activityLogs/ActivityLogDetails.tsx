@@ -165,6 +165,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
         activityObject,
         externalSubscriptionId: externalSubscriptionId ?? undefined,
         externalCustomerId: externalCustomerId ?? undefined,
+        translate,
       })
     : ['', {}]
 
