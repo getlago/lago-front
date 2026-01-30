@@ -6,6 +6,7 @@ import { CodeSnippet } from '~/components/CodeSnippet'
 import { Button, Skeleton, Status, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
+import { pollUntilCondition } from '~/core/utils/pollUntilCondition'
 import {
   useGetSingleWebhookLogQuery,
   useRetryWebhookMutation,
@@ -73,18 +74,15 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   const retryWebhookAndWait = async () => {
     await retry()
 
-    const maxAttempts = 3
-    const pollInterval = 1000
+    await pollUntilCondition(
+      async () => {
+        const { data: refreshedData } = await refetch()
 
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      await new Promise((resolve) => setTimeout(resolve, pollInterval))
-
-      const { data: refreshedData } = await refetch()
-
-      if (refreshedData?.webhook?.status !== WebhookStatusEnum.Pending) {
-        return
-      }
-    }
+        return refreshedData?.webhook?.status
+      },
+      (webhookStatus) => webhookStatus !== WebhookStatusEnum.Pending,
+      { maxAttempts: 3, pollInterval: 1000 },
+    )
   }
 
   return (
