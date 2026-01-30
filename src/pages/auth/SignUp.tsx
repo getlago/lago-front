@@ -17,7 +17,6 @@ import {
 import { LagoApiError, useGoogleRegisterMutation, useSignupMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { theme } from '~/styles'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 import { tw } from '~/styles/utils'
@@ -109,7 +108,6 @@ const SignUp = () => {
     },
   })
 
-  const canSubmit = useStore(form.store, (state) => state.canSubmit)
   const password = useStore(form.store, (state) => state.values.password)
   const passwordValidation = usePasswordValidation(password)
 
@@ -144,16 +142,6 @@ const SignUp = () => {
       setIsGoogleRegister(true)
     }
   }, [googleCode])
-
-  useShortcuts([
-    {
-      keys: ['Enter'],
-      disabled: !canSubmit,
-      action: () => {
-        form.handleSubmit()
-      },
-    },
-  ])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
