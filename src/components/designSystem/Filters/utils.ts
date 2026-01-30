@@ -152,6 +152,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.creditNoteType]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.currency]: (value: string) => value,
   [AvailableFiltersEnum.currencies]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -192,6 +193,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.resourceIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.settlementType]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.states]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
@@ -294,6 +296,7 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
     [AvailableFiltersEnum.creditNoteReason]: 'reason',
     [AvailableFiltersEnum.creditNoteCreditStatus]: 'creditStatus',
     [AvailableFiltersEnum.creditNoteRefundStatus]: 'refundStatus',
+    [AvailableFiltersEnum.creditNoteType]: 'types',
   }
 
   return formatFiltersForQuery({
@@ -305,8 +308,13 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
 }
 
 export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.settlementType]: 'settlements',
+  }
+
   return formatFiltersForQuery({
     searchParams,
+    keyMap,
     availableFilters: InvoiceAvailableFilters,
     filtersNamePrefix: INVOICE_LIST_FILTER_PREFIX,
   })

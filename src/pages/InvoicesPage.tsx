@@ -53,6 +53,7 @@ gql`
     $paymentOverdue: Boolean
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
     $searchTerm: String
+    $settlements: [InvoiceSettlementTypeEnum!]
     $status: [InvoiceStatusTypeEnum!]
     $amountFrom: Int
     $amountTo: Int
@@ -72,6 +73,7 @@ gql`
       paymentOverdue: $paymentOverdue
       paymentStatus: $paymentStatus
       searchTerm: $searchTerm
+      settlements: $settlements
       status: $status
       amountFrom: $amountFrom
       amountTo: $amountTo

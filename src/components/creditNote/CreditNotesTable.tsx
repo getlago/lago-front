@@ -158,6 +158,7 @@ const CreditNotesTable = ({
               AvailableFiltersEnum.amount,
               AvailableFiltersEnum.billingEntityIds,
               AvailableFiltersEnum.creditNoteCreditStatus,
+              AvailableFiltersEnum.creditNoteType,
               AvailableFiltersEnum.currency,
               AvailableFiltersEnum.customerExternalId,
               AvailableFiltersEnum.invoiceNumber,
