@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
@@ -46,6 +46,14 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ webhookId: string; logId: string }>()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { translate } = useInternationalization()
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  // Abort on unmount to stop retry if we leave the developer panel
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort()
+    }
+  }, [])
 
   const { data, loading, refetch } = useGetSingleWebhookLogQuery({
     variables: { id: logId || '' },
@@ -74,6 +82,9 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   const retryWebhookAndWait = async () => {
     await retry()
 
+    // Abort controller only needed if we launched a retry
+    abortControllerRef.current = new AbortController()
+
     await pollUntilCondition(
       async () => {
         const { data: refreshedData } = await refetch()
@@ -81,7 +92,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
         return refreshedData?.webhook?.status
       },
       (webhookStatus) => webhookStatus !== WebhookStatusEnum.Pending,
-      { maxAttempts: 3, pollInterval: 1000 },
+      { maxAttempts: 3, pollInterval: 1000, signal: abortControllerRef.current.signal },
     )
   }
 

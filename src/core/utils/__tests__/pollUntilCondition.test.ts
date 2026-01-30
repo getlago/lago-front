@@ -46,7 +46,7 @@ describe('pollUntilCondition', () => {
     const result = await pollPromise
 
     expect(fetchFn).toHaveBeenCalledTimes(1)
-    expect(result).toEqual({ data: 'done', conditionMet: true })
+    expect(result).toEqual({ data: 'done', conditionMet: true, aborted: false })
   })
 
   it('should continue polling until condition is met', async () => {
@@ -78,7 +78,7 @@ describe('pollUntilCondition', () => {
 
     const result = await pollPromise
 
-    expect(result).toEqual({ data: 'success', conditionMet: true })
+    expect(result).toEqual({ data: 'success', conditionMet: true, aborted: false })
   })
 
   it('should stop after maxAttempts if condition is never met', async () => {
@@ -96,7 +96,7 @@ describe('pollUntilCondition', () => {
     const result = await pollPromise
 
     expect(fetchFn).toHaveBeenCalledTimes(3)
-    expect(result).toEqual({ data: null, conditionMet: false })
+    expect(result).toEqual({ data: null, conditionMet: false, aborted: false })
   })
 
   it('should respect different poll intervals', async () => {
@@ -141,5 +141,88 @@ describe('pollUntilCondition', () => {
     expect(fetchFn).toHaveBeenCalledTimes(3)
 
     await pollPromise
+  })
+
+  describe('cancellation with AbortSignal', () => {
+    it('should not make any fetch calls if aborted before first poll', async () => {
+      const fetchFn = jest.fn().mockResolvedValue('data')
+      const conditionFn = jest.fn().mockReturnValue(true)
+      const abortController = new AbortController()
+
+      const pollPromise = pollUntilCondition(fetchFn, conditionFn, {
+        maxAttempts: 3,
+        pollInterval: 1000,
+        signal: abortController.signal,
+      })
+
+      // Abort before the first interval completes
+      await jest.advanceTimersByTimeAsync(500)
+      abortController.abort()
+
+      // Advance past the first interval
+      await jest.advanceTimersByTimeAsync(500)
+
+      const result = await pollPromise
+
+      expect(fetchFn).not.toHaveBeenCalled()
+      expect(result).toEqual({ data: null, conditionMet: false, aborted: true })
+    })
+
+    it('should stop polling when aborted during wait', async () => {
+      const fetchFn = jest.fn().mockResolvedValue('pending')
+      const conditionFn = jest.fn().mockReturnValue(false)
+      const abortController = new AbortController()
+
+      const pollPromise = pollUntilCondition(fetchFn, conditionFn, {
+        maxAttempts: 5,
+        pollInterval: 1000,
+        signal: abortController.signal,
+      })
+
+      // First poll completes
+      await jest.advanceTimersByTimeAsync(1000)
+      expect(fetchFn).toHaveBeenCalledTimes(1)
+
+      // Abort during second wait (after 500ms of the second interval)
+      await jest.advanceTimersByTimeAsync(500)
+      abortController.abort()
+
+      // Complete the remaining time
+      await jest.advanceTimersByTimeAsync(500)
+
+      const result = await pollPromise
+
+      // Should have only made 1 call before abort
+      expect(fetchFn).toHaveBeenCalledTimes(1)
+      expect(result).toEqual({ data: null, conditionMet: false, aborted: true })
+    })
+
+    it('should stop polling when aborted between polls', async () => {
+      const fetchFn = jest.fn().mockResolvedValue('pending')
+      const conditionFn = jest.fn().mockReturnValue(false)
+      const abortController = new AbortController()
+
+      const pollPromise = pollUntilCondition(fetchFn, conditionFn, {
+        maxAttempts: 5,
+        pollInterval: 1000,
+        signal: abortController.signal,
+      })
+
+      // Complete 2 polls
+      await jest.advanceTimersByTimeAsync(2000)
+      expect(fetchFn).toHaveBeenCalledTimes(2)
+
+      // Abort before third poll starts
+      abortController.abort()
+
+      // Try to advance more time
+      await jest.advanceTimersByTimeAsync(3000)
+
+      const result = await pollPromise
+
+      // Should have stopped at 2 calls
+      expect(fetchFn).toHaveBeenCalledTimes(2)
+      expect(result).toEqual({ data: null, conditionMet: false, aborted: true })
+    })
   })
 })
