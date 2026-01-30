@@ -12,8 +12,7 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
-// Import commands.js using ES2015 syntax:
-import cypress from 'cypress'
+import { SIGNUP_SUBMIT_BUTTON_TEST_ID } from '~/pages/auth/signUpTestIds'
 
 import { userEmail, userPassword } from './reusableConstants'
 
@@ -46,7 +45,7 @@ Cypress.Commands.add(
     cy.get('input[name="organizationName"]').type(organizationName)
     cy.get('input[name="email"]').type(email)
     cy.get('input[name="password"]').type(password)
-    cy.get('[data-test="submit-button"]').click()
+    cy.get(`[data-test="${SIGNUP_SUBMIT_BUTTON_TEST_ID}"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/')
   },
 )
