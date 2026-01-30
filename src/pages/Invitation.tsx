@@ -35,7 +35,7 @@ import {
 
 export const INVITATION_FORM_ID = 'invitation-form'
 export const INVITATION_ERROR_ALERT_TEST_ID = 'invitation-error-alert'
-export const INVITATION_SUBMIT_BUTTON_TEST_ID = 'invitation-submit-button'
+export const INVITATION_SUBMIT_BUTTON_TEST_ID = 'submit-button'
 
 gql`
   query getinvite($token: String!) {
@@ -263,6 +263,10 @@ const Invitation = () => {
     form.handleSubmit()
   }
 
+  if (isAuthenticated) {
+    return null
+  }
+
   return (
     <Page>
       <Card>
@@ -289,7 +293,7 @@ const Invitation = () => {
             <Skeleton variant="text" className="w-76" />
           </>
         )}
-        {!error && !loading && (
+        {!error && !loading && !!data?.invite && (
           <form id={INVITATION_FORM_ID} onSubmit={handleSubmit}>
             <Stack spacing={8}>
               <Stack spacing={3}>

@@ -15,10 +15,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+const mockIsAuthenticated = jest.fn()
+
 jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
-  useIsAuthenticated: () => ({
-    isAuthenticated: false,
-  }),
+  useIsAuthenticated: () => mockIsAuthenticated(),
 }))
 
 jest.mock('~/components/auth/GoogleAuthButton', () => ({
@@ -181,6 +181,7 @@ describe('Invitation', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     setupMockUseStore('', true)
+    mockIsAuthenticated.mockReturnValue({ isAuthenticated: false })
     mockPasswordValidation.mockReturnValue({
       isValid: false,
       errors: ['MIN', 'LOWERCASE', 'UPPERCASE', 'NUMBER', 'SPECIAL'],
@@ -288,6 +289,16 @@ describe('Invitation', () => {
         expect(emailInput).toBeInTheDocument()
         expect(emailInput).toBeDisabled()
       })
+    })
+  })
+
+  describe('when user is authenticated', () => {
+    it('should render nothing', async () => {
+      mockIsAuthenticated.mockReturnValue({ isAuthenticated: true })
+
+      const { container } = (await renderInvitation()) as unknown as { container: HTMLElement }
+
+      expect(container).toBeEmptyDOMElement()
     })
   })
 })
