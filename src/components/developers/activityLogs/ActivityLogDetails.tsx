@@ -5,9 +5,7 @@ import { generatePath, useParams } from 'react-router-dom'
 import {
   formatActivityType,
   formatResourceObject,
-  getActivityDescription,
   isDeletedActivityType,
-  resourceTypeTranslations,
 } from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import {
@@ -26,6 +24,7 @@ import {
   useGetSingleActivityLogQuery,
   useGetSubscriptionIdForActivityLogDetailsQuery,
 } from '~/generated/graphql'
+import { useActivityLogsInformation } from '~/hooks/activityLogs/useActivityLogsInformation'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
@@ -124,6 +123,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ logId: string }>()
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
+  const { getActivityDescription, getResourceTypeTranslation } = useActivityLogsInformation()
 
   const { data, loading } = useGetSingleActivityLogQuery({
     variables: { id: logId || '' },
@@ -160,14 +160,15 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     },
   })
 
-  const [activityTypeTranslation, parameters] = activityType
+  const { description: activityTypeTranslation, parameters } = activityType
     ? getActivityDescription(activityType, {
         activityObject,
         externalSubscriptionId: externalSubscriptionId ?? undefined,
         externalCustomerId: externalCustomerId ?? undefined,
-        translate,
       })
-    : ['', {}]
+    : { description: '', parameters: {} }
+
+  const activityDescription = translate(activityTypeTranslation, parameters)
 
   const objectChanges = activityObjectChanges ?? {}
   const newObject = activityObject ?? {}
@@ -182,7 +183,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
         {loading ? (
           <Skeleton variant="text" textVariant="bodyHl" className="w-30" />
         ) : (
-          translate(activityTypeTranslation, parameters)
+          activityDescription
         )}
       </Typography>
 
@@ -220,15 +221,12 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               activityType
                 ? [translate('text_6560809c38fb9de88d8a52fb'), formatActivityType(activityType)]
                 : [],
-              [
-                translate('text_6388b923e514213fed58331c'),
-                translate(activityTypeTranslation, parameters),
-              ],
+              [translate('text_6388b923e514213fed58331c'), activityDescription],
               [translate('text_1747666154075d10admbnf16'), activityId],
               [
                 translate('text_1732895022171f9vnwh5gm3q'),
                 !!resource?.__typename
-                  ? translate(resourceTypeTranslations[resource?.__typename])
+                  ? translate(getResourceTypeTranslation(resource.__typename))
                   : '-',
               ],
               [
