@@ -3,7 +3,7 @@ import { Icon } from 'lago-design-system'
 import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button, ButtonLink, Table, Typography } from '~/components/designSystem'
+import { Button, ButtonLink, PremiumBanner, Table, Typography } from '~/components/designSystem'
 import {
   DeleteAlertDialog,
   DeleteAlertDialogRef,
@@ -116,32 +116,13 @@ export const SubscriptionAlertsList = ({
         </div>
 
         {!isPremium && (
-          <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
-            <div>
-              <Typography
-                className="flex items-center gap-2"
-                variant="bodyHl"
-                color="textSecondary"
-              >
-                {translate('text_1746523849026gmu98qidikp')} <Icon name="sparkles" />
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_1746523849026ljzi79afhmc')}
-              </Typography>
-            </div>
-            <ButtonLink
-              buttonProps={{
-                variant: 'tertiary',
-                size: 'medium',
-                endIcon: 'sparkles',
-              }}
-              type="button"
-              external
-              to={`mailto:hello@getlago.com?subject=${translate('text_174652384902646b3ma52uww')}&body=${translate('text_1746523849026ljzi79afhmq')}`}
-            >
-              {translate('text_65ae73ebe3a66bec2b91d72d')}
-            </ButtonLink>
-          </div>
+          <PremiumBanner
+            variant="grey"
+            title={translate('text_1746523849026gmu98qidikp')}
+            description={translate('text_1746523849026ljzi79afhmc')}
+            mailtoLink={`mailto:hello@getlago.com?subject=${translate('text_174652384902646b3ma52uww')}&body=${translate('text_1746523849026ljzi79afhmq')}`}
+            className="rounded-lg px-6 py-4"
+          />
         )}
 
         {!!isPremium && (

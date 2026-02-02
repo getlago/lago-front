@@ -1,7 +1,7 @@
 import { Icon } from 'lago-design-system'
 import { FC, useState } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button, PremiumBanner, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { RegroupPaidFeesEnum } from '~/generated/graphql'
@@ -75,21 +75,13 @@ export const ChargeInvoicingStrategyOption: FC<ChargeInvoicingStrategyOptionProp
         disabled={disabled}
       />
       {!isPremium && (
-        <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Typography variant="bodyHl" color="textSecondary">
-                {translate('text_6682c52081acea90520744d0')}
-              </Typography>
-              <Icon name="sparkles" />
-            </div>
-
-            <Typography variant="caption">{translate('text_6682c52081acea90520744d2')}</Typography>
-          </div>
-          <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
-            {translate('text_65ae73ebe3a66bec2b91d72d')}
-          </Button>
-        </div>
+        <PremiumBanner
+          variant="grey"
+          title={translate('text_6682c52081acea90520744d0')}
+          description={translate('text_6682c52081acea90520744d2')}
+          premiumWarningDialogRef={{ current: { openDialog: openPremiumDialog } } as any}
+          className="rounded-lg px-6 py-4"
+        />
       )}
       <Radio
         label={translate('text_6687b0081931407697975945')}

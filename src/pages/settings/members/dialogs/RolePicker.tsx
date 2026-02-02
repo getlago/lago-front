@@ -2,7 +2,7 @@ import { Stack } from '@mui/material'
 import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { PremiumBanner, Typography } from '~/components/designSystem'
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -58,22 +58,13 @@ const RolePicker = withFieldGroup({
             )}
           </group.AppField>
           {!isPremium && (
-            <div className="flex items-center justify-between gap-4 rounded-xl bg-grey-100 px-6 py-4">
-              <Stack>
-                <Stack direction="row" gap={2} alignItems="center">
-                  <Typography variant="bodyHl" color="grey700">
-                    {translate('text_665edfd17997c0006f09cdb2')}
-                  </Typography>
-                  <Icon name="sparkles" />
-                </Stack>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_665edfd17997c0006f09cdb3')}
-                </Typography>
-              </Stack>
-              <Button variant="tertiary" endIcon="sparkles" onClick={openPremiumDialog}>
-                {translate('text_65ae73ebe3a66bec2b91d72d')}
-              </Button>
-            </div>
+            <PremiumBanner
+              variant="grey"
+              title={translate('text_665edfd17997c0006f09cdb2')}
+              description={translate('text_665edfd17997c0006f09cdb3')}
+              premiumWarningDialogRef={premiumWarningDialogRef}
+              className="rounded-xl px-6 py-4"
+            />
           )}
         </div>
         <PremiumWarningDialog ref={premiumWarningDialogRef} />

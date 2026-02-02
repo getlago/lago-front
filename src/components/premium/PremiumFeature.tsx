@@ -1,9 +1,8 @@
-import { Icon, tw } from 'lago-design-system'
+import { tw } from 'lago-design-system'
 import { useRef } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { PremiumBanner } from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type PremiumFeatureProps = {
   title: string
@@ -20,51 +19,20 @@ const PremiumFeature = ({
   className,
   buttonClassName,
 }: PremiumFeatureProps) => {
-  const { translate } = useInternationalization()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (
     <>
-      <div
-        className={tw(
-          'flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4',
-          className,
-        )}
-      >
-        <div className="flex flex-col">
-          <div className="flex flex-row items-center gap-2">
-            <Typography variant="bodyHl" color="grey700">
-              {title}
-            </Typography>
-
-            <Icon name="sparkles" />
-          </div>
-
-          <Typography variant="caption" color="grey600">
-            {description}
-          </Typography>
-        </div>
-
-        <Button
-          className={buttonClassName}
-          endIcon="sparkles"
-          variant="tertiary"
-          onClick={() =>
-            premiumWarningDialogRef.current?.openDialog({
-              title,
-              description,
-              mailtoSubject: translate('text_1759493418045b173t4qhktb', {
-                feature,
-              }),
-              mailtoBody: translate('text_1759493745332hiuejhksn15', {
-                feature,
-              }),
-            })
-          }
-        >
-          {translate('text_65ae73ebe3a66bec2b91d72d')}
-        </Button>
-      </div>
+      <PremiumBanner
+        variant="grey"
+        title={title}
+        description={description}
+        feature={feature}
+        dialogTitle={title}
+        dialogDescription={description}
+        premiumWarningDialogRef={premiumWarningDialogRef}
+        className={tw('w-full rounded-xl px-6 py-4', className)}
+      />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )

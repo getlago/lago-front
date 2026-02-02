@@ -4,7 +4,7 @@ import { Icon } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 import { NavigateOptions, useParams } from 'react-router-dom'
 
-import { Alert, Button, Skeleton, Table, Typography } from '~/components/designSystem'
+import { Alert, Button, PremiumBanner, Skeleton, Table, Typography } from '~/components/designSystem'
 import { Checkbox, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -334,34 +334,17 @@ const ApiKeysForm = () => {
                 </div>
 
                 {!hasAccessToApiPermissionsPremiumAddOn ? (
-                  <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
-                    <div className="flex flex-col">
-                      <div className="flex flex-row items-center gap-2">
-                        <Typography variant="bodyHl" color="grey700">
-                          {translate('text_17328950221712ase46l0iwq')}
-                        </Typography>
-                        <Icon name="sparkles" />
-                      </div>
-
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_1732895022171dkdzjnjtk10')}
-                      </Typography>
-                    </div>
-                    <Button
-                      endIcon="sparkles"
-                      variant="tertiary"
-                      onClick={() =>
-                        premiumWarningDialogRef.current?.openDialog({
-                          title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                          description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                          mailtoSubject: translate('text_17328950221712tn2kbvuqrg'),
-                          mailtoBody: translate('text_1732895022171rrj3kk58023'),
-                        })
-                      }
-                    >
-                      {translate('text_65ae73ebe3a66bec2b91d72d')}
-                    </Button>
-                  </div>
+                  <PremiumBanner
+                    variant="grey"
+                    title={translate('text_17328950221712ase46l0iwq')}
+                    description={translate('text_1732895022171dkdzjnjtk10')}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
+                    dialogTitle={translate('text_661ff6e56ef7e1b7c542b1ea')}
+                    dialogDescription={translate('text_661ff6e56ef7e1b7c542b1f6')}
+                    mailtoSubject={translate('text_17328950221712tn2kbvuqrg')}
+                    mailtoBody={translate('text_1732895022171rrj3kk58023')}
+                    className="w-full rounded-xl px-6 py-4"
+                  />
                 ) : (
                   <Table
                     name="api-keys-permissions"

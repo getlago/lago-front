@@ -7,6 +7,7 @@ import {
   Button,
   ButtonLink,
   GenericPlaceholder,
+  PremiumBanner,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -123,32 +124,13 @@ const BillingEntityDunningCampaigns = () => {
                 />
 
                 {!hasAccessToFeature && (
-                  <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
-                    <div>
-                      <div className="flex items-center gap-1">
-                        <Typography variant="bodyHl" color="textSecondary">
-                          {translate('text_1729263759370k8po52j4m2n')}
-                        </Typography>
-                        <Icon name="sparkles" />
-                      </div>
-                      <Typography variant="caption">
-                        {translate('text_1729263759370rhgayszv6yq')}
-                      </Typography>
-                    </div>
-
-                    <ButtonLink
-                      buttonProps={{
-                        variant: 'tertiary',
-                        size: 'medium',
-                        endIcon: 'sparkles',
-                      }}
-                      type="button"
-                      external
-                      to={`mailto:hello@getlago.com?subject=${translate('text_1729263868504ljw2poh51w4')}&body=${translate('text_17292638685046z36ct98v0l')}`}
-                    >
-                      {translate('text_65ae73ebe3a66bec2b91d72d')}
-                    </ButtonLink>
-                  </div>
+                  <PremiumBanner
+                    variant="grey"
+                    title={translate('text_1729263759370k8po52j4m2n')}
+                    description={translate('text_1729263759370rhgayszv6yq')}
+                    mailtoLink={`mailto:hello@getlago.com?subject=${translate('text_1729263868504ljw2poh51w4')}&body=${translate('text_17292638685046z36ct98v0l')}`}
+                    className="rounded-lg px-6 py-4"
+                  />
                 )}
 
                 {hasAccessToFeature && !appliedDunningCampaign && (

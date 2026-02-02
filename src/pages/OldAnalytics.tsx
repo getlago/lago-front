@@ -2,7 +2,7 @@ import { Icon } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
-import { Button, Popper, Typography } from '~/components/designSystem'
+import { Button, Popper, PremiumBanner, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import Gross from '~/components/graphs/Gross'
 import Invoices from '~/components/graphs/Invoices'
@@ -143,29 +143,14 @@ const Analytics = () => {
       </PageHeader.Wrapper>
 
       {!isPremium && !!currentUser && (
-        <div className="flex min-h-37 items-center justify-between gap-4 bg-yellow-100 p-12">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_6556309ded468200b9debbd4')}
-              </Typography>
-              <Icon name="sparkles" />
-            </div>
-            <Typography variant="caption" color="grey600">
-              {translate('text_6556309ded468200b9debbd5')}
-            </Typography>
-          </div>
 
-          <Button
-            variant="tertiary"
-            endIcon="sparkles"
-            onClick={() => {
-              premiumWarningDialogRef.current?.openDialog()
-            }}
-          >
-            {translate('text_65ae73ebe3a66bec2b91d72d')}
-          </Button>
-        </div>
+        <PremiumBanner
+          variant="yellow"
+          title={translate('text_6556309ded468200b9debbd4')}
+          description={translate('text_6556309ded468200b9debbd5')}
+          premiumWarningDialogRef={premiumWarningDialogRef}
+          className="min-h-37 p-12"
+        />
       )}
 
       <div className="mx-4 my-12 grid grid-cols-[1fr] gap-px bg-grey-300 md:m-12 lg:grid-cols-[1fr_1fr]">
