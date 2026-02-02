@@ -14,6 +14,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
+export const WEBHOOK_RETRY_BUTTON_TEST_ID = 'webhook-retry-button'
+
 gql`
   fragment WebhookLogDetails on Webhook {
     id
@@ -100,7 +102,11 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
           <>
             {webhookType}
             {hasError && (
-              <Button variant="quaternary" onClick={async () => await retry()}>
+              <Button
+                variant="quaternary"
+                onClick={async () => await retry()}
+                data-test={WEBHOOK_RETRY_BUTTON_TEST_ID}
+              >
                 {translate('text_63e27c56dfe64b846474efa3')}
               </Button>
             )}

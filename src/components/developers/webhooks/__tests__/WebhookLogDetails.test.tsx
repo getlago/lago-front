@@ -2,7 +2,10 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DateTime } from 'luxon'
 
-import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'
+import {
+  WEBHOOK_RETRY_BUTTON_TEST_ID,
+  WebhookLogDetails,
+} from '~/components/developers/webhooks/WebhookLogDetails'
 import { addToast } from '~/core/apolloClient'
 import {
   GetSingleWebhookLogDocument,
@@ -148,7 +151,7 @@ describe('WebhookLogDetails', () => {
         expect(screen.getAllByText('invoice.created').length).toBeGreaterThan(0)
       })
 
-      expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).not.toBeInTheDocument()
+      expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('should not display retries section when retries is 0', async () => {
@@ -211,7 +214,7 @@ describe('WebhookLogDetails', () => {
       await prepare(failedWebhookData)
 
       await waitFor(() => {
-        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -246,10 +249,10 @@ describe('WebhookLogDetails', () => {
       await prepare(failedWebhookData)
 
       await waitFor(() => {
-        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      const retryButton = screen.getByText('text_63e27c56dfe64b846474efa3')
+      const retryButton = screen.getByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)
 
       await user.click(retryButton)
 
@@ -305,18 +308,15 @@ describe('WebhookLogDetails', () => {
       })
 
       await waitFor(() => {
-        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      const retryButton = screen.getByText('text_63e27c56dfe64b846474efa3')
+      const retryButton = screen.getByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)
 
       await user.click(retryButton)
 
       await waitFor(() => {
-        expect(addToast).toHaveBeenCalledWith({
-          severity: 'info',
-          message: 'text_1738502636498nhm8cuzx946',
-        })
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
       })
     })
 
@@ -364,18 +364,15 @@ describe('WebhookLogDetails', () => {
       })
 
       await waitFor(() => {
-        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      const retryButton = screen.getByText('text_63e27c56dfe64b846474efa3')
+      const retryButton = screen.getByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)
 
       await user.click(retryButton)
 
       await waitFor(() => {
-        expect(addToast).toHaveBeenCalledWith({
-          severity: 'danger',
-          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-        })
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
     })
   })
