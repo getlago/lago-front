@@ -32,13 +32,6 @@ gql`
     }
   }
 
-  mutation switchProgressiveBillingDisabledValue($input: UpdateSubscriptionInput!) {
-    updateSubscription(input: $input) {
-      id
-      progressiveBillingDisabled
-    }
-  }
-
   ${ThresholdForThresholdsTableFragmentDoc}
   ${ThresholdForRecurringThresholdsTableFragmentDoc}
 `

@@ -11693,14 +11693,14 @@ export type ThresholdForThresholdsTableFragment = { __typename?: 'UsageThreshold
 
 export type SubscriptionForUseProgressiveBillingTabFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, recurring: boolean, amountCents: any, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, recurring: boolean, amountCents: any, thresholdDisplayName?: string | null }> | null } };
 
+export type SubscriptionForUseProgressiveBillingTabThresholdsHeaderFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }>, plan: { __typename?: 'Plan', id: string, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string }> | null } };
+
 export type SwitchProgressiveBillingDisabledValueMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
 
 
 export type SwitchProgressiveBillingDisabledValueMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null } | null };
-
-export type SubscriptionForUseProgressiveBillingTabThresholdsHeaderFragment = { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string }>, plan: { __typename?: 'Plan', id: string, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string }> | null } };
 
 export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
 
