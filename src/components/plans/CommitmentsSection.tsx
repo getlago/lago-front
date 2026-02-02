@@ -211,10 +211,10 @@ export const CommitmentsSection = ({
       {!showMinimumCommitment && !isPremium && (
         <FreemiumBlock
           translationKeys={{
-            title: 'text_1738071730498commitfreemiumtitle',
-            description: 'text_1738071730498commitfreemiumdesc',
-            emailSubject: 'text_1738071730498commitfreemiumsubject',
-            emailBody: 'text_1738071730498commitfreeemiumbody',
+            title: 'text_17700400130439xuo82ha60n',
+            description: 'text_1770040013043awgs0eemonf',
+            emailSubject: 'text_1770040013043d8n56xu7juf',
+            emailBody: 'text_1770040013043swrormpg76n',
           }}
         />
       )}

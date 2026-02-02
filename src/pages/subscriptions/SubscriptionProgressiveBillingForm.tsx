@@ -171,7 +171,7 @@ const SubscriptionProgressiveBillingForm = () => {
                     {translate('text_1738071730498edit4pb8hzw')}
                   </Typography>
                   <Typography variant="body">
-                    {translate('text_1738071730498settingsdesc')}
+                    {translate('text_1770040134341pf8pbxr80fz')}
                   </Typography>
                 </div>
 
@@ -189,8 +189,8 @@ const SubscriptionProgressiveBillingForm = () => {
                     {(field) => (
                       <field.SwitchField
                         dataTest={PROGRESSIVE_BILLING_DISABLED_SWITCH_TEST_ID}
-                        label={translate('text_1738071730498disabletoggle')}
-                        subLabel={translate('text_1738071730498disabletoggledesc')}
+                        label={translate('text_177004013434274m1zrl0bo5')}
+                        subLabel={translate('text_1770040134342f6nljdn0pqc')}
                       />
                     )}
                   </form.AppField>
