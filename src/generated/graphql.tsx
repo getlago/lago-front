@@ -1753,6 +1753,7 @@ export type CreateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
   currency: CurrencyEnum;
   customerId: Scalars['ID']['input'];
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
@@ -2215,6 +2216,12 @@ export enum CreditNoteRefundStatusEnum {
   Failed = 'failed',
   Pending = 'pending',
   Succeeded = 'succeeded'
+}
+
+export enum CreditNoteTypeEnum {
+  Credit = 'credit',
+  Offset = 'offset',
+  Refund = 'refund'
 }
 
 export enum CurrencyEnum {
@@ -2776,6 +2783,7 @@ export type CustomerPortalOrganization = {
 export type CustomerPortalWallet = {
   __typename?: 'CustomerPortalWallet';
   balanceCents: Scalars['BigInt']['output'];
+  code?: Maybe<Scalars['String']['output']>;
   consumedAmountCents: Scalars['BigInt']['output'];
   consumedCredits: Scalars['Float']['output'];
   creditsBalance: Scalars['Float']['output'];
@@ -4393,6 +4401,10 @@ export enum InvoicePaymentStatusTypeEnum {
   Succeeded = 'succeeded'
 }
 
+export enum InvoiceSettlementTypeEnum {
+  CreditNote = 'credit_note'
+}
+
 export enum InvoiceStatusTypeEnum {
   Closed = 'closed',
   Draft = 'draft',
@@ -4491,6 +4503,7 @@ export enum LagoApiError {
   InviteNotFound = 'invite_not_found',
   InvoicesNotOverdue = 'invoices_not_overdue',
   InvoicesNotReadyForPaymentProcessing = 'invoices_not_ready_for_payment_processing',
+  IsSucceeded = 'is_succeeded',
   LoginMethodNotAuthorized = 'login_method_not_authorized',
   MissingPaymentProviderCustomer = 'missing_payment_provider_customer',
   NoActiveSubscription = 'no_active_subscription',
@@ -5994,7 +6007,9 @@ export type PaymentMethod = {
   isDefault: Scalars['Boolean']['output'];
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   paymentProviderCustomerId?: Maybe<Scalars['ID']['output']>;
+  paymentProviderName?: Maybe<Scalars['String']['output']>;
   paymentProviderType?: Maybe<ProviderTypeEnum>;
+  providerMethodId: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
 };
 
@@ -6972,6 +6987,7 @@ export type QueryCreditNotesArgs = {
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  types?: InputMaybe<Array<CreditNoteTypeEnum>>;
 };
 
 
@@ -7360,6 +7376,7 @@ export type QueryInvoicesArgs = {
   positiveDueAmount?: InputMaybe<Scalars['Boolean']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  settlements?: InputMaybe<Array<InvoiceSettlementTypeEnum>>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -8657,6 +8674,7 @@ export type UpdateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
@@ -9092,6 +9110,7 @@ export type Wallet = {
   activityLogs?: Maybe<Array<ActivityLog>>;
   appliesTo?: Maybe<WalletAppliesTo>;
   balanceCents: Scalars['BigInt']['output'];
+  code?: Maybe<Scalars['String']['output']>;
   consumedAmountCents: Scalars['BigInt']['output'];
   consumedCredits: Scalars['Float']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -12276,6 +12295,7 @@ export type GetCreditNotesListQueryVariables = Exact<{
   issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
   reason?: InputMaybe<Array<CreditNoteReasonEnum> | CreditNoteReasonEnum>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum> | CreditNoteRefundStatusEnum>;
+  types?: InputMaybe<Array<CreditNoteTypeEnum> | CreditNoteTypeEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -12545,6 +12565,7 @@ export type GetInvoicesListQueryVariables = Exact<{
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum> | InvoicePaymentStatusTypeEnum>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  settlements?: InputMaybe<Array<InvoiceSettlementTypeEnum> | InvoiceSettlementTypeEnum>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
@@ -32179,7 +32200,7 @@ export type CreatePaymentMutationHookResult = ReturnType<typeof useCreatePayment
 export type CreatePaymentMutationResult = Apollo.MutationResult<CreatePaymentMutation>;
 export type CreatePaymentMutationOptions = Apollo.BaseMutationOptions<CreatePaymentMutation, CreatePaymentMutationVariables>;
 export const GetCreditNotesListDocument = gql`
-    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
+    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $types: [CreditNoteTypeEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   creditNotes(
     amountFrom: $amountFrom
     amountTo: $amountTo
@@ -32191,6 +32212,7 @@ export const GetCreditNotesListDocument = gql`
     issuingDateTo: $issuingDateTo
     reason: $reason
     refundStatus: $refundStatus
+    types: $types
     limit: $limit
     page: $page
     searchTerm: $searchTerm
@@ -32224,6 +32246,7 @@ export const GetCreditNotesListDocument = gql`
  *      issuingDateTo: // value for 'issuingDateTo'
  *      reason: // value for 'reason'
  *      refundStatus: // value for 'refundStatus'
+ *      types: // value for 'types'
  *      limit: // value for 'limit'
  *      page: // value for 'page'
  *      searchTerm: // value for 'searchTerm'
@@ -33396,7 +33419,7 @@ export type OktaAcceptInviteMutationHookResult = ReturnType<typeof useOktaAccept
 export type OktaAcceptInviteMutationResult = Apollo.MutationResult<OktaAcceptInviteMutation>;
 export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 export const GetInvoicesListDocument = gql`
-    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
+    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $settlements: [InvoiceSettlementTypeEnum!], $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   invoices(
     currency: $currency
     customerExternalId: $customerExternalId
@@ -33410,6 +33433,7 @@ export const GetInvoicesListDocument = gql`
     paymentOverdue: $paymentOverdue
     paymentStatus: $paymentStatus
     searchTerm: $searchTerm
+    settlements: $settlements
     status: $status
     amountFrom: $amountFrom
     amountTo: $amountTo
@@ -33453,6 +33477,7 @@ export const GetInvoicesListDocument = gql`
  *      paymentOverdue: // value for 'paymentOverdue'
  *      paymentStatus: // value for 'paymentStatus'
  *      searchTerm: // value for 'searchTerm'
+ *      settlements: // value for 'settlements'
  *      status: // value for 'status'
  *      amountFrom: // value for 'amountFrom'
  *      amountTo: // value for 'amountTo'

@@ -8,12 +8,15 @@ import { addToast } from '~/core/apolloClient'
 import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
 import { pollUntilCondition } from '~/core/utils/pollUntilCondition'
 import {
+  LagoApiError,
   useGetSingleWebhookLogQuery,
   useRetryWebhookMutation,
   WebhookStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
+
+export const WEBHOOK_RETRY_BUTTON_TEST_ID = 'webhook-retry-button'
 
 gql`
   fragment WebhookLogDetails on Webhook {
@@ -65,11 +68,30 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
 
   const [retry] = useRetryWebhookMutation({
     variables: { input: { id: id || '' } },
+    context: { silentErrorCodes: [LagoApiError.IsSucceeded] },
+    refetchQueries: ['getSingleWebhookLog'],
     async onCompleted({ retryWebhook }) {
       if (!!retryWebhook) {
         addToast({
           severity: 'success',
           translateKey: 'text_63f79ddae2e0b1892bb4955c',
+        })
+      }
+    },
+    onError: ({ graphQLErrors }) => {
+      const isAlreadySucceeded = graphQLErrors.some(
+        (error) => error.extensions?.code === LagoApiError.IsSucceeded,
+      )
+
+      if (isAlreadySucceeded) {
+        addToast({
+          severity: 'info',
+          message: translate('text_1738502636498nhm8cuzx946'),
+        })
+      } else {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
         })
       }
     },
@@ -109,7 +131,11 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
           <>
             {webhookType}
             {hasError && (
-              <Button variant="quaternary" onClick={async () => await retryWebhookAndWait()}>
+              <Button
+                variant="quaternary"
+                onClick={async () => await retryWebhookAndWait()}
+                data-test={WEBHOOK_RETRY_BUTTON_TEST_ID}
+              >
                 {translate('text_63e27c56dfe64b846474efa3')}
               </Button>
             )}

@@ -18,6 +18,7 @@ export const typeDefs = gql`
 
     # Validation errors
     coupon_is_not_reusable
+    is_succeeded
     currencies_does_not_match
     does_not_match_item_amounts
     email_already_used

@@ -1687,6 +1687,7 @@
   "text_6298bd525e359200d5ea002a": "Looks like there are no events in the Events list.",
   "text_6298bd525e359200d5ea0036": "Start building billable metrics, plans or add-ons to see events here.",
   "text_63f79ddae2e0b1892bb4955c": "Webhook successfully resent",
+  "text_1738502636498nhm8cuzx946": "Webhook was already delivered successfully",
   "text_6298bd525e359200d5ea018f": "Timestamp",
   "text_6298bd525e359200d5ea01c1": "Billable metric code",
   "text_6298bd525e359200d5ea01da": "Billable metric name",
@@ -3788,5 +3789,8 @@
   "text_1768572142437tyh61d8ed6t": "Update a charge",
   "text_1768572142437ch7vfimm1ts": "Delete a charge",
   "text_1768993189751mlil3uubnse": "Use the unused amount to reduce this invoice's amount due.",
-  "text_620bc4d4269a55014d493f3d": "Email is required"
+  "text_620bc4d4269a55014d493f3d": "Email is required",
+  "text_1769621581645i96s4n9hbnw": "Settlement type",
+  "text_620bc4d4269a55014d493f4d": "Organization name is required",
+  "text_620bc4d4269a55014d493f61": "Password is required"
 }
