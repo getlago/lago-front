@@ -434,6 +434,7 @@ export enum ApiKeysPermissionsEnum {
   LifetimeUsage = 'lifetime_usage',
   Organization = 'organization',
   Payment = 'payment',
+  PaymentMethod = 'payment_method',
   PaymentReceipt = 'payment_receipt',
   PaymentRequest = 'payment_request',
   Plan = 'plan',
