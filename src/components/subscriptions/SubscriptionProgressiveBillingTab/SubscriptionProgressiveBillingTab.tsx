@@ -3,6 +3,7 @@ import { FC, useMemo } from 'react'
 
 import { Card, NavigationTab, TabManagedBy, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { FreemiumBlock } from '~/components/premium/FreemiumBlock'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import {
   SubscriptionForProgressiveBillingTabFragment,
@@ -14,8 +15,6 @@ import { useSubscriptionProgressiveBillingTab } from './hooks/useSubscriptionPro
 import { RecurringThresholdsTable } from './RecurringThresholdsTable'
 import { SubscriptionProgressiveBillingTabThresholdsHeader } from './SubscriptionProgressiveBillingTabThresholdsHeader'
 import { ThresholdsTable } from './ThresholdsTable'
-
-import { FreemiumBlock } from '../FreemiumBlock'
 
 // Test ID constants
 export const PROGRESSIVE_BILLING_TAB_TEST_ID = 'progressive-billing-tab'
@@ -140,7 +139,15 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
         </div>
 
         {!hasPremiumIntegration && (
-          <FreemiumBlock data-test={PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID} />
+          <FreemiumBlock
+            data-test={PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID}
+            translationKeys={{
+              title: 'text_1724345142892pcnx5m2k3r2',
+              description: 'text_1724345142892ljzi79afhmc',
+              emailSubject: 'text_172434514289283gmf8bdhh3',
+              emailBody: 'text_1724346450317iqs2rtvx1tp',
+            }}
+          />
         )}
 
         {hasPremiumIntegration && (

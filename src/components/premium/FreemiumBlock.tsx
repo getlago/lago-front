@@ -4,10 +4,19 @@ import { HTMLAttributes } from 'react'
 import { ButtonLink, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-type FreemiumBlockProps = HTMLAttributes<HTMLDivElement>
+type FreemiumBlockProps = HTMLAttributes<HTMLDivElement> & {
+  translationKeys: {
+    title: string
+    description: string
+    emailSubject: string
+    emailBody: string
+  }
+}
 
-export const FreemiumBlock = (props: FreemiumBlockProps) => {
+export const FreemiumBlock = ({ translationKeys, ...props }: FreemiumBlockProps) => {
   const { translate } = useInternationalization()
+
+  const { title, description, emailSubject, emailBody } = translationKeys
 
   return (
     <div
@@ -17,11 +26,11 @@ export const FreemiumBlock = (props: FreemiumBlockProps) => {
       <div>
         <div className="flex items-center gap-2">
           <Typography variant="bodyHl" color="textSecondary">
-            {translate('text_1724345142892pcnx5m2k3r2')}
+            {translate(title)}
           </Typography>
           <Icon name="sparkles" />
         </div>
-        <Typography variant="caption">{translate('text_1724345142892ljzi79afhmc')}</Typography>
+        <Typography variant="caption">{translate(description)}</Typography>
       </div>
 
       <ButtonLink
@@ -32,7 +41,7 @@ export const FreemiumBlock = (props: FreemiumBlockProps) => {
         }}
         type="button"
         external
-        to={`mailto:hello@getlago.com?subject=${translate('text_172434514289283gmf8bdhh3')}&body=${translate('text_1724346450317iqs2rtvx1tp')}`}
+        to={`mailto:hello@getlago.com?subject=${translate(emailSubject)}&body=${translate(emailBody)}`}
       >
         {translate('text_65ae73ebe3a66bec2b91d72d')}
       </ButtonLink>

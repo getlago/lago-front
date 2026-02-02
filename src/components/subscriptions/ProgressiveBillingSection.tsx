@@ -1,9 +1,8 @@
 import { Typography } from '~/components/designSystem/Typography'
+import { FreemiumBlock } from '~/components/premium/FreemiumBlock'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-
-import { FreemiumBlock } from './FreemiumBlock'
 
 export const ProgressiveBillingSection = () => {
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
@@ -27,7 +26,16 @@ export const ProgressiveBillingSection = () => {
           />
         </div>
 
-        {!hasPremiumIntegration && <FreemiumBlock />}
+        {!hasPremiumIntegration && (
+          <FreemiumBlock
+            translationKeys={{
+              title: 'text_1724345142892pcnx5m2k3r2',
+              description: 'text_1724345142892ljzi79afhmc',
+              emailSubject: 'text_172434514289283gmf8bdhh3',
+              emailBody: 'text_1724346450317iqs2rtvx1tp',
+            }}
+          />
+        )}
       </div>
     </>
   )

@@ -1,16 +1,17 @@
 import { gql } from '@apollo/client'
-import { Box, Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { RefObject, useEffect, useMemo, useState } from 'react'
 
-import { Accordion, Button, ButtonLink, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
+import { FreemiumBlock } from '~/components/premium/FreemiumBlock'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -70,34 +71,6 @@ export const CommitmentsSection = ({
       !isNaN(Number(formikProps.initialValues.minimumCommitment?.amountCents)),
     )
   }, [formikProps.initialValues.minimumCommitment?.amountCents])
-
-  const renderFreemiumBlock = () => (
-    <div className="flex w-full items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
-      <Box>
-        <div className="flex items-center gap-2">
-          <Typography variant="bodyHl" color="textSecondary">
-            {translate('text_1738071730498commitfreemiumtitle')}
-          </Typography>
-          <Icon name="sparkles" />
-        </div>
-        <Typography variant="caption">
-          {translate('text_1738071730498commitfreemiumdesc')}
-        </Typography>
-      </Box>
-      <ButtonLink
-        buttonProps={{
-          variant: 'tertiary',
-          size: 'medium',
-          endIcon: 'sparkles',
-        }}
-        type="button"
-        external
-        to={`mailto:hello@getlago.com?subject=${translate('text_1738071730498commitfreemiumsubject')}&body=${translate('text_1738071730498commitfreeemiumbody')}`}
-      >
-        {translate('text_65ae73ebe3a66bec2b91d72d')}
-      </ButtonLink>
-    </div>
-  )
 
   const renderAddButton = () => (
     <Button
@@ -235,7 +208,16 @@ export const CommitmentsSection = ({
       </div>
 
       {showMinimumCommitment && renderMinimumCommitmentAccordion}
-      {!showMinimumCommitment && !isPremium && renderFreemiumBlock()}
+      {!showMinimumCommitment && !isPremium && (
+        <FreemiumBlock
+          translationKeys={{
+            title: 'text_1738071730498commitfreemiumtitle',
+            description: 'text_1738071730498commitfreemiumdesc',
+            emailSubject: 'text_1738071730498commitfreemiumsubject',
+            emailBody: 'text_1738071730498commitfreeemiumbody',
+          }}
+        />
+      )}
       {!showMinimumCommitment && isPremium && renderAddButton()}
     </div>
   )
