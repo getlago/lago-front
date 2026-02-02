@@ -123,7 +123,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ logId: string }>()
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
-  const { getActivityDescription, getResourceTypeTranslation } = useActivityLogsInformation()
+  const { getActivityDescription, getResourceType } = useActivityLogsInformation()
 
   const { data, loading } = useGetSingleActivityLogQuery({
     variables: { id: logId || '' },
@@ -160,15 +160,11 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     },
   })
 
-  const { description: activityTypeTranslation, parameters } = activityType
-    ? getActivityDescription(activityType, {
-        activityObject,
-        externalSubscriptionId: externalSubscriptionId ?? undefined,
-        externalCustomerId: externalCustomerId ?? undefined,
-      })
-    : { description: '', parameters: {} }
-
-  const activityDescription = translate(activityTypeTranslation, parameters)
+  const activityDescription = getActivityDescription(activityType, {
+    activityObject,
+    externalSubscriptionId: externalSubscriptionId ?? undefined,
+    externalCustomerId: externalCustomerId ?? undefined,
+  })
 
   const objectChanges = activityObjectChanges ?? {}
   const newObject = activityObject ?? {}
@@ -225,9 +221,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               [translate('text_1747666154075d10admbnf16'), activityId],
               [
                 translate('text_1732895022171f9vnwh5gm3q'),
-                !!resource?.__typename
-                  ? translate(getResourceTypeTranslation(resource.__typename))
-                  : '-',
+                !!resource?.__typename ? getResourceType(resource.__typename) : '-',
               ],
               [
                 translate('text_1747666154075y3lcupj1zdd'),

@@ -5,6 +5,17 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { isEmailActivity } from './typeguards'
 
+// This function is used to check if all activity types are handled
+const exhaustiveCheck = (value: never): never => {
+  try {
+    throw new Error(`Unhandled activity type: ${value}`)
+  } catch {
+    // Do nothing to avoid breaking on runtime
+  }
+
+  return value
+}
+
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.AppliedCouponCreated]: 'text_1747404806714mt6os3k8404',
   [ActivityTypeEnum.AppliedCouponDeleted]: 'text_1747404902717ou47ei2bfd3',
@@ -72,23 +83,12 @@ const resourceTypeTranslations: Record<string, string> = {
 export const useActivityLogsInformation = () => {
   const { translate } = useInternationalization()
 
-  // This function is used to check if all activity types are handled
-  const exhaustiveCheck = (value: never): never => {
-    try {
-      throw new Error(`Unhandled activity type: ${value}`)
-    } catch {
-      // Do nothing to avoid breaking on runtime
-    }
-
-    return value
-  }
-
-  const getResourceTypeTranslation = (resourceType: string) => {
-    return resourceTypeTranslations[resourceType] || resourceType
+  const getResourceType = (resourceType: string): string => {
+    return translate(resourceTypeTranslations[resourceType] || resourceType)
   }
 
   const getActivityDescription = (
-    activityType: ActivityTypeEnum,
+    activityType: ActivityTypeEnum | undefined,
     {
       activityObject,
       externalCustomerId,
@@ -98,10 +98,12 @@ export const useActivityLogsInformation = () => {
       externalCustomerId?: string
       externalSubscriptionId?: string
     },
-  ): { description: string; parameters: Record<string, string | number> } => {
+  ): string => {
     let parameters = {}
     let amount = 0
     let currency = CurrencyEnum.Usd
+
+    if (!activityType) return ''
 
     switch (activityType) {
       case ActivityTypeEnum.AppliedCouponCreated:
@@ -159,8 +161,8 @@ export const useActivityLogsInformation = () => {
         }
 
         parameters = {
-          resource: translate(getResourceTypeTranslation(activityObject.document.type)),
-          resourceNb: activityObject.document.number,
+          resource: getResourceType(activityObject.document.type),
+          resourceNumber: activityObject.document.number,
         }
         break
       case ActivityTypeEnum.InvoiceCreated:
@@ -253,11 +255,11 @@ export const useActivityLogsInformation = () => {
         exhaustiveCheck(activityType)
     }
 
-    return { description: activityTypeTranslations[activityType], parameters }
+    return translate(activityTypeTranslations[activityType], parameters)
   }
 
   return {
-    getResourceTypeTranslation,
+    getResourceType,
     getActivityDescription,
   }
 }
