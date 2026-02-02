@@ -34,6 +34,7 @@ gql`
     $issuingDateTo: ISO8601Date
     $reason: [CreditNoteReasonEnum!]
     $refundStatus: [CreditNoteRefundStatusEnum!]
+    $types: [CreditNoteTypeEnum!]
     $limit: Int
     $page: Int
     $searchTerm: String
@@ -51,6 +52,7 @@ gql`
       issuingDateTo: $issuingDateTo
       reason: $reason
       refundStatus: $refundStatus
+      types: $types
       limit: $limit
       page: $page
       searchTerm: $searchTerm
