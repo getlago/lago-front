@@ -17,7 +17,7 @@ export const FiltersItemResourceTypes = ({
 }: FiltersItemResourceTypesProps) => {
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilters()
-  const { getResourceTypeTranslation } = useActivityLogsInformation()
+  const { getResourceType } = useActivityLogsInformation()
 
   return (
     <MultipleComboBox
@@ -28,7 +28,7 @@ export const FiltersItemResourceTypes = ({
       disableCloseOnSelect
       placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
       data={Object.values(ResourceTypeEnum).map((resourceType) => ({
-        label: translate(getResourceTypeTranslation(resourceType)),
+        label: getResourceType(resourceType),
         value: resourceType,
       }))}
       onChange={(invoiceType) => {

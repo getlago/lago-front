@@ -93,18 +93,15 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
       key: 'activityId',
       maxSpace: true,
       content: ({ activityType, activityObject, externalCustomerId, externalSubscriptionId }) => {
-        const { description: activityTypeTranslation, parameters } = getActivityDescription(
-          activityType,
-          {
-            activityObject,
-            externalCustomerId: externalCustomerId ?? undefined,
-            externalSubscriptionId: externalSubscriptionId ?? undefined,
-          },
-        )
+        const activityDescription = getActivityDescription(activityType, {
+          activityObject,
+          externalCustomerId: externalCustomerId ?? undefined,
+          externalSubscriptionId: externalSubscriptionId ?? undefined,
+        })
 
         return (
           <Typography color="grey700" variant="bodyHl" noWrap>
-            {translate(activityTypeTranslation, parameters)}
+            {activityDescription}
           </Typography>
         )
       },
