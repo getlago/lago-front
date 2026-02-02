@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { useCallback, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
@@ -126,6 +126,127 @@ const SubscriptionProgressiveBillingForm = () => {
     onSuccess,
   })
 
+  const nonRecurringThresholdsColumns = useMemo(
+    () => [
+      {
+        size: 224,
+        content: (_: unknown, i: number) => (
+          <Typography className="px-4" variant="captionHl" noWrap>
+            {translate(i === 0 ? 'text_1724234174944p8zi54j192m' : 'text_1724179887723917j8ezkd9v')}
+          </Typography>
+        ),
+      },
+      {
+        size: 197,
+        title: (
+          <Typography className="px-4" variant="captionHl">
+            {translate('text_1724179887723eh12a0kqbdw')}
+          </Typography>
+        ),
+        content: (_: unknown, i: number) => (
+          <form.AppField name={`nonRecurringThresholds[${i}].amountCents`}>
+            {(field) => {
+              // Check if this field has the ascending order error
+              const hasAscendingOrderError = field.state.meta.errors.some(
+                (e) => e?.message === ERROR_ASCENDING_ORDER,
+              )
+
+              return (
+                <Tooltip
+                  placement="top"
+                  title={translate('text_1724252232460i4tv7384iiy', {
+                    value: nonRecurringThresholds?.[i - 1]?.amountCents,
+                  })}
+                  disableHoverListener={!hasAscendingOrderError}
+                >
+                  <field.AmountInputField
+                    variant="outlined"
+                    beforeChangeFormatter={['positiveNumber']}
+                    currency={currency}
+                    displayErrorText={false}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Tooltip>
+              )
+            }}
+          </form.AppField>
+        ),
+      },
+      {
+        size: 197,
+        title: (
+          <Typography className="px-4" variant="captionHl">
+            {translate('text_17241798877234jhvoho4ci9')}
+          </Typography>
+        ),
+        content: (_: unknown, i: number) => (
+          <form.AppField name={`nonRecurringThresholds[${i}].thresholdDisplayName`}>
+            {(field) => (
+              <field.TextInputField
+                variant="outlined"
+                placeholder={translate('text_645bb193927b375079d28ace')}
+              />
+            )}
+          </form.AppField>
+        ),
+      },
+    ],
+    [currency, form, nonRecurringThresholds, translate],
+  )
+
+  const recurringThresholdColumns = useMemo(
+    () => [
+      {
+        size: 224,
+        content: () => (
+          <Typography className="px-4" variant="captionHl" noWrap>
+            {translate('text_17241798877230y851fdxzqu')}
+          </Typography>
+        ),
+      },
+      {
+        size: 197,
+        content: () => (
+          <form.AppField name="recurringThreshold.amountCents">
+            {(field) => (
+              <field.AmountInputField
+                variant="outlined"
+                beforeChangeFormatter={['positiveNumber']}
+                currency={currency}
+                displayErrorText={false}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">{getCurrencySymbol(currency)}</InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          </form.AppField>
+        ),
+      },
+      {
+        size: 197,
+        content: () => (
+          <form.AppField name="recurringThreshold.thresholdDisplayName">
+            {(field) => (
+              <field.TextInputField
+                variant="outlined"
+                placeholder={translate('text_645bb193927b375079d28ace')}
+              />
+            )}
+          </form.AppField>
+        ),
+      },
+    ],
+    [currency, form, translate],
+  )
+
   const handleAbort = () => {
     if (isDirty) {
       warningDirtyAttributesDialogRef.current?.openDialog()
@@ -217,86 +338,7 @@ const SubscriptionProgressiveBillingForm = () => {
                             }))}
                             onDeleteRow={(_, i) => handleDeleteThreshold(i)}
                             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
-                            // TODO: Move dcolumns logic out
-                            columns={[
-                              {
-                                size: 224,
-                                content: (_, i) => (
-                                  <Typography className="px-4" variant="captionHl" noWrap>
-                                    {translate(
-                                      i === 0
-                                        ? 'text_1724234174944p8zi54j192m'
-                                        : 'text_1724179887723917j8ezkd9v',
-                                    )}
-                                  </Typography>
-                                ),
-                              },
-                              {
-                                size: 197,
-                                title: (
-                                  <Typography className="px-4" variant="captionHl">
-                                    {translate('text_1724179887723eh12a0kqbdw')}
-                                  </Typography>
-                                ),
-                                content: (_, i) => (
-                                  <form.AppField name={`nonRecurringThresholds[${i}].amountCents`}>
-                                    {(field) => {
-                                      // Check if this field has the ascending order error
-                                      const hasAscendingOrderError = field.state.meta.errors.some(
-                                        (e) => e?.message === ERROR_ASCENDING_ORDER,
-                                      )
-
-                                      return (
-                                        <Tooltip
-                                          placement="top"
-                                          title={translate('text_1724252232460i4tv7384iiy', {
-                                            value: nonRecurringThresholds?.[i - 1]?.amountCents,
-                                          })}
-                                          disableHoverListener={!hasAscendingOrderError}
-                                        >
-                                          <field.AmountInputField
-                                            variant="outlined"
-                                            beforeChangeFormatter={[
-                                              'chargeDecimal',
-                                              'positiveNumber',
-                                            ]}
-                                            currency={currency}
-                                            displayErrorText={false}
-                                            InputProps={{
-                                              startAdornment: (
-                                                <InputAdornment position="start">
-                                                  {getCurrencySymbol(currency)}
-                                                </InputAdornment>
-                                              ),
-                                            }}
-                                          />
-                                        </Tooltip>
-                                      )
-                                    }}
-                                  </form.AppField>
-                                ),
-                              },
-                              {
-                                size: 197,
-                                title: (
-                                  <Typography className="px-4" variant="captionHl">
-                                    {translate('text_17241798877234jhvoho4ci9')}
-                                  </Typography>
-                                ),
-                                content: (_, i) => (
-                                  <form.AppField
-                                    name={`nonRecurringThresholds[${i}].thresholdDisplayName`}
-                                  >
-                                    {(field) => (
-                                      <field.TextInputField
-                                        variant="outlined"
-                                        placeholder={translate('text_645bb193927b375079d28ace')}
-                                      />
-                                    )}
-                                  </form.AppField>
-                                ),
-                              },
-                            ]}
+                            columns={nonRecurringThresholdsColumns}
                           />
                         </div>
                       </div>
@@ -316,51 +358,7 @@ const SubscriptionProgressiveBillingForm = () => {
                           <ChargeTable
                             className="w-full"
                             name="progressive-billing-recurring"
-                            columns={[
-                              {
-                                size: 224,
-                                content: () => (
-                                  <Typography className="px-4" variant="captionHl" noWrap>
-                                    {translate('text_17241798877230y851fdxzqu')}
-                                  </Typography>
-                                ),
-                              },
-                              {
-                                size: 197,
-                                content: () => (
-                                  <form.AppField name="recurringThreshold.amountCents">
-                                    {(field) => (
-                                      <field.AmountInputField
-                                        variant="outlined"
-                                        beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                                        currency={currency}
-                                        displayErrorText={false}
-                                        InputProps={{
-                                          startAdornment: (
-                                            <InputAdornment position="start">
-                                              {getCurrencySymbol(currency)}
-                                            </InputAdornment>
-                                          ),
-                                        }}
-                                      />
-                                    )}
-                                  </form.AppField>
-                                ),
-                              },
-                              {
-                                size: 197,
-                                content: () => (
-                                  <form.AppField name="recurringThreshold.thresholdDisplayName">
-                                    {(field) => (
-                                      <field.TextInputField
-                                        variant="outlined"
-                                        placeholder={translate('text_645bb193927b375079d28ace')}
-                                      />
-                                    )}
-                                  </form.AppField>
-                                ),
-                              },
-                            ]}
+                            columns={recurringThresholdColumns}
                             data={[recurringThreshold]}
                           />
                         </div>
