@@ -1,4 +1,3 @@
-import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 

@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
@@ -200,7 +199,7 @@ export const RotateApiKeyDialog = forwardRef<
                 variant="grey"
                 title={translate('text_1732286530467ezav2z7ypj1')}
                 description={translate('text_1732286530467gnhwm6q5ftl')}
-                premiumWarningDialogRef={{ current: { openDialog: openPremiumDialog } } as any}
+                onButtonClick={openPremiumDialog}
                 className="w-full rounded-xl px-6 py-4"
               />
             )}

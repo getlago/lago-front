@@ -9,16 +9,9 @@ type PremiumFeatureProps = {
   description: string
   feature: string
   className?: string
-  buttonClassName?: string
 }
 
-const PremiumFeature = ({
-  title,
-  description,
-  feature,
-  className,
-  buttonClassName,
-}: PremiumFeatureProps) => {
+const PremiumFeature = ({ title, description, feature, className }: PremiumFeatureProps) => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (

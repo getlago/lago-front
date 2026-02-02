@@ -1,8 +1,6 @@
-import { Stack } from '@mui/material'
-import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 
-import { PremiumBanner, Typography } from '~/components/designSystem'
+import { PremiumBanner } from '~/components/designSystem'
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -40,8 +38,6 @@ const RolePicker = withFieldGroup({
     }, [roles, isLoadingRoles, getDisplayName, getDisplayDescription, isPremium])
 
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-
-    const openPremiumDialog = () => premiumWarningDialogRef.current?.openDialog()
 
     return (
       <>

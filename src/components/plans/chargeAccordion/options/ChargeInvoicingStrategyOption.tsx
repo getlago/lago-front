@@ -1,7 +1,6 @@
-import { Icon } from 'lago-design-system'
 import { FC, useState } from 'react'
 
-import { Button, PremiumBanner, Typography } from '~/components/designSystem'
+import { PremiumBanner, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { RegroupPaidFeesEnum } from '~/generated/graphql'
@@ -79,7 +78,7 @@ export const ChargeInvoicingStrategyOption: FC<ChargeInvoicingStrategyOptionProp
           variant="grey"
           title={translate('text_6682c52081acea90520744d0')}
           description={translate('text_6682c52081acea90520744d2')}
-          premiumWarningDialogRef={{ current: { openDialog: openPremiumDialog } } as any}
+          onButtonClick={openPremiumDialog}
           className="rounded-lg px-6 py-4"
         />
       )}

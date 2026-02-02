@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Icon } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 import { NavigateOptions, useParams } from 'react-router-dom'
 

@@ -1,5 +1,4 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useRef, useState } from 'react'
 
 import {

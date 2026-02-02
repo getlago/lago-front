@@ -18,6 +18,7 @@ interface PremiumBannerProps {
   variant?: PremiumBannerVariant
   buttonSize?: ButtonSize
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
+  onButtonClick?: () => void
   mailtoLink?: string
   dialogTitle?: string
   dialogDescription?: string
@@ -43,6 +44,7 @@ export const PremiumBanner = ({
   variant = 'grey',
   buttonSize = 'medium',
   premiumWarningDialogRef,
+  onButtonClick,
   mailtoLink,
   dialogTitle,
   dialogDescription,
@@ -53,6 +55,12 @@ export const PremiumBanner = ({
   const { translate } = useInternationalization()
 
   const handleButtonClick = () => {
+    // if custom click handler is provided, use it
+    if (onButtonClick) {
+      onButtonClick()
+      return
+    }
+
     if (premiumWarningDialogRef?.current) {
       // if custom dialog params are provided, use this
       if (dialogTitle || dialogDescription || mailtoSubject || mailtoBody) {
