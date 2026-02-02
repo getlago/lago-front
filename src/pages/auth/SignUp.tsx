@@ -6,35 +6,24 @@ import { useSearchParams } from 'react-router-dom'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Typography } from '~/components/designSystem'
+import { PasswordValidationHints } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE } from '~/core/router'
-import {
-  PASSWORD_VALIDATION_ERRORS,
-  PASSWORD_VALIDATION_TEST_IDS,
-} from '~/formValidation/zodCustoms'
+import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import { LagoApiError, useGoogleRegisterMutation, useSignupMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { theme } from '~/styles'
+import { usePasswordValidation } from '~/hooks/forms/usePasswordValidation'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
-import { tw } from '~/styles/utils'
 
-import { usePasswordValidation } from './signUpForm/usePasswordValidation'
 import {
   googleRegisterValidationSchema,
-  PASSWORD_VALIDATION_KEYS,
   signUpDefaultValues,
   signUpValidationSchema,
 } from './signUpForm/validationSchema'
-import {
-  SIGNUP_ERROR_ALERT_TEST_ID,
-  SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID,
-  SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID,
-  SIGNUP_SUBMIT_BUTTON_TEST_ID,
-  SIGNUP_SUCCESS_ALERT_TEST_ID,
-} from './signUpTestIds'
+import { SIGNUP_ERROR_ALERT_TEST_ID, SIGNUP_SUBMIT_BUTTON_TEST_ID } from './signUpTestIds'
 
 gql`
   mutation signup($input: RegisterUserInput!) {
@@ -228,56 +217,11 @@ const SignUp = () => {
                         />
                       )}
                     </form.AppField>
-                    {passwordValidation.isValid ? (
-                      <Alert
-                        className="mt-4"
-                        type="success"
-                        data-test={SIGNUP_SUCCESS_ALERT_TEST_ID}
-                      >
-                        {translate('text_620bc4d4269a55014d493fbe')}
-                      </Alert>
-                    ) : (
-                      <div
-                        className={tw(
-                          'flex flex-wrap overflow-hidden transition-all duration-250',
-                          password ? 'mt-4 max-h-124' : 'mt-0 max-h-0',
-                        )}
-                        data-test={
-                          password
-                            ? SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID
-                            : SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID
-                        }
-                      >
-                        {PASSWORD_VALIDATION_KEYS.map((err) => {
-                          const isErrored = passwordValidation.errors.includes(err)
-
-                          return (
-                            <div
-                              className="mb-3 flex h-5 w-1/2 flex-row items-center gap-3"
-                              key={err}
-                              data-test={isErrored ? PASSWORD_VALIDATION_TEST_IDS[err] : undefined}
-                            >
-                              <svg height={8} width={8}>
-                                <circle
-                                  cx="4"
-                                  cy="4"
-                                  r="4"
-                                  fill={
-                                    isErrored ? theme.palette.primary.main : theme.palette.grey[500]
-                                  }
-                                />
-                              </svg>
-                              <Typography
-                                variant="caption"
-                                color={isErrored ? 'textSecondary' : 'textPrimary'}
-                              >
-                                {translate(err)}
-                              </Typography>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
+                    <PasswordValidationHints
+                      password={password}
+                      errors={passwordValidation.errors}
+                      isValid={passwordValidation.isValid}
+                    />
                   </div>
                 </>
               )}

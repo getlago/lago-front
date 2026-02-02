@@ -1,17 +1,18 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { Stack } from '@mui/material'
-import _findKey from 'lodash/findKey'
-import { useEffect, useMemo, useState } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useEffect, useMemo } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { object, string } from 'yup'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
+import { PasswordValidationHints } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
+import { TextInput } from '~/components/form/TextInput'
 import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { LOGIN_ROUTE } from '~/core/router'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
+import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import {
   CurrentUserFragmentDoc,
   LagoApiError,
@@ -23,10 +24,18 @@ import {
 } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
-import { theme } from '~/styles'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import { usePasswordValidation } from '~/hooks/forms/usePasswordValidation'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
-import { tw } from '~/styles/utils'
+
+import {
+  invitationDefaultValues,
+  invitationValidationSchema,
+} from './invitationForm/validationSchema'
+
+export const INVITATION_FORM_ID = 'invitation-form'
+export const INVITATION_ERROR_ALERT_TEST_ID = 'invitation-error-alert'
+export const INVITATION_SUBMIT_BUTTON_TEST_ID = 'submit-button'
 
 gql`
   query getinvite($token: String!) {
@@ -66,24 +75,6 @@ gql`
 
   ${CurrentUserFragmentDoc}
 `
-
-type Fields = { password: string }
-enum FORM_ERRORS {
-  REQUIRED_PASSWORD = 'requiredPassword',
-  LOWERCASE = 'text_63246f875e2228ab7b63dcfa',
-  UPPERCASE = 'text_63246f875e2228ab7b63dd11',
-  NUMBER = 'text_63246f875e2228ab7b63dd15',
-  SPECIAL = 'text_63246f875e2228ab7b63dd17',
-  MIN = 'text_63246f875e2228ab7b63dd1a',
-}
-
-const PASSWORD_VALIDATION = [
-  FORM_ERRORS.LOWERCASE,
-  FORM_ERRORS.SPECIAL,
-  FORM_ERRORS.UPPERCASE,
-  FORM_ERRORS.MIN,
-  FORM_ERRORS.NUMBER,
-]
 
 const Invitation = () => {
   const { isAuthenticated } = useIsAuthenticated()
@@ -140,37 +131,27 @@ const Invitation = () => {
       },
     })
 
-  const [formFields, setFormFields] = useState<Fields>({
-    password: '',
-  })
-  const [errors, setErrors] = useState<FORM_ERRORS[]>([])
-
-  const validationSchema = useMemo(
-    () =>
-      object().shape({
-        password: string()
-          .min(8, FORM_ERRORS.MIN)
-          .matches(RegExp('(.*[a-z].*)'), FORM_ERRORS.LOWERCASE)
-          .matches(RegExp('(.*[A-Z].*)'), FORM_ERRORS.UPPERCASE)
-          .matches(RegExp('(.*\\d.*)'), FORM_ERRORS.NUMBER)
-          .matches(RegExp('[/_!@#$%^&*(),.?":{}|<>/-]'), FORM_ERRORS.SPECIAL),
-      }),
-    [],
-  )
-
-  const onInvitation = async () => {
-    const { password } = formFields
-
-    await acceptInvite({
-      variables: {
-        input: {
-          token: token || '',
-          email: email || '',
-          password: password || '',
+  const form = useAppForm({
+    defaultValues: invitationDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: invitationValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await acceptInvite({
+        variables: {
+          input: {
+            token: token || '',
+            email: email || '',
+            password: value.password,
+          },
         },
-      },
-    })
-  }
+      })
+    },
+  })
+
+  const password = useStore(form.store, (state) => state.values.password)
+  const passwordValidation = usePasswordValidation(password)
 
   const onOktaLogin = async () => {
     const { data: oktaAuthorizeData } = await fetchOktaAuthorizeUrl({
@@ -191,19 +172,6 @@ const Invitation = () => {
       })
     }
   }
-
-  useEffect(() => {
-    validationSchema
-      .validate(formFields, { abortEarly: false })
-      .catch((err) => err)
-      .then((param) => {
-        if (!!param?.errors && param.errors.length > 0) {
-          setErrors(param.errors)
-        } else {
-          setErrors([])
-        }
-      })
-  }, [formFields, validationSchema])
 
   useEffect(() => {
     if (!!googleCode && !!token) {
@@ -290,15 +258,14 @@ const Invitation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acceptInviteError, googleAcceptInviteError, oktaAcceptInviteError, oktaAuthorizeUrlError])
 
-  useShortcuts([
-    {
-      keys: ['Enter'],
-      disabled: errors.length > 0,
-      action: onInvitation,
-    },
-  ])
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
+  }
 
-  const hasValidationErrors = errors.some((err) => PASSWORD_VALIDATION.includes(err))
+  if (isAuthenticated) {
+    return null
+  }
 
   return (
     <Page>
@@ -326,133 +293,94 @@ const Invitation = () => {
             <Skeleton variant="text" className="w-76" />
           </>
         )}
-        {!error && !loading && (
-          <Stack spacing={8}>
-            <Stack spacing={3}>
-              <Typography variant="headline">
-                {translate('text_664c90c9b2b6c2012aa50bcd', {
-                  orgnisationName: data?.invite?.organization.name,
-                })}
-              </Typography>
-              <Typography>{translate('text_63246f875e2228ab7b63dcd4')}</Typography>
-            </Stack>
+        {!error && !loading && !!data?.invite && (
+          <form id={INVITATION_FORM_ID} onSubmit={handleSubmit}>
+            <Stack spacing={8}>
+              <Stack spacing={3}>
+                <Typography variant="headline">
+                  {translate('text_664c90c9b2b6c2012aa50bcd', {
+                    orgnisationName: data?.invite?.organization.name,
+                  })}
+                </Typography>
+                <Typography>{translate('text_63246f875e2228ab7b63dcd4')}</Typography>
+              </Stack>
 
-            {!!errorTranslation && (
-              <Alert type="danger" data-test="error-alert">
-                <Typography color="inherit" html={errorTranslation} />
-              </Alert>
-            )}
+              {!!errorTranslation && (
+                <Alert type="danger" data-test={INVITATION_ERROR_ALERT_TEST_ID}>
+                  <Typography color="inherit" html={errorTranslation} />
+                </Alert>
+              )}
 
-            <Stack spacing={4}>
-              <GoogleAuthButton
-                mode="invite"
-                invitationToken={token || ''}
-                label={translate('text_664c90c9b2b6c2012aa50bd3')}
-              />
-
-              <Button
-                fullWidth
-                startIcon="okta"
-                size="large"
-                variant="tertiary"
-                onClick={() => onOktaLogin()}
-                loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
-              >
-                {translate('text_664c90c9b2b6c2012aa50bd5')}
-              </Button>
-            </Stack>
-
-            <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
-              <Typography variant="captionHl" color="grey500">
-                {translate('text_6303351deffd2a0d70498675').toUpperCase()}
-              </Typography>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <TextInput
-                disabled
-                name="email"
-                beforeChangeFormatter={['lowercase']}
-                label={translate('text_63246f875e2228ab7b63dcdc')}
-                value={email}
-              />
-
-              <div>
-                <TextInput
-                  name="password"
-                  value={formFields.password}
-                  password
-                  onChange={(value) => setFormFields((prev) => ({ ...prev, password: value }))}
-                  label={translate('text_63246f875e2228ab7b63dce9')}
-                  placeholder={translate('text_63246f875e2228ab7b63dcf0')}
+              <Stack spacing={4}>
+                <GoogleAuthButton
+                  mode="invite"
+                  invitationToken={token || ''}
+                  label={translate('text_664c90c9b2b6c2012aa50bd3')}
                 />
-                {hasValidationErrors && (
-                  <div
-                    className={tw(
-                      'flex flex-wrap overflow-hidden transition-all duration-250',
-                      !!formFields.password ? 'mt-4 max-h-124' : 'mt-0 max-h-0',
-                    )}
-                    data-test={
-                      !!formFields.password
-                        ? 'password-validation--visible'
-                        : 'password-validation--hidden'
-                    }
-                  >
-                    {PASSWORD_VALIDATION.map((err) => {
-                      const isErrored = errors.includes(err)
 
-                      return (
-                        <div
-                          className="mb-3 flex h-5 w-1/2 flex-row items-center gap-3"
-                          key={err}
-                          data-test={
-                            isErrored ? _findKey(FORM_ERRORS, (v) => v === err) : undefined
-                          }
-                        >
-                          <svg height={8} width={8}>
-                            <circle
-                              cx="4"
-                              cy="4"
-                              r="4"
-                              fill={
-                                isErrored ? theme.palette.primary.main : theme.palette.grey[500]
-                              }
-                            />
-                          </svg>
-                          <Typography
-                            variant="caption"
-                            color={isErrored ? 'textSecondary' : 'textPrimary'}
-                          >
-                            {translate(err)}
-                          </Typography>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-                {!errorTranslation && !hasValidationErrors && (
-                  <Alert type="success" data-test="success" className="mt-3">
-                    {translate('text_63246f875e2228ab7b63dd02')}
-                  </Alert>
-                )}
+                <Button
+                  fullWidth
+                  startIcon="okta"
+                  size="large"
+                  variant="tertiary"
+                  onClick={() => onOktaLogin()}
+                  loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
+                >
+                  {translate('text_664c90c9b2b6c2012aa50bd5')}
+                </Button>
+              </Stack>
+
+              <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
+                <Typography variant="captionHl" color="grey500">
+                  {translate('text_6303351deffd2a0d70498675').toUpperCase()}
+                </Typography>
               </div>
-            </div>
 
-            <Button
-              data-test="submit-button"
-              disabled={errors.length > 0}
-              loading={acceptInviteLoading}
-              fullWidth
-              size="large"
-              onClick={onInvitation}
-            >
-              {translate('text_63246f875e2228ab7b63dd1c')}
-            </Button>
-            <Typography
-              variant="caption"
-              html={translate('text_63246f875e2228ab7b63dd1f', { link: LOGIN_ROUTE })}
-            />
-          </Stack>
+              <div className="flex flex-col gap-4">
+                <TextInput
+                  disabled
+                  name="email"
+                  beforeChangeFormatter={['lowercase']}
+                  label={translate('text_63246f875e2228ab7b63dcdc')}
+                  value={email}
+                />
+
+                <div>
+                  <form.AppField name="password">
+                    {(field) => (
+                      <field.TextInputField
+                        password
+                        label={translate('text_63246f875e2228ab7b63dce9')}
+                        placeholder={translate('text_63246f875e2228ab7b63dcf0')}
+                        showOnlyErrors={[PASSWORD_VALIDATION_ERRORS.REQUIRED]}
+                      />
+                    )}
+                  </form.AppField>
+                  <PasswordValidationHints
+                    password={password}
+                    errors={passwordValidation.errors}
+                    isValid={passwordValidation.isValid}
+                    successMessage="text_63246f875e2228ab7b63dd02"
+                  />
+                </div>
+              </div>
+
+              <form.AppForm>
+                <form.SubmitButton
+                  dataTest={INVITATION_SUBMIT_BUTTON_TEST_ID}
+                  fullWidth
+                  size="large"
+                  loading={acceptInviteLoading}
+                >
+                  {translate('text_63246f875e2228ab7b63dd1c')}
+                </form.SubmitButton>
+              </form.AppForm>
+              <Typography
+                variant="caption"
+                html={translate('text_63246f875e2228ab7b63dd1f', { link: LOGIN_ROUTE })}
+              />
+            </Stack>
+          </form>
         )}
       </Card>
     </Page>

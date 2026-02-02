@@ -392,6 +392,7 @@ const InvoicesList = ({
             AvailableFiltersEnum.customerExternalId,
             AvailableFiltersEnum.paymentDisputeLost,
             AvailableFiltersEnum.paymentOverdue,
+            AvailableFiltersEnum.settlementType,
             ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
           ]}
         >
