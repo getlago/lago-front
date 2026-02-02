@@ -56,11 +56,30 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
 
   const [retry] = useRetryWebhookMutation({
     variables: { input: { id: id || '' } },
+    context: { silentErrorCodes: ['is_succeeded'] },
+    refetchQueries: ['getSingleWebhookLog'],
     async onCompleted({ retryWebhook }) {
       if (!!retryWebhook) {
         addToast({
           severity: 'success',
           translateKey: 'text_63f79ddae2e0b1892bb4955c',
+        })
+      }
+    },
+    onError: ({ graphQLErrors }) => {
+      const isAlreadySucceeded = graphQLErrors.some(
+        (error) => error.extensions?.code === 'is_succeeded',
+      )
+
+      if (isAlreadySucceeded) {
+        addToast({
+          severity: 'info',
+          message: translate('text_1738502636498nhm8cuzx946'),
+        })
+      } else {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
         })
       }
     },

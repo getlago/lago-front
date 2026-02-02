@@ -260,6 +260,124 @@ describe('WebhookLogDetails', () => {
         })
       })
     })
+
+    it('should show info toast when webhook was already delivered', async () => {
+      const user = userEvent.setup()
+
+      const mocksWithAlreadySucceeded = [
+        {
+          request: {
+            query: GetSingleWebhookLogDocument,
+            variables: { id: 'webhook-123' },
+          },
+          result: {
+            data: {
+              webhook: {
+                __typename: 'Webhook',
+                ...failedWebhookData,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: RetryWebhookDocument,
+            variables: { input: { id: 'webhook-123' } },
+          },
+          result: {
+            errors: [
+              {
+                message: 'Method Not Allowed',
+                extensions: { code: 'is_succeeded', status: 405 },
+              },
+            ],
+          },
+        },
+      ]
+
+      mockUseParams.mockReturnValue({ logId: 'webhook-123' })
+
+      await act(async () => {
+        render(<WebhookLogDetails goBack={mockGoBack} />, {
+          mocks: mocksWithAlreadySucceeded,
+        })
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+      })
+
+      const retryButton = screen.getByText('text_63e27c56dfe64b846474efa3')
+
+      await user.click(retryButton)
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'info',
+          message: 'text_1738502636498nhm8cuzx946',
+        })
+      })
+    })
+
+    it('should show error toast when retry mutation fails with other error', async () => {
+      const user = userEvent.setup()
+
+      const mocksWithError = [
+        {
+          request: {
+            query: GetSingleWebhookLogDocument,
+            variables: { id: 'webhook-123' },
+          },
+          result: {
+            data: {
+              webhook: {
+                __typename: 'Webhook',
+                ...failedWebhookData,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: RetryWebhookDocument,
+            variables: { input: { id: 'webhook-123' } },
+          },
+          result: {
+            errors: [
+              {
+                message: 'Internal Server Error',
+                extensions: { code: 'internal_error', status: 500 },
+              },
+            ],
+          },
+        },
+      ]
+
+      mockUseParams.mockReturnValue({ logId: 'webhook-123' })
+
+      await act(async () => {
+        render(<WebhookLogDetails goBack={mockGoBack} />, {
+          mocks: mocksWithError,
+        })
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+      })
+
+      const retryButton = screen.getByText('text_63e27c56dfe64b846474efa3')
+
+      await user.click(retryButton)
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        })
+      })
+    })
   })
 
   describe('Pending webhook', () => {
