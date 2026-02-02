@@ -2,14 +2,14 @@ import { MockedProvider } from '@apollo/client/testing'
 import { act, render, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
+import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
+
 import SignUp from '../SignUp'
 import {
   SIGNUP_EMAIL_FIELD_TEST_ID,
   SIGNUP_ORGANIZATION_NAME_FIELD_TEST_ID,
   SIGNUP_PASSWORD_FIELD_TEST_ID,
-  SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID,
   SIGNUP_SUBMIT_BUTTON_TEST_ID,
-  SIGNUP_SUCCESS_ALERT_TEST_ID,
 } from '../signUpTestIds'
 
 const getByDataTest = (testId: string) => document.querySelector(`[data-test="${testId}"]`)
@@ -29,6 +29,12 @@ jest.mock('~/components/auth/GoogleAuthButton', () => ({
   default: ({ label }: { label: string }) => (
     <button data-testid="google-auth-button">{label}</button>
   ),
+}))
+
+const mockPasswordValidation = jest.fn()
+
+jest.mock('~/hooks/forms/usePasswordValidation', () => ({
+  usePasswordValidation: (password: string) => mockPasswordValidation(password),
 }))
 
 const mockHandleSubmit = jest.fn()
@@ -122,6 +128,10 @@ describe('SignUp', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     setupMockUseStore('', true)
+    mockPasswordValidation.mockReturnValue({
+      isValid: false,
+      errors: ['MIN', 'LOWERCASE', 'UPPERCASE', 'NUMBER', 'SPECIAL'],
+    })
   })
 
   describe('when rendering the signup form', () => {
@@ -138,11 +148,15 @@ describe('SignUp', () => {
   describe('when typing an invalid password', () => {
     it('should show the password validation checklist', async () => {
       setupMockUseStore('weak', true)
+      mockPasswordValidation.mockReturnValue({
+        isValid: false,
+        errors: ['MIN', 'UPPERCASE', 'NUMBER', 'SPECIAL'],
+      })
 
       await renderSignUp()
 
       await waitFor(() => {
-        expect(getByDataTest(SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID)).toBeInTheDocument()
+        expect(getByDataTest(PASSWORD_HINTS_TEST_IDS.VISIBLE)).toBeInTheDocument()
       })
     })
   })
@@ -150,11 +164,12 @@ describe('SignUp', () => {
   describe('when typing a valid password', () => {
     it('should show the success alert', async () => {
       setupMockUseStore('ValidPass1!', true)
+      mockPasswordValidation.mockReturnValue({ isValid: true, errors: [] })
 
       await renderSignUp()
 
       await waitFor(() => {
-        expect(getByDataTest(SIGNUP_SUCCESS_ALERT_TEST_ID)).toBeInTheDocument()
+        expect(getByDataTest(PASSWORD_HINTS_TEST_IDS.SUCCESS)).toBeInTheDocument()
       })
     })
   })
