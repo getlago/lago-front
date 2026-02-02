@@ -17,6 +17,11 @@
   },
   "packageRules": [
     {
+      "matchPackageNames": ["@tanstack/react-virtual"],
+      "enabled": false,
+      "description": "Disabled due to regression in v3.13.16+ causing 'Cannot read properties of null (requestAnimationFrame)' on unmount for scrollToIndex."
+    },
+    {
       "matchDepNames": ["node"],
       "rangeStrategy": "bump"
     },
