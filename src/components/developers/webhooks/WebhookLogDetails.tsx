@@ -7,6 +7,7 @@ import { Button, Skeleton, Status, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
 import {
+  LagoApiError,
   useGetSingleWebhookLogQuery,
   useRetryWebhookMutation,
   WebhookStatusEnum,
@@ -58,7 +59,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
 
   const [retry] = useRetryWebhookMutation({
     variables: { input: { id: id || '' } },
-    context: { silentErrorCodes: ['is_succeeded'] },
+    context: { silentErrorCodes: [LagoApiError.IsSucceeded] },
     refetchQueries: ['getSingleWebhookLog'],
     async onCompleted({ retryWebhook }) {
       if (!!retryWebhook) {
@@ -70,7 +71,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
     },
     onError: ({ graphQLErrors }) => {
       const isAlreadySucceeded = graphQLErrors.some(
-        (error) => error.extensions?.code === 'is_succeeded',
+        (error) => error.extensions?.code === LagoApiError.IsSucceeded,
       )
 
       if (isAlreadySucceeded) {
