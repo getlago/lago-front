@@ -83,7 +83,6 @@ const BillingAccordion = withForm({
                 <field.TextInputField
                   label={translate('text_626c0c09812bbc00e4c59e05')}
                   placeholder={translate('text_626c0c09812bbc00e4c59e07')}
-                  disabled={!!customer && !customer?.canEditAttributes}
                 />
               )}
             </form.AppField>
