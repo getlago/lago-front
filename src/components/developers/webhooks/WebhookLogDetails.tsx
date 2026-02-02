@@ -102,9 +102,13 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   // Launch the webhook retry and then wait for the status to be other than 'PENDING'
   // We check every second if the status has changed or not. Until then, the retry button is disabled
   const retryWebhookAndWait = async () => {
-    await retry()
+    const { data: retryData } = await retry()
 
-    // Abort controller only needed if we launched a retry
+    // Only poll if the retry was accepted by the backend
+    if (!retryData?.retryWebhook) {
+      return
+    }
+
     abortControllerRef.current = new AbortController()
 
     await pollUntilCondition(
