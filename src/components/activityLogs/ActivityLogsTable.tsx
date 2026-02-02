@@ -1,7 +1,7 @@
 import { ApolloError, gql, QueryResult } from '@apollo/client'
 import { FC, useMemo } from 'react'
 
-import { formatActivityType, getActivityDescription } from '~/components/activityLogs/utils'
+import { formatActivityType } from '~/components/activityLogs/utils'
 import {
   Table,
   TableColumn,
@@ -11,6 +11,7 @@ import {
 } from '~/components/designSystem'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { ActivityLogsTableDataFragment } from '~/generated/graphql'
+import { useActivityLogsInformation } from '~/hooks/activityLogs/useActivityLogsInformation'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
@@ -43,6 +44,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
 }) => {
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
+  const { getActivityDescription } = useActivityLogsInformation()
 
   const tablePlaceholder: TablePlaceholder = useMemo(() => {
     const placeholder: TablePlaceholder = {
@@ -91,12 +93,14 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
       key: 'activityId',
       maxSpace: true,
       content: ({ activityType, activityObject, externalCustomerId, externalSubscriptionId }) => {
-        const [activityTypeTranslation, parameters] = getActivityDescription(activityType, {
-          activityObject,
-          externalCustomerId: externalCustomerId ?? undefined,
-          externalSubscriptionId: externalSubscriptionId ?? undefined,
-          translate,
-        })
+        const { description: activityTypeTranslation, parameters } = getActivityDescription(
+          activityType,
+          {
+            activityObject,
+            externalCustomerId: externalCustomerId ?? undefined,
+            externalSubscriptionId: externalSubscriptionId ?? undefined,
+          },
+        )
 
         return (
           <Typography color="grey700" variant="bodyHl" noWrap>
