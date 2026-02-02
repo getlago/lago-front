@@ -4,7 +4,14 @@ import { Icon } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 import { NavigateOptions, useParams } from 'react-router-dom'
 
-import { Alert, Button, PremiumBanner, Skeleton, Table, Typography } from '~/components/designSystem'
+import {
+  Alert,
+  Button,
+  PremiumBanner,
+  Skeleton,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { Checkbox, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

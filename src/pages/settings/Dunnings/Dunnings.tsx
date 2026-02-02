@@ -8,9 +8,9 @@ import {
   Button,
   ButtonLink,
   GenericPlaceholder,
+  InfiniteScroll,
   PremiumBanner,
   Skeleton,
-  InfiniteScroll,
   Table,
   Typography,
 } from '~/components/designSystem'

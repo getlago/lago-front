@@ -112,5 +112,3 @@ export const PremiumBanner = ({
     </div>
   )
 }
-
-

@@ -143,7 +143,6 @@ const Analytics = () => {
       </PageHeader.Wrapper>
 
       {!isPremium && !!currentUser && (
-
         <PremiumBanner
           variant="yellow"
           title={translate('text_6556309ded468200b9debbd4')}
