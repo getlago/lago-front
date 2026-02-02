@@ -122,7 +122,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
     currency,
   ])
 
-  if (loading || !subscription) {
+  if (loading && !subscription) {
     return <DetailsPage.Skeleton />
   }
 

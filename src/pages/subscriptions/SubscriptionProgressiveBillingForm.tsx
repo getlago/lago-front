@@ -141,10 +141,9 @@ const SubscriptionProgressiveBillingForm = () => {
           id="create-subscription-progressive-billing"
           className="flex size-full min-h-full flex-col overflow-auto"
           data-test={PROGRESSIVE_BILLING_FORM_TEST_ID}
-          onSubmit={(e) => {
-            if (isDirty) return handleSubmit(e)
-
+          onSubmit={async (e) => {
             e.preventDefault()
+            await handleSubmit(e)
             onLeave()
           }}
         >
@@ -218,6 +217,7 @@ const SubscriptionProgressiveBillingForm = () => {
                             }))}
                             onDeleteRow={(_, i) => handleDeleteThreshold(i)}
                             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
+                            // TODO: Move dcolumns logic out
                             columns={[
                               {
                                 size: 224,

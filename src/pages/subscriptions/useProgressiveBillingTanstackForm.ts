@@ -251,9 +251,9 @@ export const useProgressiveBillingTanstackForm = ({
     [form, nonRecurringThresholds],
   )
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    form.handleSubmit()
+    await form.handleSubmit()
   }
 
   return {
