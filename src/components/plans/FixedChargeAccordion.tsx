@@ -344,24 +344,15 @@ export const FixedChargeAccordion = memo(
               />
             </div>
 
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <Typography variant="captionHl" color="textSecondary">
-                  {translate('text_1760729707267seik64l67k8')}
-                </Typography>
-                <Typography variant="caption">
-                  {translate('text_17607297072672w5hid8gl1i')}
-                </Typography>
-              </div>
-
-              <TaxesSelectorSection
-                taxes={localCharge?.taxes || []}
-                comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
-                onUpdate={(newTaxArray) => {
-                  handleUpdate('taxes', newTaxArray)
-                }}
-              />
-            </div>
+            <TaxesSelectorSection
+              title={translate('text_1760729707267seik64l67k8')}
+              description={translate('text_17607297072672w5hid8gl1i')}
+              taxes={localCharge?.taxes || []}
+              comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
+              onUpdate={(newTaxArray) => {
+                handleUpdate('taxes', newTaxArray)
+              }}
+            />
           </FixedChargeOptionsAccordion>
         </>
       </Accordion>

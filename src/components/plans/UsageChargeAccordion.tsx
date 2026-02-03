@@ -719,16 +719,9 @@ export const UsageChargeAccordion = memo(
               </div>
             )}
 
-            <div className="flex flex-col gap-1">
-              <Typography variant="captionHl" color="textSecondary">
-                {translate('text_6661fc17337de3591e29e3e1')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_6662c316125d2400f7995ff6')}
-              </Typography>
-            </div>
-
             <TaxesSelectorSection
+              title={translate('text_1760729707267seik64l67k8')}
+              description={translate('text_6662c316125d2400f7995ff6')}
               taxes={localCharge?.taxes || []}
               comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
               onUpdate={(newTaxArray) => {
