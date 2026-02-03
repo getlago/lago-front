@@ -155,17 +155,30 @@ describe('InvoiceDetailsTable', () => {
 ```
 
 **Benefits demonstrated**:
+
 - Constants are defined once in the component file
 - Tests import and use the same constants
 - Refactoring the test ID only requires changing it in one place
 - TypeScript provides autocomplete and catches typos
 - No coupling with translation keys or hardcoded strings
 
+### Use Component Props Types in Tests
+
+**ALWAYS** import and use the component's exported props type when writing tests. Never create a separate type definition that duplicates the component's props structure.
+
+**Why this matters**:
+
+- Ensures tests stay in sync with component prop changes
+- TypeScript will catch breaking changes immediately
+- Reduces duplication and maintenance burden
+- Provides better IDE support and autocomplete
+
 ### Timezone Handling in Tests
 
 When testing components that display dates/times, **always enforce UTC timezone** to ensure consistent behavior across different environments (local development vs CI).
 
 **Why this matters**:
+
 - Local development machines may be in different timezones (e.g., UTC-3)
 - CI servers typically run in UTC
 - A date like `'2024-01-20T00:00:00Z'` (midnight UTC) will display as Jan 19 in timezones west of UTC
@@ -191,6 +204,7 @@ describe('MyComponent', () => {
 ```
 
 **Key points**:
+
 - Store the original timezone before tests run
 - Set `Settings.defaultZone = 'UTC'` in `beforeAll` or `beforeEach`
 - Always restore the original timezone in `afterAll` or `afterEach` to avoid affecting other tests

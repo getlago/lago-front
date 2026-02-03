@@ -171,19 +171,14 @@ export const CommitmentsSection = ({
               formikProps={formikProps}
             />
 
-            <div>
-              <Typography className="mb-2" variant="captionHl" color="grey700">
-                {translate('text_64be910fba8ef9208686a8e3')}
-              </Typography>
-
-              <TaxesSelectorSection
-                taxes={formikProps?.values?.minimumCommitment?.taxes || []}
-                comboboxSelector={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
-                onUpdate={(newTaxArray) => {
-                  formikProps.setFieldValue('minimumCommitment.taxes', newTaxArray)
-                }}
-              />
-            </div>
+            <TaxesSelectorSection
+              title={translate('text_1760729707267seik64l67k8')}
+              taxes={formikProps?.values?.minimumCommitment?.taxes || []}
+              comboboxSelector={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
+              onUpdate={(newTaxArray) => {
+                formikProps.setFieldValue('minimumCommitment.taxes', newTaxArray)
+              }}
+            />
           </Stack>
         </Accordion>
       ) : (

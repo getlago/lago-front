@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { memo, useEffect, useState } from 'react'
 
-import { Button, Card, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Tooltip } from '~/components/designSystem'
 import { ButtonSelectorField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
@@ -182,21 +182,15 @@ export const PlanSettingsSection = memo(
           name="amountCurrency"
         />
 
-        <div className="flex flex-col gap-1">
-          {!!plan?.taxes?.length && (
-            <Typography variant="captionHl" color="grey700">
-              {translate('text_6661fc17337de3591e29e3e1')}
-            </Typography>
-          )}
-
-          <TaxesSelectorSection
-            taxes={plan.taxes || []}
-            comboboxSelector={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
-            onUpdate={(newTaxArray) => {
-              formikProps.setFieldValue('taxes', newTaxArray)
-            }}
-          />
-        </div>
+        <TaxesSelectorSection
+          title={translate('text_1760729707267seik64l67k8')}
+          description={translate('text_1770124786732u8hv8voejbl')}
+          taxes={plan.taxes || []}
+          comboboxSelector={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
+          onUpdate={(newTaxArray) => {
+            formikProps.setFieldValue('taxes', newTaxArray)
+          }}
+        />
       </Card>
     )
   },
