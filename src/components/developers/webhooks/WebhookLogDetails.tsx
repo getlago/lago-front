@@ -1,18 +1,22 @@
 import { gql } from '@apollo/client'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Button, Skeleton, Status, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
+import { pollUntilCondition } from '~/core/utils/pollUntilCondition'
 import {
+  LagoApiError,
   useGetSingleWebhookLogQuery,
   useRetryWebhookMutation,
   WebhookStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
+
+export const WEBHOOK_RETRY_BUTTON_TEST_ID = 'webhook-retry-button'
 
 gql`
   fragment WebhookLogDetails on Webhook {
@@ -45,8 +49,16 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ webhookId: string; logId: string }>()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { translate } = useInternationalization()
+  const abortControllerRef = useRef<AbortController | null>(null)
 
-  const { data, loading } = useGetSingleWebhookLogQuery({
+  // Abort on unmount to stop retry if we leave the developer panel
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort()
+    }
+  }, [])
+
+  const { data, loading, refetch } = useGetSingleWebhookLogQuery({
     variables: { id: logId || '' },
     skip: !logId,
   })
@@ -56,6 +68,8 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
 
   const [retry] = useRetryWebhookMutation({
     variables: { input: { id: id || '' } },
+    context: { silentErrorCodes: [LagoApiError.IsSucceeded] },
+    refetchQueries: ['getSingleWebhookLog'],
     async onCompleted({ retryWebhook }) {
       if (!!retryWebhook) {
         addToast({
@@ -64,9 +78,49 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
         })
       }
     },
+    onError: ({ graphQLErrors }) => {
+      const isAlreadySucceeded = graphQLErrors.some(
+        (error) => error.extensions?.code === LagoApiError.IsSucceeded,
+      )
+
+      if (isAlreadySucceeded) {
+        addToast({
+          severity: 'info',
+          message: translate('text_1738502636498nhm8cuzx946'),
+        })
+      } else {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        })
+      }
+    },
   })
 
   const hasError = status === WebhookStatusEnum.Failed
+
+  // Launch the webhook retry and then wait for the status to be other than 'PENDING'
+  // We check every second if the status has changed or not. Until then, the retry button is disabled
+  const retryWebhookAndWait = async () => {
+    const { data: retryData } = await retry()
+
+    // Only poll if the retry was accepted by the backend
+    if (!retryData?.retryWebhook) {
+      return
+    }
+
+    abortControllerRef.current = new AbortController()
+
+    await pollUntilCondition(
+      async () => {
+        const { data: refreshedData } = await refetch()
+
+        return refreshedData?.webhook?.status
+      },
+      (webhookStatus) => webhookStatus !== WebhookStatusEnum.Pending,
+      { maxAttempts: 3, pollInterval: 1000, signal: abortControllerRef.current.signal },
+    )
+  }
 
   return (
     <>
@@ -81,7 +135,11 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
           <>
             {webhookType}
             {hasError && (
-              <Button variant="quaternary" onClick={async () => await retry()}>
+              <Button
+                variant="quaternary"
+                onClick={async () => await retryWebhookAndWait()}
+                data-test={WEBHOOK_RETRY_BUTTON_TEST_ID}
+              >
                 {translate('text_63e27c56dfe64b846474efa3')}
               </Button>
             )}

@@ -4503,6 +4503,7 @@ export enum LagoApiError {
   InviteNotFound = 'invite_not_found',
   InvoicesNotOverdue = 'invoices_not_overdue',
   InvoicesNotReadyForPaymentProcessing = 'invoices_not_ready_for_payment_processing',
+  IsSucceeded = 'is_succeeded',
   LoginMethodNotAuthorized = 'login_method_not_authorized',
   MissingPaymentProviderCustomer = 'missing_payment_provider_customer',
   NoActiveSubscription = 'no_active_subscription',
