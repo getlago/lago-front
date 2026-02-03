@@ -101,7 +101,7 @@ export const useActivityLogsInformation = () => {
   ): string => {
     let parameters = {}
     let amount = 0
-    let currency = CurrencyEnum.Usd
+    let currency: CurrencyEnum
 
     if (!activityType) return ''
 
@@ -116,6 +116,9 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.BillableMetricCreated:
       case ActivityTypeEnum.BillableMetricDeleted:
       case ActivityTypeEnum.BillableMetricUpdated:
+      case ActivityTypeEnum.PlanCreated:
+      case ActivityTypeEnum.PlanDeleted:
+      case ActivityTypeEnum.PlanUpdated:
         parameters = {
           code: activityObject.code,
         }
@@ -201,17 +204,6 @@ export const useActivityLogsInformation = () => {
         }
         break
       case ActivityTypeEnum.PaymentRequestCreated:
-        currency = activityObject.currency as CurrencyEnum
-        amount = Number(activityObject.amount_cents) || 0
-
-        parameters = {
-          amount: intlFormatNumber(deserializeAmount(amount, currency), {
-            style: 'currency',
-            currency,
-          }),
-        }
-
-        break
       case ActivityTypeEnum.PaymentRecorded:
         currency = activityObject.currency as CurrencyEnum
         amount = Number(activityObject.amount_cents) || 0
@@ -222,13 +214,7 @@ export const useActivityLogsInformation = () => {
             currency,
           }),
         }
-        break
-      case ActivityTypeEnum.PlanCreated:
-      case ActivityTypeEnum.PlanDeleted:
-      case ActivityTypeEnum.PlanUpdated:
-        parameters = {
-          code: activityObject.code,
-        }
+
         break
       case ActivityTypeEnum.SubscriptionStarted:
       case ActivityTypeEnum.SubscriptionTerminated:
