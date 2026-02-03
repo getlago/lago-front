@@ -280,10 +280,10 @@ describe('usePermissionsInvoiceActions', () => {
       expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Draft })).toBe(true)
     })
 
-    it('should return true for voided invoice', async () => {
+    it('should return false for voided invoice', async () => {
       const { result } = await prepare()
 
-      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Voided })).toBe(true)
+      expect(result.current.canFinalize({ status: InvoiceStatusTypeEnum.Voided })).toBe(false)
     })
   })
 
