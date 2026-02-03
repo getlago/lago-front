@@ -12451,7 +12451,7 @@ export type RegenerateInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type RegenerateInvoiceMutation = { __typename?: 'Mutation', regenerateFromVoided?: { __typename?: 'Invoice', id: string } | null };
+export type RegenerateInvoiceMutation = { __typename?: 'Mutation', regenerateFromVoided?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } | null };
 
 export type PreviewAdjustedFeeMutationVariables = Exact<{
   input: PreviewAdjustedFeeInput;
@@ -32992,6 +32992,7 @@ export const RegenerateInvoiceDocument = gql`
     mutation regenerateInvoice($input: RegenerateInvoiceInput!) {
   regenerateFromVoided(input: $input) {
     id
+    status
   }
 }
     `;
