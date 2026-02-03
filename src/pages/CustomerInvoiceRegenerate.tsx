@@ -192,9 +192,7 @@ const CustomerInvoiceRegenerate = () => {
   })
 
   const [voidInvoice] = useVoidInvoiceMutation()
-  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation({
-    refetchQueries: ['getInvoiceFees'],
-  })
+  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
