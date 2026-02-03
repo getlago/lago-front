@@ -3,11 +3,11 @@ import { useModal } from '@ebay/nice-modal-react'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { CLOSE_PARAMS } from './const'
-import { PromiseReturnType } from './types'
+import { DialogResult } from './types'
 
 type UseDialogActionsParams = {
   modal: ReturnType<typeof useModal>
-  onAction: () => PromiseReturnType | Promise<PromiseReturnType> | void
+  onAction: () => DialogResult | Promise<DialogResult> | void
   cancelOrCloseText: 'close' | 'cancel'
   closeOnError: boolean
 }

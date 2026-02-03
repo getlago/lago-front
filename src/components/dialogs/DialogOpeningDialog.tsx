@@ -5,16 +5,14 @@ import { Button } from '~/components/designSystem'
 
 import BaseDialog from './BaseDialog'
 import { CentralizedDialogProps, useCentralizedDialog } from './CentralizedDialog'
-import { CLOSE_PARAMS, DIALOG_OPENING_DIALOG_NAME, OPEN_OTHER_DIALOG_PARAMS } from './const'
-import { HookDialogReturnType } from './types'
+import { CLOSE_PARAMS, DIALOG_OPENING_DIALOG_NAME } from './const'
+import { DialogResult, HookDialogReturnType } from './types'
 import { useDialogActions } from './useDialogActions'
 
 export type DialogOpeningDialogProps = CentralizedDialogProps & {
   canOpenDialog?: boolean
   openDialogText?: string
   otherDialogProps: CentralizedDialogProps
-  otherDialogSuccess?: (args: unknown) => unknown
-  otherDialogError?: (args: unknown) => unknown
 }
 
 const DialogOpeningDialog = create(
@@ -32,8 +30,6 @@ const DialogOpeningDialog = create(
     canOpenDialog,
     openDialogText,
     otherDialogProps,
-    otherDialogSuccess,
-    otherDialogError,
   }: DialogOpeningDialogProps) => {
     const modal = useModal()
     const centralizedDialog = useCentralizedDialog()
@@ -56,16 +52,13 @@ const DialogOpeningDialog = create(
             danger
             variant="quaternary"
             onClick={() => {
-              modal.resolve(OPEN_OTHER_DIALOG_PARAMS)
+              const otherDialogPromise = centralizedDialog.open(otherDialogProps)
+
+              modal.resolve({
+                reason: 'open-other-dialog',
+                otherDialog: otherDialogPromise,
+              })
               modal.hide()
-              centralizedDialog
-                .open(otherDialogProps)
-                .then((value) => {
-                  otherDialogSuccess?.(value)
-                })
-                .catch((error) => {
-                  otherDialogError?.(error)
-                })
             }}
           >
             {openDialogText}
@@ -108,7 +101,7 @@ export const useDialogOpeningDialog = (): HookDialogReturnType<DialogOpeningDial
   const modal = useModal(DIALOG_OPENING_DIALOG_NAME)
 
   return {
-    open: (props?: DialogOpeningDialogProps) => modal.show(props),
+    open: (props?: DialogOpeningDialogProps) => modal.show(props) as Promise<DialogResult>,
     close: () => {
       modal.resolve(CLOSE_PARAMS)
       modal.hide()

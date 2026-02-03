@@ -11,7 +11,6 @@ import {
   CENTRALIZED_DIALOG_NAME,
   DIALOG_OPENING_DIALOG_NAME,
   DIALOG_TITLE_TEST_ID,
-  OPEN_OTHER_DIALOG_PARAMS,
 } from '../const'
 import DialogOpeningDialog, {
   DialogOpeningDialogProps,
@@ -438,7 +437,7 @@ describe('DialogOpeningWarningDialog', () => {
       })
     })
 
-    it('resolves promise with OPEN_OTHER_DIALOG_PARAMS when opening another dialog', async () => {
+    it('resolves immediately with other dialog promise when opening another dialog', async () => {
       const user = userEvent.setup()
       let resolvedValue: unknown
 
@@ -488,10 +487,93 @@ describe('DialogOpeningWarningDialog', () => {
         expect(screen.getByText('Open Warning')).toBeInTheDocument()
       })
 
+      // Click to open other dialog
+      await user.click(screen.getByText('Open Warning'))
+
+      // Verify the promise resolved immediately with the right structure
+      await waitFor(() => {
+        expect(resolvedValue).toHaveProperty('reason', 'open-other-dialog')
+        expect(resolvedValue).toHaveProperty('otherDialog')
+        expect((resolvedValue as any).otherDialog).toBeInstanceOf(Promise)
+      })
+
+      // Parent dialog should be closed and other dialog should be open
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Opening Title')).not.toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    it('allows caller to handle other dialog result via returned promise', async () => {
+      const user = userEvent.setup()
+      const otherDialogResult = { reason: 'success', data: 'test-data' }
+      let finalResult: unknown
+
+      const { rerender } = render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
+            }}
+            autoOpen={false}
+          />
+        </NiceModalWrapper>,
+      )
+
+      // Create component that captures the promise resolution
+      const TestComponentWithPromise = () => {
+        const dialogOpeningWarningDialog = useDialogOpeningDialog()
+
+        useEffect(() => {
+          dialogOpeningWarningDialog
+            .open({
+              ...defaultProps,
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
+              otherDialogProps: {
+                ...defaultWarningDialogProps,
+                onAction: jest.fn().mockResolvedValue(otherDialogResult),
+              },
+            })
+            .then(async (result: any) => {
+              if (result.reason === 'open-other-dialog') {
+                // Caller handles the other dialog's promise
+                finalResult = await result.otherDialog
+              }
+            })
+            .catch(() => {
+              // Ignore rejection
+            })
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [])
+
+        return null
+      }
+
+      rerender(
+        <NiceModalWrapper>
+          <TestComponentWithPromise />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Open Warning')).toBeInTheDocument()
+      })
+
       await user.click(screen.getByText('Open Warning'))
 
       await waitFor(() => {
-        expect(resolvedValue).toEqual(OPEN_OTHER_DIALOG_PARAMS)
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      // Click confirm on other dialog
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
+
+      // Verify caller received the other dialog's result
+      await waitFor(() => {
+        expect(finalResult).toEqual(otherDialogResult)
       })
     })
   })

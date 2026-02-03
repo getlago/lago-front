@@ -84,6 +84,15 @@ const ModalTest = (): JSX.Element => {
         /* TODO: Remove this line */
         // eslint-disable-next-line no-console
         console.log('success out', p)
+        if (p && typeof p === 'object' && 'reason' in p && p.reason === 'open-other-dialog') {
+          const otherPromise = p.otherDialog
+
+          otherPromise.then((value) => {
+            /* TODO: Remove this line */
+            // eslint-disable-next-line no-console
+            console.log('value', value)
+          })
+        }
       })
       .catch((e) => {
         /* TODO: Remove this line */

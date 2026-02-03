@@ -11,7 +11,7 @@ import {
   CENTRALIZED_DIALOG_TEST_ID,
   CLOSE_PARAMS,
 } from './const'
-import { HookDialogReturnType, PromiseReturnType } from './types'
+import { DialogResult, HookDialogReturnType } from './types'
 import { useDialogActions } from './useDialogActions'
 
 export type CentralizedDialogProps = {
@@ -19,7 +19,7 @@ export type CentralizedDialogProps = {
   description?: ReactNode
   headerContent?: ReactNode
   children?: ReactNode
-  onAction: () => PromiseReturnType | Promise<PromiseReturnType> | void
+  onAction: () => DialogResult | Promise<DialogResult> | void
   actionText: string
   colorVariant?: 'info' | 'danger'
   disableOnContinue?: boolean
@@ -89,7 +89,7 @@ export const useCentralizedDialog = (): HookDialogReturnType<CentralizedDialogPr
   const modal = useModal(CENTRALIZED_DIALOG_NAME)
 
   return {
-    open: (props?: CentralizedDialogProps) => modal.show(props),
+    open: (props?: CentralizedDialogProps) => modal.show(props) as Promise<DialogResult>,
     close: () => {
       modal.resolve(CLOSE_PARAMS)
       modal.hide()
