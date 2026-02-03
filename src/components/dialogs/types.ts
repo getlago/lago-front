@@ -15,7 +15,3 @@ export type HookDialogReturnType<Props> = {
   open: (props?: Props) => Promise<unknown>
   close: () => void
 }
-
-export type ExecutableHookDialogReturnType<Props> = HookDialogReturnType<Props> & {
-  execute: (mainFunction: MainFunction) => void
-}

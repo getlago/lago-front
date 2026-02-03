@@ -5,35 +5,34 @@ import { ReactNode, useEffect } from 'react'
 
 import { render } from '~/test-utils'
 
+import CentralizedDialog from '../CentralizedDialog'
 import {
-  DIALOG_OPENING_WARNING_DIALOG_NAME,
+  CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_NAME,
+  DIALOG_OPENING_DIALOG_NAME,
   DIALOG_TITLE_TEST_ID,
-  WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
-  WARNING_DIALOG_NAME,
 } from '../const'
-import DialogOpeningWarningDialog, {
-  DialogOpeningWarningDialogProps,
-  useDialogOpeningWarningDialog,
-} from '../DialogOpeningWarningDialog'
-import WarningDialog from '../WarningDialog'
+import DialogOpeningDialog, {
+  DialogOpeningDialogProps,
+  useDialogOpeningDialog,
+} from '../DialogOpeningDialog'
 
 // Test IDs for test-specific elements
 const DIALOG_CONTENT_TEST_ID = 'dialog-content'
-const DIALOG_ACTION_TEST_ID = 'dialog-action'
 
 // Register both dialogs
-NiceModal.register(DIALOG_OPENING_WARNING_DIALOG_NAME, DialogOpeningWarningDialog)
-NiceModal.register(WARNING_DIALOG_NAME, WarningDialog)
+NiceModal.register(DIALOG_OPENING_DIALOG_NAME, DialogOpeningDialog)
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 // Test component that opens the dialog with given props
 const TestComponent = ({
   dialogProps,
   autoOpen = true,
 }: {
-  dialogProps: DialogOpeningWarningDialogProps
+  dialogProps: DialogOpeningDialogProps
   autoOpen?: boolean
 }) => {
-  const dialogOpeningWarningDialog = useDialogOpeningWarningDialog()
+  const dialogOpeningWarningDialog = useDialogOpeningDialog()
 
   useEffect(() => {
     if (autoOpen) {
@@ -55,14 +54,15 @@ const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
 const defaultWarningDialogProps = {
   title: 'Warning Title',
   description: 'Warning Description',
-  onContinue: jest.fn(),
-  continueText: 'Confirm Warning',
+  onAction: jest.fn(),
+  actionText: 'Confirm Warning',
 }
 
-const defaultProps: DialogOpeningWarningDialogProps = {
+const defaultProps: DialogOpeningDialogProps = {
   title: 'Dialog Opening Title',
-  actions: <button data-test={DIALOG_ACTION_TEST_ID}>OK</button>,
-  warningDialogProps: defaultWarningDialogProps,
+  onAction: jest.fn(),
+  actionText: 'OK',
+  otherDialogProps: defaultWarningDialogProps,
 }
 
 describe('DialogOpeningWarningDialog', () => {
@@ -152,7 +152,7 @@ describe('DialogOpeningWarningDialog', () => {
       })
     })
 
-    it('renders actions', async () => {
+    it('renders action button with actionText', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent dialogProps={defaultProps} />
@@ -160,20 +160,20 @@ describe('DialogOpeningWarningDialog', () => {
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_ACTION_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByText('OK')).toBeInTheDocument()
       })
     })
   })
 
   describe('Warning Dialog Button', () => {
-    it('does not render warning button when canOpenWarningDialog is false', async () => {
+    it('does not render warning button when canOpenDialog is false', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              canOpenWarningDialog: false,
-              openWarningDialogText: 'Open Warning',
+              canOpenDialog: false,
+              openDialogText: 'Open Warning',
             }}
           />
         </NiceModalWrapper>,
@@ -186,13 +186,13 @@ describe('DialogOpeningWarningDialog', () => {
       expect(screen.queryByText('Open Warning')).not.toBeInTheDocument()
     })
 
-    it('does not render warning button by default (undefined canOpenWarningDialog)', async () => {
+    it('does not render warning button by default (undefined canOpenDialog)', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              openWarningDialogText: 'Open Warning',
+              openDialogText: 'Open Warning',
             }}
           />
         </NiceModalWrapper>,
@@ -205,14 +205,14 @@ describe('DialogOpeningWarningDialog', () => {
       expect(screen.queryByText('Open Warning')).not.toBeInTheDocument()
     })
 
-    it('renders warning button when canOpenWarningDialog is true', async () => {
+    it('renders warning button when canOpenDialog is true', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              canOpenWarningDialog: true,
-              openWarningDialogText: 'Open Warning',
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
             }}
           />
         </NiceModalWrapper>,
@@ -231,8 +231,8 @@ describe('DialogOpeningWarningDialog', () => {
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              canOpenWarningDialog: true,
-              openWarningDialogText: 'Open Warning',
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
             }}
           />
         </NiceModalWrapper>,
@@ -245,7 +245,7 @@ describe('DialogOpeningWarningDialog', () => {
       await user.click(screen.getByText('Open Warning'))
 
       await waitFor(() => {
-        expect(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
         expect(screen.getByText('Warning Title')).toBeInTheDocument()
       })
     })
@@ -258,8 +258,8 @@ describe('DialogOpeningWarningDialog', () => {
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              canOpenWarningDialog: true,
-              openWarningDialogText: 'Open Warning',
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
             }}
           />
         </NiceModalWrapper>,
@@ -273,7 +273,7 @@ describe('DialogOpeningWarningDialog', () => {
 
       await waitFor(() => {
         expect(screen.queryByText('Dialog Opening Title')).not.toBeInTheDocument()
-        expect(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -359,8 +359,8 @@ describe('DialogOpeningWarningDialog', () => {
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              canOpenWarningDialog: true,
-              openWarningDialogText: 'Delete Item',
+              canOpenDialog: true,
+              openDialogText: 'Delete Item',
             }}
           />
         </NiceModalWrapper>,
@@ -384,8 +384,8 @@ describe('DialogOpeningWarningDialog', () => {
               description: 'This is a description',
               headerContent: <div>Header Content</div>,
               children: <div>Dialog Content</div>,
-              canOpenWarningDialog: true,
-              openWarningDialogText: 'Delete Item',
+              canOpenDialog: true,
+              openDialogText: 'Delete Item',
             }}
           />
         </NiceModalWrapper>,
@@ -403,7 +403,7 @@ describe('DialogOpeningWarningDialog', () => {
 
   describe('Complex Scenarios', () => {
     it('warning dialog receives correct props when opened', async () => {
-      const onContinue = jest.fn()
+      const onAction = jest.fn()
       const user = userEvent.setup()
 
       render(
@@ -411,13 +411,13 @@ describe('DialogOpeningWarningDialog', () => {
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              canOpenWarningDialog: true,
-              openWarningDialogText: 'Open Warning',
-              warningDialogProps: {
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
+              otherDialogProps: {
                 title: 'Custom Warning Title',
                 description: 'Custom Warning Description',
-                onContinue,
-                continueText: 'Custom Continue Text',
+                onAction,
+                actionText: 'Custom Continue Text',
               },
             }}
           />

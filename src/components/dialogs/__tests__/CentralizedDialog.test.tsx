@@ -9,12 +9,11 @@ import CentralizedDialog, {
   CentralizedDialogProps,
   useCentralizedDialog,
 } from '../CentralizedDialog'
-import { CENTRALIZED_DIALOG_NAME, DIALOG_TITLE_TEST_ID } from '../const'
-
-// Test IDs for test-specific elements
-const DIALOG_CONTENT_TEST_ID = 'dialog-content'
-const DIALOG_ACTION_TEST_ID = 'dialog-action'
-const HEADER_CONTENT_TEST_ID = 'header-content'
+import {
+  CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_NAME,
+} from '../const'
 
 // Register the dialog
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
@@ -27,11 +26,11 @@ const TestComponent = ({
   dialogProps: CentralizedDialogProps
   autoOpen?: boolean
 }) => {
-  const centralizedDialog = useCentralizedDialog()
+  const warningDialog = useCentralizedDialog()
 
   useEffect(() => {
     if (autoOpen) {
-      centralizedDialog.open(dialogProps).catch(() => {
+      warningDialog.open(dialogProps).catch(() => {
         // Ignore rejection - dialog was cancelled
       })
     }
@@ -47,8 +46,10 @@ const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const defaultProps: CentralizedDialogProps = {
-  title: 'Centralized Dialog Title',
-  actions: <button data-test={DIALOG_ACTION_TEST_ID}>OK</button>,
+  title: 'Warning Title',
+  description: 'Warning Description',
+  onAction: jest.fn(),
+  actionText: 'Continue',
 }
 
 describe('CentralizedDialog', () => {
@@ -58,7 +59,7 @@ describe('CentralizedDialog', () => {
   })
 
   describe('Basic Functionality', () => {
-    it('renders with title', async () => {
+    it('renders with title and description', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent dialogProps={defaultProps} />
@@ -66,48 +67,67 @@ describe('CentralizedDialog', () => {
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toHaveTextContent(
-          'Centralized Dialog Title',
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByText('Warning Title')).toBeInTheDocument()
+        expect(screen.getByText('Warning Description')).toBeInTheDocument()
+      })
+    })
+
+    it('renders with custom continue text', async () => {
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              actionText: 'Custom Continue',
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toHaveTextContent(
+          'Custom Continue',
         )
       })
     })
 
-    it('renders title as ReactNode when provided', async () => {
+    it('renders close button with translated text by default', async () => {
+      render(
+        <NiceModalWrapper>
+          <TestComponent dialogProps={defaultProps} />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        const cancelButton = screen.getByTestId(CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID)
+
+        expect(cancelButton).toBeInTheDocument()
+        expect(cancelButton).toHaveTextContent(/close/i)
+      })
+    })
+
+    it('renders cancel button when cancelOrCloseText is cancel', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              title: <div data-test="custom-title">Custom Title Component</div>,
+              cancelOrCloseText: 'cancel',
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId('custom-title')).toBeInTheDocument()
-        expect(screen.getByText('Custom Title Component')).toBeInTheDocument()
+        const cancelButton = screen.getByTestId(CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID)
+
+        expect(cancelButton).toBeInTheDocument()
+        expect(cancelButton).toHaveTextContent(/cancel/i)
       })
     })
 
-    it('renders description when provided', async () => {
-      render(
-        <NiceModalWrapper>
-          <TestComponent
-            dialogProps={{
-              ...defaultProps,
-              description: 'This is a test description',
-            }}
-          />
-        </NiceModalWrapper>,
-      )
-
-      await waitFor(() => {
-        expect(screen.getByText('This is a test description')).toBeInTheDocument()
-      })
-    })
-
-    it('renders description as ReactNode when provided', async () => {
+    it('renders ReactNode as description', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
@@ -130,36 +150,37 @@ describe('CentralizedDialog', () => {
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              headerContent: <div data-test={HEADER_CONTENT_TEST_ID}>Header Content</div>,
+              headerContent: <div data-test="header-content">Header Content</div>,
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(HEADER_CONTENT_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId('header-content')).toBeInTheDocument()
       })
     })
 
-    it('renders children content', async () => {
+    it('renders children when provided', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              children: <div data-test={DIALOG_CONTENT_TEST_ID}>Test Content</div>,
+              children: <div data-test="dialog-children">Children Content</div>,
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_CONTENT_TEST_ID)).toBeInTheDocument()
-        expect(screen.getByText('Test Content')).toBeInTheDocument()
+        expect(screen.getByTestId('dialog-children')).toBeInTheDocument()
       })
     })
+  })
 
-    it('renders actions', async () => {
+  describe('Modes', () => {
+    it('renders in info colorVariant by default', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent dialogProps={defaultProps} />
@@ -167,36 +188,54 @@ describe('CentralizedDialog', () => {
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_ACTION_TEST_ID)).toBeInTheDocument()
+        const confirmButton = screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
+
+        expect(confirmButton).not.toHaveClass('button-danger')
       })
     })
 
-    it('renders multiple action buttons', async () => {
+    it('renders in danger colorVariant when explicitly set', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              actions: (
-                <>
-                  <button data-test="cancel-button">Cancel</button>
-                  <button data-test="confirm-button">Confirm</button>
-                </>
-              ),
+              colorVariant: 'danger',
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId('cancel-button')).toBeInTheDocument()
-        expect(screen.getByTestId('confirm-button')).toBeInTheDocument()
+        const confirmButton = screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
+
+        expect(confirmButton).toHaveClass('button-danger')
+      })
+    })
+
+    it('renders in info colorVariant when set', async () => {
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              colorVariant: 'info',
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        const confirmButton = screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
+
+        expect(confirmButton).not.toHaveClass('button-danger')
       })
     })
   })
 
   describe('Callbacks', () => {
-    it('closes dialog when backdrop is clicked', async () => {
+    it('calls onAction when confirm button is clicked', async () => {
+      const onAction = jest.fn()
       const user = userEvent.setup()
 
       render(
@@ -204,30 +243,25 @@ describe('CentralizedDialog', () => {
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              children: <div data-test={DIALOG_CONTENT_TEST_ID}>Content</div>,
+              onAction,
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_CONTENT_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      const backdrop = document.querySelector('.MuiBackdrop-root')
-
-      expect(backdrop).toBeInTheDocument()
-
-      if (backdrop) {
-        await user.click(backdrop)
-      }
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       await waitFor(() => {
-        expect(screen.queryByTestId(DIALOG_CONTENT_TEST_ID)).not.toBeInTheDocument()
+        expect(onAction).toHaveBeenCalledTimes(1)
       })
     })
 
-    it('closes dialog when Escape key is pressed', async () => {
+    it('closes dialog after onAction callback', async () => {
+      const onAction = jest.fn()
       const user = userEvent.setup()
 
       render(
@@ -235,20 +269,124 @@ describe('CentralizedDialog', () => {
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              children: <div data-test={DIALOG_CONTENT_TEST_ID}>Content</div>,
+              onAction,
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_CONTENT_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeVisible()
       })
 
-      await user.keyboard('{Escape}')
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       await waitFor(() => {
-        expect(screen.queryByTestId(DIALOG_CONTENT_TEST_ID)).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    it('handles async onAction callback', async () => {
+      const onAction = jest.fn().mockResolvedValue(undefined)
+      const user = userEvent.setup()
+
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              onAction,
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(onAction).toHaveBeenCalled()
+      })
+    })
+
+    it('closes dialog when cancel button is clicked', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <NiceModalWrapper>
+          <TestComponent dialogProps={defaultProps} />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeVisible()
+      })
+
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Disable State', () => {
+    it('disables confirm button when disableOnContinue is true', async () => {
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              disableOnContinue: true,
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        const confirmButton = screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
+
+        expect(confirmButton).toBeDisabled()
+      })
+    })
+
+    it('enables confirm button when disableOnContinue is false', async () => {
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              disableOnContinue: false,
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        const confirmButton = screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
+
+        expect(confirmButton).not.toBeDisabled()
+      })
+    })
+
+    it('enables confirm button by default', async () => {
+      render(
+        <NiceModalWrapper>
+          <TestComponent dialogProps={defaultProps} />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        const confirmButton = screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
+
+        expect(confirmButton).not.toBeDisabled()
       })
     })
   })
@@ -262,7 +400,7 @@ describe('CentralizedDialog', () => {
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
       const dialogPaper = document.querySelector('.MuiDialog-paper')
@@ -270,20 +408,21 @@ describe('CentralizedDialog', () => {
       expect(dialogPaper).toMatchSnapshot()
     })
 
-    it('matches snapshot with title and description', async () => {
+    it('matches snapshot in danger colorVariant', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              description: 'This is a description',
+              colorVariant: 'danger',
+              actionText: 'Delete',
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
       const dialogPaper = document.querySelector('.MuiDialog-paper')
@@ -291,20 +430,21 @@ describe('CentralizedDialog', () => {
       expect(dialogPaper).toMatchSnapshot()
     })
 
-    it('matches snapshot with headerContent', async () => {
+    it('matches snapshot in info colorVariant', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              headerContent: <div>Header Content</div>,
+              colorVariant: 'info',
+              actionText: 'Confirm',
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
       const dialogPaper = document.querySelector('.MuiDialog-paper')
@@ -312,48 +452,61 @@ describe('CentralizedDialog', () => {
       expect(dialogPaper).toMatchSnapshot()
     })
 
-    it('matches snapshot with children', async () => {
+    it('matches snapshot with disabled confirm button', async () => {
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              children: <div>Dialog Content</div>,
+              disableOnContinue: true,
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
       const dialogPaper = document.querySelector('.MuiDialog-paper')
 
       expect(dialogPaper).toMatchSnapshot()
     })
+  })
 
-    it('matches snapshot with all props', async () => {
+  describe('Complex Scenarios', () => {
+    it('handles async onAction with delay', async () => {
+      const onAction = jest.fn().mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 100)
+          }),
+      )
+      const user = userEvent.setup()
+
       render(
         <NiceModalWrapper>
           <TestComponent
             dialogProps={{
               ...defaultProps,
-              description: 'This is a description',
-              headerContent: <div>Header Content</div>,
-              children: <div>Dialog Content</div>,
+              onAction,
             }}
           />
         </NiceModalWrapper>,
       )
 
       await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      const dialogPaper = document.querySelector('.MuiDialog-paper')
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
-      expect(dialogPaper).toMatchSnapshot()
+      await waitFor(
+        () => {
+          expect(onAction).toHaveBeenCalled()
+        },
+        { timeout: 2000 },
+      )
     })
   })
 })
