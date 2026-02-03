@@ -218,11 +218,11 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               [translate('text_1747666154075d10admbnf16'), activityId],
               [
                 translate('text_1732895022171f9vnwh5gm3q'),
-                !!resource?.__typename ? getResourceType(resource.__typename) : '-',
+                resource?.__typename ? getResourceType(resource.__typename) : '-',
               ],
               [
                 translate('text_1747666154075y3lcupj1zdd'),
-                !!resource?.__typename
+                resource?.__typename
                   ? formatResourceObject(resource, {
                       resourceType: remapResourceTypeNames(resource.__typename),
                       activityType,
