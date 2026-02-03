@@ -11,7 +11,7 @@ import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
-import { FreemiumBlock } from '~/components/premium/FreemiumBlock'
+import PremiumFeature from '~/components/premium/PremiumFeature'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -209,13 +209,10 @@ export const CommitmentsSection = ({
 
       {showMinimumCommitment && renderMinimumCommitmentAccordion}
       {!showMinimumCommitment && !isPremium && (
-        <FreemiumBlock
-          translationKeys={{
-            title: 'text_17700400130439xuo82ha60n',
-            description: 'text_1770040013043awgs0eemonf',
-            emailSubject: 'text_1770040013043d8n56xu7juf',
-            emailBody: 'text_1770040013043swrormpg76n',
-          }}
+        <PremiumFeature
+          title={translate('text_17700400130439xuo82ha60n')}
+          description={translate('text_1770040013043awgs0eemonf')}
+          feature={translate('text_65d601bffb11e0f9d1d9f569')}
         />
       )}
       {!showMinimumCommitment && isPremium && renderAddButton()}

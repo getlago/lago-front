@@ -3,7 +3,7 @@ import { FC, useMemo } from 'react'
 
 import { Card, NavigationTab, TabManagedBy, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { FreemiumBlock } from '~/components/premium/FreemiumBlock'
+import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import {
   SubscriptionForProgressiveBillingTabFragment,
@@ -139,14 +139,11 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
         </div>
 
         {!hasPremiumIntegration && (
-          <FreemiumBlock
+          <PremiumFeature
             data-test={PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID}
-            translationKeys={{
-              title: 'text_1724345142892pcnx5m2k3r2',
-              description: 'text_1724345142892ljzi79afhmc',
-              emailSubject: 'text_172434514289283gmf8bdhh3',
-              emailBody: 'text_1724346450317iqs2rtvx1tp',
-            }}
+            title={translate('text_1724345142892pcnx5m2k3r2')}
+            description={translate('text_1724345142892ljzi79afhmc')}
+            feature={translate('text_1724179887722baucvj7bvc1')}
           />
         )}
 
