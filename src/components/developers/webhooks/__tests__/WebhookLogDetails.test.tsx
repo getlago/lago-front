@@ -2,7 +2,10 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DateTime } from 'luxon'
 
-import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'
+import {
+  WEBHOOK_RETRY_BUTTON_TEST_ID,
+  WebhookLogDetails,
+} from '~/components/developers/webhooks/WebhookLogDetails'
 import { addToast } from '~/core/apolloClient'
 import {
   GetSingleWebhookLogDocument,
@@ -148,7 +151,7 @@ describe('WebhookLogDetails', () => {
         expect(screen.getAllByText('invoice.created').length).toBeGreaterThan(0)
       })
 
-      expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).not.toBeInTheDocument()
+      expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('should not display retries section when retries is 0', async () => {
@@ -211,7 +214,7 @@ describe('WebhookLogDetails', () => {
       await prepare(failedWebhookData)
 
       await waitFor(() => {
-        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -246,10 +249,10 @@ describe('WebhookLogDetails', () => {
       await prepare(failedWebhookData)
 
       await waitFor(() => {
-        expect(screen.queryByText('text_63e27c56dfe64b846474efa3')).toBeInTheDocument()
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      const retryButton = screen.getByText('text_63e27c56dfe64b846474efa3')
+      const retryButton = screen.getByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)
 
       await user.click(retryButton)
 
@@ -258,6 +261,118 @@ describe('WebhookLogDetails', () => {
           severity: 'success',
           translateKey: 'text_63f79ddae2e0b1892bb4955c',
         })
+      })
+    })
+
+    it('should show info toast when webhook was already delivered', async () => {
+      const user = userEvent.setup()
+
+      const mocksWithAlreadySucceeded = [
+        {
+          request: {
+            query: GetSingleWebhookLogDocument,
+            variables: { id: 'webhook-123' },
+          },
+          result: {
+            data: {
+              webhook: {
+                __typename: 'Webhook',
+                ...failedWebhookData,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: RetryWebhookDocument,
+            variables: { input: { id: 'webhook-123' } },
+          },
+          result: {
+            errors: [
+              {
+                message: 'Method Not Allowed',
+                extensions: { code: 'is_succeeded', status: 405 },
+              },
+            ],
+          },
+        },
+      ]
+
+      mockUseParams.mockReturnValue({ logId: 'webhook-123' })
+
+      await act(async () => {
+        render(<WebhookLogDetails goBack={mockGoBack} />, {
+          mocks: mocksWithAlreadySucceeded,
+        })
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      const retryButton = screen.getByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)
+
+      await user.click(retryButton)
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
+      })
+    })
+
+    it('should show error toast when retry mutation fails with other error', async () => {
+      const user = userEvent.setup()
+
+      const mocksWithError = [
+        {
+          request: {
+            query: GetSingleWebhookLogDocument,
+            variables: { id: 'webhook-123' },
+          },
+          result: {
+            data: {
+              webhook: {
+                __typename: 'Webhook',
+                ...failedWebhookData,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: RetryWebhookDocument,
+            variables: { input: { id: 'webhook-123' } },
+          },
+          result: {
+            errors: [
+              {
+                message: 'Internal Server Error',
+                extensions: { code: 'internal_error', status: 500 },
+              },
+            ],
+          },
+        },
+      ]
+
+      mockUseParams.mockReturnValue({ logId: 'webhook-123' })
+
+      await act(async () => {
+        render(<WebhookLogDetails goBack={mockGoBack} />, {
+          mocks: mocksWithError,
+        })
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      const retryButton = screen.getByTestId(WEBHOOK_RETRY_BUTTON_TEST_ID)
+
+      await user.click(retryButton)
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
     })
   })
