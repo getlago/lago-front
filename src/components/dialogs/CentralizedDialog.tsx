@@ -2,8 +2,9 @@ import { create, useModal } from '@ebay/nice-modal-react'
 import { ReactNode } from 'react'
 
 import BaseDialog from './BaseDialog'
-import { CENTRALIZED_DIALOG_NAME } from './const'
-import { HookDialogReturnType } from './types'
+import { CENTRALIZED_DIALOG_NAME, CLOSE_PARAMS } from './const'
+import { dialogActionWrapper } from './dialogActionWrapper'
+import { ExecutableHookDialogReturnType, MainFunction } from './types'
 
 export type CentralizedDialogProps = {
   title: ReactNode
@@ -18,7 +19,7 @@ const CentralizedDialog = create(
     const modal = useModal()
 
     const handleClose = async () => {
-      modal.reject()
+      modal.resolve(CLOSE_PARAMS)
       modal.hide()
     }
 
@@ -40,13 +41,17 @@ const CentralizedDialog = create(
 
 export default CentralizedDialog
 
-export const useCentralizedDialog = (): HookDialogReturnType<CentralizedDialogProps> => {
+export const useCentralizedDialog = (): ExecutableHookDialogReturnType<CentralizedDialogProps> => {
   const modal = useModal(CENTRALIZED_DIALOG_NAME)
 
   return {
     open: (props?: CentralizedDialogProps) => modal.show(props),
-    close: () => modal.hide(),
-    resolve: (args?: unknown) => modal.resolve(args),
-    reject: (args?: unknown) => modal.reject(args),
+    close: () => {
+      modal.resolve(CLOSE_PARAMS)
+      modal.hide()
+    },
+    execute: (mainFunctionToExecute: MainFunction) => {
+      dialogActionWrapper(mainFunctionToExecute, modal)
+    },
   }
 }

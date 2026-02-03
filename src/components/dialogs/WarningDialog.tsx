@@ -6,6 +6,8 @@ import BaseDialog from '~/components/dialogs/BaseDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import {
+  CLOSE_PARAMS,
+  CONTINUE_PARAMS,
   WARNING_DIALOG_CANCEL_BUTTON_TEST_ID,
   WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
   WARNING_DIALOG_NAME,
@@ -39,14 +41,26 @@ const WarningDialog = create(
     const { translate } = useInternationalization()
 
     const handleCancel = async (): Promise<void> => {
-      modal.reject()
+      modal.resolve(CLOSE_PARAMS)
       modal.hide()
     }
 
     const handleContinue = async (): Promise<void> => {
-      await onContinue()
-      modal.resolve()
-      modal.hide()
+      try {
+        const result = await onContinue()
+
+        modal.resolve({
+          ...CONTINUE_PARAMS,
+          params: result,
+        })
+        modal.hide()
+      } catch (error) {
+        modal.reject({
+          reason: 'error',
+          error: error as Error,
+        })
+        modal.hide()
+      }
     }
 
     return (
@@ -92,7 +106,5 @@ export const useWarningDialog = (): HookDialogReturnType<WarningDialogProps> => 
   return {
     open: (props?: WarningDialogProps) => modal.show(props),
     close: () => modal.hide(),
-    resolve: (args?: unknown) => modal.resolve(args),
-    reject: (args?: unknown) => modal.reject(args),
   }
 }

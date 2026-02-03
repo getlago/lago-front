@@ -1,6 +1,21 @@
+export type PromiseReturnType =
+  | {
+      reason: 'error'
+      error: Error
+    }
+  | {
+      reason: 'success'
+      params?: unknown
+    }
+  | Error
+
+export type MainFunction = () => PromiseReturnType
+
 export type HookDialogReturnType<Props> = {
   open: (props?: Props) => Promise<unknown>
-  close: () => Promise<unknown>
-  resolve: (args?: unknown) => void
-  reject: (args?: unknown) => void
+  close: () => void
+}
+
+export type ExecutableHookDialogReturnType<Props> = HookDialogReturnType<Props> & {
+  execute: (mainFunction: MainFunction) => void
 }

@@ -4,7 +4,7 @@ import { Button } from '~/components/designSystem'
 import BaseDialog from '~/components/dialogs/BaseDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { PREMIUM_WARNING_DIALOG_NAME } from './const'
+import { CLOSE_PARAMS, PREMIUM_WARNING_DIALOG_NAME } from './const'
 import { HookDialogReturnType } from './types'
 
 export type PremiumWarningDialogProps = {
@@ -25,7 +25,7 @@ const PremiumWarningDialog = create(
     const displayMailtoBody = mailtoBody || translate('text_63b3f676d44671bf24d81413')
 
     const handleClose = async () => {
-      modal.reject()
+      modal.resolve(CLOSE_PARAMS)
       modal.hide()
     }
 
@@ -61,8 +61,9 @@ export const usePremiumWarningDialog = (): HookDialogReturnType<PremiumWarningDi
 
   return {
     open: (props?: PremiumWarningDialogProps) => modal.show(props),
-    close: () => modal.hide(),
-    resolve: (args?: unknown) => modal.resolve(args),
-    reject: (args?: unknown) => modal.reject(args),
+    close: () => {
+      modal.resolve(CLOSE_PARAMS)
+      modal.hide()
+    },
   }
 }

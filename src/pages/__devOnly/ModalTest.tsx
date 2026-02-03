@@ -1,40 +1,17 @@
 import { Button, Typography } from '~/components/designSystem'
-import {
-  CentralizedDialogProps,
-  useCentralizedDialog,
-} from '~/components/dialogs/CentralizedDialog'
-import {
-  DialogOpeningWarningDialogProps,
-  useDialogOpeningWarningDialog,
-} from '~/components/dialogs/DialogOpeningWarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
+import { useDialogOpeningWarningDialog } from '~/components/dialogs/DialogOpeningWarningDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
-import { HookDialogReturnType } from '~/components/dialogs/types'
 import { useWarningDialog } from '~/components/dialogs/WarningDialog'
 import { TextInput } from '~/components/form'
 
-const ModalTestActions = ({
-  modal,
-}: {
-  modal:
-    | HookDialogReturnType<CentralizedDialogProps>
-    | HookDialogReturnType<DialogOpeningWarningDialogProps>
-}) => {
-  const handleClose = (): void => {
-    modal.reject()
-    modal.close()
-  }
-
-  const handleSuccess = (): void => {
-    modal.resolve()
-    modal.close()
-  }
-
+const ModalTestActions = ({ onClose, onAction }: { onClose: () => void; onAction: () => void }) => {
   return (
     <>
-      <Button variant="quaternary" onClick={handleClose}>
+      <Button variant="quaternary" onClick={onClose}>
         Close
       </Button>
-      <Button onClick={handleSuccess}>Success</Button>
+      <Button onClick={onAction}>Success</Button>
     </>
   )
 }
@@ -71,11 +48,26 @@ const ModalTest = (): JSX.Element => {
   const dialogOpeningWarningModal = useDialogOpeningWarningDialog()
 
   const handleCentralizedClick = (): void => {
-    modal.open({
-      title: 'Test Modal',
-      children: 'This is a test modal opened from the ModalTest page.',
-      actions: <ModalTestActions modal={modal} />,
-    })
+    modal
+      .open({
+        title: 'Test Modal',
+        children: 'This is a test modal opened from the ModalTest page.',
+        actions: (
+          <ModalTestActions
+            onClose={() => modal.close()}
+            onAction={() =>
+              modal.execute(() => ({
+                reason: 'success',
+              }))
+            }
+          />
+        ),
+      })
+      .then((params) => {
+        /* TODO: Remove this line */
+        // eslint-disable-next-line no-console
+        console.log('success', params)
+      })
   }
 
   const handleWarningClick = (): void => {
@@ -119,7 +111,16 @@ const ModalTest = (): JSX.Element => {
     dialogOpeningWarningModal.open({
       title: 'Will open another Dialog',
       children: 'This dialog warns about opening another dialog.',
-      actions: <ModalTestActions modal={dialogOpeningWarningModal} />,
+      actions: (
+        <ModalTestActions
+          onClose={() => modal.close()}
+          onAction={() =>
+            modal.execute(() => ({
+              reason: 'success',
+            }))
+          }
+        />
+      ),
       canOpenWarningDialog: true,
       openWarningDialogText: 'Open Warning Dialog',
       warningDialogProps: {
@@ -139,7 +140,16 @@ const ModalTest = (): JSX.Element => {
     dialogOpeningWarningModal.open({
       title: 'Will open another Dialog',
       description: 'This dialog warns about opening another dialog.',
-      actions: <ModalTestActions modal={dialogOpeningWarningModal} />,
+      actions: (
+        <ModalTestActions
+          onClose={() => modal.close()}
+          onAction={() =>
+            modal.execute(() => ({
+              reason: 'success',
+            }))
+          }
+        />
+      ),
       canOpenWarningDialog: true,
       openWarningDialogText: 'Open Warning Dialog',
       warningDialogProps: {
@@ -160,7 +170,16 @@ const ModalTest = (): JSX.Element => {
       title: 'Test Modal',
       headerContent: <LongModalHeaderContent />,
       children: <LongModalContent />,
-      actions: <ModalTestActions modal={modal} />,
+      actions: (
+        <ModalTestActions
+          onClose={() => modal.close()}
+          onAction={() =>
+            modal.execute(() => ({
+              reason: 'success',
+            }))
+          }
+        />
+      ),
     })
   }
   const handleOpenLongDialogWithDescription = (): void => {
@@ -169,8 +188,78 @@ const ModalTest = (): JSX.Element => {
       description: 'This is a description for the long modal.',
       headerContent: <LongModalHeaderContent />,
       children: <LongModalContent />,
-      actions: <ModalTestActions modal={modal} />,
+      actions: (
+        <ModalTestActions
+          onClose={() => modal.close()}
+          onAction={() =>
+            modal.execute(() => ({
+              reason: 'success',
+            }))
+          }
+        />
+      ),
     })
+  }
+  const handleExampleOfError = (): void => {
+    modal
+      .open({
+        title: 'Test Modal',
+        description: 'This is a description for the long modal.',
+        headerContent: <LongModalHeaderContent />,
+        children: <LongModalContent />,
+        actions: (
+          <ModalTestActions
+            onClose={() => modal.close()}
+            onAction={() =>
+              modal.execute(() => {
+                throw new Error('hey')
+              })
+            }
+          />
+        ),
+      })
+      .catch((e) => {
+        /* TODO: Remove this line */
+        // eslint-disable-next-line no-console
+        console.log('error', e)
+      })
+  }
+
+  const handleRandomErrorSuccess = (): void => {
+    modal
+      .open({
+        title: 'Test Modal',
+        description: 'This is a description for the long modal.',
+        headerContent: <LongModalHeaderContent />,
+        children: <LongModalContent />,
+        actions: (
+          <ModalTestActions
+            onClose={() => modal.close()}
+            onAction={() =>
+              modal.execute(() => {
+                if (Math.round(Math.random()) > 0) {
+                  throw new Error('hey')
+                }
+
+                return {
+                  reason: 'success',
+                  params: 'lol',
+                }
+              })
+            }
+          />
+        ),
+      })
+      .then((p) => {
+        /* TODO: Remove this line */
+        // eslint-disable-next-line no-console
+        console.log('success', p)
+      })
+      .catch((e) => {
+        /* TODO: Remove this line */
+        // eslint-disable-next-line no-console
+        console.log('error', e)
+      })
   }
 
   return (
@@ -193,6 +282,8 @@ const ModalTest = (): JSX.Element => {
       <Button onClick={handleOpenLongDialogWithDescription} variant="tertiary">
         Open Long Dialog WITH DESCRIPTION
       </Button>
+      <Button onClick={handleExampleOfError}>Open Error Example</Button>
+      <Button onClick={handleRandomErrorSuccess}>Open Random Example</Button>
     </div>
   )
 }

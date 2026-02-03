@@ -11,3 +11,11 @@ export const WARNING_DIALOG_NAME = 'WarningDialog'
 export const WARNING_DIALOG_TEST_ID = 'warning-dialog'
 export const WARNING_DIALOG_CANCEL_BUTTON_TEST_ID = 'warning-cancel'
 export const WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID = 'warning-confirm'
+
+export const CLOSE_PARAMS = {
+  reason: 'close',
+}
+
+export const CONTINUE_PARAMS = {
+  reason: 'continue',
+}

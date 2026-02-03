@@ -5,8 +5,9 @@ import { ReactNode } from 'react'
 import { Button } from '~/components/designSystem'
 
 import BaseDialog from './BaseDialog'
-import { DIALOG_OPENING_WARNING_DIALOG_NAME } from './const'
-import { HookDialogReturnType } from './types'
+import { CLOSE_PARAMS, DIALOG_OPENING_WARNING_DIALOG_NAME } from './const'
+import { dialogActionWrapper } from './dialogActionWrapper'
+import { ExecutableHookDialogReturnType, MainFunction } from './types'
 import { useWarningDialog, WarningDialogProps } from './WarningDialog'
 
 export type DialogOpeningWarningDialogProps = {
@@ -36,7 +37,7 @@ const DialogOpeningWarningDialog = create(
     const warningDialog = useWarningDialog()
 
     const handleClose = async () => {
-      modal.reject()
+      modal.resolve(CLOSE_PARAMS)
       modal.hide()
     }
 
@@ -81,13 +82,17 @@ const DialogOpeningWarningDialog = create(
 export default DialogOpeningWarningDialog
 
 export const useDialogOpeningWarningDialog =
-  (): HookDialogReturnType<DialogOpeningWarningDialogProps> => {
+  (): ExecutableHookDialogReturnType<DialogOpeningWarningDialogProps> => {
     const modal = useModal(DIALOG_OPENING_WARNING_DIALOG_NAME)
 
     return {
       open: (props?: DialogOpeningWarningDialogProps) => modal.show(props),
-      close: () => modal.hide(),
-      resolve: (args?: unknown) => modal.resolve(args),
-      reject: (args?: unknown) => modal.reject(args),
+      close: () => {
+        modal.resolve(CLOSE_PARAMS)
+        modal.hide()
+      },
+      execute: (mainFunctionToExecute: MainFunction) => {
+        dialogActionWrapper(mainFunctionToExecute, modal)
+      },
     }
   }
