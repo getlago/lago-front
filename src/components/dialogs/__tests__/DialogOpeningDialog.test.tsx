@@ -11,6 +11,7 @@ import {
   CENTRALIZED_DIALOG_NAME,
   DIALOG_OPENING_DIALOG_NAME,
   DIALOG_TITLE_TEST_ID,
+  OPEN_OTHER_DIALOG_PARAMS,
 } from '../const'
 import DialogOpeningDialog, {
   DialogOpeningDialogProps,
@@ -434,6 +435,63 @@ describe('DialogOpeningWarningDialog', () => {
         expect(screen.getByText('Custom Warning Title')).toBeInTheDocument()
         expect(screen.getByText('Custom Warning Description')).toBeInTheDocument()
         expect(screen.getByText('Custom Continue Text')).toBeInTheDocument()
+      })
+    })
+
+    it('resolves promise with OPEN_OTHER_DIALOG_PARAMS when opening another dialog', async () => {
+      const user = userEvent.setup()
+      let resolvedValue: unknown
+
+      const { rerender } = render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
+            }}
+            autoOpen={false}
+          />
+        </NiceModalWrapper>,
+      )
+
+      // Create component that captures the promise resolution
+      const TestComponentWithPromise = () => {
+        const dialogOpeningWarningDialog = useDialogOpeningDialog()
+
+        useEffect(() => {
+          dialogOpeningWarningDialog
+            .open({
+              ...defaultProps,
+              canOpenDialog: true,
+              openDialogText: 'Open Warning',
+            })
+            .then((value) => {
+              resolvedValue = value
+            })
+            .catch(() => {
+              // Ignore rejection
+            })
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [])
+
+        return null
+      }
+
+      rerender(
+        <NiceModalWrapper>
+          <TestComponentWithPromise />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Open Warning')).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByText('Open Warning'))
+
+      await waitFor(() => {
+        expect(resolvedValue).toEqual(OPEN_OTHER_DIALOG_PARAMS)
       })
     })
   })

@@ -12,3 +12,7 @@ export const PREMIUM_WARNING_DIALOG_NAME = 'PremiumWarningDialog'
 export const CLOSE_PARAMS = {
   reason: 'close',
 }
+
+export const OPEN_OTHER_DIALOG_PARAMS = {
+  reason: 'open-other-dialog',
+}

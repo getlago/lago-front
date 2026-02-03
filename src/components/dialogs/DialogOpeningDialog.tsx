@@ -2,12 +2,12 @@ import { create, useModal } from '@ebay/nice-modal-react'
 import { tw } from 'lago-design-system'
 
 import { Button } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BaseDialog from './BaseDialog'
 import { CentralizedDialogProps, useCentralizedDialog } from './CentralizedDialog'
-import { CLOSE_PARAMS, DIALOG_OPENING_DIALOG_NAME } from './const'
+import { CLOSE_PARAMS, DIALOG_OPENING_DIALOG_NAME, OPEN_OTHER_DIALOG_PARAMS } from './const'
 import { HookDialogReturnType } from './types'
+import { useDialogActions } from './useDialogActions'
 
 export type DialogOpeningDialogProps = CentralizedDialogProps & {
   canOpenDialog?: boolean
@@ -36,34 +36,14 @@ const DialogOpeningDialog = create(
     otherDialogError,
   }: DialogOpeningDialogProps) => {
     const modal = useModal()
-    const { translate } = useInternationalization()
-
     const centralizedDialog = useCentralizedDialog()
 
-    const handleCancel = async () => {
-      modal.resolve(CLOSE_PARAMS)
-      modal.hide()
-    }
-
-    const closeText =
-      cancelOrCloseText === 'cancel'
-        ? translate('text_6244277fe0975300fe3fb94a')
-        : translate('text_62f50d26c989ab03196884ae')
-
-    const handleContinue = async (): Promise<void> => {
-      try {
-        const result = await onAction()
-
-        modal.resolve(result)
-        modal.hide()
-      } catch (error) {
-        modal.reject({
-          reason: 'error',
-          error: error as Error,
-        })
-        if (closeOnError) modal.hide()
-      }
-    }
+    const { handleCancel, handleContinue, closeText } = useDialogActions({
+      modal,
+      onAction,
+      cancelOrCloseText,
+      closeOnError,
+    })
 
     const definedActions = (
       <div
@@ -76,6 +56,7 @@ const DialogOpeningDialog = create(
             danger
             variant="quaternary"
             onClick={() => {
+              modal.resolve(OPEN_OTHER_DIALOG_PARAMS)
               modal.hide()
               centralizedDialog
                 .open(otherDialogProps)

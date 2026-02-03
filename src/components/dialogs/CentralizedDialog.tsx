@@ -3,7 +3,6 @@ import { ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem'
 import BaseDialog from '~/components/dialogs/BaseDialog'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import {
   CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID,
@@ -13,6 +12,7 @@ import {
   CLOSE_PARAMS,
 } from './const'
 import { HookDialogReturnType, PromiseReturnType } from './types'
+import { useDialogActions } from './useDialogActions'
 
 export type CentralizedDialogProps = {
   title: ReactNode
@@ -41,32 +41,12 @@ const CentralizedDialog = create(
     closeOnError = true,
   }: CentralizedDialogProps) => {
     const modal = useModal()
-    const { translate } = useInternationalization()
-
-    const handleCancel = async (): Promise<void> => {
-      modal.resolve(CLOSE_PARAMS)
-      modal.hide()
-    }
-
-    const closeText =
-      cancelOrCloseText === 'cancel'
-        ? translate('text_6244277fe0975300fe3fb94a')
-        : translate('text_62f50d26c989ab03196884ae')
-
-    const handleContinue = async (): Promise<void> => {
-      try {
-        const result = await onAction()
-
-        modal.resolve(result)
-        modal.hide()
-      } catch (error) {
-        modal.reject({
-          reason: 'error',
-          error: error as Error,
-        })
-        if (closeOnError) modal.hide()
-      }
-    }
+    const { handleCancel, handleContinue, closeText } = useDialogActions({
+      modal,
+      onAction,
+      cancelOrCloseText,
+      closeOnError,
+    })
 
     return (
       <BaseDialog
