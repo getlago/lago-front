@@ -99,6 +99,9 @@ describe('ThresholdsTable', () => {
 
     // Amount should still be shown
     expect(screen.getByText('$100.00')).toBeInTheDocument()
+
+    // Placeholder translation should be displayed
+    expect(screen.getByText('text_177015377629790y0xa6o8g5')).toBeInTheDocument()
   })
 
   it('renders single threshold with first threshold label', () => {

@@ -17,7 +17,11 @@ import { addToast } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
-import { CurrencyEnum, useGetSubscriptionForProgressiveBillingFormQuery } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  useGetSubscriptionForProgressiveBillingFormQuery,
+  UseSubscriptionForProgressiveBillingFormFragmentDoc,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -42,7 +46,7 @@ gql`
   query getSubscriptionForProgressiveBillingForm($subscriptionId: ID!) {
     subscription(id: $subscriptionId) {
       id
-      ...SubscriptionForProgressiveBillingForm
+      ...UseSubscriptionForProgressiveBillingForm
       plan {
         id
         amountCurrency
@@ -62,6 +66,8 @@ gql`
       }
     }
   }
+
+  ${UseSubscriptionForProgressiveBillingFormFragmentDoc}
 `
 
 const SubscriptionProgressiveBillingForm = () => {

@@ -7,18 +7,28 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
-  SubscriptionForProgressiveBillingFormFragment,
+  UseSubscriptionForProgressiveBillingFormFragment,
   useUpdateSubscriptionProgressiveBillingMutation,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
-  fragment SubscriptionForProgressiveBillingForm on Subscription {
+  fragment ThresholdForProgressiveBillingForm on UsageThreshold {
+    id
+    amountCents
+    recurring
+    thresholdDisplayName
+  }
+
+  fragment UseSubscriptionForProgressiveBillingForm on Subscription {
     progressiveBillingDisabled
     usageThresholds {
-      amountCents
-      recurring
-      thresholdDisplayName
+      ...ThresholdForProgressiveBillingForm
+    }
+    plan {
+      usageThresholds {
+        ...ThresholdForProgressiveBillingForm
+      }
     }
   }
 `
@@ -49,7 +59,7 @@ export interface ProgressiveBillingFormValues {
 
 interface UseProgressiveBillingTanstackFormProps {
   subscriptionId: string
-  subscription: SubscriptionForProgressiveBillingFormFragment | null | undefined
+  subscription: UseSubscriptionForProgressiveBillingFormFragment | null | undefined
   currency: CurrencyEnum
   onSuccess: () => void
 }
@@ -69,7 +79,16 @@ export const useProgressiveBillingTanstackForm = ({
   })
 
   const initialValues = useMemo((): ProgressiveBillingFormValues => {
-    const thresholds = subscription?.usageThresholds || []
+    let thresholds:
+      | UseSubscriptionForProgressiveBillingFormFragment['usageThresholds']
+      | UseSubscriptionForProgressiveBillingFormFragment['plan']['usageThresholds'] = []
+
+    if (!!subscription?.usageThresholds.length) {
+      thresholds = subscription.usageThresholds
+    } else if (!!subscription?.plan?.usageThresholds?.length) {
+      thresholds = subscription.plan.usageThresholds
+    }
+
     const nonRecurring = thresholds.filter((t) => !t.recurring)
     const recurring = thresholds.find((t) => t.recurring)
 

@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client/core'
+import { Typography } from '@mui/material'
 import { useId, useMemo } from 'react'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -26,15 +27,25 @@ export const ThresholdsTable = ({
   const { translate } = useInternationalization()
 
   const thresholdsForDisplay = useMemo(() => {
-    return thresholds.map((threshold, i) => [
-      i === 0
-        ? translate('text_1724179887723hi673zmbvdj')
-        : translate('text_1724179887723917j8ezkd9v'),
-      intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
-        currency,
-      }),
-      threshold.thresholdDisplayName || '',
-    ])
+    return thresholds.map((threshold, i) => {
+      const displayName = threshold.thresholdDisplayName ? (
+        threshold.thresholdDisplayName
+      ) : (
+        <Typography variant="body" color="grey500">
+          {translate('text_177015377629790y0xa6o8g5')}
+        </Typography>
+      )
+
+      return [
+        i === 0
+          ? translate('text_1724179887723hi673zmbvdj')
+          : translate('text_1724179887723917j8ezkd9v'),
+        intlFormatNumber(deserializeAmount(threshold.amountCents, currency), {
+          currency,
+        }),
+        displayName,
+      ]
+    })
   }, [thresholds, currency, translate])
 
   return (

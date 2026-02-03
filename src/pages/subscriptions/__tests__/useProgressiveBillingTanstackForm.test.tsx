@@ -1,7 +1,11 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, waitFor } from '@testing-library/react'
 
-import { CurrencyEnum, UpdateSubscriptionProgressiveBillingDocument } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  UpdateSubscriptionProgressiveBillingDocument,
+  UseSubscriptionForProgressiveBillingFormFragment,
+} from '~/generated/graphql'
 
 import {
   DEFAULT_PROGRESSIVE_BILLING,
@@ -13,35 +17,19 @@ jest.mock('~/core/form/scrollToFirstInputError', () => ({
   scrollToFirstInputError: jest.fn(),
 }))
 
-type TestSubscription = {
-  id: string
-  progressiveBillingDisabled: boolean
-  usageThresholds: Array<{
-    amountCents: string
-    recurring: boolean
-    thresholdDisplayName: string | null
-  }>
-  plan: {
-    id: string
-    amountCurrency: CurrencyEnum
-  }
-}
-
 const createMockSubscription = (
-  overrides?: Partial<TestSubscription>,
-): TestSubscription | undefined => {
+  overrides?: Partial<UseSubscriptionForProgressiveBillingFormFragment>,
+): UseSubscriptionForProgressiveBillingFormFragment | undefined => {
   if (overrides === undefined) return undefined
 
   return {
-    id: 'subscription-1',
     progressiveBillingDisabled: false,
     usageThresholds: [
-      { amountCents: '100', recurring: false, thresholdDisplayName: 'Threshold 1' },
-      { amountCents: '200', recurring: false, thresholdDisplayName: 'Threshold 2' },
+      { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: 'Threshold 1' },
+      { id: '2', amountCents: '200', recurring: false, thresholdDisplayName: 'Threshold 2' },
     ],
     plan: {
-      id: 'plan-1',
-      amountCurrency: CurrencyEnum.Usd,
+      usageThresholds: [],
     },
     ...overrides,
   }
@@ -128,8 +116,8 @@ describe('useProgressiveBillingTanstackForm', () => {
       const subscription = createMockSubscription({
         progressiveBillingDisabled: false,
         usageThresholds: [
-          { amountCents: '100', recurring: false, thresholdDisplayName: 'First' },
-          { amountCents: '500', recurring: true, thresholdDisplayName: 'Recurring' },
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: 'First' },
+          { id: '2', amountCents: '500', recurring: true, thresholdDisplayName: 'Recurring' },
         ],
       })
 
@@ -180,12 +168,62 @@ describe('useProgressiveBillingTanstackForm', () => {
 
       expect(result.current.progressiveBillingDisabled).toBe(true)
     })
+
+    it('initializes with plan thresholds when subscription thresholds are empty', async () => {
+      const subscription = createMockSubscription({
+        usageThresholds: [],
+        plan: {
+          usageThresholds: [
+            {
+              id: '1',
+              amountCents: '300',
+              recurring: false,
+              thresholdDisplayName: 'Plan Threshold',
+            },
+            {
+              id: '2',
+              amountCents: '1000',
+              recurring: true,
+              thresholdDisplayName: 'Plan Recurring',
+            },
+          ],
+        },
+      })
+
+      const { result } = renderHook(
+        () =>
+          useProgressiveBillingTanstackForm({
+            subscriptionId,
+            subscription,
+            currency: CurrencyEnum.Usd,
+            onSuccess: mockOnSuccess,
+          }),
+        { wrapper: createWrapper() },
+      )
+
+      await act(() => Promise.resolve())
+
+      // Should use plan thresholds when subscription thresholds are empty
+      // 300 cents -> '3' USD (deserialized)
+      expect(result.current.nonRecurringThresholds).toEqual([
+        { amountCents: '3', thresholdDisplayName: 'Plan Threshold', recurring: false },
+      ])
+      expect(result.current.hasRecurring).toBe(true)
+      // 1000 cents -> '10' USD (deserialized)
+      expect(result.current.recurringThreshold).toEqual({
+        amountCents: '10',
+        thresholdDisplayName: 'Plan Recurring',
+        recurring: true,
+      })
+    })
   })
 
   describe('handleAddThreshold', () => {
     it('adds a new threshold with incremented amount', async () => {
       const subscription = createMockSubscription({
-        usageThresholds: [{ amountCents: '100', recurring: false, thresholdDisplayName: null }],
+        usageThresholds: [
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: null },
+        ],
       })
 
       const { result } = renderHook(
@@ -244,9 +282,9 @@ describe('useProgressiveBillingTanstackForm', () => {
     it('removes threshold at specified index', async () => {
       const subscription = createMockSubscription({
         usageThresholds: [
-          { amountCents: '100', recurring: false, thresholdDisplayName: 'First' },
-          { amountCents: '200', recurring: false, thresholdDisplayName: 'Second' },
-          { amountCents: '300', recurring: false, thresholdDisplayName: 'Third' },
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: 'First' },
+          { id: '2', amountCents: '200', recurring: false, thresholdDisplayName: 'Second' },
+          { id: '3', amountCents: '300', recurring: false, thresholdDisplayName: 'Third' },
         ],
       })
 
@@ -276,7 +314,9 @@ describe('useProgressiveBillingTanstackForm', () => {
 
     it('resets to default when deleting last threshold', async () => {
       const subscription = createMockSubscription({
-        usageThresholds: [{ amountCents: '500', recurring: false, thresholdDisplayName: 'Only' }],
+        usageThresholds: [
+          { id: '1', amountCents: '500', recurring: false, thresholdDisplayName: 'Only' },
+        ],
       })
 
       const { result } = renderHook(
@@ -347,8 +387,8 @@ describe('useProgressiveBillingTanstackForm', () => {
     it('allows submission when thresholds are in ascending order', async () => {
       const subscription = createMockSubscription({
         usageThresholds: [
-          { amountCents: '100', recurring: false, thresholdDisplayName: null },
-          { amountCents: '200', recurring: false, thresholdDisplayName: null },
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: null },
+          { id: '2', amountCents: '200', recurring: false, thresholdDisplayName: null },
         ],
       })
 
@@ -395,8 +435,8 @@ describe('useProgressiveBillingTanstackForm', () => {
     it('initializes form with correct nonRecurringThresholds values', async () => {
       const subscription = createMockSubscription({
         usageThresholds: [
-          { amountCents: '100', recurring: false, thresholdDisplayName: 'First' },
-          { amountCents: '200', recurring: false, thresholdDisplayName: 'Second' },
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: 'First' },
+          { id: '2', amountCents: '200', recurring: false, thresholdDisplayName: 'Second' },
         ],
       })
 
@@ -431,7 +471,9 @@ describe('useProgressiveBillingTanstackForm', () => {
       const subscription = createMockSubscription({
         progressiveBillingDisabled: false,
         // 100 cents from API
-        usageThresholds: [{ amountCents: '100', recurring: false, thresholdDisplayName: 'Test' }],
+        usageThresholds: [
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: 'Test' },
+        ],
       })
 
       const mocks = [
@@ -468,7 +510,9 @@ describe('useProgressiveBillingTanstackForm', () => {
     it('submits with thresholds preserved when progressive billing is disabled', async () => {
       const subscription = createMockSubscription({
         progressiveBillingDisabled: true,
-        usageThresholds: [{ amountCents: '100', recurring: false, thresholdDisplayName: 'Test' }],
+        usageThresholds: [
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: 'Test' },
+        ],
       })
 
       const mocks = [
@@ -505,8 +549,8 @@ describe('useProgressiveBillingTanstackForm', () => {
       const subscription = createMockSubscription({
         progressiveBillingDisabled: false,
         usageThresholds: [
-          { amountCents: '100', recurring: false, thresholdDisplayName: null },
-          { amountCents: '500', recurring: true, thresholdDisplayName: 'Recurring' },
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: null },
+          { id: '2', amountCents: '500', recurring: true, thresholdDisplayName: 'Recurring' },
         ],
       })
 
@@ -551,8 +595,8 @@ describe('useProgressiveBillingTanstackForm', () => {
     it('exposes nonRecurringThresholds from form state', async () => {
       const subscription = createMockSubscription({
         usageThresholds: [
-          { amountCents: '100', recurring: false, thresholdDisplayName: 'A' },
-          { amountCents: '200', recurring: false, thresholdDisplayName: 'B' },
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: 'A' },
+          { id: '2', amountCents: '200', recurring: false, thresholdDisplayName: 'B' },
         ],
       })
 
@@ -578,7 +622,9 @@ describe('useProgressiveBillingTanstackForm', () => {
 
     it('exposes hasRecurring from form state', async () => {
       const subscriptionWithRecurring = createMockSubscription({
-        usageThresholds: [{ amountCents: '500', recurring: true, thresholdDisplayName: null }],
+        usageThresholds: [
+          { id: '1', amountCents: '500', recurring: true, thresholdDisplayName: null },
+        ],
       })
 
       const { result: resultWithRecurring } = renderHook(
@@ -597,7 +643,9 @@ describe('useProgressiveBillingTanstackForm', () => {
       expect(resultWithRecurring.current.hasRecurring).toBe(true)
 
       const subscriptionWithoutRecurring = createMockSubscription({
-        usageThresholds: [{ amountCents: '100', recurring: false, thresholdDisplayName: null }],
+        usageThresholds: [
+          { id: '1', amountCents: '100', recurring: false, thresholdDisplayName: null },
+        ],
       })
 
       const { result: resultWithoutRecurring } = renderHook(
@@ -619,7 +667,7 @@ describe('useProgressiveBillingTanstackForm', () => {
     it('exposes recurringThreshold from form state', async () => {
       const subscription = createMockSubscription({
         usageThresholds: [
-          { amountCents: '1000', recurring: true, thresholdDisplayName: 'Monthly' },
+          { id: '1', amountCents: '1000', recurring: true, thresholdDisplayName: 'Monthly' },
         ],
       })
 

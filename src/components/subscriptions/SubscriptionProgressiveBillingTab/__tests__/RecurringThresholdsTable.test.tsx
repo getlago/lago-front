@@ -85,6 +85,9 @@ describe('RecurringThresholdsTable', () => {
 
     // Amount should still be shown
     expect(screen.getByText('$500.00')).toBeInTheDocument()
+
+    // Placeholder translation should be displayed
+    expect(screen.getByText('text_177015377629790y0xa6o8g5')).toBeInTheDocument()
   })
 
   it('accepts custom name prop without error', () => {
