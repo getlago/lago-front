@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { captureException } from '@sentry/react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import {
@@ -51,7 +51,6 @@ import {
   CustomerMainInfosFragmentDoc,
   LagoApiError,
   useGenerateCustomerPortalUrlMutation,
-  useGetCustomerByExternalIdLazyQuery,
   useGetCustomerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -90,12 +89,6 @@ gql`
     }
   }
 
-  query getCustomerByExternalId($externalId: ID!) {
-    customer(externalId: $externalId) {
-      id
-    }
-  }
-
   mutation generateCustomerPortalUrl($input: GenerateCustomerPortalUrlInput!) {
     generateCustomerPortalUrl(input: $input) {
       url
@@ -117,7 +110,6 @@ const CustomerDetails = () => {
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const pollingAttemptsRef = useRef(0)
-  const [showGenericError, setShowGenericError] = useState(false)
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
@@ -140,12 +132,6 @@ const CustomerDetails = () => {
     fetchPolicy: 'network-only',
     context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
-
-  // Fallback query to search by externalId when customer is not found by id
-  const [getCustomerByExternalId, { loading: externalIdLoading }] =
-    useGetCustomerByExternalIdLazyQuery({
-      context: { silentErrorCodes: [LagoApiError.NotFound] },
-    })
 
   const customer = data?.customer
   const isNotFoundError = hasDefinedGQLError('NotFound', error)
@@ -182,66 +168,24 @@ const CustomerDetails = () => {
     }
   }, [shouldPollIntegrations, hasAnyIntegrationCustomer, stopPolling, navigate, location.pathname])
 
-  // When getCustomer(id) returns 404, try to find customer by externalId as fallback.
-  // This handles cases where users have URLs with externalId instead of internal id.
+  // When customer is not found (404), redirect to customers list with error toast
   useEffect(() => {
-    if (loading || externalIdLoading || !customerId || !isNotFoundError) return
+    if (loading || !isNotFoundError) return
 
-    const retryWithExternalId = async () => {
-      const result = await getCustomerByExternalId({
-        variables: { externalId: customerId },
-      })
+    captureException(new Error('Customer not found'), {
+      extra: {
+        customerId,
+        organizationId: organization?.id,
+        url: location.pathname,
+      },
+    })
 
-      const realCustomerId = result.data?.customer?.id
-
-      if (realCustomerId) {
-        // Found by externalId - redirect to correct URL with internal id
-        const newPath = tab
-          ? generatePath(CUSTOMER_DETAILS_TAB_ROUTE, { customerId: realCustomerId, tab })
-          : generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: realCustomerId })
-
-        navigate(newPath, { replace: true })
-      } else {
-        // Customer truly doesn't exist - report to Sentry and redirect to list with error toast
-        captureException(new Error('Customer not found'), {
-          extra: {
-            customerId,
-            organizationId: organization?.id,
-            url: location.pathname,
-          },
-        })
-
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_17701996981731m5uguxyg8b',
-        })
-        navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
-      }
-    }
-
-    retryWithExternalId()
-  }, [
-    loading,
-    externalIdLoading,
-    isNotFoundError,
-    customerId,
-    tab,
-    getCustomerByExternalId,
-    navigate,
-    location.pathname,
-    organization?.id,
-  ])
-
-  // Show generic error only for non-404 errors (network errors, server errors, etc.)
-  useEffect(() => {
-    if (loading || !error || isNotFoundError) {
-      setShowGenericError(false)
-
-      return
-    }
-
-    setShowGenericError(true)
-  }, [loading, error, isNotFoundError])
+    addToast({
+      severity: 'danger',
+      translateKey: 'text_17701996981731m5uguxyg8b',
+    })
+    navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
+  }, [loading, isNotFoundError, customerId, navigate, location.pathname, organization?.id])
 
   const [generatePortalUrl] = useGenerateCustomerPortalUrlMutation({
     onCompleted({ generateCustomerPortalUrl }) {
@@ -444,7 +388,7 @@ const CustomerDetails = () => {
       </PageHeader.Wrapper>
 
       <div className="px-12 pb-20 pt-12">
-        {showGenericError ? (
+        {!!error && !isNotFoundError ? (
           <GenericPlaceholder
             title={translate('text_6250304370f0f700a8fdc270')}
             subtitle={translate('text_6250304370f0f700a8fdc274')}
@@ -456,10 +400,7 @@ const CustomerDetails = () => {
         ) : (
           <>
             <div className="flex flex-col gap-12">
-              {loading ||
-              isNotFoundError ||
-              externalIdLoading ||
-              (!data?.customer && !showGenericError) ? (
+              {loading || !data?.customer ? (
                 <div className="flex gap-4">
                   <Skeleton variant="userAvatar" size="large" className="rounded-full" />
                   <div className="flex flex-col gap-2">
@@ -497,7 +438,7 @@ const CustomerDetails = () => {
                 </div>
               )}
 
-              {!loading && !isNotFoundError && !externalIdLoading && data?.customer && (
+              {!loading && !error && data?.customer && (
                 <div data-test="customer-navigation-wrapper">
                   <NavigationTab
                     className="mb-12"

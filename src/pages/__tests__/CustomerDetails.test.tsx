@@ -14,7 +14,6 @@ import CustomerDetails, {
 initializeYup()
 
 const mockUseGetCustomerQuery = jest.fn()
-const mockGetCustomerByExternalId = jest.fn()
 const mockGenerateCustomerPortalUrl = jest.fn()
 const mockHandleDownloadFile = jest.fn()
 const mockAddToast = jest.fn()
@@ -79,10 +78,6 @@ jest.mock('react-router-dom', () => ({
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetCustomerQuery: jest.fn(() => mockUseGetCustomerQuery()),
-  useGetCustomerByExternalIdLazyQuery: jest.fn(() => [
-    mockGetCustomerByExternalId,
-    { loading: false },
-  ]),
   useGenerateCustomerPortalUrlMutation: jest.fn(() => [
     mockGenerateCustomerPortalUrl,
     { loading: false, error: undefined },
@@ -452,54 +447,9 @@ describe('CustomerDetails', () => {
     })
   })
 
-  describe('Customer not found handling with externalId fallback', () => {
-    it('should redirect to correct URL when customer is found by externalId', async () => {
+  describe('Customer not found handling', () => {
+    it('should redirect to customers list and show toast when customer is not found', async () => {
       mockHasDefinedGQLError.mockReturnValue(true)
-      mockGetCustomerByExternalId.mockResolvedValue({
-        data: { customer: { id: 'real-customer-id' } },
-      })
-
-      jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/external-id-123',
-        state: null,
-        search: '',
-        hash: '',
-        key: 'default',
-      })
-
-      mockUseGetCustomerQuery.mockReturnValue({
-        data: undefined,
-        loading: false,
-        error: { graphQLErrors: [{ extensions: { code: 'not_found' } }] },
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
-      })
-
-      await act(async () => {
-        render(<CustomerDetails />)
-      })
-
-      await waitFor(() => {
-        expect(mockGetCustomerByExternalId).toHaveBeenCalledWith({
-          variables: { externalId: 'test-customer-id' },
-        })
-      })
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/customer/real-customer-id/overview', {
-          replace: true,
-        })
-      })
-
-      // Should NOT show toast when redirecting to correct URL
-      expect(mockAddToast).not.toHaveBeenCalled()
-    })
-
-    it('should redirect to customers list and show toast when customer is not found by id or externalId', async () => {
-      mockHasDefinedGQLError.mockReturnValue(true)
-      mockGetCustomerByExternalId.mockResolvedValue({
-        data: { customer: null },
-      })
 
       jest.mocked(useLocation).mockReturnValue({
         pathname: '/customers/non-existent-id',
@@ -522,10 +472,6 @@ describe('CustomerDetails', () => {
       })
 
       await waitFor(() => {
-        expect(mockGetCustomerByExternalId).toHaveBeenCalled()
-      })
-
-      await waitFor(() => {
         expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
 
@@ -534,7 +480,7 @@ describe('CustomerDetails', () => {
       })
     })
 
-    it('should not attempt fallback when customer is found by id', async () => {
+    it('should not redirect when customer is found', async () => {
       mockHasDefinedGQLError.mockReturnValue(false)
 
       jest.mocked(useLocation).mockReturnValue({
@@ -569,12 +515,11 @@ describe('CustomerDetails', () => {
         render(<CustomerDetails />)
       })
 
-      // Should NOT call the fallback query
-      expect(mockGetCustomerByExternalId).not.toHaveBeenCalled()
       expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalledWith('/customers', expect.anything())
     })
 
-    it('should not attempt fallback while loading', async () => {
+    it('should not redirect while loading', async () => {
       mockHasDefinedGQLError.mockReturnValue(true)
 
       jest.mocked(useLocation).mockReturnValue({
@@ -597,8 +542,8 @@ describe('CustomerDetails', () => {
         render(<CustomerDetails />)
       })
 
-      expect(mockGetCustomerByExternalId).not.toHaveBeenCalled()
       expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalledWith('/customers', expect.anything())
     })
   })
 })
