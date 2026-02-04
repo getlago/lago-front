@@ -42,7 +42,9 @@ export const useDialogActions = ({
     try {
       const result = await onAction()
 
-      modal.resolve(result)
+      const response = result ?? { reason: 'success' }
+
+      modal.resolve(response)
       modal.hide()
     } catch (error) {
       if (closeOnError) {
