@@ -16,6 +16,14 @@ initializeYup()
 const mockUseGetCustomerQuery = jest.fn()
 const mockGenerateCustomerPortalUrl = jest.fn()
 const mockHandleDownloadFile = jest.fn()
+const mockAddToast = jest.fn()
+const mockHasDefinedGQLError = jest.fn()
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+  hasDefinedGQLError: (...args: unknown[]) => mockHasDefinedGQLError(...args),
+}))
 
 jest.mock('~/hooks/useIsCustomerReadyForOverduePayment', () => ({
   useIsCustomerReadyForOverduePayment: jest.fn(() => ({
@@ -56,8 +64,14 @@ jest.mock('react-router-dom', () => ({
     pathname: '/customers/test-customer-id/information',
     state: null,
   })),
-  generatePath: jest.fn((route: string, params: { customerId: string }) => {
-    return route.replace(':customerId', params.customerId)
+  generatePath: jest.fn((route: string, params: { customerId: string; tab?: string }) => {
+    let result = route.replace(':customerId', params.customerId)
+
+    if (params.tab) {
+      result = result.replace(':tab', params.tab)
+    }
+
+    return result
   }),
 }))
 
@@ -430,6 +444,106 @@ describe('CustomerDetails', () => {
 
       // stopPolling is called in cleanup
       expect(mockStopPolling).toHaveBeenCalled()
+    })
+  })
+
+  describe('Customer not found handling', () => {
+    it('should redirect to customers list and show toast when customer is not found', async () => {
+      mockHasDefinedGQLError.mockReturnValue(true)
+
+      jest.mocked(useLocation).mockReturnValue({
+        pathname: '/customers/non-existent-id',
+        state: null,
+        search: '',
+        hash: '',
+        key: 'default',
+      })
+
+      mockUseGetCustomerQuery.mockReturnValue({
+        data: undefined,
+        loading: false,
+        error: { graphQLErrors: [{ extensions: { code: 'not_found' } }] },
+        startPolling: mockStartPolling,
+        stopPolling: mockStopPolling,
+      })
+
+      await act(async () => {
+        render(<CustomerDetails />)
+      })
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
+      })
+    })
+
+    it('should not redirect when customer is found', async () => {
+      mockHasDefinedGQLError.mockReturnValue(false)
+
+      jest.mocked(useLocation).mockReturnValue({
+        pathname: '/customers/test-customer-id',
+        state: null,
+        search: '',
+        hash: '',
+        key: 'default',
+      })
+
+      mockUseGetCustomerQuery.mockReturnValue({
+        data: {
+          customer: {
+            id: 'test-customer-id',
+            displayName: 'Test Customer',
+            externalId: 'ext-123',
+            hasOverdueInvoices: false,
+            hasActiveWallet: false,
+            hasCreditNotes: false,
+            currency: 'USD',
+            applicableTimezone: 'UTC',
+            accountType: 'standard',
+          },
+        },
+        loading: false,
+        error: undefined,
+        startPolling: mockStartPolling,
+        stopPolling: mockStopPolling,
+      })
+
+      await act(async () => {
+        render(<CustomerDetails />)
+      })
+
+      expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalledWith('/customers', expect.anything())
+    })
+
+    it('should not redirect while loading', async () => {
+      mockHasDefinedGQLError.mockReturnValue(true)
+
+      jest.mocked(useLocation).mockReturnValue({
+        pathname: '/customers/test-customer-id',
+        state: null,
+        search: '',
+        hash: '',
+        key: 'default',
+      })
+
+      mockUseGetCustomerQuery.mockReturnValue({
+        data: undefined,
+        loading: true,
+        error: undefined,
+        startPolling: mockStartPolling,
+        stopPolling: mockStopPolling,
+      })
+
+      await act(async () => {
+        render(<CustomerDetails />)
+      })
+
+      expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalledWith('/customers', expect.anything())
     })
   })
 })
