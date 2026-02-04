@@ -16,7 +16,7 @@ NiceModal.register(PREMIUM_WARNING_DIALOG_NAME, PremiumWarningDialog)
 
 // Test component that opens the dialog with given props
 const TestComponent = ({
-  dialogProps,
+  dialogProps = {},
   autoOpen = true,
 }: {
   dialogProps?: PremiumWarningDialogProps
@@ -152,8 +152,8 @@ describe('PremiumWarningDialog', () => {
         const mailtoLink = document.querySelector('a[href^="mailto:"]')
 
         expect(mailtoLink).toBeInTheDocument()
-        expect(mailtoLink?.getAttribute('href')).toContain('subject=Custom Subject')
-        expect(mailtoLink?.getAttribute('href')).toContain('body=Custom Body')
+        expect(mailtoLink?.getAttribute('href')).toContain('subject=Custom%20Subject')
+        expect(mailtoLink?.getAttribute('href')).toContain('body=Custom%20Body')
       })
     })
   })

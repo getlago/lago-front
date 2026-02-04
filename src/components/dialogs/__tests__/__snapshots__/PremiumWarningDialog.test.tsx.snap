@@ -43,7 +43,7 @@ exports[`PremiumWarningDialog Snapshot Tests matches snapshot with custom mailto
     </button>
     <a
       class="mb-0 mr-0"
-      href="mailto:hello@getlago.com?subject=Custom Subject&body=Custom Body"
+      href="mailto:hello@getlago.com?subject=Custom%20Subject&body=Custom%20Body"
     >
       <button
         class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center w-full css-hash-MuiButtonBase-root-MuiButton-root
@@ -101,7 +101,7 @@ exports[`PremiumWarningDialog Snapshot Tests matches snapshot with custom title 
     </button>
     <a
       class="mb-0 mr-0"
-      href="mailto:hello@getlago.com?subject=Request access to premium features&body=Hello, I would like to access Lago premium features. Please let me know if you need more info!"
+      href="mailto:hello@getlago.com?subject=Request%20access%20to%20premium%20features&body=Hello%2C%20I%20would%20like%20to%20access%20Lago%20premium%20features.%20Please%20let%20me%20know%20if%20you%20need%20more%20info!"
     >
       <button
         class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center w-full css-hash-MuiButtonBase-root-MuiButton-root
@@ -159,7 +159,7 @@ exports[`PremiumWarningDialog Snapshot Tests matches snapshot with default props
     </button>
     <a
       class="mb-0 mr-0"
-      href="mailto:hello@getlago.com?subject=Request access to premium features&body=Hello, I would like to access Lago premium features. Please let me know if you need more info!"
+      href="mailto:hello@getlago.com?subject=Request%20access%20to%20premium%20features&body=Hello%2C%20I%20would%20like%20to%20access%20Lago%20premium%20features.%20Please%20let%20me%20know%20if%20you%20need%20more%20info!"
     >
       <button
         class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center w-full css-hash-MuiButtonBase-root-MuiButton-root

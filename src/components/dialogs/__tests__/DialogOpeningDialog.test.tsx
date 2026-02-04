@@ -62,6 +62,7 @@ const defaultProps: DialogOpeningDialogProps = {
   title: 'Dialog Opening Title',
   onAction: jest.fn(),
   actionText: 'OK',
+  openDialogText: 'Open',
   otherDialogProps: defaultWarningDialogProps,
 }
 
