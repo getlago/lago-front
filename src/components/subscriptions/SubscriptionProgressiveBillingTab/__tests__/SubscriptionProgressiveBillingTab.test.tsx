@@ -12,6 +12,8 @@ import { render, testMockNavigateFn, TestMocksType } from '~/test-utils'
 import {
   PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID,
   PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID,
+  PROGRESSIVE_BILLING_NO_PLAN_THRESHOLDS_EMPTY_TEST_ID,
+  PROGRESSIVE_BILLING_NO_THRESHOLDS_EMPTY_TEST_ID,
   PROGRESSIVE_BILLING_TAB_TEST_ID,
   SubscriptionProgressiveBillingTab,
 } from '../SubscriptionProgressiveBillingTab'
@@ -702,6 +704,177 @@ describe('SubscriptionProgressiveBillingTab', () => {
       await waitFor(() => {
         expect(screen.getByRole('dialog')).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('plan tab empty states', () => {
+    it('displays no-thresholds empty state when progressive billing is enabled but no thresholds exist', () => {
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            progressiveBillingDisabled: false,
+            usageThresholds: [],
+            plan: {
+              id: 'plan-123',
+              amountCurrency: CurrencyEnum.Usd,
+              usageThresholds: [],
+            },
+          })}
+          loading={false}
+        />,
+      )
+
+      // When there are no subscription thresholds and billing is not disabled,
+      // the subscription tab is hidden and the plan tab content is shown by default
+      // Should show the "no thresholds" empty state message
+      expect(
+        screen.getByTestId(PROGRESSIVE_BILLING_NO_THRESHOLDS_EMPTY_TEST_ID),
+      ).toBeInTheDocument()
+      expect(screen.getByText('text_1770217073925sgkyyd8peck')).toBeInTheDocument()
+    })
+
+    it('displays "no plan thresholds" message when subscription has thresholds but plan has none', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            progressiveBillingDisabled: false,
+            usageThresholds: [
+              {
+                id: 'threshold-1',
+                amountCents: '10000',
+                recurring: false,
+                thresholdDisplayName: 'Subscription threshold',
+              },
+            ],
+            plan: {
+              id: 'plan-123',
+              amountCurrency: CurrencyEnum.Usd,
+              usageThresholds: [],
+            },
+          })}
+          loading={false}
+        />,
+      )
+
+      // Click on the plan tab (subscription tab is visible since there are subscription thresholds)
+      const planTab = screen.getByText('text_17697123841349drggrw2qur')
+
+      await act(async () => {
+        await user.click(planTab)
+      })
+
+      // Should show the "no plan thresholds" empty state message
+      await waitFor(() => {
+        expect(
+          screen.getByTestId(PROGRESSIVE_BILLING_NO_PLAN_THRESHOLDS_EMPTY_TEST_ID),
+        ).toBeInTheDocument()
+        expect(screen.getByText('text_1770220776577i5r9mz1h3rr')).toBeInTheDocument()
+      })
+    })
+
+    it('does not display any empty state message when plan has thresholds', () => {
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            progressiveBillingDisabled: false,
+            usageThresholds: [],
+            plan: {
+              id: 'plan-123',
+              amountCurrency: CurrencyEnum.Usd,
+              usageThresholds: [
+                {
+                  id: 'plan-threshold-1',
+                  amountCents: '5000',
+                  recurring: false,
+                  thresholdDisplayName: 'Plan threshold',
+                },
+              ],
+            },
+          })}
+          loading={false}
+        />,
+      )
+
+      // When there are no subscription thresholds and billing is not disabled,
+      // the subscription tab is hidden and the plan tab content is shown by default
+      // Should NOT show any empty state message
+      expect(
+        screen.queryByTestId(PROGRESSIVE_BILLING_NO_THRESHOLDS_EMPTY_TEST_ID),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(PROGRESSIVE_BILLING_NO_PLAN_THRESHOLDS_EMPTY_TEST_ID),
+      ).not.toBeInTheDocument()
+      // Should show the plan threshold instead
+      expect(screen.getByText('Plan threshold')).toBeInTheDocument()
+    })
+
+    it('does not display subscription threshold table when progressive billing is disabled even with thresholds', () => {
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            progressiveBillingDisabled: true,
+            usageThresholds: [
+              {
+                id: 'threshold-1',
+                amountCents: '10000',
+                recurring: false,
+                thresholdDisplayName: 'Hidden threshold',
+              },
+            ],
+            plan: {
+              id: 'plan-123',
+              amountCurrency: CurrencyEnum.Usd,
+              usageThresholds: [],
+            },
+          })}
+          loading={false}
+        />,
+      )
+
+      // Should show disabled message
+      expect(screen.getByTestId(PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID)).toBeInTheDocument()
+      // Should NOT show the threshold since billing is disabled
+      expect(screen.queryByText('Hidden threshold')).not.toBeInTheDocument()
+    })
+
+    it('displays subscription threshold table when progressive billing is enabled and thresholds exist', () => {
+      render(
+        <SubscriptionProgressiveBillingTab
+          subscription={createMockSubscription({
+            progressiveBillingDisabled: false,
+            usageThresholds: [
+              {
+                id: 'threshold-1',
+                amountCents: '10000',
+                recurring: false,
+                thresholdDisplayName: 'Visible threshold',
+              },
+            ],
+            plan: {
+              id: 'plan-123',
+              amountCurrency: CurrencyEnum.Usd,
+              usageThresholds: [
+                {
+                  id: 'plan-threshold-1',
+                  amountCents: '5000',
+                  recurring: false,
+                  thresholdDisplayName: 'Plan threshold exists',
+                },
+              ],
+            },
+          })}
+          loading={false}
+        />,
+      )
+
+      // Should NOT show disabled message
+      expect(
+        screen.queryByTestId(PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID),
+      ).not.toBeInTheDocument()
+      // Should show the threshold
+      expect(screen.getByText('Visible threshold')).toBeInTheDocument()
     })
   })
 })

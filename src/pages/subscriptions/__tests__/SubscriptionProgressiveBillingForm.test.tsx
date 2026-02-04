@@ -30,8 +30,18 @@ const mockSubscriptionData = {
   name: 'Test Subscription',
   progressiveBillingDisabled: false,
   usageThresholds: [
-    { amountCents: '100', recurring: false, thresholdDisplayName: 'Threshold 1' },
-    { amountCents: '200', recurring: false, thresholdDisplayName: 'Threshold 2' },
+    {
+      id: 'threshold-1',
+      amountCents: '100',
+      recurring: false,
+      thresholdDisplayName: 'Threshold 1',
+    },
+    {
+      id: 'threshold-2',
+      amountCents: '200',
+      recurring: false,
+      thresholdDisplayName: 'Threshold 2',
+    },
   ],
   plan: {
     id: planId,

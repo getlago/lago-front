@@ -85,10 +85,11 @@ export const useSubscriptionProgressiveBillingTab = ({
     hasPremiumIntegration,
 
     // Thresholds
-    subscriptionThresholds,
-    nonRecurringSubscriptionThresholds,
-    recurringSubscriptionThresholds,
     nonRecurringPlanThresholds,
+    nonRecurringSubscriptionThresholds,
+    planThresholds,
     recurringPlanThresholds,
+    recurringSubscriptionThresholds,
+    subscriptionThresholds,
   }
 }

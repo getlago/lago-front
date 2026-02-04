@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core'
-import { Typography } from '@mui/material'
 import { useId, useMemo } from 'react'
 
+import { Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'

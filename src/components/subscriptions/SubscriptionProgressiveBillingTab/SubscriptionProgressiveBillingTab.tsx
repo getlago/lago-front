@@ -20,6 +20,10 @@ import { ThresholdsTable } from './ThresholdsTable'
 export const PROGRESSIVE_BILLING_TAB_TEST_ID = 'progressive-billing-tab'
 export const PROGRESSIVE_BILLING_FREEMIUM_BLOCK_TEST_ID = 'progressive-billing-freemium-block'
 export const PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID = 'progressive-billing-disabled-message'
+export const PROGRESSIVE_BILLING_NO_THRESHOLDS_EMPTY_TEST_ID =
+  'progressive-billing-no-thresholds-empty'
+export const PROGRESSIVE_BILLING_NO_PLAN_THRESHOLDS_EMPTY_TEST_ID =
+  'progressive-billing-no-plan-thresholds-empty'
 
 gql`
   fragment SubscriptionForProgressiveBillingTab on Subscription {
@@ -57,21 +61,29 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
   const {
     currency,
     hasPremiumIntegration,
-    subscriptionThresholds,
-    nonRecurringSubscriptionThresholds,
-    recurringSubscriptionThresholds,
     nonRecurringPlanThresholds,
+    nonRecurringSubscriptionThresholds,
+    planThresholds,
     recurringPlanThresholds,
+    recurringSubscriptionThresholds,
+    subscriptionThresholds,
   } = useSubscriptionProgressiveBillingTab({ subscription })
 
   const tabs = useMemo(() => {
+    const isProgressiveBillingDisabled = subscription?.progressiveBillingDisabled
+    const hasPlanThresholds = !!planThresholds.length
+    const hasSubscriptionThresholds = !!subscriptionThresholds.length
+    const hasAnyThresholds = hasSubscriptionThresholds || hasPlanThresholds
+    const displayPlanEmptyState = !subscription?.progressiveBillingDisabled && !hasAnyThresholds
+    const displaySubscriptionThresholdTable = !isProgressiveBillingDisabled && hasAnyThresholds
+
     return [
       {
         title: translate('text_1769712384134peknn5jyojg'),
         hidden: !subscriptionThresholds.length && !subscription?.progressiveBillingDisabled,
         component: (
           <div className="flex flex-col gap-4 p-4">
-            {subscription?.progressiveBillingDisabled && (
+            {isProgressiveBillingDisabled && (
               <Typography
                 data-test={PROGRESSIVE_BILLING_DISABLED_MESSAGE_TEST_ID}
                 variant="body"
@@ -80,7 +92,7 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
                 {translate('text_1769714542183sxbznn2i3v0')}
               </Typography>
             )}
-            {!subscription?.progressiveBillingDisabled && (
+            {displaySubscriptionThresholdTable && (
               <>
                 <ThresholdsTable
                   thresholds={nonRecurringSubscriptionThresholds}
@@ -102,24 +114,50 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
         title: translate('text_17697123841349drggrw2qur'),
         component: (
           <div className="flex flex-col gap-4 p-4">
-            <ThresholdsTable thresholds={nonRecurringPlanThresholds} currency={currency} />
+            {displayPlanEmptyState && (
+              <Typography
+                data-test={PROGRESSIVE_BILLING_NO_THRESHOLDS_EMPTY_TEST_ID}
+                variant="body"
+                color="grey500"
+              >
+                {translate('text_1770217073925sgkyyd8peck')}
+              </Typography>
+            )}
+            {!displayPlanEmptyState && !hasPlanThresholds && (
+              <Typography
+                data-test={PROGRESSIVE_BILLING_NO_PLAN_THRESHOLDS_EMPTY_TEST_ID}
+                variant="body"
+                color="grey500"
+              >
+                {translate('text_1770220776577i5r9mz1h3rr')}
+              </Typography>
+            )}
+            {!displayPlanEmptyState && !!hasPlanThresholds && (
+              <>
+                <ThresholdsTable thresholds={nonRecurringPlanThresholds} currency={currency} />
 
-            {recurringPlanThresholds.length > 0 && (
-              <RecurringThresholdsTable thresholds={recurringPlanThresholds} currency={currency} />
+                {recurringPlanThresholds.length > 0 && (
+                  <RecurringThresholdsTable
+                    thresholds={recurringPlanThresholds}
+                    currency={currency}
+                  />
+                )}
+              </>
             )}
           </div>
         ),
       },
     ]
   }, [
-    translate,
-    subscription,
+    subscription?.progressiveBillingDisabled,
     subscriptionThresholds.length,
+    planThresholds.length,
+    translate,
     nonRecurringSubscriptionThresholds,
+    currency,
     recurringSubscriptionThresholds,
     nonRecurringPlanThresholds,
     recurringPlanThresholds,
-    currency,
   ])
 
   if (loading || !subscription) {

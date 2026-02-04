@@ -271,7 +271,6 @@ const SubscriptionProgressiveBillingForm = () => {
           onSubmit={async (e) => {
             e.preventDefault()
             await handleSubmit(e)
-            onLeave()
           }}
         >
           <CenteredPage.Header>
