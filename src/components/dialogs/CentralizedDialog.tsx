@@ -25,6 +25,7 @@ export type CentralizedDialogProps = {
   disableOnContinue?: boolean
   cancelOrCloseText?: 'close' | 'cancel'
   closeOnError?: boolean
+  onError?: (error: Error) => void
 }
 
 const CentralizedDialog = create(
@@ -39,6 +40,7 @@ const CentralizedDialog = create(
     disableOnContinue = false,
     cancelOrCloseText = 'close',
     closeOnError = true,
+    onError,
   }: CentralizedDialogProps) => {
     const modal = useModal()
     const { handleCancel, handleContinue, closeText } = useDialogActions({
@@ -46,6 +48,7 @@ const CentralizedDialog = create(
       onAction,
       cancelOrCloseText,
       closeOnError,
+      onError,
     })
 
     return (

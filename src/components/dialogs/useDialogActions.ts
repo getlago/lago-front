@@ -10,6 +10,7 @@ type UseDialogActionsParams = {
   onAction: () => DialogResult | Promise<DialogResult> | void
   cancelOrCloseText: 'close' | 'cancel'
   closeOnError: boolean
+  onError?: (error: Error) => void
 }
 
 type UseDialogActionsReturn = {
@@ -23,6 +24,7 @@ export const useDialogActions = ({
   onAction,
   cancelOrCloseText,
   closeOnError,
+  onError,
 }: UseDialogActionsParams): UseDialogActionsReturn => {
   const { translate } = useInternationalization()
 
@@ -43,11 +45,15 @@ export const useDialogActions = ({
       modal.resolve(result)
       modal.hide()
     } catch (error) {
-      modal.reject({
-        reason: 'error',
-        error: error as Error,
-      })
-      if (closeOnError) modal.hide()
+      if (closeOnError) {
+        modal.reject({
+          reason: 'error',
+          error: error as Error,
+        })
+        modal.hide()
+      } else {
+        onError?.(error as Error)
+      }
     }
   }
 

@@ -27,6 +27,7 @@ const DialogOpeningDialog = create(
     disableOnContinue = false,
     cancelOrCloseText = 'close',
     closeOnError = true,
+    onError,
     canOpenDialog,
     openDialogText,
     otherDialogProps,
@@ -39,6 +40,7 @@ const DialogOpeningDialog = create(
       onAction,
       cancelOrCloseText,
       closeOnError,
+      onError,
     })
 
     const definedActions = (
