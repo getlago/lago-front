@@ -23,6 +23,10 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
       }),
     ],
     environment: appEnv,
+    // Increase depth for nested objects (default is 3) to capture full GraphQL error details
+    normalizeDepth: 10,
+    // Increase max string length (default is 250) for error details
+    maxValueLength: 2000,
     // Prevent sending recorded session if no error occurs
     replaysSessionSampleRate: 0.0,
     // Buffer (locally recorded) and send 30% of errors if one occurs
