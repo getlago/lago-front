@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { useMemo } from 'react'
 
 import { Typography } from '~/components/designSystem'

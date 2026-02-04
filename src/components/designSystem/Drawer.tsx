@@ -1,4 +1,4 @@
-import { Drawer as MuiDrawer, DrawerProps as MuiDrawerProps } from '@mui/material'
+import MuiDrawer, { type DrawerProps as MuiDrawerProps } from '@mui/material/Drawer'
 import {
   cloneElement,
   forwardRef,

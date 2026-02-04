@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
 import isEqual from 'lodash/isEqual'

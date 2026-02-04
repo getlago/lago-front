@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
-import { Box, Stack } from '@mui/material'
+import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
 import { FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC, useMemo } from 'react'

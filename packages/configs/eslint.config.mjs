@@ -103,6 +103,20 @@ export default [
       'no-unneeded-ternary': 'warn',
       'no-duplicate-imports': 'error',
 
+      // Prevent barrel imports from large libraries (impacts bundle size and dev performance)
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@mui/material',
+              message:
+                'Import from @mui/material/* instead. E.g., import Button from "@mui/material/Button"',
+            },
+          ],
+        },
+      ],
+
       // Plugins
       'import/order': [
         'error',

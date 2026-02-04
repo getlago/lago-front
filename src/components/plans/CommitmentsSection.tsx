@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { RefObject, useEffect, useMemo, useState } from 'react'

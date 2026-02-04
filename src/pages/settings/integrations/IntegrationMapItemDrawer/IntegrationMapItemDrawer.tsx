@@ -1,4 +1,5 @@
-import { Tab, Tabs } from '@mui/material'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import { FormikValues, useFormik } from 'formik'
 import { useMemo, useState } from 'react'
 import { array } from 'yup'

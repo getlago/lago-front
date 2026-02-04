@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'

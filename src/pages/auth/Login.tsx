@@ -1,5 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
 import { generatePath, Link, useNavigate, useSearchParams } from 'react-router-dom'

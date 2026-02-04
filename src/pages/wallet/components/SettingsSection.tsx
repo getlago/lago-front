@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { FormikErrors, FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC } from 'react'

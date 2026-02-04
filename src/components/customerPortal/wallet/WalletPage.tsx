@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { useFormik } from 'formik'
 import { useParams } from 'react-router-dom'
 import { number, object } from 'yup'

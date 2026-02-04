@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import _omit from 'lodash/omit'
 
 import { Button, Typography } from '~/components/designSystem'

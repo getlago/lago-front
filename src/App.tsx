@@ -1,6 +1,6 @@
 import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client'
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
-import { StyledEngineProvider, ThemeProvider } from '@mui/material'
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles'
 import { captureException } from '@sentry/react'
 import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'

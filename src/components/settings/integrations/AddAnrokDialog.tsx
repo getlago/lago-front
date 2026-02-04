@@ -1,5 +1,5 @@
 import { FetchResult, gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'

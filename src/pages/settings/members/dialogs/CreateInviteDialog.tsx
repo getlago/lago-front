@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { forwardRef, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'

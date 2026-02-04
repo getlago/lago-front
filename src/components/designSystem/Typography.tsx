@@ -1,4 +1,4 @@
-import { Typography as MuiTypography, TypographyProps as MuiTypographyProps } from '@mui/material'
+import MuiTypography, { type TypographyProps as MuiTypographyProps } from '@mui/material/Typography'
 import _isEqual from 'lodash/isEqual'
 import { ElementType, memo } from 'react'
 import { Link } from 'react-router-dom'

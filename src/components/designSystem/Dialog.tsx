@@ -1,4 +1,4 @@
-import { Dialog as MuiDialog } from '@mui/material'
+import MuiDialog from '@mui/material/Dialog'
 import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from 'react'
 
 import { tw } from '~/styles/utils'

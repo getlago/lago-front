@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { memo, useEffect, useMemo, useState } from 'react'
 
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'

@@ -1,12 +1,8 @@
-import {
-  Table as MUITable,
-  TableBody as MUITableBody,
-  TableCell as MUITableCell,
-  TableHead as MUITableHead,
-  TableRow as MUITableRow,
-  TableCellProps,
-  TableRowProps,
-} from '@mui/material'
+import MUITable from '@mui/material/Table'
+import MUITableBody from '@mui/material/TableBody'
+import MUITableCell, { type TableCellProps } from '@mui/material/TableCell'
+import MUITableHead from '@mui/material/TableHead'
+import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 

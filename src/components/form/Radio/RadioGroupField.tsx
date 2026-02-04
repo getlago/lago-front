@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { FC } from 'react'

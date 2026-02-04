@@ -1,4 +1,5 @@
-import { InputAdornment, Stack } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
+import Stack from '@mui/material/Stack'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { PopperProps as MuiPopperProps } from '@mui/material'
+import type { PopperProps as MuiPopperProps } from '@mui/material/Popper'
 import { PickersCalendarHeader, PickersDay } from '@mui/x-date-pickers'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DesktopDatePicker as MuiDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'

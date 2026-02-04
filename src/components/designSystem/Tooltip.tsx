@@ -1,4 +1,4 @@
-import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from '@mui/material'
+import MuiTooltip, { type TooltipProps as MuiTooltipProps } from '@mui/material/Tooltip'
 import { forwardRef, ReactNode, useCallback, useState } from 'react'
 
 import { tw } from '~/styles/utils'
