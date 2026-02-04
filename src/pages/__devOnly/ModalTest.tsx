@@ -105,7 +105,7 @@ const ModalTest = (): JSX.Element => {
   return (
     <div className="flex flex-col gap-4 p-4">
       <div>Modal Test Page</div>
-      <Button onClick={() => premiumWarningModal.open({})}>Open Premium Warning Modal</Button>
+      <Button onClick={() => premiumWarningModal.open()}>Open Premium Warning Modal</Button>
       <Button onClick={handleRandomErrorSuccess}>Open Random Example</Button>
       <Button onClick={handleDialogOpeningDialog}>Open Dialog opening dialog</Button>
     </div>

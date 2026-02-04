@@ -5,7 +5,7 @@ import BaseDialog from '~/components/dialogs/BaseDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { CLOSE_PARAMS, PREMIUM_WARNING_DIALOG_NAME } from './const'
-import { DialogResult, HookDialogReturnType } from './types'
+import { DialogResult, PremiumWarningHookDialogReturnType } from './types'
 
 export type PremiumWarningDialogProps = {
   title?: string
@@ -60,14 +60,15 @@ const PremiumWarningDialog = create(
 
 export default PremiumWarningDialog
 
-export const usePremiumWarningDialog = (): HookDialogReturnType<PremiumWarningDialogProps> => {
-  const modal = useModal(PREMIUM_WARNING_DIALOG_NAME)
+export const usePremiumWarningDialog =
+  (): PremiumWarningHookDialogReturnType<PremiumWarningDialogProps> => {
+    const modal = useModal(PREMIUM_WARNING_DIALOG_NAME)
 
-  return {
-    open: (props?: PremiumWarningDialogProps) => modal.show(props) as Promise<DialogResult>,
-    close: () => {
-      modal.resolve(CLOSE_PARAMS)
-      modal.hide()
-    },
+    return {
+      open: (props?: PremiumWarningDialogProps) => modal.show(props) as Promise<DialogResult>,
+      close: () => {
+        modal.resolve(CLOSE_PARAMS)
+        modal.hide()
+      },
+    }
   }
-}

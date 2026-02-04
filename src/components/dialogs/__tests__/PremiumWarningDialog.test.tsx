@@ -16,7 +16,7 @@ NiceModal.register(PREMIUM_WARNING_DIALOG_NAME, PremiumWarningDialog)
 
 // Test component that opens the dialog with given props
 const TestComponent = ({
-  dialogProps = {},
+  dialogProps,
   autoOpen = true,
 }: {
   dialogProps?: PremiumWarningDialogProps
