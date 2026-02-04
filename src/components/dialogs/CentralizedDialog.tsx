@@ -92,7 +92,7 @@ export const useCentralizedDialog = (): HookDialogReturnType<CentralizedDialogPr
   const modal = useModal(CENTRALIZED_DIALOG_NAME)
 
   return {
-    open: (props?: CentralizedDialogProps) => modal.show(props) as Promise<DialogResult>,
+    open: (props: CentralizedDialogProps) => modal.show(props) as Promise<DialogResult>,
     close: () => {
       modal.resolve(CLOSE_PARAMS)
       modal.hide()

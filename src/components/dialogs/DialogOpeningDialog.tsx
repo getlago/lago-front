@@ -103,7 +103,7 @@ export const useDialogOpeningDialog = (): HookDialogReturnType<DialogOpeningDial
   const modal = useModal(DIALOG_OPENING_DIALOG_NAME)
 
   return {
-    open: (props?: DialogOpeningDialogProps) => modal.show(props) as Promise<DialogResult>,
+    open: (props: DialogOpeningDialogProps) => modal.show(props) as Promise<DialogResult>,
     close: () => {
       modal.resolve(CLOSE_PARAMS)
       modal.hide()
