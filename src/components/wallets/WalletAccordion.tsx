@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   Popper,
+  PremiumBanner,
   Skeleton,
   Status,
   StatusProps,
@@ -338,27 +339,13 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
         {({ isOpen }) => (
           <>
             {!isPremium && (
-              <div className="flex items-center justify-between gap-4 bg-grey-100 p-4 shadow-y">
-                <div>
-                  <div className="flex flex-row items-center gap-2">
-                    <Typography variant="bodyHl" color="grey700">
-                      {translate('text_65ae73ebe3a66bec2b91d721')}
-                    </Typography>
-
-                    <Icon name="sparkles" />
-                  </div>
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_65ae73ebe3a66bec2b91d727')}
-                  </Typography>
-                </div>
-                <Button
-                  variant="tertiary"
-                  endIcon="sparkles"
-                  onClick={() => premiumWarningDialogRef.current?.openDialog()}
-                >
-                  {translate('text_65ae73ebe3a66bec2b91d72d')}
-                </Button>
-              </div>
+              <PremiumBanner
+                variant="grey"
+                title={translate('text_65ae73ebe3a66bec2b91d721')}
+                description={translate('text_65ae73ebe3a66bec2b91d727')}
+                premiumWarningDialogRef={premiumWarningDialogRef}
+                className="rounded-xl px-6 py-4"
+              />
             )}
             <div className="flex flex-row items-end gap-8 px-4 py-6 shadow-b">
               <div className="flex flex-col gap-1">
