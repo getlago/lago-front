@@ -183,11 +183,13 @@ export const initializeApolloClient = async () => {
               // Stringify and truncate to avoid Sentry size limits (default maxValueLength is 250)
               errorDetails: (() => {
                 if (!extensions?.details) return undefined
+                const MAX_LENGTH = 2000
+
                 const str =
                   typeof extensions.details === 'object'
                     ? JSON.stringify(extensions.details)
                     : String(extensions.details)
-                const MAX_LENGTH = 2000
+
                 return str.length > MAX_LENGTH ? `${str.slice(0, MAX_LENGTH)}...[truncated]` : str
               })(),
               value,
