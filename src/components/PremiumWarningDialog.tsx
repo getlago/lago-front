@@ -30,13 +30,6 @@ export const PremiumWarningDialog = forwardRef<PremiumWarningDialogRef>((_, ref)
     },
   }))
 
-  const encodedMailtoSubject = encodeURIComponent(
-    localData?.mailtoSubject || translate('text_63b3f676d44671bf24d81411'),
-  )
-  const encodedMailtoBody = encodeURIComponent(
-    localData?.mailtoBody || translate('text_63b3f676d44671bf24d81413'),
-  )
-
   return (
     <Dialog
       ref={dialogRef}
@@ -49,7 +42,7 @@ export const PremiumWarningDialog = forwardRef<PremiumWarningDialogRef>((_, ref)
           </Button>
           <a
             className="mb-0 mr-0"
-            href={`mailto:hello@getlago.com?subject=${encodedMailtoSubject}&body=${encodedMailtoBody}`}
+            href={`mailto:hello@getlago.com?subject=${localData?.mailtoSubject || translate('text_63b3f676d44671bf24d81411')}&body=${localData?.mailtoBody || translate('text_63b3f676d44671bf24d81413')}`}
           >
             <Button className="w-full">{translate('text_63b3155768489ee342482f55')}</Button>
           </a>

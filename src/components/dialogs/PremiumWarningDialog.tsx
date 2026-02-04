@@ -21,8 +21,12 @@ const PremiumWarningDialog = create(
 
     const displayTitle = title || translate('text_63b3155768489ee342482f4f')
     const displayDescription = description || translate('text_63b3155768489ee342482f51')
-    const displayMailtoSubject = mailtoSubject || translate('text_63b3f676d44671bf24d81411')
-    const displayMailtoBody = mailtoBody || translate('text_63b3f676d44671bf24d81413')
+    const displayMailtoSubject = encodeURIComponent(
+      mailtoSubject || translate('text_63b3f676d44671bf24d81411'),
+    )
+    const displayMailtoBody = encodeURIComponent(
+      mailtoBody || translate('text_63b3f676d44671bf24d81413'),
+    )
 
     const handleClose = async () => {
       modal.resolve(CLOSE_PARAMS)
