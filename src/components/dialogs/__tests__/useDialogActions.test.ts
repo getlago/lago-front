@@ -112,7 +112,7 @@ describe('useDialogActions', () => {
       expect(mockModal.hide).toHaveBeenCalled()
     })
 
-    it('keeps modal open after error when closeOnError is false', async () => {
+    it('keeps modal open after error when closeOnError is false and does not reject', async () => {
       const mockModal = createMockModal()
       const mockError = new Error('Test error')
       const mockOnAction = jest.fn().mockRejectedValue(mockError)
@@ -128,10 +128,30 @@ describe('useDialogActions', () => {
 
       await result.current.handleContinue()
 
-      expect(mockModal.reject).toHaveBeenCalledWith({
-        reason: 'error',
-        error: mockError,
-      })
+      expect(mockModal.reject).not.toHaveBeenCalled()
+      expect(mockModal.hide).not.toHaveBeenCalled()
+    })
+
+    it('calls onError callback when closeOnError is false and error occurs', async () => {
+      const mockModal = createMockModal()
+      const mockError = new Error('Test error')
+      const mockOnAction = jest.fn().mockRejectedValue(mockError)
+      const mockOnError = jest.fn()
+
+      const { result } = renderHook(() =>
+        useDialogActions({
+          modal: mockModal,
+          onAction: mockOnAction,
+          cancelOrCloseText: 'close',
+          closeOnError: false,
+          onError: mockOnError,
+        }),
+      )
+
+      await result.current.handleContinue()
+
+      expect(mockOnError).toHaveBeenCalledWith(mockError)
+      expect(mockModal.reject).not.toHaveBeenCalled()
       expect(mockModal.hide).not.toHaveBeenCalled()
     })
   })
@@ -171,7 +191,7 @@ describe('useDialogActions', () => {
   })
 
   describe('Integration', () => {
-    it('handles void onAction return', async () => {
+    it('handles void onAction return with default success response', async () => {
       const mockModal = createMockModal()
       const mockOnAction = jest.fn()
 
@@ -187,7 +207,7 @@ describe('useDialogActions', () => {
       await result.current.handleContinue()
 
       expect(mockOnAction).toHaveBeenCalled()
-      expect(mockModal.resolve).toHaveBeenCalledWith(undefined)
+      expect(mockModal.resolve).toHaveBeenCalledWith({ reason: 'success' })
       expect(mockModal.hide).toHaveBeenCalled()
     })
   })
