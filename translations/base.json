@@ -934,7 +934,6 @@
   "text_6661fc17337de3591e29e3cd": "Unique identifier to identify the plan through API.",
   "text_6661fc17337de3591e29e3d1": "Billing period",
   "text_6661fc17337de3591e29e3d3": "Frequency at which the subscription recurs.",
-  "text_6661fc17337de3591e29e3e1": "Tax rates",
   "text_6661fc17337de3591e29e3e7": "Pricing settings",
   "text_6661fc17337de3591e29e3e9": "Customize the pricing structure of the plan.",
   "text_6661fc17337de3591e29e3ed": "{{interval}} recurring amount paid by the customer regardless of their usage consumption.",
@@ -3796,5 +3795,6 @@
   "text_620bc4d4269a55014d493f3d": "Email is required",
   "text_1769621581645i96s4n9hbnw": "Settlement type",
   "text_620bc4d4269a55014d493f4d": "Organization name is required",
-  "text_620bc4d4269a55014d493f61": "Password is required"
+  "text_620bc4d4269a55014d493f61": "Password is required",
+  "text_1770124786732u8hv8voejbl": "Set specific tax rates to apply to this plan and all its charges."
 }

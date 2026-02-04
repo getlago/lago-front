@@ -27,13 +27,7 @@ export const usePermissionsInvoiceActions = () => {
   }
 
   const canFinalize = (invoice: Pick<Invoice, 'status'>): boolean => {
-    return (
-      ![
-        InvoiceStatusTypeEnum.Failed,
-        InvoiceStatusTypeEnum.Pending,
-        InvoiceStatusTypeEnum.Finalized,
-      ].includes(invoice.status) && hasPermissions(['invoicesUpdate'])
-    )
+    return invoice.status === InvoiceStatusTypeEnum.Draft && hasPermissions(['invoicesUpdate'])
   }
 
   const canGeneratePaymentUrl = (

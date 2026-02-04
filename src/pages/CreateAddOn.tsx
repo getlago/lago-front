@@ -230,21 +230,14 @@ const CreateAddOn = () => {
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    {!!formikProps?.values?.taxes?.length && (
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_6661fc17337de3591e29e3e1')}
-                      </Typography>
-                    )}
-
-                    <TaxesSelectorSection
-                      taxes={formikProps?.values?.taxes || []}
-                      comboboxSelector={SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME}
-                      onUpdate={(newTaxArray) => {
-                        formikProps.setFieldValue('taxes', newTaxArray)
-                      }}
-                    />
-                  </div>
+                  <TaxesSelectorSection
+                    title={translate('text_1760729707267seik64l67k8')}
+                    taxes={formikProps?.values?.taxes || []}
+                    comboboxSelector={SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME}
+                    onUpdate={(newTaxArray) => {
+                      formikProps.setFieldValue('taxes', newTaxArray)
+                    }}
+                  />
 
                   {/* {!!formikProps?.values?.taxes?.length && (
                     <div>

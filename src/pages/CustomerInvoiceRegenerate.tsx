@@ -12,8 +12,11 @@ import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetail
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import {
+  CustomerDetailsTabsOptions,
+  CustomerInvoiceDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
+import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
@@ -25,6 +28,7 @@ import {
   FeeForInvoiceDetailsTableFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   FixedCharge,
+  InvoiceStatusTypeEnum,
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
@@ -53,6 +57,7 @@ gql`
   mutation regenerateInvoice($input: RegenerateInvoiceInput!) {
     regenerateFromVoided(input: $input) {
       id
+      status
     }
   }
 
@@ -149,19 +154,32 @@ const CustomerInvoiceRegenerate = () => {
 
   const [regenerateInvoice] = useRegenerateInvoiceMutation({
     onCompleted(regeneratedData) {
-      if (regeneratedData?.regenerateFromVoided?.id && customerId && invoiceId) {
+      const newInvoice = regeneratedData?.regenerateFromVoided
+
+      if (newInvoice?.id && customerId) {
         addToast({
           message: translate('text_17512809059243nam2ohm0ul'),
           severity: 'success',
         })
 
-        navigate(
-          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            customerId,
-            invoiceId: regeneratedData?.regenerateFromVoided?.id || invoiceId,
-            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-          }),
-        )
+        // If invoice is status closed, redirect to invoices list
+        // because closed invoices are not visible via the API and it would result in a 404 page
+        if (newInvoice.status === InvoiceStatusTypeEnum.Closed) {
+          navigate(
+            generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+              customerId,
+              tab: CustomerDetailsTabsOptions.invoices,
+            }),
+          )
+        } else {
+          navigate(
+            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+              customerId,
+              invoiceId: newInvoice.id,
+              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+            }),
+          )
+        }
       }
     },
   })
@@ -174,9 +192,7 @@ const CustomerInvoiceRegenerate = () => {
   })
 
   const [voidInvoice] = useVoidInvoiceMutation()
-  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation({
-    refetchQueries: ['getInvoiceFees'],
-  })
+  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
