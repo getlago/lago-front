@@ -5,13 +5,13 @@ import { Button } from '~/components/designSystem'
 
 import BaseDialog from './BaseDialog'
 import { CentralizedDialogProps, useCentralizedDialog } from './CentralizedDialog'
-import { CLOSE_PARAMS, DIALOG_OPENING_DIALOG_NAME } from './const'
+import { CLOSE_PARAMS, DIALOG_OPENING_DIALOG_NAME, OPEN_OTHER_DIALOG_PARAMS } from './const'
 import { DialogResult, HookDialogReturnType } from './types'
 import { useDialogActions } from './useDialogActions'
 
 export type DialogOpeningDialogProps = CentralizedDialogProps & {
   canOpenDialog?: boolean
-  openDialogText?: string
+  openDialogText: string
   otherDialogProps: CentralizedDialogProps
 }
 
@@ -55,7 +55,7 @@ const DialogOpeningDialog = create(
               const otherDialogPromise = centralizedDialog.open(otherDialogProps)
 
               modal.resolve({
-                reason: 'open-other-dialog',
+                ...OPEN_OTHER_DIALOG_PARAMS,
                 otherDialog: otherDialogPromise,
               })
               modal.hide()

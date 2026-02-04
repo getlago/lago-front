@@ -3,6 +3,7 @@ import {
   CentralizedDialogProps,
   useCentralizedDialog,
 } from '~/components/dialogs/CentralizedDialog'
+import { OPEN_OTHER_DIALOG_PARAMS } from '~/components/dialogs/const'
 import { useDialogOpeningDialog } from '~/components/dialogs/DialogOpeningDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { TextInput } from '~/components/form'
@@ -84,7 +85,7 @@ const ModalTest = (): JSX.Element => {
         /* TODO: Remove this line */
         // eslint-disable-next-line no-console
         console.log('success out', p)
-        if (p && typeof p === 'object' && 'reason' in p && p.reason === 'open-other-dialog') {
+        if (p.reason === OPEN_OTHER_DIALOG_PARAMS.reason) {
           const otherPromise = p.otherDialog
 
           otherPromise.then((value) => {
@@ -104,7 +105,7 @@ const ModalTest = (): JSX.Element => {
   return (
     <div className="flex flex-col gap-4 p-4">
       <div>Modal Test Page</div>
-      <Button onClick={() => premiumWarningModal.open()}>Open Premium Warning Modal</Button>
+      <Button onClick={() => premiumWarningModal.open({})}>Open Premium Warning Modal</Button>
       <Button onClick={handleRandomErrorSuccess}>Open Random Example</Button>
       <Button onClick={handleDialogOpeningDialog}>Open Dialog opening dialog</Button>
     </div>
