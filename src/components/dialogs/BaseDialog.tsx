@@ -1,4 +1,4 @@
-import { Dialog as MuiDialog } from '@mui/material'
+import MuiDialog from '@mui/material/Dialog'
 import { tw } from 'lago-design-system'
 import { ReactNode } from 'react'
 
