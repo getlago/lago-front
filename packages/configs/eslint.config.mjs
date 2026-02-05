@@ -162,5 +162,23 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },
+  // Formik deprecation warning - use @tanstack/react-form instead
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,jsx,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'warn',
+        {
+          paths: [
+            {
+              name: 'formik',
+              message: 'Formik is deprecated. Use @tanstack/react-form instead.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   pluginPrettier,
 ]
