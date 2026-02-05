@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { Icon } from 'lago-design-system'
 
 import { Avatar, Skeleton, Status, Table, TableColumn, Typography } from '~/components/designSystem'

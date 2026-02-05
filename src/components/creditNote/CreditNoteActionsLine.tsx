@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { FormikProps, getIn } from 'formik'
 import { FC } from 'react'
 

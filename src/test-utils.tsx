@@ -1,6 +1,6 @@
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
-import { ThemeProvider } from '@mui/material'
+import { ThemeProvider } from '@mui/material/styles'
 import { configure, render, RenderOptions } from '@testing-library/react'
 import React, { ReactElement, useEffect } from 'react'
 import Router, { BrowserRouter } from 'react-router-dom'

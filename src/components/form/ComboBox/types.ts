@@ -1,5 +1,6 @@
 import { LazyQueryExecFunction } from '@apollo/client'
-import { AutocompleteRenderInputParams, PopperProps as MuiPopperProps } from '@mui/material'
+import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
+import type { PopperProps as MuiPopperProps } from '@mui/material/Popper'
 import { ReactNode } from 'react'
 
 import { Exact, InputMaybe } from '~/generated/graphql'

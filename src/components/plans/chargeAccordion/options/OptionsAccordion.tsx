@@ -1,4 +1,6 @@
-import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
+import MuiAccordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
 import { ReactNode, useState } from 'react'
 
 import { NAV_HEIGHT, theme } from '~/styles'

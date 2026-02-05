@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { captureException } from '@sentry/react'
 import { useEffect, useRef } from 'react'
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
@@ -32,6 +33,7 @@ import {
 } from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import {
   CREATE_INVOICE_ROUTE,
@@ -47,6 +49,7 @@ import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerMainInfosFragmentDoc,
+  LagoApiError,
   useGenerateCustomerPortalUrlMutation,
   useGetCustomerQuery,
 } from '~/generated/graphql'
@@ -54,6 +57,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -111,6 +115,7 @@ const CustomerDetails = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { isPremium } = useCurrentUser()
+  const { organization } = useOrganizationInfos()
   const { customerId, tab } = useParams()
   const { handleDownloadFile } = useDownloadFile()
 
@@ -125,9 +130,11 @@ const CustomerDetails = () => {
     skip: !customerId,
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const customer = data?.customer
+  const isNotFoundError = hasDefinedGQLError('NotFound', error)
   const hasAnyIntegrationCustomer =
     !!customer?.netsuiteCustomer ||
     !!customer?.anrokCustomer ||
@@ -160,6 +167,26 @@ const CustomerDetails = () => {
       navigate(location.pathname, { replace: true, state: {} })
     }
   }, [shouldPollIntegrations, hasAnyIntegrationCustomer, stopPolling, navigate, location.pathname])
+
+  // When customer is not found (404), redirect to customers list with error toast
+  useEffect(() => {
+    if (loading || !isNotFoundError) return
+
+    captureException(new Error('Customer not found'), {
+      extra: {
+        customerId,
+        organizationId: organization?.id,
+        url: location.pathname,
+      },
+    })
+
+    addToast({
+      severity: 'danger',
+      translateKey: 'text_17701996981731m5uguxyg8b',
+    })
+    navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
+  }, [loading, isNotFoundError, customerId, navigate, location.pathname, organization?.id])
+
   const [generatePortalUrl] = useGenerateCustomerPortalUrlMutation({
     onCompleted({ generateCustomerPortalUrl }) {
       handleDownloadFile(generateCustomerPortalUrl?.url)
@@ -361,7 +388,7 @@ const CustomerDetails = () => {
       </PageHeader.Wrapper>
 
       <div className="px-12 pb-20 pt-12">
-        {(error || !data?.customer) && !loading ? (
+        {!!error && !isNotFoundError ? (
           <GenericPlaceholder
             title={translate('text_6250304370f0f700a8fdc270')}
             subtitle={translate('text_6250304370f0f700a8fdc274')}
@@ -373,7 +400,7 @@ const CustomerDetails = () => {
         ) : (
           <>
             <div className="flex flex-col gap-12">
-              {loading ? (
+              {loading || !data?.customer ? (
                 <div className="flex gap-4">
                   <Skeleton variant="userAvatar" size="large" className="rounded-full" />
                   <div className="flex flex-col gap-2">
@@ -411,145 +438,149 @@ const CustomerDetails = () => {
                 </div>
               )}
 
-              <div data-test="customer-navigation-wrapper">
-                <NavigationTab
-                  className="mb-12"
-                  tabs={[
-                    {
-                      title: translate('text_628cf761cbe6820138b8f2e4'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.overview,
-                      }),
-                      match: [
-                        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+              {!loading && !error && data?.customer && (
+                <div data-test="customer-navigation-wrapper">
+                  <NavigationTab
+                    className="mb-12"
+                    tabs={[
+                      {
+                        title: translate('text_628cf761cbe6820138b8f2e4'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                           customerId: customerId as string,
                           tab: CustomerDetailsTabsOptions.overview,
                         }),
-                        generatePath(CUSTOMER_DETAILS_ROUTE, {
+                        match: [
+                          generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                            customerId: customerId as string,
+                            tab: CustomerDetailsTabsOptions.overview,
+                          }),
+                          generatePath(CUSTOMER_DETAILS_ROUTE, {
+                            customerId: customerId as string,
+                          }),
+                        ],
+                        component: (
+                          <div className="flex flex-col gap-12">
+                            <CustomerCoupons />
+                            <CustomerSubscriptionsList />
+                          </div>
+                        ),
+                      },
+                      {
+                        title: translate('text_62d175066d2dbf1d50bc937c'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                           customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.wallet,
                         }),
-                      ],
-                      component: (
-                        <div className="flex flex-col gap-12">
-                          <CustomerCoupons />
-                          <CustomerSubscriptionsList />
-                        </div>
-                      ),
-                    },
-                    {
-                      title: translate('text_62d175066d2dbf1d50bc937c'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.wallet,
-                      }),
-                      component: (
-                        <CustomerWalletsList
-                          customerId={customerId as string}
-                          customerTimezone={safeTimezone}
-                        />
-                      ),
-                      dataTest: 'wallet-tab',
-                    },
-                    {
-                      title: translate('text_6553885df387fd0097fd7384'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.usage,
-                      }),
-                      hidden: !hasPermissions(['analyticsView']),
-                      component: (
-                        <CustomerUsage premiumWarningDialogRef={premiumWarningDialogRef} />
-                      ),
-                    },
-                    {
-                      title: translate('text_628cf761cbe6820138b8f2e6'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.invoices,
-                      }),
-                      component: (
-                        <CustomerInvoicesTab
-                          externalId={externalId}
-                          userCurrency={data?.customer?.currency || undefined}
-                          customerId={customerId as string}
-                          customerTimezone={safeTimezone}
-                          isPartner={isPartner}
-                        />
-                      ),
-                    },
-                    {
-                      title: translate('text_6672ebb8b1b50be550eccbed'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.payments,
-                      }),
-                      component: <CustomerPaymentsTab externalCustomerId={externalId as string} />,
-                    },
-                    {
-                      title: translate('text_63725b30957fd5b26b308dd3'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.creditNotes,
-                      }),
-                      hidden: !hasCreditNotes,
-                      component: (
-                        <CustomerCreditNotesList
-                          customerId={customerId as string}
-                          creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
-                          creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
-                          userCurrency={data?.customer?.currency || undefined}
-                          customerTimezone={safeTimezone}
-                        />
-                      ),
-                    },
-                    {
-                      title: translate('text_17376404438209bh9jk7xa2s'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.information,
-                      }),
-                      component: (
-                        <CustomerMainInfos
-                          loading={loading}
-                          customer={data?.customer}
-                          onEdit={() =>
-                            navigate(
-                              generatePath(UPDATE_CUSTOMER_ROUTE, {
-                                customerId: customerId as string,
-                              }),
-                            )
-                          }
-                        />
-                      ),
-                    },
-                    {
-                      title: translate('text_638dff9779fb99299bee9126'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.settings,
-                      }),
-                      component: <CustomerSettings customerId={customerId as string} />,
-                      hidden: !hasPermissions(['customersView']),
-                    },
-                    {
-                      title: translate('text_1747314141347qq6rasuxisl'),
-                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                        customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.activityLogs,
-                      }),
-                      component: <CustomerActivityLogs externalCustomerId={externalId || ''} />,
-                      hidden: !externalId || !isPremium || !hasPermissions(['auditLogsView']),
-                    },
-                  ]}
-                  loading={
-                    ![
-                      CustomerDetailsTabsOptions.overview,
-                      CustomerDetailsTabsOptions.usage,
-                    ].includes(tab as CustomerDetailsTabsOptions) && loading
-                  }
-                />
-              </div>
+                        component: (
+                          <CustomerWalletsList
+                            customerId={customerId as string}
+                            customerTimezone={safeTimezone}
+                          />
+                        ),
+                        dataTest: 'wallet-tab',
+                      },
+                      {
+                        title: translate('text_6553885df387fd0097fd7384'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.usage,
+                        }),
+                        hidden: !hasPermissions(['analyticsView']),
+                        component: (
+                          <CustomerUsage premiumWarningDialogRef={premiumWarningDialogRef} />
+                        ),
+                      },
+                      {
+                        title: translate('text_628cf761cbe6820138b8f2e6'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.invoices,
+                        }),
+                        component: (
+                          <CustomerInvoicesTab
+                            externalId={externalId}
+                            userCurrency={data?.customer?.currency || undefined}
+                            customerId={customerId as string}
+                            customerTimezone={safeTimezone}
+                            isPartner={isPartner}
+                          />
+                        ),
+                      },
+                      {
+                        title: translate('text_6672ebb8b1b50be550eccbed'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.payments,
+                        }),
+                        component: (
+                          <CustomerPaymentsTab externalCustomerId={externalId as string} />
+                        ),
+                      },
+                      {
+                        title: translate('text_63725b30957fd5b26b308dd3'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.creditNotes,
+                        }),
+                        hidden: !hasCreditNotes,
+                        component: (
+                          <CustomerCreditNotesList
+                            customerId={customerId as string}
+                            creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
+                            creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
+                            userCurrency={data?.customer?.currency || undefined}
+                            customerTimezone={safeTimezone}
+                          />
+                        ),
+                      },
+                      {
+                        title: translate('text_17376404438209bh9jk7xa2s'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.information,
+                        }),
+                        component: (
+                          <CustomerMainInfos
+                            loading={loading}
+                            customer={data?.customer}
+                            onEdit={() =>
+                              navigate(
+                                generatePath(UPDATE_CUSTOMER_ROUTE, {
+                                  customerId: customerId as string,
+                                }),
+                              )
+                            }
+                          />
+                        ),
+                      },
+                      {
+                        title: translate('text_638dff9779fb99299bee9126'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.settings,
+                        }),
+                        component: <CustomerSettings customerId={customerId as string} />,
+                        hidden: !hasPermissions(['customersView']),
+                      },
+                      {
+                        title: translate('text_1747314141347qq6rasuxisl'),
+                        link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.activityLogs,
+                        }),
+                        component: <CustomerActivityLogs externalCustomerId={externalId || ''} />,
+                        hidden: !externalId || !isPremium || !hasPermissions(['auditLogsView']),
+                      },
+                    ]}
+                    loading={
+                      ![
+                        CustomerDetailsTabsOptions.overview,
+                        CustomerDetailsTabsOptions.usage,
+                      ].includes(tab as CustomerDetailsTabsOptions) && loading
+                    }
+                  />
+                </div>
+              )}
             </div>
 
             <DeleteCustomerDialog ref={deleteDialogRef} />

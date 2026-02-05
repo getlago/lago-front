@@ -1,4 +1,4 @@
-import { Autocomplete, createFilterOptions } from '@mui/material'
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import { Icon } from 'lago-design-system'
 import _sortBy from 'lodash/sortBy'
 import { HTMLAttributes, JSXElementConstructor, useMemo, useState } from 'react'

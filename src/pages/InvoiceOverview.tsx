@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
 import { generatePath, Link, LinkProps, useParams } from 'react-router-dom'

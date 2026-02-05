@@ -1,4 +1,6 @@
-import { Box, InputAdornment, Stack } from '@mui/material'
+import Box from '@mui/material/Box'
+import InputAdornment from '@mui/material/InputAdornment'
+import Stack from '@mui/material/Stack'
 import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { FC, useEffect, useState } from 'react'

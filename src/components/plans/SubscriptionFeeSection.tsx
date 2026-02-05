@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { memo, RefObject, useEffect, useState } from 'react'

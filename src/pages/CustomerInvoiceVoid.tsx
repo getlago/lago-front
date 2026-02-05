@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { getIn, useFormik } from 'formik'
 import { generatePath, Link, useNavigate, useParams } from 'react-router-dom'
 import { array, number, object, string, ValidationError } from 'yup'

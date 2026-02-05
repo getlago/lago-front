@@ -1,5 +1,7 @@
 /* eslint-disable no-alert */
-import { Box, InputAdornment, Stack } from '@mui/material'
+import Box from '@mui/material/Box'
+import InputAdornment from '@mui/material/InputAdornment'
+import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { Icon, IconName } from 'lago-design-system'
 import { useRef } from 'react'

@@ -1,8 +1,5 @@
-import {
-  ClickAwayListener,
-  Popper as MuiPopper,
-  PopperProps as MUIPopperProps,
-} from '@mui/material'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import MuiPopper, { type PopperProps as MUIPopperProps } from '@mui/material/Popper'
 import {
   cloneElement,
   forwardRef,
