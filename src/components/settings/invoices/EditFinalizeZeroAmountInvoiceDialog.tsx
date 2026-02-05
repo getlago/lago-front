@@ -51,8 +51,14 @@ type EditFinalizeZeroAmountInvoiceDialogProps = {
   finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | boolean | null
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type EditFinalizeZeroAmountInvoiceDialogRef = DialogRef
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
   EditFinalizeZeroAmountInvoiceDialogRef,
   EditFinalizeZeroAmountInvoiceDialogProps

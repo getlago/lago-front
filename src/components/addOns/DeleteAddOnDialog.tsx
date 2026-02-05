@@ -24,11 +24,17 @@ interface DeleteAddOnDialogProps {
   callback?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteAddOnDialogRef {
   openDialog: ({ addOn, callback }: DeleteAddOnDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteAddOnDialog = forwardRef<DeleteAddOnDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

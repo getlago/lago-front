@@ -27,11 +27,17 @@ type TDeleteXeroIntegrationDialogProps = {
   callback?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteXeroIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteXeroIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteXeroIntegrationDialog = forwardRef<DeleteXeroIntegrationDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
 

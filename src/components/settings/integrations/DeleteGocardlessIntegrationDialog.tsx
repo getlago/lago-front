@@ -27,11 +27,17 @@ type TDeleteGocardlessIntegrationDialogProps = {
   callback?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteGocardlessIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteGocardlessIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteGocardlessIntegrationDialog = forwardRef<DeleteGocardlessIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

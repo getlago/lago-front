@@ -9,11 +9,17 @@ type PreventClosingDrawerDialogProps = {
   onContinue: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface PreventClosingDrawerDialogRef {
   openDialog: (props: PreventClosingDrawerDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const PreventClosingDrawerDialog = forwardRef<PreventClosingDrawerDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

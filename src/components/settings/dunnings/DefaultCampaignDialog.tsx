@@ -10,11 +10,17 @@ type TDefaultCampaignDialogProps = {
   onConfirm: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DefaultCampaignDialogRef {
   openDialog: (props: TDefaultCampaignDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DefaultCampaignDialog = forwardRef<DefaultCampaignDialogRef, unknown>(
   (_props, ref) => {
     const { translate } = useInternationalization()

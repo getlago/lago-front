@@ -16,12 +16,18 @@ gql`
   }
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type UpdateBillingEntityLogoDialogRef = DialogRef
 
 type TUpdateBillingEntityLogoDialog = {
   existingLogoUrl: string | null | undefined
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const UpdateBillingEntityLogoDialog = forwardRef<
   UpdateBillingEntityLogoDialogRef,
   TUpdateBillingEntityLogoDialog

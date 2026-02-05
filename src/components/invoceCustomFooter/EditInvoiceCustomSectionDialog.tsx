@@ -36,6 +36,9 @@ interface EditInvoiceCustomSectionDialogProps {
   viewType: ViewTypeEnum
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditInvoiceCustomSectionDialog = ({
   open,
   onClose,

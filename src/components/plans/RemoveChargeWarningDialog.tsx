@@ -5,11 +5,17 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type LocalData = { callback: () => void }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface RemoveChargeWarningDialogRef {
   openDialog: ({ callback }: LocalData) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const RemoveChargeWarningDialog = forwardRef<RemoveChargeWarningDialogRef>((_, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const [localData, setLocalData] = useState<LocalData | undefined>(undefined)

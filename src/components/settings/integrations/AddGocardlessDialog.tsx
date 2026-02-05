@@ -70,11 +70,17 @@ type TAddGocardlessDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddGocardlessDialogRef {
   openDialog: (props?: TAddGocardlessDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) => {
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)

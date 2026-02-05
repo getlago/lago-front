@@ -12,11 +12,17 @@ type EditInvoiceDisplayNameDialogProps = {
   callback: (invoiceDisplayName: string) => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface EditInvoiceDisplayNameDialogRef {
   openDialog: (data: EditInvoiceDisplayNameDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditInvoiceDisplayNameDialog = forwardRef<EditInvoiceDisplayNameDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

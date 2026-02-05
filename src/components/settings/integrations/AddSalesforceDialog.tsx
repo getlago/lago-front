@@ -52,11 +52,17 @@ type TAddSalesforceDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddSalesforceDialogRef {
   openDialog: (props?: TAddSalesforceDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()

@@ -24,12 +24,18 @@ gql`
   }
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type DeleteCustomerGracePeriodeDialogRef = WarningDialogRef
 
 interface DeleteCustomerGracePeriodeDialogProps {
   customer: DeleteCustomerGracePeriodFragment
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteCustomerGracePeriodeDialog = forwardRef<
   DialogRef,
   DeleteCustomerGracePeriodeDialogProps

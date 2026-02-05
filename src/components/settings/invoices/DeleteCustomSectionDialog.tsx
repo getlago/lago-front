@@ -18,11 +18,17 @@ gql`
   }
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteCustomSectionDialogRef {
   openDialog: (customSection: DeleteCustomSectionFragment) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteCustomSectionDialog = forwardRef<DeleteCustomSectionDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

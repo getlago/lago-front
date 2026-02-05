@@ -10,11 +10,17 @@ type TProps = {
   mailtoBody?: string
 }
 
+/**
+ * @deprecated Please use the new PremiumWarningDialog
+ */
 export interface PremiumWarningDialogRef extends DialogRef {
   openDialog: (data?: TProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new PremiumWarningDialog
+ */
 export const PremiumWarningDialog = forwardRef<PremiumWarningDialogRef>((_, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()

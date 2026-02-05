@@ -33,6 +33,9 @@ gql`
   }
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type EditBillingEntityInvoiceNumberingDialogRef = DialogRef
 
 interface EditBillingEntityInvoiceNumberingDialogProps {
@@ -41,6 +44,9 @@ interface EditBillingEntityInvoiceNumberingDialogProps {
   documentNumberPrefix?: string
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditBillingEntityInvoiceNumberingDialog = forwardRef<
   DialogRef,
   EditBillingEntityInvoiceNumberingDialogProps

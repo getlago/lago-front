@@ -36,11 +36,17 @@ type VoidInvoiceDialogProps = {
   invoice?: InvoiceForVoidInvoiceDialogFragment | null
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface VoidInvoiceDialogRef {
   openDialog: (dialogData: VoidInvoiceDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const VoidInvoiceDialog = forwardRef<VoidInvoiceDialogRef>((_, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()

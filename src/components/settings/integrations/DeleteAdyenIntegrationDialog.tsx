@@ -27,11 +27,17 @@ type TDeleteAdyenIntegrationDialogProps = {
   callback?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteAdyenIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteAdyenIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteAdyenIntegrationDialog = forwardRef<DeleteAdyenIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

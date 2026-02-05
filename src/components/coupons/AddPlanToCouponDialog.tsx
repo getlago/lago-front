@@ -28,6 +28,9 @@ gql`
   ${PlansForCouponsFragmentDoc}
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type AddPlanToCouponDialogRef = DialogRef
 
 interface AddPlanToCouponDialogProps {
@@ -35,6 +38,9 @@ interface AddPlanToCouponDialogProps {
   attachedPlansIds?: string[]
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialogProps>(
   ({ attachedPlansIds, onSubmit }: AddPlanToCouponDialogProps, ref) => {
     const { translate } = useInternationalization()

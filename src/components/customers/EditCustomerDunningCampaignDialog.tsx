@@ -58,12 +58,18 @@ export const getInitialBehavior = (customer: EditCustomerDunningCampaignFragment
   return BehaviorType.FALLBACK
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type EditCustomerDunningCampaignDialogRef = DialogRef
 
 interface EditCustomerDunningCampaignDialogProps {
   customer: EditCustomerDunningCampaignFragment
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditCustomerDunningCampaignDialog = forwardRef<
   DialogRef,
   EditCustomerDunningCampaignDialogProps

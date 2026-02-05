@@ -27,11 +27,17 @@ type TDeleteHubspotIntegrationDialogProps = {
   callback?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteHubspotIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteHubspotIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteHubspotIntegrationDialog = forwardRef<DeleteHubspotIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

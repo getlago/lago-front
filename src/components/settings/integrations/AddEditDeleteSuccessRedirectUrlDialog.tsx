@@ -134,11 +134,17 @@ type LocalProviderType = {
     | null
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddEditDeleteSuccessRedirectUrlDialogRef {
   openDialog: (incommingData?: LocalProviderType) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddEditDeleteSuccessRedirectUrlDialog =
   forwardRef<AddEditDeleteSuccessRedirectUrlDialogRef>((_, ref) => {
     const { translate } = useInternationalization()

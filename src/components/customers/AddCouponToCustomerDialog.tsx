@@ -97,12 +97,18 @@ type FormType = CreateAppliedCouponInput & {
   billableMetrics?: CouponBillableMetricsForCustomerFragment[] | null
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type AddCouponToCustomerDialogRef = DialogRef
 
 interface AddCouponToCustomerDialogProps {
   customer?: Pick<Customer, 'id' | 'displayName'> | null
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogRef,
   AddCouponToCustomerDialogProps

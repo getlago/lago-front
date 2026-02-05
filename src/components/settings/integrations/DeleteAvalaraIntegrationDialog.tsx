@@ -27,11 +27,17 @@ interface DeleteProviderDialogProps {
   callback?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteAvalaraIntegrationDialogRef {
   openDialog: (value: DeleteProviderDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteAvalaraIntegrationDialog = forwardRef<DeleteAvalaraIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

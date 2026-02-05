@@ -27,11 +27,17 @@ type TDeleteSalesforceIntegrationDialogProps = {
   callback?: (arg?: unknown) => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteSalesforceIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteSalesforceIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteSalesforceIntegrationDialog = forwardRef<DeleteSalesforceIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

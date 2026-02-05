@@ -28,6 +28,9 @@ gql`
   ${BillableMetricsForCouponsFragmentDoc}
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type AddBillableMetricToCouponDialogRef = DialogRef
 
 interface AddBillableMetricToCouponDialogProps {
@@ -35,6 +38,9 @@ interface AddBillableMetricToCouponDialogProps {
   attachedBillableMetricsIds?: string[]
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddBillableMetricToCouponDialog = forwardRef<
   DialogRef,
   AddBillableMetricToCouponDialogProps

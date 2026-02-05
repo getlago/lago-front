@@ -34,8 +34,14 @@ gql`
 type EditCustomerIssuingDatePolicyDialogProps = {
   customer: EditCustomerIssuingDatePolicyDialogFragment
 }
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type EditCustomerIssuingDatePolicyDialogRef = DialogRef
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditCustomerIssuingDatePolicyDialog = forwardRef<
   EditCustomerIssuingDatePolicyDialogRef,
   EditCustomerIssuingDatePolicyDialogProps

@@ -54,11 +54,17 @@ type TAddXeroDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddXeroDialogRef {
   openDialog: (props?: TAddXeroDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
   const componentId = useId()
   const { nangoPublicKey } = envGlobalVar()

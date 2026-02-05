@@ -38,11 +38,17 @@ type ExportDialogProps = {
   }[]
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface ExportDialogRef {
   openDialog: () => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
   (
     { totalCountLabel, onExport, disableExport = false, resourceTypeOptions }: ExportDialogProps,

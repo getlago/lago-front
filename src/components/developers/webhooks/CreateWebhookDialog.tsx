@@ -41,11 +41,18 @@ gql`
     }
   }
 `
+
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface CreateWebhookDialogRef {
   openDialog: (webhook?: WebhookForCreateAndEditFragment) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

@@ -35,11 +35,17 @@ gql`
   ${InvoiceListItemFragmentDoc}
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface UpdateInvoicePaymentStatusDialogRef {
   openDialog: (invoice: InvoiceForUpdateInvoicePaymentStatusFragment) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const UpdateInvoicePaymentStatusDialog = forwardRef<UpdateInvoicePaymentStatusDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

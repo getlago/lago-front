@@ -27,6 +27,9 @@ gql`
   }
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type EditBillingEntityInvoiceTemplateDialogRef = DialogRef
 
 interface EditBillingEntityInvoiceTemplateDialogProps {
@@ -34,6 +37,9 @@ interface EditBillingEntityInvoiceTemplateDialogProps {
   invoiceFooter: string
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditBillingEntityInvoiceTemplateDialog = forwardRef<
   DialogRef,
   EditBillingEntityInvoiceTemplateDialogProps

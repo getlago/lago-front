@@ -21,11 +21,17 @@ type DeleteSubscriptionEntitlementDialogProps = RemoveSubscriptionEntitlementInp
   featureName: string
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteSubscriptionEntitlementDialogRef {
   openDialog: (props: DeleteSubscriptionEntitlementDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteSubscriptionEntitlementDialog =
   forwardRef<DeleteSubscriptionEntitlementDialogRef>((_, ref) => {
     const { translate } = useInternationalization()

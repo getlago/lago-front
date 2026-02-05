@@ -75,11 +75,17 @@ type TAddFlutterwaveDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddFlutterwaveDialogRef {
   openDialog: (props?: TAddFlutterwaveDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()

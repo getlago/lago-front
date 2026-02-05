@@ -18,11 +18,17 @@ type DeleteAlertDialogProps = {
   id: string
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteAlertDialogRef {
   openDialog: ({ id }: DeleteAlertDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteAlertDialog = forwardRef<DeleteAlertDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

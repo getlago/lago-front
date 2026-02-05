@@ -9,6 +9,9 @@ import { Typography } from './Typography'
 export const DIALOG_TITLE_TEST_ID = 'dialog-title'
 export const DIALOG_DESCRIPTION_TEST_ID = 'dialog-description'
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DialogProps {
   actions: (args: { closeDialog: () => void }) => JSX.Element
   title: ReactNode
@@ -21,11 +24,17 @@ export interface DialogProps {
   onClose?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DialogRef {
   openDialog: () => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const Dialog = forwardRef<DialogRef, DialogProps>(
   (
     {

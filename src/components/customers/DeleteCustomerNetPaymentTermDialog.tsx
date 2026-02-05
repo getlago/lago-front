@@ -26,12 +26,18 @@ gql`
   }
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type DeleteOrganizationNetPaymentTermDialogRef = WarningDialogRef
 
 interface DeleteOrganizationNetPaymentTermDialogProps {
   customer: DeleteCustomerNetPaymentTermFragment
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteOrganizationNetPaymentTermDialog = forwardRef<
   DialogRef,
   DeleteOrganizationNetPaymentTermDialogProps

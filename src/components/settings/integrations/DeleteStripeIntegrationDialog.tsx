@@ -24,11 +24,17 @@ type TDeleteStripeIntegrationDialogProps = {
   callback?: () => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteStripeIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteStripeIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteStripeIntegrationDialog = forwardRef<DeleteStripeIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

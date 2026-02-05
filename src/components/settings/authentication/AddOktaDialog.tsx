@@ -20,6 +20,9 @@ type AddOktaDialogProps = Partial<{
   callback?: UseOktaIntegrationProps['onSubmit']
 }>
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddOktaDialogRef {
   openDialog: (props?: AddOktaDialogProps) => unknown
   closeDialog: () => unknown
@@ -27,6 +30,9 @@ export interface AddOktaDialogRef {
 
 export const OKTA_INTEGRATION_SUBMIT_BTN = 'add-okta-dialog-submit-button'
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()

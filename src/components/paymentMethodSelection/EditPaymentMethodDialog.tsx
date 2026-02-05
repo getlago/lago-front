@@ -32,6 +32,9 @@ interface EditPaymentMethodDialogProps {
   viewType: ViewTypeEnum
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditPaymentMethodDialog = ({
   open,
   onClose,

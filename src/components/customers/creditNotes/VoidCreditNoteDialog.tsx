@@ -28,11 +28,17 @@ type CreditNoteForVoid = {
   currency: CurrencyEnum
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface VoidCreditNoteDialogRef {
   openDialog: (creditNoteInfos: CreditNoteForVoid) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const VoidCreditNoteDialog = forwardRef<VoidCreditNoteDialogRef>((_, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const [voidCreditNote] = useVoidCreditNoteMutation({

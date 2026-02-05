@@ -75,11 +75,17 @@ type TAddMoneyhashDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddMoneyhashDialogRef {
   openDialog: (props?: TAddMoneyhashDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()

@@ -25,11 +25,17 @@ interface DeleteAdjustedFeeDialogProps {
   onDelete?: (id: string) => void
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface DeleteAdjustedFeeDialogRef {
   openDialog: (dialogData: DeleteAdjustedFeeDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<WarningDialogRef>(null)

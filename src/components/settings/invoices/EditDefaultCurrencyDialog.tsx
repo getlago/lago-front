@@ -28,6 +28,9 @@ gql`
   }
 `
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface EditDefaultCurrencyDialogRef {
   openDialog: (localData: EditDefaultCurrencyDialogImperativeProps) => unknown
   closeDialog: () => unknown
@@ -37,6 +40,9 @@ type EditDefaultCurrencyDialogImperativeProps = {
   billingEntity?: EditBillingEntityDefaultCurrencyForDialogFragment | null
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

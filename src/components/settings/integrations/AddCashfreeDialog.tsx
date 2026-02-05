@@ -81,11 +81,17 @@ type TAddCashfreeDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export interface AddCashfreeDialogRef {
   openDialog: (props?: TAddCashfreeDialogProps) => unknown
   closeDialog: () => unknown
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)

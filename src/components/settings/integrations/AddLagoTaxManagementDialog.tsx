@@ -25,12 +25,18 @@ type BillingEntityFormItem = {
   initialCountry?: CountryCode | null
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export type AddLagoTaxManagementDialogRef = DialogRef
 
 type AddLagoTaxManagementDialogProps = {
   isUpdate?: boolean
 }
 
+/**
+ * @deprecated Please use the new dialog management system in ~/components/dialogs
+ */
 export const AddLagoTaxManagementDialog = forwardRef<
   AddLagoTaxManagementDialogRef,
   AddLagoTaxManagementDialogProps
