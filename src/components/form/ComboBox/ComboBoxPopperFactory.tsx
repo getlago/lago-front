@@ -1,4 +1,4 @@
-import { Popper, PopperProps } from '@mui/material'
+import Popper, { type PopperProps } from '@mui/material/Popper'
 import { ReactNode } from 'react'
 
 import { theme } from '~/styles'

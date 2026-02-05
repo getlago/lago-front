@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 
 import { TextInput } from '~/components/form'
 import { FixedChargeInput } from '~/generated/graphql'

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 

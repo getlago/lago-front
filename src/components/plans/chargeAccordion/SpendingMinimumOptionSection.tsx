@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { RefObject, useEffect, useState } from 'react'
 
 import { Button, Tooltip } from '~/components/designSystem'

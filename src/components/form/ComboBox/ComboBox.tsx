@@ -1,4 +1,4 @@
-import { Autocomplete, createFilterOptions } from '@mui/material'
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import _sortBy from 'lodash/sortBy'
 import { HTMLAttributes, JSXElementConstructor, useEffect, useMemo, useRef } from 'react'
 

@@ -1,4 +1,6 @@
-import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
+import MuiAccordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
 import { TransitionProps } from '@mui/material/transitions'
 import { ReactNode, useState } from 'react'
 

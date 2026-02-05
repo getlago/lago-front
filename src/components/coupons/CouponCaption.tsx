@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { TypographyProps } from '@mui/material'
+import type { TypographyProps } from '@mui/material/Typography'
 import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem'

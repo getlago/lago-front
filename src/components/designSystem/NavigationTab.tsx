@@ -1,4 +1,6 @@
-import { Tab, Tabs, Typography } from '@mui/material'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
+import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
 import { ReactNode, useEffect, useState } from 'react'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'

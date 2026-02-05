@@ -1,4 +1,4 @@
-import { ChipOwnProps, Chip as MuiChip } from '@mui/material'
+import MuiChip, { type ChipOwnProps } from '@mui/material/Chip'
 import { Icon, IconColor, IconName, IconProps } from 'lago-design-system'
 
 import { tw } from '~/styles/utils'

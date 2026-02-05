@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'

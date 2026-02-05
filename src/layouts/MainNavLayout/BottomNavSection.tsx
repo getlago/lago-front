@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 
 import { Skeleton, VerticalMenu } from '~/components/designSystem'
 import { envGlobalVar } from '~/core/apolloClient'

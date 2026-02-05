@@ -1,4 +1,4 @@
-import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
+import MuiButton, { type ButtonProps as MuiButtonProps } from '@mui/material/Button'
 import { cva } from 'class-variance-authority'
 import { Icon, IconName } from 'lago-design-system'
 import { forwardRef, MouseEvent, useEffect, useRef, useState } from 'react'

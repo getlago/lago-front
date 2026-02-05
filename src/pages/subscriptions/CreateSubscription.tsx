@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMediaQuery } from '@mui/material'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import Stack from '@mui/material/Stack'
 import { DateTime } from 'luxon'
 import { FC, useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
