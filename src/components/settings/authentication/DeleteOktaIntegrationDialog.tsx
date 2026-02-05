@@ -27,17 +27,11 @@ type DeleteOktaIntegrationDialogProps = {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteOktaIntegrationDialogRef {
   openDialog: ({ integration, callback }: DeleteOktaIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteOktaIntegrationDialog = forwardRef<DeleteOktaIntegrationDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
 

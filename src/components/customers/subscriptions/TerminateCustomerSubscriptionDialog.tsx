@@ -57,17 +57,11 @@ interface TerminateCustomerSubscriptionDialogContext {
   callback?: ((deletedAt?: string | null) => unknown) | undefined
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface TerminateCustomerSubscriptionDialogRef {
   openDialog: (subscriptionInfos: TerminateCustomerSubscriptionDialogContext) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const TerminateCustomerSubscriptionDialog =
   forwardRef<TerminateCustomerSubscriptionDialogRef>((_, ref) => {
     const { translate } = useInternationalization()

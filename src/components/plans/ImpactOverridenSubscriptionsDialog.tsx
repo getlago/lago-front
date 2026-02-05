@@ -10,17 +10,11 @@ type ImpactOverridenSubscriptionsDialogProps = {
   onSave: (value: boolean) => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type ImpactOverridenSubscriptionsDialogRef = {
   openDialog: ({ onSave }: ImpactOverridenSubscriptionsDialogProps) => void
   closeDialog: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const ImpactOverridenSubscriptionsDialog = forwardRef<ImpactOverridenSubscriptionsDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

@@ -28,18 +28,12 @@ gql`
   }
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type DeleteCustomerDocumentLocaleDialogRef = WarningDialogRef
 
 interface DeleteCustomerDocumentLocaleDialogProps {
   customer: DeleteCustomerDocumentLocaleFragment
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteCustomerDocumentLocaleDialog = forwardRef<
   DialogRef,
   DeleteCustomerDocumentLocaleDialogProps

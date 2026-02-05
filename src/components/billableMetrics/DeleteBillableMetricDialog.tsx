@@ -35,17 +35,11 @@ type DeleteBillableMetricDialogProps = {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteBillableMetricDialogRef {
   openDialog: (props: DeleteBillableMetricDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

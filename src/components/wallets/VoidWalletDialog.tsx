@@ -31,18 +31,12 @@ gql`
   }
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type VoidWalletDialogRef = WarningDialogRef
 
 interface VoidWalletDialogProps {
   wallet: WalletForVoidTransactionFragment
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
   ({ wallet }: VoidWalletDialogProps, ref) => {
     const { translate } = useInternationalization()

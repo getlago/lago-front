@@ -26,17 +26,11 @@ type TDeleteMoneyhashIntegrationDialogProps = {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteMoneyhashIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteMoneyhashIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteMoneyhashIntegrationDialog = forwardRef<DeleteMoneyhashIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

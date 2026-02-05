@@ -19,17 +19,11 @@ gql`
   }
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteCampaignDialogRef {
   openDialog: (props: DeleteCampaignFragment) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteCampaignDialog = forwardRef<DeleteCampaignDialogRef, unknown>((_props, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

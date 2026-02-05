@@ -28,17 +28,11 @@ type DeleteApiKeyDialogProps = {
   apiKey: ApiKeyForDeleteApiKeyDialogFragment
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteApiKeyDialogRef {
   openDialog: (data: DeleteApiKeyDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteApiKeyDialog = forwardRef<DeleteApiKeyDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

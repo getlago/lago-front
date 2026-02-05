@@ -26,17 +26,11 @@ type DeletePlanDialogProps = {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeletePlanDialogRef {
   openDialog: ({ plan, callback }: DeletePlanDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

@@ -25,9 +25,6 @@ gql`
   }
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type EditBillingEntityGracePeriodDialogRef = DialogRef
 
 interface EditBillingEntityGracePeriodDialogProps {
@@ -35,9 +32,6 @@ interface EditBillingEntityGracePeriodDialogProps {
   invoiceGracePeriod: number
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditBillingEntityGracePeriodDialog = forwardRef<
   DialogRef,
   EditBillingEntityGracePeriodDialogProps

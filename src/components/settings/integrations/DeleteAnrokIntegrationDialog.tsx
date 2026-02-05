@@ -27,17 +27,11 @@ type TDeleteAnrokIntegrationDialogProps = {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteAnrokIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteAnrokIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteAnrokIntegrationDialog = forwardRef<DeleteAnrokIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

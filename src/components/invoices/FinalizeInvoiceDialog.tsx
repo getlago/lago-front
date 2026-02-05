@@ -33,9 +33,6 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface FinalizeInvoiceDialogRef {
   openDialog: (
     invoice: InvoiceForFinalizeInvoiceFragment | null | undefined,
@@ -44,9 +41,6 @@ export interface FinalizeInvoiceDialogRef {
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const { formattedDateWithTimezone } = useFormatterDateHelper()

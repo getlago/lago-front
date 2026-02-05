@@ -58,17 +58,11 @@ type TAddNetsuiteDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface AddNetsuiteDialogRef {
   openDialog: (props?: TAddNetsuiteDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
   const componentId = useId()
   const { nangoPublicKey } = envGlobalVar()

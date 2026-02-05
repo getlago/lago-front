@@ -58,17 +58,11 @@ type RotateApiKeyDialogProps = {
   callBack: (itemToReveal: ApiKeyRevealedForApiKeysListFragment) => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface RotateApiKeyDialogRef {
   openDialog: (data: RotateApiKeyDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const RotateApiKeyDialog = forwardRef<
   RotateApiKeyDialogRef,
   { openPremiumDialog: VoidFunction }

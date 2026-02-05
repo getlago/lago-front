@@ -36,18 +36,12 @@ gql`
     }
   }
 `
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type EditCustomerDocumentLocaleDialogRef = DialogRef
 
 interface EditCustomerDocumentLocaleDialogProps {
   customer: EditCustomerDocumentLocaleFragment
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditCustomerDocumentLocaleDialog = forwardRef<
   DialogRef,
   EditCustomerDocumentLocaleDialogProps

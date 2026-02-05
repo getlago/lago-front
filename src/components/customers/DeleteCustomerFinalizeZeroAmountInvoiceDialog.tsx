@@ -27,18 +27,12 @@ gql`
   }
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type DeleteCustomerFinalizeZeroAmountInvoiceDialogRef = WarningDialogRef
 
 interface DeleteCustomerFinalizeZeroAmountInvoiceDialogProps {
   customer: DeleteCustomerFinalizeZeroAmountInvoiceFragment
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
   DialogRef,
   DeleteCustomerFinalizeZeroAmountInvoiceDialogProps

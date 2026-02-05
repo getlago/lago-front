@@ -27,18 +27,12 @@ gql`
   ${WalletAccordionFragmentDoc}
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type TerminateCustomerWalletDialogRef = WarningDialogRef
 
 interface TerminateCustomerWalletDialogProps {
   walletId: string
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const TerminateCustomerWalletDialog = forwardRef<
   DialogRef,
   TerminateCustomerWalletDialogProps

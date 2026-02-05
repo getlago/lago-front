@@ -25,9 +25,7 @@ gql`
     }
   }
 `
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
+
 export type EditBillingEntityDocumentLocaleDialogRef = DialogRef
 
 interface EditBillingEntityDocumentLocaleDialogProps {
@@ -35,9 +33,6 @@ interface EditBillingEntityDocumentLocaleDialogProps {
   documentLocale: string
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditBillingEntityDocumentLocaleDialog = forwardRef<
   DialogRef,
   EditBillingEntityDocumentLocaleDialogProps

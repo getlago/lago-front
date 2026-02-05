@@ -32,18 +32,12 @@ enum BehaviorType {
   DEACTIVATE = 'deactivate',
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type EditCustomerInvoiceCustomSectionsDialogRef = DialogRef
 
 interface EditCustomerInvoiceCustomSectionsDialogProps {
   customerId: string
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
   DialogRef,
   EditCustomerInvoiceCustomSectionsDialogProps

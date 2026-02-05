@@ -60,17 +60,11 @@ type AddAvalaraDialogProps = {
   deleteModalRef: RefObject<DeleteAvalaraIntegrationDialogRef>
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface AddAvalaraDialogRef {
   openDialog: (props?: AddAvalaraDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
   const componentId = useId()
   const navigate = useNavigate()

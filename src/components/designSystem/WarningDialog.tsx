@@ -21,14 +21,8 @@ interface WarningDialogProps extends Omit<DialogProps, 'actions'> {
   disableOnContinue?: boolean
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type WarningDialogRef = DialogRef
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
   (
     {

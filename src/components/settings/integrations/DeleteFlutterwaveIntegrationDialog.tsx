@@ -26,17 +26,11 @@ type TDeleteFlutterwaveIntegrationDialogProps = {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteFlutterwaveIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteFlutterwaveIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteFlutterwaveIntegrationDialog = forwardRef<DeleteFlutterwaveIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

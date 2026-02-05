@@ -40,17 +40,11 @@ interface DeleteCustomerVatRateDialogProps {
   customer: EditCustomerVatRateFragment
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteCustomerVatRateDialogRef {
   openDialog: (taxRate: TaxRateForDeleteCustomerVatRateDialogFragment) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteCustomerVatRateDialog = forwardRef<
   DeleteCustomerVatRateDialogRef,
   DeleteCustomerVatRateDialogProps

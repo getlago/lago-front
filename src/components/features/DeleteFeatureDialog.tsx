@@ -26,17 +26,11 @@ interface DeleteFeatureDialogProps {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteFeatureDialogRef {
   openDialog: (dialogData: DeleteFeatureDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteFeatureDialog = forwardRef<DeleteFeatureDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<WarningDialogRef>(null)

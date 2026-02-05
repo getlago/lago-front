@@ -47,17 +47,11 @@ type EditInvoiceItemTaxDialogProps = {
   callback: (newTaxesArray: LocalFeeInput['taxes']) => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface EditInvoiceItemTaxDialogRef {
   openDialog: (data: EditInvoiceItemTaxDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

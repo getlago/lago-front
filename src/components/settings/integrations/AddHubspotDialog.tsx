@@ -56,17 +56,11 @@ type TAddHubspotDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface AddHubspotDialogRef {
   openDialog: (props?: TAddHubspotDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
   const componentId = useId()
   const { nangoPublicKey } = envGlobalVar()

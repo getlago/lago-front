@@ -27,17 +27,11 @@ type TDeleteNetsuiteIntegrationDialogProps = {
   callback?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteNetsuiteIntegrationDialogRef {
   openDialog: ({ provider, callback }: TDeleteNetsuiteIntegrationDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteNetsuiteIntegrationDialog = forwardRef<DeleteNetsuiteIntegrationDialogRef>(
   (_, ref) => {
     const { translate } = useInternationalization()

@@ -80,17 +80,11 @@ type TAddStripeDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface AddStripeDialogRef {
   openDialog: (props?: TAddStripeDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)

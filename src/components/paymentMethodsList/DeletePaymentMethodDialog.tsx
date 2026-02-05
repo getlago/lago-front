@@ -10,17 +10,11 @@ interface DeletePaymentMethodDialogProps {
   onConfirm: (input: DestroyPaymentMethodInput) => Promise<void>
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeletePaymentMethodDialogRef {
   openDialog: (data: DeletePaymentMethodDialogProps) => void
   closeDialog: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeletePaymentMethodDialog = forwardRef<DeletePaymentMethodDialogRef, unknown>(
   (_props, ref) => {
     const { translate } = useInternationalization()

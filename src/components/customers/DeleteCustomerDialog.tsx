@@ -25,17 +25,11 @@ type TDeleteCustomerDialogProps = {
   onDeleted?: () => void
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface DeleteCustomerDialogRef {
   openDialog: (props: TDeleteCustomerDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const DeleteCustomerDialog = forwardRef<DeleteCustomerDialogRef, unknown>((_props, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

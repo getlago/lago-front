@@ -32,17 +32,13 @@ gql`
     }
   }
 `
+
 type EditBillingEntityInvoiceIssuingDatePolicyDialogProps = {
   billingEntity: EditBillingEntityInvoiceIssuingDatePolicyDialogFragment
 }
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
+
 export type EditBillingEntityInvoiceIssuingDatePolicyDialogRef = DialogRef
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditBillingEntityInvoiceIssuingDatePolicyDialog = forwardRef<
   EditBillingEntityInvoiceIssuingDatePolicyDialogRef,
   EditBillingEntityInvoiceIssuingDatePolicyDialogProps

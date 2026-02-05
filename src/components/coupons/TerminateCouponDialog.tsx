@@ -23,17 +23,11 @@ gql`
   }
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface TerminateCouponDialogRef {
   openDialog: (coupon: TerminateCouponFragment) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const TerminateCouponDialog = forwardRef<TerminateCouponDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)

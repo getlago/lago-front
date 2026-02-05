@@ -53,9 +53,6 @@ gql`
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type EditCustomerVatRateDialogRef = DialogRef
 
 interface EditCustomerVatRateDialogProps {
@@ -64,9 +61,6 @@ interface EditCustomerVatRateDialogProps {
   forceOpen?: boolean
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
   (
     { appliedTaxRatesTaxesIds, customer, forceOpen = false }: EditCustomerVatRateDialogProps,

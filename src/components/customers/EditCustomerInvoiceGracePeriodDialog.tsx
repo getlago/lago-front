@@ -28,18 +28,12 @@ gql`
   }
 `
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export type EditCustomerInvoiceGracePeriodDialogRef = DialogRef
 
 interface EditCustomerInvoiceGracePeriodDialogProps {
   invoiceGracePeriod: number | undefined | null
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
   DialogRef,
   EditCustomerInvoiceGracePeriodDialogProps

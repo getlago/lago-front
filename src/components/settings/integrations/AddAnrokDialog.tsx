@@ -58,17 +58,11 @@ type TAddAnrokDialogProps = Partial<{
   deleteDialogCallback: () => void
 }>
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface AddAnrokDialogRef {
   openDialog: (props?: TAddAnrokDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
   const componentId = useId()
   const { nangoPublicKey } = envGlobalVar()

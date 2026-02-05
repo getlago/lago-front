@@ -49,9 +49,6 @@ enum NetPaymentTermModelTypesEnum {
   'BillingEntity' = 'BillingEntity',
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export interface EditNetPaymentTermDialogRef {
   openDialog: (
     model:
@@ -67,9 +64,6 @@ interface EditNetPaymentTermDialogProps {
   description: string
 }
 
-/**
- * @deprecated Please use the new dialog management system in ~/components/dialogs
- */
 export const EditNetPaymentTermDialog = forwardRef<
   EditNetPaymentTermDialogRef,
   EditNetPaymentTermDialogProps
