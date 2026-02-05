@@ -25,7 +25,6 @@ const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillab
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
-const ModalTest = lazyLoad(() => import('~/pages/__devOnly/ModalTest'))
 
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
@@ -39,7 +38,6 @@ export const ERROR_404_ROUTE = '/404'
 // Route Available only on dev mode
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
 export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
-export const ONLY_DEV_MODAL_TEST_ROUTE = `/modal-test`
 
 export const routes: CustomRouteObject[] = [
   {
@@ -101,10 +99,6 @@ export const routes: CustomRouteObject[] = [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
               element: <DesignSystem />,
-            },
-            {
-              path: ONLY_DEV_MODAL_TEST_ROUTE,
-              element: <ModalTest />,
             },
           ]
         : []),

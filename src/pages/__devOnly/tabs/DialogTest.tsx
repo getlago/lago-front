@@ -1,3 +1,5 @@
+import { tw } from 'lago-design-system'
+
 import { Button, Typography } from '~/components/designSystem'
 import {
   CentralizedDialogProps,
@@ -7,6 +9,14 @@ import { OPEN_OTHER_DIALOG_PARAMS } from '~/components/dialogs/const'
 import { useDialogOpeningDialog } from '~/components/dialogs/DialogOpeningDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { TextInput } from '~/components/form'
+
+const Container = ({ children }: { children: React.ReactNode }) => (
+  <div className="px-12 pb-20 pt-8">{children}</div>
+)
+
+const Block = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={tw('mb-6 flex flex-wrap gap-4', className)}>{children}</div>
+)
 
 const LongModalHeaderContent = () => {
   return (
@@ -103,12 +113,19 @@ const ModalTest = (): JSX.Element => {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div>Modal Test Page</div>
-      <Button onClick={() => premiumWarningModal.open()}>Open Premium Warning Modal</Button>
-      <Button onClick={handleRandomErrorSuccess}>Open Random Example</Button>
-      <Button onClick={handleDialogOpeningDialog}>Open Dialog opening dialog</Button>
-    </div>
+    <Container>
+      <Typography className="mb-4" variant="headline">
+        Dialogs
+      </Typography>
+      <Typography className="mb-4" variant="subhead1">
+        Simple &#60;Dialogs/&#62;, open console to see results
+      </Typography>
+      <Block className="flex-col">
+        <Button onClick={() => premiumWarningModal.open()}>Open Premium Warning Modal</Button>
+        <Button onClick={handleRandomErrorSuccess}>Open Random Example</Button>
+        <Button onClick={handleDialogOpeningDialog}>Open Dialog opening dialog</Button>
+      </Block>
+    </Container>
   )
 }
 
