@@ -101,7 +101,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -190,7 +190,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -281,7 +281,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -357,7 +357,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -434,7 +434,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -511,7 +511,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -582,7 +582,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -720,7 +720,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -808,7 +808,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -886,7 +886,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -993,8 +993,8 @@ describe('serializePlanInput()', () => {
         },
       ])
       // Explicitly verify id is NOT present
-      expect(plan.usageThresholds[0]).not.toHaveProperty('id')
-      expect(plan.usageThresholds[0]).not.toHaveProperty('someExtraField')
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('id')
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('someExtraField')
     })
 
     it('strips IDs and extra fields from recurring usage threshold', () => {
@@ -1030,8 +1030,8 @@ describe('serializePlanInput()', () => {
         },
       ])
       // Explicitly verify id is NOT present
-      expect(plan.usageThresholds[0]).not.toHaveProperty('id')
-      expect(plan.usageThresholds[0]).not.toHaveProperty('anotherExtraField')
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('id')
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('anotherExtraField')
     })
 
     it('strips IDs from both recurring and non-recurring thresholds when both are present', () => {
@@ -1072,7 +1072,7 @@ describe('serializePlanInput()', () => {
       expect(plan.usageThresholds).toHaveLength(3)
 
       // Verify none of the thresholds have IDs
-      plan.usageThresholds.forEach((threshold) => {
+      plan.usageThresholds?.forEach((threshold) => {
         expect(threshold).not.toHaveProperty('id')
         expect(Object.keys(threshold)).toEqual(
           expect.arrayContaining(['amountCents', 'thresholdDisplayName', 'recurring']),
@@ -1158,7 +1158,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1235,7 +1235,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1304,7 +1304,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         taxCodes: [],
         trialPeriod: 1,
-        usageThresholds: [],
+        usageThresholds: undefined,
       })
     })
   })
@@ -1378,7 +1378,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1451,7 +1451,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1566,7 +1566,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })
@@ -1680,7 +1680,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })
@@ -1747,7 +1747,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })

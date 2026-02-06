@@ -91,7 +91,6 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
       {hasPremiumIntegration && displayProgressiveBillingAccordion && (
         <Accordion
           className="w-full"
-          initiallyOpen
           summary={
             <AccordionSummary
               hasErrorInGroup={hasErrorInGroup}
