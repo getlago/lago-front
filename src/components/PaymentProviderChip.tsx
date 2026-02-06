@@ -17,10 +17,11 @@ const Stripe = lazy(() => import('~/public/images/stripe.svg'))
 
 interface PaymentProviderChipProps {
   paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
-  label?: string
+  label?: string | null | undefined
   className?: string
   textVariant?: MuiTypographyProps['variant']
   textColor?: TypographyColor
+  showAvatar?: boolean
 }
 
 const providerLabels: Record<ProviderTypeEnum, string> = {
@@ -51,6 +52,7 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
   className,
   textVariant = 'body',
   textColor = 'textSecondary',
+  showAvatar = true,
 }) => {
   const { translate } = useInternationalization()
 
@@ -68,13 +70,15 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
 
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
-      <Avatar className="bg-white" variant="connector" size="small">
-        {isManual ? (
-          <Icon name="receipt" color="dark" size="small" />
-        ) : (
-          <ProviderIcon provider={paymentProvider} />
-        )}
-      </Avatar>
+      {showAvatar && (
+        <Avatar className="bg-white" variant="connector" size="small">
+          {isManual ? (
+            <Icon name="receipt" color="dark" size="small" />
+          ) : (
+            <ProviderIcon provider={paymentProvider} />
+          )}
+        </Avatar>
+      )}
       <Typography variant={textVariant} color={textColor} noWrap>
         {displayLabel}
       </Typography>

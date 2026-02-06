@@ -142,6 +142,10 @@ const CustomerRequestOverduePayment: FC = () => {
   const formikProps = useFormik<CustomerRequestOverduePaymentForm>({
     initialValues: {
       emails: customer?.email || '',
+      paymentMethod: {
+        paymentMethodId: undefined,
+        paymentMethodType: undefined,
+      },
     },
     validationSchema: object({
       emails: string().required('').emails('text_66b258f62100490d0eb5ca8b'),
@@ -159,6 +163,12 @@ const CustomerRequestOverduePayment: FC = () => {
             externalCustomerId: customer?.externalId ?? '',
             email: values.emails.replaceAll(' ', ''),
             lagoInvoiceIds: invoices?.collection?.map((invoice) => invoice.id),
+            paymentMethod: values.paymentMethod.paymentMethodId
+              ? {
+                  paymentMethodId: values.paymentMethod.paymentMethodId,
+                  paymentMethodType: values.paymentMethod.paymentMethodType,
+                }
+              : undefined,
           },
         },
       })
@@ -240,6 +250,7 @@ const CustomerRequestOverduePayment: FC = () => {
               currency={defaultCurrency}
               invoices={invoicesCollection}
               lastSentDate={paymentRequests?.collection?.[0]}
+              externalCustomerId={customer?.externalId}
             />
           </div>
         </section>

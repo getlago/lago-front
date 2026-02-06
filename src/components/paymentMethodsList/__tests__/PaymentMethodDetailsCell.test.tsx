@@ -1,11 +1,12 @@
 import { screen } from '@testing-library/react'
 
+import { DEFAULT_BADGE_TEST_ID } from '~/components/paymentMethodSelection/PaymentMethodInfo'
 import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { render } from '~/test-utils'
 
-import { DEFAULT_BADGE_TEST_ID, PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
+import { PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -63,15 +64,15 @@ describe('PaymentMethodDetailsCell', () => {
       expect(defaultBadge).toBeInTheDocument()
     })
 
-    it('THEN displays payment provider type and code when both are present', () => {
+    it('THEN displays payment provider type and id when both provider type and code are present', () => {
       const paymentMethod = createMockPaymentMethod({
+        providerMethodId: 'pm_test_123',
         paymentProviderType: ProviderTypeEnum.Stripe,
-        paymentProviderCode: 'stripe_prod',
       })
 
       render(<PaymentMethodDetailsCell item={paymentMethod} />)
 
-      expect(screen.getByText('stripe_prod')).toBeInTheDocument()
+      expect(screen.getByText('pm_test_123')).toBeInTheDocument()
     })
   })
 })
