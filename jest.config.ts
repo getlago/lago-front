@@ -35,7 +35,7 @@ export default {
     '!src/**/__tests__/**',
     '!src/**/*Const.ts',
   ],
-  coverageReporters: ['text', 'lcov'],
+  coverageReporters: ['text-summary', 'lcov'],
   collectCoverage: true,
 
   testEnvironment: 'jsdom',
