@@ -186,24 +186,35 @@ export const serializePlanInput = (values: PlanFormInput) => {
             taxes: undefined,
           }
         : {},
-    usageThresholds: [
-      ...(nonRecurringUsageThresholds ?? []).map((threshold) => ({
-        ...threshold,
-        thresholdDisplayName: threshold.thresholdDisplayName ?? null,
-        amountCents: Number(serializeAmount(threshold.amountCents, values.amountCurrency)),
-      })),
-      ...(recurringUsageThreshold
+    usageThresholds:
+      !!nonRecurringUsageThresholds?.length || !!recurringUsageThreshold
         ? [
-            {
-              ...recurringUsageThreshold,
-              thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
-              amountCents: Number(
-                serializeAmount(recurringUsageThreshold.amountCents, values.amountCurrency),
-              ),
-            },
+            ...(nonRecurringUsageThresholds ?? []).map(
+              ({
+                amountCents: nonRecurringThresholdAmountCents,
+                recurring,
+                thresholdDisplayName,
+              }) => ({
+                recurring: !!recurring,
+                thresholdDisplayName: thresholdDisplayName ?? null,
+                amountCents: Number(
+                  serializeAmount(nonRecurringThresholdAmountCents, values.amountCurrency),
+                ),
+              }),
+            ),
+            ...(recurringUsageThreshold
+              ? [
+                  {
+                    recurring: !!recurringUsageThreshold.recurring,
+                    thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
+                    amountCents: Number(
+                      serializeAmount(recurringUsageThreshold.amountCents, values.amountCurrency),
+                    ),
+                  },
+                ]
+              : []),
           ]
-        : []),
-    ],
+        : undefined,
     charges: charges.map(
       ({
         billableMetric,

@@ -11,7 +11,7 @@ import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import PremiumFeature from '~/components/premium/PremiumFeature'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -45,18 +45,16 @@ gql`
 type CommitmentsSectionProps = {
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
 export const CommitmentsSection = ({
   editInvoiceDisplayNameDialogRef,
   formikProps,
-  premiumWarningDialogRef,
 }: CommitmentsSectionProps) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
 
-  const [displayMinimumCommitment, setDisplayMinimumCommitment] = useState<boolean>(
+  const [showMinimumCommitment, setShowMinimumCommitment] = useState<boolean>(
     !isNaN(Number(formikProps.initialValues.minimumCommitment?.amountCents)),
   )
 
@@ -69,10 +67,130 @@ export const CommitmentsSection = ({
   }, [formikProps?.values?.minimumCommitment?.taxes])
 
   useEffect(() => {
-    setDisplayMinimumCommitment(
+    setShowMinimumCommitment(
       !isNaN(Number(formikProps.initialValues.minimumCommitment?.amountCents)),
     )
   }, [formikProps.initialValues.minimumCommitment?.amountCents])
+
+  const renderAddButton = () => (
+    <Button
+      variant="inline"
+      startIcon="plus"
+      disabled={showMinimumCommitment}
+      onClick={() => {
+        // Add default minimum commitment to the plan
+        formikProps.setFieldValue('minimumCommitment', {
+          commitmentType: CommitmentTypeEnum.MinimumCommitment,
+        })
+
+        // Show the minimum commitment input
+        setShowMinimumCommitment(true)
+      }}
+    >
+      {translate('text_6661ffe746c680007e2df0e1')}
+    </Button>
+  )
+
+  const renderMinimumCommitmentAccordion = useMemo(
+    () => (
+      <Accordion
+        className="w-full"
+        summary={
+          <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
+            <div className="flex items-center gap-3 overflow-hidden py-1 pr-1">
+              <Typography variant="bodyHl" color="grey700" noWrap>
+                {formikProps.values.minimumCommitment?.invoiceDisplayName ||
+                  translate('text_65d601bffb11e0f9d1d9f569')}
+              </Typography>
+              <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
+                <Button
+                  icon="pen"
+                  variant="quaternary"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation()
+
+                    editInvoiceDisplayNameDialogRef.current?.openDialog({
+                      invoiceDisplayName: formikProps.values.minimumCommitment?.invoiceDisplayName,
+                      callback: (invoiceDisplayName: string) => {
+                        formikProps.setFieldValue(
+                          'minimumCommitment.invoiceDisplayName',
+                          invoiceDisplayName,
+                        )
+                      },
+                    })
+                  }}
+                />
+              </Tooltip>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Tooltip
+                placement="top-end"
+                title={
+                  hasErrorInGroup
+                    ? translate('text_635b975ecea4296eb76924b7')
+                    : translate('text_635b975ecea4296eb76924b1')
+                }
+              >
+                <Icon
+                  name="validate-filled"
+                  className="flex items-center"
+                  color={hasErrorInGroup ? 'disabled' : 'success'}
+                />
+              </Tooltip>
+              {!!taxValueForBadgeDisplay && (
+                <Chip
+                  label={intlFormatNumber(Number(taxValueForBadgeDisplay) / 100 || 0, {
+                    style: 'percent',
+                  })}
+                />
+              )}
+              <Chip label={translate(mapChargeIntervalCopy(formikProps.values.interval, false))} />
+              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                <Button
+                  size="small"
+                  icon="trash"
+                  variant="quaternary"
+                  onClick={() => {
+                    formikProps.setFieldValue('minimumCommitment', {})
+                    setShowMinimumCommitment(false)
+                  }}
+                />
+              </Tooltip>
+            </div>
+          </div>
+        }
+      >
+        <Stack direction="column" spacing={6}>
+          <AmountInputField
+            name="minimumCommitment.amountCents"
+            currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+            beforeChangeFormatter={['positiveNumber']}
+            label={translate('text_65d601bffb11e0f9d1d9f571')}
+            placeholder={translate('text_62a0b7107afa2700a65ef700')}
+            formikProps={formikProps}
+          />
+
+          <TaxesSelectorSection
+            title={translate('text_1760729707267seik64l67k8')}
+            taxes={formikProps?.values?.minimumCommitment?.taxes || []}
+            comboboxSelector={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
+            onUpdate={(newTaxArray) => {
+              formikProps.setFieldValue('minimumCommitment.taxes', newTaxArray)
+            }}
+          />
+        </Stack>
+      </Accordion>
+    ),
+    [
+      editInvoiceDisplayNameDialogRef,
+      formikProps,
+      hasErrorInGroup,
+      taxValueForBadgeDisplay,
+      translate,
+    ],
+  )
 
   return (
     <div className="flex flex-col items-start gap-4">
@@ -88,122 +206,16 @@ export const CommitmentsSection = ({
           })}
         </Typography>
       </div>
-      {displayMinimumCommitment ? (
-        <Accordion
-          className="w-full"
-          summary={
-            <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
-              <div className="flex items-center gap-3 overflow-hidden py-1 pr-1">
-                <Typography variant="bodyHl" color="grey700" noWrap>
-                  {formikProps.values.minimumCommitment?.invoiceDisplayName ||
-                    translate('text_65d601bffb11e0f9d1d9f569')}
-                </Typography>
-                <Tooltip title={translate('text_65018c8e5c6b626f030bcf8d')} placement="top-end">
-                  <Button
-                    icon="pen"
-                    variant="quaternary"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation()
 
-                      editInvoiceDisplayNameDialogRef.current?.openDialog({
-                        invoiceDisplayName:
-                          formikProps.values.minimumCommitment?.invoiceDisplayName,
-                        callback: (invoiceDisplayName: string) => {
-                          formikProps.setFieldValue(
-                            'minimumCommitment.invoiceDisplayName',
-                            invoiceDisplayName,
-                          )
-                        },
-                      })
-                    }}
-                  />
-                </Tooltip>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Tooltip
-                  placement="top-end"
-                  title={
-                    hasErrorInGroup
-                      ? translate('text_635b975ecea4296eb76924b7')
-                      : translate('text_635b975ecea4296eb76924b1')
-                  }
-                >
-                  <Icon
-                    name="validate-filled"
-                    className="flex items-center"
-                    color={hasErrorInGroup ? 'disabled' : 'success'}
-                  />
-                </Tooltip>
-                {!!taxValueForBadgeDisplay && (
-                  <Chip
-                    label={intlFormatNumber(Number(taxValueForBadgeDisplay) / 100 || 0, {
-                      style: 'percent',
-                    })}
-                  />
-                )}
-                <Chip
-                  label={translate(mapChargeIntervalCopy(formikProps.values.interval, false))}
-                />
-                <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                  <Button
-                    size="small"
-                    icon="trash"
-                    variant="quaternary"
-                    onClick={() => {
-                      formikProps.setFieldValue('minimumCommitment', {})
-                      setDisplayMinimumCommitment(false)
-                    }}
-                  />
-                </Tooltip>
-              </div>
-            </div>
-          }
-        >
-          <Stack direction="column" spacing={6}>
-            <AmountInputField
-              name="minimumCommitment.amountCents"
-              currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-              beforeChangeFormatter={['positiveNumber']}
-              label={translate('text_65d601bffb11e0f9d1d9f571')}
-              placeholder={translate('text_62a0b7107afa2700a65ef700')}
-              formikProps={formikProps}
-            />
-
-            <TaxesSelectorSection
-              title={translate('text_1760729707267seik64l67k8')}
-              taxes={formikProps?.values?.minimumCommitment?.taxes || []}
-              comboboxSelector={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
-              onUpdate={(newTaxArray) => {
-                formikProps.setFieldValue('minimumCommitment.taxes', newTaxArray)
-              }}
-            />
-          </Stack>
-        </Accordion>
-      ) : (
-        <Button
-          variant="inline"
-          startIcon="plus"
-          endIcon={isPremium ? undefined : 'sparkles'}
-          disabled={displayMinimumCommitment}
-          onClick={() => {
-            if (isPremium) {
-              // Add default minimum commitment to the plan
-              formikProps.setFieldValue('minimumCommitment', {
-                commitmentType: CommitmentTypeEnum.MinimumCommitment,
-              })
-
-              // Show the minimum commitment input
-              setDisplayMinimumCommitment(true)
-            } else {
-              premiumWarningDialogRef.current?.openDialog()
-            }
-          }}
-        >
-          {translate('text_6661ffe746c680007e2df0e1')}
-        </Button>
+      {showMinimumCommitment && renderMinimumCommitmentAccordion}
+      {!showMinimumCommitment && !isPremium && (
+        <PremiumFeature
+          title={translate('text_17700400130439xuo82ha60n')}
+          description={translate('text_1770040013043awgs0eemonf')}
+          feature={translate('text_65d601bffb11e0f9d1d9f569')}
+        />
       )}
+      {!showMinimumCommitment && isPremium && renderAddButton()}
     </div>
   )
 }

@@ -26,6 +26,7 @@ export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   alerts = 'alerts',
   entitlements = 'entitlements',
   overview = 'overview',
+  progressiveBilling = 'progressive-billing',
   usage = 'usage',
 }
 

@@ -21,6 +21,7 @@ import { SubscriptionActivityLogs } from '~/components/subscriptions/Subscriptio
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
+import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -35,7 +36,11 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
+import {
+  StatusTypeEnum,
+  SubscriptionForProgressiveBillingTabFragmentDoc,
+  useGetSubscriptionForDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -64,8 +69,11 @@ gql`
       customer {
         id
       }
+      ...SubscriptionForProgressiveBillingTab
     }
   }
+
+  ${SubscriptionForProgressiveBillingTabFragmentDoc}
 `
 
 export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
@@ -113,6 +121,160 @@ const SubscriptionDetails = () => {
       subscriptionId,
     })
   }, [isPremium, customerId, planId, subscriptionId, translate])
+
+  const tabs = useMemo(() => {
+    const getCustomerSubscriptionDetailsRoute = (
+      tab: CustomerSubscriptionDetailsTabsOptionsEnum,
+    ) => {
+      return generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+        customerId: customerId || '',
+        subscriptionId: subscriptionId as string,
+        tab,
+      })
+    }
+    const getPlanSubscriptionDetailsRoute = (tab: CustomerSubscriptionDetailsTabsOptionsEnum) => {
+      return generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+        planId: planId || '',
+        subscriptionId: subscriptionId as string,
+        tab,
+      })
+    }
+
+    return [
+      {
+        title: translate('text_628cf761cbe6820138b8f2e4'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview)
+          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+        match: [
+          getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+        ],
+        component: (
+          <DetailsPage.Container>
+            <SubscriptionDetailsOverview />
+          </DetailsPage.Container>
+        ),
+      },
+      {
+        title: translate('text_1724179887722baucvj7bvc1'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+          ),
+          getPlanSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
+          ),
+        ],
+        component: (
+          <DetailsPage.Container>
+            <SubscriptionProgressiveBillingTab
+              subscription={subscription}
+              loading={isSubscriptionLoading}
+            />
+          </DetailsPage.Container>
+        ),
+      },
+      {
+        title: translate('text_63e26d8308d03687188221a6'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
+          ),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.entitlements),
+        ],
+        component: (
+          <DetailsPage.Container>
+            <SubscriptionEntitlementsTabContent />
+          </DetailsPage.Container>
+        ),
+      },
+      ...(isStatusEditable(subscription?.status)
+        ? [
+            {
+              title: translate('text_1725983967306cei92rkdtvb'),
+              link: !!customerId
+                ? getCustomerSubscriptionDetailsRoute(
+                    CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                  )
+                : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage),
+              match: [
+                getCustomerSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                ),
+                getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage),
+              ],
+              component: (
+                <DetailsPage.Container>
+                  <SubscriptionUsageTabContent />
+                </DetailsPage.Container>
+              ),
+            },
+          ]
+        : []),
+      {
+        title: translate('text_17465238490269pahbvl3s2m'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts)
+          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts),
+        match: [
+          getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts),
+        ],
+        component: (
+          <DetailsPage.Container>
+            <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
+          </DetailsPage.Container>
+        ),
+      },
+      {
+        title: translate('text_1747314141347qq6rasuxisl'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+          ),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs),
+        ],
+        component: (
+          <DetailsPage.Container className="max-w-none">
+            <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
+          </DetailsPage.Container>
+        ),
+        hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
+      },
+    ]
+  }, [
+    translate,
+    customerId,
+    planId,
+    subscriptionId,
+    subscription,
+    isSubscriptionLoading,
+    isStatusEditable,
+    isPremium,
+    hasPermissions,
+  ])
 
   return (
     <>
@@ -269,172 +431,7 @@ const SubscriptionDetails = () => {
         </div>
       </div>
 
-      <NavigationTab
-        className="px-4 md:px-12"
-        loading={isSubscriptionLoading}
-        tabs={[
-          {
-            title: translate('text_628cf761cbe6820138b8f2e4'),
-            link: !!customerId
-              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId,
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                })
-              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                  planId: planId || '',
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                }),
-            match: [
-              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              }),
-              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                planId: planId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              }),
-            ],
-            component: (
-              <DetailsPage.Container>
-                <SubscriptionDetailsOverview />
-              </DetailsPage.Container>
-            ),
-          },
-          {
-            title: translate('text_63e26d8308d03687188221a6'),
-            link: !!customerId
-              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId,
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-                })
-              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                  planId: planId || '',
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-                }),
-            match: [
-              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-              }),
-              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                planId: planId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.entitlements,
-              }),
-            ],
-            component: (
-              <DetailsPage.Container>
-                <SubscriptionEntitlementsTabContent />
-              </DetailsPage.Container>
-            ),
-          },
-          ...(isStatusEditable(subscription?.status)
-            ? [
-                {
-                  title: translate('text_1725983967306cei92rkdtvb'),
-                  link: !!customerId
-                    ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                        customerId,
-                        subscriptionId: subscriptionId as string,
-                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                      })
-                    : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                        planId: planId || '',
-                        subscriptionId: subscriptionId as string,
-                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                      }),
-                  match: [
-                    generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                      customerId: customerId || '',
-                      subscriptionId: subscriptionId as string,
-                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                    }),
-                    generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                      planId: planId || '',
-                      subscriptionId: subscriptionId as string,
-                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                    }),
-                  ],
-                  component: (
-                    <DetailsPage.Container>
-                      <SubscriptionUsageTabContent />
-                    </DetailsPage.Container>
-                  ),
-                },
-              ]
-            : []),
-          {
-            title: translate('text_17465238490269pahbvl3s2m'),
-            link: !!customerId
-              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId,
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-                })
-              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                  planId: planId || '',
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-                }),
-            match: [
-              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-              }),
-              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                planId: planId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-              }),
-            ],
-            component: (
-              <DetailsPage.Container>
-                <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
-              </DetailsPage.Container>
-            ),
-          },
-          {
-            title: translate('text_1747314141347qq6rasuxisl'),
-            link: !!customerId
-              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId,
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
-                })
-              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                  planId: planId || '',
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
-                }),
-            match: [
-              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
-              }),
-              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                planId: planId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
-              }),
-            ],
-            component: (
-              <DetailsPage.Container className="max-w-none">
-                <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
-              </DetailsPage.Container>
-            ),
-            hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
-          },
-        ]}
-      />
+      <NavigationTab className="px-4 md:px-12" loading={isSubscriptionLoading} tabs={tabs} />
 
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
     </>
