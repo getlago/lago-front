@@ -17,6 +17,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
   DisputeInvoiceDialog,
@@ -34,7 +35,6 @@ import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -355,7 +355,7 @@ const CustomerInvoiceDetails = () => {
   const { hasPermissions } = usePermissions()
   const actions = usePermissionsInvoiceActions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
@@ -678,12 +678,7 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
           }),
         ],
-        component: (
-          <InvoicePaymentList
-            canRecordPayment={canRecordPayment}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />
-        ),
+        component: <InvoicePaymentList canRecordPayment={canRecordPayment} />,
       })
     }
 
@@ -935,7 +930,7 @@ const CustomerInvoiceDetails = () => {
                       ) : (
                         <Button
                           variant="quaternary"
-                          onClick={() => premiumWarningDialogRef.current?.openDialog()}
+                          onClick={() => premiumWarningDialog.open()}
                           endIcon="sparkles"
                         >
                           {translate('text_636bdef6565341dcb9cfb127')}
@@ -956,7 +951,7 @@ const CustomerInvoiceDetails = () => {
                             }),
                           )
                         } else {
-                          premiumWarningDialogRef.current?.openDialog()
+                          premiumWarningDialog.open()
                         }
                         closePopper()
                       }}
@@ -1221,7 +1216,6 @@ const CustomerInvoiceDetails = () => {
         </div>
       )}
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />

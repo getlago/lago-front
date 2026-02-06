@@ -10,6 +10,7 @@ import {
   TableColumn,
   Typography,
 } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -18,7 +19,6 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { RoleItem, rolesNameMapping, systemRoles } from '~/core/constants/roles'
 import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -45,11 +45,11 @@ const RolesList = () => {
   const canEditRoles = hasPermissions(['rolesUpdate'])
   const canDeleteRoles = hasPermissions(['rolesDelete'])
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
 
   const openPremiumDialog = () => {
-    premiumWarningDialogRef.current?.openDialog()
+    premiumWarningDialog.open()
   }
 
   const openDeleteRoleDialog = (role: RoleItem) => {
@@ -228,7 +228,6 @@ const RolesList = () => {
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <DeleteRoleDialog ref={deleteRoleDialogRef} />
     </>
   )

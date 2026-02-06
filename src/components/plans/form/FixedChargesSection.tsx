@@ -11,7 +11,6 @@ import {
   RemoveChargeWarningDialogRef,
 } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput, PlanFormInput } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME,
@@ -86,7 +85,6 @@ gql`
 interface FixedChargesSectionProps {
   alreadyExistingFixedChargesIds: string[]
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
   isInitiallyOpen?: boolean
   isInSubscriptionForm?: boolean
@@ -105,7 +103,6 @@ export const FixedChargesSection = memo(
     isInSubscriptionForm,
     formikProps,
     isEdition = false,
-    premiumWarningDialogRef,
   }: FixedChargesSectionProps) => {
     const { translate } = useInternationalization()
     const hasAnyFixedCharge = !!formikProps.values.fixedCharges.length
@@ -248,7 +245,6 @@ export const FixedChargesSection = memo(
                         isInSubscriptionForm={isInSubscriptionForm}
                         isUsedInSubscription={!isNew && !canBeEdited}
                         key={id}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
                         removeChargeWarningDialogRef={removeChargeWarningDialogRef}
                       />
                     )

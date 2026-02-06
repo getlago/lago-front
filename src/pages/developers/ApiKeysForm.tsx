@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { NavigateOptions, useParams } from 'react-router-dom'
 
 import { Alert, Button, Skeleton, Table, Typography } from '~/components/designSystem'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { Checkbox, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -155,7 +155,7 @@ const ApiKeysForm = () => {
   const { apiKeyId = '' } = useParams()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
   useEffect(() => {
@@ -351,7 +351,7 @@ const ApiKeysForm = () => {
                       endIcon="sparkles"
                       variant="tertiary"
                       onClick={() =>
-                        premiumWarningDialogRef.current?.openDialog({
+                        premiumWarningDialog.open({
                           title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                           description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                           mailtoSubject: translate('text_17328950221712tn2kbvuqrg'),
@@ -514,8 +514,6 @@ const ApiKeysForm = () => {
           </Button>
         </CenteredPage.StickyFooter>
       </CenteredPage.Wrapper>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }
