@@ -10,12 +10,29 @@
  * Each pattern is an array of strings that must ALL be present in the message.
  */
 const SUPPRESSED_PATTERNS: string[][] = [
-  // Apollo Client 4.0 deprecation warnings
+  // Apollo Client 4.0 deprecation warnings (printf-style format)
   ['MockedProvider', 'addTypename', 'deprecated'],
   ['InMemoryCache', 'addTypename', 'deprecated'],
   ['useLazyQuery', 'variables', 'deprecated'],
   ['cache.diff', 'canonizeResults', 'deprecated'],
   ['ApolloLink', 'onError', 'deprecated'],
+
+  // Apollo Client 4.0 deprecation warnings (URL-encoded format)
+  // These show as "An error occurred! For more details, see the full error text at https://go.apollo.dev/c/err#..."
+  ['go.apollo.dev/c/err'],
+
+  // Apollo MockLink warnings - these indicate missing mocks in tests
+  // but the full stack trace is too verbose for CI logs
+  ['No more mocked responses for the query'],
+
+  // Apollo refetchQueries warnings in test environment
+  ['Unknown query named', 'refetchQueries'],
+
+  // Apollo cache warnings about missing fields in mock data
+  ['Missing field', 'while writing result'],
+
+  // Apollo cache merge warnings (test environment artifact)
+  ['Cache data may be lost when replacing'],
 
   // React Router v7 future flag warnings
   ['React Router Future Flag Warning', 'v7_startTransition'],
@@ -25,8 +42,13 @@ const SUPPRESSED_PATTERNS: string[][] = [
   ['Warning: fragment with name', 'already exists'],
 
   // React act() warnings - often false positives in async tests
-  // May need more checking on this one to avoid missing real warnings
   ['not wrapped in act'],
+
+  // React testing environment warnings
+  ['testing environment is not configured to support act'],
+
+  // React ref warnings on mocked components
+  ['Function components cannot be given refs'],
 ]
 
 /**
