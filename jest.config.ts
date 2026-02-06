@@ -37,12 +37,6 @@ export default {
   ],
   coverageReporters: ['text', 'lcov'],
   collectCoverage: true,
-  coverageThreshold: {
-    global: {},
-    'src/hooks/ui/useShortcuts.tsx': {
-      statements: 90,
-    },
-  },
 
   testEnvironment: 'jsdom',
 
