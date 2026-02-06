@@ -90,6 +90,7 @@ export const routes: CustomRouteObject[] = [
         element: <Dashboards />,
         permissions: ['analyticsView', 'dataApiView'],
       },
+
       ...customerRoutes,
       ...objectListRoutes,
       ...objectDetailsRoutes,
