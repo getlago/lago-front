@@ -83,7 +83,7 @@ export const useProgressiveBillingTanstackForm = ({
       | UseSubscriptionForProgressiveBillingFormFragment['usageThresholds']
       | UseSubscriptionForProgressiveBillingFormFragment['plan']['usageThresholds'] = []
 
-    if (!!subscription?.usageThresholds.length) {
+    if (!!subscription?.usageThresholds?.length) {
       thresholds = subscription.usageThresholds
     } else if (!!subscription?.plan?.usageThresholds?.length) {
       thresholds = subscription.plan.usageThresholds
