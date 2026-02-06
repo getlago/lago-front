@@ -1,13 +1,18 @@
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
+import NiceModal from '@ebay/nice-modal-react'
 import { ThemeProvider } from '@mui/material/styles'
 import { configure, render, RenderOptions } from '@testing-library/react'
 import React, { ReactElement, useEffect } from 'react'
 import Router, { BrowserRouter } from 'react-router-dom'
 
+import { PREMIUM_WARNING_DIALOG_NAME } from '~/components/dialogs/const'
+import PremiumWarningDialog from '~/components/dialogs/PremiumWarningDialog'
 import { initializeTranslations } from '~/core/apolloClient'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { theme } from '~/styles'
+
+NiceModal.register(PREMIUM_WARNING_DIALOG_NAME, PremiumWarningDialog)
 
 configure({ testIdAttribute: 'data-test' })
 
@@ -48,7 +53,9 @@ export const AllTheProviders = ({
   return (
     <BrowserRouter basename="/">
       <MockedProvider addTypename={forceTypenames} mocks={mocks}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        <ThemeProvider theme={theme}>
+          <NiceModal.Provider>{children}</NiceModal.Provider>
+        </ThemeProvider>
       </MockedProvider>
     </BrowserRouter>
   )
