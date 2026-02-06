@@ -67,6 +67,8 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import DialogTest from './tabs/DialogTest'
+
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
 const DISPLAY_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'display' })
@@ -75,6 +77,7 @@ const TYPOGRAPHY_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab:
 const AVATAR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'avatar' })
 const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'skeleton' })
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
+const DIALOG_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'dialog' })
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -1989,6 +1992,11 @@ const DesignSystem = () => {
                 </Block>
               </Container>
             ),
+          },
+          {
+            title: 'Dialogs',
+            link: DIALOG_TAB_URL,
+            component: <DialogTest />,
           },
           // disabled simple tab
           {

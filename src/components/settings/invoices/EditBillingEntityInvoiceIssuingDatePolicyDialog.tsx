@@ -32,9 +32,11 @@ gql`
     }
   }
 `
+
 type EditBillingEntityInvoiceIssuingDatePolicyDialogProps = {
   billingEntity: EditBillingEntityInvoiceIssuingDatePolicyDialogFragment
 }
+
 export type EditBillingEntityInvoiceIssuingDatePolicyDialogRef = DialogRef
 
 export const EditBillingEntityInvoiceIssuingDatePolicyDialog = forwardRef<

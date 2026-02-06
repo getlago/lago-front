@@ -41,6 +41,7 @@ gql`
     }
   }
 `
+
 export interface CreateWebhookDialogRef {
   openDialog: (webhook?: WebhookForCreateAndEditFragment) => unknown
   closeDialog: () => unknown

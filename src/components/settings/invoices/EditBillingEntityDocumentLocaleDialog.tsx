@@ -25,6 +25,7 @@ gql`
     }
   }
 `
+
 export type EditBillingEntityDocumentLocaleDialogRef = DialogRef
 
 interface EditBillingEntityDocumentLocaleDialogProps {

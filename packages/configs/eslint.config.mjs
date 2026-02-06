@@ -6,16 +6,16 @@ import pluginPrettier from 'eslint-plugin-prettier/recommended'
 import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import pluginTailwind from 'eslint-plugin-tailwindcss'
-import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
 import globals from 'globals'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import pluginTypescriptEslint from 'typescript-eslint'
+
+import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const tailwindConfigPath = resolve(__dirname, 'tailwind.config.ts')
-import pluginTypescriptEslint from 'typescript-eslint'
-
-import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -162,17 +162,49 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },
-  // Formik deprecation warning - use @tanstack/react-form instead
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,jsx,tsx}'],
     rules: {
       'no-restricted-imports': [
         'warn',
         {
+          // Formik deprecation warning - use @tanstack/react-form instead
           paths: [
             {
               name: 'formik',
               message: 'Formik is deprecated. Use @tanstack/react-form instead.',
+            },
+          ],
+          // Old dialog components deprecation warning - use ~/components/dialogs instead
+          patterns: [
+            {
+              group: [
+                '~/components/designSystem/Dialog',
+                '~/components/designSystem/WarningDialog',
+                '~/components/designSystem/PreventClosingDrawerDialog',
+                '~/components/PremiumWarningDialog',
+                '~/components/addOns/*Dialog*',
+                '~/components/billableMetrics/*Dialog*',
+                '~/components/coupons/*Dialog*',
+                '~/components/customers/*Dialog*',
+                '~/components/customers/**/*Dialog*',
+                '~/components/developers/**/*Dialog*',
+                '~/components/exports/*Dialog*',
+                '~/components/features/*Dialog*',
+                '~/components/invoices/*Dialog*',
+                '~/components/invoices/**/*Dialog*',
+                '~/components/invoceCustomFooter/*Dialog*',
+                '~/components/paymentMethodSelection/*Dialog*',
+                '~/components/paymentMethodsList/*Dialog*',
+                '~/components/plans/*Dialog*',
+                '~/components/settings/**/*Dialog*',
+                '~/components/subscriptions/*Dialog*',
+                '~/components/subscriptions/**/*Dialog*',
+                '~/components/taxes/*Dialog*',
+                '~/components/wallets/*Dialog*',
+              ],
+              message:
+                'This dialog component is deprecated. Please use the new dialog management system in ~/components/dialogs instead.',
             },
           ],
         },
