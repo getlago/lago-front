@@ -29,7 +29,7 @@ const createMockSubscription = (
       { id: '2', amountCents: '200', recurring: false, thresholdDisplayName: 'Threshold 2' },
     ],
     plan: {
-      usageThresholds: [],
+      applicableUsageThresholds: [],
     },
     ...overrides,
   }
@@ -173,7 +173,7 @@ describe('useProgressiveBillingTanstackForm', () => {
       const subscription = createMockSubscription({
         usageThresholds: [],
         plan: {
-          usageThresholds: [
+          applicableUsageThresholds: [
             {
               id: '1',
               amountCents: '300',

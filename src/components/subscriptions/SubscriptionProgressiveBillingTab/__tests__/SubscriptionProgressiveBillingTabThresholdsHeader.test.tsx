@@ -42,7 +42,7 @@ const createMockSubscription = (
   usageThresholds: [{ id: 'threshold-1' }],
   plan: {
     id: 'plan-123',
-    usageThresholds: [{ id: 'plan-threshold-1' }],
+    applicableUsageThresholds: [{ id: 'plan-threshold-1' }],
   },
   ...overrides,
 })

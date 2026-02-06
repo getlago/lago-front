@@ -26,7 +26,7 @@ gql`
       ...ThresholdForProgressiveBillingForm
     }
     plan {
-      usageThresholds {
+      applicableUsageThresholds {
         ...ThresholdForProgressiveBillingForm
       }
     }
@@ -81,12 +81,12 @@ export const useProgressiveBillingTanstackForm = ({
   const initialValues = useMemo((): ProgressiveBillingFormValues => {
     let thresholds:
       | UseSubscriptionForProgressiveBillingFormFragment['usageThresholds']
-      | UseSubscriptionForProgressiveBillingFormFragment['plan']['usageThresholds'] = []
+      | UseSubscriptionForProgressiveBillingFormFragment['plan']['applicableUsageThresholds'] = []
 
     if (!!subscription?.usageThresholds?.length) {
       thresholds = subscription.usageThresholds
-    } else if (!!subscription?.plan?.usageThresholds?.length) {
-      thresholds = subscription.plan.usageThresholds
+    } else if (!!subscription?.plan?.applicableUsageThresholds?.length) {
+      thresholds = subscription.plan.applicableUsageThresholds
     }
 
     const nonRecurring = thresholds.filter((t) => !t.recurring)

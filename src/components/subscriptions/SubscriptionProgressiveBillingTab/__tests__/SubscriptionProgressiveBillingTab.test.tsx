@@ -73,7 +73,7 @@ const createMockSubscription = (
   plan: {
     id: 'plan-123',
     amountCurrency: CurrencyEnum.Usd,
-    usageThresholds: [
+    applicableUsageThresholds: [
       {
         id: 'plan-threshold-1',
         amountCents: '5000',
@@ -181,7 +181,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [
+              applicableUsageThresholds: [
                 {
                   id: 'plan-threshold-1',
                   amountCents: '5000',
@@ -206,7 +206,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [],
+              applicableUsageThresholds: [],
             },
           })}
           loading={false}
@@ -563,7 +563,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [
+              applicableUsageThresholds: [
                 {
                   id: 'plan-threshold-1',
                   amountCents: '5000',
@@ -608,7 +608,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [
+              applicableUsageThresholds: [
                 {
                   id: 'plan-threshold-1',
                   amountCents: '5000',
@@ -717,7 +717,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [],
+              applicableUsageThresholds: [],
             },
           })}
           loading={false}
@@ -751,7 +751,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [],
+              applicableUsageThresholds: [],
             },
           })}
           loading={false}
@@ -783,7 +783,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [
+              applicableUsageThresholds: [
                 {
                   id: 'plan-threshold-1',
                   amountCents: '5000',
@@ -826,7 +826,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [],
+              applicableUsageThresholds: [],
             },
           })}
           loading={false}
@@ -855,7 +855,7 @@ describe('SubscriptionProgressiveBillingTab', () => {
             plan: {
               id: 'plan-123',
               amountCurrency: CurrencyEnum.Usd,
-              usageThresholds: [
+              applicableUsageThresholds: [
                 {
                   id: 'plan-threshold-1',
                   amountCents: '5000',

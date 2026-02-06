@@ -36,7 +36,7 @@ gql`
     plan {
       id
       amountCurrency
-      usageThresholds {
+      applicableUsageThresholds {
         id
         recurring
       }

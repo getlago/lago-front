@@ -23,7 +23,7 @@ gql`
     }
     plan {
       id
-      usageThresholds {
+      applicableUsageThresholds {
         id
       }
     }
@@ -56,7 +56,7 @@ export const useSubscriptionProgressiveBillingTabThresholdsHeader = ({
   const shouldDisplayOverriddenBadge =
     hasSubscriptionThresholds ||
     (subscription?.progressiveBillingDisabled &&
-      (subscription.plan?.usageThresholds?.length || 0) > 0)
+      (subscription.plan?.applicableUsageThresholds?.length || 0) > 0)
 
   const [
     switchProgressiveBillingDisabledValue,

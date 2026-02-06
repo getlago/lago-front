@@ -23,7 +23,7 @@ gql`
     plan {
       id
       amountCurrency
-      usageThresholds {
+      applicableUsageThresholds {
         id
         recurring
         ...ThresholdForThresholdsTable
@@ -56,8 +56,8 @@ export const useSubscriptionProgressiveBillingTab = ({
     [subscription?.usageThresholds],
   )
   const planThresholds = useMemo(
-    () => subscription?.plan?.usageThresholds || [],
-    [subscription?.plan?.usageThresholds],
+    () => subscription?.plan?.applicableUsageThresholds || [],
+    [subscription?.plan?.applicableUsageThresholds],
   )
 
   const nonRecurringSubscriptionThresholds = useMemo(
