@@ -35,14 +35,8 @@ export default {
     '!src/**/__tests__/**',
     '!src/**/*Const.ts',
   ],
-  coverageReporters: ['text', 'lcov'],
+  coverageReporters: ['text-summary', 'lcov'],
   collectCoverage: true,
-  coverageThreshold: {
-    global: {},
-    'src/hooks/ui/useShortcuts.tsx': {
-      statements: 90,
-    },
-  },
 
   testEnvironment: 'jsdom',
 

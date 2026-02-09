@@ -10,10 +10,14 @@ on:
       - main
 
 jobs:
-  run-tests:
+  test-shard:
     if: github.event.pull_request.draft == false || github.event_name == 'push'
-    name: Run tests
+    name: Tests (shard ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v6
@@ -34,7 +38,71 @@ jobs:
 
       - name: Run tests
         run: |
-          pnpm run test:coverage
+          pnpm jest --config jest.config.ts --coverage --shard=${{ matrix.shard }}/4
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-shard-${{ matrix.shard }}
+          path: coverage/lcov.info
+          retention-days: 1
+
+      - name: Upload JUnit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-shard-${{ matrix.shard }}
+          path: TestResults/unit-junit.xml
+          retention-days: 1
+
+  merge-coverage:
+    if: always() && (github.event.pull_request.draft == false || github.event_name == 'push')
+    name: Merge coverage & SonarQube
+    needs: test-shard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fail if any shard failed
+        if: needs.test-shard.result == 'failure'
+        run: |
+          echo "One or more test shards failed"
+          exit 1
+
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-shard-*
+          path: coverage-shards
+
+      - name: Download all JUnit artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: junit-shard-*
+          path: junit-shards
+
+      - name: Merge LCOV reports
+        run: |
+          sudo apt-get update && sudo apt-get install -y lcov
+          lcov_args=""
+          for f in coverage-shards/coverage-shard-*/lcov.info; do
+            lcov_args="$lcov_args --add-tracefile $f"
+          done
+          mkdir -p coverage
+          lcov $lcov_args --output-file coverage/lcov.info
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.11.1
+
+      - name: Merge JUnit reports
+        run: |
+          npx junit-merge --dir junit-shards --recursive --out TestResults/unit-junit.xml
 
       - name: SonarQube Scan (Pull Request)
         if: github.event_name == 'pull_request'
