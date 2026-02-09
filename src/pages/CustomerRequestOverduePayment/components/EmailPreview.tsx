@@ -1,6 +1,9 @@
 import { FC } from 'react'
 
-import { Avatar, Card, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Card } from '~/components/designSystem/Card'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   DunningEmail,
   DunningEmailProps,

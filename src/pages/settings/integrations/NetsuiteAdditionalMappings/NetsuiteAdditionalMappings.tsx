@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react'
 
-import { GenericPlaceholder } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
   IntegrationTypeEnum,
   MappingTypeEnum,

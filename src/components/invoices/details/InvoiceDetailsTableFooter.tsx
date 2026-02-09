@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
 import { memo } from 'react'
 
-import { Alert, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Typography } from '~/components/designSystem/Typography'
 import { appliedTaxEnumedTaxCodeTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'

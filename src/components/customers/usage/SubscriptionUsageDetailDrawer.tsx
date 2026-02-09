@@ -1,16 +1,12 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
-import {
-  Button,
-  Drawer,
-  DrawerRef,
-  NavigationTab,
-  Table,
-  TabManagedBy,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
+import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   getPricingUnitAmountCents,
   MixedCharge,

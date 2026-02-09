@@ -4,14 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
-import {
-  Alert,
-  Button,
-  Tooltip,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {

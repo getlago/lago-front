@@ -3,14 +3,11 @@ import Stack from '@mui/material/Stack'
 import { FC, PropsWithChildren, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import {
-  Button,
-  Card,
-  Skeleton,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,

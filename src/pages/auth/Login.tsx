@@ -6,7 +6,9 @@ import { generatePath, Link, useNavigate, useSearchParams } from 'react-router-d
 import { object, string } from 'yup'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
-import { Alert, Button, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
 import { envGlobalVar, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'

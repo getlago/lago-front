@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   EditInvoiceCustomSectionDialog,
   InvoiceCustomSectionBehavior,

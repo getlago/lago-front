@@ -1,6 +1,8 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef, Typography, WarningDialog } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem/Dialog'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog } from '~/components/designSystem/WarningDialog'
 import { RoleItem } from '~/core/constants/roles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

@@ -1,6 +1,8 @@
 import { Icon } from 'lago-design-system'
 
-import { Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ChartWrapper } from '~/components/layouts/Charts'
 
 type ChartHeaderProps = {

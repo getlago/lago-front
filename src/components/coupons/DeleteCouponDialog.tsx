@@ -1,7 +1,10 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef, Skeleton, Typography, WarningDialog } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem/Dialog'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog } from '~/components/designSystem/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { useDeleteCouponMutation, useGetCouponToDeleteLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

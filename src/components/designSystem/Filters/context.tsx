@@ -1,7 +1,7 @@
 import { createContext, FC, PropsWithChildren, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { PopperProps } from '~/components/designSystem'
+import { PopperProps } from '~/components/designSystem/Popper'
 
 import { AvailableFiltersEnum, AvailableQuickFilters } from './types'
 

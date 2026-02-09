@@ -3,7 +3,8 @@ import { useFormik } from 'formik'
 import { forwardRef, useMemo } from 'react'
 import { array, mixed, object, string } from 'yup'
 
-import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { MultipleComboBox, RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {

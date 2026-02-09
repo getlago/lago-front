@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 
-import { Tooltip } from '~/components/designSystem'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const ValidationIcon = ({ hasError }: { hasError: boolean }) => {

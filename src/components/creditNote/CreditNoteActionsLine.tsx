@@ -3,7 +3,7 @@ import { FormikProps, getIn } from 'formik'
 import { FC } from 'react'
 
 import { CreditNoteForm } from '~/components/creditNote/types'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'

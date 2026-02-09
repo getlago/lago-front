@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import { InfiniteScroll } from '~/components/designSystem'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ActivityLogsTableDataFragmentDoc,

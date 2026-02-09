@@ -1,6 +1,7 @@
 import { Icon } from 'lago-design-system'
 
-import { Tooltip, Typography } from '~/components/designSystem'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import { TabButton } from './TabButton'

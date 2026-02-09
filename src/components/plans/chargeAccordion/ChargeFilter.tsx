@@ -1,7 +1,10 @@
 import Stack from '@mui/material/Stack'
 import { memo, useEffect, useMemo, useState } from 'react'
 
-import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { BasicComboBoxData, MultipleComboBox } from '~/components/form'
 import {
   ALL_FILTER_VALUES,

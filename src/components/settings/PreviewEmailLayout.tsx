@@ -1,6 +1,10 @@
 import { FC, PropsWithChildren, useRef } from 'react'
 
-import { Avatar, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { LocaleEnum } from '~/core/translations'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'

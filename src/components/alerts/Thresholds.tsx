@@ -1,7 +1,10 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useMemo } from 'react'
 
-import { Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'

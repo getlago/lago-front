@@ -4,8 +4,11 @@ import { tw } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { array, lazy, object, string } from 'yup'
 
-import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { FiltersItemDates, METADATA_SPLITTER } from '~/components/designSystem/Filters/utils'
+import { Popper } from '~/components/designSystem/Popper'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

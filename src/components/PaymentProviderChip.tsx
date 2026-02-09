@@ -2,7 +2,8 @@ import type { TypographyProps as MuiTypographyProps } from '@mui/material/Typogr
 import { Icon } from 'lago-design-system'
 import { FC, lazy, Suspense } from 'react'
 
-import { Avatar, Typography, TypographyColor } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Typography, TypographyColor } from '~/components/designSystem/Typography'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'

@@ -4,7 +4,10 @@ import { FC, useMemo } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 
 import { CreditNoteDetailsOverviewTable } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
-import { Button, Popper, Status, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { Status } from '~/components/designSystem/Status'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { envGlobalVar } from '~/core/apolloClient'
 import {

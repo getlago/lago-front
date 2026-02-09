@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef, Typography, WarningDialog } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem/Dialog'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog } from '~/components/designSystem/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { DeleteTaxFragment, useDeleteTaxMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

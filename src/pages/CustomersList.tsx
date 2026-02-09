@@ -8,7 +8,8 @@ import {
 } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { CREATE_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
-import { Avatar, Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
@@ -16,6 +17,9 @@ import {
   Filters,
   formatFiltersForCustomerQuery,
 } from '~/components/designSystem/Filters'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'

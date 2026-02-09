@@ -2,14 +2,12 @@ import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { FC, useId, useMemo, useState } from 'react'
 
-import {
-  Accordion,
-  Alert,
-  Button,
-  ChargeTable,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem, TextInput } from '~/components/form'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,

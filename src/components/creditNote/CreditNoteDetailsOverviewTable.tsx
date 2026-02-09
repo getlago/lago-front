@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { FC, Fragment } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   composeChargeFilterDisplayName,

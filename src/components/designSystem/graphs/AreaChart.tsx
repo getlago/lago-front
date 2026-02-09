@@ -10,7 +10,7 @@ import {
 } from 'recharts'
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { ChartWrapper } from '~/components/layouts/Charts'
 import {
   bigNumberShortenNotationFormater,

@@ -3,21 +3,18 @@ import { Icon } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useRevenueAnalyticsOverview } from '~/components/analytics/revenueStreams/useRevenueAnalyticsOverview'
-import {
-  Button,
-  GenericPlaceholder,
-  HorizontalDataTable,
-  RowType,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   AvailableQuickFilters,
   Filters,
   RevenueStreamsAvailablePopperFilters,
 } from '~/components/designSystem/Filters'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+import { HorizontalDataTable, RowType } from '~/components/designSystem/Table/HorizontalDataTable'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

@@ -3,7 +3,11 @@ import { FormikProps } from 'formik'
 import { tw } from 'lago-design-system'
 import { useCallback, useId, useMemo, useState } from 'react'
 
-import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ButtonSelector, MultipleComboBox, TextInput } from '~/components/form'
 import {
   getPrivilegeValueTypeTranslationKey,

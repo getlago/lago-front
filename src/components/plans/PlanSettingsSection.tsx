@@ -2,7 +2,9 @@ import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { memo, useEffect, useState } from 'react'
 
-import { Button, Card, Tooltip } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { ButtonSelectorField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {

@@ -1,7 +1,7 @@
 import { create, useModal } from '@ebay/nice-modal-react'
 import { ReactNode } from 'react'
 
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import BaseDialog from '~/components/dialogs/BaseDialog'
 
 import {

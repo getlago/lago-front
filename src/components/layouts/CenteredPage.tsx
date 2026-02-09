@@ -1,7 +1,7 @@
 import { tw } from 'lago-design-system'
 import { PropsWithChildren } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 
 export const PageBannerHeaderWithBurgerMenu = ({ children }: PropsWithChildren) => {
   return (

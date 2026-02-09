@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Spinner } from '~/components/designSystem'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { BILLING_ENTITY_ROUTE } from '~/core/router'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 

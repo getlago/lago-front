@@ -7,15 +7,13 @@ import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
 } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'

@@ -5,7 +5,7 @@ import { FC, useMemo } from 'react'
 
 import { CreditNoteFormItem } from '~/components/creditNote/CreditNoteFormItem'
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form/Checkbox'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

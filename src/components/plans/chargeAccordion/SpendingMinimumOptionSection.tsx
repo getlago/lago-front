@@ -1,7 +1,8 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { RefObject, useEffect, useState } from 'react'
 
-import { Button, Tooltip } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { AmountInput } from '~/components/form'
 import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
 import { LocalUsageChargeInput } from '~/components/plans/types'

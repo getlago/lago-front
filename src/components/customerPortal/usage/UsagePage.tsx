@@ -7,7 +7,7 @@ import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   SubscriptionCurrentUsageTableComponent,
   UsageData,

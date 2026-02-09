@@ -2,7 +2,9 @@ import { useFormik } from 'formik'
 import { forwardRef } from 'react'
 import { object, string } from 'yup'
 
-import { Button, Dialog, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog } from '~/components/designSystem/Dialog'
+import { Typography } from '~/components/designSystem/Typography'
 import { RadioGroupField } from '~/components/form'
 import {
   CreditNoteExportTypeEnum,

@@ -2,7 +2,8 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Alert, Button } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {

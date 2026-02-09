@@ -1,6 +1,6 @@
 import { cloneElement, ReactElement, useState } from 'react'
 
-import { Typography, TypographyProps } from '~/components/designSystem'
+import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface ShowMoreTextProps extends TypographyProps {

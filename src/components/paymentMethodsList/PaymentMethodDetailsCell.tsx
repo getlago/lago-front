@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { PaymentMethodDetails } from '~/components/paymentMethodSelection/PaymentMethodDetails'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'

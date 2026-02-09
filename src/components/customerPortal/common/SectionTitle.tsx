@@ -1,5 +1,6 @@
 import TextButton from '~/components/customerPortal/common/TextButton'
-import { Skeleton, Typography } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 type SectionTitleProps = {

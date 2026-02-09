@@ -1,9 +1,10 @@
 import { useFormik } from 'formik'
 import { useEffect } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { FiltersFormValues } from '~/components/designSystem/Filters/types'
 import { formatMetadataFilter, parseMetadataFilter } from '~/components/designSystem/Filters/utils'
+import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

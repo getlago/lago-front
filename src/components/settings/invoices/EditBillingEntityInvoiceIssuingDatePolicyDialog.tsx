@@ -3,7 +3,7 @@ import { useFormik } from 'formik'
 import { forwardRef } from 'react'
 import { object, string } from 'yup'
 
-import { DialogRef } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem/Dialog'
 import { EditInvoiceIssuingDatePolicyDialogContentBase } from '~/components/invoiceIssuingDatePolicy/EditInvoiceIssuingDatePolicyDialogContentBase'
 import { addToast } from '~/core/apolloClient'
 import { ALL_ADJUSTMENT_VALUES, ALL_ANCHOR_VALUES } from '~/core/constants/issuingDatePolicy'

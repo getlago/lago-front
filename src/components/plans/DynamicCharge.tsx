@@ -1,4 +1,4 @@
-import { Alert } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const DynamicCharge = () => {

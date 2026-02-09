@@ -46,17 +46,14 @@ import {
   EditCustomerIssuingDatePolicyDialog,
   EditCustomerIssuingDatePolicyDialogRef,
 } from '~/components/customers/settings/EditCustomerIssuingDatePolicyDialog'
-import {
-  Avatar,
-  Button,
-  Chip,
-  GenericPlaceholder,
-  Popper,
-  Table,
-  TableColumn,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Popper } from '~/components/designSystem/Popper'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   SettingsListItem,
   SettingsListItemHeader,

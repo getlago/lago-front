@@ -1,6 +1,7 @@
 import { tw } from 'lago-design-system'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   CentralizedDialogProps,
   useCentralizedDialog,

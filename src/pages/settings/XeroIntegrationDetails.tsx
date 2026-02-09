@@ -3,14 +3,12 @@ import Nango from '@nangohq/frontend'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  Button,
-  ButtonLink,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,

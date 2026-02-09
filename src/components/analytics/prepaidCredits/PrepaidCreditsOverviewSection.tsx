@@ -3,19 +3,17 @@ import { gql } from '@apollo/client'
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { usePrepaidCreditsAnalyticsOverview } from '~/components/analytics/prepaidCredits/usePrepaidCreditsAnalyticsOverview'
 import { toAmountCents } from '~/components/analytics/prepaidCredits/utils'
-import {
-  Button,
-  GenericPlaceholder,
-  HorizontalDataTable,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   AvailableQuickFilters,
   Filters,
   PrepaidCreditsOverviewAvailableFilters,
 } from '~/components/designSystem/Filters'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'

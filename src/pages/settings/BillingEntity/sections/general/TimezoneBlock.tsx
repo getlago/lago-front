@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { SettingsListItem, SettingsListItemHeader } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getTimezoneConfig } from '~/core/timezone'

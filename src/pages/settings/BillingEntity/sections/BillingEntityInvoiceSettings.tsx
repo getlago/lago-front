@@ -2,7 +2,10 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { Button, GenericPlaceholder, ShowMoreText, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { ShowMoreText } from '~/components/designSystem/ShowMoreText'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   SettingsListItem,
   SettingsListItemHeader,

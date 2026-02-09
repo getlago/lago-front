@@ -3,7 +3,8 @@ import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokCreditNoteUrl,

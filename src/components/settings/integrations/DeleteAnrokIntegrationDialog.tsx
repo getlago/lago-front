@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   DeleteAnrokIntegrationDialogFragment,

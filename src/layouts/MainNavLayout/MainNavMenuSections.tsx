@@ -1,4 +1,4 @@
-import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem'
+import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,

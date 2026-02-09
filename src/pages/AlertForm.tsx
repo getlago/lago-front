@@ -5,13 +5,10 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
-import {
-  Button,
-  Chip,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { ComboBox, ComboBoxField, ComboboxItem, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'

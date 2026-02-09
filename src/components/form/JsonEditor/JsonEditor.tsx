@@ -8,7 +8,9 @@ import { Icon } from 'lago-design-system'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
 
-import { Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Chip } from '~/components/designSystem/Chip'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 

@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react'
 
-import { StatusType } from '~/components/designSystem'
+import { StatusType } from '~/components/designSystem/Status'
 import { IntegrationTypeEnum, MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 

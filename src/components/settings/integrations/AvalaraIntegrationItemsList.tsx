@@ -2,7 +2,9 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Button, Popper, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import {
   AvalaraIntegrationItemsListAddonsFragmentDoc,

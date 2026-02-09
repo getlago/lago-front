@@ -10,14 +10,12 @@ import {
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
 import { formatCouponValue } from '~/components/coupons/utils'
-import {
-  Button,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'

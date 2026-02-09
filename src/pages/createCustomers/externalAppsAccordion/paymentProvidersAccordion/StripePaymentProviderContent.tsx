@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 
-import { Alert, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Typography } from '~/components/designSystem/Typography'
 import { ProviderPaymentMethodsEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'

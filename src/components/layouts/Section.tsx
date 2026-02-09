@@ -1,4 +1,6 @@
-import { Button, Skeleton, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 export const PageSectionTitle = ({

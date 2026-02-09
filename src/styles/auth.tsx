@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import Logo from '~/public/images/logo/lago-logo.svg'
 
 import { tw } from './utils'

@@ -1,4 +1,4 @@
-import { Skeleton } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 
 export const VERTICAL_MENU_SKELETON_TEST_ID = 'vertical-menu-skeleton'
 export const VERTICAL_MENU_SKELETON_ITEM_TEST_ID = 'vertical-menu-skeleton-item'

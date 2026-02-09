@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { ComboBox, ComboBoxProps } from '~/components/form'
 import { MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

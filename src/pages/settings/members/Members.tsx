@@ -1,6 +1,7 @@
 import { generatePath } from 'react-router-dom'
 
-import { NavigationTab, Typography } from '~/components/designSystem'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { SettingsPaddedContainer, SettingsPageHeaderContainer } from '~/components/layouts/Settings'
 import { MEMBERS_ROUTE, MEMBERS_TAB_ROUTE } from '~/core/router'

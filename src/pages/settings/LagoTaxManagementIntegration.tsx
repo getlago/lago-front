@@ -3,16 +3,14 @@ import { Icon, tw } from 'lago-design-system'
 import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  Chip,
-  DialogRef,
-  Skeleton,
-  Typography,
-  WarningDialog,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Chip } from '~/components/designSystem/Chip'
+import { DialogRef } from '~/components/designSystem/Dialog'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog } from '~/components/designSystem/WarningDialog'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddLagoTaxManagementDialog,

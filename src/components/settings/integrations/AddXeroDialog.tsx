@@ -7,7 +7,11 @@ import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } f
 import { generatePath, useNavigate } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
-import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox, CheckboxField, TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'

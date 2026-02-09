@@ -1,7 +1,10 @@
 import { useStore } from '@tanstack/react-form'
 import React from 'react'
 
-import { Accordion, Button, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { isZodErrors } from '~/core/form/isZodErrors'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,

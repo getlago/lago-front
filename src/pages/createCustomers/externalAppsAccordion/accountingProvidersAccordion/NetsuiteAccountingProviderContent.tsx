@@ -1,7 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { useMemo } from 'react'
 
-import { Alert } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
 import { BasicComboBoxData } from '~/components/form'
 import { NetsuiteIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

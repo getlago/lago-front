@@ -4,15 +4,13 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
-import {
-  ActionItem,
-  Avatar,
-  ButtonLink,
-  GenericPlaceholderProps,
-  InfiniteScroll,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
+import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {

@@ -3,7 +3,9 @@ import { Icon } from 'lago-design-system'
 import { useParams } from 'react-router-dom'
 
 import { formatCouponValue } from '~/components/coupons/utils'
-import { Card, Status, Typography } from '~/components/designSystem'
+import { Card } from '~/components/designSystem/Card'
+import { Status } from '~/components/designSystem/Status'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   getCouponFrequencyTranslationKey,

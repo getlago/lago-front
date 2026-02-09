@@ -1,7 +1,7 @@
 import { ReactNode, Suspense, useEffect } from 'react'
 import { RouteObject, useLocation, useRoutes } from 'react-router-dom'
 
-import { Spinner } from '~/components/designSystem'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { CustomRouteObject, routes } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'

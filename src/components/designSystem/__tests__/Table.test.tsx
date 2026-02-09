@@ -1,7 +1,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { render } from '~/test-utils'
 
 import { Table } from '../Table/Table'

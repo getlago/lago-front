@@ -1,4 +1,4 @@
-import { InfiniteScroll } from '~/components/designSystem'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { FetchIntegrationItemsListProps } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
 import {

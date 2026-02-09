@@ -8,7 +8,11 @@ import {
   DeleteBillableMetricDialog,
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
-import { Button, NavigationTab, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'

@@ -1,4 +1,7 @@
-import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/designSystem'
+import {
+  GenericPlaceholder,
+  GenericPlaceholderProps,
+} from '~/components/designSystem/GenericPlaceholder'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 

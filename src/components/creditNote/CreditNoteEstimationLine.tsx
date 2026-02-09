@@ -1,7 +1,9 @@
 import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Skeleton, Tooltip, Typography, TypographyProps } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 
 interface CreditNoteEstimationLineProps {
   label: string

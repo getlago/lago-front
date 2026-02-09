@@ -1,6 +1,7 @@
 import { RefObject } from 'react'
 
-import { Button, Tooltip } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

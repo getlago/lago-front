@@ -1,7 +1,7 @@
 import _groupBy from 'lodash/groupBy'
 import { Children, ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import {

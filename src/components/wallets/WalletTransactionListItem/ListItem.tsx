@@ -1,15 +1,11 @@
 import { Icon, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
-import {
-  Avatar,
-  AvatarBadge,
-  Button,
-  Popper,
-  Tooltip,
-  Typography,
-  TypographyColor,
-} from '~/components/designSystem'
+import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography, TypographyColor } from '~/components/designSystem/Typography'
 import {
   TRANSACTION_AMOUNT_DATA_TEST,
   TRANSACTION_CREDITS_DATA_TEST,

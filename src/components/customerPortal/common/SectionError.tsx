@@ -1,7 +1,8 @@
 import { Icon } from 'lago-design-system'
 
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 
 type SectionErrorProps = {
   refresh?: () => void

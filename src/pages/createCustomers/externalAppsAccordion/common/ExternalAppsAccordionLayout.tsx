@@ -1,7 +1,10 @@
 import { Icon } from 'lago-design-system'
 import { FC, ReactNode } from 'react'
 
-import { Avatar, Button, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboboxItem } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

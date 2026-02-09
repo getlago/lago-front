@@ -1,4 +1,4 @@
-import { StatusProps, StatusType } from '~/components/designSystem'
+import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { WebhookStatusEnum } from '~/generated/graphql'
 
 export const statusWebhookMapping = (status?: WebhookStatusEnum | null): StatusProps => {

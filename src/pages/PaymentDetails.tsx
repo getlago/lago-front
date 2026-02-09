@@ -4,17 +4,14 @@ import { ReactNode, useCallback } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import {
-  Avatar,
-  Button,
-  Popper,
-  Skeleton,
-  Status,
-  StatusType,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Status, StatusType } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'

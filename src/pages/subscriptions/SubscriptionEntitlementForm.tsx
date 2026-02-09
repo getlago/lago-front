@@ -4,15 +4,12 @@ import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
-import {
-  Button,
-  ChargeTable,
-  Chip,
-  Tooltip,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { ComboBox, ComboBoxField, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PrivilegeValueInputComponent } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'

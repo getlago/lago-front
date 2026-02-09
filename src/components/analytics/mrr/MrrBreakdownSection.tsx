@@ -2,12 +2,15 @@ import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   Filters,
   formatFiltersForMrrPlansQuery,
   MrrBreakdownPlansAvailableFilters,
 } from '~/components/designSystem/Filters'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MRR_BREAKDOWN_PLANS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'

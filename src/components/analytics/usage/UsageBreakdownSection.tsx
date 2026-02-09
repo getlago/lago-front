@@ -2,11 +2,13 @@ import { useState } from 'react'
 
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import UsageBreakdownIndividualSection from '~/components/analytics/usage/UsageBreakdownIndividualSection'
-import { Button, NavigationTab, TabManagedBy, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   UsageBreakdownMeteredAvailableFilters,
   UsageBreakdownRecurringAvailableFilters,
 } from '~/components/designSystem/Filters'
+import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,

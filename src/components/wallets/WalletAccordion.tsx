@@ -5,19 +5,15 @@ import { FC, PropsWithChildren, RefObject, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import {
-  Accordion,
-  Button,
-  Card,
-  Popper,
-  Skeleton,
-  Status,
-  StatusProps,
-  StatusType,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import {

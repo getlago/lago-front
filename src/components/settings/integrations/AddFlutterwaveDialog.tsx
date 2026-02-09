@@ -4,7 +4,8 @@ import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 're
 import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
-import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'

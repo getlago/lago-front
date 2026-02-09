@@ -1,4 +1,4 @@
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 

@@ -3,19 +3,17 @@ import { Icon } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useMrrAnalyticsOverview } from '~/components/analytics/mrr/useMrrAnalyticsOverview'
-import {
-  Button,
-  GenericPlaceholder,
-  HorizontalDataTable,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   AvailableQuickFilters,
   Filters,
   MrrOverviewAvailableFilters,
 } from '~/components/designSystem/Filters'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import AreaChart from '~/components/designSystem/graphs/AreaChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

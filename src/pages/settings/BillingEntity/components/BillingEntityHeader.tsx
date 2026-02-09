@@ -1,6 +1,8 @@
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, Skeleton, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import { BillingEntity } from '~/generated/graphql'
