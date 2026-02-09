@@ -140,6 +140,9 @@ const CustomerInvoiceRegenerate = () => {
     !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
 
   const [fees, setFees] = useState(fullFees || [])
+  // Store a deep copy of the original fees from the query, to avoid Apollo cache pollution
+  // when previewAdjustedFee mutation returns partial fee data that gets merged into cache.
+  const originalFeesRef = useRef<typeof fullFees>(null)
   const hasInitializedFees = useRef(false)
 
   // Update fees state when fullFees becomes available from the query.
@@ -148,6 +151,8 @@ const CustomerInvoiceRegenerate = () => {
   // We only want to do this once on initial load, not on subsequent refetches.
   useEffect(() => {
     if (fullFees?.length && !hasInitializedFees.current) {
+      // Deep clone to preserve original data independent of Apollo cache mutations
+      originalFeesRef.current = JSON.parse(JSON.stringify(fullFees))
       setFees(fullFees)
       hasInitializedFees.current = true
     }
@@ -242,7 +247,8 @@ const CustomerInvoiceRegenerate = () => {
   }
 
   const onDelete = (id: string) => {
-    const original = fullFees?.find((f) => f.id === id)
+    // Use originalFeesRef to get untouched fee data, avoiding Apollo cache pollution
+    const original = originalFeesRef.current?.find((f) => f.id === id)
 
     if (original && !original.adjustedFee) {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
