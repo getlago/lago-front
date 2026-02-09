@@ -205,6 +205,7 @@ const CreditNoteDetails = () => {
       canCopy: true,
       canSync: !!creditNote?.integrationSyncable,
       canRetryTaxSync: !!creditNote?.taxProviderSyncable,
+      canResendEmail: true,
     }
   }, [creditNote, hasPermissions])
 
@@ -358,9 +359,11 @@ const CreditNoteDetails = () => {
                     {translate('text_17270681462632d46dh3r1vu')}
                   </Button>
                 )}
-                <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                  {translate('text_1770392315728uyw3zhs7kzh')}
-                </Button>
+                {actions.canResendEmail && (
+                  <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                    {translate('text_1770392315728uyw3zhs7kzh')}
+                  </Button>
+                )}
               </MenuPopper>
             )}
           </Popper>

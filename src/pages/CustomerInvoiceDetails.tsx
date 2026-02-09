@@ -795,6 +795,53 @@ const CustomerInvoiceDetails = () => {
     })
   }
 
+  const authorizations = useMemo(() => {
+    return {
+      canRetryInvoice: hasTaxProviderError,
+      canFinalizeInvoice: !hasTaxProviderError && canFinalize,
+      canDownloadOnlyPdf:
+        !hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile,
+      canDownloadPdfAndXml:
+        !hasTaxProviderError && !canFinalize && canDownload && canDownloadXmlFile,
+      canIssueCreditNote: actions.canIssueCreditNote({ status }),
+      canRecordPayment: canRecordPayment,
+      canGeneratePaymentUrl: actions.canGeneratePaymentUrl({
+        status,
+        paymentStatus,
+        customer: customer as Pick<Customer, 'paymentProvider'>,
+      }),
+      canUpdatePaymentStatus: actions.canUpdatePaymentStatus({ status, taxStatus }),
+      canSyncAccountingIntegration: actions.canSyncAccountingIntegration({ integrationSyncable }),
+      canSyncCRMIntegration: actions.canSyncCRMIntegration({ integrationHubspotSyncable }),
+      canDispute: actions.canDispute({ status, paymentDisputeLostAt }),
+      canVoid: actions.canVoid({ status }),
+      canRegenerate: actions.canRegenerate(
+        { status, regeneratedInvoiceId, invoiceType },
+        hasActiveWallet,
+      ),
+      canSyncTaxIntegration: actions.canSyncTaxIntegration({ taxProviderVoidable }),
+      canResendEmail: true,
+    }
+  }, [
+    hasTaxProviderError,
+    canFinalize,
+    canDownload,
+    canDownloadXmlFile,
+    actions,
+    status,
+    taxStatus,
+    canRecordPayment,
+    paymentStatus,
+    customer,
+    integrationSyncable,
+    integrationHubspotSyncable,
+    paymentDisputeLostAt,
+    regeneratedInvoiceId,
+    invoiceType,
+    hasActiveWallet,
+    taxProviderVoidable,
+  ])
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -818,7 +865,7 @@ const CustomerInvoiceDetails = () => {
             {({ closePopper }) => {
               return (
                 <MenuPopper>
-                  {hasTaxProviderError && (
+                  {authorizations.canRetryInvoice && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -832,7 +879,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
                   )}
-                  {!hasTaxProviderError && canFinalize && (
+                  {authorizations.canFinalizeInvoice && (
                     <>
                       <Button
                         variant="quaternary"
@@ -857,7 +904,7 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
-                  {!hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile && (
+                  {authorizations.canDownloadOnlyPdf && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -872,41 +919,37 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
                   )}
-                  {!hasTaxProviderError &&
-                    !canFinalize &&
-                    canDownload &&
-                    invoice &&
-                    canDownloadXmlFile && (
-                      <>
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          disabled={!!loadingInvoiceDownload}
-                          onClick={async () => {
-                            await downloadInvoice({
-                              variables: { input: { id: invoiceId || '' } },
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_1760447853022ebd47gmqjmp')}
-                        </Button>
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          disabled={!!loadingInvoiceXmlDownload}
-                          onClick={async () => {
-                            await downloadInvoiceXml({
-                              variables: { input: { id: invoiceId || '' } },
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_1760447853022hb1hdiprvet')}
-                        </Button>
-                      </>
-                    )}
-                  {actions.canIssueCreditNote({ status }) && (
+                  {authorizations.canDownloadPdfAndXml && (
+                    <>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        disabled={!!loadingInvoiceDownload}
+                        onClick={async () => {
+                          await downloadInvoice({
+                            variables: { input: { id: invoiceId || '' } },
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1760447853022ebd47gmqjmp')}
+                      </Button>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        disabled={!!loadingInvoiceXmlDownload}
+                        onClick={async () => {
+                          await downloadInvoiceXml({
+                            variables: { input: { id: invoiceId || '' } },
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1760447853022hb1hdiprvet')}
+                      </Button>
+                    </>
+                  )}
+                  {authorizations.canIssueCreditNote && (
                     <>
                       {isPremium ? (
                         <Tooltip
@@ -956,7 +999,7 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </>
                   )}
-                  {canRecordPayment && (
+                  {authorizations.canRecordPayment && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -992,11 +1035,7 @@ const CustomerInvoiceDetails = () => {
                   >
                     {translate('text_634687079be251fdb438339b')}
                   </Button>
-                  {actions.canGeneratePaymentUrl({
-                    status,
-                    paymentStatus,
-                    customer: customer as Pick<Customer, 'paymentProvider'>,
-                  }) && (
+                  {authorizations.canGeneratePaymentUrl && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1010,7 +1049,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1753384709668qrxbzpbskn8')}
                     </Button>
                   )}
-                  {actions.canUpdatePaymentStatus({ status, taxStatus }) && (
+                  {authorizations.canUpdatePaymentStatus && (
                     <>
                       <Button
                         variant="quaternary"
@@ -1035,7 +1074,7 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
-                  {actions.canSyncAccountingIntegration({ integrationSyncable }) && (
+                  {authorizations.canSyncAccountingIntegration && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1052,7 +1091,7 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </Button>
                   )}
-                  {actions.canSyncCRMIntegration({ integrationHubspotSyncable }) && (
+                  {authorizations.canSyncCRMIntegration && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1065,7 +1104,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1729611609136sul07rowhfi')}
                     </Button>
                   )}
-                  {actions.canDispute({ status, paymentDisputeLostAt }) && (
+                  {authorizations.canDispute && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1079,7 +1118,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_66141e30699a0631f0b2ec71')}
                     </Button>
                   )}
-                  {actions.canVoid({ status }) && (
+                  {authorizations.canVoid && (
                     <Button
                       className="w-full"
                       variant="quaternary"
@@ -1098,10 +1137,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1750678506388d4fr5etxbhh')}
                     </Button>
                   )}
-                  {actions.canRegenerate(
-                    { status, regeneratedInvoiceId, invoiceType },
-                    hasActiveWallet,
-                  ) && (
+                  {authorizations.canRegenerate && (
                     <Button
                       className="w-full"
                       variant="quaternary"
@@ -1115,7 +1151,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1750678506388oynw9hd01l9')}
                     </Button>
                   )}
-                  {actions.canSyncTaxIntegration({ taxProviderVoidable }) && (
+                  {authorizations.canSyncTaxIntegration && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1132,9 +1168,11 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </Button>
                   )}
-                  <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                    {translate('text_1770392315728uyw3zhs7kzh')}
-                  </Button>
+                  {authorizations.canResendEmail && (
+                    <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                      {translate('text_1770392315728uyw3zhs7kzh')}
+                    </Button>
+                  )}
                 </MenuPopper>
               )
             }}

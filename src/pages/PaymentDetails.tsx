@@ -194,6 +194,8 @@ const PaymentDetails = () => {
     canDownloadPaymentReceipts &&
     (!!payment?.paymentReceipt?.xmlUrl || !!payment?.customer?.billingEntity?.einvoicing)
 
+  const canResendEmail = true
+
   const goToPreviousRoute = useCallback(
     () =>
       goBack(
@@ -324,9 +326,11 @@ const PaymentDetails = () => {
                   </Button>
                 </>
               )}
-              <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                {translate('text_1770392315728uyw3zhs7kzh')}
-              </Button>
+              {canResendEmail && (
+                <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                  {translate('text_1770392315728uyw3zhs7kzh')}
+                </Button>
+              )}
             </MenuPopper>
           )}
         </Popper>
