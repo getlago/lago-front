@@ -58,6 +58,7 @@ import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   AvalaraIntegration,
   AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc,
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   Customer,
   CustomerForInvoiceOverviewFragmentDoc,
@@ -99,6 +100,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -386,6 +388,8 @@ const CustomerInvoiceDetails = () => {
       silentErrorCodes: [LagoApiError.NotFound],
     },
   })
+
+  const { showResendEmailDialog } = useResendEmailDialog()
 
   const customer = customerData?.customer
 
@@ -780,6 +784,17 @@ const CustomerInvoiceDetails = () => {
     return invoice?.billingEntity.einvoicing || !!invoice?.xmlUrl
   }, [invoice])
 
+  const resendEmail = () => {
+    showResendEmailDialog({
+      subject: translate('text_17706311399878xdnudpnjtt', {
+        organization: invoice?.billingEntity.name,
+        invoiceNumber: invoice?.number,
+      }),
+      type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
+      billingEntity: invoice?.billingEntity,
+    })
+  }
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -1117,6 +1132,9 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </Button>
                   )}
+                  <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                    {translate('text_1770392315728uyw3zhs7kzh')}
+                  </Button>
                 </MenuPopper>
               )
             }}

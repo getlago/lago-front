@@ -40,6 +40,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   CustomerForCreditNoteDetailsExternalSyncFragmentDoc,
   useGetCreditNoteForDetailsQuery,
@@ -50,6 +51,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadCreditNote } from '~/pages/creditNoteDetails/common/useDownloadCreditNote'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -81,7 +83,9 @@ gql`
       }
       billingEntity {
         id
+        name
         einvoicing
+        logoUrl
       }
       customer {
         ...CustomerForCreditNoteDetailsExternalSync
@@ -123,6 +127,8 @@ const CreditNoteDetails = () => {
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
   })
+
+  const { showResendEmailDialog } = useResendEmailDialog()
 
   const [syncIntegrationCreditNote, { loading: loadingSyncIntegrationCreditNote }] =
     useSyncIntegrationCreditNoteMutation({
@@ -205,6 +211,17 @@ const CreditNoteDetails = () => {
   const canDownloadXmlFile = useMemo(() => {
     return creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
   }, [creditNote])
+
+  const resendEmail = () => {
+    showResendEmailDialog({
+      subject: translate('text_17706311399872btwgaui8va', {
+        organization: creditNote?.billingEntity.name,
+        creditNoteNumber: creditNote?.number,
+      }),
+      type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
+      billingEntity: creditNote?.billingEntity,
+    })
+  }
 
   return (
     <>
@@ -341,6 +358,9 @@ const CreditNoteDetails = () => {
                     {translate('text_17270681462632d46dh3r1vu')}
                   </Button>
                 )}
+                <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                  {translate('text_1770392315728uyw3zhs7kzh')}
+                </Button>
               </MenuPopper>
             )}
           </Popper>

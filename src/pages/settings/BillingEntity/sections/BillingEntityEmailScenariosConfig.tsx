@@ -7,7 +7,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import EmailPreview from '~/components/emails/EmailPreview'
+import EmailPreview, { DisplayEnum } from '~/components/emails/EmailPreview'
 import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
@@ -27,12 +27,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
 import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import { EMAIL_SCENARIOS } from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenarios'
-import { tw } from '~/styles/utils'
-
-enum DisplayEnum {
-  desktop = 'desktop',
-  mobile = 'mobile',
-}
 
 const BillingEntityEmailScenariosConfig = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -165,21 +159,12 @@ const BillingEntityEmailScenariosConfig = () => {
           )}
         </Typography>
 
-        <div className="flex w-full flex-1 justify-center bg-grey-100">
-          <div
-            className={tw(
-              'px-4 pb-0 pt-12',
-              display === DisplayEnum.desktop ? 'w-150 max-w-150' : 'w-90 max-w-90',
-            )}
-          >
-            <EmailPreview
-              billingEntity={billingEntity}
-              loading={loading}
-              type={type}
-              invoiceLanguage={invoiceLanguage}
-            />
-          </div>
-        </div>
+        <EmailPreview
+          billingEntity={billingEntity}
+          loading={loading}
+          type={type}
+          invoiceLanguage={invoiceLanguage}
+        />
 
         <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </div>

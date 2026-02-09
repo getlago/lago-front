@@ -37,6 +37,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
@@ -49,6 +50,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
@@ -86,7 +88,9 @@ gql`
         applicableTimezone
         billingEntity {
           id
+          name
           einvoicing
+          logoUrl
         }
       }
       payable {
@@ -106,6 +110,7 @@ gql`
       paymentReceipt {
         id
         xmlUrl
+        number
       }
     }
   }
@@ -174,6 +179,8 @@ const PaymentDetails = () => {
     },
   })
 
+  const { showResendEmailDialog } = useResendEmailDialog()
+
   const payment = data.payment
   const customer = payment?.customer
   const payable = payment?.payable
@@ -210,6 +217,17 @@ const PaymentDetails = () => {
     })
 
     return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
+  }
+
+  const resendEmail = () => {
+    showResendEmailDialog({
+      subject: translate('text_1770631139987tf8b59zentb', {
+        organization: payment?.customer?.billingEntity.name,
+        receiptNumber: payment?.paymentReceipt?.number,
+      }),
+      type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+      billingEntity: payment?.customer?.billingEntity,
+    })
   }
 
   return (
@@ -306,6 +324,9 @@ const PaymentDetails = () => {
                   </Button>
                 </>
               )}
+              <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                {translate('text_1770392315728uyw3zhs7kzh')}
+              </Button>
             </MenuPopper>
           )}
         </Popper>

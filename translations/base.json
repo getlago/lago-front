@@ -3795,5 +3795,14 @@
   "text_1770124786732u8hv8voejbl": "Set specific tax rates to apply to this plan and all its charges.",
   "text_17701996981731m5uguxyg8b": "Customer not found",
   "text_17691652749726aa4es5s80q": "{{resource}} {{resourceNumber}} was sent by email",
-  "text_1769180515750z7jxssqkdvu": "Payment receipt"
+  "text_1769180515750z7jxssqkdvu": "Payment receipt",
+  "text_1770392315728uyw3zhs7kzh": "Resend email",
+  "text_17703925321987cxf5psj6l4": "Send email",
+  "text_17706288935587mtvu3z5stp": "To",
+  "text_1770628893559thl29v6cswe": "Cc",
+  "text_1770628893559w0k6n153vcy": "Bcc",
+  "text_1770641759899jnci1fphmyk": "Subject",
+  "text_17706311399878xdnudpnjtt": "Your invoice from {{organization}} #{{invoiceNumber}}",
+  "text_1770631139987tf8b59zentb": "Your payment receipt from {{organization}} #{{receiptNumber}}",
+  "text_17706311399872btwgaui8va": "Your credit note from {{organization}} #{{creditNoteNumber}}"
 }
