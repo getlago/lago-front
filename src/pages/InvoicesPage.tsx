@@ -2,11 +2,12 @@ import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters'
+import { Typography } from '~/components/designSystem/Typography'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
   UpdateInvoicePaymentStatusDialog,

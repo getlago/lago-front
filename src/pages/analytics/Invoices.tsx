@@ -3,20 +3,18 @@ import { Icon } from 'lago-design-system'
 import { useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import {
-  Button,
-  GenericPlaceholder,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   AnalyticsInvoicesAvailableFilters,
   buildUrlForInvoicesWithFilters,
   Filters,
   formatFiltersForAnalyticsInvoicesQuery,
 } from '~/components/designSystem/Filters'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   AnalyticsPeriodScopeEnum,
   TPeriodScopeTranslationLookupValue,

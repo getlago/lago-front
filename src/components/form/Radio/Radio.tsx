@@ -1,7 +1,7 @@
 import { isBoolean } from 'lodash'
 import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
 
-import { Typography, TypographyProps } from '~/components/designSystem'
+import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import { RadioIcon } from './RadioIcon'

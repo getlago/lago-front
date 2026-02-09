@@ -1,4 +1,3 @@
-import { Typography } from '~/components/designSystem'
 import { FiltersItemActiveSubscriptions } from '~/components/designSystem/Filters/filtersElements/FiltersItemActiveSubscriptions'
 import { FiltersItemActivityIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityIds'
 import { FiltersItemActivitySources } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivitySources'
@@ -49,6 +48,7 @@ import { FiltersItemUserEmails } from '~/components/designSystem/Filters/filters
 import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemZipcodes } from '~/components/designSystem/Filters/filtersElements/FiltersItemZipcodes'
 import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { AvailableFiltersEnum, FiltersFormValues } from './types'

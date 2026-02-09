@@ -3,14 +3,12 @@ import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  ActionItem,
-  Avatar,
-  Button,
-  InfiniteScroll,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   DeleteFeatureDialog,
   DeleteFeatureDialogRef,

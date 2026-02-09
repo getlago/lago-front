@@ -5,7 +5,7 @@ import { LoaderCustomerInformationSection } from '~/components/customerPortal/co
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { formatAddress } from '~/core/formats/formatAddress'
 import {
   CustomerAddressInput,

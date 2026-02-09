@@ -2,7 +2,7 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 
-import { DialogRef } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem/Dialog'
 import { GetRolesListDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 

@@ -1,4 +1,4 @@
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

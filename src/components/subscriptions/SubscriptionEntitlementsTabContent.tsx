@@ -2,14 +2,12 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  Accordion,
-  Button,
-  ChargeTable,
-  Popper,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getEntitlementFormattedValue } from '~/components/plans/utils'
 import {

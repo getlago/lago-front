@@ -1,7 +1,9 @@
 import { useStore } from '@tanstack/react-form'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
-import { Accordion, Avatar, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboboxDataGrouped } from '~/components/form'
 import { ADD_CUSTOMER_TAX_PROVIDER_ACCORDION } from '~/core/constants/form'
 import {

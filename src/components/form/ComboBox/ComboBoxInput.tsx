@@ -1,7 +1,8 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import _omit from 'lodash/omit'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import { ComboBoxInputProps } from './types'

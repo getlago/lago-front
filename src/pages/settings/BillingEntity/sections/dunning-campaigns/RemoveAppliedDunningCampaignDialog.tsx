@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { Typography, WarningDialog, WarningDialogRef } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { BillingEntity, useRemoveBillingEntityDunningCampaignMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

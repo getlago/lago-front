@@ -4,7 +4,11 @@ import { forwardRef, RefObject, useMemo } from 'react'
 import { number, object, string } from 'yup'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
-import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   AmountInputField,
   ComboBox,

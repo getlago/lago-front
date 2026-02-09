@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
-import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form'
 import { addToast, onLogIn } from '~/core/apolloClient'
 import {

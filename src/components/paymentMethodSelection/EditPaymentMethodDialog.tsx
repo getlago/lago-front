@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { Button, Dialog } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog } from '~/components/designSystem/Dialog'
 import { Radio } from '~/components/form/Radio/Radio'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

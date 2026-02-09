@@ -1,6 +1,6 @@
 import { ComponentType, lazy } from 'react'
 
-import { Spinner } from '~/components/designSystem'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { withLazySuspense } from '~/HOC/withLazySuspense'
 
 type ExtractComponentProps<T> = T extends ComponentType<infer P> ? P : never

@@ -1,7 +1,10 @@
 import { gql } from '@apollo/client'
 import { useCallback, useMemo, useState } from 'react'
 
-import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

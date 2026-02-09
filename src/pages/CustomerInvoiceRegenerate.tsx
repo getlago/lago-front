@@ -2,7 +2,10 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Alert, Button, GenericPlaceholder, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   DeleteAdjustedFeeDialog,
   DeleteAdjustedFeeDialogRef,

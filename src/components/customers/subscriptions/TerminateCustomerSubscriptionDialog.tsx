@@ -3,7 +3,10 @@ import { useFormik } from 'formik'
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
 import { hasOffsettableAmount, hasRefundableAmount } from '~/components/creditNote/utils'
-import { DialogRef, Skeleton, Typography, WarningDialog } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem/Dialog'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog } from '~/components/designSystem/WarningDialog'
 import { RadioGroupField, SwitchField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {

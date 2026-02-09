@@ -1,16 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import {
-  ActionColumn,
-  ActionItem,
-  Avatar,
-  Chip,
-  InfiniteScroll,
-  Table,
-  TableColumn,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Chip } from '~/components/designSystem/Chip'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
+import { Typography } from '~/components/designSystem/Typography'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { GetMembersQuery, MembershipItemForMembershipSettingsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

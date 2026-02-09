@@ -1,15 +1,15 @@
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
+import { Button } from '~/components/designSystem/Button'
+import { Filters, ForecastsAvailableFilters } from '~/components/designSystem/Filters'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
+import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import {
-  Button,
-  GenericPlaceholder,
   HorizontalDataTable,
   InitScrollTo,
   RowType,
-  Typography,
-} from '~/components/designSystem'
-import { Filters, ForecastsAvailableFilters } from '~/components/designSystem/Filters'
-import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
-import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+} from '~/components/designSystem/Table/HorizontalDataTable'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FORECASTS_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

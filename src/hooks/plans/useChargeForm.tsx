@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { BasicComboBoxData } from '~/components/form'
 import {
   AggregationTypeEnum,

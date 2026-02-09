@@ -1,4 +1,4 @@
-import { StatusProps, StatusType } from '~/components/designSystem'
+import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { CreditNoteCreditStatusEnum, CreditNoteRefundStatusEnum } from '~/generated/graphql'
 
 export const creditNoteCreditStatusMapping = (

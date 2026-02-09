@@ -3,16 +3,14 @@ import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  ActionItem,
-  Alert,
-  Avatar,
-  Button,
-  GenericPlaceholder,
-  InfiniteScroll,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
+import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,

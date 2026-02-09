@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 
-import { Button, Dialog, DialogProps, DialogRef } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog, DialogProps, DialogRef } from '~/components/designSystem/Dialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 // Test IDs

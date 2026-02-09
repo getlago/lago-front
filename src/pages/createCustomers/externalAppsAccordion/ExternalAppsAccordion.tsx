@@ -1,7 +1,11 @@
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
 
-import { Accordion, Alert, Button, Popper, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION,
   ADD_CUSTOMER_CRM_PROVIDER_ACCORDION,

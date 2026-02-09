@@ -9,15 +9,13 @@ import {
   TerminateCouponDialog,
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
-import {
-  Avatar,
-  ButtonLink,
-  GenericPlaceholderProps,
-  InfiniteScroll,
-  Status,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'

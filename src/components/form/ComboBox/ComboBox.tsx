@@ -2,7 +2,7 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
 import _sortBy from 'lodash/sortBy'
 import { HTMLAttributes, JSXElementConstructor, useEffect, useMemo, useRef } from 'react'
 
-import { Skeleton } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 

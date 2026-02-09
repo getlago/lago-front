@@ -1,4 +1,4 @@
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { tw } from '~/styles/utils'
 
 type TextButtonProps = {

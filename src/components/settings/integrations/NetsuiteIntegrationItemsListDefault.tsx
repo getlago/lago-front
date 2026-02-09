@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { RefObject } from 'react'
 
-import { GenericPlaceholder } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
   IntegrationTypeEnum,
   MappingTypeEnum,

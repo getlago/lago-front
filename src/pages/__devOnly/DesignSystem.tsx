@@ -9,31 +9,25 @@ import { generatePath, Link } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
-import {
-  Accordion,
-  Alert,
-  Avatar,
-  AvatarBadge,
-  Button,
-  ButtonLink,
-  ChargeTable,
-  Chip,
-  Dialog,
-  DialogRef,
-  Drawer,
-  GenericPlaceholder,
-  HorizontalDataTable,
-  NavigationTab,
-  Popper,
-  Selector,
-  ShowMoreText,
-  Skeleton,
-  Status,
-  StatusType,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Alert } from '~/components/designSystem/Alert'
+import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Chip } from '~/components/designSystem/Chip'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { Drawer } from '~/components/designSystem/Drawer'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Popper } from '~/components/designSystem/Popper'
+import { Selector } from '~/components/designSystem/Selector'
+import { ShowMoreText } from '~/components/designSystem/ShowMoreText'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Status, StatusType } from '~/components/designSystem/Status'
+import { ChargeTable, HorizontalDataTable } from '~/components/designSystem/Table'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   ButtonSelectorField,
   Checkbox,

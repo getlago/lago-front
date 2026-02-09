@@ -1,6 +1,8 @@
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Avatar, Button, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   SettingsListItem,
   SettingsListItemHeader,

@@ -1,4 +1,4 @@
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 
 type InvoiceDetailsTablePeriodLineProps = {
   canHaveUnitPrice: boolean

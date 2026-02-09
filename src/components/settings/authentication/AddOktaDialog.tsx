@@ -2,7 +2,8 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 
-import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { TextInputField } from '~/components/form'
 import { DeleteOktaIntegrationDialogRef } from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
 import {

@@ -1,7 +1,8 @@
 import { useStore } from '@tanstack/react-form'
 import { useEffect } from 'react'
 
-import { Accordion, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Typography } from '~/components/designSystem/Typography'
 import { AddCustomerDrawerFragment, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'

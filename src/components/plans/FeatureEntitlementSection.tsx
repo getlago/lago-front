@@ -2,7 +2,9 @@ import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { FC, useId, useMemo, useState } from 'react'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { FeatureEntitlementSectionPrivilegeAccordion } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'
 import {

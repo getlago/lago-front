@@ -2,14 +2,11 @@ import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import {
-  ActionItem,
-  Button,
-  ButtonLink,
-  Table,
-  TableColumn,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   SettingsListItem,
   SettingsListItemHeader,

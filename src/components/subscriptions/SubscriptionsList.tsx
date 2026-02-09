@@ -5,7 +5,9 @@ import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
 } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import { ActionItem, StatusProps, StatusType, Table, TableProps } from '~/components/designSystem'
+import { StatusProps, StatusType } from '~/components/designSystem/Status'
+import { Table, TableProps } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { addToast } from '~/core/apolloClient'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'

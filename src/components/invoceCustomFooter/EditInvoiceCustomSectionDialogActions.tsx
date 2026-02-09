@@ -1,4 +1,4 @@
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 
 export const EDIT_ICS_DIALOG_CANCEL_BUTTON_TEST_ID =
   'edit-invoice-custom-section-dialog-cancel-button'

@@ -1,4 +1,4 @@
-import { Status, StatusType } from '~/components/designSystem'
+import { Status, StatusType } from '~/components/designSystem/Status'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 

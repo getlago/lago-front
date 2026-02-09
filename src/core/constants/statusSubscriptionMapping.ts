@@ -1,4 +1,4 @@
-import { StatusProps, StatusType } from '~/components/designSystem'
+import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { StatusTypeEnum } from '~/generated/graphql'
 
 export const subscriptionStatusMapping = (status?: StatusTypeEnum | null): StatusProps => {

@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar } from '~/core/apolloClient'
 import { SupersetDashboard, useSupersetDashboardsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

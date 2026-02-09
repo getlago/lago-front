@@ -15,11 +15,11 @@ import { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTo
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
 import { toAmountCents } from '~/components/analytics/prepaidCredits/utils'
-import { Typography } from '~/components/designSystem'
 import {
   multipleStackedBarChartLoadingFakeBars,
   multipleStackedBarChartLoadingFakeData,
 } from '~/components/designSystem/graphs/fixtures'
+import { Typography } from '~/components/designSystem/Typography'
 import { ChartWrapper } from '~/components/layouts/Charts'
 import { bigNumberShortenNotationFormater } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'

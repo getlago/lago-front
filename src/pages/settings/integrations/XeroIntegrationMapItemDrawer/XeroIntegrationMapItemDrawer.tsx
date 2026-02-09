@@ -2,7 +2,7 @@ import { FormikErrors } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
-import { DrawerRef } from '~/components/designSystem'
+import { DrawerRef } from '~/components/designSystem/Drawer'
 import { IntegrationTypeEnum, MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   BillingEntityForIntegrationMapping,

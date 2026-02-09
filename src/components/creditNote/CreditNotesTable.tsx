@@ -7,15 +7,11 @@ import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import {
-  ActionItem,
-  InfiniteScroll,
-  Table,
-  TableColumn,
-  TableContainerSize,
-  Typography,
-} from '~/components/designSystem'
 import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
+import { Typography } from '~/components/designSystem/Typography'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

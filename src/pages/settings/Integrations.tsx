@@ -2,7 +2,12 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Alert, Avatar, Chip, NavigationTab, Selector, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Chip } from '~/components/designSystem/Chip'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Selector } from '~/components/designSystem/Selector'
+import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,

@@ -1,8 +1,7 @@
 import { FC, PropsWithChildren } from 'react'
 
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
-
-import { Typography } from '../designSystem'
 
 const Wrapper: FC<PropsWithChildren<{ className?: string }>> = ({ children, className }) => (
   <div className={tw('flex min-h-full w-full flex-col bg-white', className)}>{children}</div>

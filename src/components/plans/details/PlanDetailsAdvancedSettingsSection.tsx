@@ -1,4 +1,6 @@
-import { Accordion, ChargeTable, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getEntitlementFormattedValue, mapChargeIntervalCopy } from '~/components/plans/utils'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'

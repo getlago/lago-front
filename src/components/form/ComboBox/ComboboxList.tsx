@@ -9,7 +9,7 @@ import {
   useMemo,
 } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import { ComboBoxVirtualizedList, GROUP_ITEM_KEY } from './ComboBoxVirtualizedList'

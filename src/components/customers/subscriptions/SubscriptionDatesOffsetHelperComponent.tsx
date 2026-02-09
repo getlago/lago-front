@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { useCallback } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { getTimezoneConfig, TimeZonesConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

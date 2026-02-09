@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import type { TypographyProps } from '@mui/material/Typography'
 import { memo } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {

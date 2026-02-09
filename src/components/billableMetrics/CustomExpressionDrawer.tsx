@@ -9,7 +9,10 @@ import {
   wrappedEvaluateExpression,
   wrappedParseExpression,
 } from '~/components/billableMetrics/utils'
-import { Button, Chip, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
+import { Typography } from '~/components/designSystem/Typography'
 import { JsonEditorField } from '~/components/form/JsonEditor'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

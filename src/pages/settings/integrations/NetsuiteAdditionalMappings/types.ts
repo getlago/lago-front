@@ -1,6 +1,6 @@
 import type { FormikProps } from 'formik'
 
-import type { DrawerRef } from '~/components/designSystem'
+import type { DrawerRef } from '~/components/designSystem/Drawer'
 import type {
   CurrencyEnum,
   CurrencyMappingItem,

@@ -3,7 +3,10 @@ import { Icon } from 'lago-design-system'
 import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button, ButtonLink, Table, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   DeleteAlertDialog,
   DeleteAlertDialogRef,

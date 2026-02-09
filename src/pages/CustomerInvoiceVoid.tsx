@@ -5,14 +5,12 @@ import { array, number, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
 import { canCreateCreditNote } from '~/components/creditNote/utils'
-import {
-  Alert,
-  Button,
-  GenericPlaceholder,
-  Status,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Status } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField, RadioField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'

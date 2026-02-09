@@ -2,7 +2,10 @@ import { gql } from '@apollo/client'
 import { useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
 import {
   CreateWebhookDialog,

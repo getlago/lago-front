@@ -3,13 +3,9 @@ import { Icon } from 'lago-design-system'
 
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import { getConnectedIntegrations } from '~/components/customers/utils'
-import {
-  Avatar,
-  AvatarConnectorVariant,
-  AvatarSize,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar, AvatarConnectorVariant, AvatarSize } from '~/components/designSystem/Avatar'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { InfoRow } from '~/components/InfoRow'
 import { InlineLink } from '~/components/InlineLink'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'

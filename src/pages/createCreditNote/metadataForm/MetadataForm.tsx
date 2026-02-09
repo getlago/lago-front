@@ -1,7 +1,9 @@
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
 import { MetadataErrorsEnum } from '~/formValidation/metadataSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

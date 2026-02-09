@@ -3,15 +3,13 @@ import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  Avatar,
-  Button,
-  Chip,
-  Popper,
-  Selector,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Popper } from '~/components/designSystem/Popper'
+import { Selector } from '~/components/designSystem/Selector'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,

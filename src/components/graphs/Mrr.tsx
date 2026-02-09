@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
-import { GenericPlaceholder } from '~/components/designSystem'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import AreaChart from '~/components/designSystem/graphs/AreaChart'
 import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
 import { AreaMrrChartFakeData } from '~/components/designSystem/graphs/fixtures'

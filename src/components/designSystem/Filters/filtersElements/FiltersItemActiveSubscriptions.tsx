@@ -1,13 +1,13 @@
 import { useFormik } from 'formik'
 import { useEffect } from 'react'
 
-import { Typography } from '~/components/designSystem'
 import {
   ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP,
   ActiveSubscriptionsFilterInterval,
   FiltersFormValues,
 } from '~/components/designSystem/Filters/types'
 import { parseFromToValue } from '~/components/designSystem/Filters/utils'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

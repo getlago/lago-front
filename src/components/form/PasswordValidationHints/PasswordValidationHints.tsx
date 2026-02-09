@@ -1,4 +1,5 @@
-import { Alert, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   PASSWORD_VALIDATION_ERRORS,
   PASSWORD_VALIDATION_TEST_IDS,

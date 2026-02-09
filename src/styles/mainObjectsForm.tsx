@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren } from 'react'
 
-import { Skeleton, Typography, TypographyProps } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 
 import { tw } from './utils'
 

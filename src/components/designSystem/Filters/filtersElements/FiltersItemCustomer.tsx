@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
-import { Typography } from '~/components/designSystem'
 import { useFilters } from '~/components/designSystem/Filters/useFilters'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { useGetCustomersForFilterItemCustomerLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

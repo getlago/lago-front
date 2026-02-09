@@ -1,7 +1,7 @@
 import { FormikProps } from 'formik'
 
 import { CreditNoteForm } from '~/components/creditNote/types'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import MetadataForm from './MetadataForm'

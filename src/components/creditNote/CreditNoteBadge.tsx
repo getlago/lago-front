@@ -4,7 +4,8 @@ import {
   formatCreditNoteTypesForDisplay,
   getCreditNoteTypes,
 } from '~/components/creditNote/utils'
-import { Chip, Tooltip } from '~/components/designSystem'
+import { Chip } from '~/components/designSystem/Chip'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CreditNote, CreditNoteTableItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

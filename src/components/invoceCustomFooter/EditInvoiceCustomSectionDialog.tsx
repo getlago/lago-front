@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Dialog } from '~/components/designSystem'
+import { Dialog } from '~/components/designSystem/Dialog'
 import { MultipleComboBox } from '~/components/form'
 import { Radio } from '~/components/form/Radio/Radio'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

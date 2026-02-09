@@ -1,6 +1,7 @@
 import { memo, useCallback, useId, useMemo } from 'react'
 
-import { Alert, Chip } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Chip } from '~/components/designSystem/Chip'
 import { JsonEditor } from '~/components/form'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { ALL_CHARGE_MODELS } from '~/core/constants/form'

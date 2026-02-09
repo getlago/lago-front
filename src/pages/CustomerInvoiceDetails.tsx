@@ -5,18 +5,16 @@ import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import {
-  Alert,
-  Avatar,
-  Button,
-  GenericPlaceholder,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Status,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Status } from '~/components/designSystem/Status'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
   DisputeInvoiceDialog,

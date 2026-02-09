@@ -10,13 +10,10 @@ import {
   resourceTypeTranslations,
 } from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
-import {
-  Button,
-  NavigationTab,
-  Skeleton,
-  TabManagedBy,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import {

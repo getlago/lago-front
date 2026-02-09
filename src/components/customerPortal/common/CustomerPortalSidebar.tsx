@@ -2,7 +2,7 @@ import { ApolloError } from '@apollo/client'
 
 import { LoaderSidebarOrganization } from '~/components/customerPortal/common/SectionLoading'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 type CustomerPortalSidebarProps = {

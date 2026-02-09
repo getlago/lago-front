@@ -6,7 +6,7 @@ import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
 } from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
-import { DialogRef } from '~/components/designSystem'
+import { DialogRef } from '~/components/designSystem/Dialog'
 import { UpdateCustomerInvoiceGracePeriodDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 

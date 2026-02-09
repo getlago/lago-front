@@ -8,14 +8,11 @@ import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
-import {
-  Button,
-  Table,
-  Tooltip,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { addToast } from '~/core/apolloClient'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'

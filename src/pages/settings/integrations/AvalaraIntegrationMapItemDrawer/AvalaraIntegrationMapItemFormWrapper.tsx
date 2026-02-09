@@ -1,6 +1,6 @@
 import { FormikProps } from 'formik'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
 import { AVALARA_TAX_CODE_DOCUMENTATION_URL } from '~/core/constants/externalUrls'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

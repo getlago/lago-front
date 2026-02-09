@@ -17,16 +17,13 @@ import {
   creditNoteFormHasAtLeastOneFeeChecked,
   hasOffsettableAmount,
 } from '~/components/creditNote/utils'
-import {
-  Alert,
-  Avatar,
-  Button,
-  Card,
-  Skeleton,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { hasDefinedGQLError } from '~/core/apolloClient'

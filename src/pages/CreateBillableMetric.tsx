@@ -11,18 +11,15 @@ import {
   CustomExpressionDrawer,
   CustomExpressionDrawerRef,
 } from '~/components/billableMetrics/CustomExpressionDrawer'
-import {
-  Accordion,
-  Alert,
-  Button,
-  Card,
-  Chip,
-  Skeleton,
-  Tooltip,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
+import { Chip } from '~/components/designSystem/Chip'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import {
   BasicMultipleComboBoxData,
   ButtonSelector,

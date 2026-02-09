@@ -1,6 +1,6 @@
 import { ComponentType, LazyExoticComponent, Suspense } from 'react'
 
-import { Spinner } from '~/components/designSystem'
+import { Spinner } from '~/components/designSystem/Spinner'
 
 export const withLazySuspense = <T = Record<string, unknown>,>(
   LazyComponent:
