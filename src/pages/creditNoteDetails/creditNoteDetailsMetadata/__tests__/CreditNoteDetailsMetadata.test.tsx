@@ -35,6 +35,7 @@ const createMockCreditNote = (
   billingEntity: {
     id: 'billing-entity-1',
     einvoicing: false,
+    name: 'Billing',
   },
   customer: {
     netsuiteCustomer: null,
