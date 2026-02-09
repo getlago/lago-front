@@ -1,19 +1,3 @@
-import AnrokIntegrationDetails from '~/pages/settings/AnrokIntegrationDetails'
-import AnrokIntegrations from '~/pages/settings/AnrokIntegrations'
-import AvalaraIntegrationDetails from '~/pages/settings/AvalaraIntegrationDetails'
-import AvalaraIntegrations from '~/pages/settings/AvalaraIntegrations'
-import BillingEntity from '~/pages/settings/BillingEntity/BillingEntity'
-import BillingEntityCreateEdit from '~/pages/settings/BillingEntity/sections/BillingEntityCreateEdit'
-import BillingEntityEmailScenarios from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenarios'
-import BillingEntityEmailScenariosConfig from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenariosConfig'
-import BillingEntityInvoiceSettings from '~/pages/settings/BillingEntity/sections/BillingEntityInvoiceSettings'
-import BillingEntityDunningCampaigns from '~/pages/settings/BillingEntity/sections/dunning-campaigns/BillingEntityDunningCampaigns'
-import BillingEntityGeneral from '~/pages/settings/BillingEntity/sections/general/BillingEntityGeneral'
-import BillingEntityInvoiceCustomSections from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/BillingEntityInvoiceCustomSections'
-import BillingEntityTaxesSettings from '~/pages/settings/BillingEntity/sections/taxes/BillingEntityTaxesSettings'
-import InvoiceSections from '~/pages/settings/Invoices/InvoiceSections'
-import SettingsHomePage from '~/pages/settings/SettingsHomePage'
-
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -21,6 +5,36 @@ import { lazyLoad } from './utils'
 const Settings = lazyLoad(() => import('~/layouts/SettingsNavLayout'))
 
 // ----------- Pages -----------
+
+const BillingEntity = lazyLoad(() => import('~/pages/settings/BillingEntity/BillingEntity'))
+const BillingEntityCreateEdit = lazyLoad(
+  () => import('~/pages/settings/BillingEntity/sections/BillingEntityCreateEdit'),
+)
+const BillingEntityEmailScenarios = lazyLoad(
+  () => import('~/pages/settings/BillingEntity/sections/BillingEntityEmailScenarios'),
+)
+const BillingEntityEmailScenariosConfig = lazyLoad(
+  () => import('~/pages/settings/BillingEntity/sections/BillingEntityEmailScenariosConfig'),
+)
+const BillingEntityInvoiceSettings = lazyLoad(
+  () => import('~/pages/settings/BillingEntity/sections/BillingEntityInvoiceSettings'),
+)
+const BillingEntityDunningCampaigns = lazyLoad(
+  () =>
+    import('~/pages/settings/BillingEntity/sections/dunning-campaigns/BillingEntityDunningCampaigns'),
+)
+const BillingEntityGeneral = lazyLoad(
+  () => import('~/pages/settings/BillingEntity/sections/general/BillingEntityGeneral'),
+)
+const BillingEntityInvoiceCustomSections = lazyLoad(
+  () =>
+    import('~/pages/settings/BillingEntity/sections/invoice-custom-sections/BillingEntityInvoiceCustomSections'),
+)
+const BillingEntityTaxesSettings = lazyLoad(
+  () => import('~/pages/settings/BillingEntity/sections/taxes/BillingEntityTaxesSettings'),
+)
+const InvoiceSections = lazyLoad(() => import('~/pages/settings/Invoices/InvoiceSections'))
+const SettingsHomePage = lazyLoad(() => import('~/pages/settings/SettingsHomePage'))
 const CreateInvoiceCustomSection = lazyLoad(
   () => import('~/pages/settings/Invoices/CreateCustomSection'),
 )
@@ -32,6 +46,13 @@ const Authentication = lazyLoad(() => import('~/pages/settings/Authentication/Au
 const OktaAuthenticationDetails = lazyLoad(
   () => import('~/pages/settings/Authentication/OktaAuthenticationDetails'),
 )
+
+const AnrokIntegrationDetails = lazyLoad(() => import('~/pages/settings/AnrokIntegrationDetails'))
+const AnrokIntegrations = lazyLoad(() => import('~/pages/settings/AnrokIntegrations'))
+const AvalaraIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/AvalaraIntegrationDetails'),
+)
+const AvalaraIntegrations = lazyLoad(() => import('~/pages/settings/AvalaraIntegrations'))
 const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
 const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
 const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
