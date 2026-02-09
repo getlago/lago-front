@@ -140,13 +140,16 @@ const CustomerInvoiceRegenerate = () => {
     !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
 
   const [fees, setFees] = useState(fullFees || [])
+  const hasInitializedFees = useRef(false)
 
   // Update fees state when fullFees becomes available from the query.
   // This is needed because useState only uses its initial value on the first render,
   // but fullFees is typically undefined at that point since the query hasn't completed yet.
+  // We only want to do this once on initial load, not on subsequent refetches.
   useEffect(() => {
-    if (fullFees?.length) {
+    if (fullFees?.length && !hasInitializedFees.current) {
       setFees(fullFees)
+      hasInitializedFees.current = true
     }
   }, [fullFees])
 
