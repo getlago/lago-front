@@ -3793,5 +3793,8 @@
   "text_620bc4d4269a55014d493f4d": "Organization name is required",
   "text_620bc4d4269a55014d493f61": "Password is required",
   "text_1770124786732u8hv8voejbl": "Set specific tax rates to apply to this plan and all its charges.",
-  "text_17701996981731m5uguxyg8b": "Customer not found"
+  "text_17701996981731m5uguxyg8b": "Customer not found",
+  "text_17707227517604nyis2xn00d": "Webhook endpoint settings",
+  "text_17707227517607yom6ypgxoc": "Define the settings of this new webhook endpoint.",
+  "text_1770722751760qclc7dc4kvd": "Define the settings of this webhook endpoint."
 }

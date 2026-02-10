@@ -9,6 +9,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { RadioField, TextInput } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
 import {
@@ -178,6 +179,13 @@ const WebhookForm = () => {
                 )}
               </Typography>
             </div>
+
+            <PageSectionTitle
+              title={translate('text_17707227517604nyis2xn00d')}
+              subtitle={translate(
+                isEdition ? 'text_1770722751760qclc7dc4kvd' : 'text_17707227517607yom6ypgxoc',
+              )}
+            />
 
             <div className="flex flex-col gap-6 pb-12">
               <TextInput
