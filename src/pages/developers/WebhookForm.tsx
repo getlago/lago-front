@@ -30,6 +30,7 @@ gql`
   query getWebhookToEdit($webhookId: ID!) {
     webhookEndpoint(id: $webhookId) {
       id
+      name
       webhookUrl
       signatureAlgo
     }
@@ -38,6 +39,7 @@ gql`
   mutation createWebhookEndpoint($input: WebhookEndpointCreateInput!) {
     createWebhookEndpoint(input: $input) {
       id
+      name
       webhookUrl
       signatureAlgo
     }
@@ -46,6 +48,7 @@ gql`
   mutation updateWebhookEndpoint($input: WebhookEndpointUpdateInput!) {
     updateWebhookEndpoint(input: $input) {
       id
+      name
       webhookUrl
       signatureAlgo
     }
@@ -53,6 +56,7 @@ gql`
 `
 
 type WebhookFormValues = {
+  name?: string
   webhookUrl: string
   signatureAlgo: WebhookEndpointSignatureAlgoEnum
 }
@@ -97,6 +101,7 @@ const WebhookForm = () => {
 
   const formikProps = useFormik<WebhookFormValues>({
     initialValues: {
+      name: webhook?.name || '',
       webhookUrl: webhook?.webhookUrl || '',
       signatureAlgo: webhook?.signatureAlgo || WebhookEndpointSignatureAlgoEnum.Hmac,
     },
@@ -191,6 +196,14 @@ const WebhookForm = () => {
               <TextInput
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
+                name="name"
+                label={translate('text_1770723024044vvqxr476mvd')}
+                placeholder={translate('text_1770723024044wi5tokoswxl')}
+                value={formikProps.values.name || ''}
+                onChange={(value) => formikProps.setFieldValue('name', value)}
+              />
+
+              <TextInput
                 name="webhookUrl"
                 label={translate('text_6271200984178801ba8bdf22')}
                 placeholder={translate('text_6271200984178801ba8bdf36')}

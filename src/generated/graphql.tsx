@@ -10325,13 +10325,6 @@ export type EventsQueryVariables = Exact<{
 
 export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, transactionId?: string | null, code: string, receivedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
-export type DeleteWebhookMutationVariables = Exact<{
-  input: DestroyWebhookEndpointInput;
-}>;
-
-
-export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
-
 export type WebhookLogDetailsFragment = { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any };
 
 export type RetryWebhookMutationVariables = Exact<{
@@ -10379,6 +10372,13 @@ export type GetWebhookListQueryVariables = Exact<{
 
 
 export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string }> } };
+
+export type DeleteWebhookMutationVariables = Exact<{
+  input: DestroyWebhookEndpointInput;
+}>;
+
+
+export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
 
 export type CustomerForDunningEmailFragment = { __typename?: 'Customer', displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
 
@@ -12887,21 +12887,21 @@ export type GetWebhookToEditQueryVariables = Exact<{
 }>;
 
 
-export type GetWebhookToEditQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
+export type GetWebhookToEditQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
 
 export type CreateWebhookEndpointMutationVariables = Exact<{
   input: WebhookEndpointCreateInput;
 }>;
 
 
-export type CreateWebhookEndpointMutation = { __typename?: 'Mutation', createWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
+export type CreateWebhookEndpointMutation = { __typename?: 'Mutation', createWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
 
 export type UpdateWebhookEndpointMutationVariables = Exact<{
   input: WebhookEndpointUpdateInput;
 }>;
 
 
-export type UpdateWebhookEndpointMutation = { __typename?: 'Mutation', updateWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
+export type UpdateWebhookEndpointMutation = { __typename?: 'Mutation', updateWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
 
 export type GetFeatureForDetailsQueryVariables = Exact<{
   feature: Scalars['ID']['input'];
@@ -23382,39 +23382,6 @@ export type EventsQueryHookResult = ReturnType<typeof useEventsQuery>;
 export type EventsLazyQueryHookResult = ReturnType<typeof useEventsLazyQuery>;
 export type EventsSuspenseQueryHookResult = ReturnType<typeof useEventsSuspenseQuery>;
 export type EventsQueryResult = Apollo.QueryResult<EventsQuery, EventsQueryVariables>;
-export const DeleteWebhookDocument = gql`
-    mutation deleteWebhook($input: DestroyWebhookEndpointInput!) {
-  destroyWebhookEndpoint(input: $input) {
-    id
-  }
-}
-    `;
-export type DeleteWebhookMutationFn = Apollo.MutationFunction<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
-
-/**
- * __useDeleteWebhookMutation__
- *
- * To run a mutation, you first call `useDeleteWebhookMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteWebhookMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteWebhookMutation, { data, loading, error }] = useDeleteWebhookMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDeleteWebhookMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteWebhookMutation, DeleteWebhookMutationVariables>(DeleteWebhookDocument, options);
-      }
-export type DeleteWebhookMutationHookResult = ReturnType<typeof useDeleteWebhookMutation>;
-export type DeleteWebhookMutationResult = Apollo.MutationResult<DeleteWebhookMutation>;
-export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
 export const RetryWebhookDocument = gql`
     mutation retryWebhook($input: RetryWebhookInput!) {
   retryWebhook(input: $input) {
@@ -23685,6 +23652,39 @@ export type GetWebhookListQueryHookResult = ReturnType<typeof useGetWebhookListQ
 export type GetWebhookListLazyQueryHookResult = ReturnType<typeof useGetWebhookListLazyQuery>;
 export type GetWebhookListSuspenseQueryHookResult = ReturnType<typeof useGetWebhookListSuspenseQuery>;
 export type GetWebhookListQueryResult = Apollo.QueryResult<GetWebhookListQuery, GetWebhookListQueryVariables>;
+export const DeleteWebhookDocument = gql`
+    mutation deleteWebhook($input: DestroyWebhookEndpointInput!) {
+  destroyWebhookEndpoint(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteWebhookMutationFn = Apollo.MutationFunction<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
+
+/**
+ * __useDeleteWebhookMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebhookMutation, { data, loading, error }] = useDeleteWebhookMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteWebhookMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteWebhookMutation, DeleteWebhookMutationVariables>(DeleteWebhookDocument, options);
+      }
+export type DeleteWebhookMutationHookResult = ReturnType<typeof useDeleteWebhookMutation>;
+export type DeleteWebhookMutationResult = Apollo.MutationResult<DeleteWebhookMutation>;
+export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
 export const DestroyFeatureDocument = gql`
     mutation destroyFeature($input: DestroyFeatureInput!) {
   destroyFeature(input: $input) {
@@ -35018,6 +35018,7 @@ export const GetWebhookToEditDocument = gql`
     query getWebhookToEdit($webhookId: ID!) {
   webhookEndpoint(id: $webhookId) {
     id
+    name
     webhookUrl
     signatureAlgo
   }
@@ -35063,6 +35064,7 @@ export const CreateWebhookEndpointDocument = gql`
     mutation createWebhookEndpoint($input: WebhookEndpointCreateInput!) {
   createWebhookEndpoint(input: $input) {
     id
+    name
     webhookUrl
     signatureAlgo
   }
@@ -35098,6 +35100,7 @@ export const UpdateWebhookEndpointDocument = gql`
     mutation updateWebhookEndpoint($input: WebhookEndpointUpdateInput!) {
   updateWebhookEndpoint(input: $input) {
     id
+    name
     webhookUrl
     signatureAlgo
   }

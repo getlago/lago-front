@@ -3796,5 +3796,7 @@
   "text_17701996981731m5uguxyg8b": "Customer not found",
   "text_17707227517604nyis2xn00d": "Webhook endpoint settings",
   "text_17707227517607yom6ypgxoc": "Define the settings of this new webhook endpoint.",
-  "text_1770722751760qclc7dc4kvd": "Define the settings of this webhook endpoint."
+  "text_1770722751760qclc7dc4kvd": "Define the settings of this webhook endpoint.",
+  "text_1770723024044vvqxr476mvd": "Webhook destination name",
+  "text_1770723024044wi5tokoswxl": "Define a destination name"
 }
