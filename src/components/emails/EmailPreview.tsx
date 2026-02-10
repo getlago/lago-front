@@ -1,6 +1,7 @@
 import { Icon, tw } from 'lago-design-system'
 
-import { Skeleton, Typography } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
 import { envGlobalVar } from '~/core/apolloClient'
 import { LocaleEnum } from '~/core/translations'
