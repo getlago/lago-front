@@ -40,7 +40,6 @@ const CreateInvoiceCustomSection = lazyLoad(
 )
 
 const TaxesSettings = lazyLoad(() => import('~/pages/settings/TaxesSettings'))
-const Members = lazyLoad(() => import('~/pages/settings/members/Members'))
 const Integrations = lazyLoad(() => import('~/pages/settings/Integrations'))
 const Authentication = lazyLoad(() => import('~/pages/settings/Authentication/Authentication'))
 const OktaAuthenticationDetails = lazyLoad(
@@ -103,6 +102,8 @@ const RoleCreateEdit = lazyLoad(
   () => import('~/pages/settings/roles/roleCreateEdit/RoleCreateEdit'),
 )
 
+const TeamAndSecurity = lazyLoad(() => import('~/pages/settings/teamAndSecurity/TeamAndSecurity'))
+
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
@@ -137,8 +138,7 @@ export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
 export const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
 export const TAX_MANAGEMENT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/lago-tax-management`
-export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
-export const MEMBERS_TAB_ROUTE = `${SETTINGS_ROUTE}/members/:tab`
+
 export const EMAILS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/emails`
 export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
@@ -162,6 +162,10 @@ export const ROLES_LIST_ROUTE = `${ROOT_ROLES_ROUTE}`
 export const ROLE_DETAILS_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId`
 export const ROLE_CREATE_ROUTE = `${ROOT_ROLES_ROUTE}/create`
 export const ROLE_EDIT_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/edit`
+
+export const TEAM_AND_SECURITY_ROOT_ROUTE = `${SETTINGS_ROUTE}/team-and-security`
+export const TEAM_AND_SECURITY_GROUP_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/:group`
+export const TEAM_AND_SECURITY_TAB_ROUTE = `${TEAM_AND_SECURITY_GROUP_ROUTE}/:tab`
 
 /**
  * Creation routes
@@ -247,12 +251,6 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <OktaAuthenticationDetails />,
         permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
-      },
-      {
-        path: [MEMBERS_ROUTE, MEMBERS_TAB_ROUTE],
-        private: true,
-        element: <Members />,
-        permissions: ['organizationMembersView'],
       },
       {
         path: ANROK_INTEGRATION_ROUTE,
@@ -476,6 +474,16 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <RoleDetails />,
         permissions: ['rolesView'],
+      },
+      {
+        path: [
+          TEAM_AND_SECURITY_ROOT_ROUTE,
+          TEAM_AND_SECURITY_GROUP_ROUTE,
+          TEAM_AND_SECURITY_TAB_ROUTE,
+        ],
+        private: true,
+        element: <TeamAndSecurity />,
+        permissions: ['organizationMembersView'],
       },
     ],
   },

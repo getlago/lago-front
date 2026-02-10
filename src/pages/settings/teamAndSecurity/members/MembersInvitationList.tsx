@@ -16,20 +16,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
-import {
-  CreateInviteDialog,
-  CreateInviteDialogRef,
-} from '~/pages/settings/members/dialogs/CreateInviteDialog'
-import {
-  EditInviteRoleDialog,
-  EditInviteRoleDialogRef,
-} from '~/pages/settings/members/dialogs/EditInviteRoleDialog'
-import {
-  RevokeInviteDialog,
-  RevokeInviteDialogRef,
-} from '~/pages/settings/members/dialogs/RevokeInviteDialog'
 
 import MembersFilters from './common/MembersFilters'
+import { CreateInviteDialog, CreateInviteDialogRef } from './dialogs/CreateInviteDialog'
+import { EditInviteRoleDialog, EditInviteRoleDialogRef } from './dialogs/EditInviteRoleDialog'
+import { RevokeInviteDialog, RevokeInviteDialogRef } from './dialogs/RevokeInviteDialog'
 import { useGetMembersInvitationList } from './hooks/useGetMembersInvitationsList'
 
 type Invitation = GetInvitesQuery['invites']['collection'][0]

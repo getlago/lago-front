@@ -13,17 +13,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
-import {
-  EditMemberRoleDialog,
-  EditMemberRoleDialogRef,
-} from '~/pages/settings/members/dialogs/EditMemberRoleDialog'
-import {
-  RevokeMembershipDialog,
-  RevokeMembershipDialogRef,
-} from '~/pages/settings/members/dialogs/RevokeMembershipDialog'
 
 import MembersFilters from './common/MembersFilters'
 import { CreateInviteDialog, CreateInviteDialogRef } from './dialogs/CreateInviteDialog'
+import { EditMemberRoleDialog, EditMemberRoleDialogRef } from './dialogs/EditMemberRoleDialog'
+import { RevokeMembershipDialog, RevokeMembershipDialogRef } from './dialogs/RevokeMembershipDialog'
 import { useGetMembersList } from './hooks/useGetMembersList'
 
 type Membership = GetMembersQuery['memberships']['collection'][0]
