@@ -14,8 +14,3 @@ v8-compile-cache*
 .prettiercache
 /.vscode
 TestResults/
-.agents
-.claude
-.codex
-.cursor
-.opencode
