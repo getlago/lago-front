@@ -676,7 +676,7 @@
   "text_6271200984178801ba8bdf4a": "Cancel",
   "text_6271200984178801ba8bdf5e": "Add webhook",
   "text_6271200984178801ba8bdf58": "Please fill this input with a URL format to move forward",
-  "text_6271200984178801ba8bdf7f": "Webhook successfully created",
+  "text_6271200984178801ba8bdf7f": "Webhook successfully added",
   "text_6271200984178801ba8bdeb2": "You’re about to delete a webhook",
   "text_6271200984178801ba8bded2": "By deleting this webhook, you will no longer receive any future events at its URL, and you will lose access to all past events. Are you sure you want to delete it?",
   "text_6271200984178801ba8bdf0c": "Yes, delete",
