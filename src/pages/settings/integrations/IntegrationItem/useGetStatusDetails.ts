@@ -1,4 +1,4 @@
-import { StatusType } from '~/components/designSystem'
+import { StatusType } from '~/components/designSystem/Status'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   getMappingInfos,

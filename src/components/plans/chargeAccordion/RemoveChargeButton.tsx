@@ -1,6 +1,7 @@
 import { RefObject } from 'react'
 
-import { Button, Tooltip } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'
 import { useDuplicatePlanVar } from '~/core/apolloClient'

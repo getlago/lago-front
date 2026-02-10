@@ -1,7 +1,11 @@
 import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface OverviewCardProps {

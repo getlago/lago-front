@@ -3,7 +3,7 @@ import { tw } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC, Fragment, memo, ReactNode, RefObject } from 'react'
 
-import { Button } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import { DeleteAdjustedFeeDialogRef } from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTableBodyLine } from '~/components/invoices/details/InvoiceDetailsTableBodyLine'

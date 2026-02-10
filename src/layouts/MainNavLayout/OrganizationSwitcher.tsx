@@ -4,15 +4,13 @@ import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  Avatar,
-  Button,
-  Popper,
-  Skeleton,
-  Tooltip,
-  Typography,
-  VerticalMenuSectionTitle,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import { logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import { HOME_ROUTE } from '~/core/router'

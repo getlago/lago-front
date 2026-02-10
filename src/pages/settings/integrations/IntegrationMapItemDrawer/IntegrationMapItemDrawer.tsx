@@ -4,7 +4,9 @@ import { FormikValues, useFormik } from 'formik'
 import { useMemo, useState } from 'react'
 import { array } from 'yup'
 
-import { Button, Drawer, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Drawer } from '~/components/designSystem/Drawer'
+import { Typography } from '~/components/designSystem/Typography'
 import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {

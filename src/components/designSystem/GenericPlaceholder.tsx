@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 
-import { Button, ButtonVariant, Typography } from '~/components/designSystem'
+import { Button, ButtonVariant } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 // Test ID constants

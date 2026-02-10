@@ -12,18 +12,14 @@ import {
 } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 
-import {
-  Alert,
-  Avatar,
-  AvatarBadge,
-  Button,
-  Drawer,
-  DrawerRef,
-  GenericPlaceholder,
-  Skeleton,
-  Status,
-  Typography,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Status } from '~/components/designSystem/Status'
+import { Typography } from '~/components/designSystem/Typography'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
 import {
   payablePaymentStatusMapping,

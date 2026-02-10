@@ -2,7 +2,11 @@ import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { FC, useEffect, useMemo, useState } from 'react'
 
-import { Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { SHOW_LIMIT_INPUT_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {

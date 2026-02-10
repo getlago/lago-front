@@ -1,6 +1,6 @@
 import { generatePath } from 'react-router-dom'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { BILLING_ENTITY_GENERAL_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'

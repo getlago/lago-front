@@ -1,7 +1,10 @@
 import { FC } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll, Status, Table, Typography } from '~/components/designSystem'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'

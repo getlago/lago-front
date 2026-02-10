@@ -3,7 +3,7 @@ import { Icon } from 'lago-design-system'
 import _sortBy from 'lodash/sortBy'
 import { HTMLAttributes, JSXElementConstructor, useMemo, useState } from 'react'
 
-import { Chip } from '~/components/designSystem'
+import { Chip } from '~/components/designSystem/Chip'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 

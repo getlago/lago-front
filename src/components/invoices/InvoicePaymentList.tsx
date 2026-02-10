@@ -1,7 +1,10 @@
 import { FC, RefObject } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Status, Table } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

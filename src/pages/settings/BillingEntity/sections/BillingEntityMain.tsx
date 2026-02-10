@@ -1,7 +1,10 @@
 import { Icon, IconName } from 'lago-design-system'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Avatar, Button, Tooltip, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { SettingsPaddedContainer, SettingsPageHeaderContainer } from '~/components/layouts/Settings'
 import {
   BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,

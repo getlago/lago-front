@@ -1,4 +1,4 @@
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PaymentMethodDetails } from './PaymentMethodDetails'

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
-import { Spinner } from '~/components/designSystem'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { getItemFromLS } from '~/core/apolloClient'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'

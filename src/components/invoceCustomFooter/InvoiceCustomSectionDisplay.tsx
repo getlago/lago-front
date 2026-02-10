@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
-import { Chip, Typography } from '~/components/designSystem'
+import { Chip } from '~/components/designSystem/Chip'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 

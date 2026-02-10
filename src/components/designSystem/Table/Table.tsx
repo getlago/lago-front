@@ -6,15 +6,15 @@ import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Button } from '~/components/designSystem/Button'
 import {
-  Button,
   GenericPlaceholder,
   GenericPlaceholderProps,
-  Popper,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+} from '~/components/designSystem/GenericPlaceholder'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'

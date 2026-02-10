@@ -1,4 +1,4 @@
-import { TypographyColor } from '~/components/designSystem'
+import { TypographyColor } from '~/components/designSystem/Typography'
 import { HttpMethodEnum } from '~/generated/graphql'
 
 export const variantByHTTPMethod = (method: HttpMethodEnum): TypographyColor => {

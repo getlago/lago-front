@@ -1,6 +1,7 @@
 import { Fragment, useRef } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { type GetCreditNoteForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {

@@ -11,7 +11,9 @@ import {
   useState,
 } from 'react'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'

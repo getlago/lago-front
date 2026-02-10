@@ -1,7 +1,11 @@
 import Stack from '@mui/material/Stack'
 import { Icon } from 'lago-design-system'
 
-import { Avatar, Skeleton, Status, Table, TableColumn, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Status } from '~/components/designSystem/Status'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { VoidReturningFunction } from '~/core/types/voidReturningFunction'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

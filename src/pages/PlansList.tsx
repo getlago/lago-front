@@ -3,14 +3,12 @@ import { Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  Avatar,
-  ButtonLink,
-  GenericPlaceholderProps,
-  InfiniteScroll,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'

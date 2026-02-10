@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from '~/components/designSystem'
+import { Button, ButtonProps } from '~/components/designSystem/Button'
 import { useFormContext } from '~/hooks/forms/formContext'
 
 const SubmitButtonField = ({

@@ -7,15 +7,11 @@ import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
-import {
-  Button,
-  Status,
-  StatusProps,
-  StatusType,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { envGlobalVar } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

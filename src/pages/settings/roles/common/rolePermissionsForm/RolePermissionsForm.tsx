@@ -2,7 +2,8 @@ import { useStore } from '@tanstack/react-form'
 import { Icon, IconName } from 'lago-design-system'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Alert, Button, Typography } from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
 import {
   ColumnConfig,
   ColumnHelpers,
@@ -10,6 +11,7 @@ import {
   TableWithGroups,
   TableWithGroupsRef,
 } from '~/components/designSystem/Table/TableWithGroups'
+import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox, TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'

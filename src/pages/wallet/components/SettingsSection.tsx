@@ -3,7 +3,10 @@ import { FormikErrors, FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
 
-import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   AmountInputField,
   ComboBoxField,

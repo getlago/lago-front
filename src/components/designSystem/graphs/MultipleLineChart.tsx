@@ -11,13 +11,13 @@ import {
 import { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
-import { Typography } from '~/components/designSystem'
 import {
   multipleLineChartFakeData,
   multipleLineChartFakeLines,
   multipleLineChartLoadingFakeData,
   multipleLineChartLoadingFakeLines,
 } from '~/components/designSystem/graphs/fixtures'
+import { Typography } from '~/components/designSystem/Typography'
 import { ChartWrapper } from '~/components/layouts/Charts'
 import {
   bigNumberShortenNotationFormater,

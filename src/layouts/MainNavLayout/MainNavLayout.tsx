@@ -3,7 +3,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation } from 'react-router-dom'
 
-import { Spinner } from '~/components/designSystem'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'

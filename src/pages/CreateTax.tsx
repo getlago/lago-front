@@ -3,15 +3,12 @@ import { useFormik } from 'formik'
 import { useEffect, useRef, useState } from 'react'
 import { number, object, string } from 'yup'
 
-import {
-  Button,
-  Card,
-  Skeleton,
-  Tooltip,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { TextInput, TextInputField } from '~/components/form'
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'

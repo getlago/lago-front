@@ -4,15 +4,12 @@ import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import {
-  InfiniteScroll,
-  Status,
-  StatusType,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status, StatusType } from '~/components/designSystem/Status'
 import { ActionItem } from '~/components/designSystem/Table'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,

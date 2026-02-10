@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   CreateInvoiceCustomSectionInput,
   PremiumIntegrationTypeEnum,

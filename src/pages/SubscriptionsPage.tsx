@@ -3,12 +3,14 @@ import { Icon, tw } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll, Status, StatusType, Typography } from '~/components/designSystem'
 import {
   Filters,
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
 } from '~/components/designSystem/Filters'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status, StatusType } from '~/components/designSystem/Status'
+import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'

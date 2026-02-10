@@ -4,7 +4,11 @@ import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { RefObject, useEffect, useMemo, useState } from 'react'
 
-import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import {

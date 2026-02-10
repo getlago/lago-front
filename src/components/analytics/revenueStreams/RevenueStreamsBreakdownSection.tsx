@@ -1,6 +1,7 @@
 import { RevenueStreamsCustomerBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsCustomerBreakdownSection'
 import { RevenueStreamsPlanBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsPlanBreakdownSection'
-import { NavigationTab, TabManagedBy, Typography } from '~/components/designSystem'
+import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

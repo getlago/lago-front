@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 

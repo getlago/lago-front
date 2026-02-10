@@ -1,6 +1,7 @@
 import { Icon, IconName } from 'lago-design-system'
 
-import { AiBadge, Button } from '~/components/designSystem'
+import { AiBadge } from '~/components/designSystem/AiBadge'
+import { Button } from '~/components/designSystem/Button'
 import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AIPanelEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

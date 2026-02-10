@@ -3,14 +3,12 @@ import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
-import {
-  Avatar,
-  Button,
-  GenericPlaceholder,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   SettingsListItem,
   SettingsListItemHeader,

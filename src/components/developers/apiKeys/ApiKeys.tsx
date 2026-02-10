@@ -4,7 +4,12 @@ import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
 import { generatePath, useLocation } from 'react-router-dom'
 
-import { ActionItem, Button, Skeleton, Table, Tooltip, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   DeleteApiKeyDialog,
   DeleteApiKeyDialogRef,

@@ -3,13 +3,16 @@ import '@testing-library/jest-dom'
 import { screen, waitFor } from '@testing-library/react'
 import { ComponentType } from 'react'
 
-import { Skeleton } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { render } from '~/test-utils'
 
 import { lazyComponent } from '../lazyComponent'
 
-jest.mock('~/components/designSystem', () => ({
+jest.mock('~/components/designSystem/Skeleton', () => ({
   Skeleton: () => <div data-test="skeleton">Loading...</div>,
+}))
+
+jest.mock('~/components/designSystem/Spinner', () => ({
   Spinner: () => <div data-test="spinner">Loading...</div>,
 }))
 

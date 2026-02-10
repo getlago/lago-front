@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
-import { ButtonLink } from '~/components/designSystem'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE } from '~/core/router'

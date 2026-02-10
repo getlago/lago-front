@@ -3,7 +3,7 @@ import { Icon } from 'lago-design-system'
 import { Link } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 
 import { MultipleComboBoxData } from './types'
 

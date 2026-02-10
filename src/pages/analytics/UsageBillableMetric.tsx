@@ -5,19 +5,17 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import { useUsageAnalyticsBillableMetric } from '~/components/analytics/usage/useUsageAnalyticsBillableMetric'
-import {
-  Button,
-  GenericPlaceholder,
-  HorizontalDataTable,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   AvailableQuickFilters,
   Filters,
   UsageBillableMetricAvailableFilters,
 } from '~/components/designSystem/Filters'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
+import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

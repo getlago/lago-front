@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react'
 
-import { Typography, TypographyProps } from '~/components/designSystem'
+import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 
 import { tw } from './utils'
 

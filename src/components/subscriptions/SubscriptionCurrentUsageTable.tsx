@@ -7,17 +7,14 @@ import {
   SubscriptionUsageDetailDrawerRef,
   SubscriptionUsageDetailDrawerUsage,
 } from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
-import {
-  Alert,
-  Button,
-  GenericPlaceholder,
-  NavigationTab,
-  Skeleton,
-  Table,
-  TabManagedBy,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
 import { LagoGQLError } from '~/core/apolloClient'

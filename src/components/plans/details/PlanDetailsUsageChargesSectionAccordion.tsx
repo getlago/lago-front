@@ -1,5 +1,6 @@
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Accordion, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Typography } from '~/components/designSystem/Typography'
 import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { Charge, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

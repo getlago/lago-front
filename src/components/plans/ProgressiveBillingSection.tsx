@@ -5,15 +5,13 @@ import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { FC, useEffect, useState } from 'react'
 
-import {
-  Accordion,
-  Alert,
-  Button,
-  ButtonLink,
-  ChargeTable,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'

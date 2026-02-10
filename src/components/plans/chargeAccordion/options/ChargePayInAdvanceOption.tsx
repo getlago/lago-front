@@ -1,6 +1,6 @@
 import { FC } from 'react'
 
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { Radio } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

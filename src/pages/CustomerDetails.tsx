@@ -21,16 +21,14 @@ import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons
 import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { computeCustomerInitials } from '~/components/customers/utils'
-import {
-  Avatar,
-  Button,
-  Chip,
-  GenericPlaceholder,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'

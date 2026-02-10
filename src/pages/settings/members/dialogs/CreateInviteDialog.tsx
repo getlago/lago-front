@@ -4,13 +4,10 @@ import { forwardRef, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 import { z } from 'zod'
 
-import {
-  Button,
-  Dialog,
-  DialogRef,
-  GenericPlaceholder,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Typography } from '~/components/designSystem/Typography'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { INVITATION_ROUTE } from '~/core/router'

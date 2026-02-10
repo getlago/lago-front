@@ -1,4 +1,5 @@
-import { Accordion, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
 import { isPlanIntervalAnnual, mapChargeIntervalCopy } from '~/components/plans/utils'

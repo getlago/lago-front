@@ -1,6 +1,7 @@
 import { RefObject } from 'react'
 
-import { Button, Popper } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
 import { FinalizeInvoiceDialogRef } from '~/components/invoices/FinalizeInvoiceDialog'
 import { envGlobalVar } from '~/core/apolloClient'
 import {

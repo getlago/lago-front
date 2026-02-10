@@ -2,18 +2,15 @@ import { gql } from '@apollo/client'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
-import {
-  Button,
-  NavigationTab,
-  Skeleton,
-  TabManagedBy,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
 import {
   AvailableFiltersEnum,
   Filters,
   formatFiltersForWebhookLogsQuery,
 } from '~/components/designSystem/Filters'
+import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { WEBHOOK_LOGS_ROUTE, WEBHOOKS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'

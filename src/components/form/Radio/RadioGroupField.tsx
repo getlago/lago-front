@@ -3,7 +3,8 @@ import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Tooltip, Typography } from '~/components/designSystem'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import { RadioProps } from './Radio'

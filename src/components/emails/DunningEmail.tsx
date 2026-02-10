@@ -1,7 +1,10 @@
 import { gql } from '@apollo/client'
 import { FC } from 'react'
 
-import { Button, Skeleton, Table, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'

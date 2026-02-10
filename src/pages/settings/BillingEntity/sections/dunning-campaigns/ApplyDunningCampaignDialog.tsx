@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
-import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {

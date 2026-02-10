@@ -1,4 +1,4 @@
-import { StatusProps, StatusType } from '~/components/designSystem'
+import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { CouponStatusEnum } from '~/generated/graphql'
 
 export const couponStatusMapping = (type?: CouponStatusEnum | undefined): StatusProps => {

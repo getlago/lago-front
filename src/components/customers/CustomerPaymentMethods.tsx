@@ -2,15 +2,12 @@ import { gql } from '@apollo/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { LinkedPaymentProvider } from '~/components/customers/types'
-import {
-  Alert,
-  Button,
-  Dialog,
-  DialogRef,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PaymentMethodsList } from '~/components/paymentMethodsList/PaymentMethodList'

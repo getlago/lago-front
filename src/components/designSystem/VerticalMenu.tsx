@@ -3,7 +3,10 @@ import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
 
-import { Button, Chip, Skeleton, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'

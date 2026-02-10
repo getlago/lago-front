@@ -6,15 +6,12 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { date, object, string } from 'yup'
 
-import {
-  Alert,
-  Button,
-  Status,
-  Table,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Status } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { AmountInputField, ComboBox, DatePickerField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'

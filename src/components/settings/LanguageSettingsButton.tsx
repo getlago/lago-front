@@ -1,6 +1,7 @@
 import { FC } from 'react'
 
-import { Button, Popper } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
 import { DocumentLocales, LocaleEnum } from '~/core/translations'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'

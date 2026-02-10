@@ -7,7 +7,11 @@ import {
   DeleteBillableMetricDialog,
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
-import { Avatar, ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {

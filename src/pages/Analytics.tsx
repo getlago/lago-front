@@ -1,4 +1,4 @@
-import { Spinner } from '~/components/designSystem'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import NewAnalytics from '~/pages/analytics/NewAnalytics'

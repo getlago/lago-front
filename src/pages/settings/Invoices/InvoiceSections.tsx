@@ -2,7 +2,10 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,

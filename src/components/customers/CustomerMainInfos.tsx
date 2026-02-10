@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import { CustomerInfoRows } from '~/components/customers/CustomerInfoRows'
 import { CustomerIntegrationRows } from '~/components/customers/CustomerIntegrationRows'
 import { CustomerPaymentMethods } from '~/components/customers/CustomerPaymentMethods'
-import { Skeleton } from '~/components/designSystem'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {

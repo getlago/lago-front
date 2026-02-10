@@ -3,16 +3,14 @@ import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import {
-  ButtonLink,
-  GenericPlaceholder,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
 import { subscriptionLifetimeUsageFakeData } from '~/components/designSystem/graphs/fixtures'
 import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { UPDATE_PLAN_ROUTE, UPDATE_SUBSCRIPTION } from '~/core/router'

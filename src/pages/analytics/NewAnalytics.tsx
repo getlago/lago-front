@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
-import { NavigationTab, Typography } from '~/components/designSystem'
+import { NavigationTab } from '~/components/designSystem/NavigationTab'
+import { Typography } from '~/components/designSystem/Typography'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'

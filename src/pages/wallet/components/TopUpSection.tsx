@@ -7,7 +7,11 @@ import { get } from 'lodash'
 import { DateTime } from 'luxon'
 import { FC, RefObject, useMemo, useState } from 'react'
 
-import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Alert } from '~/components/designSystem/Alert'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   AmountInputField,
   ComboBox,

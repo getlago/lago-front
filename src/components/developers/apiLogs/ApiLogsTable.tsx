@@ -1,7 +1,10 @@
 import { FC, RefObject, useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll, Status, StatusType, Table, Typography } from '~/components/designSystem'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status, StatusType } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import { variantByHTTPMethod } from '~/components/developers/apiLogs/mapping'
 import { API_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'

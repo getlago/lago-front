@@ -5,20 +5,17 @@ import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
-  ActionItem,
-  GenericPlaceholderProps,
-  InfiniteScroll,
-  Status,
-  StatusType,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
-import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
 } from '~/components/designSystem/Filters'
+import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status, StatusType } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,

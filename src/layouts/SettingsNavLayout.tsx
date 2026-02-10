@@ -9,14 +9,11 @@ import {
   useParams,
 } from 'react-router-dom'
 
-import {
-  Button,
-  ButtonLink,
-  Skeleton,
-  Typography,
-  VerticalMenu,
-  VerticalMenuSectionTitle,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {

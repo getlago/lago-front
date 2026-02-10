@@ -2,14 +2,12 @@ import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
-import {
-  Button,
-  ButtonLink,
-  Popper,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

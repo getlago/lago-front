@@ -5,15 +5,12 @@ import { number, object, string } from 'yup'
 
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
 import { AddOnFormInput } from '~/components/addOns/types'
-import {
-  Button,
-  Card,
-  Skeleton,
-  Tooltip,
-  Typography,
-  WarningDialog,
-  WarningDialogRef,
-} from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { FORM_ERRORS_ENUM, SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME } from '~/core/constants/form'
