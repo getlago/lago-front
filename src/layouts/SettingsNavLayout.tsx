@@ -33,8 +33,6 @@ import {
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
-  MEMBERS_ROUTE,
-  MEMBERS_TAB_ROUTE,
   OKTA_AUTHENTICATION_ROUTE,
   ROLE_CREATE_ROUTE,
   ROLE_DETAILS_ROUTE,
@@ -42,6 +40,9 @@ import {
   ROLES_LIST_ROUTE,
   settingRoutes,
   TAXES_SETTINGS_ROUTE,
+  TEAM_AND_SECURITY_GROUP_ROUTE,
+  TEAM_AND_SECURITY_ROOT_ROUTE,
+  TEAM_AND_SECURITY_TAB_ROUTE,
   UPDATE_DUNNING_ROUTE,
   UPDATE_TAX_ROUTE,
 } from '~/core/router'
@@ -82,9 +83,13 @@ const generateTabs = ({
     hidden: !hasPermissions(['organizationIntegrationsView', 'authenticationMethodsView']),
   },
   {
-    title: translate('text_63208b630aaf8df6bbfb2655'),
-    link: MEMBERS_ROUTE,
-    match: [MEMBERS_ROUTE, MEMBERS_TAB_ROUTE],
+    title: translate('text_177073440645951fhlh2ofdc'),
+    link: TEAM_AND_SECURITY_ROOT_ROUTE,
+    match: [
+      TEAM_AND_SECURITY_ROOT_ROUTE,
+      TEAM_AND_SECURITY_GROUP_ROUTE,
+      TEAM_AND_SECURITY_TAB_ROUTE,
+    ],
     hidden: !hasPermissions(['organizationMembersView']),
   },
   {
