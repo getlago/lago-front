@@ -97,7 +97,7 @@ export const ApiKeys = () => {
   const { state } = useLocation()
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { closePanel: close } = useDeveloperTool()
+  const { closePanel: close, setMainRouterUrl } = useDeveloperTool()
 
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
   const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)
@@ -283,10 +283,9 @@ export const ApiKeys = () => {
                           if (showPremiumAddApiKeyState) {
                             premiumWarningDialogRef.current?.openDialog()
                           } else {
+                            // Navigate to BrowserRouter route from MemoryRouter without page reload
+                            setMainRouterUrl(CREATE_API_KEYS_ROUTE)
                             close()
-
-                            // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
-                            window.location.href = CREATE_API_KEYS_ROUTE
                           }
                         }}
                       >
@@ -512,8 +511,9 @@ export const ApiKeys = () => {
                         onAction: () => {
                           const path = generatePath(UPDATE_API_KEYS_ROUTE, { apiKeyId: id })
 
-                          // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
-                          window.location.href = path
+                          // Navigate to BrowserRouter route from MemoryRouter without page reload
+                          setMainRouterUrl(path)
+                          close()
                         },
                       },
 
