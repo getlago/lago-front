@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,10 +7,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
-import {
-  DeleteWebhookDialog,
-  DeleteWebhookDialogRef,
-} from '~/components/developers/webhooks/DeleteWebhookDialog'
+import { useDeleteWebhook } from '~/components/developers/webhooks/useDeleteWebhook'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -49,7 +46,7 @@ export const Webhooks = () => {
   const { translate } = useInternationalization()
   const { closePanel } = useDeveloperTool()
   const [showOrganizationHmac, setShowOrganizationHmac] = useState<boolean>(false)
-  const deleteDialogRef = useRef<DeleteWebhookDialogRef>(null)
+  const { openDialog: openDeleteDialog } = useDeleteWebhook()
   const { data: organizationData, loading: organizationLoading } = useGetOrganizationHmacDataQuery()
   const { data: webhookData, loading: webhookLoading } = useGetWebhookListQuery({
     variables: { limit: WEBHOOK_COUNT_LIMIT },
@@ -130,7 +127,7 @@ export const Webhooks = () => {
                           startIcon: 'trash',
                           title: translate('text_63aa15caab5b16980b21b0ba'),
                           onAction: () => {
-                            deleteDialogRef.current?.openDialog(webhook.id)
+                            openDeleteDialog(webhook.id)
                           },
                         },
                       ]
@@ -239,8 +236,6 @@ export const Webhooks = () => {
           )}
         </div>
       </div>
-
-      <DeleteWebhookDialog ref={deleteDialogRef} />
     </>
   )
 }
