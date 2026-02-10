@@ -8,10 +8,6 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
 import {
-  CreateWebhookDialog,
-  CreateWebhookDialogRef,
-} from '~/components/developers/webhooks/CreateWebhookDialog'
-import {
   DeleteWebhookDialog,
   DeleteWebhookDialogRef,
 } from '~/components/developers/webhooks/DeleteWebhookDialog'
@@ -22,13 +18,11 @@ import {
 } from '~/components/layouts/Settings'
 import { addToast } from '~/core/apolloClient'
 import { obfuscateValue } from '~/core/formats/obfuscate'
+import { CREATE_WEBHOOK_ROUTE, UPDATE_WEBHOOK_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import {
-  useGetOrganizationHmacDataQuery,
-  useGetWebhookListQuery,
-  WebhookForCreateAndEditFragmentDoc,
-} from '~/generated/graphql'
+import { useGetOrganizationHmacDataQuery, useGetWebhookListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { tw } from '~/styles/utils'
 
 const WEBHOOK_COUNT_LIMIT = 10
@@ -46,18 +40,15 @@ gql`
       collection {
         id
         webhookUrl
-        ...WebhookForCreateAndEdit
       }
     }
   }
-
-  ${WebhookForCreateAndEditFragmentDoc}
 `
 
 export const Webhooks = () => {
   const { translate } = useInternationalization()
+  const { closePanel } = useDeveloperTool()
   const [showOrganizationHmac, setShowOrganizationHmac] = useState<boolean>(false)
-  const createDialogRef = useRef<CreateWebhookDialogRef>(null)
   const deleteDialogRef = useRef<DeleteWebhookDialogRef>(null)
   const { data: organizationData, loading: organizationLoading } = useGetOrganizationHmacDataQuery()
   const { data: webhookData, loading: webhookLoading } = useGetWebhookListQuery({
@@ -87,7 +78,11 @@ export const Webhooks = () => {
                         WEBHOOK_COUNT_LIMIT
                       }
                       variant="inline"
-                      onClick={() => createDialogRef?.current?.openDialog()}
+                      onClick={() => {
+                        closePanel()
+                        // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
+                        window.location.href = CREATE_WEBHOOK_ROUTE
+                      }}
                       startIcon="plus"
                     >
                       {translate('text_1746190277237vdc9v07s2fe')}
@@ -123,7 +118,12 @@ export const Webhooks = () => {
                           startIcon: 'pen',
                           title: translate('text_63aa15caab5b16980b21b0b8'),
                           onAction: () => {
-                            createDialogRef?.current?.openDialog(webhook)
+                            const path = generatePath(UPDATE_WEBHOOK_ROUTE, {
+                              webhookId: webhook.id,
+                            })
+
+                            // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
+                            window.location.href = path
                           },
                         },
                         {
@@ -240,7 +240,6 @@ export const Webhooks = () => {
         </div>
       </div>
 
-      <CreateWebhookDialog ref={createDialogRef} />
       <DeleteWebhookDialog ref={deleteDialogRef} />
     </>
   )

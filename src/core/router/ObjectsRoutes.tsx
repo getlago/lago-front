@@ -15,6 +15,7 @@ const FeaturesList = lazyLoad(() => import('~/pages/features/FeaturesList'))
 
 // Creation
 const ApiKeysForm = lazyLoad(() => import('~/pages/developers/ApiKeysForm'))
+const WebhookForm = lazyLoad(() => import('~/pages/developers/WebhookForm'))
 const CreateBillableMetric = lazyLoad(() => import('~/pages/CreateBillableMetric'))
 const CreateCustomer = lazyLoad(() => import('~/pages/createCustomers/CreateCustomer'))
 const CreatePlan = lazyLoad(() => import('~/pages/CreatePlan'))
@@ -59,6 +60,9 @@ export const UPDATE_CUSTOMER_ROUTE = `/customer/:customerId/edit`
 
 export const CREATE_API_KEYS_ROUTE = `/api-keys/create`
 export const UPDATE_API_KEYS_ROUTE = `/api-keys/:apiKeyId/edit`
+
+export const CREATE_WEBHOOK_ROUTE = `/webhook/create`
+export const UPDATE_WEBHOOK_ROUTE = `/webhook/:webhookId/edit`
 
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
 export const UPDATE_BILLABLE_METRIC_ROUTE = '/update/billable-metric/:billableMetricId'
@@ -198,6 +202,12 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <ApiKeysForm />,
     permissions: ['developersManage', 'developersKeysManage'],
+  },
+  {
+    path: [CREATE_WEBHOOK_ROUTE, UPDATE_WEBHOOK_ROUTE],
+    private: true,
+    element: <WebhookForm />,
+    permissions: ['developersManage'],
   },
   {
     path: [CREATE_ADD_ON_ROUTE, UPDATE_ADD_ON_ROUTE],
