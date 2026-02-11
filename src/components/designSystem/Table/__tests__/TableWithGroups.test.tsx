@@ -467,6 +467,100 @@ describe('TableWithGroups', () => {
       expect(ref.current?.hasExpandedGroups()).toBe(false)
       expect(ref.current?.hasCollapsedGroups()).toBe(true)
     })
+
+    it('getExpandedState returns empty object when all groups are collapsed', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      const state = ref.current?.getExpandedState()
+
+      expect(state).toEqual({})
+    })
+
+    it('getExpandedState returns correct state after expanding groups', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      await act(async () => {
+        ref.current?.toggleGroup('group1')
+      })
+
+      const state = ref.current?.getExpandedState()
+
+      expect(state).toEqual({ group1: true })
+    })
+
+    it('getExpandedState returns all groups expanded after expandAll', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      await act(async () => {
+        ref.current?.expandAll()
+      })
+
+      const state = ref.current?.getExpandedState()
+
+      expect(state).toEqual({ group1: true, group2: true })
+    })
+
+    it('setExpandedState sets the correct expanded state', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Initially collapsed
+      expect(screen.queryByText('Line 1')).not.toBeInTheDocument()
+
+      // Set expanded state
+      await act(async () => {
+        ref.current?.setExpandedState({ group1: true })
+      })
+
+      // group1 should be expanded
+      await waitFor(() => {
+        expect(screen.getByText('Line 1')).toBeInTheDocument()
+        expect(screen.queryByText('Line 3')).not.toBeInTheDocument()
+      })
+    })
+
+    it('setExpandedState can restore a previously saved state', async () => {
+      const ref = createRef<TableWithGroupsRef>()
+
+      await prepare({ ref })
+
+      // Expand group1
+      await act(async () => {
+        ref.current?.toggleGroup('group1')
+      })
+
+      // Save state
+      const savedState = ref.current?.getExpandedState()
+
+      // Expand all
+      await act(async () => {
+        ref.current?.expandAll()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('Line 3')).toBeInTheDocument()
+      })
+
+      // Restore saved state
+      await act(async () => {
+        if (savedState) {
+          ref.current?.setExpandedState(savedState)
+        }
+      })
+
+      // Only group1 should be expanded
+      await waitFor(() => {
+        expect(screen.getByText('Line 1')).toBeInTheDocument()
+        expect(screen.queryByText('Line 3')).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('Column Configuration', () => {

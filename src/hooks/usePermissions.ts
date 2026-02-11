@@ -99,6 +99,7 @@ export type TMembershipPermissions = Omit<Permissions, '__typename'>
 
 type TUsePermissionsProps = () => {
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
+  hasPermissionsOr: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
   findFirstViewPermission: () => keyof TMembershipPermissions | null
 }
 
@@ -116,6 +117,20 @@ export const usePermissions: TUsePermissionsProps = () => {
     return permissionsFound.every((permission) => !!permission && permission === true)
   }
 
+  const hasPermissionsOr = (permissionsToCheck: Array<keyof TMembershipPermissions>): boolean => {
+    if (!currentMembership) return false
+
+    // Empty array should return false for OR logic (nothing to check)
+    if (permissionsToCheck.length === 0) return false
+
+    const allPermissions = currentMembership.permissions as TMembershipPermissions
+    const permissionsFound =
+      permissionsToCheck.map((permission) => allPermissions[permission]) || []
+
+    // At least ONE must be true (using .some() instead of .every())
+    return permissionsFound.some((permission) => !!permission && permission === true)
+  }
+
   const findFirstViewPermission = (): keyof TMembershipPermissions | null => {
     if (!currentMembership) return null
 
@@ -130,6 +145,7 @@ export const usePermissions: TUsePermissionsProps = () => {
 
   return {
     hasPermissions,
+    hasPermissionsOr,
     findFirstViewPermission,
   }
 }
