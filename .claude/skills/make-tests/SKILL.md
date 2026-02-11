@@ -1,9 +1,6 @@
 ---
 name: make-tests
 description: Create unit and integration tests for code changes in a GitHub PR. Use this skill to generate tests with 80% coverage on new code, following BDD approach and project conventions.
-user-invocable: true
-argument-hint: '#<PR-number>'
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion, Task
 ---
 
 # Make Tests Skill
@@ -17,6 +14,7 @@ This skill creates comprehensive tests for code changes in a GitHub Pull Request
 ## Overview
 
 This skill will:
+
 1. Analyze the PR to identify changed/added files
 2. **Critically evaluate** which parts of the new code actually need tests
 3. Create tests following BDD approach (GIVEN/WHEN/THEN)
@@ -36,6 +34,7 @@ This skill will:
 ### When to Write Tests
 
 Write tests when the new code has:
+
 - Business logic with conditional paths
 - State management or side effects
 - User interactions (forms, buttons, navigation)
@@ -46,6 +45,7 @@ Write tests when the new code has:
 ### When NOT to Write Tests (Even If Coverage Drops)
 
 Do NOT write tests just to increase coverage if the code is:
+
 - Simple prop pass-through with no logic
 - Pure presentational (only renders what it receives)
 - A thin wrapper around a well-tested library
@@ -56,6 +56,7 @@ Do NOT write tests just to increase coverage if the code is:
 ### Critical Analysis Required
 
 Before writing any test, ask yourself:
+
 1. "What bug would this test catch?"
 2. "What behavior am I actually verifying?"
 3. "Would a change in this code break something important?"
@@ -92,12 +93,14 @@ gh pr diff <PR_NUMBER>
 Analyze the changed files and categorize them:
 
 **Files that NEED tests:**
+
 - Components (`.tsx` files in `src/components/`, `src/pages/`)
 - Hooks (`.ts` files in `src/hooks/`)
 - Utilities (`.ts` files in `src/core/utils/`, `src/utils/`)
 - Business logic modules
 
 **Files that DO NOT need tests:**
+
 - Type definitions (`.d.ts`, pure type files)
 - GraphQL query/mutation definitions (`.graphql`, generated files)
 - Configuration files
@@ -116,10 +119,33 @@ For each file requiring tests, evaluate:
 4. **Edge cases**: Are there null checks, error handling, or boundary conditions?
 
 **DO NOT test:**
+
 - Simple pass-through components with no logic
 - Pure presentational components that only render props
 - Components that only re-export other components
 - Trivial getters/setters
+
+### Step 1.4: Check for Implicit Coverage and Related Files
+
+Before creating tests, verify that ALL new files in the PR are accounted for:
+
+**1. Supporting Files (schemas, configs, types)**
+
+- Check if these are already tested implicitly through component tests
+- If a component test exercises the supporting file's behavior, separate tests may not be needed
+- Only create separate tests if the file has complex logic not covered elsewhere
+
+**2. Custom Hooks**
+
+- Hooks should be tested for their **core contract**: what they return and what side effects they trigger
+- Focus on: callbacks return expected values, correct parameters passed to external dependencies
+- Don't skip hook tests just because the hook is "simple" - if it has a contract, test it
+
+**3. New Patterns Introduced by the PR**
+
+- Identify if the PR introduces new approaches or replaces old patterns
+- Focus tests specifically on the NEW behavior, not on unchanged existing logic
+- If a PR changes HOW something is done (e.g., navigation, state management), test that the new approach works correctly
 
 ---
 
@@ -137,16 +163,19 @@ Before planning tests, analyze the new code and categorize it:
 ### Code Classification:
 
 **Testable Logic (WILL test):**
+
 - Lines 25-40: Form validation logic with multiple conditions
 - Lines 55-70: API response handling with error states
 - Lines 90-110: Complex calculation for pricing
 
 **Trivial Code (will NOT test):**
+
 - Lines 10-20: Simple prop destructuring
 - Lines 45-52: Basic JSX rendering with no conditions
 - Lines 120-130: Loading skeleton (pure presentational)
 
 ### Test Value Assessment:
+
 - [ ] Does this code have conditional logic? → If no, consider skipping tests
 - [ ] Could a bug here cause real user impact? → If no, lower priority
 - [ ] Is this code likely to change/break? → If yes, worth testing
@@ -162,21 +191,26 @@ For code that passed the critical review:
 ### File: `src/path/to/Component.tsx`
 
 ### Key Behaviors to Test (with justification):
+
 1. "Form validation rejects invalid email" - Prevents user errors
 2. "Submit button disabled during API call" - Prevents double submission
 3. "Error message displayed on API failure" - Critical UX feedback
 
 ### Behaviors NOT Testing (with justification):
+
 1. "Component renders" - Too trivial, would catch no bugs
 2. "Loading spinner appears" - Pure presentational, library handles it
 
 ### Expected Coverage: ~75%
+
 - Untested code is intentionally trivial (lines 45-52, 120-130)
 
 ### Existing Mocks/Factories to Reuse:
+
 - [List any existing mocks from __tests__ folders or shared mock files]
 
 ### New Mocks Needed:
+
 - [List any new mocks that need to be created]
 ```
 
@@ -229,6 +263,7 @@ export const ComponentName = ({ ... }) => {
 ```
 
 **Naming convention:**
+
 - Use SCREAMING_SNAKE_CASE for constant names
 - Use kebab-case for the actual data-test value
 - Pattern: `{COMPONENT_NAME}_{ELEMENT_DESCRIPTION}_TEST_ID`
@@ -301,7 +336,7 @@ describe('ComponentName', () => {
       it('THEN should display loading state', () => {
         render(<ComponentName isLoading={true} />)
 
-        expect(screen.getByTestId(COMPONENT_NAME_LOADING_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(COMPONENT_LOADING_SKELETON_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -346,7 +381,100 @@ it('Then should redirect', () => { ... })  // Wrong case
 it('should redirect', () => { ... })  // Missing THEN
 ```
 
-### Step 3.4: Selector Rules
+### Step 3.4: Using it.each for Similar Tests
+
+**IMPORTANT:** When you have multiple tests that follow the same pattern but with different inputs/outputs, use `it.each` to reduce code duplication and improve maintainability.
+
+**When to use `it.each`:**
+
+- Testing multiple elements are rendered (e.g., form fields, buttons)
+- Testing multiple inputs produce expected outputs
+- Testing the same behavior with different props/states
+- Testing multiple validation cases
+
+**Pattern for checking multiple elements are displayed:**
+
+```typescript
+describe('WHEN the component renders', () => {
+  it.each([
+    ['name input field', COMPONENT_NAME_INPUT_TEST_ID],
+    ['email input field', COMPONENT_EMAIL_INPUT_TEST_ID],
+    ['cancel button', COMPONENT_CANCEL_BUTTON_TEST_ID],
+    ['submit button', COMPONENT_SUBMIT_BUTTON_TEST_ID],
+  ])('THEN should display the %s', (_, testId) => {
+    render(<ComponentName />)
+
+    expect(screen.getByTestId(testId)).toBeInTheDocument()
+  })
+})
+```
+
+**Pattern for checking default values:**
+
+```typescript
+describe('WHEN form fields are empty', () => {
+  it.each([
+    ['name', COMPONENT_NAME_INPUT_TEST_ID],
+    ['email', COMPONENT_EMAIL_INPUT_TEST_ID],
+    ['phone', COMPONENT_PHONE_INPUT_TEST_ID],
+  ])('THEN should have empty %s input by default', (_, testId) => {
+    render(<ComponentName />)
+
+    const container = screen.getByTestId(testId)
+    const input = container.querySelector('input')
+
+    expect(input).toHaveValue('')
+  })
+})
+```
+
+**Pattern for testing multiple validation cases:**
+
+```typescript
+describe('WHEN user enters invalid data', () => {
+  it.each([
+    ['empty email', '', 'Email is required'],
+    ['invalid email format', 'invalid', 'Invalid email format'],
+    ['email too long', 'a'.repeat(256) + '@test.com', 'Email too long'],
+  ])('THEN should show error for %s', async (_, inputValue, expectedError) => {
+    const user = userEvent.setup()
+    render(<ComponentName />)
+
+    const input = screen.getByTestId(COMPONENT_EMAIL_INPUT_TEST_ID)
+    await user.type(input, inputValue)
+    await user.tab() // trigger blur validation
+
+    expect(screen.getByText(expectedError)).toBeInTheDocument()
+  })
+})
+```
+
+**Pattern with object parameters for complex cases:**
+
+```typescript
+describe('WHEN displaying different states', () => {
+  it.each([
+    { status: 'pending', expectedColor: 'yellow', expectedText: 'In Progress' },
+    { status: 'completed', expectedColor: 'green', expectedText: 'Done' },
+    { status: 'failed', expectedColor: 'red', expectedText: 'Error' },
+  ])('THEN should display $status state correctly', ({ status, expectedColor, expectedText }) => {
+    render(<StatusBadge status={status} />)
+
+    const badge = screen.getByTestId(STATUS_BADGE_TEST_ID)
+    expect(badge).toHaveClass(expectedColor)
+    expect(badge).toHaveTextContent(expectedText)
+  })
+})
+```
+
+**When NOT to use `it.each`:**
+
+- When tests have significantly different setup or assertions
+- When the test logic is complex and would be harder to read in a table
+- When you only have 1-2 similar tests (not worth the abstraction)
+- When debugging would be harder due to the abstraction
+
+### Step 3.5: Selector Rules
 
 **NEVER use translation keys as selectors:**
 
@@ -368,9 +496,9 @@ const input = inputContainer.querySelector('input')
 await user.type(input!, 'test value')
 ```
 
-### Step 3.5: Reuse and Refactor Mocks
+### Step 3.6: Reuse and Refactor Mocks
 
-**Step 3.5.1: Check for existing mocks**
+**Step 3.6.1: Check for existing mocks**
 
 Before creating new mocks, search the codebase:
 
@@ -380,7 +508,7 @@ grep -r "mockInvoice" src/**/__tests__/*.tsx
 grep -r "createMock" src/**/__tests__/*.tsx
 ```
 
-**Step 3.5.2: Refactor shared mocks**
+**Step 3.6.2: Refactor shared mocks**
 
 If you find the same mock used in multiple test files, move it to a shared location:
 
@@ -438,7 +566,7 @@ When reviewing coverage results, for each uncovered line/branch ask:
 
 2. **What would a test for this code look like?**
    - If the test would be meaningful and catch real bugs → Write it
-   - If the test would be `expect(component).toBeInTheDocument()` with no real assertion → Skip it
+   - If the test would just be `expect(component).toBeInTheDocument()` with no real assertion → Skip it
 
 3. **Would adding this test improve confidence in the code?**
    - If yes → Write it
@@ -448,28 +576,27 @@ When reviewing coverage results, for each uncovered line/branch ask:
 
 **Target: ~80% on new code**, but accept lower coverage when justified:
 
-| Scenario | Acceptable Coverage | Reason |
-|----------|-------------------|--------|
-| Complex business logic | 80-100% | High value, many edge cases |
-| Form with validation | 70-90% | Test validation, skip trivial rendering |
-| Simple component with some logic | 60-80% | Test the logic, skip presentational parts |
-| Mostly presentational component | 40-60% | Only test meaningful interactions |
-| Pure presentational, no logic | 0% | No tests needed, would be trivial |
+| Scenario                         | Acceptable Coverage | Reason                                    |
+| -------------------------------- | ------------------- | ----------------------------------------- |
+| Complex business logic           | 80-100%             | High value, many edge cases               |
+| Form with validation             | 70-90%              | Test validation, skip trivial rendering   |
+| Simple component with some logic | 60-80%              | Test the logic, skip presentational parts |
+| Mostly presentational component  | 40-60%              | Only test meaningful interactions         |
+| Pure presentational, no logic    | 0%                  | No tests needed, would be trivial         |
 
-### Step 4.4: Document Coverage Decisions
+### Step 4.4: Keep Test Files Clean
 
-If coverage is below 80%, document WHY in the test file or PR:
+**IMPORTANT:** Do NOT add coverage note comments to test files. Test files should contain only tests, mocks, and necessary setup code.
 
 ```typescript
+// DON'T DO THIS
 /**
- * Coverage Note: This test file achieves ~65% coverage on NewComponent.
- * Uncovered code includes:
- * - Lines 45-50: Simple prop pass-through to child component (trivial)
- * - Lines 78-82: Loading skeleton rendering (pure presentational)
- *
- * These were intentionally not tested as they would not catch meaningful bugs.
+ * Coverage Note: This test file achieves ~65% coverage...
+ * Uncovered code includes: ...
  */
 ```
+
+The coverage targets in Step 4.3 are guidelines. If coverage is lower because the untested code is trivial, that's fine - no documentation needed.
 
 ### Step 4.5: Run All Tests
 
@@ -485,6 +612,7 @@ pnpm test src/path/to/__tests__/file.test.tsx
 
 - [ ] **Critical analysis performed** - Each test has a clear purpose (what bug would it catch?)
 - [ ] Tests follow BDD structure (GIVEN/WHEN/THEN in UPPERCASE)
+- [ ] **it.each used** where appropriate for similar tests
 - [ ] All selectors use data-test IDs (no translation keys)
 - [ ] data-test constants are exported from the component
 - [ ] Tests import data-test constants from the component
@@ -498,26 +626,28 @@ pnpm test src/path/to/__tests__/file.test.tsx
 
 ### Coverage Decision Guide
 
-| New Code Type | Recommended Action | Expected Coverage |
-|--------------|-------------------|------------------|
-| Complex logic with branches | Full test coverage | 80-100% |
-| Form handling + validation | Test validation + submission | 70-90% |
-| Component with some conditionals | Test the conditionals only | 60-80% |
-| Mostly presentational + minor logic | Test only the logic | 40-60% |
-| Pure presentational, no logic | **Skip tests entirely** | 0% |
-| Configuration / constants | **Skip tests entirely** | 0% |
+| New Code Type                       | Recommended Action           | Expected Coverage |
+| ----------------------------------- | ---------------------------- | ----------------- |
+| Complex logic with branches         | Full test coverage           | 80-100%           |
+| Form handling + validation          | Test validation + submission | 70-90%            |
+| Component with some conditionals    | Test the conditionals only   | 60-80%            |
+| Mostly presentational + minor logic | Test only the logic          | 40-60%            |
+| Pure presentational, no logic       | **Skip tests entirely**      | 0%                |
+| Configuration / constants           | **Skip tests entirely**      | 0%                |
 
 ### Snapshot Tests (When Appropriate)
 
 Use snapshot tests **where they add value**, but don't force them.
 
 **Good candidates for snapshots:**
+
 - Complex UI structures that should remain stable
 - Components with multiple visual states (loading, error, success)
 - Tables or lists with specific formatting
 - Components where visual regression would be a bug
 
 **NOT good for snapshots:**
+
 - Simple components with 1-2 elements
 - Components that change frequently (snapshots become noisy)
 - Dynamic content (timestamps, IDs, random values)
@@ -546,6 +676,7 @@ describe('GIVEN the component renders different states', () => {
 ```
 
 **Important:** If a component has dynamic content (dates, IDs), either:
+
 - Mock the dynamic values before snapshot
 - Skip snapshot for that component
 - Use inline snapshots with specific assertions instead
