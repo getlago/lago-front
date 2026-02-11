@@ -179,8 +179,8 @@ importers:
         specifier: 5.0.7
         version: 5.0.7(graphql@16.12.0)
       '@graphql-codegen/typescript-react-apollo':
-        specifier: 4.3.4
-        version: 4.3.4(graphql@16.12.0)
+        specifier: 4.4.0
+        version: 4.4.0(graphql@16.12.0)
       '@parcel/watcher':
         specifier: 2.5.6
         version: 2.5.6
@@ -2039,8 +2039,8 @@ packages:
       graphql-sock:
         optional: true
 
-  '@graphql-codegen/typescript-react-apollo@4.3.4':
-    resolution: {integrity: sha512-1z79xzwG8j0lmweHd65kqeELSfL1m2gAbNVA4zUllp9N8aVI4rzbXmSGcLGGrAEDkL3eZhzkYDAhV4TyULlReA==}
+  '@graphql-codegen/typescript-react-apollo@4.4.0':
+    resolution: {integrity: sha512-4U0bRMDanxhUnGh/4qemQaUsuVq8HwqOMf/U9nuDXwnzxBSIPAZx/XpmUWHMtgF66J8RmzIjjB+U8Ykg48M//g==}
     engines: {node: '>= 16.0.0'}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
@@ -10367,7 +10367,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript-react-apollo@4.3.4(graphql@16.12.0)':
+  '@graphql-codegen/typescript-react-apollo@4.4.0(graphql@16.12.0)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 3.1.2(graphql@16.12.0)
       '@graphql-codegen/visitor-plugin-common': 2.13.8(graphql@16.12.0)
