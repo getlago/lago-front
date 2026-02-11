@@ -241,6 +241,156 @@ describe('usePermissions', () => {
     })
   })
 
+  describe('hasPermissionsOr', () => {
+    it('returns false when currentMembership is undefined', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: undefined,
+      })
+
+      const { result } = prepare()
+
+      expect(result.current.hasPermissionsOr(['addonsCreate'])).toBe(false)
+    })
+
+    it('returns false when currentMembership is null', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: null,
+      })
+
+      const { result } = prepare()
+
+      expect(result.current.hasPermissionsOr(['addonsCreate'])).toBe(false)
+    })
+
+    it('returns true when a single permission is granted', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: true,
+        }),
+      })
+
+      const { result } = prepare()
+
+      expect(result.current.hasPermissionsOr(['addonsCreate'])).toBe(true)
+    })
+
+    it('returns false when a single permission is not granted', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: false,
+        }),
+      })
+
+      const { result } = prepare()
+
+      expect(result.current.hasPermissionsOr(['addonsCreate'])).toBe(false)
+    })
+
+    it('returns true when at least one permission is granted (OR logic)', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: true,
+          addonsDelete: false,
+          addonsUpdate: false,
+        }),
+      })
+
+      const { result } = prepare()
+
+      expect(
+        result.current.hasPermissionsOr(['addonsCreate', 'addonsDelete', 'addonsUpdate']),
+      ).toBe(true)
+    })
+
+    it('returns false when no permissions are granted', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: false,
+          addonsDelete: false,
+          addonsUpdate: false,
+        }),
+      })
+
+      const { result } = prepare()
+
+      expect(
+        result.current.hasPermissionsOr(['addonsCreate', 'addonsDelete', 'addonsUpdate']),
+      ).toBe(false)
+    })
+
+    it('returns true when multiple permissions are granted', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: true,
+          addonsDelete: true,
+          addonsUpdate: false,
+        }),
+      })
+
+      const { result } = prepare()
+
+      expect(result.current.hasPermissionsOr(['addonsCreate', 'addonsDelete'])).toBe(true)
+    })
+
+    it('returns false when permission value is undefined', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: true,
+        }),
+      })
+
+      const { result } = prepare()
+
+      // @ts-expect-error - testing undefined permission
+      expect(result.current.hasPermissionsOr(['nonExistentPermission'])).toBe(false)
+    })
+
+    it('returns false when checking an empty array of permissions', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: true,
+        }),
+      })
+
+      const { result } = prepare()
+
+      // OR logic with empty array should return false (nothing to check)
+      expect(result.current.hasPermissionsOr([])).toBe(false)
+    })
+
+    it('returns true when the last permission in the list is granted', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: false,
+          addonsDelete: false,
+          addonsUpdate: true,
+        }),
+      })
+
+      const { result } = prepare()
+
+      expect(
+        result.current.hasPermissionsOr(['addonsCreate', 'addonsDelete', 'addonsUpdate']),
+      ).toBe(true)
+    })
+
+    it('returns true when the middle permission in the list is granted', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({
+          addonsCreate: false,
+          addonsDelete: true,
+          addonsUpdate: false,
+        }),
+      })
+
+      const { result } = prepare()
+
+      expect(
+        result.current.hasPermissionsOr(['addonsCreate', 'addonsDelete', 'addonsUpdate']),
+      ).toBe(true)
+    })
+  })
+
   describe('returned functions', () => {
     it('returns hasPermissions function', () => {
       mockUseCurrentUser.mockReturnValue({
@@ -251,6 +401,17 @@ describe('usePermissions', () => {
 
       expect(result.current.hasPermissions).toBeDefined()
       expect(typeof result.current.hasPermissions).toBe('function')
+    })
+
+    it('returns hasPermissionsOr function', () => {
+      mockUseCurrentUser.mockReturnValue({
+        currentMembership: createMembershipWithPermissions({}),
+      })
+
+      const { result } = prepare()
+
+      expect(result.current.hasPermissionsOr).toBeDefined()
+      expect(typeof result.current.hasPermissionsOr).toBe('function')
     })
 
     it('returns findFirstViewPermission function', () => {

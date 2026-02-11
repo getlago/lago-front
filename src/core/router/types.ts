@@ -9,5 +9,6 @@ export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'
   invitation?: boolean
   redirect?: string
   children?: CustomRouteObject[]
-  permissions?: Array<keyof TMembershipPermissions>
+  permissions?: Array<keyof TMembershipPermissions> // AND logic (all must be true)
+  permissionsOr?: Array<keyof TMembershipPermissions> // OR logic (at least one must be true)
 }

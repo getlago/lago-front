@@ -9,7 +9,7 @@ import {
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { usePermissions } from '~/hooks/usePermissions'
+import { TMembershipPermissions, usePermissions } from '~/hooks/usePermissions'
 
 type GoBack = (
   fallback: string,
@@ -56,10 +56,34 @@ const getPreviousLocation = ({
   }
 }
 
+const checkRoutePermissions = (
+  routeConfig: CustomRouteObject,
+  hasPermissions: (permissions: Array<keyof TMembershipPermissions>) => boolean,
+  hasPermissionsOr: (permissions: Array<keyof TMembershipPermissions>) => boolean,
+): boolean => {
+  // No permissions required
+  if (!routeConfig.permissions && !routeConfig.permissionsOr) {
+    return true
+  }
+
+  // Both AND and OR: user must satisfy BOTH conditions
+  if (routeConfig.permissions && routeConfig.permissionsOr) {
+    return hasPermissions(routeConfig.permissions) && hasPermissionsOr(routeConfig.permissionsOr)
+  }
+
+  // Only AND permissions
+  if (routeConfig.permissions) {
+    return hasPermissions(routeConfig.permissions)
+  }
+
+  // Only OR permissions
+  return hasPermissionsOr(routeConfig.permissionsOr ?? [])
+}
+
 export const useLocationHistory: UseLocationHistoryReturn = () => {
   const navigate = useNavigate()
   const { loading: isCurrentUserLoading } = useCurrentUser()
-  const { hasPermissions } = usePermissions()
+  const { hasPermissions, hasPermissionsOr } = usePermissions()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation(options || {})
 
@@ -95,17 +119,20 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
           },
           replace: true,
         })
-      } else if (
-        isAuthenticated &&
-        routeConfig.permissions?.length &&
-        !isCurrentUserLoading &&
-        !hasPermissions(routeConfig.permissions)
-      ) {
-        /**
-         * In case of navigation to a private route while authenticated but without permission
-         * Redirect to forbidden page
-         */
-        navigate(FORBIDDEN_ROUTE)
+      } else if (isAuthenticated && !isCurrentUserLoading) {
+        const hasRequiredPermissions = checkRoutePermissions(
+          routeConfig,
+          hasPermissions,
+          hasPermissionsOr,
+        )
+
+        if (!hasRequiredPermissions) {
+          /**
+           * In case of navigation to a private route while authenticated but without permission
+           * Redirect to forbidden page
+           */
+          navigate(FORBIDDEN_ROUTE)
+        }
       } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
         // In the invitation for page, once users are logged in, we redirect them to the home page
         if (routeConfig.invitation && isAuthenticated) {
