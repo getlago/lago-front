@@ -1,18 +1,27 @@
 # Make Tests Skill
 
-**Target PR:** `#<PR_NUMBER>`
+**Target:** `<PR_NUMBER | BRANCH_NAME>`
 
-> **Important:** If no PR number was provided above (empty or missing), use the AskUserQuestion tool to ask the user for the PR number they want to create tests for (format: #123).
+> **Important:** If no argument was provided above (empty or missing), use the AskUserQuestion tool to ask the user what they want to create tests for. They can provide:
+> - A PR number (format: `#123` or `123`)
+> - A branch name (local or remote, e.g., `feature/my-feature` or `origin/feature/my-feature`)
 
-Extract the PR number from the argument. The user may provide it as `#123` or `123` - remove the `#` prefix if present to get the numeric PR number.
+## Input Detection
 
-This skill creates comprehensive tests for code changes in a GitHub Pull Request, following the established patterns and conventions in this codebase.
+Determine the input type:
+
+1. **PR Number**: If the argument is numeric or starts with `#` followed by numbers (e.g., `#123`, `123`)
+   - Remove the `#` prefix if present to get the numeric PR number
+2. **Branch Name**: If the argument contains letters, slashes, or dashes (e.g., `feature/my-feature`, `origin/fix-bug`)
+   - Can be a local branch or a remote branch (with `origin/` prefix)
+
+This skill creates comprehensive tests for code changes in a GitHub Pull Request or a git branch, following the established patterns and conventions in this codebase.
 
 ## Overview
 
 This skill will:
 
-1. Analyze the PR to identify changed/added files
+1. Analyze the PR or branch to identify changed/added files (compared to `main`)
 2. **Critically evaluate** which parts of the new code actually need tests
 3. Create tests following BDD approach (GIVEN/WHEN/THEN)
 4. Target ~80% coverage **on new code only** (not the entire codebase)
@@ -73,16 +82,35 @@ Before starting, gather context by reading these reference files:
 
 ---
 
-## Phase 1: PR Analysis
+## Phase 1: Code Analysis
 
-### Step 1.1: Fetch PR Information
+### Step 1.1: Fetch Changed Files Information
 
-Extract the PR number from the argument and fetch PR details:
+Based on the input type, fetch the diff and changed files:
+
+#### Option A: PR Number
 
 ```bash
 # Get PR diff and changed files
 gh pr view <PR_NUMBER> --json files,additions,deletions,body,title
 gh pr diff <PR_NUMBER>
+```
+
+#### Option B: Branch Name
+
+```bash
+# For local branch - get the diff against main
+git diff main...<BRANCH_NAME> --name-only  # List changed files
+git diff main...<BRANCH_NAME>               # Full diff
+
+# If the branch is remote (origin/branch-name)
+git fetch origin
+git diff main...origin/<BRANCH_NAME> --name-only
+git diff main...origin/<BRANCH_NAME>
+
+# If you're currently ON the branch you want to test
+git diff main...HEAD --name-only
+git diff main...HEAD
 ```
 
 ### Step 1.2: Identify Files Requiring Tests
@@ -993,18 +1021,31 @@ describe('GIVEN user wants to delete an item', () => {
 
 ## Usage
 
-Invoke this skill with:
+Invoke this skill with a PR number or branch name:
 
-```
-/make-tests #<PR-number>
-```
-
-Example:
+### Using PR Number
 
 ```
 /make-tests #123
+/make-tests 123
 ```
 
-The skill will analyze PR #123, identify files needing tests, and create comprehensive tests following the BDD approach and project conventions.
+### Using Branch Name
+
+```
+/make-tests feature/my-new-feature
+/make-tests origin/fix/bug-123
+/make-tests chore/update-deps
+```
+
+### Examples
+
+```
+/make-tests #456                        # Analyze PR #456
+/make-tests feature/add-webhook-form    # Analyze local branch
+/make-tests origin/feature/new-dialog   # Analyze remote branch
+```
+
+The skill will analyze the PR or branch, identify files needing tests (compared to `main`), and create comprehensive tests following the BDD approach and project conventions.
 
 **Remember: NEVER use translation keys in tests. Always use data-test IDs.**
