@@ -26,8 +26,12 @@ export const resetDevtoolsNavigation = () => {
 }
 
 export interface DeveloperToolContextType extends UsePanelReturn {
+  // Used to navigate within the MemoryRouter (devtools panel)
   url: string
   setUrl: (url: string) => void
+  // Used to navigate within the BrowserRouter (main app) from the MemoryRouter
+  mainRouterUrl: string
+  setMainRouterUrl: (url: string) => void
 }
 
 export const MAX_RESIZABLE_HEIGHT = 88
@@ -46,7 +50,10 @@ export function DeveloperToolProvider({ children }: { children: ReactNode }) {
     },
   })
 
+  // Used to navigate within the MemoryRouter (devtools panel)
   const [url, setUrl] = useState('')
+  // Used to navigate within the BrowserRouter (main app) from the MemoryRouter
+  const [mainRouterUrl, setMainRouterUrl] = useState('')
 
   // Register the reset handler so it can be called from outside the React tree (e.g., on logout)
   useEffect(() => {
@@ -66,6 +73,8 @@ export function DeveloperToolProvider({ children }: { children: ReactNode }) {
         ...panel,
         url,
         setUrl,
+        mainRouterUrl,
+        setMainRouterUrl,
       }}
     >
       {children}
