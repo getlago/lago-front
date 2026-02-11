@@ -517,6 +517,81 @@ describe('useLocationHistory()', () => {
         expect(mockHasPermissionsOr).not.toHaveBeenCalled()
       })
     })
+
+    describe('location history tracking', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+        locationHistoryVar([])
+        mockHasPermissions.mockReturnValue(true)
+        mockHasPermissionsOr.mockReturnValue(true)
+      })
+
+      it('should add location to history when user is authenticated and has permissions', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(locationHistoryVar()).toEqual([mockLocation])
+      })
+
+      it('should add location to history when user is authenticated with no permission requirements', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(locationHistoryVar()).toEqual([mockLocation])
+      })
+
+      it('should not add location to history when user lacks required permissions', () => {
+        mockHasPermissions.mockReturnValue(false)
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView'],
+            },
+            mockLocation,
+          )
+        })
+
+        // Should redirect to forbidden and NOT add to history
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+        expect(locationHistoryVar()).toEqual([])
+      })
+
+      it('should not add layout routes with children to history', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              children: [{ path: '/child' }],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(locationHistoryVar()).toEqual([])
+      })
+    })
   })
 
   describe('goBack()', () => {
