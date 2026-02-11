@@ -1,8 +1,9 @@
-import { Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
 import { PaymentMethodDetails } from './PaymentMethodDetails'
+
+import { Typography } from '../designSystem/Typography'
 
 export const DEFAULT_BADGE_TEST_ID = 'default-badge'
 

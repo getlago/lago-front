@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { PaymentMethodComboBox } from '~/components/paymentMethodSelection/PaymentMethodComboBox'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -11,6 +10,10 @@ import {
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { Button } from '../designSystem/Button'
+import { Dialog, DialogRef } from '../designSystem/Dialog'
+import { Typography } from '../designSystem/Typography'
 
 export const RESEND_INVOICE_FOR_COLLECTION_DIALOG_CANCEL_BUTTON_TEST_ID =
   'resend-invoice-for-collection-dialog-cancel-button'
