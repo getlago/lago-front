@@ -35,6 +35,8 @@ gql`
     status
     taxStatus
     prepaidCreditAmountCents
+    prepaidGrantedCreditAmountCents
+    prepaidPurchasedCreditAmountCents
     progressiveBillingCreditAmountCents
     versionNumber
     appliedTaxes {
@@ -92,6 +94,37 @@ const computeSubtotal = (
   }
 }
 
+const CreditRow = ({
+  label,
+  amountCents,
+  currency,
+  colSpan,
+}: {
+  label: string
+  amountCents?: number
+  currency: CurrencyEnum
+  colSpan: number
+}) => (
+  <tr>
+    <td></td>
+    <td colSpan={colSpan}>
+      <Typography variant="bodyHl" color="grey600">
+        {label}
+      </Typography>
+    </td>
+
+    <td>
+      <Typography variant="body" color="success600">
+        -
+        {intlFormatNumber(deserializeAmount(amountCents || 0, currency), {
+          currencyDisplay: 'symbol',
+          currency,
+        })}
+      </Typography>
+    </td>
+  </tr>
+)
+
 export const InvoiceDetailsTableFooter = memo(
   ({
     canHaveUnitPrice,
@@ -107,13 +140,17 @@ export const InvoiceDetailsTableFooter = memo(
     const currency = invoice?.currency || CurrencyEnum.Usd
     const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents) && !hideDiscounts
     const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents) && !hideDiscounts
+    const hasGrantedCredit = !!Number(invoice?.prepaidGrantedCreditAmountCents) && !hideDiscounts
+    const hasPurchasedCredit =
+      !!Number(invoice?.prepaidPurchasedCreditAmountCents) && !hideDiscounts
     const hasCoupon = !!Number(invoice?.couponsAmountCents) && !hideDiscounts
     const isPending = invoice.status === InvoiceStatusTypeEnum.Pending
 
     const shouldDisplayPlaceholder = isPending || hasTaxProviderError
     const shouldDisplayCouponRow = invoice.status !== InvoiceStatusTypeEnum.Draft && hasCoupon
     const shouldDisplayPrepaidCreditRow =
-      invoice.status !== InvoiceStatusTypeEnum.Draft && hasPrepaidCredit
+      invoice.status !== InvoiceStatusTypeEnum.Draft &&
+      (hasPrepaidCredit || hasGrantedCredit || hasPurchasedCredit)
 
     const {
       subTotalExcludingTax,
@@ -367,26 +404,34 @@ export const InvoiceDetailsTableFooter = memo(
         )}
 
         {shouldDisplayPrepaidCreditRow && (
-          <tr>
-            <td></td>
-            <td colSpan={colSpan}>
-              <Typography variant="bodyHl" color="grey600">
-                {translate('text_6391f05df4bf96d81f3660a7')}
-              </Typography>
-            </td>
-            <td>
-              <Typography variant="body" color="success600">
-                -
-                {intlFormatNumber(
-                  deserializeAmount(invoice?.prepaidCreditAmountCents || 0, currency),
-                  {
-                    currencyDisplay: 'symbol',
-                    currency,
-                  },
-                )}
-              </Typography>
-            </td>
-          </tr>
+          <>
+            {hasGrantedCredit && (
+              <CreditRow
+                label={translate('text_17703831122275shrjoh1tl4')}
+                amountCents={invoice?.prepaidGrantedCreditAmountCents}
+                currency={currency}
+                colSpan={colSpan}
+              />
+            )}
+
+            {hasPurchasedCredit && (
+              <CreditRow
+                label={translate('text_17703831122271vwmiptfx10')}
+                amountCents={invoice?.prepaidPurchasedCreditAmountCents}
+                currency={currency}
+                colSpan={colSpan}
+              />
+            )}
+
+            {!hasGrantedCredit && !hasPurchasedCredit && (
+              <CreditRow
+                label={translate('text_6391f05df4bf96d81f3660a7')}
+                amountCents={invoice?.prepaidCreditAmountCents}
+                currency={currency}
+                colSpan={colSpan}
+              />
+            )}
+          </>
         )}
 
         {/* Total  */}
