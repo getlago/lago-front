@@ -1,12 +1,6 @@
----
-name: make-tests
-description: Create unit and integration tests for code changes in a GitHub PR. Use this skill to generate tests with 80% coverage on new code, following BDD approach and project conventions.
-argument-hint: '#<pr-number>'
----
-
 # Make Tests Skill
 
-**Target PR:** `$ARGUMENTS`
+**Target PR:** `#<PR_NUMBER>`
 
 > **Important:** If no PR number was provided above (empty or missing), use the AskUserQuestion tool to ask the user for the PR number they want to create tests for (format: #123).
 
@@ -477,26 +471,94 @@ describe('WHEN displaying different states', () => {
 - When you only have 1-2 similar tests (not worth the abstraction)
 - When debugging would be harder due to the abstraction
 
-### Step 3.5: Selector Rules
+### Step 3.5: Selector Rules - CRITICAL: NEVER USE TRANSLATION KEYS
 
-**NEVER use translation keys as selectors:**
+## ⛔ ABSOLUTE RULE: NEVER USE TRANSLATION KEYS IN TESTS ⛔
+
+**This is the most important rule for test selectors. NEVER, under ANY circumstances, use translation keys to find or verify elements.**
+
+### What NOT to do (FORBIDDEN):
 
 ```typescript
-// WRONG - Never do this
+// ❌ WRONG - NEVER DO THIS
 expect(screen.getByText('text_17440321235444hcxi31f8j6')).toBeInTheDocument()
 expect(screen.getByText(translate('some_key'))).toBeInTheDocument()
+expect(screen.queryByText('text_6271200984178801ba8bdeb2')).toBeInTheDocument()
+expect(screen.getAllByText('text_64d23a81a7d807f8aa570509').length).toBeGreaterThan(0)
 
-// CORRECT - Use data-test IDs
-expect(screen.getByTestId(COMPONENT_NAME_TITLE_TEST_ID)).toBeInTheDocument()
+// ❌ WRONG - Even in waitFor
+await waitFor(() => {
+  expect(screen.getByText('text_6271200984178801ba8bdf7f')).toBeInTheDocument()
+})
+
+// ❌ WRONG - Even for error messages
+expect(screen.getByText('text_6271200984178801ba8bdf58')).toBeInTheDocument()
 ```
 
-**For form inputs, use the data-test container:**
+### What TO do (CORRECT):
 
 ```typescript
-// CORRECT - Find input within data-test container
+// ✅ CORRECT - Always use data-test IDs
+expect(screen.getByTestId(COMPONENT_NAME_TITLE_TEST_ID)).toBeInTheDocument()
+expect(screen.getByTestId(COMPONENT_ERROR_MESSAGE_TEST_ID)).toBeInTheDocument()
+
+// ✅ CORRECT - For checking element existence
+expect(screen.getByTestId(COMPONENT_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
+
+// ✅ CORRECT - For checking element is NOT present
+expect(screen.queryByTestId(COMPONENT_ERROR_TEST_ID)).not.toBeInTheDocument()
+
+// ✅ CORRECT - In waitFor
+await waitFor(() => {
+  expect(screen.getByTestId(COMPONENT_SUCCESS_MESSAGE_TEST_ID)).toBeInTheDocument()
+})
+```
+
+### Why this rule exists:
+
+1. **Translation keys are implementation details** - They can change without changing functionality
+2. **Translation keys are not human-readable** - `text_6271200984178801ba8bdeb2` tells you nothing about what's being tested
+3. **Translation keys make tests brittle** - Any translation file change breaks tests
+4. **data-test IDs are semantic** - `WEBHOOK_FORM_ERROR_MESSAGE_TEST_ID` clearly describes the element
+5. **data-test IDs are stable** - They only change when the component structure changes intentionally
+
+### If you need to verify text content:
+
+```typescript
+// ✅ CORRECT - Get element by test ID, then check it exists
+const errorMessage = screen.getByTestId(COMPONENT_ERROR_MESSAGE_TEST_ID)
+expect(errorMessage).toBeInTheDocument()
+
+// ✅ CORRECT - If you MUST check text content, use toHaveTextContent with the actual translated string
+// But prefer checking for element existence via data-test ID
+```
+
+### For form inputs, use the data-test container:
+
+```typescript
+// ✅ CORRECT - Find input within data-test container, use type assertion (NOT non-null assertion)
 const inputContainer = screen.getByTestId(COMPONENT_NAME_INPUT_TEST_ID)
-const input = inputContainer.querySelector('input')
-await user.type(input!, 'test value')
+const input = inputContainer.querySelector('input') as HTMLInputElement
+await user.type(input, 'test value')
+
+// ❌ WRONG - Don't use non-null assertion (!)
+// const input = inputContainer.querySelector('input')
+// await user.type(input!, 'test value')  // ESLint error: no-non-null-assertion
+```
+
+### Type Assertions for DOM Elements:
+
+Always use `as HTMLInputElement` (or appropriate HTML type) instead of non-null assertion (`!`):
+
+```typescript
+// ✅ CORRECT - Use type assertion
+const input = container.querySelector('input') as HTMLInputElement
+const button = container.querySelector('button') as HTMLButtonElement
+const select = container.querySelector('select') as HTMLSelectElement
+
+// ❌ WRONG - Non-null assertion causes ESLint errors
+// const input = container.querySelector('input')!
+// await user.type(input, 'value')  // Fails: @typescript-eslint/no-non-null-assertion
 ```
 
 ### Step 3.6: Reuse and Refactor Mocks
@@ -607,6 +669,31 @@ The coverage targets in Step 4.3 are guidelines. If coverage is lower because th
 pnpm test src/path/to/__tests__/file.test.tsx
 ```
 
+### Step 4.6: Run Code Quality Checks (MANDATORY)
+
+**CRITICAL:** Before finalizing any test file, you MUST run ESLint to ensure code quality:
+
+```bash
+# Run ESLint on the test file
+pnpm eslint src/path/to/__tests__/file.test.tsx
+
+# If there are errors, fix them before proceeding
+```
+
+**Common ESLint errors to watch for:**
+
+1. **`@typescript-eslint/no-non-null-assertion`** - Don't use `!` operator
+   - Fix: Use `as HTMLInputElement` type assertion instead
+
+2. **`@typescript-eslint/no-explicit-any`** - Don't use `any` type
+   - Fix: Use proper types from `@testing-library/react` or component props
+
+3. **`react-hooks/exhaustive-deps`** - Missing dependencies in hooks
+   - Fix: Add missing deps or disable with eslint comment if intentional
+
+4. **`@typescript-eslint/no-unused-vars`** - Unused variables
+   - Fix: Remove unused imports/variables or prefix with `_`
+
 ---
 
 ## Phase 5: Final Checklist
@@ -616,16 +703,18 @@ pnpm test src/path/to/__tests__/file.test.tsx
 - [ ] **Critical analysis performed** - Each test has a clear purpose (what bug would it catch?)
 - [ ] Tests follow BDD structure (GIVEN/WHEN/THEN in UPPERCASE)
 - [ ] **it.each used** where appropriate for similar tests
-- [ ] All selectors use data-test IDs (no translation keys)
+- [ ] **⛔ NO TRANSLATION KEYS USED AS SELECTORS** - All selectors use data-test IDs
+- [ ] **⛔ NO TRANSLATION KEYS IN ASSERTIONS** - Use `expect.objectContaining()` for partial matching
 - [ ] data-test constants are exported from the component
 - [ ] Tests import data-test constants from the component
+- [ ] **Type assertions used correctly** - Use `as HTMLInputElement` not `!` (non-null assertion)
 - [ ] Existing mocks/factories are reused
 - [ ] Shared mocks are extracted to `src/__mocks__/` if used in multiple files
 - [ ] **Coverage is appropriate** (80% target, but lower is OK if justified)
 - [ ] **No trivial tests** - Every test verifies meaningful behavior
 - [ ] **Snapshot tests considered** - Added where they provide value (not forced)
 - [ ] Tests pass: `pnpm test <test-file>`
-- [ ] Linting passes: `pnpm lint <test-file>`
+- [ ] **⚠️ ESLint passes: `pnpm eslint <test-file>`** (MANDATORY - run before finalizing)
 
 ### Coverage Decision Guide
 
@@ -686,7 +775,7 @@ describe('GIVEN the component renders different states', () => {
 
 ### What NOT to Test (Even If It Reduces Coverage)
 
-- Translation key values (dynamic and can change)
+- ⛔ **Translation key values** (dynamic and can change) - NEVER USE IN TESTS
 - Pure UI styling (colors, fonts, spacing)
 - Third-party library internals
 - Simple prop pass-through
@@ -803,6 +892,38 @@ describe('ComponentWithDates', () => {
 })
 ```
 
+### Testing GraphQL Mutations Success
+
+```typescript
+describe('GIVEN the mutation succeeds', () => {
+  describe('WHEN user performs action', () => {
+    it('THEN should show success toast', async () => {
+      const user = userEvent.setup()
+
+      render(<Component />, { mocks: successMocks })
+
+      const actionButton = screen.getByTestId(COMPONENT_ACTION_BUTTON_TEST_ID)
+      await user.click(actionButton)
+
+      // ✅ CORRECT - Use expect.objectContaining to skip translation key verification
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith(
+          expect.objectContaining({ severity: 'success' })
+        )
+      })
+
+      // ❌ WRONG - NEVER include translation keys in assertions
+      // await waitFor(() => {
+      //   expect(addToast).toHaveBeenCalledWith({
+      //     message: 'text_6271200984178801ba8bdf7f', // ❌ NEVER DO THIS
+      //     severity: 'success',
+      //   })
+      // })
+    })
+  })
+})
+```
+
 ---
 
 ## Usage
@@ -820,3 +941,5 @@ Example:
 ```
 
 The skill will analyze PR #123, identify files needing tests, and create comprehensive tests following the BDD approach and project conventions.
+
+**Remember: NEVER use translation keys in tests. Always use data-test IDs.**
