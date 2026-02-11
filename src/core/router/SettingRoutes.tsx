@@ -483,7 +483,7 @@ export const settingRoutes: CustomRouteObject[] = [
         ],
         private: true,
         element: <TeamAndSecurity />,
-        permissions: ['organizationMembersView'],
+        permissionsOr: ['organizationMembersView'],
       },
     ],
   },
