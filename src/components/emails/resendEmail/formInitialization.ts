@@ -7,7 +7,7 @@ const emailRecipientSchema = z.looseObject({
 })
 
 export const resendEmailFormValidationSchema = z.object({
-  to: z.array(emailRecipientSchema).min(1).optional(),
+  to: z.array(emailRecipientSchema).optional(),
   cc: z.array(emailRecipientSchema).optional(),
   bcc: z.array(emailRecipientSchema).optional(),
 })
