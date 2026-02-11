@@ -1,4 +1,4 @@
-import { Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
 import { TabButton } from '~/components/form/ButtonSelector/TabButton'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

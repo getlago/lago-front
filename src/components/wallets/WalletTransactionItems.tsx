@@ -1,7 +1,9 @@
 import { Fragment } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Skeleton } from '~/components/designSystem'
+import { Button } from '~/components/designSystem/Button'
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import {
   DetailRow,
   GRID,
