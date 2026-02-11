@@ -44,7 +44,7 @@ gql`
 
 export const Webhooks = () => {
   const { translate } = useInternationalization()
-  const { closePanel } = useDeveloperTool()
+  const { closePanel, setMainRouterUrl } = useDeveloperTool()
   const [showOrganizationHmac, setShowOrganizationHmac] = useState<boolean>(false)
   const { openDialog: openDeleteDialog } = useDeleteWebhook()
   const { data: organizationData, loading: organizationLoading } = useGetOrganizationHmacDataQuery()
@@ -76,9 +76,9 @@ export const Webhooks = () => {
                       }
                       variant="inline"
                       onClick={() => {
+                        // Navigate to BrowserRouter route from MemoryRouter without page reload
+                        setMainRouterUrl(CREATE_WEBHOOK_ROUTE)
                         closePanel()
-                        // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
-                        window.location.href = CREATE_WEBHOOK_ROUTE
                       }}
                       startIcon="plus"
                     >
@@ -119,8 +119,9 @@ export const Webhooks = () => {
                               webhookId: webhook.id,
                             })
 
-                            // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
-                            window.location.href = path
+                            // Navigate to BrowserRouter route from MemoryRouter without page reload
+                            setMainRouterUrl(path)
+                            closePanel()
                           },
                         },
                         {
