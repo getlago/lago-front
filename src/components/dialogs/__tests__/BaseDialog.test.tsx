@@ -205,6 +205,124 @@ describe('BaseDialog', () => {
     })
   })
 
+  describe('Form Integration', () => {
+    it('renders form wrapper when form prop is provided', () => {
+      const mockSubmit = jest.fn((e: React.FormEvent) => {
+        e.preventDefault()
+      })
+
+      render(
+        <BaseDialog
+          {...defaultProps}
+          form={{
+            id: 'test-form',
+            submit: mockSubmit,
+          }}
+        >
+          <div data-test={DIALOG_CONTENT_TEST_ID}>Form Content</div>
+        </BaseDialog>,
+      )
+
+      const form = document.querySelector('form#test-form')
+
+      expect(form).toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_CONTENT_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('calls form submit handler when form is submitted', async () => {
+      const mockSubmit = jest.fn((e: React.FormEvent) => {
+        e.preventDefault()
+      })
+      const user = userEvent.setup()
+
+      render(
+        <BaseDialog
+          {...defaultProps}
+          form={{
+            id: 'test-form',
+            submit: mockSubmit,
+          }}
+        >
+          <input type="text" data-test="test-input" />
+          <button type="submit" data-test="submit-button">
+            Submit
+          </button>
+        </BaseDialog>,
+      )
+
+      const submitButton = screen.getByTestId('submit-button')
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockSubmit).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('renders without form wrapper when form prop is not provided', () => {
+      render(
+        <BaseDialog {...defaultProps}>
+          <div data-test={DIALOG_CONTENT_TEST_ID}>Content without form</div>
+        </BaseDialog>,
+      )
+
+      const form = document.querySelector('form')
+
+      expect(form).not.toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_CONTENT_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('maintains form structure with all dialog sections', () => {
+      const mockSubmit = jest.fn()
+
+      render(
+        <BaseDialog
+          {...defaultProps}
+          description="Form description"
+          headerContent={<div data-test={HEADER_CONTENT_TEST_ID}>Header</div>}
+          form={{
+            id: 'test-form',
+            submit: mockSubmit,
+          }}
+        >
+          <div data-test={DIALOG_CONTENT_TEST_ID}>Form body</div>
+        </BaseDialog>,
+      )
+
+      const form = document.querySelector('form#test-form')
+
+      expect(form).toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByText('Form description')).toBeInTheDocument()
+      expect(screen.getByTestId(HEADER_CONTENT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_CONTENT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_ACTION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('form contains all dialog content sections', () => {
+      const mockSubmit = jest.fn()
+
+      render(
+        <BaseDialog
+          {...defaultProps}
+          form={{
+            id: 'test-form',
+            submit: mockSubmit,
+          }}
+        >
+          <div data-test={DIALOG_CONTENT_TEST_ID}>Content</div>
+        </BaseDialog>,
+      )
+
+      const form = document.querySelector('form#test-form')
+
+      // Verify form contains all sections
+      expect(form?.querySelector('header')).toBeInTheDocument()
+      expect(form?.querySelector(`[data-test="${DIALOG_CONTENT_TEST_ID}"]`)).toBeInTheDocument()
+      expect(form?.querySelector(`[data-test="${DIALOG_ACTION_TEST_ID}"]`)).toBeInTheDocument()
+    })
+  })
+
   describe('Snapshot Tests', () => {
     it('matches snapshot with basic props', () => {
       render(
@@ -279,6 +397,26 @@ describe('BaseDialog', () => {
       const dialogRoot = document.querySelector('.MuiDialog-root')
 
       expect(dialogRoot).toMatchSnapshot()
+    })
+
+    it('matches snapshot with form', () => {
+      const mockSubmit = jest.fn()
+
+      render(
+        <BaseDialog
+          {...defaultProps}
+          form={{
+            id: 'test-form',
+            submit: mockSubmit,
+          }}
+        >
+          <div>Form Content</div>
+        </BaseDialog>,
+      )
+
+      const dialogPaper = document.querySelector('.MuiDialog-paper')
+
+      expect(dialogPaper).toMatchSnapshot()
     })
   })
 })
