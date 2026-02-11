@@ -1,6 +1,7 @@
 ---
 name: make-tests
 description: Create unit and integration tests for code changes in a GitHub PR. Use this skill to generate tests with 80% coverage on new code, following BDD approach and project conventions.
+argument-hint: '#<pr-number>'
 ---
 
 # Make Tests Skill
@@ -8,6 +9,8 @@ description: Create unit and integration tests for code changes in a GitHub PR. 
 **Target PR:** `$ARGUMENTS`
 
 > **Important:** If no PR number was provided above (empty or missing), use the AskUserQuestion tool to ask the user for the PR number they want to create tests for (format: #123).
+
+Extract the PR number from the argument. The user may provide it as `#123` or `123` - remove the `#` prefix if present to get the numeric PR number.
 
 This skill creates comprehensive tests for code changes in a GitHub Pull Request, following the established patterns and conventions in this codebase.
 

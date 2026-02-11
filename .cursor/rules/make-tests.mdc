@@ -9,15 +9,30 @@ globs:
 
 This guide helps create comprehensive tests for code changes in a GitHub Pull Request, following the established patterns and conventions in this codebase.
 
+## Usage
+
+Invoke this rule with a PR number:
+
+```
+/make-tests #123
+```
+
+or
+
+```
+/make-tests 123
+```
+
 ## Overview
 
 This guide will help you:
 
-1. Analyze the PR to identify changed/added files
-2. **Critically evaluate** which parts of the new code actually need tests
-3. Create tests following BDD approach (GIVEN/WHEN/THEN)
-4. Target ~80% coverage **on new code only** (not the entire codebase)
-5. Reuse existing factories/mocks and refactor shared ones
+1. Parse the PR number from the argument (remove `#` prefix if present)
+2. Analyze the PR to identify changed/added files
+3. **Critically evaluate** which parts of the new code actually need tests
+4. Create tests following BDD approach (GIVEN/WHEN/THEN)
+5. Target ~80% coverage **on new code only** (not the entire codebase)
+6. Reuse existing factories/mocks and refactor shared ones
 
 ## Critical Testing Philosophy
 
@@ -74,11 +89,26 @@ Before starting, gather context by reading these reference files:
 
 ---
 
+## Phase 0: Parse PR Number
+
+When invoked with `/make-tests #123` or `/make-tests 123`, extract the PR number:
+
+- If the argument starts with `#`, remove it to get the numeric PR number
+- If the argument is just a number, use it directly
+- If no argument is provided, ask the user for the PR number
+
+**Example:**
+
+- `/make-tests #123` → PR_NUMBER = `123`
+- `/make-tests 123` → PR_NUMBER = `123`
+
+---
+
 ## Phase 1: PR Analysis
 
 ### Step 1.1: Fetch PR Information
 
-Extract the PR number and fetch PR details:
+Use the extracted PR number to fetch PR details:
 
 ```bash
 # Get PR diff and changed files
