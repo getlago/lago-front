@@ -112,7 +112,7 @@ gql`
   ${FeeForDeleteAdjustmentFeeDialogFragmentDoc}
 `
 
-type InvoiceDetailsTableBodyLineProps = {
+type InvoiceDetailsTableBodyLineBaseProps = {
   canHaveUnitPrice: boolean
   currency: CurrencyEnum
   displayName: string
@@ -124,10 +124,34 @@ type InvoiceDetailsTableBodyLineProps = {
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
   hasTaxProviderError?: boolean
-  onAdd?: OnRegeneratedFeeAdd
-  onDelete?: (id: string) => void
-  invoiceSubscriptionId?: string
-  localFees?: FeeForCreateFeeDrawerFragment[]
+}
+
+type RegenerateModeProps = {
+  onAdd: OnRegeneratedFeeAdd
+  onDelete: (id: string) => void
+  invoiceSubscriptionId: string
+  localFees: FeeForCreateFeeDrawerFragment[]
+}
+
+type InvoiceDetailsTableBodyLineProps =
+  | (InvoiceDetailsTableBodyLineBaseProps & RegenerateModeProps)
+  | (InvoiceDetailsTableBodyLineBaseProps & {
+      onAdd?: undefined
+      onDelete?: undefined
+      invoiceSubscriptionId?: undefined
+      localFees?: undefined
+    })
+
+export const getRegenerateModeProps = (
+  onAdd: OnRegeneratedFeeAdd | undefined,
+  onDelete: ((id: string) => void) | undefined,
+  localFees: FeeForCreateFeeDrawerFragment[] | undefined,
+  invoiceSubscriptionId: string,
+): RegenerateModeProps | Record<string, never> => {
+  if (onAdd && onDelete && localFees) {
+    return { onAdd, onDelete, localFees, invoiceSubscriptionId }
+  }
+  return {}
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (

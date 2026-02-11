@@ -6,7 +6,10 @@ import { FC, Fragment, memo, ReactNode, RefObject } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { DeleteAdjustedFeeDialogRef } from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
-import { InvoiceDetailsTableBodyLine } from '~/components/invoices/details/InvoiceDetailsTableBodyLine'
+import {
+  getRegenerateModeProps,
+  InvoiceDetailsTableBodyLine,
+} from '~/components/invoices/details/InvoiceDetailsTableBodyLine'
 import { InvoiceDetailsTableFooter } from '~/components/invoices/details/InvoiceDetailsTableFooter'
 import { InvoiceDetailsTableHeader } from '~/components/invoices/details/InvoiceDetailsTableHeader'
 import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
@@ -386,9 +389,7 @@ export const InvoiceDetailsTable = memo(
                       fee={undefined}
                       isDraftInvoice={false}
                       hasTaxProviderError={hasTaxProviderError}
-                      onAdd={onAdd}
-                      onDelete={onDelete}
-                      localFees={localFees}
+                      {...getRegenerateModeProps(onAdd, onDelete, localFees, subscription.id)}
                     />
                   </tbody>
                   <InvoiceDetailsTableFooter
@@ -481,9 +482,12 @@ export const InvoiceDetailsTable = memo(
                                 isDraftInvoice={isDraftInvoice}
                                 fee={fee}
                                 hasTaxProviderError={hasTaxProviderError}
-                                onAdd={onAdd}
-                                onDelete={onDelete}
-                                localFees={localFees}
+                                {...getRegenerateModeProps(
+                                  onAdd,
+                                  onDelete,
+                                  localFees,
+                                  subscriptionId,
+                                )}
                               />
                             )
                           })}

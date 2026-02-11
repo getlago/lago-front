@@ -233,6 +233,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       invoiceId: localData?.invoiceId || '',
     },
     skip: !localData?.invoiceId,
+    // Prevent this query from polluting the Apollo cache with partial fee data
+    // which would overwrite the full fee data from getInvoiceFees
+    fetchPolicy: 'no-cache',
   })
 
   const currentSubscription = invoiceData?.invoice?.subscriptions?.find(
