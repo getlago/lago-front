@@ -19,7 +19,7 @@ const buildPermissionRouteMap = (
     }
 
     // Skip routes without permissions or path
-    if (!route.permissions || !route.path) continue
+    if ((!route.permissions && !route.permissionsOr) || !route.path) continue
 
     // Get the first path if it's an array
     const routePath = Array.isArray(route.path) ? route.path[0] : route.path
@@ -27,8 +27,12 @@ const buildPermissionRouteMap = (
     // Skip routes with dynamic params (e.g., :customerId) as they need context
     if (routePath.includes(':')) continue
 
-    // Find view permissions in this route
-    const viewPermissions = route.permissions.filter((p) => p.toLowerCase().includes('view'))
+    // Find view permissions in this route (check both AND and OR arrays)
+    const andViewPermissions =
+      route.permissions?.filter((p) => p.toLowerCase().includes('view')) || []
+    const orViewPermissions =
+      route.permissionsOr?.filter((p) => p.toLowerCase().includes('view')) || []
+    const viewPermissions = [...andViewPermissions, ...orViewPermissions]
 
     // Map each view permission to the route if not already mapped
     for (const viewPermission of viewPermissions) {

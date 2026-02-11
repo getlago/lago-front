@@ -1,12 +1,12 @@
 import { ReactNode, Suspense, useEffect } from 'react'
-import { RouteObject, useLocation, useRoutes } from 'react-router-dom'
+import { RouteObject, useLocation, useNavigate, useRoutes } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { CustomRouteObject, routes } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { DEVTOOL_TAB_PARAMS } from '~/hooks/useDeveloperTool'
+import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 interface PageWrapperProps {
   routeConfig: CustomRouteObject
@@ -82,6 +82,17 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
 
 export const RouteWrapper = () => {
   const { isAuthenticated } = useIsAuthenticated()
+  const navigate = useNavigate()
+  const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
+
+  // Listen for navigation requests from the MemoryRouter (devtools panel)
+  // This allows the devtools panel to navigate in the BrowserRouter without a page reload
+  useEffect(() => {
+    if (mainRouterUrl) {
+      navigate(mainRouterUrl)
+      setMainRouterUrl('')
+    }
+  }, [mainRouterUrl, navigate, setMainRouterUrl])
 
   const formattedRoutes = routesFormatter(routes, isAuthenticated)
 

@@ -36,9 +36,10 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
   const dialogRef = useRef<WarningDialogRef>(null)
   const [dialogData, setDialogData] = useState<DeleteAdjustedFeeDialogProps | undefined>(undefined)
 
-  const { refetch: refetchInvoiceDetails } = useGetInvoiceDetailsQuery({
+  // Skip this query in regenerate mode (when onDelete is provided) since we manage local state
+  useGetInvoiceDetailsQuery({
     variables: { id: dialogData?.fee?.invoiceId || '' },
-    skip: !dialogData?.fee?.invoiceId,
+    skip: !dialogData?.fee?.invoiceId || !!dialogData?.onDelete,
   })
 
   const [destroyFee] = useDestroyAdjustedFeeMutation({
@@ -71,7 +72,9 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
       onContinue={async () => {
         if (dialogData?.onDelete) {
           dialogData.onDelete(dialogData?.fee?.id || '')
-          return await refetchInvoiceDetails()
+          dialogRef.current?.closeDialog()
+          setDialogData(undefined)
+          return
         }
 
         await destroyFee({
