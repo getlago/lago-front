@@ -541,14 +541,14 @@ const inputContainer = screen.getByTestId(COMPONENT_NAME_INPUT_TEST_ID)
 const input = inputContainer.querySelector('input') as HTMLInputElement
 await user.type(input, 'test value')
 
-// ❌ WRONG - Don't use non-null assertion (!)
+// ❌ WRONG - Don't use non-null assertion
 // const input = inputContainer.querySelector('input')
-// await user.type(input!, 'test value')  // ESLint error: no-non-null-assertion
+// await user.type(input, 'test value')  // ESLint error if using non-null assertion
 ```
 
 ### Type Assertions for DOM Elements:
 
-Always use `as HTMLInputElement` (or appropriate HTML type) instead of non-null assertion (`!`):
+Always use `as HTMLInputElement` (or appropriate HTML type) instead of non-null assertion:
 
 ```typescript
 // ✅ CORRECT - Use type assertion
@@ -557,8 +557,8 @@ const button = container.querySelector('button') as HTMLButtonElement
 const select = container.querySelector('select') as HTMLSelectElement
 
 // ❌ WRONG - Non-null assertion causes ESLint errors
-// const input = container.querySelector('input')!
-// await user.type(input, 'value')  // Fails: @typescript-eslint/no-non-null-assertion
+// const input = container.querySelector('input') with non-null assertion
+// await user.type(input, 'value')  // Fails: typescript-eslint/no-non-null-assertion
 ```
 
 ### Step 3.6: Reuse and Refactor Mocks
@@ -682,8 +682,8 @@ pnpm eslint src/path/to/__tests__/file.test.tsx
 
 **Common ESLint errors to watch for:**
 
-1. **`@typescript-eslint/no-non-null-assertion`** - Don't use `!` operator
-   - Fix: Use `as HTMLInputElement` type assertion instead
+1. **@typescript-eslint/no-non-null-assertion** - Don't use the non-null assertion operator
+   - Fix: Use type assertion (as HTMLInputElement) instead
 
 2. **`@typescript-eslint/no-explicit-any`** - Don't use `any` type
    - Fix: Use proper types from `@testing-library/react` or component props
@@ -707,14 +707,35 @@ pnpm eslint src/path/to/__tests__/file.test.tsx
 - [ ] **⛔ NO TRANSLATION KEYS IN ASSERTIONS** - Use `expect.objectContaining()` for partial matching
 - [ ] data-test constants are exported from the component
 - [ ] Tests import data-test constants from the component
-- [ ] **Type assertions used correctly** - Use `as HTMLInputElement` not `!` (non-null assertion)
+- [ ] **Type assertions used correctly** - Use type assertions (as HTMLInputElement) instead of non-null assertions
 - [ ] Existing mocks/factories are reused
-- [ ] Shared mocks are extracted to `src/__mocks__/` if used in multiple files
+- [ ] Shared mocks are extracted to shared mock folder (src/\_\_mocks\_\_/) if used in multiple files
 - [ ] **Coverage is appropriate** (80% target, but lower is OK if justified)
 - [ ] **No trivial tests** - Every test verifies meaningful behavior
 - [ ] **Snapshot tests considered** - Added where they provide value (not forced)
 - [ ] Tests pass: `pnpm test <test-file>`
 - [ ] **⚠️ ESLint passes: `pnpm eslint <test-file>`** (MANDATORY - run before finalizing)
+
+### ⛔ MANDATORY: Translation Key Verification (Final Step)
+
+**Before completing the task, you MUST verify that NO translation keys exist in the test files.**
+
+Run this check on all test files created or modified:
+
+```bash
+# Search for translation key patterns in test files (text_ followed by alphanumeric characters)
+grep -E "text_[a-zA-Z0-9]+" src/path/to/__tests__/*.test.tsx
+```
+
+**If ANY translation keys are found, you MUST remove them:**
+
+1. Replace `title: 'text_xxx'` with `title: expect.any(String)` or remove entirely
+2. Replace `description: 'text_xxx'` with `description: expect.any(String)` or remove entirely
+3. Replace `actionText: 'text_xxx'` with `actionText: expect.any(String)` or remove entirely
+4. Replace `message: 'text_xxx'` with removal (only keep `severity` for toasts)
+5. Replace `screen.getByText('text_xxx')` with `screen.getByTestId(COMPONENT_TEST_ID)`
+
+**This check is NON-NEGOTIABLE. Tests with translation keys will break when translations change.**
 
 ### Coverage Decision Guide
 
@@ -832,8 +853,8 @@ describe('GIVEN the form is filled', () => {
       const user = userEvent.setup()
       render(<FormComponent onSubmit={onSubmit} />)
 
-      const nameInput = screen.getByTestId(FORM_NAME_INPUT_TEST_ID).querySelector('input')
-      await user.type(nameInput!, 'Test Name')
+      const nameInput = screen.getByTestId(FORM_NAME_INPUT_TEST_ID).querySelector('input') as HTMLInputElement
+      await user.type(nameInput, 'Test Name')
 
       const submitButton = screen.getByTestId(FORM_SUBMIT_BUTTON_TEST_ID)
       await user.click(submitButton)
@@ -919,6 +940,50 @@ describe('GIVEN the mutation succeeds', () => {
       //     severity: 'success',
       //   })
       // })
+    })
+  })
+})
+```
+
+### Testing Dialog/Modal Opens (CRITICAL: No Translation Keys)
+
+When testing that a dialog or modal was opened with specific properties, **NEVER** include translation keys for `title`, `description`, or `actionText`. Instead, verify only non-translation properties like `colorVariant`, or use `expect.any(String)` if you need to verify the presence of text fields.
+
+```typescript
+describe('GIVEN user wants to delete an item', () => {
+  describe('WHEN clicking the delete button', () => {
+    it('THEN should open confirmation dialog with danger variant', async () => {
+      const user = userEvent.setup()
+      render(<Component />)
+
+      const deleteButton = screen.getByTestId(COMPONENT_DELETE_BUTTON_TEST_ID)
+      await user.click(deleteButton)
+
+      // ✅ CORRECT - Only verify non-translation key properties
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          colorVariant: 'danger',
+        }),
+      )
+
+      // ✅ ALSO CORRECT - If you need to verify title/description exist, use expect.any(String)
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: expect.any(String),
+          description: expect.any(String),
+          colorVariant: 'danger',
+        }),
+      )
+
+      // ❌ WRONG - NEVER include translation keys in dialog assertions
+      // expect(mockDialogOpen).toHaveBeenCalledWith(
+      //   expect.objectContaining({
+      //     title: 'text_6271200984178801ba8bdeb2',        // ❌ NEVER DO THIS
+      //     description: 'text_6271200984178801ba8bded2',  // ❌ NEVER DO THIS
+      //     actionText: 'text_6271200984178801ba8bdf0c',   // ❌ NEVER DO THIS
+      //     colorVariant: 'danger',
+      //   }),
+      // )
     })
   })
 })
