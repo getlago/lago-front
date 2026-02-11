@@ -51,12 +51,16 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
 
   const overallCheckboxValue = getOverallCheckboxValue(checkboxValues)
 
+  const updateFieldValues = (itemIds: Array<keyof TValues & string>, checked: boolean) => {
+    itemIds.forEach((itemId) => {
+      group.setFieldValue(itemId, checked, { dontValidate: !errors?.length })
+    })
+  }
+
   const handleOverallCheckboxChange = (_e: unknown, checked: boolean) => {
     const itemsToUpdate = Object.keys(checkboxValues) as Array<keyof TValues & string>
 
-    itemsToUpdate.forEach((itemId) => {
-      group.setFieldValue(itemId, checked, { dontValidate: !errors?.length })
-    })
+    updateFieldValues(itemsToUpdate, checked)
   }
 
   const handleGroupCheckboxClick = (
@@ -65,9 +69,7 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
   ) => {
     const itemsToUpdate = groupItems.map((item) => item.id) as Array<keyof TValues & string>
 
-    itemsToUpdate.forEach((itemId) => {
-      group.setFieldValue(itemId, checked, { dontValidate: !errors?.length })
-    })
+    updateFieldValues(itemsToUpdate, checked)
   }
 
   const rows = useMemo(() => getDataRows(groups), [groups])
@@ -110,10 +112,11 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
     if (hasCollapsedGroups) {
       tableRef.current?.expandAll()
       setHasCollapsedGroups(false)
-    } else {
-      tableRef.current?.collapseAll()
-      setHasCollapsedGroups(true)
+      return
     }
+
+    tableRef.current?.collapseAll()
+    setHasCollapsedGroups(true)
   }
 
   const getExpandCollapseButtonLabel = (): string => {
