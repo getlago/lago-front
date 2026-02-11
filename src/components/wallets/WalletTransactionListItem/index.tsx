@@ -2,7 +2,9 @@ import { gql } from '@apollo/client'
 
 import { ListItem } from '~/components/wallets/WalletTransactionListItem/ListItem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  CurrencyEnum,
   TimezoneEnum,
   WalletTransactionForTransactionListItemFragment,
   WalletTransactionSourceEnum,
@@ -19,6 +21,9 @@ gql`
     amount
     createdAt
     creditAmount
+    priority
+    remainingAmountCents
+    remainingCreditAmount
     failedAt
     name
     settledAt
@@ -35,10 +40,11 @@ gql`
 
 type LocalWalletTransaction = Omit<
   WalletTransactionForTransactionListItemFragment,
-  'transactionStatus'
+  'transactionStatus' | 'priority'
 > & {
   transactionStatus: WalletTransactionTransactionStatusEnum | undefined
   source?: WalletTransactionSourceEnum
+  priority?: number
 }
 
 export type WalletTransactionListItemProps = {
@@ -65,6 +71,9 @@ export const WalletTransactionListItem = ({
     amount,
     createdAt,
     creditAmount,
+    remainingAmountCents,
+    remainingCreditAmount,
+    priority,
     failedAt,
     name,
     settledAt,
@@ -77,16 +86,28 @@ export const WalletTransactionListItem = ({
   const isFailed = status === WalletTransactionStatusEnum.Failed
   const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
 
-  const formattedCreditAmount = intlFormatNumber(Number(blurValue ? 0 : creditAmount) || 0, {
-    maximumFractionDigits: 15,
-    style: 'decimal',
-  })
+  const formatCredits = (credits?: string | null) =>
+    intlFormatNumber(Number(blurValue ? 0 : credits) || 0, {
+      maximumFractionDigits: 15,
+      style: 'decimal',
+    })
 
-  const formattedCurrencyAmount = intlFormatNumber(Number(blurValue ? 0 : amount) || 0, {
-    currencyDisplay: 'symbol',
-    maximumFractionDigits: 15,
-    currency: transaction?.wallet?.currency,
-  })
+  const formatAmount = (amountCents?: string | null) =>
+    intlFormatNumber(Number(blurValue ? 0 : amountCents) || 0, {
+      currencyDisplay: 'symbol',
+      maximumFractionDigits: 15,
+      currency: transaction?.wallet?.currency,
+    })
+
+  const formattedCreditAmount = formatCredits(creditAmount)
+  const formattedCurrencyAmount = formatAmount(amount)
+  const formattedRemainingCreditAmount = formatCredits(remainingCreditAmount)
+  const formattedRemainingAmountCents = formatAmount(
+    deserializeAmount(
+      remainingAmountCents,
+      transaction?.wallet?.currency || CurrencyEnum.Usd,
+    )?.toString(),
+  )
 
   const transactionAmountTranslationKey = translate(
     'text_62da6ec24a8e24e44f812896',
@@ -109,6 +130,11 @@ export const WalletTransactionListItem = ({
         name={name}
         credits={transactionAmountTranslationKey}
         amount={formattedCurrencyAmount}
+        remainingAmountCents={formattedRemainingAmountCents}
+        remainingCreditAmount={formattedRemainingCreditAmount}
+        priority={priority}
+        transactionType={transactionType}
+        isRealTimeTransaction={isRealTimeTransaction}
         hasAction={false}
         transactionId={id}
       />
@@ -149,8 +175,12 @@ export const WalletTransactionListItem = ({
         name={name}
         date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="success600"
-        credits={`${Number(creditAmount) === 0 ? '' : '+ '} ${transactionAmountTranslationKey}`}
+        credits={`${Number(creditAmount) === 0 ? '' : '+'}${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
+        remainingAmountCents={formattedRemainingAmountCents}
+        remainingCreditAmount={formattedRemainingCreditAmount}
+        priority={priority}
+        transactionType={transactionType}
         hasAction={isWalletActive}
         transactionId={id}
       />
@@ -173,8 +203,12 @@ export const WalletTransactionListItem = ({
         name={name}
         date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="grey700"
-        credits={`${Number(creditAmount) === 0 ? '' : '- '} ${transactionAmountTranslationKey}`}
+        credits={`${Number(creditAmount) === 0 ? '' : '-'}${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
+        remainingAmountCents={formattedRemainingAmountCents}
+        remainingCreditAmount={formattedRemainingCreditAmount}
+        priority={priority}
+        transactionType={transactionType}
         hasAction={isWalletActive}
         transactionId={id}
       />
