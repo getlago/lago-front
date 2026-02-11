@@ -674,7 +674,7 @@
   "text_6271200984178801ba8bdf22": "Webhook URL",
   "text_6271200984178801ba8bdf36": "https://",
   "text_6271200984178801ba8bdf4a": "Cancel",
-  "text_6271200984178801ba8bdf5e": "Add webhook",
+  "text_6271200984178801ba8bdf5e": "Create endpoint",
   "text_6271200984178801ba8bdf58": "Please fill this input with a URL format to move forward",
   "text_6271200984178801ba8bdf7f": "Webhook successfully added",
   "text_6271200984178801ba8bdeb2": "You’re about to delete a webhook",
@@ -733,7 +733,6 @@
   "text_64d23a81a7d807f8aa570517": "Size limitation issues may arise due to the header payload",
   "text_64d23a81a7d807f8aa570519": "HMAC signature",
   "text_64d23a81a7d807f8aa57051b": "No size limitation issues as the header payload is shorter",
-  "text_64d23a81a7d807f8aa57051f": "Edit webhook",
   "text_64d23b49d481ab00681c22ab": "Webhook successfully edited",
   "text_6560809c38fb9de88d8a505e": "Create wallet",
   "text_6560809c38fb9de88d8a5090": "Wallet settings",
@@ -3798,5 +3797,8 @@
   "text_17707227517607yom6ypgxoc": "Define the settings of this new webhook endpoint.",
   "text_1770722751760qclc7dc4kvd": "Define the settings of this webhook endpoint.",
   "text_1770723024044vvqxr476mvd": "Webhook destination name",
-  "text_1770723024044wi5tokoswxl": "Define a destination name"
+  "text_1770723024044wi5tokoswxl": "Define a destination name",
+  "text_1770822522307127vc3bt81b": "Webhook events",
+  "text_1770822522308ndyb2bewmvs": "Review and update the webhook events accepted by this endpoint.",
+  "text_1770822522308u2ptsqw79ns": "Search events"
 }

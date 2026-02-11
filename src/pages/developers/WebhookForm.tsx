@@ -26,6 +26,7 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 import { webhookDefaultValues, webhookValidationSchema } from './webhookForm/validationSchema'
+import WebhookEventsForm from './webhookForm/WebhookEventsForm'
 
 gql`
   query getWebhookToEdit($webhookId: ID!) {
@@ -98,6 +99,7 @@ const WebhookForm = () => {
       name: webhook?.name || webhookDefaultValues.name,
       webhookUrl: webhook?.webhookUrl || webhookDefaultValues.webhookUrl,
       signatureAlgo: webhook?.signatureAlgo || webhookDefaultValues.signatureAlgo,
+      webhookEvents: { ...webhookDefaultValues.webhookEvents },
     },
     validationLogic: revalidateLogic(),
     validators: {
@@ -173,6 +175,7 @@ const WebhookForm = () => {
         name: webhook.name || webhookDefaultValues.name,
         webhookUrl: webhook.webhookUrl || webhookDefaultValues.webhookUrl,
         signatureAlgo: webhook.signatureAlgo || webhookDefaultValues.signatureAlgo,
+        webhookEvents: { ...webhookDefaultValues.webhookEvents },
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -213,62 +216,67 @@ const WebhookForm = () => {
               </Typography>
             </div>
 
-            <PageSectionTitle
-              title={translate('text_17707227517604nyis2xn00d')}
-              subtitle={translate(
-                isEdition ? 'text_1770722751760qclc7dc4kvd' : 'text_17707227517607yom6ypgxoc',
-              )}
-            />
-
-            <div className="flex flex-col gap-6 pb-12">
-              <form.AppField name="name">
-                {(field) => (
-                  <field.TextInputField
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    label={translate('text_1770723024044vvqxr476mvd')}
-                    placeholder={translate('text_1770723024044wi5tokoswxl')}
-                  />
+            <div>
+              <PageSectionTitle
+                className="mb-6"
+                title={translate('text_17707227517604nyis2xn00d')}
+                subtitle={translate(
+                  isEdition ? 'text_1770722751760qclc7dc4kvd' : 'text_17707227517607yom6ypgxoc',
                 )}
-              </form.AppField>
+              />
 
-              <form.AppField name="webhookUrl">
-                {(field) => (
-                  <field.TextInputField
-                    label={translate('text_6271200984178801ba8bdf22')}
-                    placeholder={translate('text_6271200984178801ba8bdf36')}
-                    helperText={
-                      <Typography
-                        variant="caption"
-                        color="inherit"
-                        html={translate('text_62ce85fb3fb6842020331d83')}
-                      />
-                    }
-                  />
-                )}
-              </form.AppField>
-
-              <div>
-                <Typography className="mb-1" variant="captionHl" color="grey700">
-                  {translate('text_64d23a81a7d807f8aa570513')}
-                </Typography>
-                <form.AppField name="signatureAlgo">
+              <div className="flex flex-col gap-6 pb-24">
+                <form.AppField name="name">
                   {(field) => (
-                    <>
-                      <field.RadioField
-                        value={WebhookEndpointSignatureAlgoEnum.Hmac}
-                        label={translate('text_64d23a81a7d807f8aa570519')}
-                        sublabel={translate('text_64d23a81a7d807f8aa57051b')}
-                      />
-                      <field.RadioField
-                        value={WebhookEndpointSignatureAlgoEnum.Jwt}
-                        label={translate('text_64d23a81a7d807f8aa570515')}
-                        sublabel={translate('text_64d23a81a7d807f8aa570517')}
-                      />
-                    </>
+                    <field.TextInputField
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
+                      label={translate('text_1770723024044vvqxr476mvd')}
+                      placeholder={translate('text_1770723024044wi5tokoswxl')}
+                    />
                   )}
                 </form.AppField>
+
+                <form.AppField name="webhookUrl">
+                  {(field) => (
+                    <field.TextInputField
+                      label={translate('text_6271200984178801ba8bdf22')}
+                      placeholder={translate('text_6271200984178801ba8bdf36')}
+                      helperText={
+                        <Typography
+                          variant="caption"
+                          color="inherit"
+                          html={translate('text_62ce85fb3fb6842020331d83')}
+                        />
+                      }
+                    />
+                  )}
+                </form.AppField>
+
+                <div>
+                  <Typography className="mb-1" variant="captionHl" color="grey700">
+                    {translate('text_64d23a81a7d807f8aa570513')}
+                  </Typography>
+                  <form.AppField name="signatureAlgo">
+                    {(field) => (
+                      <>
+                        <field.RadioField
+                          value={WebhookEndpointSignatureAlgoEnum.Hmac}
+                          label={translate('text_64d23a81a7d807f8aa570519')}
+                          sublabel={translate('text_64d23a81a7d807f8aa57051b')}
+                        />
+                        <field.RadioField
+                          value={WebhookEndpointSignatureAlgoEnum.Jwt}
+                          label={translate('text_64d23a81a7d807f8aa570515')}
+                          sublabel={translate('text_64d23a81a7d807f8aa570517')}
+                        />
+                      </>
+                    )}
+                  </form.AppField>
+                </div>
               </div>
+
+              <WebhookEventsForm form={form} fields="webhookEvents" />
             </div>
           </>
         )}
@@ -292,7 +300,7 @@ const WebhookForm = () => {
               loading={isSubmitting}
             >
               {translate(
-                isEdition ? 'text_64d23a81a7d807f8aa57051f' : 'text_6271200984178801ba8bdf5e',
+                isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_6271200984178801ba8bdf5e',
               )}
             </Button>
           )}
