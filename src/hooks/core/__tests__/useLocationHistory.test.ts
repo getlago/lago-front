@@ -6,6 +6,8 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
 const mockGetItemFromLS = jest.fn()
+const mockHasPermissions = jest.fn()
+const mockHasPermissionsOr = jest.fn()
 
 const FALLBACK_URL = '/fallback'
 const MOCK_HISTORY_VAR = [
@@ -49,7 +51,8 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
-    hasPermissions: () => true,
+    hasPermissions: mockHasPermissions,
+    hasPermissionsOr: mockHasPermissionsOr,
   }),
 }))
 
@@ -74,7 +77,13 @@ describe('useLocationHistory()', () => {
   beforeEach(() => {
     mockNavigate.mockClear()
     mockGetItemFromLS.mockClear()
+    mockHasPermissions.mockClear()
+    mockHasPermissionsOr.mockClear()
     authTokenVar(undefined)
+
+    // Default to true for backwards compatibility with existing tests
+    mockHasPermissions.mockReturnValue(true)
+    mockHasPermissionsOr.mockReturnValue(true)
   })
 
   describe('onRouteEnter()', () => {
@@ -151,6 +160,361 @@ describe('useLocationHistory()', () => {
           state: locationWithState.state,
           replace: true,
         })
+      })
+    })
+
+    describe('permission checking with AND logic (permissions field)', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should allow access when all AND permissions are granted', () => {
+        mockHasPermissions.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView', 'customersUpdate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['customersView', 'customersUpdate'])
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should deny access when at least one AND permission is missing', () => {
+        mockHasPermissions.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView', 'customersUpdate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['customersView', 'customersUpdate'])
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should allow access when permissions array is empty', () => {
+        // Empty array is truthy in JS, so hasPermissions is called with []
+        mockHasPermissions.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: [],
+            },
+            mockLocation,
+          )
+        })
+
+        // Empty array still triggers permission check (hasPermissions([]) returns true)
+        expect(mockHasPermissions).toHaveBeenCalledWith([])
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should allow access when no permissions field is specified', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).not.toHaveBeenCalled()
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+    })
+
+    describe('permission checking with OR logic (permissionsOr field)', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should allow access when at least one OR permission is granted', () => {
+        mockHasPermissionsOr.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissionsOr: ['customersView', 'customersCreate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissionsOr).toHaveBeenCalledWith(['customersView', 'customersCreate'])
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should deny access when no OR permissions are granted', () => {
+        mockHasPermissionsOr.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissionsOr: ['customersView', 'customersCreate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissionsOr).toHaveBeenCalledWith(['customersView', 'customersCreate'])
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should allow access when all OR permissions are granted', () => {
+        mockHasPermissionsOr.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissionsOr: ['customersView', 'customersCreate', 'customersUpdate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissionsOr).toHaveBeenCalledWith([
+          'customersView',
+          'customersCreate',
+          'customersUpdate',
+        ])
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should deny access when permissionsOr array is empty', () => {
+        // Empty array is truthy in JS, so hasPermissionsOr is called with []
+        mockHasPermissionsOr.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissionsOr: [],
+            },
+            mockLocation,
+          )
+        })
+
+        // Empty array triggers permission check (hasPermissionsOr([]) returns false)
+        expect(mockHasPermissionsOr).toHaveBeenCalledWith([])
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+      })
+    })
+
+    describe('permission checking with combined AND + OR logic', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should allow access when both AND and OR conditions are satisfied', () => {
+        mockHasPermissions.mockReturnValue(true) // Has invoicesView
+        mockHasPermissionsOr.mockReturnValue(true) // Has at least one of create/update
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['invoicesView'],
+              permissionsOr: ['invoicesCreate', 'invoicesUpdate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['invoicesView'])
+        expect(mockHasPermissionsOr).toHaveBeenCalledWith(['invoicesCreate', 'invoicesUpdate'])
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should deny access when AND is satisfied but OR is not', () => {
+        mockHasPermissions.mockReturnValue(true) // Has invoicesView
+        mockHasPermissionsOr.mockReturnValue(false) // Does not have create/update
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['invoicesView'],
+              permissionsOr: ['invoicesCreate', 'invoicesUpdate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['invoicesView'])
+        expect(mockHasPermissionsOr).toHaveBeenCalledWith(['invoicesCreate', 'invoicesUpdate'])
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should deny access when OR is satisfied but AND is not', () => {
+        mockHasPermissions.mockReturnValue(false) // Does not have invoicesView
+        mockHasPermissionsOr.mockReturnValue(true) // Has create/update
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['invoicesView'],
+              permissionsOr: ['invoicesCreate', 'invoicesUpdate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['invoicesView'])
+        // hasPermissionsOr is NOT called due to short-circuit evaluation (AND failed first)
+        expect(mockHasPermissionsOr).not.toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should deny access when neither AND nor OR conditions are satisfied', () => {
+        mockHasPermissions.mockReturnValue(false)
+        mockHasPermissionsOr.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['invoicesView'],
+              permissionsOr: ['invoicesCreate', 'invoicesUpdate'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['invoicesView'])
+        // hasPermissionsOr is NOT called due to short-circuit evaluation (AND failed first)
+        expect(mockHasPermissionsOr).not.toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should handle multiple AND and multiple OR permissions', () => {
+        mockHasPermissions.mockReturnValue(true)
+        mockHasPermissionsOr.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView', 'subscriptionsView'],
+              permissionsOr: ['customersCreate', 'customersUpdate', 'customersDelete'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['customersView', 'subscriptionsView'])
+        expect(mockHasPermissionsOr).toHaveBeenCalledWith([
+          'customersCreate',
+          'customersUpdate',
+          'customersDelete',
+        ])
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+    })
+
+    describe('permission checking edge cases', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should not check permissions when user is not authenticated', () => {
+        authTokenVar(undefined)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView'],
+              permissionsOr: ['customersCreate'],
+            },
+            mockLocation,
+          )
+        })
+
+        // Should redirect to login, not check permissions
+        expect(mockHasPermissions).not.toHaveBeenCalled()
+        expect(mockHasPermissionsOr).not.toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith('/login', expect.any(Object))
+      })
+
+      it('should not check permissions on public routes', () => {
+        authTokenVar(undefined)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              permissions: ['customersView'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).not.toHaveBeenCalled()
+        expect(mockHasPermissionsOr).not.toHaveBeenCalled()
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden')
+      })
+
+      it('should not check permissions on onlyPublic routes', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              onlyPublic: true,
+              permissions: ['customersView'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasPermissions).not.toHaveBeenCalled()
+        expect(mockHasPermissionsOr).not.toHaveBeenCalled()
       })
     })
   })
