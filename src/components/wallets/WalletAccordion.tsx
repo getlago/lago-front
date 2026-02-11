@@ -83,6 +83,8 @@ interface WalletAccordionProps {
   wallet: WalletAccordionFragment
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   customerTimezone?: TimezoneEnum
+  initiallyOpen?: boolean
+  selectedTransaction?: string | null
 }
 
 const mapStatus = (type?: WalletStatusEnum | undefined): StatusProps => {
@@ -104,6 +106,8 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
   customerTimezone,
   premiumWarningDialogRef,
   wallet,
+  initiallyOpen,
+  selectedTransaction,
 }) => {
   const {
     balanceCents,
@@ -169,6 +173,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
       <Accordion
         noContentMargin
         transitionProps={{ unmountOnExit: false }}
+        initiallyOpen={initiallyOpen}
         summary={
           <div className="flex flex-1 items-center justify-between gap-3">
             <div className="flex flex-col">
@@ -522,6 +527,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
               customerTimezone={customerTimezone}
               isOpen={isOpen}
               wallet={wallet}
+              selectedTransaction={selectedTransaction}
               footer={
                 <Typography
                   className="ml-auto flex items-center gap-1"
