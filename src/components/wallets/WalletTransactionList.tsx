@@ -22,7 +22,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { tw } from '~/styles/utils'
 
 import { WalletTransactionListItem } from './WalletTransactionListItem'
 
@@ -33,6 +32,7 @@ gql`
     status
     ongoingUsageBalanceCents
     creditsOngoingUsageBalance
+    rateAmount
   }
 
   query getWalletTransactions($walletId: ID!, $page: Int, $limit: Int) {
@@ -58,6 +58,7 @@ interface WalletTransactionListProps {
   isOpen: boolean
   wallet: WalletInfosForTransactionsFragment
   footer: ReactNode
+  selectedTransaction?: string | null
 }
 
 export const WalletTransactionList: FC<WalletTransactionListProps> = ({
@@ -65,6 +66,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   isOpen,
   wallet,
   footer,
+  selectedTransaction,
 }) => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
@@ -90,17 +92,37 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
     }
   }, [isOpen, error, data, loading, getWalletTransactions])
 
+  useEffect(() => {
+    if (!data || !selectedTransaction) {
+      return
+    }
+
+    walletDetailsDrawerRef.current?.openDrawer({ transactionId: selectedTransaction })
+  }, [data, selectedTransaction])
+
   return (
     <>
       {(loading || (!error && !!hasData)) && (
-        <div className="flex justify-between px-4 py-2 shadow-b">
-          <Typography variant="captionHl">{translate('text_62da6ec24a8e24e44f81288e')}</Typography>
-          <Typography
-            variant="captionHl"
-            className={tw(wallet.status === WalletStatusEnum.Active && 'mr-17')}
-          >
-            {translate('text_62da6ec24a8e24e44f812890')}
-          </Typography>
+        <div className="grid grid-cols-4 gap-2 px-4 py-2 shadow-b">
+          <div className="col-span-3">
+            <Typography variant="captionHl">
+              {translate('text_62da6ec24a8e24e44f81288e')}
+            </Typography>
+          </div>
+
+          <div className="grid grid-cols-7">
+            <Typography className="col-span-2 flex justify-end" variant="captionHl">
+              {translate('text_17703766701153r59onisjcq')}
+            </Typography>
+
+            <Typography className="col-span-2 flex justify-end" variant="captionHl">
+              {translate('text_62da6ec24a8e24e44f812890')}
+            </Typography>
+
+            <Typography className="col-span-2 flex justify-end" variant="captionHl">
+              {translate('text_1770381610089rix8snaszn3')}
+            </Typography>
+          </div>
         </div>
       )}
       <div className="shadow-b">
