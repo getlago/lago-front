@@ -106,6 +106,7 @@ exports[`BaseDialog Snapshot Tests matches snapshot with form 1`] = `
   role="dialog"
 >
   <form
+    class="flex max-h-[calc(100vh-10rem)] flex-col"
     id="test-form"
   >
     <header

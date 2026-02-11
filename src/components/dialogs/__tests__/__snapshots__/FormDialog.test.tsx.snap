@@ -7,6 +7,7 @@ exports[`FormDialog Snapshot Tests matches snapshot with all optional props 1`] 
   role="dialog"
 >
   <form
+    class="flex max-h-[calc(100vh-10rem)] flex-col"
     id="test-form-dialog"
   >
     <header
@@ -73,6 +74,7 @@ exports[`FormDialog Snapshot Tests matches snapshot with basic props 1`] = `
   role="dialog"
 >
   <form
+    class="flex max-h-[calc(100vh-10rem)] flex-col"
     id="test-form-dialog"
   >
     <header
@@ -127,6 +129,7 @@ exports[`FormDialog Snapshot Tests matches snapshot with cancel button 1`] = `
   role="dialog"
 >
   <form
+    class="flex max-h-[calc(100vh-10rem)] flex-col"
     id="test-form-dialog"
   >
     <header
