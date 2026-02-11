@@ -58,6 +58,8 @@ export type TableWithGroupsRef = {
   isGroupExpanded: (groupKey: string) => boolean
   hasExpandedGroups: () => boolean
   hasCollapsedGroups: () => boolean
+  getExpandedState: () => Record<string, boolean>
+  setExpandedState: (state: Record<string, boolean>) => void
 }
 
 export type TableWithGroupsProps = {
@@ -157,6 +159,12 @@ const TableWithGroupsInner = (
       const allGroups = getGroupKeys(rows)
 
       return allGroups.some((groupKey) => !expandedGroups[groupKey])
+    },
+    getExpandedState: () => {
+      return { ...expandedGroups }
+    },
+    setExpandedState: (state: Record<string, boolean>) => {
+      setExpandedGroups(state)
     },
   }))
 

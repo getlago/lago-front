@@ -47,6 +47,14 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
   const [searchTerm, setSearchTerm] = useState('')
   const [hasCollapsedGroups, setHasCollapsedGroups] = useState(true)
 
+  // Track state before search to restore when search is cleared
+  const preSearchStateRef = useRef<{
+    expandedState: Record<string, boolean>
+    hasCollapsedGroups: boolean
+  } | null>(null)
+
+  const prevSearchTermRef = useRef('')
+
   const groupingMap = useMemo(() => createGroupingMap(groups), [groups])
 
   const overallCheckboxValue = getOverallCheckboxValue(checkboxValues)
@@ -79,8 +87,32 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
     [rows, searchTerm, groups],
   )
 
-  // Auto-expand groups containing matches when searching
+  // Auto-expand groups containing matches when searching, restore state when search is cleared
   useEffect(() => {
+    const prevSearchTerm = prevSearchTermRef.current
+    const isStartingSearch = !prevSearchTerm.trim() && !!searchTerm.trim()
+    const isEndingSearch = !!prevSearchTerm.trim() && !searchTerm.trim()
+
+    // Save state when starting to search
+    if (isStartingSearch && tableRef.current) {
+      preSearchStateRef.current = {
+        expandedState: tableRef.current.getExpandedState(),
+        hasCollapsedGroups,
+      }
+    }
+
+    // Restore state when search is cleared
+    if (isEndingSearch && preSearchStateRef.current && tableRef.current) {
+      tableRef.current.setExpandedState(preSearchStateRef.current.expandedState)
+      setHasCollapsedGroups(preSearchStateRef.current.hasCollapsedGroups)
+      preSearchStateRef.current = null
+      prevSearchTermRef.current = searchTerm
+      return
+    }
+
+    // Update previous search term
+    prevSearchTermRef.current = searchTerm
+
     if (!searchTerm.trim()) return
 
     const groupsToExpand = getGroupsToExpandForSearch(groups, searchTerm)
@@ -96,7 +128,7 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
     if (hasChanges) {
       setHasCollapsedGroups(tableRef.current?.hasCollapsedGroups() ?? true)
     }
-  }, [searchTerm, groups])
+  }, [searchTerm, groups, hasCollapsedGroups])
 
   const columns = useColumns({
     isEditable,
@@ -109,14 +141,36 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
   })
 
   const handleExpandCollapseAll = () => {
+    const newHasCollapsedGroups = !hasCollapsedGroups
+
+    // Calculate the new expanded state (don't read from ref - state update is async)
+    let newExpandedState: Record<string, boolean>
+
     if (hasCollapsedGroups) {
+      // Expanding all: all groups will be expanded
+      newExpandedState = groups.reduce(
+        (acc, g) => {
+          acc[g.id] = true
+          return acc
+        },
+        {} as Record<string, boolean>,
+      )
       tableRef.current?.expandAll()
       setHasCollapsedGroups(false)
-      return
+    } else {
+      // Collapsing all: no groups will be expanded
+      newExpandedState = {}
+      tableRef.current?.collapseAll()
+      setHasCollapsedGroups(true)
     }
 
-    tableRef.current?.collapseAll()
-    setHasCollapsedGroups(true)
+    // Update pre-search state if user changes expand/collapse during search
+    if (searchTerm.trim() && preSearchStateRef.current) {
+      preSearchStateRef.current = {
+        expandedState: newExpandedState,
+        hasCollapsedGroups: newHasCollapsedGroups,
+      }
+    }
   }
 
   const getExpandCollapseButtonLabel = (): string => {
