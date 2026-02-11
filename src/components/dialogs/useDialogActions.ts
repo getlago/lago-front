@@ -7,7 +7,7 @@ import { DialogResult } from './types'
 
 type UseDialogActionsParams = {
   modal: ReturnType<typeof useModal>
-  onAction: () => DialogResult | Promise<DialogResult> | void
+  onAction?: () => DialogResult | Promise<DialogResult> | void
   cancelOrCloseText: 'close' | 'cancel'
   closeOnError: boolean
   onError?: (error: Error) => void
@@ -39,6 +39,8 @@ export const useDialogActions = ({
       : translate('text_62f50d26c989ab03196884ae')
 
   const handleContinue = async (): Promise<void> => {
+    if (!onAction) return
+
     try {
       const result = await onAction()
 
