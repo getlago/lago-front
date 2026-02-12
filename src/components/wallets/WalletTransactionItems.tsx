@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import {
@@ -23,6 +24,7 @@ import {
   WalletTransactionFundingItemFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
 
 type WalletTransactionItem =
@@ -56,6 +58,7 @@ const WalletTransactionItems = ({
   wallet,
   customerId,
   timezone,
+  error,
 }: WalletTransactionItemsProps) => {
   const { translate } = useInternationalization()
 
@@ -84,6 +87,20 @@ const WalletTransactionItems = ({
     )
   }
 
+  if (!isLoading && error) {
+    return (
+      <GenericPlaceholder
+        className="pt-12"
+        title={translate('text_634812d6f16b31ce5cbf4126')}
+        subtitle={translate('text_634812d6f16b31ce5cbf4128')}
+        buttonTitle={translate('text_634812d6f16b31ce5cbf412a')}
+        buttonVariant="primary"
+        buttonAction={() => location.reload()}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
+
   if (!transactions?.length) {
     return null
   }
@@ -106,26 +123,28 @@ const WalletTransactionItems = ({
             className={tw(GRID, index !== transactions?.length - 1 && 'pb-12 shadow-b')}
             key={`wallet-transaction-consumption-${index}`}
           >
-            <DetailRow
-              label={translate('text_1770381610089b6q6j2poh3q')}
-              value={
-                <Link
-                  target="_blank"
-                  to={`${generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                    customerId: (customerId as string) || '',
-                    tab: 'wallet',
-                  })}?walletId=${wallet?.id}&transactionId=${transaction?.walletTransaction?.id}`}
-                >
-                  <Button
-                    className="visited:text-blue focus:underline focus:ring-0"
-                    variant="inline"
-                    endIcon="outside"
+            {customerId && wallet?.id && transaction?.walletTransaction?.id && (
+              <DetailRow
+                label={translate('text_1770381610089b6q6j2poh3q')}
+                value={
+                  <Link
+                    target="_blank"
+                    to={`${generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                      customerId: (customerId as string) || '',
+                      tab: 'wallet',
+                    })}?walletId=${wallet.id}&transactionId=${transaction.walletTransaction.id}`}
                   >
-                    {transaction?.walletTransaction?.id}
-                  </Button>
-                </Link>
-              }
-            />
+                    <Button
+                      className="visited:text-blue focus:underline focus:ring-0"
+                      variant="inline"
+                      endIcon="outside"
+                    >
+                      {transaction.walletTransaction.id}
+                    </Button>
+                  </Link>
+                }
+              />
+            )}
             <DetailRow
               label={translate('text_1770381610089as55cvn8fjk')}
               value={intlFormatNumber(
