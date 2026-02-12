@@ -94,18 +94,24 @@ const computeSubtotal = (
   }
 }
 
+export const CREDIT_ROW_GRANTED_TEST_ID = 'credit-row-granted'
+export const CREDIT_ROW_PURCHASED_TEST_ID = 'credit-row-purchased'
+export const CREDIT_ROW_LEGACY_TEST_ID = 'credit-row-legacy'
+
 const CreditRow = ({
   label,
   amountCents,
   currency,
   colSpan,
+  dataTest,
 }: {
   label: string
   amountCents?: number
   currency: CurrencyEnum
   colSpan: number
+  dataTest?: string
 }) => (
-  <tr>
+  <tr data-test={dataTest}>
     <td></td>
     <td colSpan={colSpan}>
       <Typography variant="bodyHl" color="grey600">
@@ -407,6 +413,7 @@ export const InvoiceDetailsTableFooter = memo(
           <>
             {hasGrantedCredit && (
               <CreditRow
+                dataTest={CREDIT_ROW_GRANTED_TEST_ID}
                 label={translate('text_17703831122275shrjoh1tl4')}
                 amountCents={invoice?.prepaidGrantedCreditAmountCents}
                 currency={currency}
@@ -416,6 +423,7 @@ export const InvoiceDetailsTableFooter = memo(
 
             {hasPurchasedCredit && (
               <CreditRow
+                dataTest={CREDIT_ROW_PURCHASED_TEST_ID}
                 label={translate('text_17703831122271vwmiptfx10')}
                 amountCents={invoice?.prepaidPurchasedCreditAmountCents}
                 currency={currency}
@@ -425,6 +433,7 @@ export const InvoiceDetailsTableFooter = memo(
 
             {!hasGrantedCredit && !hasPurchasedCredit && (
               <CreditRow
+                dataTest={CREDIT_ROW_LEGACY_TEST_ID}
                 label={translate('text_6391f05df4bf96d81f3660a7')}
                 amountCents={invoice?.prepaidCreditAmountCents}
                 currency={currency}

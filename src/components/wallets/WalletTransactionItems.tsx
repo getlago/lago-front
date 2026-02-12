@@ -6,6 +6,11 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import {
+  WALLET_TRANSACTION_ITEM_ROW_TEST_ID,
+  WALLET_TRANSACTION_ITEMS_LIST_TEST_ID,
+  WALLET_TRANSACTION_ITEMS_LOADING_TEST_ID,
+} from '~/components/wallets/utils/dataTestConstants'
+import {
   DetailRow,
   GRID,
   TRANSACTION_STATUS_LABEL_MAP,
@@ -74,7 +79,7 @@ const WalletTransactionItems = ({
 
   if (isLoading) {
     return (
-      <div className={tw(GRID)}>
+      <div className={tw(GRID)} data-test={WALLET_TRANSACTION_ITEMS_LOADING_TEST_ID}>
         {[1, 2, 3, 4].map((i) => (
           <Fragment key={`loading-transaction-row-${i}`}>
             <Skeleton variant="text" className="w-28" />
@@ -117,11 +122,12 @@ const WalletTransactionItems = ({
           })
       }}
     >
-      <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-12" data-test={WALLET_TRANSACTION_ITEMS_LIST_TEST_ID}>
         {transactions?.map((transaction, index) => (
           <div
             className={tw(GRID, index !== transactions?.length - 1 && 'pb-12 shadow-b')}
             key={`wallet-transaction-consumption-${index}`}
+            data-test={WALLET_TRANSACTION_ITEM_ROW_TEST_ID}
           >
             {customerId && wallet?.id && transaction?.walletTransaction?.id && (
               <DetailRow

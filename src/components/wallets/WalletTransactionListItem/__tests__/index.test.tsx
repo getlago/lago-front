@@ -2,6 +2,10 @@ import { act, cleanup, screen } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
 import {
+  TRANSACTION_PRIORITY_DATA_TEST,
+  TRANSACTION_REMAINING_CREDITS_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
+import {
   WalletTransactionListItem,
   WalletTransactionListItemProps,
 } from '~/components/wallets/WalletTransactionListItem'
@@ -194,5 +198,65 @@ describe('WalletTransactionListItem', () => {
     expect(screen.queryByTestId('caption-pending')).not.toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent('0')
     expect(screen.getByTestId('amount')).toHaveTextContent('0')
+  })
+
+  describe('GIVEN the transaction has priority and remaining credits columns', () => {
+    describe('WHEN the transaction is inbound', () => {
+      it('THEN should display the priority value', async () => {
+        await prepare({
+          transactionType: WalletTransactionTransactionTypeEnum.Inbound,
+          priority: 5,
+        })
+
+        expect(screen.getByTestId(TRANSACTION_PRIORITY_DATA_TEST)).toHaveTextContent('5')
+      })
+
+      it('THEN should display remaining credits', async () => {
+        await prepare({
+          transactionType: WalletTransactionTransactionTypeEnum.Inbound,
+          remainingCreditAmount: '50',
+          remainingAmountCents: '5000',
+        })
+
+        expect(screen.getByTestId(TRANSACTION_REMAINING_CREDITS_DATA_TEST)).not.toHaveTextContent(
+          '-',
+        )
+      })
+    })
+
+    describe('WHEN the transaction is outbound', () => {
+      it('THEN should display "-" for priority', async () => {
+        await prepare({
+          transactionType: WalletTransactionTransactionTypeEnum.Outbound,
+          priority: 5,
+        })
+
+        expect(screen.getByTestId(TRANSACTION_PRIORITY_DATA_TEST)).toHaveTextContent('-')
+      })
+
+      it('THEN should display "-" for remaining credits', async () => {
+        await prepare({
+          transactionType: WalletTransactionTransactionTypeEnum.Outbound,
+          remainingCreditAmount: '50',
+          remainingAmountCents: '5000',
+        })
+
+        expect(screen.getByTestId(TRANSACTION_REMAINING_CREDITS_DATA_TEST)).toHaveTextContent('-')
+      })
+    })
+
+    describe('WHEN the transaction is a real-time transaction', () => {
+      it('THEN should not display priority column', async () => {
+        await prepare(
+          {
+            transactionType: WalletTransactionTransactionTypeEnum.Inbound,
+            priority: 5,
+          },
+          true,
+        )
+
+        expect(screen.queryByTestId(TRANSACTION_PRIORITY_DATA_TEST)).not.toBeInTheDocument()
+      })
+    })
   })
 })
