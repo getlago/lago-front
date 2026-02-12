@@ -1,5 +1,4 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { usePanel, UsePanelReturn } from '~/hooks/ui/usePanel'
@@ -86,8 +85,6 @@ export function useDeveloperTool(): DeveloperToolContextType {
   const context = useContext(DeveloperToolContext)
   const { currentUser } = useCurrentUser()
 
-  const navigate = useNavigate()
-
   // We can copy/paste the URL of the devtools in the browser and it will open the devtools with the correct tab
   const checkParamsFromUrl = () => {
     const params = new URLSearchParams(window.location.search)
@@ -97,7 +94,10 @@ export function useDeveloperTool(): DeveloperToolContextType {
     const isValidUser = !!currentUser
 
     if (decodedDevtoolTab && isValidUser) {
-      navigate(decodedDevtoolTab)
+      // Use setUrl to navigate within the MemoryRouter (devtools panel)
+      // instead of navigate() which would navigate in the BrowserRouter,
+      // causing an infinite redirect loop with the PageWrapper's /devtool redirect
+      context?.setUrl(decodedDevtoolTab)
       context?.openPanel()
     }
 

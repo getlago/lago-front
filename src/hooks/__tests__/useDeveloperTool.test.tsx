@@ -77,8 +77,6 @@ describe('useDeveloperTool', () => {
         it('THEN it should throw an error', () => {
           const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-          // Note: The hook uses useNavigate() which requires Router context,
-          // so Router error is thrown before the DeveloperToolProvider context check
           expect(() => {
             renderHook(() => useDeveloperTool())
           }).toThrow()
@@ -164,6 +162,38 @@ describe('useDeveloperTool', () => {
             result.current.setMainRouterUrl('')
           })
           expect(result.current.mainRouterUrl).toBe('')
+        })
+      })
+    })
+  })
+
+  describe('checkParamsFromUrl (copy link)', () => {
+    describe('GIVEN the URL contains a devtool-tab param', () => {
+      describe('WHEN the hook mounts', () => {
+        it('THEN it should set the url via context (MemoryRouter) and open the panel', () => {
+          window.history.replaceState({}, '', '/?devtool-tab=%2Fdevtool%2Fwebhooks')
+
+          const { result } = renderHook(() => useDeveloperTool(), { wrapper })
+
+          // Should navigate in the MemoryRouter via setUrl
+          expect(result.current.url).toBe('/devtool/webhooks')
+          // Should open the panel
+          expect(mockOpenPanel).toHaveBeenCalled()
+          // Should clean up the URL param
+          expect(window.location.search).toBe('')
+        })
+      })
+    })
+
+    describe('GIVEN the URL has no devtool-tab param', () => {
+      describe('WHEN the hook mounts', () => {
+        it('THEN it should not change the url or open the panel', () => {
+          window.history.replaceState({}, '', '/plans')
+
+          const { result } = renderHook(() => useDeveloperTool(), { wrapper })
+
+          expect(result.current.url).toBe('')
+          expect(mockOpenPanel).not.toHaveBeenCalled()
         })
       })
     })
