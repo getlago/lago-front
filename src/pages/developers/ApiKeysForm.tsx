@@ -166,7 +166,8 @@ const ApiKeysForm = () => {
     if (devtool.panelOpen) {
       devtool.closePanel()
     }
-  }, [devtool])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const hasAccessToApiPermissionsPremiumAddOn = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ApiPermissions,

@@ -34,9 +34,9 @@ export const DevtoolsView: FC = () => {
 
   const copyInspectorLink = () => {
     const windowUrl = new URL(window.location.href)
-    const encodedPathname = encodeURIComponent(pathname)
 
-    windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, encodedPathname)
+    // URLSearchParams.set() handles encoding automatically, so we don't need encodeURIComponent
+    windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, pathname)
     copyToClipboard(windowUrl.toString())
     addToast({
       severity: 'info',

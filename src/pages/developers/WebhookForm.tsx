@@ -67,7 +67,8 @@ const WebhookForm = () => {
     if (devtool.panelOpen) {
       devtool.closePanel()
     }
-  }, [devtool])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const { webhook, loading: webhookLoading } = useWebhookEndpoint({
     id: webhookId,
