@@ -90,8 +90,8 @@ describe('WalletTransactionListItem', () => {
 
     expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
     expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
-    expect(screen.getByTestId('credits')).toHaveTextContent(`+ ${CREDITS}`)
-    expect(screen.getByTestId('amount')).toHaveTextContent(AMOUNT)
+    expect(screen.getByTestId('credits')).toHaveTextContent(`+${CREDITS}`)
+    expect(screen.getAllByTestId('amount')[0]).toHaveTextContent(AMOUNT)
   })
 
   it('should render invoiced item with pending status', async () => {
@@ -102,8 +102,8 @@ describe('WalletTransactionListItem', () => {
 
     expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
     expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
-    expect(screen.getByTestId('credits')).toHaveTextContent(`- ${CREDITS}`)
-    expect(screen.getByTestId('amount')).toHaveTextContent(AMOUNT)
+    expect(screen.getByTestId('credits')).toHaveTextContent(`-${CREDITS}`)
+    expect(screen.getAllByTestId('amount')[0]).toHaveTextContent(AMOUNT)
   })
 
   it('should render purchased item with paid status', async () => {
