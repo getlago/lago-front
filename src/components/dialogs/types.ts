@@ -30,5 +30,5 @@ export type PremiumWarningHookDialogReturnType<Props> = {
 
 export type FormProps = {
   id: string
-  submit: (e: React.FormEvent) => void
+  submit: () => void | Promise<void> | DialogResult | Promise<DialogResult>
 }

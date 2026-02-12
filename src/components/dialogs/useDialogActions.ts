@@ -7,7 +7,7 @@ import { DialogResult } from './types'
 
 type UseDialogActionsParams = {
   modal: ReturnType<typeof useModal>
-  onAction?: () => DialogResult | Promise<DialogResult> | void
+  onAction?: () => DialogResult | Promise<DialogResult> | void | Promise<void>
   cancelOrCloseText: 'close' | 'cancel'
   closeOnError: boolean
   onError?: (error: Error) => void

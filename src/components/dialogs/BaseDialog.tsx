@@ -34,6 +34,11 @@ const BaseDialog = ({
 }: BaseDialogProps) => {
   const childrenNeedsWrapping = children && typeof children === 'string'
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form?.submit()
+  }
+
   const generateContent = () => {
     return (
       <>
@@ -105,7 +110,7 @@ const BaseDialog = ({
       {form ? (
         <form
           id={form.id}
-          onSubmit={form.submit}
+          onSubmit={handleSubmit}
           className="flex max-h-[calc(100vh-10rem)] flex-col"
         >
           {generateContent()}

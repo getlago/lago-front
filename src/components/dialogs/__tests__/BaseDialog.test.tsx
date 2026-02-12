@@ -207,9 +207,7 @@ describe('BaseDialog', () => {
 
   describe('Form Integration', () => {
     it('renders form wrapper when form prop is provided', () => {
-      const mockSubmit = jest.fn((e: React.FormEvent) => {
-        e.preventDefault()
-      })
+      const mockSubmit = jest.fn()
 
       render(
         <BaseDialog
@@ -230,9 +228,7 @@ describe('BaseDialog', () => {
     })
 
     it('calls form submit handler when form is submitted', async () => {
-      const mockSubmit = jest.fn((e: React.FormEvent) => {
-        e.preventDefault()
-      })
+      const mockSubmit = jest.fn()
       const user = userEvent.setup()
 
       render(
