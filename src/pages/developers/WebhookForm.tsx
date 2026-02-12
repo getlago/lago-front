@@ -173,7 +173,6 @@ const WebhookForm = () => {
       }
 
       if (errors) {
-        // Unhandled error — show a generic danger toast
         addToast({
           message: translate('text_62b31e1f6a5b8b1b745ece48'),
           severity: 'danger',
