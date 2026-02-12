@@ -28,7 +28,8 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
       const url = new URL(window.location.href)
 
       url.pathname = '/'
-      url.searchParams.set(DEVTOOL_TAB_PARAMS, encodeURIComponent(location.pathname))
+      // URLSearchParams.set() handles encoding automatically, so we don't need encodeURIComponent
+      url.searchParams.set(DEVTOOL_TAB_PARAMS, location.pathname)
       window.location.replace(url.toString())
     }
   }, [location])
