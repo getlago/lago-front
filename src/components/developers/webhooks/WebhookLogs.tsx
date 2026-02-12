@@ -65,7 +65,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { panelSize: size } = useDeveloperTool()
+  const { panelSize: size, headerOffset, webhookDetailHeaderOffset } = useDeveloperTool()
 
   const logListRef = useRef<ListSectionRef>(null)
 
@@ -167,7 +167,9 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
         rightSide={<WebhookLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
         sectionHeight={
-          shouldDisplayLogDetails ? `calc(${Math.floor(size)}vh - 280px)` : '100%' // 280px accounts for headers (tabs + hero + inner tabs + CTA bar + borders)
+          shouldDisplayLogDetails
+            ? `calc(${size}vh - ${headerOffset + webhookDetailHeaderOffset}px)`
+            : '100%'
         }
       />
     </div>
