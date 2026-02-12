@@ -13,7 +13,6 @@ import { HOME_ROUTE } from '~/core/router'
 import {
   LagoApiError,
   useCreateWebhookEndpointMutation,
-  useGetWebhookToEditQuery,
   useUpdateWebhookEndpointMutation,
   WebhookEndpointCreateInput,
   WebhookEndpointSignatureAlgoEnum,
@@ -23,6 +22,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { useWebhookEndpoint } from '~/hooks/useWebhookEndpoint'
 import { webhookEventsEmptyValues } from '~/hooks/useWebhookEventTypes'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -31,16 +31,6 @@ import { webhookDefaultValues, webhookValidationSchema } from './webhookForm/val
 import WebhookEventsForm from './webhookForm/WebhookEventsForm'
 
 gql`
-  query getWebhookToEdit($webhookId: ID!) {
-    webhookEndpoint(id: $webhookId) {
-      id
-      name
-      webhookUrl
-      signatureAlgo
-      eventTypes
-    }
-  }
-
   mutation createWebhookEndpoint($input: WebhookEndpointCreateInput!) {
     createWebhookEndpoint(input: $input) {
       id
@@ -79,13 +69,9 @@ const WebhookForm = () => {
     }
   }, [devtool])
 
-  const { data: webhookData, loading: webhookLoading } = useGetWebhookToEditQuery({
-    variables: {
-      webhookId,
-    },
-    skip: !webhookId,
+  const { webhook, loading: webhookLoading } = useWebhookEndpoint({
+    id: webhookId,
     fetchPolicy: 'no-cache',
-    nextFetchPolicy: 'no-cache',
   })
 
   const onClose = () => {
@@ -102,7 +88,6 @@ const WebhookForm = () => {
   })
 
   const isEdition = !!webhookId
-  const webhook = webhookData?.webhookEndpoint
 
   const form = useAppForm({
     defaultValues: {

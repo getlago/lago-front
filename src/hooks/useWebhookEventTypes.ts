@@ -267,9 +267,55 @@ const createEmptyValuesFromEventTypes = (eventTypes: EventType[]): Record<string
  */
 export const webhookEventsEmptyValues = createEmptyValuesFromEventTypes(MOCK_EVENT_TYPES)
 
+/**
+ * Computed display information for webhook event types.
+ * Centralizes the logic for determining which events to display.
+ */
+type WebhookEventDisplayInfo = {
+  /** Whether the webhook is listening to all events (eventTypes is null/undefined) */
+  isListeningToAll: boolean
+  /** The list of events to display (all events if listening to all, otherwise the specific ones) */
+  displayedEvents: string[]
+  /** The count of events being listened to */
+  eventCount: number
+}
+
+/**
+ * Computes display information for webhook event types.
+ *
+ * Logic:
+ * - null/undefined eventTypes → listening to ALL events
+ * - empty array → listening to NO events
+ * - array with values → listening to SPECIFIC events
+ *
+ * @param eventTypes - The eventTypes from the webhook (null = all, [] = none, [...] = specific)
+ * @param allEventNames - All available event names
+ */
+const getWebhookEventDisplayInfo = (
+  eventTypes: string[] | null | undefined,
+  allEventNames: string[],
+): WebhookEventDisplayInfo => {
+  const isListeningToAll = eventTypes === null || eventTypes === undefined
+  const displayedEvents = isListeningToAll ? allEventNames : eventTypes
+  const eventCount = displayedEvents.length
+
+  return {
+    isListeningToAll,
+    displayedEvents,
+    eventCount,
+  }
+}
+
 type UseWebhookEventTypes = () => {
   loading: boolean
   groups: CheckboxGroup[]
+  /** All available event names */
+  allEventNames: string[]
+  /**
+   * Utility function to compute display info for a webhook's eventTypes.
+   * Centralizes the logic: null = all events, [] = none, [...] = specific.
+   */
+  getEventDisplayInfo: (eventTypes: string[] | null | undefined) => WebhookEventDisplayInfo
 }
 
 export const useWebhookEventTypes: UseWebhookEventTypes = () => {
@@ -287,8 +333,23 @@ export const useWebhookEventTypes: UseWebhookEventTypes = () => {
     return transformEventTypesToGroups(MOCK_EVENT_TYPES)
   }, [])
 
+  const allEventNames = useMemo(() => {
+    // TODO: When backend is ready, use data.eventTypes directly
+    // return data?.eventTypes?.map(e => e.eventName) ?? []
+
+    return MOCK_EVENT_TYPES.map((e) => e.eventName)
+  }, [])
+
+  const getEventDisplayInfo = useMemo(
+    () => (eventTypes: string[] | null | undefined) =>
+      getWebhookEventDisplayInfo(eventTypes, allEventNames),
+    [allEventNames],
+  )
+
   return {
     loading,
     groups,
+    allEventNames,
+    getEventDisplayInfo,
   }
 }

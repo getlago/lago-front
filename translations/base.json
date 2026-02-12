@@ -3800,5 +3800,11 @@
   "text_1770723024044wi5tokoswxl": "Define a destination name",
   "text_1770822522307127vc3bt81b": "Webhook events",
   "text_1770822522308ndyb2bewmvs": "Review and update the webhook events accepted by this endpoint.",
-  "text_1770822522308u2ptsqw79ns": "Search events"
+  "text_1770822522308u2ptsqw79ns": "Search events",
+  "text_1770903515281cpcq0pj4lxh": "Webhook settings",
+  "text_1770903515281wkfhtiti00a": "Key used to securely create an HMAC signature, enabling verification of webhook message authenticity.",
+  "text_17709035152819kiyigswn18": "Signature",
+  "text_1770903515281cixrd5unzhz": "Listening to {{count}} events|Listening to {{count}} event|Listening to {{count}} events",
+  "text_1739181747394snlx2h42642": "Listening to",
+  "text_1739181747394eventscount": "{{count}} events|{{count}} event|{{count}} events"
 }

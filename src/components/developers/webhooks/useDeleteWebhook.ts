@@ -29,7 +29,7 @@ export const useDeleteWebhook = () => {
   })
 
   return {
-    openDialog: (webhookId: string) => {
+    openDialog: (webhookId: string, { onSuccess }: { onSuccess?: () => void } = {}) => {
       dialog.open({
         title: translate('text_6271200984178801ba8bdeb2'),
         description: translate('text_6271200984178801ba8bded2'),
@@ -37,6 +37,8 @@ export const useDeleteWebhook = () => {
           await deleteWebhook({
             variables: { input: { id: webhookId } },
           })
+
+          onSuccess?.()
 
           return { reason: 'success' }
         },

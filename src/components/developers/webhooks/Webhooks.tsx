@@ -20,6 +20,7 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetOrganizationHmacDataQuery, useGetWebhookListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 import { tw } from '~/styles/utils'
 
 const WEBHOOK_COUNT_LIMIT = 10
@@ -37,6 +38,7 @@ gql`
       collection {
         id
         webhookUrl
+        eventTypes
       }
     }
   }
@@ -51,6 +53,7 @@ export const Webhooks = () => {
   const { data: webhookData, loading: webhookLoading } = useGetWebhookListQuery({
     variables: { limit: WEBHOOK_COUNT_LIMIT },
   })
+  const { getEventDisplayInfo } = useWebhookEventTypes()
 
   return (
     <>
@@ -105,6 +108,24 @@ export const Webhooks = () => {
                             {webhookUrl}
                           </Typography>
                         ),
+                      },
+                      {
+                        key: 'eventTypes',
+                        title: translate('text_1739181747394snlx2h42642'),
+                        minWidth: 120,
+                        content: ({ eventTypes }) => {
+                          const { eventCount } = getEventDisplayInfo(eventTypes)
+
+                          return (
+                            <Typography color="grey600" variant="body">
+                              {translate(
+                                'text_1739181747394eventscount',
+                                { count: eventCount },
+                                eventCount,
+                              )}
+                            </Typography>
+                          )
+                        },
                       },
                     ]}
                     onRowActionLink={({ id }) => generatePath(WEBHOOK_ROUTE, { webhookId: id })}

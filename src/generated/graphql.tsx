@@ -10438,13 +10438,6 @@ export type GetSingleWebhookLogQueryVariables = Exact<{
 
 export type GetSingleWebhookLogQuery = { __typename?: 'Query', webhook?: { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any } | null };
 
-export type GetWebhookInformationsQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetWebhookInformationsQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string } | null };
-
 export type WebhookLogFragment = { __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string };
 
 export type GetWebhookLogQueryVariables = Exact<{
@@ -10468,7 +10461,7 @@ export type GetWebhookListQueryVariables = Exact<{
 }>;
 
 
-export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string }> } };
+export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, eventTypes?: Array<string> | null }> } };
 
 export type DeleteWebhookMutationVariables = Exact<{
   input: DestroyWebhookEndpointInput;
@@ -12193,6 +12186,13 @@ export type GetRolesListQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetRolesListQuery = { __typename?: 'Query', roles: Array<{ __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> }> };
 
+export type GetWebhookEndpointQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetWebhookEndpointQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
+
 export type EventTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -12983,13 +12983,6 @@ export type UpdateApiKeyMutationVariables = Exact<{
 
 
 export type UpdateApiKeyMutation = { __typename?: 'Mutation', updateApiKey?: { __typename?: 'ApiKey', id: string } | null };
-
-export type GetWebhookToEditQueryVariables = Exact<{
-  webhookId: Scalars['ID']['input'];
-}>;
-
-
-export type GetWebhookToEditQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
 
 export type CreateWebhookEndpointMutationVariables = Exact<{
   input: WebhookEndpointCreateInput;
@@ -23561,50 +23554,6 @@ export type GetSingleWebhookLogQueryHookResult = ReturnType<typeof useGetSingleW
 export type GetSingleWebhookLogLazyQueryHookResult = ReturnType<typeof useGetSingleWebhookLogLazyQuery>;
 export type GetSingleWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetSingleWebhookLogSuspenseQuery>;
 export type GetSingleWebhookLogQueryResult = Apollo.QueryResult<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>;
-export const GetWebhookInformationsDocument = gql`
-    query getWebhookInformations($id: ID!) {
-  webhookEndpoint(id: $id) {
-    id
-    webhookUrl
-  }
-}
-    `;
-
-/**
- * __useGetWebhookInformationsQuery__
- *
- * To run a query within a React component, call `useGetWebhookInformationsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetWebhookInformationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetWebhookInformationsQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetWebhookInformationsQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables> & ({ variables: GetWebhookInformationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
-      }
-export function useGetWebhookInformationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
-        }
-// @ts-ignore
-export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>;
-export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookInformationsQuery | undefined, GetWebhookInformationsQueryVariables>;
-export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
-        }
-export type GetWebhookInformationsQueryHookResult = ReturnType<typeof useGetWebhookInformationsQuery>;
-export type GetWebhookInformationsLazyQueryHookResult = ReturnType<typeof useGetWebhookInformationsLazyQuery>;
-export type GetWebhookInformationsSuspenseQueryHookResult = ReturnType<typeof useGetWebhookInformationsSuspenseQuery>;
-export type GetWebhookInformationsQueryResult = Apollo.QueryResult<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>;
 export const GetWebhookLogDocument = gql`
     query getWebhookLog($page: Int, $limit: Int, $webhookEndpointId: String!, $status: WebhookStatusEnum, $searchTerm: String) {
   webhooks(
@@ -23714,6 +23663,7 @@ export const GetWebhookListDocument = gql`
     collection {
       id
       webhookUrl
+      eventTypes
     }
   }
 }
@@ -31167,6 +31117,53 @@ export type GetRolesListQueryHookResult = ReturnType<typeof useGetRolesListQuery
 export type GetRolesListLazyQueryHookResult = ReturnType<typeof useGetRolesListLazyQuery>;
 export type GetRolesListSuspenseQueryHookResult = ReturnType<typeof useGetRolesListSuspenseQuery>;
 export type GetRolesListQueryResult = Apollo.QueryResult<GetRolesListQuery, GetRolesListQueryVariables>;
+export const GetWebhookEndpointDocument = gql`
+    query getWebhookEndpoint($id: ID!) {
+  webhookEndpoint(id: $id) {
+    id
+    name
+    webhookUrl
+    signatureAlgo
+    eventTypes
+  }
+}
+    `;
+
+/**
+ * __useGetWebhookEndpointQuery__
+ *
+ * To run a query within a React component, call `useGetWebhookEndpointQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWebhookEndpointQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWebhookEndpointQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetWebhookEndpointQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables> & ({ variables: GetWebhookEndpointQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>(GetWebhookEndpointDocument, options);
+      }
+export function useGetWebhookEndpointLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>(GetWebhookEndpointDocument, options);
+        }
+// @ts-ignore
+export function useGetWebhookEndpointSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>;
+export function useGetWebhookEndpointSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointQuery | undefined, GetWebhookEndpointQueryVariables>;
+export function useGetWebhookEndpointSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>(GetWebhookEndpointDocument, options);
+        }
+export type GetWebhookEndpointQueryHookResult = ReturnType<typeof useGetWebhookEndpointQuery>;
+export type GetWebhookEndpointLazyQueryHookResult = ReturnType<typeof useGetWebhookEndpointLazyQuery>;
+export type GetWebhookEndpointSuspenseQueryHookResult = ReturnType<typeof useGetWebhookEndpointSuspenseQuery>;
+export type GetWebhookEndpointQueryResult = Apollo.QueryResult<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>;
 export const EventTypesDocument = gql`
     query eventTypes {
   eventTypes
@@ -35156,53 +35153,6 @@ export function useUpdateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpdateApiKeyMutationHookResult = ReturnType<typeof useUpdateApiKeyMutation>;
 export type UpdateApiKeyMutationResult = Apollo.MutationResult<UpdateApiKeyMutation>;
 export type UpdateApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateApiKeyMutation, UpdateApiKeyMutationVariables>;
-export const GetWebhookToEditDocument = gql`
-    query getWebhookToEdit($webhookId: ID!) {
-  webhookEndpoint(id: $webhookId) {
-    id
-    name
-    webhookUrl
-    signatureAlgo
-    eventTypes
-  }
-}
-    `;
-
-/**
- * __useGetWebhookToEditQuery__
- *
- * To run a query within a React component, call `useGetWebhookToEditQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetWebhookToEditQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetWebhookToEditQuery({
- *   variables: {
- *      webhookId: // value for 'webhookId'
- *   },
- * });
- */
-export function useGetWebhookToEditQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookToEditQuery, GetWebhookToEditQueryVariables> & ({ variables: GetWebhookToEditQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>(GetWebhookToEditDocument, options);
-      }
-export function useGetWebhookToEditLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>(GetWebhookToEditDocument, options);
-        }
-// @ts-ignore
-export function useGetWebhookToEditSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>;
-export function useGetWebhookToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookToEditQuery | undefined, GetWebhookToEditQueryVariables>;
-export function useGetWebhookToEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>(GetWebhookToEditDocument, options);
-        }
-export type GetWebhookToEditQueryHookResult = ReturnType<typeof useGetWebhookToEditQuery>;
-export type GetWebhookToEditLazyQueryHookResult = ReturnType<typeof useGetWebhookToEditLazyQuery>;
-export type GetWebhookToEditSuspenseQueryHookResult = ReturnType<typeof useGetWebhookToEditSuspenseQuery>;
-export type GetWebhookToEditQueryResult = Apollo.QueryResult<GetWebhookToEditQuery, GetWebhookToEditQueryVariables>;
 export const CreateWebhookEndpointDocument = gql`
     mutation createWebhookEndpoint($input: WebhookEndpointCreateInput!) {
   createWebhookEndpoint(input: $input) {
