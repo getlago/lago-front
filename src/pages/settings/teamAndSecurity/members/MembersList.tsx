@@ -15,7 +15,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 
 import MembersFilters from './common/MembersFilters'
-import { CreateInviteDialog, CreateInviteDialogRef } from './dialogs/CreateInviteDialog'
+import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
 import { EditMemberRoleDialog, EditMemberRoleDialogRef } from './dialogs/EditMemberRoleDialog'
 import { RevokeMembershipDialog, RevokeMembershipDialogRef } from './dialogs/RevokeMembershipDialog'
 import { useGetMembersList } from './hooks/useGetMembersList'
@@ -50,7 +50,7 @@ const MemberList = () => {
 
   const revokeMembershipDialogRef = useRef<RevokeMembershipDialogRef>(null)
   const editMemberRoleDialogRef = useRef<EditMemberRoleDialogRef>(null)
-  const createInviteDialogRef = useRef<CreateInviteDialogRef>(null)
+  const { openCreateInviteDialog } = useCreateInviteDialog()
 
   const selectedRole = useMemo(() => {
     return searchParams.get(MEMBERS_PAGE_ROLE_FILTER_KEY)
@@ -141,10 +141,6 @@ const MemberList = () => {
     return [...editAction, ...deleteAction]
   }
 
-  const openCreateInviteDialog = () => {
-    createInviteDialogRef.current?.openDialog()
-  }
-
   const tablePlaceholder = {
     emptyState: {
       title: translate('text_176771435162557p8hyixafi'),
@@ -187,7 +183,6 @@ const MemberList = () => {
         admins={members.filter((member) => member.roles.includes('Admin'))}
       />
       <EditMemberRoleDialog ref={editMemberRoleDialogRef} />
-      <CreateInviteDialog ref={createInviteDialogRef} />
     </div>
   )
 }
