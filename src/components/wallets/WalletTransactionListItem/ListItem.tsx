@@ -10,6 +10,8 @@ import {
   TRANSACTION_AMOUNT_DATA_TEST,
   TRANSACTION_CREDITS_DATA_TEST,
   TRANSACTION_LABEL_DATA_TEST,
+  TRANSACTION_PRIORITY_DATA_TEST,
+  TRANSACTION_REMAINING_CREDITS_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -162,7 +164,7 @@ export const ListItem: FC<ListItemProps> = ({
                 variant="body"
                 color="grey600"
                 blur={isBlurry}
-                data-test={TRANSACTION_CREDITS_DATA_TEST}
+                data-test={TRANSACTION_PRIORITY_DATA_TEST}
               >
                 {!isInbound ? '-' : priority}
               </Typography>
@@ -196,7 +198,7 @@ export const ListItem: FC<ListItemProps> = ({
                   variant="bodyHl"
                   color={isPending || isFailed ? 'grey500' : 'grey700'}
                   blur={isBlurry}
-                  data-test={TRANSACTION_CREDITS_DATA_TEST}
+                  data-test={TRANSACTION_REMAINING_CREDITS_DATA_TEST}
                 >
                   {!isInbound
                     ? '-'
