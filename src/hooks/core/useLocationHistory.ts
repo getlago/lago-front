@@ -132,6 +132,13 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
            * Redirect to forbidden page
            */
           navigate(FORBIDDEN_ROUTE)
+        } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
+          /**
+           * We add the current location to the history only if :
+           * - Current route has no children (to avoid adding Layout route which will result in duplicates)
+           * - Current route is not an only public route
+           */
+          addLocationToHistory(location)
         }
       } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
         // In the invitation for page, once users are logged in, we redirect them to the home page
