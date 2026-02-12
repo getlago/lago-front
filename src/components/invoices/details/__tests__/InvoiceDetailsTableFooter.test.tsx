@@ -8,6 +8,7 @@ import {
 } from '~/components/invoices/details/InvoiceDetailsTableFooter'
 import {
   CurrencyEnum,
+  FeeForInvoiceDetailsTableFooterFragment,
   InvoiceForDetailsTableFooterFragment,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
@@ -162,6 +163,74 @@ describe('InvoiceDetailsTableFooter', () => {
         expect(screen.queryByTestId(CREDIT_ROW_GRANTED_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(CREDIT_ROW_PURCHASED_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(CREDIT_ROW_LEGACY_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the invoice has fee-level subtotal computation', () => {
+    describe('WHEN invoiceFees are provided with applied taxes', () => {
+      it('THEN should compute subtotals from individual fees', () => {
+        const invoice = createMockInvoice({
+          appliedTaxes: [
+            {
+              id: 'tax-1',
+              amountCents: '2000',
+              feesAmountCents: '10000',
+              taxableAmountCents: '10000',
+              taxRate: 20,
+              taxName: 'VAT',
+              taxCode: 'vat',
+              enumedTaxCode: null,
+            },
+          ],
+        })
+
+        const invoiceFees: FeeForInvoiceDetailsTableFooterFragment[] = [
+          { id: 'fee-1', amountCents: '5000' },
+          { id: 'fee-2', amountCents: '5000' },
+        ]
+
+        render(
+          <table>
+            <InvoiceDetailsTableFooter
+              canHaveUnitPrice={false}
+              invoice={invoice}
+              invoiceFees={invoiceFees}
+            />
+          </table>,
+        )
+
+        expect(
+          screen.getByTestId('invoice-details-table-footer-subtotal-excl-tax-value'),
+        ).toBeInTheDocument()
+        expect(screen.getByTestId('invoice-details-table-footer-tax-0-label')).toBeInTheDocument()
+        expect(screen.getByTestId('invoice-details-table-footer-tax-0-value')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the invoice has applied taxes', () => {
+    describe('WHEN the invoice is finalized with tax entries', () => {
+      it('THEN should render tax rows', () => {
+        const invoice = createMockInvoice({
+          appliedTaxes: [
+            {
+              id: 'tax-1',
+              amountCents: '2000',
+              feesAmountCents: '10000',
+              taxableAmountCents: '10000',
+              taxRate: 20,
+              taxName: 'VAT',
+              taxCode: 'vat',
+              enumedTaxCode: null,
+            },
+          ],
+        })
+
+        renderFooter(invoice)
+
+        expect(screen.getByTestId('invoice-details-table-footer-tax-0-label')).toBeInTheDocument()
+        expect(screen.getByTestId('invoice-details-table-footer-tax-0-value')).toBeInTheDocument()
       })
     })
   })

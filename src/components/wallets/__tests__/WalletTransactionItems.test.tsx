@@ -1,5 +1,5 @@
 import { ApolloError } from '@apollo/client'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import {
@@ -155,6 +155,80 @@ describe('WalletTransactionItems', () => {
 
         expect(screen.getByTestId(WALLET_TRANSACTION_ITEMS_LIST_TEST_ID)).toBeInTheDocument()
         expect(screen.getAllByTestId(WALLET_TRANSACTION_ITEM_ROW_TEST_ID)).toHaveLength(2)
+      })
+    })
+  })
+
+  describe('GIVEN there are multiple pages of transactions', () => {
+    describe('WHEN the user scrolls to the bottom', () => {
+      it('THEN should call fetchMore with the next page', () => {
+        const transactions = [createMockTransaction({ id: 'consumption-1' })]
+
+        // Capture the IntersectionObserver callback
+        let intersectionCallback: (entries: Array<{ isIntersecting: boolean }>) => void = () =>
+          undefined
+
+        mockIntersectionObserver.mockImplementation(
+          (callback: (entries: Array<{ isIntersecting: boolean }>) => void) => {
+            intersectionCallback = callback
+
+            return { observe: jest.fn(), unobserve: jest.fn(), disconnect: jest.fn() }
+          },
+        )
+
+        render(
+          <WalletTransactionItems
+            isLoading={false}
+            error={undefined}
+            transactions={transactions}
+            isConsumption={true}
+            pagination={{ currentPage: 1, totalPages: 3, fetchMore: mockFetchMore }}
+            wallet={mockWallet}
+            customerId="customer-1"
+            timezone={TimezoneEnum.TzUtc}
+          />,
+        )
+
+        // Simulate scroll to bottom
+        act(() => {
+          intersectionCallback([{ isIntersecting: true }])
+        })
+
+        expect(mockFetchMore).toHaveBeenCalledWith({ variables: { page: 2 } })
+      })
+
+      it('THEN should not call fetchMore when already on the last page', () => {
+        const transactions = [createMockTransaction({ id: 'consumption-1' })]
+
+        let intersectionCallback: (entries: Array<{ isIntersecting: boolean }>) => void = () =>
+          undefined
+
+        mockIntersectionObserver.mockImplementation(
+          (callback: (entries: Array<{ isIntersecting: boolean }>) => void) => {
+            intersectionCallback = callback
+
+            return { observe: jest.fn(), unobserve: jest.fn(), disconnect: jest.fn() }
+          },
+        )
+
+        render(
+          <WalletTransactionItems
+            isLoading={false}
+            error={undefined}
+            transactions={transactions}
+            isConsumption={true}
+            pagination={{ currentPage: 3, totalPages: 3, fetchMore: mockFetchMore }}
+            wallet={mockWallet}
+            customerId="customer-1"
+            timezone={TimezoneEnum.TzUtc}
+          />,
+        )
+
+        act(() => {
+          intersectionCallback([{ isIntersecting: true }])
+        })
+
+        expect(mockFetchMore).not.toHaveBeenCalled()
       })
     })
   })
