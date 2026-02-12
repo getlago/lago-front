@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -23,8 +23,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { webhookEventsEmptyValues } from '~/hooks/useWebhookEventTypes'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+import { eventTypesToFormValues, formValuesToEventTypes } from './webhookForm/utils'
 import { webhookDefaultValues, webhookValidationSchema } from './webhookForm/validationSchema'
 import WebhookEventsForm from './webhookForm/WebhookEventsForm'
 
@@ -35,6 +37,7 @@ gql`
       name
       webhookUrl
       signatureAlgo
+      eventTypes
     }
   }
 
@@ -44,6 +47,7 @@ gql`
       name
       webhookUrl
       signatureAlgo
+      eventTypes
     }
   }
 
@@ -53,6 +57,7 @@ gql`
       name
       webhookUrl
       signatureAlgo
+      eventTypes
     }
   }
 `
@@ -62,6 +67,11 @@ const WebhookForm = () => {
   const { webhookId = '' } = useParams()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
+
+  // All available form keys — derived from the event types list.
+  // When event types come from GraphQL instead of mocks, this will
+  // be computed from that query result instead of webhookEventsEmptyValues.
+  const allFormKeys = useMemo(() => Object.keys(webhookEventsEmptyValues), [])
 
   useEffect(() => {
     if (devtool.panelOpen) {
@@ -99,13 +109,16 @@ const WebhookForm = () => {
       name: webhook?.name || webhookDefaultValues.name,
       webhookUrl: webhook?.webhookUrl || webhookDefaultValues.webhookUrl,
       signatureAlgo: webhook?.signatureAlgo || webhookDefaultValues.signatureAlgo,
-      webhookEvents: { ...webhookDefaultValues.webhookEvents },
+      webhookEvents: eventTypesToFormValues(webhook?.eventTypes, allFormKeys),
     },
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: webhookValidationSchema,
     },
     onSubmit: async ({ value, formApi }) => {
+      const { webhookEvents, ...rest } = value
+      const eventTypes = formValuesToEventTypes(webhookEvents)
+
       let res
 
       if (isEdition) {
@@ -113,14 +126,18 @@ const WebhookForm = () => {
           variables: {
             input: {
               id: webhookId,
-              ...value,
+              ...rest,
+              eventTypes,
             } as WebhookEndpointUpdateInput,
           },
         })
       } else {
         res = await createWebhook({
           variables: {
-            input: value as WebhookEndpointCreateInput,
+            input: {
+              ...rest,
+              eventTypes,
+            } as WebhookEndpointCreateInput,
           },
         })
       }
@@ -155,16 +172,23 @@ const WebhookForm = () => {
         return
       }
 
-      if (!errors) {
+      if (errors) {
+        // Unhandled error — show a generic danger toast
         addToast({
-          message: translate(
-            isEdition ? 'text_64d23b49d481ab00681c22ab' : 'text_6271200984178801ba8bdf7f',
-          ),
-          severity: 'success',
+          message: translate('text_62b31e1f6a5b8b1b745ece48'),
+          severity: 'danger',
         })
-
-        onClose()
+        return
       }
+
+      addToast({
+        message: translate(
+          isEdition ? 'text_64d23b49d481ab00681c22ab' : 'text_6271200984178801ba8bdf7f',
+        ),
+        severity: 'success',
+      })
+
+      onClose()
     },
   })
 
@@ -175,7 +199,7 @@ const WebhookForm = () => {
         name: webhook.name || webhookDefaultValues.name,
         webhookUrl: webhook.webhookUrl || webhookDefaultValues.webhookUrl,
         signatureAlgo: webhook.signatureAlgo || webhookDefaultValues.signatureAlgo,
-        webhookEvents: { ...webhookDefaultValues.webhookEvents },
+        webhookEvents: eventTypesToFormValues(webhook.eventTypes, allFormKeys),
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

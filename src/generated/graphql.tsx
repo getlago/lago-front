@@ -12193,6 +12193,11 @@ export type GetRolesListQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetRolesListQuery = { __typename?: 'Query', roles: Array<{ __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> }> };
 
+export type EventTypesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type EventTypesQuery = { __typename?: 'Query', eventTypes: Array<string> };
+
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -12984,21 +12989,21 @@ export type GetWebhookToEditQueryVariables = Exact<{
 }>;
 
 
-export type GetWebhookToEditQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
+export type GetWebhookToEditQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
 
 export type CreateWebhookEndpointMutationVariables = Exact<{
   input: WebhookEndpointCreateInput;
 }>;
 
 
-export type CreateWebhookEndpointMutation = { __typename?: 'Mutation', createWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
+export type CreateWebhookEndpointMutation = { __typename?: 'Mutation', createWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
 
 export type UpdateWebhookEndpointMutationVariables = Exact<{
   input: WebhookEndpointUpdateInput;
 }>;
 
 
-export type UpdateWebhookEndpointMutation = { __typename?: 'Mutation', updateWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
+export type UpdateWebhookEndpointMutation = { __typename?: 'Mutation', updateWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
 
 export type GetFeatureForDetailsQueryVariables = Exact<{
   feature: Scalars['ID']['input'];
@@ -31162,6 +31167,46 @@ export type GetRolesListQueryHookResult = ReturnType<typeof useGetRolesListQuery
 export type GetRolesListLazyQueryHookResult = ReturnType<typeof useGetRolesListLazyQuery>;
 export type GetRolesListSuspenseQueryHookResult = ReturnType<typeof useGetRolesListSuspenseQuery>;
 export type GetRolesListQueryResult = Apollo.QueryResult<GetRolesListQuery, GetRolesListQueryVariables>;
+export const EventTypesDocument = gql`
+    query eventTypes {
+  eventTypes
+}
+    `;
+
+/**
+ * __useEventTypesQuery__
+ *
+ * To run a query within a React component, call `useEventTypesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEventTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEventTypesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useEventTypesQuery(baseOptions?: Apollo.QueryHookOptions<EventTypesQuery, EventTypesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<EventTypesQuery, EventTypesQueryVariables>(EventTypesDocument, options);
+      }
+export function useEventTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<EventTypesQuery, EventTypesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<EventTypesQuery, EventTypesQueryVariables>(EventTypesDocument, options);
+        }
+// @ts-ignore
+export function useEventTypesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<EventTypesQuery, EventTypesQueryVariables>): Apollo.UseSuspenseQueryResult<EventTypesQuery, EventTypesQueryVariables>;
+export function useEventTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventTypesQuery, EventTypesQueryVariables>): Apollo.UseSuspenseQueryResult<EventTypesQuery | undefined, EventTypesQueryVariables>;
+export function useEventTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventTypesQuery, EventTypesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<EventTypesQuery, EventTypesQueryVariables>(EventTypesDocument, options);
+        }
+export type EventTypesQueryHookResult = ReturnType<typeof useEventTypesQuery>;
+export type EventTypesLazyQueryHookResult = ReturnType<typeof useEventTypesLazyQuery>;
+export type EventTypesSuspenseQueryHookResult = ReturnType<typeof useEventTypesSuspenseQuery>;
+export type EventTypesQueryResult = Apollo.QueryResult<EventTypesQuery, EventTypesQueryVariables>;
 export const SideNavInfosDocument = gql`
     query SideNavInfos {
   currentVersion {
@@ -35118,6 +35163,7 @@ export const GetWebhookToEditDocument = gql`
     name
     webhookUrl
     signatureAlgo
+    eventTypes
   }
 }
     `;
@@ -35164,6 +35210,7 @@ export const CreateWebhookEndpointDocument = gql`
     name
     webhookUrl
     signatureAlgo
+    eventTypes
   }
 }
     `;
@@ -35200,6 +35247,7 @@ export const UpdateWebhookEndpointDocument = gql`
     name
     webhookUrl
     signatureAlgo
+    eventTypes
   }
 }
     `;
