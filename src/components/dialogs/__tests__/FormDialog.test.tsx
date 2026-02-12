@@ -43,9 +43,7 @@ const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
   return <NiceModal.Provider>{children}</NiceModal.Provider>
 }
 
-const mockSubmit = jest.fn((e: React.FormEvent) => {
-  e.preventDefault()
-})
+const mockSubmit = jest.fn()
 
 const defaultProps: FormDialogProps = {
   title: 'Form Dialog Title',
@@ -196,9 +194,7 @@ describe('FormDialog', () => {
     })
 
     it('calls submit handler when form is submitted', async () => {
-      const submitHandler = jest.fn((e: React.FormEvent) => {
-        e.preventDefault()
-      })
+      const submitHandler = jest.fn()
       const user = userEvent.setup()
 
       render(
@@ -228,9 +224,7 @@ describe('FormDialog', () => {
     })
 
     it('allows form submission via Enter key in input', async () => {
-      const submitHandler = jest.fn((e: React.FormEvent) => {
-        e.preventDefault()
-      })
+      const submitHandler = jest.fn()
       const user = userEvent.setup()
 
       render(
@@ -615,9 +609,7 @@ describe('FormDialog', () => {
 
   describe('Complex Scenarios', () => {
     it('handles complex form with multiple inputs', async () => {
-      const submitHandler = jest.fn((e: React.FormEvent) => {
-        e.preventDefault()
-      })
+      const submitHandler = jest.fn()
       const user = userEvent.setup()
 
       render(
