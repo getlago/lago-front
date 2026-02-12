@@ -179,7 +179,7 @@ const CustomerDetails = () => {
     })
 
     addToast({
-      severity: 'danger',
+      severity: 'info',
       translateKey: 'text_17701996981731m5uguxyg8b',
     })
     navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
