@@ -209,9 +209,6 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
         walletTransactionId: walletTransactionId as string,
         limit: 20,
       },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      nextFetchPolicy: 'network-only',
       skip: !walletTransactionId || !showFundingTab,
       context: {
         silentErrorCodes: [LagoApiError.UnprocessableEntity],
@@ -228,9 +225,6 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
         walletTransactionId: walletTransactionId as string,
         limit: 20,
       },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      nextFetchPolicy: 'network-only',
       skip: !walletTransactionId || !showConsumptionTab,
       context: {
         silentErrorCodes: [LagoApiError.UnprocessableEntity],
