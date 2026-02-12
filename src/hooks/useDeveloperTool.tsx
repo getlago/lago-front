@@ -97,18 +97,23 @@ export function useDeveloperTool(): DeveloperToolContextType {
     const isValidUser = !!currentUser
 
     if (decodedDevtoolTab && isValidUser) {
-      navigate(decodedDevtoolTab)
+      // Use setUrl to navigate in the MemoryRouter (devtools panel), not navigate() which would
+      // navigate in the BrowserRouter
+      context?.setUrl(decodedDevtoolTab)
       context?.openPanel()
     }
 
-    // Remove the params from the URL
-    params.delete(DEVTOOL_TAB_PARAMS)
-    const url = `${window.location.pathname}`
+    // Remove the devtool-tab param from the URL using React Router's navigate with replace.
+    // This ensures the location object is updated (not just the browser URL), so the location
+    // history won't contain the devtool-tab param when goBack() is called later.
+    if (devtoolTab) {
+      params.delete(DEVTOOL_TAB_PARAMS)
+      const search = params.toString()
 
-    if (params?.toString()?.length > 0) {
-      window.history.replaceState({}, '', `${url}?${params.toString()}`)
-    } else {
-      window.history.replaceState({}, '', url)
+      navigate(
+        { pathname: window.location.pathname, search: search ? `?${search}` : '' },
+        { replace: true },
+      )
     }
   }
 
