@@ -38,12 +38,18 @@ const FormDialog = create(
     form,
   }: FormDialogProps) => {
     const modal = useModal()
-    const { handleCancel, closeText } = useDialogActions({
+    const { handleCancel, closeText, handleContinue } = useDialogActions({
       modal,
+      onAction: form.submit,
       cancelOrCloseText,
       closeOnError,
       onError,
     })
+
+    const formActions = {
+      id: form.id,
+      submit: handleContinue,
+    }
 
     return (
       <BaseDialog
@@ -54,7 +60,7 @@ const FormDialog = create(
         description={description}
         headerContent={headerContent}
         data-test={FORM_DIALOG_TEST_ID}
-        form={form}
+        form={formActions}
         actions={
           <>
             <Button
