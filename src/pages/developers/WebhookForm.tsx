@@ -30,6 +30,13 @@ import { eventTypesToFormValues, formValuesToEventTypes } from './webhookForm/ut
 import { webhookDefaultValues, webhookValidationSchema } from './webhookForm/validationSchema'
 import WebhookEventsForm from './webhookForm/WebhookEventsForm'
 
+// Test ID constants
+export const WEBHOOK_FORM_CLOSE_BUTTON_TEST_ID = 'webhook-form-close-button'
+export const WEBHOOK_FORM_CANCEL_BUTTON_TEST_ID = 'webhook-form-cancel-button'
+export const WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID = 'webhook-form-submit-button'
+export const WEBHOOK_FORM_NAME_INPUT_TEST_ID = 'webhook-form-name-input'
+export const WEBHOOK_FORM_URL_INPUT_TEST_ID = 'webhook-form-url-input'
+
 gql`
   mutation createWebhookEndpoint($input: WebhookEndpointCreateInput!) {
     createWebhookEndpoint(input: $input) {
@@ -200,7 +207,12 @@ const WebhookForm = () => {
                 isEdition ? 'text_64d23a81a7d807f8aa570509' : 'text_6271200984178801ba8bdec0',
               )}
             </Typography>
-            <Button variant="quaternary" icon="close" onClick={onClose} />
+            <Button
+              variant="quaternary"
+              icon="close"
+              onClick={onClose}
+              data-test={WEBHOOK_FORM_CLOSE_BUTTON_TEST_ID}
+            />
           </>
         )}
       </CenteredPage.Header>
@@ -238,6 +250,7 @@ const WebhookForm = () => {
                     <field.TextInputField
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
+                      data-test={WEBHOOK_FORM_NAME_INPUT_TEST_ID}
                       label={translate('text_1770723024044vvqxr476mvd')}
                       placeholder={translate('text_1770723024044wi5tokoswxl')}
                     />
@@ -247,6 +260,7 @@ const WebhookForm = () => {
                 <form.AppField name="webhookUrl">
                   {(field) => (
                     <field.TextInputField
+                      data-test={WEBHOOK_FORM_URL_INPUT_TEST_ID}
                       label={translate('text_6271200984178801ba8bdf22')}
                       placeholder={translate('text_6271200984178801ba8bdf36')}
                       helperText={
@@ -297,7 +311,11 @@ const WebhookForm = () => {
       </CenteredPage.Container>
 
       <CenteredPage.StickyFooter>
-        <Button variant="quaternary" onClick={onClose}>
+        <Button
+          variant="quaternary"
+          onClick={onClose}
+          data-test={WEBHOOK_FORM_CANCEL_BUTTON_TEST_ID}
+        >
           {translate('text_6271200984178801ba8bdf4a')}
         </Button>
         <form.Subscribe
@@ -312,6 +330,7 @@ const WebhookForm = () => {
               onClick={() => form.handleSubmit()}
               disabled={!canSubmit}
               loading={isSubmitting}
+              data-test={WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID}
             >
               {translate(
                 isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_6271200984178801ba8bdf5e',

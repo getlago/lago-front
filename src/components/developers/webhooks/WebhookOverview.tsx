@@ -4,6 +4,14 @@ import { GetWebhookEndpointQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 
+// Test ID constants
+export const WEBHOOK_OVERVIEW_CONTAINER_TEST_ID = 'webhook-overview-container'
+export const WEBHOOK_OVERVIEW_LOADING_TEST_ID = 'webhook-overview-loading'
+export const WEBHOOK_OVERVIEW_NAME_VALUE_TEST_ID = 'webhook-overview-name-value'
+export const WEBHOOK_OVERVIEW_SIGNATURE_VALUE_TEST_ID = 'webhook-overview-signature-value'
+export const WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID = 'webhook-overview-url-value'
+export const WEBHOOK_OVERVIEW_EVENTS_LIST_TEST_ID = 'webhook-overview-events-list'
+
 type WebhookOverviewProps = {
   webhook: GetWebhookEndpointQuery['webhookEndpoint'] | undefined
   loading: boolean
@@ -18,7 +26,7 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
 
   if (loading || eventTypesLoading) {
     return (
-      <div className="flex flex-col gap-6 p-4">
+      <div className="flex flex-col gap-6 p-4" data-test={WEBHOOK_OVERVIEW_LOADING_TEST_ID}>
         <div className="flex flex-col gap-2">
           <Skeleton variant="text" className="w-40" textVariant="subhead1" />
           <Skeleton variant="text" className="w-80" />
@@ -42,7 +50,7 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4">
+    <div className="flex flex-col gap-6 p-4" data-test={WEBHOOK_OVERVIEW_CONTAINER_TEST_ID}>
       <div className="flex flex-col gap-2">
         <Typography variant="subhead1" color="grey700">
           {translate('text_1770903515281cpcq0pj4lxh')}
@@ -57,7 +65,11 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
           <Typography variant="caption" color="grey600">
             {translate('text_6419c64eace749372fc72b0f')}
           </Typography>
-          <Typography variant="body" color="grey700">
+          <Typography
+            variant="body"
+            color="grey700"
+            data-test={WEBHOOK_OVERVIEW_NAME_VALUE_TEST_ID}
+          >
             {webhook?.name || '-'}
           </Typography>
         </div>
@@ -65,7 +77,11 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
           <Typography variant="caption" color="grey600">
             {translate('text_17709035152819kiyigswn18')}
           </Typography>
-          <Typography variant="body" color="grey700">
+          <Typography
+            variant="body"
+            color="grey700"
+            data-test={WEBHOOK_OVERVIEW_SIGNATURE_VALUE_TEST_ID}
+          >
             {signatureLabel}
           </Typography>
         </div>
@@ -75,7 +91,7 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
         <Typography variant="caption" color="grey600">
           {translate('text_6271200984178801ba8bdf22')}
         </Typography>
-        <Typography variant="body" color="grey700">
+        <Typography variant="body" color="grey700" data-test={WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID}>
           {webhook?.webhookUrl}
         </Typography>
       </div>
@@ -85,7 +101,7 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
           {translate('text_1770903515281cixrd5unzhz', { count: eventCount }, eventCount)}
         </Typography>
         {displayedEvents.length > 0 && (
-          <div className="flex flex-col">
+          <div className="flex flex-col" data-test={WEBHOOK_OVERVIEW_EVENTS_LIST_TEST_ID}>
             {displayedEvents.map((event) => (
               <Typography key={event} variant="body" color="grey700">
                 {event}
