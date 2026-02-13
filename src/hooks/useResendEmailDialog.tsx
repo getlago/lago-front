@@ -7,16 +7,19 @@ import {
   resendEmailFormValidationSchema,
 } from '~/components/emails/resendEmail/formInitialization'
 import ResendEmailHeaderContent from '~/components/emails/resendEmail/ResendEmailHeaderContent'
+import { addToast } from '~/core/apolloClient'
 import { BillingEntityEmailSettingsEnum } from '~/generated/graphql'
 
 import { useInternationalization } from './core/useInternationalization'
 import { useAppForm } from './forms/useAppform'
+import { useResendEmail } from './useResendEmail'
 
 export const SUBMIT_RESEND_EMAIL_DATA_TEST = 'submit-resend-email'
 export const RESEND_EMAIL_FORM_ID = 'resend-email'
 
 export const useResendEmailDialog = () => {
   const formDialog = useFormDialog()
+  const { resendEmail } = useResendEmail()
 
   const form = useAppForm({
     defaultValues: resendEmailFormDefaultValues,
@@ -24,35 +27,55 @@ export const useResendEmailDialog = () => {
     validators: {
       onDynamic: resendEmailFormValidationSchema,
     },
-    onSubmit: () => {
-      // Do the resend
-      return {
-        reason: 'success',
-      }
+    onSubmitMeta: {} as {
+      type: BillingEntityEmailSettingsEnum
+      documentId: string
+    },
+    onSubmit: async ({ meta }) => {
+      await resendEmail({
+        type: meta.type,
+        documentId: meta.documentId,
+      })
     },
   })
   const { translate } = useInternationalization()
 
-  const handleSubmit = async () => {
-    const result = await form.handleSubmit()
+  const handleSubmit = async ({
+    type,
+    documentId,
+  }: {
+    type: BillingEntityEmailSettingsEnum
+    documentId: string
+  }) => {
+    await form.handleSubmit({
+      type,
+      documentId,
+    })
 
     // This way we can manage the validation
     if (!form.state.canSubmit) {
       throw Error('Not valid')
     }
 
-    return result
+    addToast({
+      severity: 'success',
+      message: translate('text_1770998960342ol0db9zrgmu'),
+    })
   }
 
   const showResendEmailDialog = ({
     subject,
+    documentId,
     type,
     billingEntity,
   }: {
     subject: string
-    type?: BillingEntityEmailSettingsEnum
-    billingEntity?: BillingEntity
+    documentId: string | undefined
+    type: BillingEntityEmailSettingsEnum
+    billingEntity: BillingEntity | undefined
   }) => {
+    if (!documentId) return
+
     formDialog
       .open({
         title: translate('text_1770392315728uyw3zhs7kzh'),
@@ -74,14 +97,18 @@ export const useResendEmailDialog = () => {
         ),
         form: {
           id: RESEND_EMAIL_FORM_ID,
-          submit: handleSubmit,
+          submit: () =>
+            handleSubmit({
+              type,
+              documentId,
+            }),
         },
         closeOnError: false,
       })
       .then((result) => {
         /* TODO: Remove this line */
         // eslint-disable-next-line no-console
-        console.log('result', result)
+        console.log('result in then', result)
       })
   }
 

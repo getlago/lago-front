@@ -229,6 +229,7 @@ const PaymentDetails = () => {
       }),
       type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
       billingEntity: payment?.customer?.billingEntity,
+      documentId: payment?.paymentReceipt?.id,
     })
   }
 

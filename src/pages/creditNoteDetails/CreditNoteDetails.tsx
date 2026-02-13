@@ -221,6 +221,7 @@ const CreditNoteDetails = () => {
       }),
       type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
       billingEntity: creditNote?.billingEntity,
+      documentId: creditNote?.id,
     })
   }
 

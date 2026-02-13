@@ -3804,5 +3804,6 @@
   "text_1770641759899jnci1fphmyk": "Subject",
   "text_17706311399878xdnudpnjtt": "Your invoice from {{organization}} #{{invoiceNumber}}",
   "text_1770631139987tf8b59zentb": "Your payment receipt from {{organization}} #{{receiptNumber}}",
-  "text_17706311399872btwgaui8va": "Your credit note from {{organization}} #{{creditNoteNumber}}"
+  "text_17706311399872btwgaui8va": "Your credit note from {{organization}} #{{creditNoteNumber}}",
+  "text_1770998960342ol0db9zrgmu": "Email successfully sent"
 }

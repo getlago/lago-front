@@ -792,6 +792,7 @@ const CustomerInvoiceDetails = () => {
       }),
       type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
       billingEntity: invoice?.billingEntity,
+      documentId: invoice?.id,
     })
   }
 

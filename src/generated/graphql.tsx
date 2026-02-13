@@ -4893,6 +4893,12 @@ export type Mutation = {
   registerUser?: Maybe<RegisterUser>;
   /** Removes a feature entitlement from a subscription */
   removeSubscriptionEntitlement?: Maybe<RemoveSubscriptionEntitlementPayload>;
+  /** Resend credit note email with optional custom recipients */
+  resendCreditNoteEmail?: Maybe<CreditNote>;
+  /** Resend invoice email with optional custom recipients */
+  resendInvoiceEmail?: Maybe<Invoice>;
+  /** Resend payment receipt email with optional custom recipients */
+  resendPaymentReceiptEmail?: Maybe<PaymentReceipt>;
   /** Reset password for user and log in */
   resetPassword?: Maybe<LoginUser>;
   /** Retry all invoice payments */
@@ -5558,6 +5564,21 @@ export type MutationRemoveSubscriptionEntitlementArgs = {
 };
 
 
+export type MutationResendCreditNoteEmailArgs = {
+  input: ResendCreditNoteEmailInput;
+};
+
+
+export type MutationResendInvoiceEmailArgs = {
+  input: ResendInvoiceEmailInput;
+};
+
+
+export type MutationResendPaymentReceiptEmailArgs = {
+  input: ResendPaymentReceiptEmailInput;
+};
+
+
 export type MutationResetPasswordArgs = {
   input: ResetPasswordInput;
 };
@@ -6195,6 +6216,7 @@ export enum PermissionEnum {
   CouponsView = 'coupons_view',
   CreditNotesCreate = 'credit_notes_create',
   CreditNotesExport = 'credit_notes_export',
+  CreditNotesSend = 'credit_notes_send',
   CreditNotesUpdate = 'credit_notes_update',
   CreditNotesView = 'credit_notes_view',
   CreditNotesVoid = 'credit_notes_void',
@@ -6243,6 +6265,8 @@ export enum PermissionEnum {
   PaymentMethodsDelete = 'payment_methods_delete',
   PaymentMethodsUpdate = 'payment_methods_update',
   PaymentMethodsView = 'payment_methods_view',
+  PaymentReceiptsSend = 'payment_receipts_send',
+  PaymentReceiptsView = 'payment_receipts_view',
   PaymentsCreate = 'payments_create',
   PaymentsView = 'payments_view',
   PlansCreate = 'plans_create',
@@ -6297,6 +6321,7 @@ export type Permissions = {
   couponsView: Scalars['Boolean']['output'];
   creditNotesCreate: Scalars['Boolean']['output'];
   creditNotesExport: Scalars['Boolean']['output'];
+  creditNotesSend: Scalars['Boolean']['output'];
   creditNotesUpdate: Scalars['Boolean']['output'];
   creditNotesView: Scalars['Boolean']['output'];
   creditNotesVoid: Scalars['Boolean']['output'];
@@ -6345,6 +6370,8 @@ export type Permissions = {
   paymentMethodsDelete: Scalars['Boolean']['output'];
   paymentMethodsUpdate: Scalars['Boolean']['output'];
   paymentMethodsView: Scalars['Boolean']['output'];
+  paymentReceiptsSend: Scalars['Boolean']['output'];
+  paymentReceiptsView: Scalars['Boolean']['output'];
   paymentsCreate: Scalars['Boolean']['output'];
   paymentsView: Scalars['Boolean']['output'];
   plansCreate: Scalars['Boolean']['output'];
@@ -7748,6 +7775,48 @@ export type RemoveTaxesPayload = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: Maybe<Scalars['String']['output']>;
   removedTaxes: Array<Tax>;
+};
+
+/** Resend email input arguments */
+export type ResendCreditNoteEmailInput = {
+  /** BCC recipients */
+  bcc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** CC recipients */
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** Document ID */
+  id: Scalars['ID']['input'];
+  /** Custom recipients (defaults to customer email) */
+  to?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** Resend email input arguments */
+export type ResendInvoiceEmailInput = {
+  /** BCC recipients */
+  bcc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** CC recipients */
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** Document ID */
+  id: Scalars['ID']['input'];
+  /** Custom recipients (defaults to customer email) */
+  to?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** Resend email input arguments */
+export type ResendPaymentReceiptEmailInput = {
+  /** BCC recipients */
+  bcc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** CC recipients */
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** Document ID */
+  id: Scalars['ID']['input'];
+  /** Custom recipients (defaults to customer email) */
+  to?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 /** ResetPassword type */
@@ -12208,6 +12277,27 @@ export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }
 export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
 
 export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
+
+export type ResendCreditNoteEmailMutationVariables = Exact<{
+  input: ResendCreditNoteEmailInput;
+}>;
+
+
+export type ResendCreditNoteEmailMutation = { __typename?: 'Mutation', resendCreditNoteEmail?: { __typename?: 'CreditNote', id: string } | null };
+
+export type ResendInvoiceEmailMutationVariables = Exact<{
+  input: ResendInvoiceEmailInput;
+}>;
+
+
+export type ResendInvoiceEmailMutation = { __typename?: 'Mutation', resendInvoiceEmail?: { __typename?: 'Invoice', id: string } | null };
+
+export type ResendPaymentReceiptEmailMutationVariables = Exact<{
+  input: ResendPaymentReceiptEmailInput;
+}>;
+
+
+export type ResendPaymentReceiptEmailMutation = { __typename?: 'Mutation', resendPaymentReceiptEmail?: { __typename?: 'PaymentReceipt', id: string } | null };
 
 export type GetRolesListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -31258,6 +31348,105 @@ export type GetOrganizationInfosQueryHookResult = ReturnType<typeof useGetOrgani
 export type GetOrganizationInfosLazyQueryHookResult = ReturnType<typeof useGetOrganizationInfosLazyQuery>;
 export type GetOrganizationInfosSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationInfosSuspenseQuery>;
 export type GetOrganizationInfosQueryResult = Apollo.QueryResult<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>;
+export const ResendCreditNoteEmailDocument = gql`
+    mutation resendCreditNoteEmail($input: ResendCreditNoteEmailInput!) {
+  resendCreditNoteEmail(input: $input) {
+    id
+  }
+}
+    `;
+export type ResendCreditNoteEmailMutationFn = Apollo.MutationFunction<ResendCreditNoteEmailMutation, ResendCreditNoteEmailMutationVariables>;
+
+/**
+ * __useResendCreditNoteEmailMutation__
+ *
+ * To run a mutation, you first call `useResendCreditNoteEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendCreditNoteEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendCreditNoteEmailMutation, { data, loading, error }] = useResendCreditNoteEmailMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useResendCreditNoteEmailMutation(baseOptions?: Apollo.MutationHookOptions<ResendCreditNoteEmailMutation, ResendCreditNoteEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResendCreditNoteEmailMutation, ResendCreditNoteEmailMutationVariables>(ResendCreditNoteEmailDocument, options);
+      }
+export type ResendCreditNoteEmailMutationHookResult = ReturnType<typeof useResendCreditNoteEmailMutation>;
+export type ResendCreditNoteEmailMutationResult = Apollo.MutationResult<ResendCreditNoteEmailMutation>;
+export type ResendCreditNoteEmailMutationOptions = Apollo.BaseMutationOptions<ResendCreditNoteEmailMutation, ResendCreditNoteEmailMutationVariables>;
+export const ResendInvoiceEmailDocument = gql`
+    mutation resendInvoiceEmail($input: ResendInvoiceEmailInput!) {
+  resendInvoiceEmail(input: $input) {
+    id
+  }
+}
+    `;
+export type ResendInvoiceEmailMutationFn = Apollo.MutationFunction<ResendInvoiceEmailMutation, ResendInvoiceEmailMutationVariables>;
+
+/**
+ * __useResendInvoiceEmailMutation__
+ *
+ * To run a mutation, you first call `useResendInvoiceEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendInvoiceEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendInvoiceEmailMutation, { data, loading, error }] = useResendInvoiceEmailMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useResendInvoiceEmailMutation(baseOptions?: Apollo.MutationHookOptions<ResendInvoiceEmailMutation, ResendInvoiceEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResendInvoiceEmailMutation, ResendInvoiceEmailMutationVariables>(ResendInvoiceEmailDocument, options);
+      }
+export type ResendInvoiceEmailMutationHookResult = ReturnType<typeof useResendInvoiceEmailMutation>;
+export type ResendInvoiceEmailMutationResult = Apollo.MutationResult<ResendInvoiceEmailMutation>;
+export type ResendInvoiceEmailMutationOptions = Apollo.BaseMutationOptions<ResendInvoiceEmailMutation, ResendInvoiceEmailMutationVariables>;
+export const ResendPaymentReceiptEmailDocument = gql`
+    mutation resendPaymentReceiptEmail($input: ResendPaymentReceiptEmailInput!) {
+  resendPaymentReceiptEmail(input: $input) {
+    id
+  }
+}
+    `;
+export type ResendPaymentReceiptEmailMutationFn = Apollo.MutationFunction<ResendPaymentReceiptEmailMutation, ResendPaymentReceiptEmailMutationVariables>;
+
+/**
+ * __useResendPaymentReceiptEmailMutation__
+ *
+ * To run a mutation, you first call `useResendPaymentReceiptEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendPaymentReceiptEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendPaymentReceiptEmailMutation, { data, loading, error }] = useResendPaymentReceiptEmailMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useResendPaymentReceiptEmailMutation(baseOptions?: Apollo.MutationHookOptions<ResendPaymentReceiptEmailMutation, ResendPaymentReceiptEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResendPaymentReceiptEmailMutation, ResendPaymentReceiptEmailMutationVariables>(ResendPaymentReceiptEmailDocument, options);
+      }
+export type ResendPaymentReceiptEmailMutationHookResult = ReturnType<typeof useResendPaymentReceiptEmailMutation>;
+export type ResendPaymentReceiptEmailMutationResult = Apollo.MutationResult<ResendPaymentReceiptEmailMutation>;
+export type ResendPaymentReceiptEmailMutationOptions = Apollo.BaseMutationOptions<ResendPaymentReceiptEmailMutation, ResendPaymentReceiptEmailMutationVariables>;
 export const GetRolesListDocument = gql`
     query getRolesList {
   roles {
