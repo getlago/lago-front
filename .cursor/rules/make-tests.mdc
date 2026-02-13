@@ -246,7 +246,7 @@ For each file in the PR/branch diff, collect:
 - **File path**: Full relative path
 - **Additions/Deletions**: Lines added (+) and removed (-)
 - **Status**: `NEW` (added), `Modified` (changed), `DELETED` (removed), `Renamed`
-- **Test?**: Whether this file will have tests written for it (`✅ SÌ` or `⏭️ NO`)
+- **Test?**: Whether this file will have tests written for it (`✅ YES` or `⏭️ NO`)
 - **Skip Reason**: If `⏭️ NO`, provide a short reason (e.g., "Type definitions", "Generated file", "Pure presentational", "Config file", "Translation file", "Barrel export", "Simple prop pass-through", "Tested implicitly via ComponentName", "Deleted file", "Snapshot update")
 
 ### Step 1.5.2: Generate the Table
@@ -254,11 +254,11 @@ For each file in the PR/branch diff, collect:
 Use the following exact format. Every file MUST appear as its own row:
 
 ```
-Lista Completa File PR #<PR_NUMBER> (or Branch: <BRANCH_NAME>)
+Complete File List — PR #<PR_NUMBER> (or Branch: <BRANCH_NAME>)
   ┌─────┬────────────────────────────────────────────────────────────────┬───────────┬──────────┬───────┬─────────────────────────────────┐
   │  #  │ File                                                           │    +/-    │  Status  │ Test? │ Skip Reason                     │
   ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
-  │ 1   │ src/components/example/Component.tsx                           │ +122/-0   │ NEW      │ ✅ SÌ │                                 │
+  │ 1   │ src/components/example/Component.tsx                           │ +122/-0   │ NEW      │ ✅ YES │                                 │
   ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
   │ 2   │ src/components/example/types.ts                                │ +15/-0    │ NEW      │ ⏭️ NO │ Type definitions                │
   ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
@@ -275,9 +275,9 @@ Lista Completa File PR #<PR_NUMBER> (or Branch: <BRANCH_NAME>)
 3. The `#` column is a sequential counter starting from 1
 4. The `+/-` column shows additions and deletions (e.g., `+122/-0`, `+8/-12`, `+0/-64`)
 5. The `Status` column uses: `NEW` for added files, `Modified` for changed files, `DELETED` for removed files, `Renamed` for renamed files
-6. The `Test?` column uses: `✅ SÌ` for files that will have tests, `⏭️ NO` for files that won't
-7. The `Skip Reason` column is empty for files marked `✅ SÌ`, and provides a concise reason for files marked `⏭️ NO`
-8. After the table, show a summary: `Totale: X file | Test previsti: Y file | Saltati: Z file`
+6. The `Test?` column uses: `✅ YES` for files that will have tests, `⏭️ NO` for files that won't
+7. The `Skip Reason` column is empty for files marked `✅ YES`, and provides a concise reason for files marked `⏭️ NO`
+8. After the table, show a summary: `Total: X files | Will test: Y files | Skipped: Z files`
 
 ### Step 1.5.3: Wait for User Approval
 
