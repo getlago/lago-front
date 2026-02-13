@@ -1,7 +1,7 @@
 import { type FieldGroupApi, GroupedCheckboxList } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
-import { useWebhookEventTypes, webhookEventsEmptyValues } from '~/hooks/useWebhookEventTypes'
+import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 
 type WebhookEventsFormProps = {
   isEditable?: boolean
@@ -18,7 +18,7 @@ const defaultProps: WebhookEventsFormProps = {
 type WebhookEventValues = Record<string, boolean>
 
 const WebhookEventsForm = withFieldGroup({
-  defaultValues: { ...webhookEventsEmptyValues },
+  defaultValues: {},
   props: defaultProps,
   render: function Render({ group, isLoading, errors }) {
     const { translate } = useInternationalization()
@@ -37,6 +37,7 @@ const WebhookEventsForm = withFieldGroup({
         groups={groups}
         isLoading={isLoading || eventsLoading}
         errors={errors}
+        itemLabelVariant="captionCode"
       />
     )
   },

@@ -3642,6 +3642,22 @@ export type Event = {
   transactionId?: Maybe<Scalars['String']['output']>;
 };
 
+export enum EventCategoryEnum {
+  Alerts = 'ALERTS',
+  CreditNotes = 'CREDIT_NOTES',
+  Customers = 'CUSTOMERS',
+  DunningCampaigns = 'DUNNING_CAMPAIGNS',
+  EventIngestion = 'EVENT_INGESTION',
+  Features = 'FEATURES',
+  Integrations = 'INTEGRATIONS',
+  Invoices = 'INVOICES',
+  Payments = 'PAYMENTS',
+  PaymentReceipts = 'PAYMENT_RECEIPTS',
+  Plans = 'PLANS',
+  SubscriptionsAndFees = 'SUBSCRIPTIONS_AND_FEES',
+  WalletsAndCredits = 'WALLETS_AND_CREDITS'
+}
+
 /** EventCollection type */
 export type EventCollection = {
   __typename?: 'EventCollection';
@@ -6781,7 +6797,7 @@ export type Query = {
   /** Query a single event of an organization */
   event?: Maybe<Event>;
   /** Query Event Types for Webhook Endpoints */
-  eventTypes: Array<Scalars['String']['output']>;
+  eventTypes: Array<WebhookEventType>;
   /** Query events of an organization */
   events?: Maybe<EventCollection>;
   /** Query a single feature */
@@ -9413,6 +9429,14 @@ export type WebhookEndpointUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   signatureAlgo?: InputMaybe<WebhookEndpointSignatureAlgoEnum>;
   webhookUrl: Scalars['String']['input'];
+};
+
+export type WebhookEventType = {
+  __typename?: 'WebhookEventType';
+  category: EventCategoryEnum;
+  deprecated: Scalars['Boolean']['output'];
+  description: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export enum WebhookStatusEnum {
@@ -12196,7 +12220,7 @@ export type GetWebhookEndpointQuery = { __typename?: 'Query', webhookEndpoint?: 
 export type EventTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type EventTypesQuery = { __typename?: 'Query', eventTypes: Array<string> };
+export type EventTypesQuery = { __typename?: 'Query', eventTypes: Array<{ __typename?: 'WebhookEventType', name: string, description: string }> };
 
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -31166,7 +31190,10 @@ export type GetWebhookEndpointSuspenseQueryHookResult = ReturnType<typeof useGet
 export type GetWebhookEndpointQueryResult = Apollo.QueryResult<GetWebhookEndpointQuery, GetWebhookEndpointQueryVariables>;
 export const EventTypesDocument = gql`
     query eventTypes {
-  eventTypes
+  eventTypes {
+    name
+    description
+  }
 }
     `;
 

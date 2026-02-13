@@ -23,7 +23,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useWebhookEndpoint } from '~/hooks/useWebhookEndpoint'
-import { webhookEventsEmptyValues } from '~/hooks/useWebhookEventTypes'
+import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 import { eventTypesToFormValues, formValuesToEventTypes } from './webhookForm/utils'
@@ -57,11 +57,9 @@ const WebhookForm = () => {
   const { webhookId = '' } = useParams()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
+  const { defaultEventFormValues, loading: eventTypesLoading } = useWebhookEventTypes()
 
-  // All available form keys — derived from the event types list.
-  // When event types come from GraphQL instead of mocks, this will
-  // be computed from that query result instead of webhookEventsEmptyValues.
-  const allFormKeys = useMemo(() => Object.keys(webhookEventsEmptyValues), [])
+  const allFormKeys = useMemo(() => Object.keys(defaultEventFormValues), [defaultEventFormValues])
 
   useEffect(() => {
     if (devtool.panelOpen) {
@@ -177,9 +175,9 @@ const WebhookForm = () => {
     },
   })
 
-  // Reset form when webhook data is loaded (for edit mode)
+  // Reset form when webhook data or event types are loaded (for edit mode)
   useEffect(() => {
-    if (webhook) {
+    if (webhook && allFormKeys.length > 0) {
       form.reset({
         name: webhook.name || webhookDefaultValues.name,
         webhookUrl: webhook.webhookUrl || webhookDefaultValues.webhookUrl,
@@ -188,7 +186,7 @@ const WebhookForm = () => {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [webhook])
+  }, [webhook, allFormKeys])
 
   return (
     <CenteredPage.Wrapper>
@@ -208,7 +206,7 @@ const WebhookForm = () => {
       </CenteredPage.Header>
 
       <CenteredPage.Container>
-        {webhookLoading ? (
+        {webhookLoading || eventTypesLoading ? (
           <FormLoadingSkeleton id="webhook" />
         ) : (
           <>
@@ -234,7 +232,7 @@ const WebhookForm = () => {
                 )}
               />
 
-              <div className="flex flex-col gap-6 pb-24">
+              <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
                 <form.AppField name="name">
                   {(field) => (
                     <field.TextInputField
@@ -285,7 +283,9 @@ const WebhookForm = () => {
                 </div>
               </div>
 
-              <WebhookEventsForm form={form} fields="webhookEvents" />
+              <div className="pt-12">
+                <WebhookEventsForm form={form} fields="webhookEvents" />
+              </div>
             </div>
           </>
         )}

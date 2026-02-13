@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 import { WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
-import { webhookEventsEmptyValues } from '~/hooks/useWebhookEventTypes'
 
 export const webhookValidationSchema = z.object({
   name: z.string(),
@@ -16,5 +15,5 @@ export const webhookDefaultValues: WebhookFormValues = {
   name: '',
   webhookUrl: '',
   signatureAlgo: WebhookEndpointSignatureAlgoEnum.Hmac,
-  webhookEvents: webhookEventsEmptyValues,
+  webhookEvents: {},
 }
