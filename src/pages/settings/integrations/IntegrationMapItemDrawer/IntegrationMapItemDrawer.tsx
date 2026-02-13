@@ -154,12 +154,12 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
             <Typography variant="subhead1">{translate('text_1762159805730r5zfutgdloi')}</Typography>
             <Typography variant="caption">{translate('text_1762159805730hqzi614r672')}</Typography>
           </div>
-          <div className="flex flex-row shadow-b">
+          <div className="flex flex-row overflow-hidden shadow-b">
             <Tabs
-              className="min-h-13 w-full flex-1 items-center overflow-visible"
+              className="min-h-13 w-full flex-1 items-center"
               variant="scrollable"
               role="navigation"
-              scrollButtons={false}
+              scrollButtons="auto"
               value={selectedTabIndex}
               onChange={handleTabClick}
             >
@@ -169,7 +169,7 @@ export function IntegrationMapItemDrawer<FormValues extends FormikValues>({
                   disableFocusRipple
                   disableRipple
                   role="tab"
-                  className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
+                  className="relative my-2 h-9 justify-between gap-1 rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
                   label={<Typography variant="captionHl">{billingEntity.name}</Typography>}
                   value={index}
                   id={`simple-tab-${index}`}
