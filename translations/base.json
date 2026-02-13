@@ -3806,5 +3806,7 @@
   "text_17709035152819kiyigswn18": "Signature",
   "text_1770903515281cixrd5unzhz": "Listening to {{count}} events|Listening to {{count}} event|Listening to {{count}} events",
   "text_1739181747394snlx2h42642": "Listening to",
-  "text_1739181747394eventscount": "{{count}} events|{{count}} event|{{count}} events"
+  "text_1739181747394eventscount": "{{count}} events|{{count}} event|{{count}} events",
+  "text_17691652749726aa4es5s80q": "{{resource}} {{resourceNumber}} was sent by email",
+  "text_1769180515750z7jxssqkdvu": "Payment receipt"
 }
