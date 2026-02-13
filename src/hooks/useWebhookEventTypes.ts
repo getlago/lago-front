@@ -28,19 +28,25 @@ const extractCategory = (eventName: string): string => {
 }
 
 /**
- * Formats a category slug into a display label.
+ * Capitalizes a category slug into a display label without pluralization.
+ * e.g., "customer" -> "Customer"
+ * e.g., "payment_receipts" -> "Payment receipts"
+ */
+const capitalizeCategoryLabel = (category: string): string => {
+  const withSpaces = category.replace(/_/g, ' ')
+
+  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
+}
+
+/**
+ * Formats a category slug into a pluralized display label.
  * e.g., "customer" -> "Customers"
  * e.g., "payment_receipts" -> "Payment receipts"
  * e.g., "credit_note" -> "Credit notes"
  */
 const formatCategoryLabel = (category: string): string => {
-  // Replace underscores with spaces
-  const withSpaces = category.replace(/_/g, ' ')
+  const capitalized = capitalizeCategoryLabel(category)
 
-  // Capitalize first letter
-  const capitalized = withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
-
-  // Add 's' for plural if not already ending with 's'
   if (!capitalized.endsWith('s')) {
     return `${capitalized}s`
   }
@@ -80,12 +86,31 @@ const transformEventTypesToGroups = (eventTypes: EventTypeItem[]): CheckboxGroup
     return acc
   }, {})
 
+  const categories = Object.keys(groupedByCategory)
+
+  // Detect label collisions: when two different slugs produce the same pluralized label
+  // (e.g., "event" -> "Events" and "events" -> "Events"), fall back to capitalized-only labels.
+  const labelCount = new Map<string, number>()
+
+  for (const category of categories) {
+    const label = formatCategoryLabel(category)
+
+    labelCount.set(label, (labelCount.get(label) ?? 0) + 1)
+  }
+
+  const getCategoryLabel = (category: string): string => {
+    const pluralized = formatCategoryLabel(category)
+
+    // If the pluralized label is unique, use it; otherwise fall back to capitalized-only
+    return (labelCount.get(pluralized) ?? 0) > 1 ? capitalizeCategoryLabel(category) : pluralized
+  }
+
   // Transform to CheckboxGroup format and sort alphabetically
   return Object.entries(groupedByCategory)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([category, events]) => ({
       id: category,
-      label: formatCategoryLabel(category),
+      label: getCategoryLabel(category),
       items: events.map((event) => ({
         // Use form-safe key (no dots) for the checkbox ID
         id: eventNameToFormKey(event.name),
