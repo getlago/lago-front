@@ -706,7 +706,6 @@ pnpm run code:style
 - [ ] **Coverage is appropriate** (80% target, but lower is OK if justified)
 - [ ] **No trivial tests** - Every test verifies meaningful behavior
 - [ ] Tests pass: `pnpm test <test-file>`
-- [ ] Linting passes: `pnpm lint <test-file>`
 - [ ] **⚠️ Code style passes: `pnpm run code:style`** (MANDATORY - fix ERRORs only, ignore warnings)
 
 ### ⛔ MANDATORY: Translation Key Verification (Final Step)

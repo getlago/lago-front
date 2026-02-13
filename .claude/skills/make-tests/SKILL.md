@@ -810,34 +810,9 @@ The coverage targets in Step 4.3 are guidelines. If coverage is lower because th
 pnpm test src/path/to/__tests__/file.test.tsx
 ```
 
-### Step 4.6: Run Code Quality Checks (MANDATORY)
+### Step 4.6: Run Code Style Check (MANDATORY)
 
-**CRITICAL:** Before finalizing any test file, you MUST run ESLint to ensure code quality:
-
-```bash
-# Run ESLint on the test file
-pnpm eslint src/path/to/__tests__/file.test.tsx
-
-# If there are errors, fix them before proceeding
-```
-
-**Common ESLint errors to watch for:**
-
-1. **@typescript-eslint/no-non-null-assertion** - Don't use the non-null assertion operator
-   - Fix: Use type assertion (as HTMLInputElement) instead
-
-2. **`@typescript-eslint/no-explicit-any`** - Don't use `any` type
-   - Fix: Use proper types from `@testing-library/react` or component props
-
-3. **`react-hooks/exhaustive-deps`** - Missing dependencies in hooks
-   - Fix: Add missing deps or disable with eslint comment if intentional
-
-4. **`@typescript-eslint/no-unused-vars`** - Unused variables
-   - Fix: Remove unused imports/variables or prefix with `_`
-
-### Step 4.7: Run Code Style Check (MANDATORY)
-
-**CRITICAL:** After all tests pass and ESLint is clean, you MUST run the code style check:
+**CRITICAL:** After all tests pass, you MUST run the code style check:
 
 ```bash
 pnpm run code:style
@@ -870,7 +845,6 @@ pnpm run code:style
 - [ ] **No trivial tests** - Every test verifies meaningful behavior
 - [ ] **Snapshot tests considered** - Added where they provide value (not forced)
 - [ ] Tests pass: `pnpm test <test-file>`
-- [ ] **⚠️ ESLint passes: `pnpm eslint <test-file>`** (MANDATORY - run before finalizing)
 - [ ] **⚠️ Code style passes: `pnpm run code:style`** (MANDATORY - fix ERRORs only, ignore warnings)
 
 ### ⛔ MANDATORY: Translation Key Verification (Final Step)
