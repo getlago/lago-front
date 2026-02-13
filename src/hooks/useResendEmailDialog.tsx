@@ -17,6 +17,19 @@ import { useResendEmail } from './useResendEmail'
 export const SUBMIT_RESEND_EMAIL_DATA_TEST = 'submit-resend-email'
 export const RESEND_EMAIL_FORM_ID = 'resend-email'
 
+type Recipients =
+  | {
+      [x: string]: unknown
+      value: string
+    }[]
+  | undefined
+
+const formatRecipients = (recipients: Recipients) => {
+  if (!recipients || !recipients.length) return
+
+  return recipients.map(({ value }) => value)
+}
+
 export const useResendEmailDialog = () => {
   const formDialog = useFormDialog()
   const { resendEmail } = useResendEmail()
@@ -31,10 +44,13 @@ export const useResendEmailDialog = () => {
       type: BillingEntityEmailSettingsEnum
       documentId: string
     },
-    onSubmit: async ({ meta }) => {
+    onSubmit: async ({ value, meta }) => {
       await resendEmail({
         type: meta.type,
         documentId: meta.documentId,
+        to: formatRecipients(value.to),
+        cc: formatRecipients(value.cc),
+        bcc: formatRecipients(value.bcc),
       })
     },
   })

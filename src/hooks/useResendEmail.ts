@@ -33,6 +33,9 @@ gql`
 export type ResendEmailParams = {
   type: BillingEntityEmailSettingsEnum
   documentId: string
+  to?: Array<string>
+  cc?: Array<string>
+  bcc?: Array<string>
 }
 
 export type ResendEmailFetchResult =
@@ -47,13 +50,20 @@ export const useResendEmail = () => {
   const [resentInvoiceEmail] = useResendInvoiceEmailMutation()
   const [resendPaymentReceiptEmail] = useResendPaymentReceiptEmailMutation()
 
-  const resendEmailPerType = async ({ type, documentId }: ResendEmailParams) => {
+  const resendEmailPerType = async ({ type, documentId, to, cc, bcc }: ResendEmailParams) => {
+    const recipients = {
+      ...(to && to.length ? { to } : {}),
+      ...(cc && cc.length ? { cc } : {}),
+      ...(bcc && bcc.length ? { bcc } : {}),
+    }
+
     switch (type) {
       case BillingEntityEmailSettingsEnum.CreditNoteCreated:
         return await resendCreditNoteEmail({
           variables: {
             input: {
               id: documentId,
+              ...recipients,
             },
           },
         })
@@ -63,6 +73,7 @@ export const useResendEmail = () => {
           variables: {
             input: {
               id: documentId,
+              ...recipients,
             },
           },
         })
@@ -72,6 +83,7 @@ export const useResendEmail = () => {
           variables: {
             input: {
               id: documentId,
+              ...recipients,
             },
           },
         })
@@ -81,10 +93,9 @@ export const useResendEmail = () => {
     }
   }
 
-  const resendEmail = async ({
-    type,
-    documentId,
-  }: ResendEmailParams): Promise<
+  const resendEmail = async (
+    params: ResendEmailParams,
+  ): Promise<
     | {
         success: true
         response: ResendEmailFetchResult
@@ -95,7 +106,7 @@ export const useResendEmail = () => {
       }
   > => {
     try {
-      const result = await resendEmailPerType({ type, documentId })
+      const result = await resendEmailPerType(params)
 
       return {
         success: true,
