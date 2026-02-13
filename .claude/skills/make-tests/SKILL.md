@@ -202,6 +202,60 @@ Before creating tests, verify that ALL new files in the PR are accounted for:
 
 ---
 
+## Phase 1.5: Complete PR File Table (MANDATORY)
+
+**CRITICAL:** Before proceeding to test planning and before asking for user approval, you MUST generate a complete table listing **EVERY SINGLE FILE** changed in the PR or branch. No files may be omitted or grouped. If the PR has 50 files changed, the table MUST have exactly 50 rows.
+
+### Step 1.5.1: Gather File Stats
+
+For each file in the PR/branch diff, collect:
+- **File path**: Full relative path
+- **Additions/Deletions**: Lines added (+) and removed (-)
+- **Status**: `NEW` (added), `Modified` (changed), `DELETED` (removed), `Renamed`
+- **Test?**: Whether this file will have tests written for it (`✅ YES` or `⏭️ NO`)
+- **Skip Reason**: If `⏭️ NO`, provide a short reason (e.g., "Type definitions", "Generated file", "Pure presentational", "Config file", "Translation file", "Barrel export", "Simple prop pass-through", "Tested implicitly via ComponentName", "Deleted file", "Snapshot update")
+
+### Step 1.5.2: Generate the Table
+
+Use the following exact format. Every file MUST appear as its own row:
+
+```
+Complete File List — PR #<PR_NUMBER> (or Branch: <BRANCH_NAME>)
+  ┌─────┬────────────────────────────────────────────────────────────────┬───────────┬──────────┬───────┬─────────────────────────────────┐
+  │  #  │ File                                                           │    +/-    │  Status  │ Test? │ Skip Reason                     │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 1   │ src/components/example/Component.tsx                           │ +122/-0   │ NEW      │ ✅ YES │                                 │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 2   │ src/components/example/types.ts                                │ +15/-0    │ NEW      │ ⏭️ NO │ Type definitions                │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 3   │ src/generated/graphql.tsx                                      │ +267/-190 │ Modified │ ⏭️ NO │ Generated file                  │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 4   │ translations/base.json                                         │ +17/-4    │ Modified │ ⏭️ NO │ Translation file                │
+  └─────┴────────────────────────────────────────────────────────────────┴───────────┴──────────┴───────┴─────────────────────────────────┘
+```
+
+### Rules for the Table
+
+1. **EVERY file changed in the PR must appear** - no exceptions, no grouping, no summarizing
+2. Files should be listed in the same order as they appear in the PR diff
+3. The `#` column is a sequential counter starting from 1
+4. The `+/-` column shows additions and deletions (e.g., `+122/-0`, `+8/-12`, `+0/-64`)
+5. The `Status` column uses: `NEW` for added files, `Modified` for changed files, `DELETED` for removed files, `Renamed` for renamed files
+6. The `Test?` column uses: `✅ YES` for files that will have tests, `⏭️ NO` for files that won't
+7. The `Skip Reason` column is empty for files marked `✅ YES`, and provides a concise reason for files marked `⏭️ NO`
+8. After the table, show a summary: `Total: X files | Will test: Y files | Skipped: Z files`
+
+### Step 1.5.3: Wait for User Approval
+
+After displaying the table, ask the user to confirm:
+- Whether the file analysis is correct
+- Whether they agree with the test/skip decisions
+- Whether they want to add or remove files from the test list
+
+**Do NOT proceed to Phase 2 until the user approves the table.**
+
+---
+
 ## Phase 2: Test Planning
 
 ### Step 2.1: Coverage Map (MANDATORY)
@@ -328,6 +382,27 @@ export const ComponentName = ({ ... }) => {
 - Use SCREAMING_SNAKE_CASE for constant names
 - Use kebab-case for the actual data-test value
 - Pattern: `{COMPONENT_NAME}_{ELEMENT_DESCRIPTION}_TEST_ID`
+
+**NEVER wrap elements in extra `<div>` just to add a `data-test` attribute:**
+
+Adding a wrapper `<div>` (even without styles) can break the UI due to cascading CSS, flexbox/grid layout inheritance, or fragment-based rendering assumptions.
+
+```typescript
+// ❌ WRONG - Do NOT wrap fragments or elements in a <div> just for data-test
+// Original code:
+<>
+  <Skeleton variant="text" className="w-60" textVariant="headline" />
+  <Skeleton variant="text" className="w-40" textVariant="body" />
+</>
+
+// ❌ NEVER do this:
+<div data-test={COMPONENT_LOADING_TEST_ID}>
+  <Skeleton variant="text" className="w-60" textVariant="headline" />
+  <Skeleton variant="text" className="w-40" textVariant="body" />
+</div>
+```
+
+**Rule:** Only add `data-test` to elements that **already exist** in the JSX. If an element cannot accept `data-test` natively (e.g., React fragments `<>`, third-party components without `data-test` prop support), **do not test that element** rather than wrapping it in a `<div>`. Skipping a test is always preferable to altering the component's DOM structure.
 
 ### Step 3.2: Create Test File
 
@@ -735,30 +810,20 @@ The coverage targets in Step 4.3 are guidelines. If coverage is lower because th
 pnpm test src/path/to/__tests__/file.test.tsx
 ```
 
-### Step 4.6: Run Code Quality Checks (MANDATORY)
+### Step 4.6: Run Code Style Check (MANDATORY)
 
-**CRITICAL:** Before finalizing any test file, you MUST run ESLint to ensure code quality:
+**CRITICAL:** After all tests pass, you MUST run the code style check:
 
 ```bash
-# Run ESLint on the test file
-pnpm eslint src/path/to/__tests__/file.test.tsx
-
-# If there are errors, fix them before proceeding
+pnpm run code:style
 ```
 
-**Common ESLint errors to watch for:**
+**Rules:**
 
-1. **@typescript-eslint/no-non-null-assertion** - Don't use the non-null assertion operator
-   - Fix: Use type assertion (as HTMLInputElement) instead
-
-2. **`@typescript-eslint/no-explicit-any`** - Don't use `any` type
-   - Fix: Use proper types from `@testing-library/react` or component props
-
-3. **`react-hooks/exhaustive-deps`** - Missing dependencies in hooks
-   - Fix: Add missing deps or disable with eslint comment if intentional
-
-4. **`@typescript-eslint/no-unused-vars`** - Unused variables
-   - Fix: Remove unused imports/variables or prefix with `_`
+1. **Only fix ERRORs** — ignore warnings entirely
+2. If there are ERRORs, fix them in the affected files (both test files and source files)
+3. Re-run `pnpm run code:style` after fixing to confirm all ERRORs are resolved
+4. Do NOT spend time fixing warnings — they are acceptable and should be left as-is
 
 ---
 
@@ -780,7 +845,7 @@ pnpm eslint src/path/to/__tests__/file.test.tsx
 - [ ] **No trivial tests** - Every test verifies meaningful behavior
 - [ ] **Snapshot tests considered** - Added where they provide value (not forced)
 - [ ] Tests pass: `pnpm test <test-file>`
-- [ ] **⚠️ ESLint passes: `pnpm eslint <test-file>`** (MANDATORY - run before finalizing)
+- [ ] **⚠️ Code style passes: `pnpm run code:style`** (MANDATORY - fix ERRORs only, ignore warnings)
 
 ### ⛔ MANDATORY: Translation Key Verification (Final Step)
 
