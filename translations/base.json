@@ -3793,5 +3793,7 @@
   "text_620bc4d4269a55014d493f4d": "Organization name is required",
   "text_620bc4d4269a55014d493f61": "Password is required",
   "text_1770124786732u8hv8voejbl": "Set specific tax rates to apply to this plan and all its charges.",
-  "text_17701996981731m5uguxyg8b": "Customer not found"
+  "text_17701996981731m5uguxyg8b": "Customer not found",
+  "text_17691652749726aa4es5s80q": "{{resource}} {{resourceNumber}} was sent by email",
+  "text_1769180515750z7jxssqkdvu": "Payment receipt"
 }
