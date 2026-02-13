@@ -4,12 +4,19 @@ import { BillingEntityEmailSettingsEnum } from '~/generated/graphql'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { AllTheProviders } from '~/test-utils'
 
-const mockCentralizedDialogOpen = jest.fn()
+const mockFormDialogOpen = jest.fn().mockResolvedValue({})
 
-jest.mock('~/components/dialogs/CentralizedDialog', () => ({
-  useCentralizedDialog: () => ({
-    open: mockCentralizedDialogOpen,
+jest.mock('~/components/dialogs/FormDialog', () => ({
+  ...jest.requireActual('~/components/dialogs/FormDialog'),
+  useFormDialog: () => ({
+    open: mockFormDialogOpen,
     close: jest.fn(),
+  }),
+}))
+
+jest.mock('~/hooks/useResendEmail', () => ({
+  useResendEmail: () => ({
+    resendEmail: jest.fn(),
   }),
 }))
 
@@ -18,6 +25,13 @@ describe('useResendEmailDialog', () => {
     AllTheProviders({
       children,
     })
+
+  const defaultParams = {
+    subject: 'Test Subject',
+    documentId: 'doc-123',
+    type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
+    billingEntity: undefined,
+  }
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -32,18 +46,31 @@ describe('useResendEmailDialog', () => {
     expect(typeof result.current.showResendEmailDialog).toBe('function')
   })
 
-  it('opens centralized dialog when showResendEmailDialog is called', () => {
+  it('opens form dialog when showResendEmailDialog is called', () => {
+    const { result } = renderHook(() => useResendEmailDialog(), {
+      wrapper: customWrapper,
+    })
+
+    act(() => {
+      result.current.showResendEmailDialog(defaultParams)
+    })
+
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not open dialog when documentId is undefined', () => {
     const { result } = renderHook(() => useResendEmailDialog(), {
       wrapper: customWrapper,
     })
 
     act(() => {
       result.current.showResendEmailDialog({
-        subject: 'Test Subject',
+        ...defaultParams,
+        documentId: undefined,
       })
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalledTimes(1)
+    expect(mockFormDialogOpen).not.toHaveBeenCalled()
   })
 
   it('passes correct subject to dialog', () => {
@@ -53,13 +80,14 @@ describe('useResendEmailDialog', () => {
 
     act(() => {
       result.current.showResendEmailDialog({
+        ...defaultParams,
         subject: 'My Custom Subject',
       })
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalled()
+    expect(mockFormDialogOpen).toHaveBeenCalled()
 
-    const callArgs = mockCentralizedDialogOpen.mock.calls[0][0]
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
     expect(callArgs).toBeDefined()
   })
@@ -71,12 +99,12 @@ describe('useResendEmailDialog', () => {
 
     act(() => {
       result.current.showResendEmailDialog({
-        subject: 'Test Subject',
+        ...defaultParams,
         type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
       })
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalledTimes(1)
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
   })
 
   it('passes billingEntity to dialog when provided', () => {
@@ -93,12 +121,12 @@ describe('useResendEmailDialog', () => {
 
     act(() => {
       result.current.showResendEmailDialog({
-        subject: 'Test Subject',
+        ...defaultParams,
         billingEntity: mockBillingEntity,
       })
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalledTimes(1)
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
   })
 
   it('opens dialog with all parameters provided', () => {
@@ -116,12 +144,13 @@ describe('useResendEmailDialog', () => {
     act(() => {
       result.current.showResendEmailDialog({
         subject: 'Invoice from Test Company',
+        documentId: 'doc-456',
         type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
         billingEntity: mockBillingEntity,
       })
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalledTimes(1)
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
   })
 
   it('dialog config includes title', () => {
@@ -130,12 +159,10 @@ describe('useResendEmailDialog', () => {
     })
 
     act(() => {
-      result.current.showResendEmailDialog({
-        subject: 'Test Subject',
-      })
+      result.current.showResendEmailDialog(defaultParams)
     })
 
-    const callArgs = mockCentralizedDialogOpen.mock.calls[0][0]
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
     expect(callArgs.title).toBeDefined()
     expect(typeof callArgs.title).toBe('string')
@@ -147,12 +174,10 @@ describe('useResendEmailDialog', () => {
     })
 
     act(() => {
-      result.current.showResendEmailDialog({
-        subject: 'Test Subject',
-      })
+      result.current.showResendEmailDialog(defaultParams)
     })
 
-    const callArgs = mockCentralizedDialogOpen.mock.calls[0][0]
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
     expect(callArgs.headerContent).toBeDefined()
   })
@@ -163,48 +188,42 @@ describe('useResendEmailDialog', () => {
     })
 
     act(() => {
-      result.current.showResendEmailDialog({
-        subject: 'Test Subject',
-      })
+      result.current.showResendEmailDialog(defaultParams)
     })
 
-    const callArgs = mockCentralizedDialogOpen.mock.calls[0][0]
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
     expect(callArgs.children).toBeDefined()
   })
 
-  it('dialog config includes onAction callback', () => {
+  it('dialog config includes mainAction', () => {
     const { result } = renderHook(() => useResendEmailDialog(), {
       wrapper: customWrapper,
     })
 
     act(() => {
-      result.current.showResendEmailDialog({
-        subject: 'Test Subject',
-      })
+      result.current.showResendEmailDialog(defaultParams)
     })
 
-    const callArgs = mockCentralizedDialogOpen.mock.calls[0][0]
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
-    expect(callArgs.onAction).toBeDefined()
-    expect(typeof callArgs.onAction).toBe('function')
+    expect(callArgs.mainAction).toBeDefined()
   })
 
-  it('dialog config includes actionText', () => {
+  it('dialog config includes form with id and submit', () => {
     const { result } = renderHook(() => useResendEmailDialog(), {
       wrapper: customWrapper,
     })
 
     act(() => {
-      result.current.showResendEmailDialog({
-        subject: 'Test Subject',
-      })
+      result.current.showResendEmailDialog(defaultParams)
     })
 
-    const callArgs = mockCentralizedDialogOpen.mock.calls[0][0]
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
-    expect(callArgs.actionText).toBeDefined()
-    expect(typeof callArgs.actionText).toBe('string')
+    expect(callArgs.form).toBeDefined()
+    expect(callArgs.form.id).toBeDefined()
+    expect(typeof callArgs.form.submit).toBe('function')
   })
 
   it('can be called multiple times', () => {
@@ -214,17 +233,19 @@ describe('useResendEmailDialog', () => {
 
     act(() => {
       result.current.showResendEmailDialog({
+        ...defaultParams,
         subject: 'First Subject',
       })
     })
 
     act(() => {
       result.current.showResendEmailDialog({
+        ...defaultParams,
         subject: 'Second Subject',
       })
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalledTimes(2)
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(2)
   })
 
   it('handles different email types', () => {
@@ -241,13 +262,13 @@ describe('useResendEmailDialog', () => {
     types.forEach((type) => {
       act(() => {
         result.current.showResendEmailDialog({
-          subject: 'Test Subject',
+          ...defaultParams,
           type,
         })
       })
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalledTimes(types.length)
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(types.length)
   })
 
   it('works without optional parameters', () => {
@@ -256,20 +277,18 @@ describe('useResendEmailDialog', () => {
     })
 
     act(() => {
-      result.current.showResendEmailDialog({
-        subject: 'Minimal Subject',
-      })
+      result.current.showResendEmailDialog(defaultParams)
     })
 
-    expect(mockCentralizedDialogOpen).toHaveBeenCalledTimes(1)
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
 
-    const callArgs = mockCentralizedDialogOpen.mock.calls[0][0]
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
     expect(callArgs).toBeDefined()
     expect(callArgs.title).toBeDefined()
     expect(callArgs.headerContent).toBeDefined()
     expect(callArgs.children).toBeDefined()
-    expect(callArgs.onAction).toBeDefined()
-    expect(callArgs.actionText).toBeDefined()
+    expect(callArgs.mainAction).toBeDefined()
+    expect(callArgs.form).toBeDefined()
   })
 })
