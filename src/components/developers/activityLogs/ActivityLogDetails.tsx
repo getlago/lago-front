@@ -89,6 +89,9 @@ gql`
           id
         }
       }
+      ... on PaymentReceipt {
+        id
+      }
     }
     loggedAt
     userEmail
