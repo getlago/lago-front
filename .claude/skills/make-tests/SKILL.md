@@ -22,52 +22,65 @@ This skill creates comprehensive tests for code changes in a GitHub Pull Request
 This skill will:
 
 1. Analyze the PR or branch to identify changed/added files (compared to `main`)
-2. **Critically evaluate** which parts of the new code actually need tests
-3. Create tests following BDD approach (GIVEN/WHEN/THEN)
-4. Target ~80% coverage **on new code only** (not the entire codebase)
+2. **Create a coverage map** accounting for every new file (tested or explicitly excluded)
+3. Create tests following BDD approach (GIVEN/WHEN/THEN) for **all non-excluded files**
+4. Target **minimum 80% coverage** on new code (higher for hooks and utils)
 5. Reuse existing factories/mocks and refactor shared ones
 
 ## Critical Testing Philosophy
 
-**Quality over quantity.** The goal is NOT to blindly achieve 80% coverage, but to write meaningful tests that provide real value.
+**Test by default.** Every new file with logic MUST have a corresponding test file. The default is to write tests — skipping a file requires explicit justification.
 
-### The 80% Target is a Guideline, Not a Rule
+### The 80% Target is a Minimum, Not a Ceiling
 
-- **80% coverage on new code** is the target when the code has testable logic
-- If achieving 80% would require writing trivial tests, **it's better to have lower coverage**
-- A PR with 50% coverage of meaningful tests is better than 80% coverage with trivial tests
+- **80% coverage on new code** is the minimum target for files with testable logic
+- Aim higher (90%+) for business-critical code (payments, invoices, forms, hooks)
+- Coverage below 80% requires explicit justification in the coverage map (Phase 2)
+- **Every new `.tsx` or `.ts` file with >20 lines of code MUST have a test file**, unless it falls into the explicit exclusion list below
 
-### When to Write Tests
+### Default: Write Tests
 
-Write tests when the new code has:
+Write tests for ALL new code, including:
 
 - Business logic with conditional paths
 - State management or side effects
 - User interactions (forms, buttons, navigation)
 - Data transformations or calculations
-- Error handling that needs verification
-- Edge cases that could break in production
+- Error handling
+- Edge cases
+- Components with conditional rendering
+- Hooks (always — they have a contract to verify)
+- Utility functions (always — they have inputs/outputs to verify)
+- Form components (validation, submission, field interactions)
+- Components that receive props and render differently based on them
 
-### When NOT to Write Tests (Even If Coverage Drops)
+### Explicit Exclusions (The ONLY Cases Where You Skip Tests)
 
-Do NOT write tests just to increase coverage if the code is:
+You may skip tests ONLY for files that are:
 
-- Simple prop pass-through with no logic
-- Pure presentational (only renders what it receives)
-- A thin wrapper around a well-tested library
-- Configuration or constants
-- Type definitions or interfaces
-- Simple getters/setters with no logic
+- Pure type definitions or interfaces (`.d.ts`, type-only files)
+- Configuration or constants with no logic
+- Index/barrel export files
+- Generated files (GraphQL codegen, etc.)
+- Translation files
+- CSS/style-only files
 
-### Critical Analysis Required
+**Any file NOT in this list MUST have tests.** When in doubt, write the test.
 
-Before writing any test, ask yourself:
+### When Skipping a Test, Justify It
 
-1. "What bug would this test catch?"
-2. "What behavior am I actually verifying?"
-3. "Would a change in this code break something important?"
+If you decide not to test a file, you MUST document WHY in the coverage map (Phase 2). Valid reasons:
 
-If you can't answer these questions clearly, **don't write the test**.
+- "Pure type definitions, no runtime behavior"
+- "Barrel export, no logic"
+- "Generated file"
+
+Invalid reasons (do NOT use these to skip tests):
+
+- "Simple component" — if it renders conditionally, it needs tests
+- "Thin wrapper" — if it adds any logic or transforms data, it needs tests
+- "Only renders props" — if it has any conditional rendering, it needs tests
+- "Low complexity" — complexity is not the only reason to test; correctness is
 
 ---
 
@@ -115,54 +128,54 @@ git diff main...HEAD
 
 ### Step 1.2: Identify Files Requiring Tests
 
-Analyze the changed files and categorize them:
+**Default: every new/changed file with >20 lines of code gets a test file.** Only the explicit exclusions below are exempt.
 
-**Files that NEED tests:**
+**Files that ALWAYS need tests (non-negotiable):**
 
-- Components (`.tsx` files in `src/components/`, `src/pages/`)
-- Hooks (`.ts` files in `src/hooks/`)
-- Utilities (`.ts` files in `src/core/utils/`, `src/utils/`)
-- Business logic modules
+- Components (`.tsx` files in `src/components/`, `src/pages/`) — even "simple" ones if they have any logic
+- Hooks (`.ts` files in `src/hooks/` or custom hooks anywhere) — always, no exceptions
+- Utilities (`.ts` files with functions) — always, no exceptions
+- Validation schemas — always (test valid/invalid inputs)
+- Form components — always (test validation, submission, interactions)
+- Business logic modules — always
 
-**Files that DO NOT need tests:**
+**Files excluded from testing:**
 
-- Type definitions (`.d.ts`, pure type files)
-- GraphQL query/mutation definitions (`.graphql`, generated files)
-- Configuration files
+- Type definitions (`.d.ts`, pure type-only files with no runtime code)
+- Generated files (`src/generated/`)
+- Translation files (`.json`)
 - Style files (`.css`, `.scss`)
-- Index/barrel exports
-- Constants-only files (unless complex logic)
-- Translation files
+- Index/barrel exports (files that only re-export)
+- Constants-only files with no logic (pure static data)
 
-### Step 1.3: Assess Test Value
+### Step 1.3: Quantify Test Scope
 
-For each file requiring tests, evaluate:
+Count the files that need tests and confirm the scope:
 
-1. **Complexity**: Does it have conditional logic, loops, or state management?
-2. **Business criticality**: Is it handling payments, invoices, or sensitive operations?
-3. **User interaction**: Does it handle form submissions, button clicks, or navigation?
-4. **Edge cases**: Are there null checks, error handling, or boundary conditions?
+```markdown
+PR Analysis:
+- Total files changed: X
+- Files needing tests: Y (list them)
+- Files excluded: Z (list them with reason)
+- Expected test files to create: Y
+```
 
-**DO NOT test:**
-
-- Simple pass-through components with no logic
-- Pure presentational components that only render props
-- Components that only re-export other components
-- Trivial getters/setters
+**If the ratio of "files needing tests" to "total non-excluded files" is below 70%, you are being too conservative. Re-evaluate.**
 
 ### Step 1.4: Check for Implicit Coverage and Related Files
 
 Before creating tests, verify that ALL new files in the PR are accounted for:
 
-**1. Supporting Files (schemas, configs, types)**
+**1. Supporting Files (schemas, configs, utils)**
 
-- Check if these are already tested implicitly through component tests
-- If a component test exercises the supporting file's behavior, separate tests may not be needed
-- Only create separate tests if the file has complex logic not covered elsewhere
+- Validation schemas and utility files should ALWAYS have their own test files — they have clear inputs/outputs
+- Config files with no logic can be tested implicitly through component tests
+- If a supporting file has exported functions, it needs its own tests
 
-**2. Custom Hooks**
+**2. Custom Hooks (ALWAYS test)**
 
-- Hooks should be tested for their **core contract**: what they return and what side effects they trigger
+- Hooks MUST always have their own test file — no exceptions
+- Test their **core contract**: what they return and what side effects they trigger
 - Focus on: callbacks return expected values, correct parameters passed to external dependencies
 - Don't skip hook tests just because the hook is "simple" - if it has a contract, test it
 
@@ -176,70 +189,50 @@ Before creating tests, verify that ALL new files in the PR are accounted for:
 
 ## Phase 2: Test Planning
 
-### Step 2.1: Critical Code Review
+### Step 2.1: Coverage Map (MANDATORY)
 
-Before planning tests, analyze the new code and categorize it:
-
-```markdown
-## Code Analysis: [ComponentName]
-
-### File: `src/path/to/Component.tsx`
-
-### Code Classification:
-
-**Testable Logic (WILL test):**
-
-- Lines 25-40: Form validation logic with multiple conditions
-- Lines 55-70: API response handling with error states
-- Lines 90-110: Complex calculation for pricing
-
-**Trivial Code (will NOT test):**
-
-- Lines 10-20: Simple prop destructuring
-- Lines 45-52: Basic JSX rendering with no conditions
-- Lines 120-130: Loading skeleton (pure presentational)
-
-### Test Value Assessment:
-
-- [ ] Does this code have conditional logic? → If no, consider skipping tests
-- [ ] Could a bug here cause real user impact? → If no, lower priority
-- [ ] Is this code likely to change/break? → If yes, worth testing
-```
-
-### Step 2.2: Create Test Plan (Only for Testable Code)
-
-For code that passed the critical review:
+**Before writing any test, you MUST create a coverage map that accounts for EVERY new or significantly changed file in the PR.** This ensures no file is accidentally skipped.
 
 ```markdown
-## Test Plan: [ComponentName]
+## Coverage Map
 
-### File: `src/path/to/Component.tsx`
-
-### Key Behaviors to Test (with justification):
-
-1. "Form validation rejects invalid email" - Prevents user errors
-2. "Submit button disabled during API call" - Prevents double submission
-3. "Error message displayed on API failure" - Critical UX feedback
-
-### Behaviors NOT Testing (with justification):
-
-1. "Component renders" - Too trivial, would catch no bugs
-2. "Loading spinner appears" - Pure presentational, library handles it
-
-### Expected Coverage: ~75%
-
-- Untested code is intentionally trivial (lines 45-52, 120-130)
-
-### Existing Mocks/Factories to Reuse:
-
-- [List any existing mocks from __tests__ folders or shared mock files]
-
-### New Mocks Needed:
-
-- [List any new mocks that need to be created]
+| # | File | Lines | Test File | Status | Skip Reason |
+|---|------|-------|-----------|--------|-------------|
+| 1 | `src/pages/WebhookForm.tsx` | 327 | `__tests__/WebhookForm.test.tsx` | ✅ WILL TEST | — |
+| 2 | `src/hooks/useWebhookEventTypes.ts` | 211 | `__tests__/useWebhookEventTypes.test.ts` | ✅ WILL TEST | — |
+| 3 | `src/hooks/useDeleteWebhook.ts` | 50 | `__tests__/useDeleteWebhook.test.ts` | ✅ WILL TEST | — |
+| 4 | `src/types/webhook.ts` | 15 | — | ⏭️ SKIP | Pure type definitions |
+| 5 | `src/generated/graphql.tsx` | 267 | — | ⏭️ SKIP | Generated file |
 ```
 
-### Step 2.2: Search for Existing Mocks and Factories
+**Rules for the coverage map:**
+
+1. **Every file** with >20 lines of additions MUST appear in the map
+2. Files marked ✅ WILL TEST must get a test file — no exceptions
+3. Files marked ⏭️ SKIP must have a valid skip reason from the Explicit Exclusions list
+4. **Hooks ALWAYS get tested** — no skip allowed
+5. **Utility files ALWAYS get tested** — no skip allowed
+6. **Page/form components ALWAYS get tested** — no skip allowed
+7. If the map shows more than 30% of files being skipped, reconsider — you are likely being too conservative
+
+### Step 2.2: Code Review Per File
+
+For each file marked ✅ WILL TEST, briefly identify key test scenarios:
+
+```markdown
+### File: `src/path/to/Component.tsx`
+
+**Key scenarios to test:**
+- Default rendering with required props
+- Conditional rendering paths (lines X-Y)
+- User interactions (form submit, button clicks)
+- Error/loading states
+- Edge cases (empty data, invalid input)
+```
+
+Keep this brief — the goal is to plan, not to over-analyze. If a file has logic, test it.
+
+### Step 2.3: Search for Existing Mocks and Factories
 
 Before creating new mocks, search for existing ones:
 
@@ -649,33 +642,35 @@ const mockInvoice = createMockInvoice({ status: InvoiceStatusTypeEnum.Draft })
 pnpm test:coverage -- --collectCoverageFrom='src/path/to/new-file.tsx' src/path/to/__tests__/new-file.test.tsx
 ```
 
-### Step 4.2: Analyze Uncovered Code Critically
+### Step 4.2: Analyze Uncovered Code
 
-When reviewing coverage results, for each uncovered line/branch ask:
+When reviewing coverage results, for each uncovered line/branch:
 
-1. **Is this code worth testing?**
-   - If it's error handling for an edge case that could break production → YES, add test
-   - If it's a simple return statement or trivial else branch → NO, leave it
+1. **Default: write a test for it.** Uncovered code is a gap that should be filled.
+2. **You may skip uncovered lines ONLY if** they are:
+   - Pure JSX markup with no conditions
+   - Logging/console statements
+   - TypeScript type narrowing that has no runtime effect
+3. **Always add tests for uncovered:**
+   - Conditional branches (if/else, ternary, switch)
+   - Error handling paths
+   - Callback functions
+   - State transitions
 
-2. **What would a test for this code look like?**
-   - If the test would be meaningful and catch real bugs → Write it
-   - If the test would just be `expect(component).toBeInTheDocument()` with no real assertion → Skip it
+### Step 4.3: Coverage Targets
 
-3. **Would adding this test improve confidence in the code?**
-   - If yes → Write it
-   - If the test would just be testing implementation details → Skip it
+**Minimum target: 80% on new code.** Higher coverage for critical paths.
 
-### Step 4.3: Coverage Targets (Guidelines, Not Rules)
+| Scenario                         | Target Coverage | Minimum Coverage | Notes                                      |
+| -------------------------------- | --------------- | ---------------- | ------------------------------------------ |
+| Business logic / utils           | 90-100%         | 80%              | Must cover all branches and edge cases     |
+| Hooks                            | 90-100%         | 80%              | Must cover contract, callbacks, side effects|
+| Form with validation             | 80-95%          | 70%              | Must cover validation, submission, errors  |
+| Component with conditional logic | 80-90%          | 70%              | Must cover all rendering paths             |
+| Component with minor logic       | 70-85%          | 60%              | Must cover interactions and state changes  |
+| Pure presentational, no logic    | 0%              | 0%               | Only files in Explicit Exclusions list     |
 
-**Target: ~80% on new code**, but accept lower coverage when justified:
-
-| Scenario                         | Acceptable Coverage | Reason                                    |
-| -------------------------------- | ------------------- | ----------------------------------------- |
-| Complex business logic           | 80-100%             | High value, many edge cases               |
-| Form with validation             | 70-90%              | Test validation, skip trivial rendering   |
-| Simple component with some logic | 60-80%              | Test the logic, skip presentational parts |
-| Mostly presentational component  | 40-60%              | Only test meaningful interactions         |
-| Pure presentational, no logic    | 0%                  | No tests needed, would be trivial         |
+**IMPORTANT**: "Pure presentational, no logic" means the component ONLY renders static JSX with no conditionals, no event handlers, no state, no hooks. If it has ANY of those, it is NOT pure presentational and MUST be tested.
 
 ### Step 4.4: Keep Test Files Clean
 
@@ -689,7 +684,7 @@ When reviewing coverage results, for each uncovered line/branch ask:
  */
 ```
 
-The coverage targets in Step 4.3 are guidelines. If coverage is lower because the untested code is trivial, that's fine - no documentation needed.
+If coverage is below the minimum targets in Step 4.3, add more tests to close the gap before moving on.
 
 ### Step 4.5: Run All Tests
 
@@ -728,7 +723,8 @@ pnpm eslint src/path/to/__tests__/file.test.tsx
 
 ### Test Quality Checklist
 
-- [ ] **Critical analysis performed** - Each test has a clear purpose (what bug would it catch?)
+- [ ] **Coverage map completed** - Every new file is accounted for (tested or explicitly excluded)
+- [ ] **All files marked ✅ in coverage map have test files** — no exceptions
 - [ ] Tests follow BDD structure (GIVEN/WHEN/THEN in UPPERCASE)
 - [ ] **it.each used** where appropriate for similar tests
 - [ ] **⛔ NO TRANSLATION KEYS USED AS SELECTORS** - All selectors use data-test IDs
@@ -738,9 +734,7 @@ pnpm eslint src/path/to/__tests__/file.test.tsx
 - [ ] **Type assertions used correctly** - Use type assertions (as HTMLInputElement) instead of non-null assertions
 - [ ] Existing mocks/factories are reused
 - [ ] Shared mocks are extracted to shared mock folder (src/\_\_mocks\_\_/) if used in multiple files
-- [ ] **Coverage is appropriate** (80% target, but lower is OK if justified)
-- [ ] **No trivial tests** - Every test verifies meaningful behavior
-- [ ] **Snapshot tests considered** - Added where they provide value (not forced)
+- [ ] **Coverage meets minimum targets** (see Step 4.3 table)
 - [ ] Tests pass: `pnpm test <test-file>`
 - [ ] **⚠️ ESLint passes: `pnpm eslint <test-file>`** (MANDATORY - run before finalizing)
 
@@ -767,71 +761,29 @@ grep -E "text_[a-zA-Z0-9]+" src/path/to/__tests__/*.test.tsx
 
 ### Coverage Decision Guide
 
-| New Code Type                       | Recommended Action           | Expected Coverage |
-| ----------------------------------- | ---------------------------- | ----------------- |
-| Complex logic with branches         | Full test coverage           | 80-100%           |
-| Form handling + validation          | Test validation + submission | 70-90%            |
-| Component with some conditionals    | Test the conditionals only   | 60-80%            |
-| Mostly presentational + minor logic | Test only the logic          | 40-60%            |
-| Pure presentational, no logic       | **Skip tests entirely**      | 0%                |
-| Configuration / constants           | **Skip tests entirely**      | 0%                |
+| New Code Type                       | Action                                    | Min Coverage |
+| ----------------------------------- | ----------------------------------------- | ------------ |
+| Hooks (custom)                      | **Always test** — contract, returns, side effects | 80%          |
+| Utility functions                   | **Always test** — inputs, outputs, edge cases     | 80%          |
+| Form pages / components             | **Always test** — validation, submission, errors   | 70%          |
+| Business logic with branches        | **Always test** — all paths and edge cases         | 80%          |
+| Component with conditional rendering| **Always test** — all rendering paths              | 70%          |
+| Component with user interactions    | **Always test** — clicks, navigation, state        | 70%          |
+| Validation schemas                  | **Always test** — valid/invalid inputs             | 80%          |
+| Pure type definitions               | Skip — no runtime behavior                         | 0%           |
+| Generated files                     | Skip — auto-generated                              | 0%           |
+| Constants / config (no logic)       | Skip — static data                                 | 0%           |
+| Barrel exports                      | Skip — no logic                                    | 0%           |
 
-### Snapshot Tests (When Appropriate)
+### What NOT to Test Within a File
 
-Use snapshot tests **where they add value**, but don't force them.
-
-**Good candidates for snapshots:**
-
-- Complex UI structures that should remain stable
-- Components with multiple visual states (loading, error, success)
-- Tables or lists with specific formatting
-- Components where visual regression would be a bug
-
-**NOT good for snapshots:**
-
-- Simple components with 1-2 elements
-- Components that change frequently (snapshots become noisy)
-- Dynamic content (timestamps, IDs, random values)
-- Components where the structure is obvious from the code
-
-**Snapshot test pattern:**
-
-```typescript
-describe('GIVEN the component renders different states', () => {
-  describe('WHEN in default state', () => {
-    it('THEN should match snapshot', () => {
-      const { container } = render(<Component />)
-
-      expect(container).toMatchSnapshot()
-    })
-  })
-
-  describe('WHEN in error state', () => {
-    it('THEN should match snapshot', () => {
-      const { container } = render(<Component error="Something failed" />)
-
-      expect(container).toMatchSnapshot()
-    })
-  })
-})
-```
-
-**Important:** If a component has dynamic content (dates, IDs), either:
-
-- Mock the dynamic values before snapshot
-- Skip snapshot for that component
-- Use inline snapshots with specific assertions instead
-
-### What NOT to Test (Even If It Reduces Coverage)
+These are things to skip **within** a file you ARE testing (not reasons to skip the entire file):
 
 - ⛔ **Translation key values** (dynamic and can change) - NEVER USE IN TESTS
 - Pure UI styling (colors, fonts, spacing)
 - Third-party library internals
-- Simple prop pass-through
-- Components that only re-export other components
-- Loading skeletons / spinners (pure presentational)
-- Simple conditional rendering with no business logic
-- Basic JSX structure (e.g., "component renders a div")
+- Loading skeleton JSX (but DO test the loading state toggle)
+- Basic JSX structure without conditions
 
 ---
 
