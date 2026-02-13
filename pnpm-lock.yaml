@@ -254,8 +254,8 @@ importers:
         specifier: 30.2.0
         version: 30.2.0(@babel/core@7.28.5)
       baseline-browser-mapping:
-        specifier: 2.9.18
-        version: 2.9.18
+        specifier: 2.9.19
+        version: 2.9.19
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -4057,8 +4057,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.9.18:
-    resolution: {integrity: sha512-e23vBV1ZLfjb9apvfPk4rHVu2ry6RIr2Wfs+O324okSidrX7pTAnEJPCh/O5BtRlr7QtZI7ktOP3vsqr7Z5XoA==}
+  baseline-browser-mapping@2.9.19:
+    resolution: {integrity: sha512-ipDqC8FrAl/76p2SSWKSI+H9tFwm7vYqXQrItCuiVPt26Km0jS+NzSsBWAaBusvSbQcfJG+JitdMm+wZAgTYqg==}
     hasBin: true
 
   bcrypt-pbkdf@1.0.2:
@@ -12708,7 +12708,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.9.18: {}
+  baseline-browser-mapping@2.9.19: {}
 
   bcrypt-pbkdf@1.0.2:
     dependencies:
@@ -12737,7 +12737,7 @@ snapshots:
 
   browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.9.18
+      baseline-browser-mapping: 2.9.19
       caniuse-lite: 1.0.30001769
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
