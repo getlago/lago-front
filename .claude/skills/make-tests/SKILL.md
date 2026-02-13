@@ -215,7 +215,21 @@ Before creating tests, verify that ALL new files in the PR are accounted for:
 6. **Page/form components ALWAYS get tested** — no skip allowed
 7. If the map shows more than 30% of files being skipped, reconsider — you are likely being too conservative
 
-### Step 2.2: Code Review Per File
+### Step 2.2: User Checkpoint (MANDATORY — STOP HERE)
+
+**⛔ STOP: Before writing any test, you MUST present the coverage map to the user and ask for confirmation.**
+
+Present the table from Step 2.1 to the user and ask:
+
+> "Here is the coverage map for this PR. I will create test files for all ✅ items and skip ⏭️ items for the reasons listed. Do you want me to proceed, or would you like to adjust any decisions?"
+
+**Do NOT proceed to Phase 3 until the user confirms.** The user may:
+
+- Ask you to test a file you planned to skip
+- Ask you to skip a file you planned to test
+- Ask you to adjust the scope
+
+### Step 2.3: Code Review Per File
 
 For each file marked ✅ WILL TEST, briefly identify key test scenarios:
 
@@ -232,7 +246,7 @@ For each file marked ✅ WILL TEST, briefly identify key test scenarios:
 
 Keep this brief — the goal is to plan, not to over-analyze. If a file has logic, test it.
 
-### Step 2.3: Search for Existing Mocks and Factories
+### Step 2.4: Search for Existing Mocks and Factories
 
 Before creating new mocks, search for existing ones:
 
