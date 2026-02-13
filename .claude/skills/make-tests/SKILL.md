@@ -835,6 +835,21 @@ pnpm eslint src/path/to/__tests__/file.test.tsx
 4. **`@typescript-eslint/no-unused-vars`** - Unused variables
    - Fix: Remove unused imports/variables or prefix with `_`
 
+### Step 4.7: Run Code Style Check (MANDATORY)
+
+**CRITICAL:** After all tests pass and ESLint is clean, you MUST run the code style check:
+
+```bash
+pnpm run code:style
+```
+
+**Rules:**
+
+1. **Only fix ERRORs** — ignore warnings entirely
+2. If there are ERRORs, fix them in the affected files (both test files and source files)
+3. Re-run `pnpm run code:style` after fixing to confirm all ERRORs are resolved
+4. Do NOT spend time fixing warnings — they are acceptable and should be left as-is
+
 ---
 
 ## Phase 5: Final Checklist
@@ -856,6 +871,7 @@ pnpm eslint src/path/to/__tests__/file.test.tsx
 - [ ] **Snapshot tests considered** - Added where they provide value (not forced)
 - [ ] Tests pass: `pnpm test <test-file>`
 - [ ] **⚠️ ESLint passes: `pnpm eslint <test-file>`** (MANDATORY - run before finalizing)
+- [ ] **⚠️ Code style passes: `pnpm run code:style`** (MANDATORY - fix ERRORs only, ignore warnings)
 
 ### ⛔ MANDATORY: Translation Key Verification (Final Step)
 

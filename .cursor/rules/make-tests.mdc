@@ -673,6 +673,21 @@ The coverage targets in Step 4.3 are guidelines. If coverage is lower because th
 pnpm test src/path/to/__tests__/file.test.tsx
 ```
 
+### Step 4.6: Run Code Style Check (MANDATORY)
+
+**CRITICAL:** After all tests pass, you MUST run the code style check:
+
+```bash
+pnpm run code:style
+```
+
+**Rules:**
+
+1. **Only fix ERRORs** — ignore warnings entirely
+2. If there are ERRORs, fix them in the affected files (both test files and source files)
+3. Re-run `pnpm run code:style` after fixing to confirm all ERRORs are resolved
+4. Do NOT spend time fixing warnings — they are acceptable and should be left as-is
+
 ---
 
 ## Phase 5: Final Checklist
@@ -692,6 +707,7 @@ pnpm test src/path/to/__tests__/file.test.tsx
 - [ ] **No trivial tests** - Every test verifies meaningful behavior
 - [ ] Tests pass: `pnpm test <test-file>`
 - [ ] Linting passes: `pnpm lint <test-file>`
+- [ ] **⚠️ Code style passes: `pnpm run code:style`** (MANDATORY - fix ERRORs only, ignore warnings)
 
 ### ⛔ MANDATORY: Translation Key Verification (Final Step)
 
