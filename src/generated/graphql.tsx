@@ -785,6 +785,7 @@ export type Charge = {
 export type ChargeCreateInput = {
   appliedPricingUnit?: InputMaybe<AppliedPricingUnitInput>;
   billableMetricId: Scalars['ID']['input'];
+  cascadeUpdates?: InputMaybe<Scalars['Boolean']['input']>;
   chargeModel: ChargeModelEnum;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -813,6 +814,7 @@ export type ChargeFilter = {
 
 /** Charge filter create input arguments */
 export type ChargeFilterCreateInput = {
+  cascadeUpdates?: InputMaybe<Scalars['Boolean']['input']>;
   chargeId: Scalars['ID']['input'];
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -3907,6 +3909,7 @@ export enum FixedChargeChargeModelEnum {
 export type FixedChargeCreateInput = {
   addOnId: Scalars['ID']['input'];
   applyUnitsImmediately?: InputMaybe<Scalars['Boolean']['input']>;
+  cascadeUpdates?: InputMaybe<Scalars['Boolean']['input']>;
   chargeModel: FixedChargeChargeModelEnum;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
