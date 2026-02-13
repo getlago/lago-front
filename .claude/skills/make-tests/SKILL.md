@@ -383,6 +383,27 @@ export const ComponentName = ({ ... }) => {
 - Use kebab-case for the actual data-test value
 - Pattern: `{COMPONENT_NAME}_{ELEMENT_DESCRIPTION}_TEST_ID`
 
+**NEVER wrap elements in extra `<div>` just to add a `data-test` attribute:**
+
+Adding a wrapper `<div>` (even without styles) can break the UI due to cascading CSS, flexbox/grid layout inheritance, or fragment-based rendering assumptions.
+
+```typescript
+// ❌ WRONG - Do NOT wrap fragments or elements in a <div> just for data-test
+// Original code:
+<>
+  <Skeleton variant="text" className="w-60" textVariant="headline" />
+  <Skeleton variant="text" className="w-40" textVariant="body" />
+</>
+
+// ❌ NEVER do this:
+<div data-test={COMPONENT_LOADING_TEST_ID}>
+  <Skeleton variant="text" className="w-60" textVariant="headline" />
+  <Skeleton variant="text" className="w-40" textVariant="body" />
+</div>
+```
+
+**Rule:** Only add `data-test` to elements that **already exist** in the JSX. If an element cannot accept `data-test` natively (e.g., React fragments `<>`, third-party components without `data-test` prop support), **do not test that element** rather than wrapping it in a `<div>`. Skipping a test is always preferable to altering the component's DOM structure.
+
 ### Step 3.2: Create Test File
 
 Create test file at: `src/path/to/__tests__/ComponentName.test.tsx`
