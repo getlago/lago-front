@@ -54,6 +54,23 @@ Write tests for ALL new code, including:
 - Form components (validation, submission, field interactions)
 - Components that receive props and render differently based on them
 
+### How to Determine If a File Has Testable Logic
+
+**A file has testable logic if it contains ANY of the following. Even ONE match = MUST test:**
+
+- `useState`, `useEffect`, `useLayoutEffect`, `useMemo`, `useCallback`
+- `useNavigate`, `useParams`, `useSearchParams` or any routing hook
+- Any custom hook call (`use*`)
+- GraphQL queries or mutations (`useQuery`, `useLazyQuery`, `useMutation`)
+- Conditional rendering (`{condition && ...}`, ternary in JSX)
+- Event handlers (`onClick`, `onChange`, `onSubmit`)
+- `if`/`else`, `switch`, ternary operators in logic
+- `.map()`, `.filter()`, `.reduce()` on data
+- Toast notifications, clipboard operations, dialog/modal management
+- Any callback passed to child components
+
+**A file is "pure presentational" ONLY if it literally does nothing but return static JSX with props interpolation — no hooks, no conditions, no handlers, no state. This is extremely rare in practice.**
+
 ### Explicit Exclusions (The ONLY Cases Where You Skip Tests)
 
 You may skip tests ONLY for files that are:
@@ -77,10 +94,13 @@ If you decide not to test a file, you MUST document WHY in the coverage map (Pha
 
 Invalid reasons (do NOT use these to skip tests):
 
-- "Simple component" — if it renders conditionally, it needs tests
-- "Thin wrapper" — if it adds any logic or transforms data, it needs tests
-- "Only renders props" — if it has any conditional rendering, it needs tests
+- "Simple component" — if it has ANY hook, state, or conditional rendering, it needs tests
+- "Thin wrapper" — if it adds any logic, transforms data, or calls hooks, it needs tests
+- "Only renders props" — if it has any conditional rendering or event handlers, it needs tests
 - "Low complexity" — complexity is not the only reason to test; correctness is
+- "Mostly presentational" — if it uses hooks, manages state, or has click handlers, it is NOT presentational
+- "Page component" — page components orchestrate logic and ALWAYS need tests
+- "Just renders a table/list" — if it has column configs, actions, or row handlers, it needs tests
 
 ---
 
