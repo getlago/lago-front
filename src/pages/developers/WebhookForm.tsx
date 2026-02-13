@@ -57,7 +57,7 @@ const WebhookForm = () => {
   const { webhookId = '' } = useParams()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
-  const { defaultEventFormValues, loading: eventTypesLoading } = useWebhookEventTypes()
+  const { defaultEventFormValues, groups, loading: eventTypesLoading } = useWebhookEventTypes()
 
   const allFormKeys = useMemo(() => Object.keys(defaultEventFormValues), [defaultEventFormValues])
 
@@ -284,7 +284,12 @@ const WebhookForm = () => {
               </div>
 
               <div className="pt-12">
-                <WebhookEventsForm form={form} fields="webhookEvents" />
+                <WebhookEventsForm
+                  form={form}
+                  fields="webhookEvents"
+                  groups={groups}
+                  isLoading={eventTypesLoading}
+                />
               </div>
             </div>
           </>

@@ -23,7 +23,7 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 import { tw } from '~/styles/utils'
 
-const WEBHOOK_COUNT_LIMIT = 10
+const WEBHOOK_COUNT_LIMIT = 25
 
 gql`
   query getOrganizationHmacData {
@@ -33,8 +33,8 @@ gql`
     }
   }
 
-  query getWebhookList($limit: Int) {
-    webhookEndpoints(limit: $limit) {
+  query getWebhookList {
+    webhookEndpoints {
       collection {
         id
         webhookUrl
@@ -50,9 +50,7 @@ export const Webhooks = () => {
   const [showOrganizationHmac, setShowOrganizationHmac] = useState<boolean>(false)
   const { openDialog: openDeleteDialog } = useDeleteWebhook()
   const { data: organizationData, loading: organizationLoading } = useGetOrganizationHmacDataQuery()
-  const { data: webhookData, loading: webhookLoading } = useGetWebhookListQuery({
-    variables: { limit: WEBHOOK_COUNT_LIMIT },
-  })
+  const { data: webhookData, loading: webhookLoading } = useGetWebhookListQuery()
   const { getEventDisplayInfo } = useWebhookEventTypes()
 
   return (

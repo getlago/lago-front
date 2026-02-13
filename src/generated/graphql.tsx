@@ -10480,9 +10480,7 @@ export type GetOrganizationHmacDataQueryVariables = Exact<{ [key: string]: never
 
 export type GetOrganizationHmacDataQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, hmacKey?: string | null } | null };
 
-export type GetWebhookListQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
+export type GetWebhookListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, eventTypes?: Array<string> | null }> } };
@@ -23682,8 +23680,8 @@ export type GetOrganizationHmacDataLazyQueryHookResult = ReturnType<typeof useGe
 export type GetOrganizationHmacDataSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationHmacDataSuspenseQuery>;
 export type GetOrganizationHmacDataQueryResult = Apollo.QueryResult<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>;
 export const GetWebhookListDocument = gql`
-    query getWebhookList($limit: Int) {
-  webhookEndpoints(limit: $limit) {
+    query getWebhookList {
+  webhookEndpoints {
     collection {
       id
       webhookUrl
@@ -23705,7 +23703,6 @@ export const GetWebhookListDocument = gql`
  * @example
  * const { data, loading, error } = useGetWebhookListQuery({
  *   variables: {
- *      limit: // value for 'limit'
  *   },
  * });
  */
