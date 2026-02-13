@@ -202,6 +202,60 @@ Before creating tests, verify that ALL new files in the PR are accounted for:
 
 ---
 
+## Phase 1.5: Complete PR File Table (MANDATORY)
+
+**CRITICAL:** Before proceeding to test planning and before asking for user approval, you MUST generate a complete table listing **EVERY SINGLE FILE** changed in the PR or branch. No files may be omitted or grouped. If the PR has 50 files changed, the table MUST have exactly 50 rows.
+
+### Step 1.5.1: Gather File Stats
+
+For each file in the PR/branch diff, collect:
+- **File path**: Full relative path
+- **Additions/Deletions**: Lines added (+) and removed (-)
+- **Status**: `NEW` (added), `Modified` (changed), `DELETED` (removed), `Renamed`
+- **Test?**: Whether this file will have tests written for it (`✅ SÌ` or `⏭️ NO`)
+- **Skip Reason**: If `⏭️ NO`, provide a short reason (e.g., "Type definitions", "Generated file", "Pure presentational", "Config file", "Translation file", "Barrel export", "Simple prop pass-through", "Tested implicitly via ComponentName", "Deleted file", "Snapshot update")
+
+### Step 1.5.2: Generate the Table
+
+Use the following exact format. Every file MUST appear as its own row:
+
+```
+Lista Completa File PR #<PR_NUMBER> (or Branch: <BRANCH_NAME>)
+  ┌─────┬────────────────────────────────────────────────────────────────┬───────────┬──────────┬───────┬─────────────────────────────────┐
+  │  #  │ File                                                           │    +/-    │  Status  │ Test? │ Skip Reason                     │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 1   │ src/components/example/Component.tsx                           │ +122/-0   │ NEW      │ ✅ SÌ │                                 │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 2   │ src/components/example/types.ts                                │ +15/-0    │ NEW      │ ⏭️ NO │ Type definitions                │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 3   │ src/generated/graphql.tsx                                      │ +267/-190 │ Modified │ ⏭️ NO │ Generated file                  │
+  ├─────┼────────────────────────────────────────────────────────────────┼───────────┼──────────┼───────┼─────────────────────────────────┤
+  │ 4   │ translations/base.json                                         │ +17/-4    │ Modified │ ⏭️ NO │ Translation file                │
+  └─────┴────────────────────────────────────────────────────────────────┴───────────┴──────────┴───────┴─────────────────────────────────┘
+```
+
+### Rules for the Table
+
+1. **EVERY file changed in the PR must appear** - no exceptions, no grouping, no summarizing
+2. Files should be listed in the same order as they appear in the PR diff
+3. The `#` column is a sequential counter starting from 1
+4. The `+/-` column shows additions and deletions (e.g., `+122/-0`, `+8/-12`, `+0/-64`)
+5. The `Status` column uses: `NEW` for added files, `Modified` for changed files, `DELETED` for removed files, `Renamed` for renamed files
+6. The `Test?` column uses: `✅ SÌ` for files that will have tests, `⏭️ NO` for files that won't
+7. The `Skip Reason` column is empty for files marked `✅ SÌ`, and provides a concise reason for files marked `⏭️ NO`
+8. After the table, show a summary: `Totale: X file | Test previsti: Y file | Saltati: Z file`
+
+### Step 1.5.3: Wait for User Approval
+
+After displaying the table, ask the user to confirm:
+- Whether the file analysis is correct
+- Whether they agree with the test/skip decisions
+- Whether they want to add or remove files from the test list
+
+**Do NOT proceed to Phase 2 until the user approves the table.**
+
+---
+
 ## Phase 2: Test Planning
 
 ### Step 2.1: Coverage Map (MANDATORY)
