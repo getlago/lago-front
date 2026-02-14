@@ -69,7 +69,7 @@ jobs:
           touch "./_tmp/${{ github.run_id }}/${{ github.run_attempt }}/digests/${digest#sha256:}"
 
       - name: Upload Digest
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: digests-${{ env.PLATFORM_PAIR }}
           path: ./_tmp/${{ github.run_id }}/${{ github.run_attempt }}/digests/*
@@ -88,7 +88,7 @@ jobs:
     needs: [build-images]
     steps:
       - name: Download Digests
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: ./_tmp/${{ github.run_id}}/${{ github.run_attempt }}/digests
           pattern: digests-*
