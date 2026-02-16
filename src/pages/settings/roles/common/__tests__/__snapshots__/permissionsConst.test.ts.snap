@@ -31,6 +31,7 @@ exports[`permissionsConst snapshot tests allPermissions matches snapshot 1`] = `
   "CouponsView",
   "CreditNotesCreate",
   "CreditNotesExport",
+  "CreditNotesSend",
   "CreditNotesUpdate",
   "CreditNotesView",
   "CreditNotesVoid",
@@ -79,6 +80,8 @@ exports[`permissionsConst snapshot tests allPermissions matches snapshot 1`] = `
   "PaymentMethodsDelete",
   "PaymentMethodsUpdate",
   "PaymentMethodsView",
+  "PaymentReceiptsSend",
+  "PaymentReceiptsView",
   "PaymentsCreate",
   "PaymentsView",
   "PlansCreate",
@@ -186,6 +189,7 @@ exports[`permissionsConst snapshot tests permissionGroupMapping structure matche
     "CreditNotesVoid",
     "CreditNotesUpdate",
     "CreditNotesExport",
+    "CreditNotesSend",
   ],
   "customers": [
     "CustomersCreate",
@@ -251,6 +255,8 @@ exports[`permissionsConst snapshot tests permissionGroupMapping structure matche
     "PaymentMethodsDelete",
     "PaymentMethodsUpdate",
     "PaymentMethodsView",
+    "PaymentReceiptsView",
+    "PaymentReceiptsSend",
   ],
   "plans": [
     "PlansCreate",
