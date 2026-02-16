@@ -16,6 +16,7 @@ import { useResendEmail } from './useResendEmail'
 
 export const SUBMIT_RESEND_EMAIL_DATA_TEST = 'submit-resend-email'
 export const RESEND_EMAIL_FORM_ID = 'resend-email'
+const INVALID_FORM_ERROR_MESSAGE = 'form.invalid'
 
 type Recipients =
   | {
@@ -70,12 +71,16 @@ export const useResendEmailDialog = () => {
 
     // This way we can manage the validation
     if (!form.state.canSubmit) {
-      throw Error('Not valid')
+      throw new Error(INVALID_FORM_ERROR_MESSAGE)
     }
+  }
+
+  const onError = (error: Error) => {
+    if (error.message === INVALID_FORM_ERROR_MESSAGE) return
 
     addToast({
-      severity: 'success',
-      message: translate('text_1770998960342ol0db9zrgmu'),
+      severity: 'danger',
+      message: translate('text_17712489384641tbh5v5biae'),
     })
   }
 
@@ -120,11 +125,15 @@ export const useResendEmailDialog = () => {
             }),
         },
         closeOnError: false,
+        onError,
       })
       .then((result) => {
-        /* TODO: Remove this line */
-        // eslint-disable-next-line no-console
-        console.log('result in then', result)
+        if (result.reason === 'success') {
+          addToast({
+            severity: 'success',
+            message: translate('text_1770998960342ol0db9zrgmu'),
+          })
+        }
       })
   }
 

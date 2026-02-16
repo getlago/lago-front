@@ -47,7 +47,7 @@ export type ResendEmailFetchResult =
 
 export const useResendEmail = () => {
   const [resendCreditNoteEmail] = useResendCreditNoteEmailMutation()
-  const [resentInvoiceEmail] = useResendInvoiceEmailMutation()
+  const [resendInvoiceEmail] = useResendInvoiceEmailMutation()
   const [resendPaymentReceiptEmail] = useResendPaymentReceiptEmailMutation()
 
   const resendEmailPerType = async ({ type, documentId, to, cc, bcc }: ResendEmailParams) => {
@@ -69,7 +69,7 @@ export const useResendEmail = () => {
         })
 
       case BillingEntityEmailSettingsEnum.InvoiceFinalized:
-        return await resentInvoiceEmail({
+        return await resendInvoiceEmail({
           variables: {
             input: {
               id: documentId,
