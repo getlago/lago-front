@@ -105,12 +105,12 @@ const EmailPreview = ({
                   {type === BillingEntityEmailSettingsEnum.CreditNoteCreated && (
                     <div className="flex w-full items-center justify-between">
                       <Typography variant="caption">
-                        {translateWithContextualLocal(translationsKey.credit_note_number as string)}
+                        {!!translationsKey.credit_note_number &&
+                          translateWithContextualLocal(translationsKey.credit_note_number)}
                       </Typography>
                       <Typography variant="caption" color="grey700">
-                        {translateWithContextualLocal(
-                          translationsKey.credit_note_number_value as string,
-                        )}
+                        {!!translationsKey.credit_note_number_value &&
+                          translateWithContextualLocal(translationsKey.credit_note_number_value)}
                       </Typography>
                     </div>
                   )}
@@ -124,10 +124,10 @@ const EmailPreview = ({
                       ].map(([label, value]) => (
                         <div className="flex w-full items-center justify-between" key={label}>
                           <Typography variant="caption">
-                            {translateWithContextualLocal(label as string)}
+                            {!!label && translateWithContextualLocal(label)}
                           </Typography>
                           <Typography variant="caption" color="grey700">
-                            {translateWithContextualLocal(value as string)}
+                            {!!value && translateWithContextualLocal(value)}
                           </Typography>
                         </div>
                       ))}

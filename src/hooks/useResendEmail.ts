@@ -52,9 +52,9 @@ export const useResendEmail = () => {
 
   const resendEmailPerType = async ({ type, documentId, to, cc, bcc }: ResendEmailParams) => {
     const recipients = {
-      ...(to && to.length ? { to } : {}),
-      ...(cc && cc.length ? { cc } : {}),
-      ...(bcc && bcc.length ? { bcc } : {}),
+      ...(to?.length ? { to } : {}),
+      ...(cc?.length ? { cc } : {}),
+      ...(bcc?.length ? { bcc } : {}),
     }
 
     switch (type) {

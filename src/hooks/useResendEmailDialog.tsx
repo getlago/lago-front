@@ -26,7 +26,7 @@ type Recipients =
   | undefined
 
 const formatRecipients = (recipients: Recipients) => {
-  if (!recipients || !recipients.length) return
+  if (!recipients?.length) return
 
   return recipients.map(({ value }) => value)
 }

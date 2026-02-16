@@ -109,7 +109,7 @@ export const useInvoiceAuthorizations = ({
     integrationSyncable,
     integrationHubspotSyncable,
     regeneratedInvoiceId,
-  } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
+  } = (invoice || {}) as AllInvoiceDetailsForCustomerInvoiceDetailsFragment
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
