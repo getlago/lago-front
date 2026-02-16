@@ -34,7 +34,6 @@ import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
-import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
   CustomerDetailsTabsOptions,
@@ -60,9 +59,7 @@ import {
   AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc,
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
-  Customer,
   CustomerForInvoiceOverviewFragmentDoc,
-  ErrorCodesEnum,
   FeeDetailsForInvoiceOverviewFragmentDoc,
   FeeForInvoiceDetailsTableFooterFragmentDoc,
   HubspotIntegration,
@@ -95,13 +92,12 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
-import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
+import { useInvoiceAuthorizations } from '~/pages/invoiceDetails/common/useInvoiceAuthorizations'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -299,53 +295,6 @@ gql`
   ${FeeForInvoiceDetailsTableFooterFragmentDoc}
 `
 
-const getErrorMessageFromErrorDetails = (
-  errors: AllInvoiceDetailsForCustomerInvoiceDetailsFragment['errorDetails'],
-): string | undefined => {
-  if (!errors || errors.length === 0) {
-    return undefined
-  }
-
-  const [{ errorCode, errorDetails }] = errors
-
-  if (errorCode === ErrorCodesEnum.TaxError) {
-    if (
-      // Anrok
-      errorDetails === LagoApiError.CurrencyCodeNotSupported ||
-      // Avalara
-      errorDetails === LagoApiError.InvalidEnumValue
-    ) {
-      return LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported
-    }
-
-    if (
-      // Anrok
-      errorDetails === LagoApiError.CustomerAddressCouldNotResolve ||
-      errorDetails === LagoApiError.CustomerAddressCountryNotSupported ||
-      // Avalara
-      errorDetails === LagoApiError.MissingAddress ||
-      errorDetails === LagoApiError.NotEnoughAddressesInfo ||
-      errorDetails === LagoApiError.InvalidAddress ||
-      errorDetails === LagoApiError.InvalidPostalCode ||
-      errorDetails === LagoApiError.AddressLocationNotFound
-    ) {
-      return LocalTaxProviderErrorsEnum.CustomerAddressError
-    }
-
-    if (
-      // Anrok
-      errorDetails === LagoApiError.ProductExternalIdUnknown ||
-      // Avalara
-      errorDetails === LagoApiError.TaxCodeAssociatedWithItemCodeNotFound ||
-      errorDetails === LagoApiError.EntityNotFoundError
-    ) {
-      return LocalTaxProviderErrorsEnum.ProductExternalIdUnknown
-    }
-
-    return LocalTaxProviderErrorsEnum.GenericErrorMessage
-  }
-}
-
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { customerId, invoiceId } = useParams()
@@ -353,7 +302,6 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const actions = usePermissionsInvoiceActions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -393,9 +341,8 @@ const CustomerInvoiceDetails = () => {
 
   const customer = customerData?.customer
 
-  const hasActiveWallet = useCustomerHasActiveWallet({
-    customerId: customer?.id,
-  })
+  const { authorizations, hasTaxProviderError, errorMessage, canRecordPayment } =
+    useInvoiceAuthorizations({ invoice, customer })
 
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
@@ -571,23 +518,12 @@ const CustomerInvoiceDetails = () => {
     creditableAmountCents,
     refundableAmountCents,
     offsettableAmountCents,
-    errorDetails,
     taxProviderVoidable,
     associatedActiveWalletPresent,
-    paymentDisputeLostAt,
-    integrationSyncable,
-    integrationHubspotSyncable,
-    regeneratedInvoiceId,
   } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
-
-  const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
   const isLoading = loading || customerLoading || feesLoading
   const hasError = (!!error || !!feesError || !data?.invoice) && !isLoading
-  const hasTaxProviderError = errorDetails?.find(
-    ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
-  )
-  const errorMessage = getErrorMessageFromErrorDetails(errorDetails)
 
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
@@ -774,16 +710,6 @@ const CustomerInvoiceDetails = () => {
     canRecordPayment,
   ])
 
-  const canFinalize = useMemo(() => actions.canFinalize({ status }), [actions, status])
-  const canDownload = useMemo(
-    () => actions.canDownload({ status, taxStatus }),
-    [actions, status, taxStatus],
-  )
-
-  const canDownloadXmlFile = useMemo(() => {
-    return invoice?.billingEntity.einvoicing || !!invoice?.xmlUrl
-  }, [invoice])
-
   const resendEmail = () => {
     showResendEmailDialog({
       subject: translate('text_17706311399878xdnudpnjtt', {
@@ -795,53 +721,6 @@ const CustomerInvoiceDetails = () => {
       documentId: invoice?.id,
     })
   }
-
-  const authorizations = useMemo(() => {
-    return {
-      canRetryInvoice: hasTaxProviderError,
-      canFinalizeInvoice: !hasTaxProviderError && canFinalize,
-      canDownloadOnlyPdf:
-        !hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile,
-      canDownloadPdfAndXml:
-        !hasTaxProviderError && !canFinalize && canDownload && canDownloadXmlFile,
-      canIssueCreditNote: actions.canIssueCreditNote({ status }),
-      canRecordPayment: canRecordPayment,
-      canGeneratePaymentUrl: actions.canGeneratePaymentUrl({
-        status,
-        paymentStatus,
-        customer: customer as Pick<Customer, 'paymentProvider'>,
-      }),
-      canUpdatePaymentStatus: actions.canUpdatePaymentStatus({ status, taxStatus }),
-      canSyncAccountingIntegration: actions.canSyncAccountingIntegration({ integrationSyncable }),
-      canSyncCRMIntegration: actions.canSyncCRMIntegration({ integrationHubspotSyncable }),
-      canDispute: actions.canDispute({ status, paymentDisputeLostAt }),
-      canVoid: actions.canVoid({ status }),
-      canRegenerate: actions.canRegenerate(
-        { status, regeneratedInvoiceId, invoiceType },
-        hasActiveWallet,
-      ),
-      canSyncTaxIntegration: actions.canSyncTaxIntegration({ taxProviderVoidable }),
-      canResendEmail: actions.canResendEmail({ status }),
-    }
-  }, [
-    hasTaxProviderError,
-    canFinalize,
-    canDownload,
-    canDownloadXmlFile,
-    actions,
-    status,
-    taxStatus,
-    canRecordPayment,
-    paymentStatus,
-    customer,
-    integrationSyncable,
-    integrationHubspotSyncable,
-    paymentDisputeLostAt,
-    regeneratedInvoiceId,
-    invoiceType,
-    hasActiveWallet,
-    taxProviderVoidable,
-  ])
 
   return (
     <>
