@@ -194,7 +194,7 @@ const PaymentDetails = () => {
     canDownloadPaymentReceipts &&
     (!!payment?.paymentReceipt?.xmlUrl || !!payment?.customer?.billingEntity?.einvoicing)
 
-  const canResendEmail = true
+  const canResendEmail = hasPermissions(['paymentReceiptsSend'])
 
   const goToPreviousRoute = useCallback(
     () =>

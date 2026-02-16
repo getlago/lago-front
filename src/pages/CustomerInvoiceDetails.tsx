@@ -821,7 +821,7 @@ const CustomerInvoiceDetails = () => {
         hasActiveWallet,
       ),
       canSyncTaxIntegration: actions.canSyncTaxIntegration({ taxProviderVoidable }),
-      canResendEmail: true,
+      canResendEmail: actions.canResendEmail({ status }),
     }
   }, [
     hasTaxProviderError,

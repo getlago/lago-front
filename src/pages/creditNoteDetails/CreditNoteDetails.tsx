@@ -205,7 +205,7 @@ const CreditNoteDetails = () => {
       canCopy: true,
       canSync: !!creditNote?.integrationSyncable,
       canRetryTaxSync: !!creditNote?.taxProviderSyncable,
-      canResendEmail: true,
+      canResendEmail: hasPermissions(['creditNotesSend']),
     }
   }, [creditNote, hasPermissions])
 
