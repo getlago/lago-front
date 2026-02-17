@@ -11563,7 +11563,7 @@ export type GetAddOnsForXeroItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAddOnsForXeroItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetAddOnsForXeroItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
 
 export type GetBillableMetricsForXeroItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -11573,11 +11573,11 @@ export type GetBillableMetricsForXeroItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForXeroItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetBillableMetricsForXeroItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
 
-export type XeroIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
+export type XeroIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null };
 
-export type XeroIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
+export type XeroIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null };
 
 export type XeroIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
 
@@ -14016,6 +14016,14 @@ export type DeleteNetsuiteIntegrationMappingMutationVariables = Exact<{
 
 export type DeleteNetsuiteIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
 
+export type TestMappingReadFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+
+export type SeedBmFragment = { __typename?: 'BillableMetric', id: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string }> | null };
+
+export type SeedDeleteMappingFragment = { __typename?: 'Mapping', id: string, mappableId: string, externalId: string };
+
+export type ReadEvictedFragment = { __typename?: 'Mapping', id: string };
+
 export type XeroIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
 export type XeroIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
@@ -14088,6 +14096,10 @@ export type DeleteXeroIntegrationMappingMutationVariables = Exact<{
 
 
 export type DeleteXeroIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
+
+export type XeroMappingCacheFieldsFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string };
+
+export type MappingParentIdFragment = { __typename?: 'Mapping', mappableId: string };
 
 export type InviteItemForMembersSettingsFragment = { __typename?: 'Invite', id: string, email: string, token: string, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } };
 
@@ -16117,6 +16129,7 @@ export const XeroIntegrationItemsListAddonsFragmentDoc = gql`
     externalName
     mappableType
     billingEntityId
+    mappableId
   }
 }
     `;
@@ -16132,6 +16145,7 @@ export const XeroIntegrationItemsListBillableMetricsFragmentDoc = gql`
     externalName
     mappableType
     billingEntityId
+    mappableId
   }
 }
     `;
@@ -18555,6 +18569,34 @@ export const NetsuiteIntegrationMapItemDialogCollectionItemFragmentDoc = gql`
   externalAccountCode
 }
     `;
+export const TestMappingReadFragmentDoc = gql`
+    fragment TestMappingRead on Mapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+}
+    `;
+export const SeedBmFragmentDoc = gql`
+    fragment SeedBM on BillableMetric {
+  id
+  integrationMappings {
+    id
+  }
+}
+    `;
+export const SeedDeleteMappingFragmentDoc = gql`
+    fragment SeedDeleteMapping on Mapping {
+  id
+  mappableId
+  externalId
+}
+    `;
+export const ReadEvictedFragmentDoc = gql`
+    fragment ReadEvicted on Mapping {
+  id
+}
+    `;
 export const XeroIntegrationMapItemDrawerFragmentDoc = gql`
     fragment XeroIntegrationMapItemDrawer on IntegrationItem {
   id
@@ -18578,6 +18620,22 @@ export const XeroIntegrationMapItemDrawerCollectionItemFragmentDoc = gql`
   externalId
   externalName
   externalAccountCode
+}
+    `;
+export const XeroMappingCacheFieldsFragmentDoc = gql`
+    fragment XeroMappingCacheFields on Mapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+  mappableType
+  billingEntityId
+  mappableId
+}
+    `;
+export const MappingParentIdFragmentDoc = gql`
+    fragment MappingParentId on Mapping {
+  mappableId
 }
     `;
 export const InviteForEditRoleForDialogFragmentDoc = gql`
