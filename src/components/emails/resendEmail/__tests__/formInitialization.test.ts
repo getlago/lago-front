@@ -6,9 +6,9 @@ import {
 
 describe('formInitialization', () => {
   describe('resendEmailFormDefaultValues', () => {
-    it('has undefined values for all fields', () => {
+    it('has correct default values for all fields', () => {
       expect(resendEmailFormDefaultValues).toEqual({
-        to: undefined,
+        to: [],
         cc: undefined,
         bcc: undefined,
       })
@@ -34,6 +34,7 @@ describe('formInitialization', () => {
 
     it('validates correct email format in cc field', () => {
       const validData = {
+        to: [{ value: 'to@example.com' }],
         cc: [{ value: 'test@example.com' }],
       }
 
@@ -44,6 +45,7 @@ describe('formInitialization', () => {
 
     it('validates correct email format in bcc field', () => {
       const validData = {
+        to: [{ value: 'to@example.com' }],
         bcc: [{ value: 'test@example.com' }],
       }
 
@@ -94,6 +96,7 @@ describe('formInitialization', () => {
 
     it('accepts multiple valid emails in cc field', () => {
       const validData = {
+        to: [{ value: 'to@example.com' }],
         cc: [{ value: 'test1@example.com' }, { value: 'test2@example.com' }],
       }
 
@@ -104,6 +107,7 @@ describe('formInitialization', () => {
 
     it('accepts multiple valid emails in bcc field', () => {
       const validData = {
+        to: [{ value: 'to@example.com' }],
         bcc: [{ value: 'test1@example.com' }, { value: 'test2@example.com' }],
       }
 
@@ -114,7 +118,7 @@ describe('formInitialization', () => {
 
     it('accepts undefined values for optional fields', () => {
       const validData = {
-        to: undefined,
+        to: [{ value: 'to@example.com' }],
         cc: undefined,
         bcc: undefined,
       }
@@ -124,12 +128,14 @@ describe('formInitialization', () => {
       expect(result.success).toBe(true)
     })
 
-    it('accepts empty object', () => {
-      const validData = {}
+    it('rejects empty to field', () => {
+      const validData = {
+        to: [],
+      }
 
       const result = resendEmailFormValidationSchema.safeParse(validData)
 
-      expect(result.success).toBe(true)
+      expect(result.success).toBe(false)
     })
 
     it('validates all fields together with mixed valid emails', () => {

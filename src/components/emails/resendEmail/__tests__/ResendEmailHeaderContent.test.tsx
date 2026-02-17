@@ -41,7 +41,7 @@ describe('ResendEmailHeaderContent', () => {
     describe('WHEN default values are checked', () => {
       it('THEN should have the correct default structure', () => {
         expect(resendEmailFormDefaultValues).toEqual({
-          to: undefined,
+          to: [],
           cc: undefined,
           bcc: undefined,
         })

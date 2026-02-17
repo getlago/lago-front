@@ -31,6 +31,7 @@ describe('useResendEmailDialog', () => {
     documentId: 'doc-123',
     type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
     billingEntity: undefined,
+    customerEmail: 'customer@example.com',
   }
 
   beforeEach(() => {
@@ -67,6 +68,21 @@ describe('useResendEmailDialog', () => {
       result.current.showResendEmailDialog({
         ...defaultParams,
         documentId: undefined,
+      })
+    })
+
+    expect(mockFormDialogOpen).not.toHaveBeenCalled()
+  })
+
+  it('does not open dialog when customerEmail is undefined', () => {
+    const { result } = renderHook(() => useResendEmailDialog(), {
+      wrapper: customWrapper,
+    })
+
+    act(() => {
+      result.current.showResendEmailDialog({
+        ...defaultParams,
+        customerEmail: undefined,
       })
     })
 
@@ -147,6 +163,7 @@ describe('useResendEmailDialog', () => {
         documentId: 'doc-456',
         type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
         billingEntity: mockBillingEntity,
+        customerEmail: 'customer@example.com',
       })
     })
 
