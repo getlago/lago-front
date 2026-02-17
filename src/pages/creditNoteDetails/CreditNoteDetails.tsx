@@ -88,6 +88,8 @@ gql`
         logoUrl
       }
       customer {
+        id
+        email
         ...CustomerForCreditNoteDetailsExternalSync
       }
     }
@@ -222,6 +224,7 @@ const CreditNoteDetails = () => {
       type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
       billingEntity: creditNote?.billingEntity,
       documentId: creditNote?.id,
+      customerEmail: creditNote?.customer?.email,
     })
   }
 

@@ -10,7 +10,28 @@ const emailRecipientsSchema = z
     for (const item of val) {
       if (!EMAIL_REGEX.test(item.value)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
+          message: 'text_620bc4d4269a55014d493fc3',
+        })
+        return
+      }
+    }
+  })
+
+const emailRecipientsSchemaNotOptional = z
+  .array(z.looseObject({ value: z.string() }))
+  .superRefine((val, ctx) => {
+    if (!val.length) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1771324685216i5c7k3bdv6t',
+      })
+      return
+    }
+    for (const item of val) {
+      if (!EMAIL_REGEX.test(item.value)) {
+        ctx.addIssue({
+          code: 'custom',
           message: 'text_620bc4d4269a55014d493fc3',
         })
         return
@@ -19,7 +40,7 @@ const emailRecipientsSchema = z
   })
 
 export const resendEmailFormValidationSchema = z.object({
-  to: emailRecipientsSchema,
+  to: emailRecipientsSchemaNotOptional,
   cc: emailRecipientsSchema,
   bcc: emailRecipientsSchema,
 })
@@ -27,7 +48,7 @@ export const resendEmailFormValidationSchema = z.object({
 export type ResendEmailFormDefaultValues = z.infer<typeof resendEmailFormValidationSchema>
 
 export const resendEmailFormDefaultValues: ResendEmailFormDefaultValues = {
-  to: undefined,
+  to: [],
   cc: undefined,
   bcc: undefined,
 }

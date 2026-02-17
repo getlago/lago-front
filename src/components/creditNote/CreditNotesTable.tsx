@@ -72,6 +72,10 @@ gql`
       code
       einvoicing
     }
+    customer {
+      id
+      email
+    }
   }
 
   fragment CreditNotesForTable on CreditNoteCollection {
@@ -267,6 +271,7 @@ const CreditNotesTable = ({
                       type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
                       billingEntity: creditNote?.billingEntity,
                       documentId: creditNote?.id,
+                      customerEmail: creditNote?.customer?.email,
                     })
                   },
                 },

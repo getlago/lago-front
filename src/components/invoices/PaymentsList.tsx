@@ -77,6 +77,7 @@ gql`
       id
       name
       displayName
+      email
       applicableTimezone
       billingEntity {
         id
@@ -175,6 +176,7 @@ export const PaymentsList: FC<PaymentsListProps> = ({
                       type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
                       billingEntity: customer?.billingEntity,
                       documentId: _paymentReceipt?.id,
+                      customerEmail: customer.email,
                     })
                   },
                   disabled: !paymentReceipt?.id,

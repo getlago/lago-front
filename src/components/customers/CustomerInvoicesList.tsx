@@ -88,6 +88,7 @@ gql`
       applicableTimezone
       paymentProvider
       hasActiveWallet
+      email
     }
     errorDetails {
       errorCode
@@ -433,6 +434,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
                 billingEntity: invoice?.billingEntity,
                 documentId: invoice?.id,
+                customerEmail: invoice?.customer?.email,
               })
             }
 

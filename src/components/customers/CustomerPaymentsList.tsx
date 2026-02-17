@@ -103,6 +103,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
                       type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
                       billingEntity: customer?.billingEntity,
                       documentId: _paymentReceipt?.id,
+                      customerEmail: customer.email,
                     })
                   },
                   disabled: !paymentReceipt?.id,

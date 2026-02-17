@@ -84,6 +84,7 @@ gql`
         deletedAt
         id
         name
+        email
         displayName
         applicableTimezone
         billingEntity {
@@ -230,6 +231,7 @@ const PaymentDetails = () => {
       type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
       billingEntity: payment?.customer?.billingEntity,
       documentId: payment?.paymentReceipt?.id,
+      customerEmail: payment?.customer?.email,
     })
   }
 

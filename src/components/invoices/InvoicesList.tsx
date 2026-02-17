@@ -256,6 +256,7 @@ const InvoicesList = ({
               type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
               billingEntity: invoice?.billingEntity,
               documentId: invoice?.id,
+              customerEmail: invoice?.customer?.email,
             })
           },
         }
