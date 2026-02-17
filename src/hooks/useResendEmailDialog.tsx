@@ -97,15 +97,17 @@ export const useResendEmailDialog = () => {
     billingEntity: BillingEntity | undefined
     customerEmail: string | null | undefined
   }) => {
-    if (!documentId || !customerEmail) return
+    if (!documentId) return
 
-    form.setFieldValue('to', [
-      {
-        value: customerEmail,
-        label: customerEmail,
-        customValue: true,
-      },
-    ])
+    if (customerEmail) {
+      form.setFieldValue('to', [
+        {
+          value: customerEmail,
+          label: customerEmail,
+          customValue: true,
+        },
+      ])
+    }
 
     formDialog
       .open({

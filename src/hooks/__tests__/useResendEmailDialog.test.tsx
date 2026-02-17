@@ -1,8 +1,8 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, screen } from '@testing-library/react'
 
 import { BillingEntityEmailSettingsEnum } from '~/generated/graphql'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, render } from '~/test-utils'
 
 const mockFormDialogOpen = jest.fn().mockResolvedValue({})
 
@@ -74,7 +74,23 @@ describe('useResendEmailDialog', () => {
     expect(mockFormDialogOpen).not.toHaveBeenCalled()
   })
 
-  it('does not open dialog when customerEmail is undefined', () => {
+  it('pre-fills to field with customerEmail when provided', () => {
+    const { result } = renderHook(() => useResendEmailDialog(), {
+      wrapper: customWrapper,
+    })
+
+    act(() => {
+      result.current.showResendEmailDialog(defaultParams)
+    })
+
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+    render(callArgs.headerContent)
+
+    expect(screen.getByText('customer@example.com')).toBeInTheDocument()
+  })
+
+  it('does not pre-fill to field when customerEmail is undefined', () => {
     const { result } = renderHook(() => useResendEmailDialog(), {
       wrapper: customWrapper,
     })
@@ -86,7 +102,32 @@ describe('useResendEmailDialog', () => {
       })
     })
 
-    expect(mockFormDialogOpen).not.toHaveBeenCalled()
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+    render(callArgs.headerContent)
+
+    expect(screen.queryByText('customer@example.com')).not.toBeInTheDocument()
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not pre-fill to field when customerEmail is null', () => {
+    const { result } = renderHook(() => useResendEmailDialog(), {
+      wrapper: customWrapper,
+    })
+
+    act(() => {
+      result.current.showResendEmailDialog({
+        ...defaultParams,
+        customerEmail: null,
+      })
+    })
+
+    const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+    render(callArgs.headerContent)
+
+    expect(screen.queryByText('customer@example.com')).not.toBeInTheDocument()
+    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
   })
 
   it('passes correct subject to dialog', () => {
