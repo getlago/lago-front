@@ -3,6 +3,7 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import {
   CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID,
   CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
@@ -10,7 +11,6 @@ import {
   CENTRALIZED_DIALOG_TEST_ID,
   DIALOG_TITLE_TEST_ID,
 } from '~/components/dialogs/const'
-import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { RevokeInviteDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
