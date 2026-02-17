@@ -1,22 +1,88 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
+import { ReactNode } from 'react'
 
-import { GetRolesListDocument, MemberForEditRoleForDialogFragment } from '~/generated/graphql'
-import { render, TestMocksType } from '~/test-utils'
+import {
+  DIALOG_TITLE_TEST_ID,
+  FORM_DIALOG_CANCEL_BUTTON_TEST_ID,
+  FORM_DIALOG_NAME,
+} from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
+import { MemberForEditRoleForDialogFragment } from '~/generated/graphql'
+import { render } from '~/test-utils'
 
-import { EditMemberRoleDialog, EditMemberRoleDialogRef } from '../EditMemberRoleDialog'
+import { EDIT_MEMBER_ROLE_FORM_ID, useEditMemberRoleDialog } from '../EditMemberRoleDialog'
 
-const mockAddToast = jest.fn()
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+
+// Mock @tanstack/react-virtual for ComboBox virtualization in jsdom
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({
+        key: index,
+        index,
+        start: index * 56,
+        size: 56,
+      })),
+    getTotalSize: () => count * 56,
+    scrollToIndex: () => {},
+    measureElement: () => {},
+  }),
+}))
 
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
-  addToast: (params: unknown) => mockAddToast(params),
+  addToast: jest.fn(),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: true,
+  }),
+}))
+
+jest.mock('~/hooks/useRolesList', () => ({
+  useRolesList: () => ({
+    roles: [
+      {
+        id: 'role-1',
+        name: 'Admin',
+        code: 'admin',
+        description: 'Administrator role',
+        permissions: [],
+        admin: true,
+        memberships: [],
+      },
+      {
+        id: 'role-2',
+        name: 'Finance',
+        code: 'finance',
+        description: 'Finance role',
+        permissions: [],
+        admin: false,
+        memberships: [],
+      },
+      {
+        id: 'role-3',
+        name: 'Manager',
+        code: 'manager',
+        description: 'Manager role',
+        permissions: [],
+        admin: false,
+        memberships: [],
+      },
+    ],
+    isLoadingRoles: false,
+  }),
+}))
+
+const mockUpdateMembershipRole = jest.fn()
+
+jest.mock('../../hooks/useMembershipActions', () => ({
+  useMembershipActions: () => ({
+    updateMembershipRole: mockUpdateMembershipRole,
   }),
 }))
 
@@ -117,72 +183,70 @@ const permissions: MemberForEditRoleForDialogFragment['permissions'] = {
   walletsUpdate: true,
 }
 
-const rolesListMock = {
-  request: {
-    query: GetRolesListDocument,
-  },
-  result: {
-    data: {
-      roles: [
-        {
-          __typename: 'Role',
-          id: 'role-1',
-          name: 'Admin',
-          code: 'admin',
-          description: 'Administrator role',
-          permissions: [],
-          admin: true,
-          memberships: [],
-        },
-        {
-          __typename: 'Role',
-          id: 'role-2',
-          name: 'Finance',
-          code: 'finance',
-          description: 'Finance role',
-          permissions: [],
-          admin: false,
-          memberships: [],
-        },
-        {
-          __typename: 'Role',
-          id: 'role-3',
-          name: 'Manager',
-          code: 'manager',
-          description: 'Manager role',
-          permissions: [],
-          admin: false,
-          memberships: [],
-        },
-      ],
-    },
-  },
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
+  return <NiceModal.Provider>{children}</NiceModal.Provider>
 }
 
-async function prepare({ mocks = [rolesListMock] }: { mocks?: TestMocksType } = {}) {
-  const ref = createRef<EditMemberRoleDialogRef>()
+const TestComponent = ({
+  isEditingLastAdmin = false,
+  isEditingMyOwnMembership = false,
+}: {
+  isEditingLastAdmin?: boolean
+  isEditingMyOwnMembership?: boolean
+}) => {
+  const { openEditMemberRoleDialog } = useEditMemberRoleDialog()
 
-  await act(() => render(<EditMemberRoleDialog ref={ref} />, { mocks }))
+  return (
+    <button
+      data-test="open-dialog"
+      onClick={() =>
+        openEditMemberRoleDialog({
+          member: {
+            __typename: 'Membership',
+            id: MEMBER_ID,
+            roles: ['Admin'],
+            user: {
+              __typename: 'User',
+              id: 'user-123',
+              email: MEMBER_EMAIL,
+            },
+            permissions,
+          },
+          isEditingLastAdmin,
+          isEditingMyOwnMembership,
+        })
+      }
+    >
+      Open Dialog
+    </button>
+  )
+}
 
-  await act(() => {
-    ref.current?.openDialog({
-      member: {
-        __typename: 'Membership',
-        id: MEMBER_ID,
-        roles: ['Admin'],
-        user: {
-          __typename: 'User',
-          id: 'user-123',
-          email: MEMBER_EMAIL,
-        },
-        permissions,
-      },
-      isEditingLastAdmin: false,
-      isEditingMyOwnMembership: false,
-    })
+async function prepare({
+  isEditingLastAdmin = false,
+  isEditingMyOwnMembership = false,
+}: {
+  isEditingLastAdmin?: boolean
+  isEditingMyOwnMembership?: boolean
+} = {}) {
+  await act(() =>
+    render(
+      <NiceModalWrapper>
+        <TestComponent
+          isEditingLastAdmin={isEditingLastAdmin}
+          isEditingMyOwnMembership={isEditingMyOwnMembership}
+        />
+      </NiceModalWrapper>,
+    ),
+  )
+
+  await act(async () => {
+    screen.getByTestId('open-dialog').click()
   })
 
-  return { ref }
+  await waitFor(() => {
+    expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+  })
 }
 
 describe('EditMemberRoleDialog', () => {
@@ -191,32 +255,55 @@ describe('EditMemberRoleDialog', () => {
     jest.clearAllMocks()
   })
 
-  describe('Rendering', () => {
-    it('renders the dialog with correct title', async () => {
-      await prepare()
+  describe('Opening', () => {
+    it('opens the dialog when the hook function is called', async () => {
+      await act(() =>
+        render(
+          <NiceModalWrapper>
+            <TestComponent />
+          </NiceModalWrapper>,
+        ),
+      )
 
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+      expect(screen.queryByTestId(DIALOG_TITLE_TEST_ID)).not.toBeInTheDocument()
+
+      await act(async () => {
+        screen.getByTestId('open-dialog').click()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      })
     })
 
     it('renders the member email', async () => {
       await prepare()
 
-      expect(screen.getByText(MEMBER_EMAIL)).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText(MEMBER_EMAIL)).toBeInTheDocument()
+      })
     })
 
     it('renders the role picker', async () => {
       await prepare()
 
-      // Check that Role label text exists
-      expect(screen.getByText('Role')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText('Role')).toBeInTheDocument()
+      })
     })
+  })
 
-    it('renders cancel and submit buttons', async () => {
+  describe('Rendering', () => {
+    it('has the correct form ID', async () => {
       await prepare()
 
-      const buttons = screen.getAllByRole('button')
+      expect(document.getElementById(EDIT_MEMBER_ROLE_FORM_ID)).toBeInTheDocument()
+    })
 
-      expect(buttons.length).toBeGreaterThanOrEqual(2)
+    it('renders the cancel button', async () => {
+      await prepare()
+
+      expect(screen.getByTestId(FORM_DIALOG_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
     })
   })
 
@@ -226,111 +313,111 @@ describe('EditMemberRoleDialog', () => {
 
       await prepare()
 
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+      await user.click(screen.getByTestId(FORM_DIALOG_CANCEL_BUTTON_TEST_ID))
 
-      // Find the cancel button by text content
-      const cancelButton = screen.getAllByRole('button').find((btn) => btn.textContent === 'Cancel')
-
-      if (cancelButton) {
-        await user.click(cancelButton)
-      }
-
-      await waitFor(
-        () => {
-          expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
-        },
-        { timeout: 3000 },
-      )
+      await waitFor(() => {
+        expect(screen.queryByTestId(DIALOG_TITLE_TEST_ID)).not.toBeInTheDocument()
+      })
     })
   })
 
   describe('Last Admin Warning', () => {
     it('shows alert when editing the last admin', async () => {
-      const ref = createRef<EditMemberRoleDialogRef>()
-
-      await act(() => render(<EditMemberRoleDialog ref={ref} />, { mocks: [rolesListMock] }))
-
-      await act(() => {
-        ref.current?.openDialog({
-          member: {
-            __typename: 'Membership',
-            id: MEMBER_ID,
-            roles: ['Admin'],
-            user: {
-              __typename: 'User',
-              id: 'user-123',
-              email: MEMBER_EMAIL,
-            },
-            permissions,
-          },
-          isEditingLastAdmin: true,
-          isEditingMyOwnMembership: false,
-        })
-      })
+      await prepare({ isEditingLastAdmin: true })
 
       await waitFor(() => {
         expect(screen.getByTestId('alert-type-danger')).toBeInTheDocument()
       })
     })
+
+    it('does not show alert when not editing the last admin', async () => {
+      await prepare({ isEditingLastAdmin: false })
+
+      expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
+    })
   })
 
-  describe('Dialog Ref', () => {
-    it('exposes openDialog method via ref', async () => {
-      const ref = createRef<EditMemberRoleDialogRef>()
+  describe('Form Submission', () => {
+    async function selectRole(user: ReturnType<typeof userEvent.setup>, roleValue: string) {
+      const roleInput = screen.getByPlaceholderText(/search and select a role/i)
 
-      await act(() => render(<EditMemberRoleDialog ref={ref} />, { mocks: [rolesListMock] }))
+      await user.click(roleInput)
 
-      expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByTestId(roleValue)).toBeInTheDocument()
+      })
 
-      await act(() => {
-        ref.current?.openDialog({
-          member: {
-            __typename: 'Membership',
+      await user.click(screen.getByTestId(roleValue))
+    }
+
+    it('calls updateMembershipRole with correct arguments on successful submission', async () => {
+      const user = userEvent.setup()
+
+      mockUpdateMembershipRole.mockResolvedValue({
+        data: {
+          updateMembership: {
             id: MEMBER_ID,
-            roles: ['Admin'],
-            user: {
-              __typename: 'User',
-              id: 'user-123',
-              email: MEMBER_EMAIL,
-            },
-            permissions,
+            roles: ['Finance'],
           },
-          isEditingLastAdmin: false,
-          isEditingMyOwnMembership: false,
-        })
+        },
       })
 
-      await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-      })
-    })
-
-    it('exposes closeDialog method via ref', async () => {
-      const { ref } = await prepare()
-
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-
-      await act(() => {
-        ref.current?.closeDialog()
-      })
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('Snapshot', () => {
-    it('matches snapshot', async () => {
       await prepare()
 
+      await selectRole(user, 'finance')
+
+      await user.click(screen.getByText(/edit role/i))
+
       await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        expect(mockUpdateMembershipRole).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              roles: ['finance'],
+              id: MEMBER_ID,
+            },
+          },
+        })
+      })
+    })
+
+    it('closes the dialog after successful submission', async () => {
+      const user = userEvent.setup()
+
+      mockUpdateMembershipRole.mockResolvedValue({
+        data: {
+          updateMembership: {
+            id: MEMBER_ID,
+            roles: ['Finance'],
+          },
+        },
       })
 
-      const dialog = screen.getByRole('dialog')
+      await prepare()
+      await selectRole(user, 'finance')
 
-      expect(dialog).toMatchSnapshot()
+      await user.click(screen.getByText(/edit role/i))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(DIALOG_TITLE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    it('keeps dialog open when submission fails', async () => {
+      const user = userEvent.setup()
+
+      mockUpdateMembershipRole.mockResolvedValue({
+        data: null,
+      })
+
+      await prepare()
+      await selectRole(user, 'finance')
+
+      await user.click(screen.getByText(/edit role/i))
+
+      // Dialog should stay open (closeOnError: false)
+      await waitFor(() => {
+        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      })
     })
   })
 })

@@ -1,14 +1,14 @@
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { HOME_ROUTE } from '~/core/router'
 import { MemberForEditRoleForDialogFragment, PermissionEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -20,37 +20,30 @@ import RolePicker from './RolePicker'
 import { UpdateInviteSingleRole } from '../common/inviteTypes'
 import { useMembershipActions } from '../hooks/useMembershipActions'
 
-export interface EditMemberRoleDialogRef {
-  openDialog: (localData: MemberForEditRoleForDialogImperativeProps) => unknown
-  closeDialog: () => unknown
-}
+export const EDIT_MEMBER_ROLE_FORM_ID = 'form-edit-member-role'
 
-type MemberForEditRoleForDialogImperativeProps = {
+type EditMemberRoleDialogData = {
   member: MemberForEditRoleForDialogFragment | null
   isEditingLastAdmin: boolean
   isEditingMyOwnMembership: boolean
 }
 
-export const EDIT_MEMBER_ROLE_FORM_ID = 'form-edit-member-role'
+const initialValues: UpdateInviteSingleRole = {
+  role: '',
+}
 
-export const EditMemberRoleDialog = forwardRef<EditMemberRoleDialogRef>((_, ref) => {
+const validationSchema = z.object({
+  role: z.string(),
+})
+
+export const useEditMemberRoleDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { updateMembershipRole } = useMembershipActions()
-  const { roles, isLoadingRoles } = useRolesList()
-
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<MemberForEditRoleForDialogImperativeProps | null>(null)
-
-  const validationSchema = z.object({
-    role: z.string(),
-  })
-
-  const initialRole = roles.find((role) => role.name === localData?.member?.roles[0])
-
-  const initialValues: UpdateInviteSingleRole = {
-    role: initialRole?.code || 'admin',
-  }
+  const { roles } = useRolesList()
+  const dataRef = useRef<EditMemberRoleDialogData | null>(null)
+  const successRef = useRef(false)
 
   const form = useAppForm({
     defaultValues: initialValues,
@@ -63,92 +56,91 @@ export const EditMemberRoleDialog = forwardRef<EditMemberRoleDialogRef>((_, ref)
         variables: {
           input: {
             roles: [value.role],
-            id: localData?.member?.id as string,
+            id: dataRef.current?.member?.id as string,
           },
         },
       })
 
-      dialogRef.current?.closeDialog()
+      if (res.data?.updateMembership) {
+        successRef.current = true
 
-      const newRole = roles.find((role) => role.name === res.data?.updateMembership?.roles[0])
+        const newRole = roles.find((role) => role.name === res.data?.updateMembership?.roles[0])
 
-      // If you edit your own memberships role to something else that do not have the right permission,
-      // you will get redirected to home page
-      if (
-        localData?.isEditingMyOwnMembership &&
-        !newRole?.permissions.includes(PermissionEnum.RolesView)
-      ) {
-        // The redirection have to be retriggered on the next tick to avoid wrong forbidden page display
-        setTimeout(() => {
-          navigate(HOME_ROUTE)
-        }, 1)
+        // If you edit your own memberships role to something else that do not have the right permission,
+        // you will get redirected to home page
+        if (
+          dataRef.current?.isEditingMyOwnMembership &&
+          !newRole?.permissions.includes(PermissionEnum.RolesView)
+        ) {
+          // The redirection have to be retriggered on the next tick to avoid wrong forbidden page display
+          setTimeout(() => {
+            navigate(HOME_ROUTE)
+          }, 1)
+        }
       }
     },
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  const handleClose = () => {
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openEditMemberRoleDialog = (data: EditMemberRoleDialogData) => {
+    dataRef.current = data
     form.reset()
+
+    const initialRole = roles.find((role) => role.name === data.member?.roles[0])
+
+    form.setFieldValue('role', initialRole?.code || 'admin')
+
+    formDialog
+      .open({
+        title: translate('text_664f035a68227f00e261b7e9'),
+        children: (
+          <div className="flex flex-col gap-8 p-8">
+            <Stack gap={3} direction="row" alignItems="center">
+              <Avatar
+                variant="user"
+                identifier={(data.member?.user?.email || '').charAt(0)}
+                size="big"
+              />
+              <Typography variant="body" color="grey700">
+                {data.member?.user?.email}
+              </Typography>
+            </Stack>
+
+            <RolePicker form={form} fields={{ role: 'role' }} />
+
+            {data.isEditingLastAdmin && (
+              <Alert type="danger">{translate('text_664f035a68227f00e261b7f4')}</Alert>
+            )}
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_664f035a68227f00e261b7f6')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_MEMBER_ROLE_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    form.handleSubmit()
-  }
-
-  const getActions = ({ closeDialog }: { closeDialog: () => void }) => {
-    return (
-      <>
-        <Button variant="quaternary" onClick={closeDialog}>
-          {translate('text_62bb10ad2a10bd182d002031')}
-        </Button>
-        <form.AppForm>
-          <form.SubmitButton>{translate('text_664f035a68227f00e261b7f6')}</form.SubmitButton>
-        </form.AppForm>
-      </>
-    )
-  }
-
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_664f035a68227f00e261b7e9')}
-      onClose={handleClose}
-      actions={getActions}
-      formId={EDIT_MEMBER_ROLE_FORM_ID}
-      formSubmit={handleSubmit}
-    >
-      {!isLoadingRoles && (
-        <div className="mb-8 flex flex-col gap-8">
-          <Stack gap={3} direction="row" alignItems="center">
-            <Avatar
-              variant="user"
-              identifier={(localData?.member?.user?.email || '').charAt(0)}
-              size="big"
-            />
-            <Typography variant="body" color="grey700">
-              {localData?.member?.user?.email}
-            </Typography>
-          </Stack>
-
-          <RolePicker form={form} fields={{ role: 'role' }} />
-
-          {localData?.isEditingLastAdmin && (
-            <Alert type="danger">{translate('text_664f035a68227f00e261b7f4')}</Alert>
-          )}
-        </div>
-      )}
-    </Dialog>
-  )
-})
-
-EditMemberRoleDialog.displayName = 'forwardRef'
+  return { openEditMemberRoleDialog }
+}

@@ -16,7 +16,7 @@ import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDispl
 
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
-import { EditMemberRoleDialog, EditMemberRoleDialogRef } from './dialogs/EditMemberRoleDialog'
+import { useEditMemberRoleDialog } from './dialogs/EditMemberRoleDialog'
 import { RevokeMembershipDialog, RevokeMembershipDialogRef } from './dialogs/RevokeMembershipDialog'
 import { useGetMembersList } from './hooks/useGetMembersList'
 
@@ -49,7 +49,7 @@ const MemberList = () => {
   const [searchParams] = useSearchParams()
 
   const revokeMembershipDialogRef = useRef<RevokeMembershipDialogRef>(null)
-  const editMemberRoleDialogRef = useRef<EditMemberRoleDialogRef>(null)
+  const { openEditMemberRoleDialog } = useEditMemberRoleDialog()
   const { openCreateInviteDialog } = useCreateInviteDialog()
 
   const selectedRole = useMemo(() => {
@@ -111,7 +111,7 @@ const MemberList = () => {
             startIcon: 'pen',
             title: translate('text_664f035a68227f00e261b7f6'),
             onAction: () => {
-              editMemberRoleDialogRef.current?.openDialog({
+              openEditMemberRoleDialog({
                 member: membership,
                 isEditingLastAdmin: membership.roles[0] === 'Admin' && metadata?.adminCount === 1,
                 isEditingMyOwnMembership: currentUser?.id === membership.user.id,
@@ -182,7 +182,6 @@ const MemberList = () => {
         ref={revokeMembershipDialogRef}
         admins={members.filter((member) => member.roles.includes('Admin'))}
       />
-      <EditMemberRoleDialog ref={editMemberRoleDialogRef} />
     </div>
   )
 }
