@@ -3,6 +3,7 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import {
   CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
   CENTRALIZED_DIALOG_NAME,
@@ -10,7 +11,6 @@ import {
   FORM_DIALOG_CANCEL_BUTTON_TEST_ID,
   FORM_DIALOG_NAME,
 } from '~/components/dialogs/const'
-import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -391,9 +391,7 @@ describe('CreateInviteDialog', () => {
       await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
 
       await waitFor(() => {
-        expect(
-          screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID),
-        ).toBeInTheDocument()
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
       await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
