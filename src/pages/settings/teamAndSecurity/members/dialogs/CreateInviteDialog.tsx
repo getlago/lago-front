@@ -25,6 +25,7 @@ import { useInviteActions } from '../hooks/useInviteActions'
 export const SUBMIT_INVITE_DATA_TEST = 'submit-invite-button'
 export const FORM_CREATE_INVITE_ID = 'form-create-invite'
 export const INVITE_URL_DATA_TEST = 'invitation-url'
+export const FORM_INVALID_ERROR_MESSAGE = 'form.invalid'
 
 const initialValues: CreateInviteSingleRole = {
   email: '',
@@ -121,7 +122,7 @@ export const useCreateInviteDialog = () => {
     await form.handleSubmit()
 
     if (!inviteTokenRef.current) {
-      throw new Error('Submit failed')
+      throw new Error(FORM_INVALID_ERROR_MESSAGE)
     }
 
     return { reason: 'success', params: { inviteToken: inviteTokenRef.current } }
@@ -134,6 +135,15 @@ export const useCreateInviteDialog = () => {
     form.reset()
   }
   const { organization } = useOrganizationInfos()
+
+  const onError = (e: Error) => {
+    if (e.message === FORM_INVALID_ERROR_MESSAGE) return
+
+    addToast({
+      severity: 'danger',
+      message: translate('text_63208c701ce25db781407485'),
+    })
+  }
 
   const openCopyInviteLinkDialog = (inviteToken: string) => {
     const invitationUrl = generateInvitationUrl(inviteToken)
@@ -173,6 +183,7 @@ export const useCreateInviteDialog = () => {
         description: translate('text_63208c701ce25db78140749b'),
         children: <CreateInviteForm form={form} />,
         closeOnError: false,
+        onError,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton dataTest={SUBMIT_INVITE_DATA_TEST}>

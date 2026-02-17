@@ -1035,7 +1035,6 @@
   "text_63208c701ce25db78140749b": "To generate a link for inviting a member to this organization, please enter the member’s email and select a role.",
   "text_63208c701ce25db7814074ab": "Email address",
   "text_63208c711ce25db7814074c1": "jane@banco.com",
-  "text_63208c711ce25db7814074cd": "Cancel",
   "text_63208c711ce25db7814074d9": "Generate invitation link",
   "text_63208c701ce25db781407485": "An error occurred, we can’t create an invitation link right now.",
   "text_63208c701ce25db78140743a": "Copy and send the generated link to this member to join {{organizationName}}.",
