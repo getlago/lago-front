@@ -1,8 +1,5 @@
-import { useStore } from '@tanstack/react-form'
-
-import { getErrorToDisplay } from '~/core/form/getErrorToDisplay'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFieldContext } from '~/hooks/forms/formContext'
+import { useFieldError } from '~/hooks/forms/useFieldError'
 
 import { DatePicker, DatePickerProps } from './DatePicker'
 
@@ -14,21 +11,8 @@ const DatePickerField = (
 ) => {
   const { silentError = false, displayErrorText = true, ...rest } = props
   const field = useFieldContext<string | undefined>()
-  const { translate } = useInternationalization()
 
-  const errorMap = useStore(field.store, (state) => state.meta.errorMap)
-  const allErrors = useStore(field.store, (state) => state.meta.errors)
-    .map((e) => e.message)
-    .filter(Boolean)
-
-  const translatedError = allErrors.map((errorKey) => translate(errorKey as string)).join('\n')
-
-  const finalError = getErrorToDisplay({
-    error: translatedError,
-    errorMap,
-    silentError,
-    displayErrorText,
-  })
+  const finalError = useFieldError({ silentError, displayErrorText, translateErrors: true })
 
   return (
     <DatePicker
