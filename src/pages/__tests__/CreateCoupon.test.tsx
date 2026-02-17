@@ -320,4 +320,54 @@ describe('CreateCoupon', () => {
       })
     })
   })
+
+  describe('GIVEN form submission', () => {
+    describe('WHEN user fills required fields and submits the form', () => {
+      it('THEN should call onSave with correct form data', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Fill in the name field
+        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
+        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
+
+        await user.type(nameInput, 'My Test Coupon')
+
+        // Fill in the code field (auto-generated from name, but let's set it explicitly)
+        const codeInputContainer = screen.getByTestId(COUPON_CODE_INPUT_TEST_ID)
+        const codeInput = codeInputContainer.querySelector('input') as HTMLInputElement
+
+        await user.clear(codeInput)
+        await user.type(codeInput, 'MY_TEST_COUPON')
+
+        // Fill in the amount field
+        const amountInputContainer = screen.getByTestId(COUPON_AMOUNT_INPUT_TEST_ID)
+        const amountInput = amountInputContainer.querySelector('input') as HTMLInputElement
+
+        await user.type(amountInput, '50')
+
+        // Submit the form
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        // Verify onSave was called with the correct data
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledTimes(1)
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              name: 'My Test Coupon',
+              code: 'MY_TEST_COUPON',
+              amountCents: '50',
+              couponType: CouponTypeEnum.FixedAmount,
+              frequency: CouponFrequency.Once,
+              expiration: CouponExpiration.NoExpiration,
+              reusable: true,
+            }),
+          )
+        })
+      })
+    })
+  })
 })
