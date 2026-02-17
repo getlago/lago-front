@@ -1,11 +1,8 @@
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import isEqual from 'lodash/isEqual'
-import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import { date, number, object, string } from 'yup'
 
 import {
   AddBillableMetricToCouponDialog,
@@ -24,21 +21,14 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
-import {
-  AmountInputField,
-  Checkbox,
-  ComboBoxField,
-  DatePicker,
-  TextInput,
-  TextInputField,
-} from '~/components/form'
+import { Checkbox, DatePicker } from '~/components/form'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
+import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import {
   BillableMetricsForCouponsFragment,
   CouponExpiration,
@@ -49,121 +39,97 @@ import {
   PlansForCouponsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
 import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
+import { CouponFormValues, couponValidationSchema } from './createCoupon/validationSchema'
+
+export const COUPONS_FORM_ID = 'coupon-form'
+
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { organization } = useOrganizationInfos()
-  const {
-    isEdition,
-    loading,
-    coupon,
-    errorCode,
-    onSave,
-    hasPlanLimit,
-    setHasPlanLimit,
-    limitPlansList,
-    setLimitPlansList,
-    hasBillableMetricLimit,
-    setHasBillableMetricLimit,
-    limitBillableMetricsList,
-    setLimitBillableMetricsList,
-  } = useCreateEditCoupon()
+  const { isEdition, loading, coupon, errorCode, onSave } = useCreateEditCoupon()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const addPlanToCouponDialogRef = useRef<AddPlanToCouponDialogRef>(null)
   const addBillableMetricToCouponDialogRef = useRef<AddBillableMetricToCouponDialogRef>(null)
-  const formikProps = useFormik<CreateCouponInput>({
-    initialValues: {
-      amountCents: coupon?.amountCents
-        ? String(deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd))
-        : coupon?.amountCents || undefined,
-      amountCurrency: coupon?.amountCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
-      code: coupon?.code || '',
-      couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
-      description: coupon?.description || '',
-      expiration: coupon?.expiration || CouponExpiration.NoExpiration,
-      expirationAt: coupon?.expirationAt || undefined,
-      frequency: coupon?.frequency || CouponFrequency.Once,
-      frequencyDuration: coupon?.frequencyDuration || undefined,
-      name: coupon?.name || '',
-      percentageRate: coupon?.percentageRate || undefined,
-      reusable: coupon?.reusable === undefined ? true : coupon.reusable,
+
+  const defaultValues: CouponFormValues = {
+    amountCents: coupon?.amountCents
+      ? String(deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd))
+      : coupon?.amountCents || undefined,
+    amountCurrency: coupon?.amountCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
+    code: coupon?.code || '',
+    couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
+    description: coupon?.description || '',
+    expiration: coupon?.expiration || CouponExpiration.NoExpiration,
+    expirationAt: coupon?.expirationAt || undefined,
+    frequency: coupon?.frequency || CouponFrequency.Once,
+    frequencyDuration: coupon?.frequencyDuration || undefined,
+    name: coupon?.name || '',
+    percentageRate: coupon?.percentageRate || undefined,
+    reusable: coupon?.reusable === undefined ? true : coupon.reusable,
+    hasPlanLimit: (coupon?.plans?.length ?? 0) > 0,
+    limitPlansList: coupon?.plans || [],
+    hasBillableMetricLimit: (coupon?.billableMetrics?.length ?? 0) > 0,
+    limitBillableMetricsList: coupon?.billableMetrics || [],
+  }
+
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: couponValidationSchema,
     },
-    validationSchema: object().shape({
-      amountCents: number().when('couponType', {
-        is: (couponType: CouponTypeEnum) =>
-          !!couponType && couponType === CouponTypeEnum.FixedAmount,
-        then: (schema) =>
-          schema
-            .typeError(translate('text_624ea7c29103fd010732ab7d'))
-            .min(0.001, 'text_632d68358f1fedc68eed3e91')
-            .required(''),
-      }),
-      percentageRate: number().when('couponType', {
-        is: (couponType: CouponTypeEnum) =>
-          !!couponType && couponType === CouponTypeEnum.Percentage,
-        then: (schema) =>
-          schema
-            .typeError(translate('text_624ea7c29103fd010732ab7d'))
-            .min(0.001, 'text_633445d00315a713775f02a6')
-            .required(''),
-      }),
-      name: string().required(''),
-      amountCurrency: string().required(''),
-      code: string().required(''),
-      couponType: string().required(''),
-      frequency: string().required(''),
-      frequencyDuration: number().when('frequency', {
-        is: (frequency: CouponFrequency) => !!frequency && frequency === CouponFrequency.Recurring,
-        then: (schema) =>
-          schema
-            .typeError(translate('text_63314cfeb607e57577d894c9'))
-            .min(1, 'text_63314cfeb607e57577d894c9')
-            .required(''),
-      }),
-      reusable: string().required(''),
-      expiration: string().required(''),
-      expirationAt: date().when('expiration', {
-        is: (expiration: CouponExpiration) =>
-          !!expiration && expiration === CouponExpiration.TimeLimit,
-        then: (schema) =>
-          schema
-            .min(
-              DateTime.now().plus({ days: -1 }),
-              translate('text_632d68358f1fedc68eed3ef2', {
-                date: DateTime.now().plus({ days: -1 }).toFormat('LLL. dd, yyyy').toLocaleString(),
-              }),
-            )
-            .required(''),
-      }),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: onSave,
+    onSubmit: async ({ value }) => {
+      await onSave(value as unknown as Parameters<typeof onSave>[0])
+    },
   })
+
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
-    !!formikProps.initialValues.description,
+    !!coupon?.description,
   )
+
+  // Subscribe to form values for conditional rendering
+  const couponType = useStore(form.store, (state) => state.values.couponType)
+  const frequency = useStore(form.store, (state) => state.values.frequency)
+  const expiration = useStore(form.store, (state) => state.values.expiration)
+  const reusable = useStore(form.store, (state) => state.values.reusable)
+  const amountCurrency = useStore(form.store, (state) => state.values.amountCurrency)
+  const expirationAt = useStore(form.store, (state) => state.values.expirationAt)
+  const formHasPlanLimit = useStore(form.store, (state) => state.values.hasPlanLimit)
+  const formHasBillableMetricLimit = useStore(
+    form.store,
+    (state) => state.values.hasBillableMetricLimit,
+  )
+  const limitPlansList = useStore(form.store, (state) => state.values.limitPlansList)
+  const limitBillableMetricsList = useStore(
+    form.store,
+    (state) => state.values.limitBillableMetricsList,
+  )
+
+  // Subscribe to form state
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+
+  // Get all form values for the code snippet
+  const formValues = useStore(form.store, (state) => state.values)
 
   const attachPlanToCoupon = (plan: PlansForCouponsFragment) => {
     if (limitPlansList.length === 0) {
-      setHasBillableMetricLimit(false)
+      form.setFieldValue('hasBillableMetricLimit', false)
     }
-    setLimitPlansList((oldArray: PlansForCouponsFragment[]) => [...oldArray, plan])
+    form.setFieldValue('limitPlansList', [...limitPlansList, plan])
   }
 
   const attachBillableMetricToCoupon = (billableMetric: BillableMetricsForCouponsFragment) => {
     if (limitBillableMetricsList.length === 0) {
-      setHasPlanLimit(false)
+      form.setFieldValue('hasPlanLimit', false)
     }
-    setLimitBillableMetricsList((oldArray: BillableMetricsForCouponsFragment[]) => [
-      ...oldArray,
-      billableMetric,
-    ])
+    form.setFieldValue('limitBillableMetricsList', [...limitBillableMetricsList, billableMetric])
   }
 
   const couponCloseRedirection = () => {
@@ -179,13 +145,27 @@ const CreateCoupon = () => {
     }
   }
 
+  const handleNameChange = ({ value }: { value: string }) => {
+    const isCodeBlurred = form.getFieldMeta('code')?.isBlurred
+    const hadInitialCode = !!coupon?.code
+
+    if (isCodeBlurred || hadInitialCode) return
+    form.setFieldValue('code', formatCodeFromName(value))
+  }
+
   useEffect(() => {
-    setShouldDisplayDescription(!!formikProps.initialValues.description)
-  }, [formikProps.initialValues.description])
+    setShouldDisplayDescription(!!coupon?.description)
+  }, [coupon?.description])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      form.setFieldMeta('code', (meta) => ({
+        ...meta,
+        errorMap: {
+          ...meta.errorMap,
+          onDynamic: { message: 'text_632a2d437e341dcc76817556' },
+        },
+      }))
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,21 +173,19 @@ const CreateCoupon = () => {
 
   useEffect(() => {
     if (
-      (hasPlanLimit || hasBillableMetricLimit) &&
+      (formHasPlanLimit || formHasBillableMetricLimit) &&
       limitBillableMetricsList.length === 0 &&
       limitPlansList.length === 0
     ) {
-      setHasPlanLimit(true)
-      setHasBillableMetricLimit(true)
+      form.setFieldValue('hasPlanLimit', true)
+      form.setFieldValue('hasBillableMetricLimit', true)
     }
-  }, [
-    setHasBillableMetricLimit,
-    setHasPlanLimit,
-    hasBillableMetricLimit,
-    hasPlanLimit,
-    limitBillableMetricsList,
-    limitPlansList,
-  ])
+  }, [formHasBillableMetricLimit, formHasPlanLimit, limitBillableMetricsList, limitPlansList, form])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
+  }
 
   return (
     <div>
@@ -219,11 +197,11 @@ const CreateCoupon = () => {
           variant="quaternary"
           icon="close"
           onClick={() =>
-            formikProps.dirty ? warningDialogRef.current?.openDialog() : couponCloseRedirection()
+            isDirty ? warningDialogRef.current?.openDialog() : couponCloseRedirection()
           }
         />
       </PageHeader.Wrapper>
-      <div className="min-height-minus-nav flex">
+      <form id={COUPONS_FORM_ID} className="min-height-minus-nav flex" onSubmit={handleSubmit}>
         <Main>
           <div>
             {loading ? (
@@ -261,38 +239,42 @@ const CreateCoupon = () => {
                     {translate('text_62876e85e32e0300e1803115')}
                   </Typography>
 
-                  <TextInput
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    name="name"
-                    label={translate('text_62876e85e32e0300e180311b')}
-                    placeholder={translate('text_62876e85e32e0300e1803121')}
-                    value={formikProps.values.name}
-                    onChange={(name) => {
-                      updateNameAndMaybeCode({ name, formikProps })
-                    }}
-                  />
-                  <TextInputField
-                    name="code"
-                    beforeChangeFormatter="code"
-                    disabled={isEdition && !!coupon?.appliedCouponsCount}
-                    label={translate('text_62876e85e32e0300e1803127')}
-                    placeholder={translate('text_62876e85e32e0300e180312d')}
-                    formikProps={formikProps}
-                    helperText={translate('text_62876e85e32e0300e1803131')}
-                  />
+                  <form.AppField name="name" listeners={{ onChange: handleNameChange }}>
+                    {(field) => (
+                      <field.TextInputField
+                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                        autoFocus
+                        label={translate('text_62876e85e32e0300e180311b')}
+                        placeholder={translate('text_62876e85e32e0300e1803121')}
+                      />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="code">
+                    {(field) => (
+                      <field.TextInputField
+                        beforeChangeFormatter="code"
+                        disabled={isEdition && !!coupon?.appliedCouponsCount}
+                        label={translate('text_62876e85e32e0300e1803127')}
+                        placeholder={translate('text_62876e85e32e0300e180312d')}
+                        helperText={translate('text_62876e85e32e0300e1803131')}
+                      />
+                    )}
+                  </form.AppField>
 
                   {shouldDisplayDescription ? (
                     <div className="flex items-center">
-                      <TextInputField
-                        className="mr-3 flex-1"
-                        multiline
-                        name="description"
-                        label={translate('text_649e848fa4c023006e94ca32')}
-                        placeholder={translate('text_649e85d35208d700473f79c9')}
-                        rows="3"
-                        formikProps={formikProps}
-                      />
+                      <form.AppField name="description">
+                        {(field) => (
+                          <field.TextInputField
+                            className="mr-3 flex-1"
+                            multiline
+                            label={translate('text_649e848fa4c023006e94ca32')}
+                            placeholder={translate('text_649e85d35208d700473f79c9')}
+                            rows="3"
+                          />
+                        )}
+                      </form.AppField>
                       <Tooltip
                         className="mt-6"
                         placement="top-end"
@@ -302,7 +284,7 @@ const CreateCoupon = () => {
                           icon="trash"
                           variant="quaternary"
                           onClick={() => {
-                            formikProps.setFieldValue('description', '')
+                            form.setFieldValue('description', '')
                             setShouldDisplayDescription(false)
                           }}
                         />
@@ -325,111 +307,123 @@ const CreateCoupon = () => {
                     {translate('text_62876e85e32e0300e1803137')}
                   </Typography>
 
-                  <ComboBoxField
-                    disableClearable
-                    name="couponType"
-                    label={translate('text_632d68358f1fedc68eed3e5a')}
-                    disabled={isEdition && !!coupon?.appliedCouponsCount}
-                    data={[
-                      {
-                        value: CouponTypeEnum.FixedAmount,
-                        label: translate('text_632d68358f1fedc68eed3e60'),
-                      },
-                      {
-                        value: CouponTypeEnum.Percentage,
-                        label: translate('text_632d68358f1fedc68eed3e66'),
-                      },
-                    ]}
-                    formikProps={formikProps}
-                  />
-
-                  {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
-                    <div className="flex gap-3">
-                      <AmountInputField
-                        className="flex-1"
-                        name="amountCents"
-                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                        beforeChangeFormatter={['positiveNumber']}
-                        disabled={isEdition && !!coupon?.appliedCouponsCount}
-                        label={translate('text_62978f2c197cea009ab0b7d0')}
-                        formikProps={formikProps}
-                      />
-                      <ComboBoxField
-                        containerClassName="max-w-30 mt-7"
-                        disabled={isEdition && !!coupon?.appliedCouponsCount}
-                        name="amountCurrency"
-                        data={Object.values(CurrencyEnum).map((currencyType) => ({
-                          value: currencyType,
-                        }))}
+                  <form.AppField name="couponType">
+                    {(field) => (
+                      <field.ComboBoxField
                         disableClearable
-                        formikProps={formikProps}
+                        label={translate('text_632d68358f1fedc68eed3e5a')}
+                        disabled={isEdition && !!coupon?.appliedCouponsCount}
+                        data={[
+                          {
+                            value: CouponTypeEnum.FixedAmount,
+                            label: translate('text_632d68358f1fedc68eed3e60'),
+                          },
+                          {
+                            value: CouponTypeEnum.Percentage,
+                            label: translate('text_632d68358f1fedc68eed3e66'),
+                          },
+                        ]}
                       />
+                    )}
+                  </form.AppField>
+
+                  {couponType === CouponTypeEnum.FixedAmount ? (
+                    <div className="flex gap-3">
+                      <form.AppField name="amountCents">
+                        {(field) => (
+                          <field.AmountInputField
+                            className="flex-1"
+                            currency={amountCurrency || CurrencyEnum.Usd}
+                            beforeChangeFormatter={['positiveNumber']}
+                            disabled={isEdition && !!coupon?.appliedCouponsCount}
+                            label={translate('text_62978f2c197cea009ab0b7d0')}
+                          />
+                        )}
+                      </form.AppField>
+                      <form.AppField name="amountCurrency">
+                        {(field) => (
+                          <field.ComboBoxField
+                            containerClassName="max-w-30 mt-7"
+                            disabled={isEdition && !!coupon?.appliedCouponsCount}
+                            data={Object.values(CurrencyEnum).map((currencyType) => ({
+                              value: currencyType,
+                            }))}
+                            disableClearable
+                          />
+                        )}
+                      </form.AppField>
                     </div>
                   ) : (
-                    <TextInputField
-                      name="percentageRate"
-                      beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
-                      disabled={isEdition && !!coupon?.appliedCouponsCount}
-                      label={translate('text_632d68358f1fedc68eed3e76')}
-                      placeholder={translate('text_632d68358f1fedc68eed3e86')}
-                      formikProps={formikProps}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {translate('text_632d68358f1fedc68eed3e93')}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+                    <form.AppField name="percentageRate">
+                      {(field) => (
+                        <field.TextInputField
+                          beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
+                          disabled={isEdition && !!coupon?.appliedCouponsCount}
+                          label={translate('text_632d68358f1fedc68eed3e76')}
+                          placeholder={translate('text_632d68358f1fedc68eed3e86')}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                {translate('text_632d68358f1fedc68eed3e93')}
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                    </form.AppField>
                   )}
 
-                  <ComboBoxField
-                    disabled={isEdition && !!coupon?.appliedCouponsCount}
-                    name="frequency"
-                    label={translate('text_632d68358f1fedc68eed3e9d')}
-                    helperText={translate('text_632d68358f1fedc68eed3eab')}
-                    data={[
-                      {
-                        value: CouponFrequency.Once,
-                        label: translate('text_632d68358f1fedc68eed3ea3'),
-                      },
-                      {
-                        value: CouponFrequency.Recurring,
-                        label: translate('text_632d68358f1fedc68eed3e64'),
-                      },
-                      {
-                        value: CouponFrequency.Forever,
-                        label: translate('text_63c83a3476e46bc6ab9d85d6'),
-                      },
-                    ]}
-                    disableClearable
-                    formikProps={formikProps}
-                  />
+                  <form.AppField name="frequency">
+                    {(field) => (
+                      <field.ComboBoxField
+                        disabled={isEdition && !!coupon?.appliedCouponsCount}
+                        label={translate('text_632d68358f1fedc68eed3e9d')}
+                        helperText={translate('text_632d68358f1fedc68eed3eab')}
+                        data={[
+                          {
+                            value: CouponFrequency.Once,
+                            label: translate('text_632d68358f1fedc68eed3ea3'),
+                          },
+                          {
+                            value: CouponFrequency.Recurring,
+                            label: translate('text_632d68358f1fedc68eed3e64'),
+                          },
+                          {
+                            value: CouponFrequency.Forever,
+                            label: translate('text_63c83a3476e46bc6ab9d85d6'),
+                          },
+                        ]}
+                        disableClearable
+                      />
+                    )}
+                  </form.AppField>
 
-                  {formikProps.values.frequency === CouponFrequency.Forever &&
-                    formikProps.values.couponType === CouponTypeEnum.FixedAmount && (
+                  {frequency === CouponFrequency.Forever &&
+                    couponType === CouponTypeEnum.FixedAmount && (
                       <Alert type="info">{translate('text_63c83a3476e46bc6ab9d85da')}</Alert>
                     )}
 
-                  {formikProps.values.frequency === CouponFrequency.Recurring && (
-                    <TextInputField
-                      name="frequencyDuration"
-                      beforeChangeFormatter={['positiveNumber', 'int']}
-                      disabled={isEdition && !!coupon?.appliedCouponsCount}
-                      label={translate('text_632d68358f1fedc68eed3e80')}
-                      placeholder={translate('text_632d68358f1fedc68eed3e88')}
-                      formikProps={formikProps}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {translate('text_632d68358f1fedc68eed3e95')}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+                  {frequency === CouponFrequency.Recurring && (
+                    <form.AppField name="frequencyDuration">
+                      {(field) => (
+                        <field.TextInputField
+                          beforeChangeFormatter={['positiveNumber', 'int']}
+                          disabled={isEdition && !!coupon?.appliedCouponsCount}
+                          label={translate('text_632d68358f1fedc68eed3e80')}
+                          placeholder={translate('text_632d68358f1fedc68eed3e88')}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                {translate('text_632d68358f1fedc68eed3e95')}
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                    </form.AppField>
                   )}
-                  {formikProps.values.couponType === CouponTypeEnum.FixedAmount &&
-                    formikProps.values.frequency === CouponFrequency.Recurring && (
+                  {couponType === CouponTypeEnum.FixedAmount &&
+                    frequency === CouponFrequency.Recurring && (
                       <Alert type="info">{translate('text_632d68358f1fedc68eed3ebd')}</Alert>
                     )}
                 </Card>
@@ -441,27 +435,27 @@ const CreateCoupon = () => {
                   <div className="flex flex-col gap-3">
                     <Checkbox
                       name="isReusable"
-                      value={!!formikProps.values.reusable}
+                      value={!!reusable}
                       disabled={isEdition && !!coupon?.appliedCouponsCount}
                       label={translate('text_638f48274d41e3f1d01fc16a')}
                       onChange={(_, checked) => {
-                        formikProps.setFieldValue('reusable', checked)
+                        form.setFieldValue('reusable', checked)
                       }}
                     />
 
                     <Checkbox
                       name="hasLimit"
-                      value={formikProps.values.expiration === CouponExpiration.TimeLimit}
+                      value={expiration === CouponExpiration.TimeLimit}
                       label={translate('text_632d68358f1fedc68eed3eb7')}
                       onChange={(_, checked) => {
-                        formikProps.setFieldValue(
+                        form.setFieldValue(
                           'expiration',
                           checked ? CouponExpiration.TimeLimit : CouponExpiration.NoExpiration,
                         )
                       }}
                     />
 
-                    {formikProps.values.expiration === CouponExpiration.TimeLimit && (
+                    {expiration === CouponExpiration.TimeLimit && (
                       <div className="flex items-center gap-3">
                         <Typography variant="body" color="grey700" className="shrink-0">
                           {translate('text_632d68358f1fedc68eed3eb1')}
@@ -472,13 +466,10 @@ const CreateCoupon = () => {
                           name="expirationAt"
                           placement="top-end"
                           placeholder={translate('text_632d68358f1fedc68eed3ea5')}
-                          onChange={(expirationAt) => {
-                            formikProps.setFieldValue(
-                              'expirationAt',
-                              endOfDayIso(expirationAt as string),
-                            )
+                          onChange={(value) => {
+                            form.setFieldValue('expirationAt', endOfDayIso(value as string))
                           }}
-                          value={formikProps.values.expirationAt || ''}
+                          value={expirationAt || ''}
                         />
                       </div>
                     )}
@@ -487,7 +478,7 @@ const CreateCoupon = () => {
                   <Checkbox
                     className="mb-3"
                     name="hasPlanOrBillableMetricLimit"
-                    value={hasPlanLimit || hasBillableMetricLimit}
+                    value={formHasPlanLimit || formHasBillableMetricLimit}
                     disabled={isEdition && !!coupon?.appliedCouponsCount}
                     label={translate('text_64352657267c3d916f9627a4')}
                     onChange={(_, checked) => {
@@ -495,17 +486,17 @@ const CreateCoupon = () => {
                         !checked ||
                         (!limitPlansList.length && !limitBillableMetricsList.length)
                       ) {
-                        setHasPlanLimit(checked)
-                        setHasBillableMetricLimit(checked)
+                        form.setFieldValue('hasPlanLimit', checked)
+                        form.setFieldValue('hasBillableMetricLimit', checked)
                       } else if (!!limitPlansList.length) {
-                        setHasPlanLimit(checked)
+                        form.setFieldValue('hasPlanLimit', checked)
                       } else if (!!limitBillableMetricsList.length) {
-                        setHasBillableMetricLimit(checked)
+                        form.setFieldValue('hasBillableMetricLimit', checked)
                       }
                     }}
                   />
 
-                  {(hasPlanLimit || hasBillableMetricLimit) && (
+                  {(formHasPlanLimit || formHasBillableMetricLimit) && (
                     <>
                       {!!limitPlansList.length &&
                         limitPlansList.map((plan, i) => (
@@ -536,11 +527,12 @@ const CreateCoupon = () => {
                                   icon="trash"
                                   variant="quaternary"
                                   size="small"
-                                  onClick={() =>
-                                    setLimitPlansList((oldArray: PlansForCouponsFragment[]) => [
-                                      ...oldArray.filter((p) => p.id !== plan.id),
-                                    ])
-                                  }
+                                  onClick={() => {
+                                    form.setFieldValue(
+                                      'limitPlansList',
+                                      limitPlansList.filter((p) => p.id !== plan.id),
+                                    )
+                                  }}
                                   data-test={`delete-limited-plan-${i}`}
                                 />
                               </Tooltip>
@@ -577,13 +569,14 @@ const CreateCoupon = () => {
                                   icon="trash"
                                   variant="quaternary"
                                   size="small"
-                                  onClick={() =>
-                                    setLimitBillableMetricsList(
-                                      (oldArray: BillableMetricsForCouponsFragment[]) => [
-                                        ...oldArray.filter((b) => b.id !== billableMetric.id),
-                                      ],
+                                  onClick={() => {
+                                    form.setFieldValue(
+                                      'limitBillableMetricsList',
+                                      limitBillableMetricsList.filter(
+                                        (b) => b.id !== billableMetric.id,
+                                      ),
                                     )
-                                  }
+                                  }}
                                   data-test={`delete-limited-billable-metric-${i}`}
                                 />
                               </Tooltip>
@@ -597,7 +590,7 @@ const CreateCoupon = () => {
                             <Button
                               variant="inline"
                               startIcon="plus"
-                              disabled={hasBillableMetricLimit && !hasPlanLimit}
+                              disabled={formHasBillableMetricLimit && !formHasPlanLimit}
                               onClick={addPlanToCouponDialogRef.current?.openDialog}
                               data-test="add-plan-limit"
                             >
@@ -606,7 +599,7 @@ const CreateCoupon = () => {
                             <Button
                               variant="inline"
                               startIcon="plus"
-                              disabled={hasPlanLimit && !hasBillableMetricLimit}
+                              disabled={formHasPlanLimit && !formHasBillableMetricLimit}
                               onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
                               data-test="add-billable-metric-limit"
                             >
@@ -620,27 +613,15 @@ const CreateCoupon = () => {
                 </Card>
 
                 <div className="px-6 pb-20">
-                  <Button
-                    disabled={
-                      !formikProps.isValid ||
-                      (isEdition &&
-                        !formikProps.dirty &&
-                        isEqual(coupon?.plans, limitPlansList) &&
-                        isEqual(coupon?.billableMetrics, limitBillableMetricsList) &&
-                        hasPlanLimit === !!coupon?.limitedPlans &&
-                        hasBillableMetricLimit === !!coupon?.limitedBillableMetrics) ||
-                      (hasPlanLimit && !limitPlansList.length) ||
-                      (hasBillableMetricLimit && !limitBillableMetricsList.length)
-                    }
-                    fullWidth
-                    size="large"
-                    onClick={formikProps.submitForm}
-                    data-test="submit"
-                  >
-                    {translate(
-                      isEdition ? 'text_6287a9bdac160c00b2e0fc6b' : 'text_62876e85e32e0300e180317d',
-                    )}
-                  </Button>
+                  <form.AppForm>
+                    <form.SubmitButton fullWidth size="large" dataTest="submit">
+                      {translate(
+                        isEdition
+                          ? 'text_6287a9bdac160c00b2e0fc6b'
+                          : 'text_62876e85e32e0300e180317d',
+                      )}
+                    </form.SubmitButton>
+                  </form.AppForm>
                 </div>
               </>
             )}
@@ -649,14 +630,14 @@ const CreateCoupon = () => {
         <Side>
           <CouponCodeSnippet
             loading={loading}
-            coupon={formikProps.values}
-            hasPlanLimit={hasPlanLimit}
+            coupon={formValues as unknown as CreateCouponInput}
+            hasPlanLimit={formHasPlanLimit}
             limitPlansList={limitPlansList}
-            hasBillableMetricLimit={hasBillableMetricLimit}
+            hasBillableMetricLimit={formHasBillableMetricLimit}
             limitBillableMetricsList={limitBillableMetricsList}
           />
         </Side>
-      </div>
+      </form>
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}

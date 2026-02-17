@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -75,35 +75,33 @@ gql`
   ${BillableMetricsForCouponsFragmentDoc}
 `
 
+type CouponFormInput = CreateCouponInput &
+  UpdateCouponInput & {
+    hasPlanLimit?: boolean
+    limitPlansList?: PlansForCouponsFragment[]
+    hasBillableMetricLimit?: boolean
+    limitBillableMetricsList?: BillableMetricsForCouponsFragment[]
+  }
+
 type UseCreateEditCouponReturn = {
   loading: boolean
   isEdition: boolean
   coupon?: EditCouponFragment
   errorCode?: string
-  hasPlanLimit: boolean
-  setHasPlanLimit: Dispatch<SetStateAction<boolean>>
-  limitPlansList: PlansForCouponsFragment[]
-  setLimitPlansList: Dispatch<SetStateAction<PlansForCouponsFragment[]>>
-  hasBillableMetricLimit: boolean
-  setHasBillableMetricLimit: Dispatch<SetStateAction<boolean>>
-  limitBillableMetricsList: BillableMetricsForCouponsFragment[]
-  setLimitBillableMetricsList: Dispatch<SetStateAction<BillableMetricsForCouponsFragment[]>>
-  onSave: (value: CreateCouponInput | UpdateCouponInput) => Promise<void>
+  onSave: (value: CouponFormInput) => Promise<void>
 }
 
-const formatCouponInput = (
-  values: CreateCouponInput | UpdateCouponInput,
-  hasPlanLimit: boolean,
-  limitPlansList: PlansForCouponsFragment[],
-  hasBillableMetricLimit: boolean,
-  limitBillableMetricsList: BillableMetricsForCouponsFragment[],
-) => {
+const formatCouponInput = (values: CouponFormInput) => {
   const {
     amountCents,
     amountCurrency,
     expirationAt,
     percentageRate,
     frequencyDuration,
+    hasPlanLimit,
+    limitPlansList,
+    hasBillableMetricLimit,
+    limitBillableMetricsList,
     ...others
   } = values
 
@@ -120,13 +118,10 @@ const formatCouponInput = (
     frequencyDuration:
       values.frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
     appliesTo: {
-      planIds:
-        hasPlanLimit && limitPlansList.length
-          ? limitPlansList.map((p: PlansForCouponsFragment) => p.id) || []
-          : [],
+      planIds: hasPlanLimit && limitPlansList?.length ? limitPlansList.map((p) => p.id) : [],
       billableMetricIds:
-        hasBillableMetricLimit && limitBillableMetricsList.length
-          ? limitBillableMetricsList.map((b: BillableMetricsForCouponsFragment) => b.id) || []
+        hasBillableMetricLimit && limitBillableMetricsList?.length
+          ? limitBillableMetricsList.map((b) => b.id)
           : [],
     },
     ...others,
@@ -141,16 +136,6 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
     variables: { id: couponId as string },
     skip: !couponId,
   })
-  const [hasPlanLimit, setHasPlanLimit] = useState<boolean>(!!data?.coupon?.limitedPlans)
-  const [limitPlansList, setLimitPlansList] = useState<PlansForCouponsFragment[]>(
-    data?.coupon?.plans || [],
-  )
-  const [hasBillableMetricLimit, setHasBillableMetricLimit] = useState<boolean>(
-    !!data?.coupon?.limitedBillableMetrics,
-  )
-  const [limitBillableMetricsList, setLimitBillableMetricsList] = useState<
-    BillableMetricsForCouponsFragment[]
-  >(data?.coupon?.billableMetrics || [])
   const [create, { error: createError }] = useCreateCouponMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createCoupon }) {
@@ -187,21 +172,6 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   })
 
   useEffect(() => {
-    if (!loading) {
-      setHasPlanLimit(!!data?.coupon?.limitedPlans)
-      setLimitPlansList(data?.coupon?.plans || [])
-      setHasBillableMetricLimit(!!data?.coupon?.limitedBillableMetrics)
-      setLimitBillableMetricsList(data?.coupon?.billableMetrics || [])
-    }
-  }, [
-    loading,
-    data?.coupon?.limitedPlans,
-    data?.coupon?.plans,
-    data?.coupon?.limitedBillableMetrics,
-    data?.coupon?.billableMetrics,
-  ])
-
-  useEffect(() => {
     if (hasDefinedGQLError('NotFound', error, 'coupon')) {
       navigate(ERROR_404_ROUTE)
     }
@@ -219,14 +189,6 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   return useMemo(
     () => ({
       loading,
-      hasPlanLimit,
-      setHasPlanLimit,
-      limitPlansList,
-      setLimitPlansList,
-      hasBillableMetricLimit,
-      setHasBillableMetricLimit,
-      limitBillableMetricsList,
-      setLimitBillableMetricsList,
       isEdition: !!couponId,
       errorCode,
       coupon: !data?.coupon ? undefined : data?.coupon,
@@ -235,14 +197,8 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
             await update({
               variables: {
                 input: {
+                  ...formatCouponInput(values),
                   id: couponId,
-                  ...formatCouponInput(
-                    values,
-                    hasPlanLimit,
-                    limitPlansList,
-                    hasBillableMetricLimit,
-                    limitBillableMetricsList,
-                  ),
                 },
               },
             })
@@ -250,28 +206,11 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
         : async (values) => {
             await create({
               variables: {
-                input: formatCouponInput(
-                  values,
-                  hasPlanLimit,
-                  limitPlansList,
-                  hasBillableMetricLimit,
-                  limitBillableMetricsList,
-                ),
+                input: formatCouponInput(values),
               },
             })
           },
     }),
-    [
-      loading,
-      hasPlanLimit,
-      limitPlansList,
-      hasBillableMetricLimit,
-      limitBillableMetricsList,
-      couponId,
-      errorCode,
-      data?.coupon,
-      update,
-      create,
-    ],
+    [loading, couponId, errorCode, data?.coupon, update, create],
   )
 }

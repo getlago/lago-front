@@ -3795,5 +3795,9 @@
   "text_1770124786732u8hv8voejbl": "Set specific tax rates to apply to this plan and all its charges.",
   "text_17701996981731m5uguxyg8b": "Customer not found",
   "text_17691652749726aa4es5s80q": "{{resource}} {{resourceNumber}} was sent by email",
-  "text_1769180515750z7jxssqkdvu": "Payment receipt"
+  "text_1769180515750z7jxssqkdvu": "Payment receipt",
+  "text_1771342980565bx64zqq2mjs": "Name is required",
+  "text_1771342994699klxu2paz7g9": "Code is required",
+  "text_1771344249653qh6ka7v6ot2": "Select at least one plan",
+  "text_1771344249653wx8dh32y28w": "Select at least one billable metric"
 }
