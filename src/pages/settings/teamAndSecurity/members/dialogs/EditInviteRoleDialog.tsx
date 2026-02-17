@@ -1,12 +1,12 @@
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { z } from 'zod'
 
 import { Avatar } from '~/components/designSystem/Avatar'
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { InviteForEditRoleForDialogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -17,28 +17,21 @@ import { UpdateInviteSingleRole } from '../common/inviteTypes'
 import { useInviteActions } from '../hooks/useInviteActions'
 
 export const EDIT_INVITE_ROLE_FORM_ID = 'form-edit-invite-role'
-export interface EditInviteRoleDialogRef {
-  openDialog: (localData: InviteForEditRoleForDialogImperativeProps) => unknown
-  closeDialog: () => unknown
+
+const initialValues: UpdateInviteSingleRole = {
+  role: '',
 }
 
-type InviteForEditRoleForDialogImperativeProps = {
-  invite: InviteForEditRoleForDialogFragment | null
-}
+const validationSchema = z.object({
+  role: z.string(),
+})
 
-export const EditInviteRoleDialog = forwardRef<EditInviteRoleDialogRef>((_, ref) => {
+export const useEditInviteRoleDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
   const { updateInviteRole } = useInviteActions()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<InviteForEditRoleForDialogImperativeProps | null>(null)
-
-  const validationSchema = z.object({
-    role: z.string(),
-  })
-
-  const initialValues: UpdateInviteSingleRole = {
-    role: localData?.invite?.roles[0] || '',
-  }
+  const inviteRef = useRef<InviteForEditRoleForDialogFragment | null>(null)
+  const successRef = useRef(false)
 
   const form = useAppForm({
     defaultValues: initialValues,
@@ -47,77 +40,69 @@ export const EditInviteRoleDialog = forwardRef<EditInviteRoleDialogRef>((_, ref)
       onDynamic: validationSchema,
     },
     onSubmit: async ({ value }) => {
-      await updateInviteRole({
+      const result = await updateInviteRole({
         variables: {
           input: {
             roles: [value.role],
-            id: localData?.invite?.id as string,
+            id: inviteRef.current?.id as string,
           },
         },
       })
 
-      setLocalData(null)
-      dialogRef.current?.closeDialog()
+      if (result.data?.updateInvite) {
+        successRef.current = true
+      }
     },
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  const handleClose = () => {
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openEditInviteRoleDialog = (invite: InviteForEditRoleForDialogFragment) => {
+    inviteRef.current = invite
     form.reset()
+    form.setFieldValue('role', invite.roles[0] || '')
+
+    formDialog
+      .open({
+        title: translate('text_664f035a68227f00e261b7e9'),
+        children: (
+          <div className="flex flex-col gap-8 p-8">
+            <Stack gap={3} direction="row" alignItems="center">
+              <Avatar variant="user" identifier={(invite.email || '').charAt(0)} size="big" />
+              <Typography variant="body" color="grey700">
+                {invite.email}
+              </Typography>
+            </Stack>
+            <RolePicker form={form} fields={{ role: 'role' }} />
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_664f035a68227f00e261b7f6')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_INVITE_ROLE_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          inviteRef.current = null
+        }
+      })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    form.handleSubmit()
-  }
-
-  const getActions = ({ closeDialog }: { closeDialog: () => void }) => {
-    return (
-      <>
-        <Button variant="quaternary" onClick={closeDialog}>
-          {translate('text_62bb10ad2a10bd182d002031')}
-        </Button>
-        <form.AppForm>
-          <form.SubmitButton>{translate('text_664f035a68227f00e261b7f6')}</form.SubmitButton>
-        </form.AppForm>
-      </>
-    )
-  }
-
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_664f035a68227f00e261b7e9')}
-      onClose={handleClose}
-      actions={getActions}
-      formId={EDIT_INVITE_ROLE_FORM_ID}
-      formSubmit={handleSubmit}
-    >
-      <div className="mb-8 flex flex-col gap-8">
-        <Stack gap={3} direction="row" alignItems="center">
-          <Avatar
-            variant="user"
-            identifier={(localData?.invite?.email || '').charAt(0)}
-            size="big"
-          />
-          <Typography variant="body" color="grey700">
-            {localData?.invite?.email}
-          </Typography>
-        </Stack>
-
-        <RolePicker form={form} fields={{ role: 'role' }} />
-      </div>
-    </Dialog>
-  )
-})
-
-EditInviteRoleDialog.displayName = 'forwardRef'
+  return { openEditInviteRoleDialog }
+}

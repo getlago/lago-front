@@ -19,7 +19,7 @@ import { useRolesList } from '~/hooks/useRolesList'
 
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
-import { EditInviteRoleDialog, EditInviteRoleDialogRef } from './dialogs/EditInviteRoleDialog'
+import { useEditInviteRoleDialog } from './dialogs/EditInviteRoleDialog'
 import { RevokeInviteDialog, RevokeInviteDialogRef } from './dialogs/RevokeInviteDialog'
 import { useGetMembersInvitationList } from './hooks/useGetMembersInvitationsList'
 
@@ -54,9 +54,9 @@ const MembersInvitationList = () => {
 
   const RolesColumn = getRolesColumn(roles, getDisplayName)
 
-  const editInviteRoleDialogRef = useRef<EditInviteRoleDialogRef>(null)
   const revokeInviteDialogRef = useRef<RevokeInviteDialogRef>(null)
   const { openCreateInviteDialog } = useCreateInviteDialog()
+  const { openEditInviteRoleDialog } = useEditInviteRoleDialog()
 
   const [searchParams] = useSearchParams()
 
@@ -117,9 +117,7 @@ const MembersInvitationList = () => {
             startIcon: 'pen',
             title: translate('text_664f035a68227f00e261b7f6'),
             onAction: () => {
-              editInviteRoleDialogRef.current?.openDialog({
-                invite,
-              })
+              openEditInviteRoleDialog(invite)
             },
           } as ActionItem<InviteItemForMembersSettingsFragment>,
         ]
@@ -221,7 +219,6 @@ const MembersInvitationList = () => {
         />
       </InfiniteScroll>
       <RevokeInviteDialog ref={revokeInviteDialogRef} />
-      <EditInviteRoleDialog ref={editInviteRoleDialogRef} />
     </div>
   )
 }
