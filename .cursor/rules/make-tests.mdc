@@ -29,10 +29,33 @@ Invoke this rule with a PR number or branch name:
 
 ## Input Detection
 
-Determine the input type:
+Determine the input type in this order:
 
-1. **PR Number**: If the argument is numeric or starts with `#` followed by numbers (e.g., `#123`, `123`)
-2. **Branch Name**: If the argument contains letters, slashes, or dashes (e.g., `feature/my-feature`, `origin/fix-bug`)
+### Step 1: Check if PR Number (Remote)
+
+If the argument is numeric or starts with `#` followed by numbers (e.g., `#123`, `123`):
+- Remove the `#` prefix if present
+- Verify the PR exists: `gh pr view <PR_NUMBER> --json number`
+- If valid, use PR mode
+
+### Step 2: Check if Branch Name (Local)
+
+If the argument is not a PR number:
+- Check if the branch exists locally: `git branch --list <BRANCH_NAME>`
+- If found, use local branch mode
+
+### Step 3: Check if Branch Name (Remote)
+
+If the branch doesn't exist locally:
+- Fetch remote refs: `git fetch origin`
+- Check if branch exists on remote: `git branch -r --list origin/<BRANCH_NAME>`
+- If found, use remote branch mode
+
+### Step 4: Fallback - Current Branch
+
+If no valid input is detected or the branch doesn't exist:
+- Use the current branch: `git branch --show-current`
+- Confirm with user before proceeding
 
 ## Overview
 
@@ -130,52 +153,90 @@ Before starting, gather context by reading these reference files:
 
 ---
 
-## Phase 0: Parse Input
-
-When invoked, detect the input type:
-
-**PR Number:**
-- `/make-tests #123` → PR_NUMBER = `123`
-- `/make-tests 123` → PR_NUMBER = `123`
-
-**Branch Name:**
-- `/make-tests feature/my-feature` → BRANCH = `feature/my-feature`
-- `/make-tests origin/fix/bug-123` → BRANCH = `origin/fix/bug-123`
-
-If no argument is provided, ask the user what they want to create tests for.
-
----
-
 ## Phase 1: Code Analysis
 
-### Step 1.1: Fetch Changed Files Information
+### Step 1.1: Detect Input Type and Fetch Changed Files
 
-Based on the input type, fetch the diff and changed files:
-
-#### Option A: PR Number
+Execute the following logic to detect input type and fetch the diff:
 
 ```bash
-# Get PR diff and changed files
-gh pr view <PR_NUMBER> --json files,additions,deletions,body,title
-gh pr diff <PR_NUMBER>
-```
+# Store the input argument
+INPUT="$ARGUMENTS"
 
-#### Option B: Branch Name
+# Step 1: Check if PR Number
+if [[ "$INPUT" =~ ^#?[0-9]+$ ]]; then
+  PR_NUMBER="${INPUT#\#}"  # Remove # prefix if present
 
-```bash
-# For local branch - get the diff against main
-git diff main...<BRANCH_NAME> --name-only  # List changed files
-git diff main...<BRANCH_NAME>               # Full diff
+  # Verify PR exists
+  if gh pr view "$PR_NUMBER" --json number &>/dev/null; then
+    echo "Detected: PR #$PR_NUMBER"
+    # Fetch PR info and diff
+    gh pr view "$PR_NUMBER" --json files,additions,deletions,body,title
+    gh pr diff "$PR_NUMBER"
+    exit 0
+  fi
+fi
 
-# If the branch is remote (origin/branch-name)
-git fetch origin
-git diff main...origin/<BRANCH_NAME> --name-only
-git diff main...origin/<BRANCH_NAME>
+# Step 2: Check if Local Branch
+if git branch --list "$INPUT" | grep -q "$INPUT"; then
+  echo "Detected: Local branch '$INPUT'"
+  git diff main..."$INPUT" --name-only
+  git diff main..."$INPUT"
+  exit 0
+fi
 
-# If you're currently ON the branch you want to test
+# Step 3: Check if Remote Branch
+git fetch origin &>/dev/null
+REMOTE_BRANCH="${INPUT#origin/}"  # Remove origin/ prefix if present
+if git branch -r --list "origin/$REMOTE_BRANCH" | grep -q "origin/$REMOTE_BRANCH"; then
+  echo "Detected: Remote branch 'origin/$REMOTE_BRANCH'"
+  git diff main...origin/"$REMOTE_BRANCH" --name-only
+  git diff main...origin/"$REMOTE_BRANCH"
+  exit 0
+fi
+
+# Step 4: Fallback to current branch
+CURRENT_BRANCH=$(git branch --show-current)
+echo "Input '$INPUT' not found. Using current branch: '$CURRENT_BRANCH'"
 git diff main...HEAD --name-only
 git diff main...HEAD
 ```
+
+#### Summary of Commands per Input Type
+
+| Input Type | Example | Diff Command |
+|------------|---------|--------------|
+| PR Number | `#123`, `123` | `gh pr diff 123` |
+| Local Branch | `feature/my-feature` | `git diff main...feature/my-feature` |
+| Remote Branch | `origin/feature/x` | `git diff main...origin/feature/x` |
+| Current Branch | (fallback) | `git diff main...HEAD` |
+
+#### Handle Worktree Scenarios
+
+If the branch is in a different worktree:
+
+```bash
+# List all worktrees to find where the branch is checked out
+git worktree list
+
+# If main is in a different worktree, use the commit SHA instead
+git rev-parse main  # Get main's SHA (works across worktrees)
+
+# Then diff against the SHA
+git diff <MAIN_SHA>...<BRANCH_NAME> --name-only
+git diff <MAIN_SHA>...<BRANCH_NAME>
+
+# Alternative: diff against origin/main if available
+git fetch origin
+git diff origin/main...<BRANCH_NAME> --name-only
+git diff origin/main...<BRANCH_NAME>
+```
+
+**Troubleshooting:**
+
+- If `git diff main...<BRANCH_NAME>` fails with "unknown revision", the branch might not exist locally. Check with `git branch -a | grep <BRANCH_NAME>`
+- If in a worktree and `main` is not accessible, use `origin/main` or the SHA of main
+- For branches that only exist locally (never pushed), `git diff main...<BRANCH_NAME>` will work as long as `main` is accessible
 
 ### Step 1.2: Identify Files Requiring Tests
 
