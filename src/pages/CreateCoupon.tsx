@@ -49,6 +49,14 @@ import { CouponFormValues, couponValidationSchema } from './createCoupon/validat
 
 export const COUPONS_FORM_ID = 'coupon-form'
 
+// Test ID constants
+export const COUPON_NAME_INPUT_TEST_ID = 'coupon-name-input'
+export const COUPON_CODE_INPUT_TEST_ID = 'coupon-code-input'
+export const COUPON_DESCRIPTION_INPUT_TEST_ID = 'coupon-description-input'
+export const COUPON_AMOUNT_INPUT_TEST_ID = 'coupon-amount-input'
+export const COUPON_PERCENTAGE_INPUT_TEST_ID = 'coupon-percentage-input'
+export const COUPON_CODE_SNIPPET_TEST_ID = 'coupon-code-snippet'
+
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -244,6 +252,7 @@ const CreateCoupon = () => {
                       <field.TextInputField
                         // eslint-disable-next-line jsx-a11y/no-autofocus
                         autoFocus
+                        data-test={COUPON_NAME_INPUT_TEST_ID}
                         label={translate('text_62876e85e32e0300e180311b')}
                         placeholder={translate('text_62876e85e32e0300e1803121')}
                       />
@@ -254,6 +263,7 @@ const CreateCoupon = () => {
                     {(field) => (
                       <field.TextInputField
                         beforeChangeFormatter="code"
+                        data-test={COUPON_CODE_INPUT_TEST_ID}
                         disabled={isEdition && !!coupon?.appliedCouponsCount}
                         label={translate('text_62876e85e32e0300e1803127')}
                         placeholder={translate('text_62876e85e32e0300e180312d')}
@@ -268,6 +278,7 @@ const CreateCoupon = () => {
                         {(field) => (
                           <field.TextInputField
                             className="mr-3 flex-1"
+                            data-test={COUPON_DESCRIPTION_INPUT_TEST_ID}
                             multiline
                             label={translate('text_649e848fa4c023006e94ca32')}
                             placeholder={translate('text_649e85d35208d700473f79c9')}
@@ -334,6 +345,7 @@ const CreateCoupon = () => {
                           <field.AmountInputField
                             className="flex-1"
                             currency={amountCurrency || CurrencyEnum.Usd}
+                            data-test={COUPON_AMOUNT_INPUT_TEST_ID}
                             beforeChangeFormatter={['positiveNumber']}
                             disabled={isEdition && !!coupon?.appliedCouponsCount}
                             label={translate('text_62978f2c197cea009ab0b7d0')}
@@ -358,6 +370,7 @@ const CreateCoupon = () => {
                       {(field) => (
                         <field.TextInputField
                           beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
+                          data-test={COUPON_PERCENTAGE_INPUT_TEST_ID}
                           disabled={isEdition && !!coupon?.appliedCouponsCount}
                           label={translate('text_632d68358f1fedc68eed3e76')}
                           placeholder={translate('text_632d68358f1fedc68eed3e86')}
