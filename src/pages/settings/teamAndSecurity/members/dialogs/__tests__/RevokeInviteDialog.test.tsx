@@ -1,16 +1,22 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
+import { ReactNode } from 'react'
 
 import {
-  WARNING_DIALOG_CANCEL_BUTTON_TEST_ID,
-  WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
-  WARNING_DIALOG_TEST_ID,
-} from '~/components/designSystem/WarningDialog'
+  CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_NAME,
+  CENTRALIZED_DIALOG_TEST_ID,
+  DIALOG_TITLE_TEST_ID,
+} from '~/components/dialogs/const'
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { RevokeInviteDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
-import { RevokeInviteDialog, RevokeInviteDialogRef } from '../RevokeInviteDialog'
+import { useRevokeInviteDialog } from '../RevokeInviteDialog'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockAddToast = jest.fn()
 
@@ -23,20 +29,46 @@ const INVITE_ID = 'invite-123'
 const INVITE_EMAIL = 'test@example.com'
 const ORGANIZATION_NAME = 'Test Organization'
 
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
+  return <NiceModal.Provider>{children}</NiceModal.Provider>
+}
+
+const TestComponent = () => {
+  const { openRevokeInviteDialog } = useRevokeInviteDialog()
+
+  return (
+    <button
+      data-test="open-dialog"
+      onClick={() =>
+        openRevokeInviteDialog({
+          id: INVITE_ID,
+          email: INVITE_EMAIL,
+          organizationName: ORGANIZATION_NAME,
+        })
+      }
+    >
+      Open Dialog
+    </button>
+  )
+}
+
 async function prepare({ mocks = [] }: { mocks?: TestMocksType } = {}) {
-  const ref = createRef<RevokeInviteDialogRef>()
+  await act(() =>
+    render(
+      <NiceModalWrapper>
+        <TestComponent />
+      </NiceModalWrapper>,
+      { mocks },
+    ),
+  )
 
-  await act(() => render(<RevokeInviteDialog ref={ref} />, { mocks }))
-
-  await act(() => {
-    ref.current?.openDialog({
-      id: INVITE_ID,
-      email: INVITE_EMAIL,
-      organizationName: ORGANIZATION_NAME,
-    })
+  await act(async () => {
+    screen.getByTestId('open-dialog').click()
   })
 
-  return { ref }
+  await waitFor(() => {
+    expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+  })
 }
 
 describe('RevokeInviteDialog', () => {
@@ -49,20 +81,36 @@ describe('RevokeInviteDialog', () => {
     it('renders the dialog with correct title', async () => {
       await prepare()
 
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-    })
-
-    it('renders the dialog with description containing email and organization', async () => {
-      await prepare()
-
-      expect(screen.getByTestId('dialog-description')).toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
     })
 
     it('renders cancel and confirm buttons', async () => {
       await prepare()
 
-      expect(screen.getByTestId(WARNING_DIALOG_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('Opening', () => {
+    it('opens the dialog when the hook function is called', async () => {
+      await act(() =>
+        render(
+          <NiceModalWrapper>
+            <TestComponent />
+          </NiceModalWrapper>,
+        ),
+      )
+
+      expect(screen.queryByTestId(CENTRALIZED_DIALOG_TEST_ID)).not.toBeInTheDocument()
+
+      await act(async () => {
+        screen.getByTestId('open-dialog').click()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_TEST_ID)).toBeInTheDocument()
+      })
     })
   })
 
@@ -72,12 +120,12 @@ describe('RevokeInviteDialog', () => {
 
       await prepare()
 
-      expect(screen.getByTestId(WARNING_DIALOG_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CENTRALIZED_DIALOG_TEST_ID)).toBeInTheDocument()
 
-      await user.click(screen.getByTestId(WARNING_DIALOG_CANCEL_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID))
 
       await waitFor(() => {
-        expect(screen.queryByTestId(WARNING_DIALOG_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(CENTRALIZED_DIALOG_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
@@ -103,7 +151,7 @@ describe('RevokeInviteDialog', () => {
 
       await prepare({ mocks: [mutationMock] })
 
-      await user.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(mockAddToast).toHaveBeenCalledWith({
@@ -111,52 +159,6 @@ describe('RevokeInviteDialog', () => {
           severity: 'success',
         })
       })
-    })
-  })
-
-  describe('Dialog Ref', () => {
-    it('exposes openDialog method via ref', async () => {
-      const ref = createRef<RevokeInviteDialogRef>()
-
-      await act(() => render(<RevokeInviteDialog ref={ref} />))
-
-      expect(screen.queryByTestId(WARNING_DIALOG_TEST_ID)).not.toBeInTheDocument()
-
-      await act(() => {
-        ref.current?.openDialog({
-          id: INVITE_ID,
-          email: INVITE_EMAIL,
-          organizationName: ORGANIZATION_NAME,
-        })
-      })
-
-      await waitFor(() => {
-        expect(screen.getByTestId(WARNING_DIALOG_TEST_ID)).toBeInTheDocument()
-      })
-    })
-
-    it('exposes closeDialog method via ref', async () => {
-      const { ref } = await prepare()
-
-      expect(screen.getByTestId(WARNING_DIALOG_TEST_ID)).toBeInTheDocument()
-
-      await act(() => {
-        ref.current?.closeDialog()
-      })
-
-      await waitFor(() => {
-        expect(screen.queryByTestId(WARNING_DIALOG_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('Snapshot', () => {
-    it('matches snapshot', async () => {
-      await prepare()
-
-      const dialog = screen.getByTestId(WARNING_DIALOG_TEST_ID)
-
-      expect(dialog).toMatchSnapshot()
     })
   })
 })

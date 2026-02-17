@@ -19,7 +19,7 @@ export type CentralizedDialogProps = {
   description?: ReactNode
   headerContent?: ReactNode
   children?: ReactNode
-  onAction: () => DialogResult | Promise<DialogResult> | void
+  onAction: () => DialogResult | Promise<DialogResult> | void | Promise<void>
   actionText: string
   colorVariant?: 'info' | 'danger'
   disableOnContinue?: boolean

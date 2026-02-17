@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -20,7 +20,7 @@ import { useRolesList } from '~/hooks/useRolesList'
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
 import { useEditInviteRoleDialog } from './dialogs/EditInviteRoleDialog'
-import { RevokeInviteDialog, RevokeInviteDialogRef } from './dialogs/RevokeInviteDialog'
+import { useRevokeInviteDialog } from './dialogs/RevokeInviteDialog'
 import { useGetMembersInvitationList } from './hooks/useGetMembersInvitationsList'
 
 type Invitation = GetInvitesQuery['invites']['collection'][0]
@@ -54,9 +54,9 @@ const MembersInvitationList = () => {
 
   const RolesColumn = getRolesColumn(roles, getDisplayName)
 
-  const revokeInviteDialogRef = useRef<RevokeInviteDialogRef>(null)
   const { openCreateInviteDialog } = useCreateInviteDialog()
   const { openEditInviteRoleDialog } = useEditInviteRoleDialog()
+  const { openRevokeInviteDialog } = useRevokeInviteDialog()
 
   const [searchParams] = useSearchParams()
 
@@ -147,7 +147,7 @@ const MembersInvitationList = () => {
             startIcon: 'trash',
             title: translate('text_63208c701ce25db78140745e'),
             onAction: () => {
-              revokeInviteDialogRef?.current?.openDialog({
+              openRevokeInviteDialog({
                 id: invite.id,
                 email: invite.email,
                 organizationName: invite.organization.name,
@@ -218,7 +218,6 @@ const MembersInvitationList = () => {
           actionColumn={actionColumn}
         />
       </InfiniteScroll>
-      <RevokeInviteDialog ref={revokeInviteDialogRef} />
     </div>
   )
 }
