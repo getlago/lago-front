@@ -248,6 +248,22 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
+                {actions.canCopy && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      copyToClipboard(creditNote?.id || '')
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_63766b1c4eeb35667c48f26d',
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_637655cb50f04bf1c8379cee')}
+                  </Button>
+                )}
                 {actions.canDownload && !canDownloadXmlFile && (
                   <Button
                     variant="quaternary"
@@ -293,6 +309,11 @@ const CreditNoteDetails = () => {
                     </Button>
                   </>
                 )}
+                {actions.canResendEmail && (
+                  <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                    {translate('text_1770392315728uyw3zhs7kzh')}
+                  </Button>
+                )}
                 {actions.canVoid && (
                   <Button
                     variant="quaternary"
@@ -312,22 +333,7 @@ const CreditNoteDetails = () => {
                     {translate('text_637655cb50f04bf1c8379cec')}
                   </Button>
                 )}
-                {actions.canCopy && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      copyToClipboard(creditNote?.id || '')
-                      addToast({
-                        severity: 'info',
-                        translateKey: 'text_63766b1c4eeb35667c48f26d',
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_637655cb50f04bf1c8379cee')}
-                  </Button>
-                )}
+
                 {actions.canSync && (
                   <Button
                     variant="quaternary"
@@ -358,11 +364,6 @@ const CreditNoteDetails = () => {
                     }}
                   >
                     {translate('text_17270681462632d46dh3r1vu')}
-                  </Button>
-                )}
-                {actions.canResendEmail && (
-                  <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                    {translate('text_1770392315728uyw3zhs7kzh')}
                   </Button>
                 )}
               </MenuPopper>

@@ -3796,7 +3796,7 @@
   "text_17701996981731m5uguxyg8b": "Customer not found",
   "text_17691652749726aa4es5s80q": "{{resource}} {{resourceNumber}} was sent by email",
   "text_1769180515750z7jxssqkdvu": "Payment receipt",
-  "text_1770392315728uyw3zhs7kzh": "Resend email",
+  "text_1770392315728uyw3zhs7kzh": "Resend by email",
   "text_17703925321987cxf5psj6l4": "Send email",
   "text_17706288935587mtvu3z5stp": "To",
   "text_1770628893559thl29v6cswe": "Cc",
@@ -3809,5 +3809,6 @@
   "text_1771003155244io0a00y67om": "Send a Credit Note",
   "text_1771003155244uual9jklecz": "View a Payment receipt",
   "text_1771003155244j5yyywffre1": "Send a payment receipt",
-  "text_17712489384641tbh5v5biae": "Email couldn't be sent. Please try again later"
+  "text_17712489384641tbh5v5biae": "Email couldn't be sent. Please try again later",
+  "text_1771317709944fi3nu3lw2gy": "Resend email"
 }

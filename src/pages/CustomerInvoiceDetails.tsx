@@ -829,6 +829,11 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
+                  {authorizations.canResendEmail && (
+                    <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                      {translate('text_1770392315728uyw3zhs7kzh')}
+                    </Button>
+                  )}
                   {authorizations.canIssueCreditNote && (
                     <>
                       {isPremium ? (
@@ -1046,11 +1051,6 @@ const CustomerInvoiceDetails = () => {
                           ? 'text_17476469985998lthq87gwaq'
                           : 'text_1724702284063xef0c9kyhyl',
                       )}
-                    </Button>
-                  )}
-                  {authorizations.canResendEmail && (
-                    <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                      {translate('text_1770392315728uyw3zhs7kzh')}
                     </Button>
                   )}
                 </MenuPopper>
