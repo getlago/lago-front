@@ -1,73 +1,51 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
-import { MembershipItemForMembershipSettingsFragment } from '~/generated/graphql'
+import { Typography } from '~/components/designSystem/Typography'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { useMembershipActions } from '../hooks/useMembershipActions'
 
-export interface RevokeMembershipDialogRef {
-  openDialog: (membershipInfos: { id: string; email: string; organizationName: string }) => unknown
-  closeDialog: () => unknown
+type RevokeMembershipInfos = {
+  id: string
+  email: string
+  organizationName: string
+  isDeletingLastAdmin: boolean
 }
 
-export const RevokeMembershipDialog = forwardRef<
-  RevokeMembershipDialogRef,
-  { admins: MembershipItemForMembershipSettingsFragment[] }
->(({ admins }, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
+export const useRevokeMembershipDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
   const { revokeMembership } = useMembershipActions()
 
-  const [membershipInfos, setMembershipInfos] = useState<
-    { id: string; email: string; organizationName: string } | undefined
-  >()
-
-  useImperativeHandle(ref, () => ({
-    openDialog: (infos) => {
-      setMembershipInfos(infos)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  const isDeletingLastAdmin =
-    admins.some((admin) => admin.id === membershipInfos?.id) && admins.length === 1
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      mode={isDeletingLastAdmin ? 'info' : 'danger'}
-      title={
-        isDeletingLastAdmin
-          ? translate('text_664f0385f68b4b012708f6cd')
-          : translate('text_63208bfc99e69a28211ec794')
-      }
-      description={
-        isDeletingLastAdmin
-          ? translate('text_664f0385f68b4b012708f6ce')
-          : translate('text_63208bfc99e69a28211ec7a6', {
-              memberEmail: membershipInfos?.email,
-              organizationName: membershipInfos?.organizationName,
-            })
-      }
-      onContinue={async () => {
-        if (isDeletingLastAdmin) {
-          dialogRef.current?.closeDialog()
-        } else {
+  const openRevokeMembershipDialog = (infos: RevokeMembershipInfos) => {
+    if (infos.isDeletingLastAdmin) {
+      centralizedDialog.open({
+        title: translate('text_664f0385f68b4b012708f6cd'),
+        description: translate('text_664f0385f68b4b012708f6ce'),
+        colorVariant: 'info',
+        actionText: translate('text_664f0385f68b4b012708f6cf'),
+        onAction: () => {},
+      })
+    } else {
+      centralizedDialog.open({
+        title: translate('text_63208bfc99e69a28211ec794'),
+        description: (
+          <Typography>
+            {translate('text_63208bfc99e69a28211ec7a6', {
+              memberEmail: infos.email,
+              organizationName: infos.organizationName,
+            })}
+          </Typography>
+        ),
+        colorVariant: 'danger',
+        actionText: translate('text_63208bfc99e69a28211ec7b4'),
+        onAction: async () => {
           await revokeMembership({
-            variables: { input: { id: membershipInfos?.id as string } },
+            variables: { input: { id: infos.id } },
           })
-        }
-      }}
-      continueText={
-        isDeletingLastAdmin
-          ? translate('text_664f0385f68b4b012708f6cf')
-          : translate('text_63208bfc99e69a28211ec7b4')
-      }
-    />
-  )
-})
+        },
+      })
+    }
+  }
 
-RevokeMembershipDialog.displayName = 'RevokeMembershipDialog'
+  return { openRevokeMembershipDialog }
+}

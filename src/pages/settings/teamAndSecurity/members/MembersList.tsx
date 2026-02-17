@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -17,7 +17,7 @@ import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDispl
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
 import { useEditMemberRoleDialog } from './dialogs/EditMemberRoleDialog'
-import { RevokeMembershipDialog, RevokeMembershipDialogRef } from './dialogs/RevokeMembershipDialog'
+import { useRevokeMembershipDialog } from './dialogs/RevokeMembershipDialog'
 import { useGetMembersList } from './hooks/useGetMembersList'
 
 type Membership = GetMembersQuery['memberships']['collection'][0]
@@ -48,7 +48,7 @@ const MemberList = () => {
 
   const [searchParams] = useSearchParams()
 
-  const revokeMembershipDialogRef = useRef<RevokeMembershipDialogRef>(null)
+  const { openRevokeMembershipDialog } = useRevokeMembershipDialog()
   const { openEditMemberRoleDialog } = useEditMemberRoleDialog()
   const { openCreateInviteDialog } = useCreateInviteDialog()
 
@@ -128,10 +128,15 @@ const MemberList = () => {
               startIcon: 'trash',
               title: translate('text_63ea0f84f400488553caa786'),
               onAction: () => {
-                revokeMembershipDialogRef.current?.openDialog({
+                const admins = members.filter((m) => m.roles.includes('Admin'))
+                const isDeletingLastAdmin =
+                  admins.some((admin) => admin.id === membership.id) && admins.length === 1
+
+                openRevokeMembershipDialog({
                   id: membership.id,
                   email: membership.user.email || '',
                   organizationName: membership.organization?.name || '',
+                  isDeletingLastAdmin,
                 })
               },
             } as ActionItem<MembershipItemForMembershipSettingsFragment>,
@@ -178,10 +183,6 @@ const MemberList = () => {
           actionColumn={actionColumn}
         />
       </InfiniteScroll>
-      <RevokeMembershipDialog
-        ref={revokeMembershipDialogRef}
-        admins={members.filter((member) => member.roles.includes('Admin'))}
-      />
     </div>
   )
 }

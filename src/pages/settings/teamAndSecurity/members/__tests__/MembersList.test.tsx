@@ -70,13 +70,11 @@ jest.mock('../dialogs/EditMemberRoleDialog', () => ({
   }),
 }))
 
-jest.mock('../dialogs/RevokeMembershipDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'RevokeMembershipDialog'
-  return { RevokeMembershipDialog: MockDialog }
-})
+jest.mock('../dialogs/RevokeMembershipDialog', () => ({
+  useRevokeMembershipDialog: () => ({
+    openRevokeMembershipDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('../dialogs/CreateInviteDialog', () => ({
   useCreateInviteDialog: () => ({
