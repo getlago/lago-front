@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
@@ -12,12 +12,16 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
-import { MEMBERS_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
+import { ROLES_LIST_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
+import {
+  teamAndSecurityGroupOptions,
+  teamAndSecurityTabOptions,
+} from '~/pages/settings/teamAndSecurity/common/teamAndSecurityConst'
 import { MenuPopper, PageHeader } from '~/styles'
 
 import { DeleteRoleDialog, DeleteRoleDialogRef } from '../common/dialogs/DeleteRoleDialog'
@@ -61,7 +65,14 @@ const RoleDetails = () => {
 
   const displayName = getDisplayName(role)
   const displayDescription = getDisplayDescription(role)
-  const getMembersListPath = () => `${MEMBERS_ROUTE}?${MEMBERS_PAGE_ROLE_FILTER_KEY}=${role?.name}`
+  const getMembersListPath = () => {
+    const basePath = generatePath(TEAM_AND_SECURITY_TAB_ROUTE, {
+      group: teamAndSecurityGroupOptions.members,
+      tab: teamAndSecurityTabOptions.members,
+    })
+
+    return `${basePath}?${MEMBERS_PAGE_ROLE_FILTER_KEY}=${role?.name}`
+  }
 
   return (
     <>
