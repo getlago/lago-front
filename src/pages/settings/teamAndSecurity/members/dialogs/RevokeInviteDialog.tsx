@@ -1,54 +1,40 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { useInviteActions } from '../hooks/useInviteActions'
 
-export interface RevokeInviteDialogRef {
-  openDialog: (inviteInfos: { id: string; email: string; organizationName: string }) => unknown
-  closeDialog: () => unknown
+type RevokeInviteInfos = {
+  id: string
+  email: string
+  organizationName: string
 }
 
-export const RevokeInviteDialog = forwardRef<RevokeInviteDialogRef>((_, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
+export const useRevokeInviteDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
   const { revokeInvite } = useInviteActions()
 
-  const [inviteInfos, setInviteInfos] = useState<
-    { id: string; email: string; organizationName: string } | undefined
-  >()
-
-  useImperativeHandle(ref, () => ({
-    openDialog: (infos) => {
-      setInviteInfos(infos)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_63208c701ce25db781407430')}
-      description={
+  const openRevokeInviteDialog = (inviteInfos: RevokeInviteInfos) => {
+    centralizedDialog.open({
+      title: translate('text_63208c701ce25db781407430'),
+      description: (
         <Typography>
           {translate('text_63208c701ce25db78140743c', {
-            memberEmail: inviteInfos?.email,
-            organizationName: inviteInfos?.organizationName,
+            memberEmail: inviteInfos.email,
+            organizationName: inviteInfos.organizationName,
           })}
         </Typography>
-      }
-      onContinue={async () =>
+      ),
+      colorVariant: 'danger',
+      actionText: translate('text_63208c701ce25db78140745e'),
+      onAction: async () => {
         await revokeInvite({
-          variables: { input: { id: inviteInfos?.id as string } },
+          variables: { input: { id: inviteInfos.id } },
         })
-      }
-      continueText={translate('text_63208c701ce25db78140745e')}
-    />
-  )
-})
+      },
+    })
+  }
 
-RevokeInviteDialog.displayName = 'RevokeInviteDialog'
+  return { openRevokeInviteDialog }
+}
