@@ -64,7 +64,7 @@ cmd_create() {
   # Always create a fresh branch from main
   git worktree add -b "$branch" "$wt_path" main
 
-  # Copy .env from main front, pointing API to shared stack
+  # Copy .env from main front
   if [[ -f "$FRONT_PATH/.env" ]]; then
     cp "$FRONT_PATH/.env" "$wt_path/.env"
   fi
@@ -91,7 +91,7 @@ cmd_up() {
   san="$(sanitize "$name")"
   compose_file="$wt_path/docker-compose.worktree.yml"
 
-  # Patch .env for worktree: set API_URL and proxy target
+  # Patch .env: API calls go through Vite proxy to avoid CORS
   if [[ -f "$wt_path/.env" ]]; then
     sed -i.bak '/^API_URL=/d; /^LAGO_API_PROXY_TARGET=/d' "$wt_path/.env"
     rm -f "$wt_path/.env.bak"
@@ -101,7 +101,7 @@ cmd_up() {
     echo "LAGO_API_PROXY_TARGET=http://api:3000"
   } >> "$wt_path/.env"
 
-  # Copy vite.config.ts and .gitignore from main front (has proxy + ignore rules for worktrees)
+  # Copy vite.config.ts and .gitignore from main front (has proxy + ignore rules)
   cp "$FRONT_PATH/vite.config.ts" "$wt_path/vite.config.ts"
   cp "$FRONT_PATH/.gitignore" "$wt_path/.gitignore"
 
@@ -123,6 +123,7 @@ services:
       - NODE_ENV=development
       - API_URL=http://localhost:${port}/api
       - LAGO_API_PROXY_TARGET=http://api:3000
+      - LAGO_WORKTREE_NAME=${name}
       - APP_DOMAIN=https://app.lago.dev
       - CODEGEN_API=http://api:3000/graphql
       - LAGO_DISABLE_SIGNUP=\${LAGO_DISABLE_SIGNUP:-}
@@ -148,7 +149,7 @@ YAML
   docker compose -f "$compose_file" up -d
 
   echo ""
-  echo "  ✓ http://localhost:${port}"
+  echo "  ✓ http://localhost:${port}  [$name]"
   echo ""
 }
 
@@ -208,14 +209,14 @@ cmd_ps() {
     echo ""; return
   fi
 
-  printf "  %-25s %-25s %-8s\n" "NAME" "URL" "STATUS"
-  printf "  %-25s %-25s %-8s\n" "----" "---" "------"
+  printf "  %-25s %-30s %-8s\n" "NAME" "URL" "STATUS"
+  printf "  %-25s %-30s %-8s\n" "----" "---" "------"
 
   while IFS=: read -r n p; do
     local san st="stopped"
     san="$(sanitize "$n")"
     docker ps --format '{{.Names}}' | grep -q "lago_front_wt_${san}" && st="running"
-    printf "  %-25s %-25s %-8s\n" "$n" "localhost:${p}" "$st"
+    printf "  %-25s %-30s %-8s\n" "$n" "http://localhost:${p}" "$st"
   done < "$sf"
   echo ""
 }
@@ -233,7 +234,7 @@ case "$cmd" in
 lago-worktree — Isolated frontend per git worktree
 
   Main:      https://app.lago.dev       (via Traefik)
-  Worktree:  http://localhost:3001       (direct)
+  Worktree:  http://localhost:<port>     (direct)
 
 Commands:
   create <branch> [name]   Create worktree + start
@@ -244,12 +245,13 @@ Commands:
 
 API is always shared from the main stack.
 Ports auto-assigned: 3001, 3002, 3003, ...
+Browser tab title shows the worktree name.
 
 Examples:
-  lago-worktree create feature/new-ui
+  lago-worktree create LAGO-0001
   lago-worktree ps
-  lago-worktree down feature-new-ui
-  lago-worktree destroy feature-new-ui
+  lago-worktree down LAGO-0001
+  lago-worktree destroy LAGO-0001
 EOF
     ;;
 esac
