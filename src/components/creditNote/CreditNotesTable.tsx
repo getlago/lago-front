@@ -21,6 +21,7 @@ import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { ResponsiveStyleValue } from '~/core/utils/responsiveProps'
 import {
+  BillingEntityEmailSettingsEnum,
   CreditNoteForVoidCreditNoteDialogFragmentDoc,
   CreditNoteTableItemFragment,
   GetCreditNotesListQuery,
@@ -32,6 +33,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { tw } from '~/styles/utils'
 
 const { disablePdfGeneration } = envGlobalVar()
@@ -68,6 +70,7 @@ gql`
       id
       name
       code
+      einvoicing
     }
   }
 
@@ -124,6 +127,7 @@ const CreditNotesTable = ({
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
+  const { showResendEmailDialog } = useResendEmailDialog()
 
   const { handleDownloadFile } = useDownloadFile()
 
@@ -214,41 +218,12 @@ const CreditNotesTable = ({
 
             const canDownload = hasPermissions(['creditNotesView']) && !disablePdfGeneration
             const canVoid = creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
-
-            if (canDownload) {
-              actions = [
-                ...actions,
-                {
-                  title: translate('text_636d12ce54c41fccdf0ef72d'),
-                  disabled: loadingCreditNoteDownload,
-                  onAction: async ({ id }: { id: string }) => {
-                    await downloadCreditNote({
-                      variables: { input: { id } },
-                    })
-                  },
-                },
-              ]
-            }
-
-            if (canVoid) {
-              actions = [
-                ...actions,
-                {
-                  title: translate('text_636d12ce54c41fccdf0ef72f'),
-                  onAction: async ({ id, totalAmountCents, currency }) => {
-                    voidCreditNoteDialogRef.current?.openDialog({
-                      id,
-                      totalAmountCents,
-                      currency,
-                    })
-                  },
-                },
-              ]
-            }
+            const canResendEmail = hasPermissions(['creditNotesSend'])
 
             actions = [
               ...actions,
               {
+                startIcon: 'duplicate',
                 title: translate('text_636d12ce54c41fccdf0ef731'),
                 onAction: async ({ id }: { id: string }) => {
                   copyToClipboard(id)
@@ -260,6 +235,60 @@ const CreditNotesTable = ({
                 },
               },
             ]
+
+            if (canDownload) {
+              actions = [
+                ...actions,
+                {
+                  startIcon: 'download',
+                  title: translate('text_636d12ce54c41fccdf0ef72d'),
+                  disabled: loadingCreditNoteDownload,
+                  onAction: async ({ id }: { id: string }) => {
+                    await downloadCreditNote({
+                      variables: { input: { id } },
+                    })
+                  },
+                },
+              ]
+            }
+
+            if (canResendEmail) {
+              actions = [
+                ...actions,
+                {
+                  startIcon: 'at',
+                  title: translate('text_1770392315728uyw3zhs7kzh'),
+                  onAction: async () => {
+                    showResendEmailDialog({
+                      subject: translate('text_17706311399872btwgaui8va', {
+                        organization: creditNote?.billingEntity.name,
+                        creditNoteNumber: creditNote?.number,
+                      }),
+                      type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
+                      billingEntity: creditNote?.billingEntity,
+                      documentId: creditNote?.id,
+                    })
+                  },
+                },
+              ]
+            }
+
+            if (canVoid) {
+              actions = [
+                ...actions,
+                {
+                  startIcon: 'stop',
+                  title: translate('text_636d12ce54c41fccdf0ef72f'),
+                  onAction: async ({ id, totalAmountCents, currency }) => {
+                    voidCreditNoteDialogRef.current?.openDialog({
+                      id,
+                      totalAmountCents,
+                      currency,
+                    })
+                  },
+                },
+              ]
+            }
 
             return actions
           }}

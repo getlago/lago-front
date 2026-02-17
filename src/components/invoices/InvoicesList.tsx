@@ -47,6 +47,7 @@ import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   GetInvoicesListQuery,
   GetInvoicesListQueryResult,
@@ -63,6 +64,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
 type TInvoiceListProps = {
   error: ApolloError | undefined
@@ -89,6 +91,7 @@ const InvoicesList = ({
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { showResendEmailDialog } = useResendEmailDialog()
 
   const { handleDownloadFile, openNewTab } = useDownloadFile()
 
@@ -240,6 +243,24 @@ const InvoicesList = ({
         }
       : null
 
+    const resendEmailAction: ActionItem<InvoiceItem> | null = actions.canResendEmail(invoice)
+      ? {
+          startIcon: 'at',
+          title: translate('text_1770392315728uyw3zhs7kzh'),
+          onAction: async () => {
+            showResendEmailDialog({
+              subject: translate('text_17706311399878xdnudpnjtt', {
+                organization: invoice?.billingEntity.name,
+                invoiceNumber: invoice?.number,
+              }),
+              type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
+              billingEntity: invoice?.billingEntity,
+              documentId: invoice?.id,
+            })
+          },
+        }
+      : null
+
     const finalizeAction: ActionItem<InvoiceItem> | null =
       !actions.canDownload(invoice) && actions.canFinalize(invoice)
         ? {
@@ -344,9 +365,10 @@ const InvoicesList = ({
       : null
 
     return [
+      duplicateAction,
       downloadAction,
       finalizeAction,
-      duplicateAction,
+      resendEmailAction,
       recordPaymentAction,
       retryCollectAction,
       generatePaymentUrlAction,

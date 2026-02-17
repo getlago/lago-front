@@ -38,6 +38,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
@@ -55,6 +56,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
 gql`
   fragment InvoiceListItem on Invoice {
@@ -95,6 +97,7 @@ gql`
       id
       name
       code
+      einvoicing
     }
 
     ...InvoiceForFinalizeInvoice
@@ -166,6 +169,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const actions = usePermissionsInvoiceActions()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { handleDownloadFile, openNewTab } = useDownloadFile()
+  const { showResendEmailDialog } = useResendEmailDialog()
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
@@ -417,7 +421,20 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               canRetryCollect,
               canUpdatePaymentStatus,
               canVoid,
+              canResendEmail,
             } = actions
+
+            const resendEmail = () => {
+              showResendEmailDialog({
+                subject: translate('text_17706311399878xdnudpnjtt', {
+                  organization: invoice?.billingEntity.name,
+                  invoiceNumber: invoice?.number,
+                }),
+                type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
+                billingEntity: invoice?.billingEntity,
+                documentId: invoice?.id,
+              })
+            }
 
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
@@ -458,8 +475,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             }
 
             return [
-              canDownloadOrFinalize(),
-
               {
                 startIcon: 'duplicate',
                 title: translate('text_63ac86d897f728a87b2fa031'),
@@ -471,6 +486,17 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   })
                 },
               },
+              canDownloadOrFinalize(),
+
+              canResendEmail(invoice)
+                ? {
+                    startIcon: 'at',
+                    title: translate('text_1770392315728uyw3zhs7kzh'),
+                    onAction: () => {
+                      resendEmail()
+                    },
+                  }
+                : null,
 
               canRecordPayment(invoice)
                 ? {

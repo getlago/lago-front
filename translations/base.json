@@ -1406,7 +1406,7 @@
   "text_636d023ce11a9d038819b57d": "Refresh the page",
   "text_636d12ce54c41fccdf0ef72d": "Download credit note",
   "text_636d12ce54c41fccdf0ef72f": "Void credit available",
-  "text_636d12ce54c41fccdf0ef731": "Copy credit note lago_id",
+  "text_636d12ce54c41fccdf0ef731": "Copy credit note",
   "text_63720bd734e1344aea75b82d": "Credit note lago_id copied to clipboard",
   "text_63720bd734e1344aea75b7db": "Void available credit from this credit note",
   "text_63720bd734e1344aea75b7e1": "You’re about to void {{amount}} available credits from this credit note. This action is irreversible, you’ll not be able to retrieve this credit note back.",
