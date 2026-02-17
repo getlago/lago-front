@@ -62,7 +62,7 @@
     "@testing-library/user-event": "14.6.1",
     "@trivago/prettier-plugin-sort-imports": "6.0.2",
     "@types/actioncable": "5.2.11",
-    "@types/apollo-upload-client": "17.0.5",
+    "@types/apollo-upload-client": "19.0.0",
     "@types/jest": "30.0.0",
     "@types/jsonwebtoken": "9.0.10",
     "@types/lodash": "4.17.23",
@@ -113,7 +113,7 @@
     "vite-plugin-wasm": "3.5.0"
   },
   "dependencies": {
-    "@apollo/client": "3.14.0",
+    "@apollo/client": "4.1.4",
     "@ebay/nice-modal-react": "1.2.13",
     "@fragaria/address-formatter": "6.7.1",
     "@llm-ui/code": "0.13.3",
@@ -128,8 +128,8 @@
     "@tanstack/react-virtual": "3.13.18",
     "ace-builds": "1.43.6",
     "actioncable": "5.2.8-1",
-    "apollo-link-timeout": "4.0.0",
-    "apollo-upload-client": "17.0.0",
+    "apollo-link-timeout": "5.1.0",
+    "apollo-upload-client": "19.0.0",
     "apollo3-cache-persist": "0.15.0",
     "decimal.js": "10.6.0",
     "formik": "2.4.9",
