@@ -4,21 +4,44 @@ import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
 import {
+  CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_NAME,
   DIALOG_TITLE_TEST_ID,
   FORM_DIALOG_CANCEL_BUTTON_TEST_ID,
   FORM_DIALOG_NAME,
 } from '~/components/dialogs/const'
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import FormDialog from '~/components/dialogs/FormDialog'
+import { addToast } from '~/core/apolloClient'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { GetRolesListDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
 import {
   FORM_CREATE_INVITE_ID,
+  INVITE_URL_DATA_TEST,
   SUBMIT_INVITE_DATA_TEST,
   useCreateInviteDialog,
 } from '../CreateInviteDialog'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
+
+// Mock @tanstack/react-virtual for ComboBox virtualization in jsdom
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({
+        key: index,
+        index,
+        start: index * 56,
+        size: 56,
+      })),
+    getTotalSize: () => count * 56,
+    scrollToIndex: () => {},
+    measureElement: () => {},
+  }),
+}))
 
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
@@ -44,9 +67,11 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+const mockCreateInvite = jest.fn()
+
 jest.mock('../../hooks/useInviteActions', () => ({
   useInviteActions: () => ({
-    createInvite: jest.fn(),
+    createInvite: mockCreateInvite,
   }),
 }))
 
@@ -275,6 +300,163 @@ describe('CreateInviteDialog', () => {
       expect(document.getElementById(FORM_CREATE_INVITE_ID)).toBeInTheDocument()
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
       expect(screen.getByText('Role')).toBeInTheDocument()
+    })
+  })
+
+  describe('Form Submission', () => {
+    async function fillForm(user: ReturnType<typeof userEvent.setup>) {
+      const emailInput = screen.getByLabelText(/email/i)
+
+      await user.type(emailInput, 'newuser@example.com')
+
+      // Open the ComboBox dropdown and select Admin role
+      const roleInput = screen.getByPlaceholderText(/search and select a role/i)
+
+      await user.click(roleInput)
+
+      // Click the option element (inner ComboboxItem with data-test={value})
+      await waitFor(() => {
+        expect(screen.getByTestId('admin')).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId('admin'))
+    }
+
+    it('calls createInvite with correct arguments on successful submission', async () => {
+      const user = userEvent.setup()
+
+      mockCreateInvite.mockResolvedValue({
+        data: {
+          createInvite: {
+            id: 'invite-1',
+            token: 'test-token-123',
+          },
+        },
+      })
+
+      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await fillForm(user)
+
+      await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
+
+      await waitFor(() => {
+        expect(mockCreateInvite).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              email: 'newuser@example.com',
+              roles: ['admin'],
+            },
+          },
+        })
+      })
+    })
+
+    it('opens copy invite link dialog after successful submission', async () => {
+      const user = userEvent.setup()
+
+      mockCreateInvite.mockResolvedValue({
+        data: {
+          createInvite: {
+            id: 'invite-1',
+            token: 'test-token-123',
+          },
+        },
+      })
+
+      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await fillForm(user)
+
+      await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INVITE_URL_DATA_TEST)).toBeInTheDocument()
+      })
+    })
+
+    it('copies invitation URL and shows toast when copy button is clicked', async () => {
+      const user = userEvent.setup()
+
+      mockCreateInvite.mockResolvedValue({
+        data: {
+          createInvite: {
+            id: 'invite-1',
+            token: 'test-token-123',
+          },
+        },
+      })
+
+      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await fillForm(user)
+
+      await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID),
+        ).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(copyToClipboard).toHaveBeenCalled()
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'info',
+          translateKey: 'text_63208c711ce25db781407536',
+        })
+      })
+    })
+
+    it('keeps dialog open when InviteAlreadyExists error occurs', async () => {
+      const user = userEvent.setup()
+
+      mockCreateInvite.mockResolvedValue({
+        errors: [
+          {
+            message: 'Invite already exists',
+            extensions: {
+              code: 'unprocessable_entity',
+              details: { base: ['invite_already_exists'] },
+            },
+          },
+        ],
+      })
+
+      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await fillForm(user)
+
+      await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
+
+      // Dialog should stay open (closeOnError: false)
+      await waitFor(() => {
+        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    it('keeps dialog open when EmailAlreadyUsed error occurs', async () => {
+      const user = userEvent.setup()
+
+      mockCreateInvite.mockResolvedValue({
+        errors: [
+          {
+            message: 'Email already used',
+            extensions: {
+              code: 'unprocessable_entity',
+              details: { base: ['email_already_used'] },
+            },
+          },
+        ],
+      })
+
+      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await fillForm(user)
+
+      await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
+
+      // Dialog should stay open (closeOnError: false)
+      await waitFor(() => {
+        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      })
     })
   })
 })
