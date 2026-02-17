@@ -9,7 +9,7 @@ import {
 } from '~/generated/graphql'
 // Import after mocks
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateCoupon, {
   COUPON_AMOUNT_INPUT_TEST_ID,
@@ -19,7 +19,6 @@ import CreateCoupon, {
   COUPONS_FORM_ID,
 } from '../CreateCoupon'
 
-const mockNavigate = jest.fn()
 const mockOnSave = jest.fn()
 
 // Must use "mock" prefix for variables referenced in jest.mock
@@ -30,12 +29,6 @@ const mockDefaultUseCreateEditCoupon = {
   errorCode: undefined,
   onSave: mockOnSave,
 }
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-  useParams: () => ({}),
-}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -57,13 +50,23 @@ jest.mock('~/hooks/useCreateEditCoupon', () => ({
   useCreateEditCoupon: jest.fn(() => mockDefaultUseCreateEditCoupon),
 }))
 
-// Mock the dialog components
+// Mock the dialog components - capture onSubmit/onContinue callbacks
+let capturedAddPlanOnSubmit: ((plan: any) => void) | undefined
+let capturedAddBillableMetricOnSubmit: ((bm: any) => void) | undefined
+let capturedWarningOnContinue: (() => void) | undefined
+
 jest.mock('~/components/coupons/AddPlanToCouponDialog', () => ({
-  AddPlanToCouponDialog: jest.fn(() => null),
+  AddPlanToCouponDialog: jest.fn((props: any) => {
+    capturedAddPlanOnSubmit = props.onSubmit
+    return null
+  }),
 }))
 
 jest.mock('~/components/coupons/AddBillableMetricToCouponDialog', () => ({
-  AddBillableMetricToCouponDialog: jest.fn(() => null),
+  AddBillableMetricToCouponDialog: jest.fn((props: any) => {
+    capturedAddBillableMetricOnSubmit = props.onSubmit
+    return null
+  }),
 }))
 
 jest.mock('~/components/coupons/CouponCodeSnippet', () => ({
@@ -71,7 +74,10 @@ jest.mock('~/components/coupons/CouponCodeSnippet', () => ({
 }))
 
 jest.mock('~/components/designSystem/WarningDialog', () => ({
-  WarningDialog: jest.fn(() => null),
+  WarningDialog: (props: any) => {
+    capturedWarningOnContinue = props.onContinue
+    return null
+  },
 }))
 
 const mockedUseCreateEditCoupon = useCreateEditCoupon as jest.Mock
@@ -79,6 +85,9 @@ const mockedUseCreateEditCoupon = useCreateEditCoupon as jest.Mock
 describe('CreateCoupon', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedAddPlanOnSubmit = undefined
+    capturedAddBillableMetricOnSubmit = undefined
+    capturedWarningOnContinue = undefined
     mockedUseCreateEditCoupon.mockReturnValue(mockDefaultUseCreateEditCoupon)
   })
 
@@ -215,6 +224,62 @@ describe('CreateCoupon', () => {
     })
   })
 
+  describe('GIVEN auto-generation of code from name', () => {
+    describe('WHEN the user types a name and code has not been manually edited', () => {
+      it('THEN should auto-generate the code from the name', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
+        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
+
+        await user.type(nameInput, 'My New Coupon')
+
+        const codeInputContainer = screen.getByTestId(COUPON_CODE_INPUT_TEST_ID)
+        const codeInput = codeInputContainer.querySelector('input') as HTMLInputElement
+
+        await waitFor(() => {
+          expect(codeInput).toHaveValue('my_new_coupon')
+        })
+      })
+    })
+  })
+
+  describe('GIVEN editing a coupon with a description', () => {
+    describe('WHEN the coupon has a description', () => {
+      it('THEN should display the description field pre-populated', () => {
+        mockedUseCreateEditCoupon.mockReturnValue({
+          ...mockDefaultUseCreateEditCoupon,
+          isEdition: true,
+          coupon: {
+            id: 'coupon-1',
+            name: 'Test Coupon',
+            code: 'TEST_COUPON',
+            description: 'A test coupon description',
+            couponType: CouponTypeEnum.FixedAmount,
+            amountCents: 1000,
+            amountCurrency: CurrencyEnum.Usd,
+            frequency: CouponFrequency.Once,
+            reusable: true,
+            expiration: CouponExpiration.NoExpiration,
+            appliedCouponsCount: 0,
+            plans: [],
+            billableMetrics: [],
+          },
+        })
+
+        render(<CreateCoupon />)
+
+        const descriptionContainer = screen.getByTestId(COUPON_DESCRIPTION_INPUT_TEST_ID)
+        const descriptionTextarea = descriptionContainer.querySelector('textarea')
+
+        expect(descriptionTextarea).toBeInTheDocument()
+        expect(descriptionTextarea).toHaveValue('A test coupon description')
+      })
+    })
+  })
+
   describe('GIVEN form interactions', () => {
     describe('WHEN user clicks the add description button', () => {
       it('THEN should show the description textarea', async () => {
@@ -313,6 +378,178 @@ describe('CreateCoupon', () => {
     })
   })
 
+  describe('GIVEN attachPlanToCoupon', () => {
+    describe('WHEN a plan is attached and no plans exist yet', () => {
+      it('THEN should add the plan to the list', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Enable the plan/billable metric limit checkbox first
+        const limitCheckbox = screen.getByTestId('checkbox-hasPlanOrBillableMetricLimit')
+
+        await user.click(limitCheckbox)
+
+        const mockPlan = { id: 'plan-1', name: 'Plan 1', code: 'plan_1' }
+
+        await waitFor(() => {
+          expect(capturedAddPlanOnSubmit).toBeDefined()
+        })
+
+        capturedAddPlanOnSubmit?.(mockPlan)
+
+        await waitFor(() => {
+          expect(screen.getByTestId('limited-plan-0')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN a plan is attached and plans already exist', () => {
+      it('THEN should append the plan to the list', async () => {
+        mockedUseCreateEditCoupon.mockReturnValue({
+          ...mockDefaultUseCreateEditCoupon,
+          coupon: {
+            id: 'coupon-1',
+            name: 'Test',
+            code: 'TEST',
+            couponType: CouponTypeEnum.FixedAmount,
+            amountCents: 1000,
+            amountCurrency: CurrencyEnum.Usd,
+            frequency: CouponFrequency.Once,
+            reusable: true,
+            expiration: CouponExpiration.NoExpiration,
+            appliedCouponsCount: 0,
+            plans: [{ id: 'plan-existing', name: 'Existing Plan', code: 'existing_plan' }],
+            billableMetrics: [],
+          },
+        })
+
+        render(<CreateCoupon />)
+
+        const newPlan = { id: 'plan-2', name: 'Plan 2', code: 'plan_2' }
+
+        await waitFor(() => {
+          expect(capturedAddPlanOnSubmit).toBeDefined()
+        })
+
+        capturedAddPlanOnSubmit?.(newPlan)
+
+        await waitFor(() => {
+          expect(screen.getByTestId('limited-plan-0')).toBeInTheDocument()
+          expect(screen.getByTestId('limited-plan-1')).toBeInTheDocument()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN attachBillableMetricToCoupon', () => {
+    describe('WHEN a billable metric is attached and no billable metrics exist yet', () => {
+      it('THEN should add the billable metric to the list', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Enable the plan/billable metric limit checkbox first
+        const limitCheckbox = screen.getByTestId('checkbox-hasPlanOrBillableMetricLimit')
+
+        await user.click(limitCheckbox)
+
+        const mockBillableMetric = { id: 'bm-1', name: 'BM 1', code: 'bm_1' }
+
+        await waitFor(() => {
+          expect(capturedAddBillableMetricOnSubmit).toBeDefined()
+        })
+
+        capturedAddBillableMetricOnSubmit?.(mockBillableMetric)
+
+        await waitFor(() => {
+          expect(screen.getByTestId('limited-billable-metric-0')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN a billable metric is attached and billable metrics already exist', () => {
+      it('THEN should append the billable metric to the list', async () => {
+        mockedUseCreateEditCoupon.mockReturnValue({
+          ...mockDefaultUseCreateEditCoupon,
+          coupon: {
+            id: 'coupon-1',
+            name: 'Test',
+            code: 'TEST',
+            couponType: CouponTypeEnum.FixedAmount,
+            amountCents: 1000,
+            amountCurrency: CurrencyEnum.Usd,
+            frequency: CouponFrequency.Once,
+            reusable: true,
+            expiration: CouponExpiration.NoExpiration,
+            appliedCouponsCount: 0,
+            plans: [],
+            billableMetrics: [{ id: 'bm-existing', name: 'Existing BM', code: 'existing_bm' }],
+          },
+        })
+
+        render(<CreateCoupon />)
+
+        const newBM = { id: 'bm-2', name: 'BM 2', code: 'bm_2' }
+
+        await waitFor(() => {
+          expect(capturedAddBillableMetricOnSubmit).toBeDefined()
+        })
+
+        capturedAddBillableMetricOnSubmit?.(newBM)
+
+        await waitFor(() => {
+          expect(screen.getByTestId('limited-billable-metric-0')).toBeInTheDocument()
+          expect(screen.getByTestId('limited-billable-metric-1')).toBeInTheDocument()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN couponCloseRedirection', () => {
+    describe('WHEN the coupon has an id (edit mode)', () => {
+      it('THEN should navigate to the coupon details route', () => {
+        mockedUseCreateEditCoupon.mockReturnValue({
+          ...mockDefaultUseCreateEditCoupon,
+          isEdition: true,
+          coupon: {
+            id: 'coupon-123',
+            name: 'Test',
+            code: 'TEST',
+            couponType: CouponTypeEnum.FixedAmount,
+            amountCents: 1000,
+            amountCurrency: CurrencyEnum.Usd,
+            frequency: CouponFrequency.Once,
+            reusable: true,
+            expiration: CouponExpiration.NoExpiration,
+            appliedCouponsCount: 0,
+            plans: [],
+            billableMetrics: [],
+          },
+        })
+
+        render(<CreateCoupon />)
+
+        // Trigger couponCloseRedirection via WarningDialog's onContinue callback
+        expect(capturedWarningOnContinue).toBeDefined()
+        capturedWarningOnContinue?.()
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/coupon/coupon-123/overview')
+      })
+    })
+
+    describe('WHEN there is no coupon (create mode)', () => {
+      it('THEN should navigate to the coupons list route', () => {
+        render(<CreateCoupon />)
+
+        expect(capturedWarningOnContinue).toBeDefined()
+        capturedWarningOnContinue?.()
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/coupons')
+      })
+    })
+  })
+
   describe('GIVEN COUPONS_FORM_ID export', () => {
     describe('WHEN importing the constant', () => {
       it('THEN should have the correct value', () => {
@@ -366,6 +603,24 @@ describe('CreateCoupon', () => {
               reusable: true,
             }),
           )
+        })
+      })
+    })
+
+    describe('WHEN user submits with empty required fields', () => {
+      it('THEN should NOT call onSave due to validation', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Submit the form without filling any fields
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        // Wait a bit to ensure async validation completes
+        await waitFor(() => {
+          expect(mockOnSave).not.toHaveBeenCalled()
         })
       })
     })

@@ -259,7 +259,22 @@ const CreateCoupon = () => {
                     )}
                   </form.AppField>
 
-                  <form.AppField name="code">
+                  <form.AppField
+                    name="code"
+                    listeners={{
+                      onChange: () => {
+                        if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+                          form.setFieldMeta('code', (meta) => ({
+                            ...meta,
+                            errorMap: {
+                              ...meta.errorMap,
+                              onDynamic: undefined,
+                            },
+                          }))
+                        }
+                      },
+                    }}
+                  >
                     {(field) => (
                       <field.TextInputField
                         beforeChangeFormatter="code"
