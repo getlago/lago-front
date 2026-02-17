@@ -162,20 +162,63 @@ gh pr diff <PR_NUMBER>
 
 #### Option B: Branch Name
 
+**Step 1: Determine branch type and location**
+
 ```bash
-# For local branch - get the diff against main
+# Check if the branch exists locally (even if not pushed to origin)
+git branch --list <BRANCH_NAME>
+
+# Check if the branch exists on remote
+git branch -r --list origin/<BRANCH_NAME>
+
+# Check if working in a git worktree
+git worktree list
+```
+
+**Step 2: Get the diff based on branch location**
+
+```bash
+# For LOCAL branch (not yet pushed to origin) - THIS IS THE MOST COMMON CASE
+# Works even if the branch has never been pushed
 git diff main...<BRANCH_NAME> --name-only  # List changed files
 git diff main...<BRANCH_NAME>               # Full diff
-
-# If the branch is remote (origin/branch-name)
-git fetch origin
-git diff main...origin/<BRANCH_NAME> --name-only
-git diff main...origin/<BRANCH_NAME>
 
 # If you're currently ON the branch you want to test
 git diff main...HEAD --name-only
 git diff main...HEAD
+
+# If the branch is on remote (origin/branch-name)
+git fetch origin
+git diff main...origin/<BRANCH_NAME> --name-only
+git diff main...origin/<BRANCH_NAME>
 ```
+
+**Step 3: Handle worktree scenarios**
+
+If the branch is in a different worktree:
+
+```bash
+# List all worktrees to find where the branch is checked out
+git worktree list
+
+# If main is in a different worktree, use the commit SHA instead
+git rev-parse main  # Get main's SHA (works across worktrees)
+
+# Then diff against the SHA
+git diff <MAIN_SHA>...<BRANCH_NAME> --name-only
+git diff <MAIN_SHA>...<BRANCH_NAME>
+
+# Alternative: diff against origin/main if available
+git fetch origin
+git diff origin/main...<BRANCH_NAME> --name-only
+git diff origin/main...<BRANCH_NAME>
+```
+
+**Troubleshooting:**
+
+- If `git diff main...<BRANCH_NAME>` fails with "unknown revision", the branch might not exist locally. Check with `git branch -a | grep <BRANCH_NAME>`
+- If in a worktree and `main` is not accessible, use `origin/main` or the SHA of main
+- For branches that only exist locally (never pushed), `git diff main...<BRANCH_NAME>` will work as long as `main` is accessible
 
 ### Step 1.2: Identify Files Requiring Tests
 
