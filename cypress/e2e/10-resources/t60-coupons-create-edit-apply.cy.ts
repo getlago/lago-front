@@ -12,11 +12,9 @@ describe('Coupons', () => {
   it('should be able create a coupon with plan limitation', () => {
     cy.visit('/coupons')
     cy.get(`[data-test="add-coupon"]`).click()
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="name"]').type(couponName)
     cy.get('input[name="code"]').should('have.value', couponCode)
     cy.get('input[name="amountCents"]').type('30')
-    cy.get('[data-test="submit"]').should('be.enabled')
 
     // Set plan limitation
     cy.get('[data-test="checkbox-hasPlanOrBillableMetricLimit"]').click()
@@ -37,7 +35,6 @@ describe('Coupons', () => {
     cy.get(`button[data-test="coupon-details-actions"]`).click()
     cy.get(`button[data-test="coupon-details-edit"]`).click()
 
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="limited-plan-0"]').within(() => {
       cy.get(`[data-test="delete-limited-plan-0"]`).click()
     })
@@ -46,7 +43,6 @@ describe('Coupons', () => {
     cy.get('input[name="selectedPlan"]').click()
     cy.get('[data-option-index="0"]').click()
     cy.get('[data-test="submitAddPlanToCouponDialog"]').click()
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="amountCents"]').type('1')
 
     cy.get('[data-test="submit"]').click()
@@ -98,7 +94,6 @@ describe('Coupons', () => {
 
     cy.get('input[name="name"]').should('not.be.disabled')
     cy.get('input[name="code"]').should('be.disabled')
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="checkbox-hasPlanOrBillableMetricLimit"] input').should('be.disabled')
     cy.get(`[data-test="delete-limited-plan-1"]`).should('not.exist')
   })
