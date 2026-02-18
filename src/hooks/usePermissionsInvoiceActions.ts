@@ -1,7 +1,6 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { isPrepaidCredit } from '~/core/utils/invoiceUtils'
 import {
-  Customer,
   Invoice,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
