@@ -49,22 +49,22 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
 
   const form = useAppForm({
     defaultValues: {
-      selectedPlanId: '',
+      selectedPlan: '',
     },
   })
 
-  const selectedPlanId = useStore(form.store, (state) => state.values.selectedPlanId)
+  const selectedPlan = useStore(form.store, (state) => state.values.selectedPlan)
 
   useEffect(() => {
     getPlans()
   }, [getPlans])
 
   useEffect(() => {
-    const plan = data?.plans?.collection.find((p) => p.id === selectedPlanId)
+    const plan = data?.plans?.collection.find((p) => p.id === selectedPlan)
 
-    onSelect(selectedPlanId ? plan : undefined)
+    onSelect(selectedPlan ? plan : undefined)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPlanId, data])
+  }, [selectedPlan, data])
 
   const comboboxPlansData = useMemo(() => {
     if (!data || !data?.plans || !data?.plans?.collection) return []
@@ -92,7 +92,7 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
 
   return (
     <div className="p-8">
-      <form.AppField name="selectedPlanId">
+      <form.AppField name="selectedPlan">
         {(field) => (
           <field.ComboBoxField
             data={comboboxPlansData}

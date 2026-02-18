@@ -52,13 +52,13 @@ const AddBillableMetricContent = ({
 
   const form = useAppForm({
     defaultValues: {
-      selectedBillableMetricId: '',
+      selectedBillableMetric: '',
     },
   })
 
-  const selectedBillableMetricId = useStore(
+  const selectedBillableMetric = useStore(
     form.store,
-    (state) => state.values.selectedBillableMetricId,
+    (state) => state.values.selectedBillableMetric,
   )
 
   useEffect(() => {
@@ -67,12 +67,12 @@ const AddBillableMetricContent = ({
 
   useEffect(() => {
     const billableMetric = data?.billableMetrics?.collection.find(
-      (b) => b.id === selectedBillableMetricId,
+      (b) => b.id === selectedBillableMetric,
     )
 
-    onSelect(selectedBillableMetricId ? billableMetric : undefined)
+    onSelect(selectedBillableMetric ? billableMetric : undefined)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBillableMetricId, data])
+  }, [selectedBillableMetric, data])
 
   const comboboxBillableMetricsData = useMemo(() => {
     if (!data || !data?.billableMetrics || !data?.billableMetrics?.collection) return []
@@ -100,7 +100,7 @@ const AddBillableMetricContent = ({
 
   return (
     <div className="p-8">
-      <form.AppField name="selectedBillableMetricId">
+      <form.AppField name="selectedBillableMetric">
         {(field) => (
           <field.ComboBoxField
             className="mb-8"
