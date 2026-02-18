@@ -1,29 +1,54 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { FC, ReactNode, useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
+import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Table } from '~/components/designSystem/Table'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import {
+  formatAmount,
+  formatCredits,
+  getLabelForInboundTransaction,
+  getLabelForOutboundTransaction,
+} from '~/components/wallets/utils'
+import {
+  TRANSACTION_AMOUNT_DATA_TEST,
+  TRANSACTION_CREDITS_DATA_TEST,
+  TRANSACTION_LABEL_DATA_TEST,
+  TRANSACTION_REMAINING_CREDITS_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import {
   WalletDetailsDrawer,
   WalletDetailsDrawerRef,
 } from '~/components/wallets/WalletDetailsDrawer'
+import { addToast } from '~/core/apolloClient'
 import { CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  CurrencyEnum,
   TimezoneEnum,
   useGetWalletTransactionsLazyQuery,
   WalletInfosForTransactionsFragment,
   WalletStatusEnum,
   WalletTransactionDetailsFragmentDoc,
   WalletTransactionForTransactionListItemFragmentDoc,
+  WalletTransactionStatusEnum,
+  WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-
-import { WalletTransactionListItem } from './WalletTransactionListItem'
+import { MenuPopper } from '~/styles'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment WalletInfosForTransactions on Wallet {
@@ -53,6 +78,20 @@ gql`
   ${WalletTransactionDetailsFragmentDoc}
 `
 
+const concatInfosTextForDisplay = ({
+  name,
+  date,
+  timezone,
+}: {
+  name: string | null | undefined
+  date: string | null | undefined
+  timezone: TimezoneEnum | undefined
+}) => {
+  const formattedDate = date ? intlFormatDateTime(date, { timezone }).date : ''
+
+  return [formattedDate, name].filter(Boolean).join(' • ')
+}
+
 interface WalletTransactionListProps {
   customerTimezone?: TimezoneEnum
   isOpen: boolean
@@ -69,6 +108,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   selectedTransaction,
 }) => {
   const { translate } = useInternationalization()
+  const { isPremium } = useCurrentUser()
   const { customerId } = useParams()
   const navigate = useNavigate()
   const walletDetailsDrawerRef = useRef<WalletDetailsDrawerRef>(null)
@@ -81,6 +121,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   const list = data?.walletTransactions?.collection
   const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
 
+  const isBlurry = !isPremium
   const hasData = !!list && !!list?.length
   const hasError = !!error && !loading
   const isLoading = loading && !error
@@ -100,31 +141,12 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
     walletDetailsDrawerRef.current?.openDrawer({ transactionId: selectedTransaction })
   }, [data, selectedTransaction])
 
+  const onRowClick = ({ id }: { id: string }) => {
+    walletDetailsDrawerRef.current?.openDrawer({ transactionId: id })
+  }
+
   return (
     <>
-      {(loading || (!error && !!hasData)) && (
-        <div className="grid grid-cols-4 gap-2 px-4 py-2 shadow-b">
-          <div className="col-span-3">
-            <Typography variant="captionHl">
-              {translate('text_62da6ec24a8e24e44f81288e')}
-            </Typography>
-          </div>
-
-          <div className="grid grid-cols-7">
-            <Typography className="col-span-2 flex justify-end" variant="captionHl">
-              {translate('text_17703766701153r59onisjcq')}
-            </Typography>
-
-            <Typography className="col-span-2 flex justify-end" variant="captionHl">
-              {translate('text_62da6ec24a8e24e44f812890')}
-            </Typography>
-
-            <Typography className="col-span-2 flex justify-end" variant="captionHl">
-              {translate('text_1770381610089rix8snaszn3')}
-            </Typography>
-          </div>
-        </div>
-      )}
       <div className="shadow-b">
         {hasError && (
           <GenericPlaceholder
@@ -174,19 +196,290 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
         )}
         {!isLoading && !isWalletEmpty && (
           <>
-            {list?.map((transaction, i) => {
-              return (
-                <WalletTransactionListItem
-                  key={`wallet-transaction-${i}`}
-                  isWalletActive={wallet.status === WalletStatusEnum.Active}
-                  transaction={transaction}
-                  customerTimezone={customerTimezone}
-                  onClick={() => {
-                    walletDetailsDrawerRef.current?.openDrawer({ transactionId: transaction.id })
-                  }}
-                />
-              )
-            })}
+            <Table
+              name="wallet-transactions-list"
+              data={list || []}
+              containerSize={16}
+              rowSize={72}
+              isLoading={isLoading}
+              hasError={!!error}
+              actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
+              actionColumn={(transaction) =>
+                wallet?.status === WalletStatusEnum.Active && (
+                  <Popper
+                    PopperProps={{ placement: 'bottom-end' }}
+                    opener={(opener) => (
+                      <div className="flex h-full items-center justify-end">
+                        <Tooltip
+                          placement="top-start"
+                          disableHoverListener={opener.isOpen}
+                          title={translate('text_1741251836185jea576d14uj')}
+                        >
+                          <Button
+                            size="medium"
+                            variant="quaternary"
+                            icon="dots-horizontal"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              opener.onClick()
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    )}
+                  >
+                    {({ closePopper }) => (
+                      <MenuPopper>
+                        <Button
+                          startIcon="eye"
+                          variant="quaternary"
+                          align="left"
+                          fullWidth
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            onRowClick(transaction)
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1742218191558g0ysnnxbb32')}
+                        </Button>
+
+                        <Button
+                          startIcon="duplicate"
+                          variant="quaternary"
+                          align="left"
+                          fullWidth
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            copyToClipboard(transaction?.id)
+                            addToast({
+                              severity: 'info',
+                              translateKey: 'text_17412580835361rm20fysfba',
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_1741258064758s59ws4fg2l9')}
+                        </Button>
+                      </MenuPopper>
+                    )}
+                  </Popper>
+                )
+              }
+              onRowActionClick={onRowClick}
+              columns={[
+                {
+                  key: 'id',
+                  title: translate('text_62da6ec24a8e24e44f81288e'),
+                  maxSpace: true,
+                  content: ({
+                    createdAt,
+                    creditAmount,
+                    failedAt,
+                    name,
+                    source,
+                    status,
+                    settledAt,
+                    transactionStatus,
+                    transactionType,
+                  }) => {
+                    const isPending = status === WalletTransactionStatusEnum.Pending
+                    const isFailed = status === WalletTransactionStatusEnum.Failed
+
+                    const date = (isPending && settledAt) || (isFailed && failedAt) || createdAt
+
+                    const displayText = concatInfosTextForDisplay({
+                      name,
+                      date,
+                      timezone: customerTimezone,
+                    })
+
+                    const isInbound =
+                      transactionType === WalletTransactionTransactionTypeEnum.Inbound
+
+                    const label = isInbound
+                      ? getLabelForInboundTransaction({
+                          translate,
+                          source,
+                          creditAmount,
+                          transactionStatus,
+                        })
+                      : getLabelForOutboundTransaction({
+                          translate,
+                          creditAmount,
+                          transactionStatus,
+                        })
+
+                    const labelColor = 'grey700'
+                    const iconName = isInbound ? 'plus' : 'minus'
+
+                    return (
+                      <div className="flex min-w-0 flex-1 items-center">
+                        <Avatar className="mr-3" size="big" variant="connector">
+                          <Icon name={iconName} color="dark" />
+                          {isPending && <AvatarBadge icon="sync" color="dark" />}
+                          {isFailed && <AvatarBadge icon="stop" color="warning" />}
+                        </Avatar>
+                        <div className="flex flex-col overflow-hidden">
+                          <Typography
+                            noWrap
+                            variant="bodyHl"
+                            color={isPending || isFailed ? 'grey500' : labelColor}
+                            data-test={TRANSACTION_LABEL_DATA_TEST}
+                          >
+                            {label}
+                          </Typography>
+                          {!!displayText && (
+                            <Typography noWrap variant="caption" color="grey600">
+                              {displayText}
+                            </Typography>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  },
+                },
+                {
+                  key: 'priority',
+                  textAlign: 'right',
+                  minWidth: 96,
+                  title: translate('text_17703766701153r59onisjcq'),
+                  content: ({ priority, transactionType }) => (
+                    <div className="flex flex-col">
+                      <Typography>
+                        {transactionType !== WalletTransactionTransactionTypeEnum.Inbound
+                          ? '-'
+                          : priority}
+                      </Typography>
+                      <div className="opacity-0">&nbsp;</div>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'amount',
+                  title: translate('text_62da6ec24a8e24e44f812890'),
+                  textAlign: 'right',
+                  minWidth: 114,
+                  content: ({ amount, creditAmount, status, transactionType }) => {
+                    const isPending = status === WalletTransactionStatusEnum.Pending
+                    const isFailed = status === WalletTransactionStatusEnum.Failed
+                    const isInbound =
+                      transactionType === WalletTransactionTransactionTypeEnum.Inbound
+
+                    const creditsColor = isInbound ? 'success600' : 'grey700'
+
+                    const formattedCreditAmount = formatCredits({
+                      credits: creditAmount,
+                      isBlurry,
+                    })
+
+                    const formattedCurrencyAmount = formatAmount({
+                      amountCents: amount,
+                      currency: wallet?.currency,
+                      isBlurry,
+                    })
+
+                    const transactionAmountTranslationKey = translate(
+                      'text_62da6ec24a8e24e44f812896',
+                      {
+                        amount: formattedCreditAmount,
+                      },
+                      Number(creditAmount) || 0,
+                    )
+
+                    const sign = isInbound ? '+' : '-'
+                    const creditDisplay = `${Number(creditAmount) === 0 ? '' : sign}${transactionAmountTranslationKey}`
+                    const amountDisplay = formattedCurrencyAmount
+
+                    return (
+                      <div className="flex flex-col">
+                        <Typography
+                          variant="bodyHl"
+                          color={isPending || isFailed ? 'grey500' : creditsColor}
+                          blur={isBlurry}
+                          data-test={TRANSACTION_CREDITS_DATA_TEST}
+                          className={tw('whitespace-nowrap', isFailed && 'line-through')}
+                        >
+                          {creditDisplay}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="grey600"
+                          blur={isBlurry}
+                          data-test={TRANSACTION_AMOUNT_DATA_TEST}
+                          className="whitespace-nowrap"
+                        >
+                          {amountDisplay}
+                        </Typography>
+                      </div>
+                    )
+                  },
+                },
+                {
+                  key: 'remainingCreditAmount',
+                  textAlign: 'right',
+                  minWidth: 114,
+                  title: translate('text_1770381610089rix8snaszn3'),
+                  content: ({
+                    remainingAmountCents,
+                    remainingCreditAmount,
+                    status,
+                    transactionType,
+                  }) => {
+                    const isPending = status === WalletTransactionStatusEnum.Pending
+                    const isFailed = status === WalletTransactionStatusEnum.Failed
+                    const isInbound =
+                      transactionType === WalletTransactionTransactionTypeEnum.Inbound
+
+                    const formattedRemainingCreditAmount = formatCredits({
+                      credits: remainingCreditAmount,
+                      isBlurry,
+                    })
+                    const formattedRemainingAmountCents = formatAmount({
+                      amountCents: deserializeAmount(
+                        remainingAmountCents,
+                        wallet?.currency || CurrencyEnum.Usd,
+                      )?.toString(),
+                      currency: wallet?.currency,
+                      isBlurry,
+                    })
+
+                    return (
+                      <div className="flex flex-col">
+                        <Typography
+                          variant="bodyHl"
+                          color={isPending || isFailed ? 'grey500' : 'grey700'}
+                          blur={isBlurry}
+                          data-test={TRANSACTION_REMAINING_CREDITS_DATA_TEST}
+                          className="whitespace-nowrap"
+                        >
+                          {!isInbound
+                            ? '-'
+                            : translate(
+                                'text_62da6ec24a8e24e44f812896',
+                                {
+                                  amount: formattedRemainingCreditAmount,
+                                },
+                                Number(formattedRemainingCreditAmount) || 0,
+                              )}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="grey600"
+                          blur={isBlurry}
+                          data-test={TRANSACTION_AMOUNT_DATA_TEST}
+                          className="whitespace-nowrap"
+                        >
+                          {!isInbound ? '-' : formattedRemainingAmountCents}
+                        </Typography>
+                      </div>
+                    )
+                  },
+                },
+              ]}
+            />
           </>
         )}
       </div>
