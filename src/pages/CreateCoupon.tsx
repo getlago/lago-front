@@ -1,17 +1,9 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  AddBillableMetricToCouponDialog,
-  AddBillableMetricToCouponDialogRef,
-} from '~/components/coupons/AddBillableMetricToCouponDialog'
-import {
-  AddPlanToCouponDialog,
-  AddPlanToCouponDialogRef,
-} from '~/components/coupons/AddPlanToCouponDialog'
 import { CouponCodeSnippet } from '~/components/coupons/CouponCodeSnippet'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -20,7 +12,7 @@ import { Card } from '~/components/designSystem/Card'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { Checkbox, DatePicker } from '~/components/form'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -42,6 +34,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useAddBillableMetricToCouponDialog } from '~/pages/createCoupon/dialogs/AddBillableMetricToCouponDialog'
+import { useAddPlanToCouponDialog } from '~/pages/createCoupon/dialogs/AddPlanToCouponDialog'
 import { PageHeader } from '~/styles'
 import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
@@ -64,9 +58,9 @@ const CreateCoupon = () => {
   const navigate = useNavigate()
   const { organization } = useOrganizationInfos()
   const { isEdition, loading, coupon, errorCode, onSave } = useCreateEditCoupon()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
-  const addPlanToCouponDialogRef = useRef<AddPlanToCouponDialogRef>(null)
-  const addBillableMetricToCouponDialogRef = useRef<AddBillableMetricToCouponDialogRef>(null)
+  const warningDialog = useCentralizedDialog()
+  const { openAddPlanToCouponDialog } = useAddPlanToCouponDialog()
+  const { openAddBillableMetricToCouponDialog } = useAddBillableMetricToCouponDialog()
 
   const defaultValues: CouponFormValues = {
     amountCents: coupon?.amountCents
@@ -207,8 +201,17 @@ const CreateCoupon = () => {
         <Button
           variant="quaternary"
           icon="close"
+          data-test="close-create-coupon"
           onClick={() =>
-            isDirty ? warningDialogRef.current?.openDialog() : couponCloseRedirection()
+            isDirty
+              ? warningDialog.open({
+                  title: translate('text_665deda4babaf700d603ea13'),
+                  description: translate('text_665dedd557dc3c00c62eb83d'),
+                  actionText: translate('text_645388d5bdbd7b00abffa033'),
+                  colorVariant: 'danger',
+                  onAction: () => couponCloseRedirection(),
+                })
+              : couponCloseRedirection()
           }
         />
       </PageHeader.Wrapper>
@@ -631,7 +634,12 @@ const CreateCoupon = () => {
                             variant="inline"
                             startIcon="plus"
                             disabled={formHasBillableMetricLimit && !formHasPlanLimit}
-                            onClick={addPlanToCouponDialogRef.current?.openDialog}
+                            onClick={() =>
+                              openAddPlanToCouponDialog({
+                                onSubmit: attachPlanToCoupon,
+                                attachedPlansIds: limitPlansList.map((p) => p.id),
+                              })
+                            }
                             data-test="add-plan-limit"
                           >
                             {translate('text_63d3a201113866a7fa5e6f6b')}
@@ -640,7 +648,14 @@ const CreateCoupon = () => {
                             variant="inline"
                             startIcon="plus"
                             disabled={formHasPlanLimit && !formHasBillableMetricLimit}
-                            onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
+                            onClick={() =>
+                              openAddBillableMetricToCouponDialog({
+                                onSubmit: attachBillableMetricToCoupon,
+                                attachedBillableMetricsIds: limitBillableMetricsList.map(
+                                  (b) => b.id,
+                                ),
+                              })
+                            }
                             data-test="add-billable-metric-limit"
                           >
                             {translate('text_64352657267c3d916f9627bc')}
@@ -685,23 +700,6 @@ const CreateCoupon = () => {
           />
         </Side>
       </form>
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => couponCloseRedirection()}
-      />
-      <AddPlanToCouponDialog
-        ref={addPlanToCouponDialogRef}
-        onSubmit={attachPlanToCoupon}
-        attachedPlansIds={limitPlansList.map((p) => p.id)}
-      />
-      <AddBillableMetricToCouponDialog
-        ref={addBillableMetricToCouponDialogRef}
-        onSubmit={attachBillableMetricToCoupon}
-        attachedBillableMetricsIds={limitBillableMetricsList.map((p) => p.id)}
-      />
     </div>
   )
 }

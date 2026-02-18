@@ -52,22 +52,24 @@ jest.mock('~/hooks/useCreateEditCoupon', () => ({
   useCreateEditCoupon: jest.fn(() => mockDefaultUseCreateEditCoupon),
 }))
 
-// Mock the dialog components - capture onSubmit/onContinue callbacks
+// Mock the dialog hooks - capture onSubmit/onAction callbacks
 let capturedAddPlanOnSubmit: ((plan: any) => void) | undefined
 let capturedAddBillableMetricOnSubmit: ((bm: any) => void) | undefined
-let capturedWarningOnContinue: (() => void) | undefined
+let capturedWarningOnAction: (() => void) | undefined
 
-jest.mock('~/components/coupons/AddPlanToCouponDialog', () => ({
-  AddPlanToCouponDialog: jest.fn((props: any) => {
-    capturedAddPlanOnSubmit = props.onSubmit
-    return null
+jest.mock('~/pages/createCoupon/dialogs/AddPlanToCouponDialog', () => ({
+  useAddPlanToCouponDialog: () => ({
+    openAddPlanToCouponDialog: (params: any) => {
+      capturedAddPlanOnSubmit = params.onSubmit
+    },
   }),
 }))
 
-jest.mock('~/components/coupons/AddBillableMetricToCouponDialog', () => ({
-  AddBillableMetricToCouponDialog: jest.fn((props: any) => {
-    capturedAddBillableMetricOnSubmit = props.onSubmit
-    return null
+jest.mock('~/pages/createCoupon/dialogs/AddBillableMetricToCouponDialog', () => ({
+  useAddBillableMetricToCouponDialog: () => ({
+    openAddBillableMetricToCouponDialog: (params: any) => {
+      capturedAddBillableMetricOnSubmit = params.onSubmit
+    },
   }),
 }))
 
@@ -75,11 +77,14 @@ jest.mock('~/components/coupons/CouponCodeSnippet', () => ({
   CouponCodeSnippet: jest.fn(() => <div data-test="coupon-code-snippet">Code Snippet</div>),
 }))
 
-jest.mock('~/components/designSystem/WarningDialog', () => ({
-  WarningDialog: (props: any) => {
-    capturedWarningOnContinue = props.onContinue
-    return null
-  },
+jest.mock('~/components/dialogs/CentralizedDialog', () => ({
+  useCentralizedDialog: () => ({
+    open: (props: any) => {
+      capturedWarningOnAction = props.onAction
+      return Promise.resolve({ reason: 'close' })
+    },
+    close: jest.fn(),
+  }),
 }))
 
 const mockedUseCreateEditCoupon = useCreateEditCoupon as jest.Mock
@@ -89,7 +94,7 @@ describe('CreateCoupon', () => {
     jest.clearAllMocks()
     capturedAddPlanOnSubmit = undefined
     capturedAddBillableMetricOnSubmit = undefined
-    capturedWarningOnContinue = undefined
+    capturedWarningOnAction = undefined
     mockedUseCreateEditCoupon.mockReturnValue(mockDefaultUseCreateEditCoupon)
   })
 
@@ -392,6 +397,11 @@ describe('CreateCoupon', () => {
 
         await user.click(limitCheckbox)
 
+        // Click the "add plan" button to trigger openAddPlanToCouponDialog
+        const addPlanButton = screen.getByTestId('add-plan-limit')
+
+        await user.click(addPlanButton)
+
         const mockPlan = { id: 'plan-1', name: 'Plan 1', code: 'plan_1' }
 
         await waitFor(() => {
@@ -408,6 +418,8 @@ describe('CreateCoupon', () => {
 
     describe('WHEN a plan is attached and plans already exist', () => {
       it('THEN should append the plan to the list', async () => {
+        const user = userEvent.setup()
+
         mockedUseCreateEditCoupon.mockReturnValue({
           ...mockDefaultUseCreateEditCoupon,
           coupon: {
@@ -427,6 +439,11 @@ describe('CreateCoupon', () => {
         })
 
         render(<CreateCoupon />)
+
+        // Click the "add plan" button to trigger openAddPlanToCouponDialog
+        const addPlanButton = screen.getByTestId('add-plan-limit')
+
+        await user.click(addPlanButton)
 
         const newPlan = { id: 'plan-2', name: 'Plan 2', code: 'plan_2' }
 
@@ -456,6 +473,11 @@ describe('CreateCoupon', () => {
 
         await user.click(limitCheckbox)
 
+        // Click the "add billable metric" button to trigger openAddBillableMetricToCouponDialog
+        const addBMButton = screen.getByTestId('add-billable-metric-limit')
+
+        await user.click(addBMButton)
+
         const mockBillableMetric = { id: 'bm-1', name: 'BM 1', code: 'bm_1' }
 
         await waitFor(() => {
@@ -472,6 +494,8 @@ describe('CreateCoupon', () => {
 
     describe('WHEN a billable metric is attached and billable metrics already exist', () => {
       it('THEN should append the billable metric to the list', async () => {
+        const user = userEvent.setup()
+
         mockedUseCreateEditCoupon.mockReturnValue({
           ...mockDefaultUseCreateEditCoupon,
           coupon: {
@@ -492,6 +516,11 @@ describe('CreateCoupon', () => {
 
         render(<CreateCoupon />)
 
+        // Click the "add billable metric" button to trigger openAddBillableMetricToCouponDialog
+        const addBMButton = screen.getByTestId('add-billable-metric-limit')
+
+        await user.click(addBMButton)
+
         const newBM = { id: 'bm-2', name: 'BM 2', code: 'bm_2' }
 
         await waitFor(() => {
@@ -510,7 +539,9 @@ describe('CreateCoupon', () => {
 
   describe('GIVEN couponCloseRedirection', () => {
     describe('WHEN the coupon has an id (edit mode)', () => {
-      it('THEN should navigate to the coupon details route', () => {
+      it('THEN should navigate to the coupon details route via warning dialog', async () => {
+        const user = userEvent.setup()
+
         mockedUseCreateEditCoupon.mockReturnValue({
           ...mockDefaultUseCreateEditCoupon,
           isEdition: true,
@@ -532,20 +563,50 @@ describe('CreateCoupon', () => {
 
         render(<CreateCoupon />)
 
-        // Trigger couponCloseRedirection via WarningDialog's onContinue callback
-        expect(capturedWarningOnContinue).toBeDefined()
-        capturedWarningOnContinue?.()
+        // Make the form dirty by typing in the name field
+        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
+        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
+
+        await user.type(nameInput, 'changed')
+
+        // Click the close button to trigger the warning dialog
+        const closeButton = screen.getByTestId('close-create-coupon')
+
+        await user.click(closeButton)
+
+        // The warning dialog's onAction should have been captured
+        await waitFor(() => {
+          expect(capturedWarningOnAction).toBeDefined()
+        })
+
+        capturedWarningOnAction?.()
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/coupon/coupon-123/overview')
       })
     })
 
     describe('WHEN there is no coupon (create mode)', () => {
-      it('THEN should navigate to the coupons list route', () => {
+      it('THEN should navigate to the coupons list route via warning dialog', async () => {
+        const user = userEvent.setup()
+
         render(<CreateCoupon />)
 
-        expect(capturedWarningOnContinue).toBeDefined()
-        capturedWarningOnContinue?.()
+        // Make the form dirty by typing in the name field
+        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
+        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
+
+        await user.type(nameInput, 'changed')
+
+        // Click the close button to trigger the warning dialog
+        const closeButton = screen.getByTestId('close-create-coupon')
+
+        await user.click(closeButton)
+
+        await waitFor(() => {
+          expect(capturedWarningOnAction).toBeDefined()
+        })
+
+        capturedWarningOnAction?.()
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/coupons')
       })
@@ -737,7 +798,11 @@ describe('CreateCoupon', () => {
           expect(screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)).toBeInTheDocument()
         })
 
-        // Add a plan via the captured callback
+        // Click the "add plan" button to trigger openAddPlanToCouponDialog
+        const addPlanButton = screen.getByTestId('add-plan-limit')
+
+        await user.click(addPlanButton)
+
         await waitFor(() => {
           expect(capturedAddPlanOnSubmit).toBeDefined()
         })
@@ -771,7 +836,11 @@ describe('CreateCoupon', () => {
           expect(screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)).toBeInTheDocument()
         })
 
-        // Add a billable metric via the captured callback
+        // Click the "add billable metric" button to trigger openAddBillableMetricToCouponDialog
+        const addBMButton = screen.getByTestId('add-billable-metric-limit')
+
+        await user.click(addBMButton)
+
         await waitFor(() => {
           expect(capturedAddBillableMetricOnSubmit).toBeDefined()
         })
