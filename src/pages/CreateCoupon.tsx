@@ -14,13 +14,13 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { Checkbox, DatePicker } from '~/components/form'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import {
   BillableMetricsForCouponsFragment,
   CouponExpiration,
@@ -44,8 +44,6 @@ import { CouponFormValues, couponValidationSchema } from './createCoupon/validat
 export const COUPONS_FORM_ID = 'coupon-form'
 
 // Test ID constants
-export const COUPON_NAME_INPUT_TEST_ID = 'coupon-name-input'
-export const COUPON_CODE_INPUT_TEST_ID = 'coupon-code-input'
 export const COUPON_DESCRIPTION_INPUT_TEST_ID = 'coupon-description-input'
 export const COUPON_AMOUNT_INPUT_TEST_ID = 'coupon-amount-input'
 export const COUPON_PERCENTAGE_INPUT_TEST_ID = 'coupon-percentage-input'
@@ -116,6 +114,8 @@ const CreateCoupon = () => {
     (state) => state.values.limitBillableMetricsList,
   )
 
+  const codeValue = useStore(form.store, (state) => state.values.code)
+
   // Subscribe to form state
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
@@ -150,14 +150,6 @@ const CreateCoupon = () => {
     }
   }
 
-  const handleNameChange = ({ value }: { value: string }) => {
-    const isCodeBlurred = form.getFieldMeta('code')?.isBlurred
-    const hadInitialCode = !!coupon?.code
-
-    if (isCodeBlurred || hadInitialCode) return
-    form.setFieldValue('code', formatCodeFromName(value))
-  }
-
   useEffect(() => {
     setShouldDisplayDescription(!!coupon?.description)
   }, [coupon?.description])
@@ -175,6 +167,16 @@ const CreateCoupon = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
+
+  useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      form.setFieldMeta('code', (meta) => ({
+        ...meta,
+        errorMap: { ...meta.errorMap, onDynamic: undefined },
+      }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codeValue])
 
   useEffect(() => {
     if (
@@ -253,45 +255,11 @@ const CreateCoupon = () => {
                     {translate('text_62876e85e32e0300e1803115')}
                   </Typography>
 
-                  <form.AppField name="name" listeners={{ onChange: handleNameChange }}>
-                    {(field) => (
-                      <field.TextInputField
-                        // eslint-disable-next-line jsx-a11y/no-autofocus
-                        autoFocus
-                        data-test={COUPON_NAME_INPUT_TEST_ID}
-                        label={translate('text_62876e85e32e0300e180311b')}
-                        placeholder={translate('text_62876e85e32e0300e1803121')}
-                      />
-                    )}
-                  </form.AppField>
-
-                  <form.AppField
-                    name="code"
-                    listeners={{
-                      onChange: () => {
-                        if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-                          form.setFieldMeta('code', (meta) => ({
-                            ...meta,
-                            errorMap: {
-                              ...meta.errorMap,
-                              onDynamic: undefined,
-                            },
-                          }))
-                        }
-                      },
-                    }}
-                  >
-                    {(field) => (
-                      <field.TextInputField
-                        beforeChangeFormatter="code"
-                        data-test={COUPON_CODE_INPUT_TEST_ID}
-                        disabled={isEdition && !!coupon?.appliedCouponsCount}
-                        label={translate('text_62876e85e32e0300e1803127')}
-                        placeholder={translate('text_62876e85e32e0300e180312d')}
-                        helperText={translate('text_62876e85e32e0300e1803131')}
-                      />
-                    )}
-                  </form.AppField>
+                  <NameAndCodeGroup
+                    form={form}
+                    fields={{ name: 'name', code: 'code' }}
+                    isDisabled={isEdition && !!coupon?.appliedCouponsCount}
+                  />
 
                   {shouldDisplayDescription ? (
                     <div className="flex items-center">

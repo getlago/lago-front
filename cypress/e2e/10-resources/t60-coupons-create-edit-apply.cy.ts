@@ -21,7 +21,7 @@ describe('Coupons', () => {
     cy.get('[data-test="add-plan-limit"]').click()
     cy.get('input[name="selectedPlan"]').click()
     cy.get('[data-option-index="0"]').click()
-    cy.get('[data-test="submitAddPlanToCouponDialog"]').click()
+    cy.get('[data-test="submit-add-plan-to-coupon-dialog"]').click()
 
     // Submit form
     cy.get('[data-test="submit"]').click()
@@ -42,7 +42,7 @@ describe('Coupons', () => {
     cy.get('[data-test="add-plan-limit"]').click()
     cy.get('input[name="selectedPlan"]').click()
     cy.get('[data-option-index="0"]').click()
-    cy.get('[data-test="submitAddPlanToCouponDialog"]').click()
+    cy.get('[data-test="submit-add-plan-to-coupon-dialog"]').click()
     cy.get('input[name="amountCents"]').type('1')
 
     cy.get('[data-test="submit"]').click()

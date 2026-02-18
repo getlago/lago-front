@@ -1,16 +1,18 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { ComboBox, ComboboxItem } from '~/components/form'
+import { ComboboxItem } from '~/components/form'
 import {
   BillableMetricsForCouponsFragment,
   BillableMetricsForCouponsFragmentDoc,
   useGetBillableMetricsForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { DialogActionButton, useSetDisabledRef } from './DialogActionButton'
 
@@ -32,7 +34,7 @@ gql`
   ${BillableMetricsForCouponsFragmentDoc}
 `
 
-const ADD_BILLABLE_METRIC_FORM_ID = 'add-billable-metric-to-coupon-form'
+export const ADD_BILLABLE_METRIC_FORM_ID = 'add-billable-metric-to-coupon-form'
 
 interface AddBillableMetricContentProps {
   attachedBillableMetricsIds?: string[]
@@ -44,14 +46,33 @@ const AddBillableMetricContent = ({
   onSelect,
 }: AddBillableMetricContentProps) => {
   const { translate } = useInternationalization()
-  const [selectedValue, setSelectedValue] = useState<string | undefined>()
   const [getBillableMetrics, { loading, data }] = useGetBillableMetricsForCouponsLazyQuery({
     variables: { limit: 50 },
   })
 
+  const form = useAppForm({
+    defaultValues: {
+      selectedBillableMetricId: '',
+    },
+  })
+
+  const selectedBillableMetricId = useStore(
+    form.store,
+    (state) => state.values.selectedBillableMetricId,
+  )
+
   useEffect(() => {
     getBillableMetrics()
   }, [getBillableMetrics])
+
+  useEffect(() => {
+    const billableMetric = data?.billableMetrics?.collection.find(
+      (b) => b.id === selectedBillableMetricId,
+    )
+
+    onSelect(selectedBillableMetricId ? billableMetric : undefined)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBillableMetricId, data])
 
   const comboboxBillableMetricsData = useMemo(() => {
     if (!data || !data?.billableMetrics || !data?.billableMetrics?.collection) return []
@@ -79,23 +100,19 @@ const AddBillableMetricContent = ({
 
   return (
     <div className="p-8">
-      <ComboBox
-        name="selectedBillableMetric"
-        className="mb-8"
-        data={comboboxBillableMetricsData}
-        label={translate('text_64352657267c3d916f962757')}
-        loading={loading}
-        onChange={(value) => {
-          setSelectedValue(value)
-          const billableMetric = data?.billableMetrics?.collection.find((b) => b.id === value)
-
-          onSelect(billableMetric)
-        }}
-        placeholder={translate('text_64352657267c3d916f96275d')}
-        PopperProps={{ displayInDialog: true }}
-        searchQuery={getBillableMetrics}
-        value={selectedValue}
-      />
+      <form.AppField name="selectedBillableMetricId">
+        {(field) => (
+          <field.ComboBoxField
+            className="mb-8"
+            data={comboboxBillableMetricsData}
+            label={translate('text_64352657267c3d916f962757')}
+            loading={loading}
+            placeholder={translate('text_64352657267c3d916f96275d')}
+            PopperProps={{ displayInDialog: true }}
+            searchQuery={getBillableMetrics}
+          />
+        )}
+      </form.AppField>
       <Alert type="warning">{translate('text_64352657267c3d916f962763')}</Alert>
     </div>
   )
@@ -135,7 +152,6 @@ export const useAddBillableMetricToCouponDialog = () => {
         <DialogActionButton
           label={translate('text_64352657267c3d916f96276f')}
           setDisabledRef={setDisabledRef}
-          data-test="submitAddBillableMetricToCouponDialog"
         />
       ),
       form: {

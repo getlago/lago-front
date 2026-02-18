@@ -7,7 +7,10 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { useAddBillableMetricToCouponDialog } from '../AddBillableMetricToCouponDialog'
+import {
+  ADD_BILLABLE_METRIC_FORM_ID,
+  useAddBillableMetricToCouponDialog,
+} from '../AddBillableMetricToCouponDialog'
 
 const mockFormDialogOpen = jest.fn().mockResolvedValue({ reason: 'close' })
 
@@ -104,7 +107,7 @@ describe('useAddBillableMetricToCouponDialog', () => {
             children: expect.anything(),
             mainAction: expect.anything(),
             form: expect.objectContaining({
-              id: 'add-billable-metric-to-coupon-form',
+              id: ADD_BILLABLE_METRIC_FORM_ID,
               submit: expect.any(Function),
             }),
           }),

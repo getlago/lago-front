@@ -13,13 +13,14 @@ import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateCoupon, {
   COUPON_AMOUNT_INPUT_TEST_ID,
-  COUPON_CODE_INPUT_TEST_ID,
   COUPON_DESCRIPTION_INPUT_TEST_ID,
   COUPON_EXPIRATION_SECTION_TEST_ID,
   COUPON_LIMIT_ERROR_TEST_ID,
-  COUPON_NAME_INPUT_TEST_ID,
   COUPONS_FORM_ID,
 } from '../CreateCoupon'
+
+const getNameInput = () => document.querySelector('input[name="name"]') as HTMLInputElement
+const getCodeInput = () => document.querySelector('input[name="code"]') as HTMLInputElement
 
 const mockOnSave = jest.fn()
 
@@ -121,19 +122,13 @@ describe('CreateCoupon', () => {
       it('THEN should display the name input field', () => {
         render(<CreateCoupon />)
 
-        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
-        const nameInput = nameInputContainer.querySelector('input')
-
-        expect(nameInput).toBeInTheDocument()
+        expect(getNameInput()).toBeInTheDocument()
       })
 
       it('THEN should display the code input field', () => {
         render(<CreateCoupon />)
 
-        const codeInputContainer = screen.getByTestId(COUPON_CODE_INPUT_TEST_ID)
-        const codeInput = codeInputContainer.querySelector('input')
-
-        expect(codeInput).toBeInTheDocument()
+        expect(getCodeInput()).toBeInTheDocument()
       })
 
       it('THEN should display the submit button', () => {
@@ -153,7 +148,7 @@ describe('CreateCoupon', () => {
         render(<CreateCoupon />)
 
         // When loading, form input fields should not be displayed
-        expect(screen.queryByTestId(COUPON_NAME_INPUT_TEST_ID)).not.toBeInTheDocument()
+        expect(getNameInput()).not.toBeInTheDocument()
       })
     })
   })
@@ -188,10 +183,7 @@ describe('CreateCoupon', () => {
 
         render(<CreateCoupon />)
 
-        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
-        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
-
-        expect(nameInput).toHaveValue('Test Coupon')
+        expect(getNameInput()).toHaveValue('Test Coupon')
       })
 
       it('THEN should populate the code field with coupon code', () => {
@@ -203,10 +195,7 @@ describe('CreateCoupon', () => {
 
         render(<CreateCoupon />)
 
-        const codeInputContainer = screen.getByTestId(COUPON_CODE_INPUT_TEST_ID)
-        const codeInput = codeInputContainer.querySelector('input') as HTMLInputElement
-
-        expect(codeInput).toHaveValue('TEST_COUPON')
+        expect(getCodeInput()).toHaveValue('TEST_COUPON')
       })
     })
 
@@ -223,10 +212,7 @@ describe('CreateCoupon', () => {
 
         render(<CreateCoupon />)
 
-        const codeInputContainer = screen.getByTestId(COUPON_CODE_INPUT_TEST_ID)
-        const codeInput = codeInputContainer.querySelector('input')
-
-        expect(codeInput).toBeDisabled()
+        expect(getCodeInput()).toBeDisabled()
       })
     })
   })
@@ -238,16 +224,10 @@ describe('CreateCoupon', () => {
 
         render(<CreateCoupon />)
 
-        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
-        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
-
-        await user.type(nameInput, 'My New Coupon')
-
-        const codeInputContainer = screen.getByTestId(COUPON_CODE_INPUT_TEST_ID)
-        const codeInput = codeInputContainer.querySelector('input') as HTMLInputElement
+        await user.type(getNameInput(), 'My New Coupon')
 
         await waitFor(() => {
-          expect(codeInput).toHaveValue('my_new_coupon')
+          expect(getCodeInput()).toHaveValue('my_new_coupon')
         })
       })
     })
@@ -564,10 +544,7 @@ describe('CreateCoupon', () => {
         render(<CreateCoupon />)
 
         // Make the form dirty by typing in the name field
-        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
-        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
-
-        await user.type(nameInput, 'changed')
+        await user.type(getNameInput(), 'changed')
 
         // Click the close button to trigger the warning dialog
         const closeButton = screen.getByTestId('close-create-coupon')
@@ -592,10 +569,7 @@ describe('CreateCoupon', () => {
         render(<CreateCoupon />)
 
         // Make the form dirty by typing in the name field
-        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
-        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
-
-        await user.type(nameInput, 'changed')
+        await user.type(getNameInput(), 'changed')
 
         // Click the close button to trigger the warning dialog
         const closeButton = screen.getByTestId('close-create-coupon')
@@ -629,17 +603,11 @@ describe('CreateCoupon', () => {
         render(<CreateCoupon />)
 
         // Fill in the name field
-        const nameInputContainer = screen.getByTestId(COUPON_NAME_INPUT_TEST_ID)
-        const nameInput = nameInputContainer.querySelector('input') as HTMLInputElement
-
-        await user.type(nameInput, 'My Test Coupon')
+        await user.type(getNameInput(), 'My Test Coupon')
 
         // Fill in the code field (auto-generated from name, but let's set it explicitly)
-        const codeInputContainer = screen.getByTestId(COUPON_CODE_INPUT_TEST_ID)
-        const codeInput = codeInputContainer.querySelector('input') as HTMLInputElement
-
-        await user.clear(codeInput)
-        await user.type(codeInput, 'MY_TEST_COUPON')
+        await user.clear(getCodeInput())
+        await user.type(getCodeInput(), 'MY_TEST_COUPON')
 
         // Fill in the amount field
         const amountInputContainer = screen.getByTestId(COUPON_AMOUNT_INPUT_TEST_ID)

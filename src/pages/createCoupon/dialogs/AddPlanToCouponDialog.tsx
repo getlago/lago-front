@@ -1,15 +1,17 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { ComboBox, ComboboxItem } from '~/components/form'
+import { ComboboxItem } from '~/components/form'
 import {
   PlansForCouponsFragment,
   PlansForCouponsFragmentDoc,
   useGetPlansForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { DialogActionButton, useSetDisabledRef } from './DialogActionButton'
 
@@ -31,7 +33,8 @@ gql`
   ${PlansForCouponsFragmentDoc}
 `
 
-const ADD_PLAN_FORM_ID = 'add-plan-to-coupon-form'
+export const ADD_PLAN_FORM_ID = 'add-plan-to-coupon-form'
+export const SUBMIT_ADD_PLAN_DIALOG_TEST_ID = 'submit-add-plan-to-coupon-dialog'
 
 interface AddPlanContentProps {
   attachedPlansIds?: string[]
@@ -40,14 +43,28 @@ interface AddPlanContentProps {
 
 const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => {
   const { translate } = useInternationalization()
-  const [selectedValue, setSelectedValue] = useState<string | undefined>()
   const [getPlans, { loading, data }] = useGetPlansForCouponsLazyQuery({
     variables: { limit: 50 },
   })
 
+  const form = useAppForm({
+    defaultValues: {
+      selectedPlanId: '',
+    },
+  })
+
+  const selectedPlanId = useStore(form.store, (state) => state.values.selectedPlanId)
+
   useEffect(() => {
     getPlans()
   }, [getPlans])
+
+  useEffect(() => {
+    const plan = data?.plans?.collection.find((p) => p.id === selectedPlanId)
+
+    onSelect(selectedPlanId ? plan : undefined)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPlanId, data])
 
   const comboboxPlansData = useMemo(() => {
     if (!data || !data?.plans || !data?.plans?.collection) return []
@@ -75,22 +92,18 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
 
   return (
     <div className="p-8">
-      <ComboBox
-        name="selectedPlan"
-        data={comboboxPlansData}
-        label={translate('text_63d3a658c6d84a5843032145')}
-        loading={loading}
-        onChange={(value) => {
-          setSelectedValue(value)
-          const plan = data?.plans?.collection.find((p) => p.id === value)
-
-          onSelect(plan)
-        }}
-        placeholder={translate('text_63d3a658c6d84a5843032147')}
-        PopperProps={{ displayInDialog: true }}
-        searchQuery={getPlans}
-        value={selectedValue}
-      />
+      <form.AppField name="selectedPlanId">
+        {(field) => (
+          <field.ComboBoxField
+            data={comboboxPlansData}
+            label={translate('text_63d3a658c6d84a5843032145')}
+            loading={loading}
+            placeholder={translate('text_63d3a658c6d84a5843032147')}
+            PopperProps={{ displayInDialog: true }}
+            searchQuery={getPlans}
+          />
+        )}
+      </form.AppField>
     </div>
   )
 }
@@ -129,7 +142,7 @@ export const useAddPlanToCouponDialog = () => {
         <DialogActionButton
           label={translate('text_63d3a658c6d84a584303214b')}
           setDisabledRef={setDisabledRef}
-          data-test="submitAddPlanToCouponDialog"
+          data-test={SUBMIT_ADD_PLAN_DIALOG_TEST_ID}
         />
       ),
       form: {

@@ -4,7 +4,7 @@ import { ReactElement } from 'react'
 import { PlansForCouponsFragment, useGetPlansForCouponsLazyQuery } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { useAddPlanToCouponDialog } from '../AddPlanToCouponDialog'
+import { ADD_PLAN_FORM_ID, useAddPlanToCouponDialog } from '../AddPlanToCouponDialog'
 
 const mockFormDialogOpen = jest.fn().mockResolvedValue({ reason: 'close' })
 
@@ -100,7 +100,7 @@ describe('useAddPlanToCouponDialog', () => {
             children: expect.anything(),
             mainAction: expect.anything(),
             form: expect.objectContaining({
-              id: 'add-plan-to-coupon-form',
+              id: ADD_PLAN_FORM_ID,
               submit: expect.any(Function),
             }),
           }),
