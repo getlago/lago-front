@@ -163,56 +163,54 @@ const RolesList = () => {
   }
 
   return (
-    <>
-      <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_1765448879791epmkg4xijkn')}</Typography>
-          <Typography>{translate('text_1765449274238uzkq6xxdcev')}</Typography>
-        </SettingsPageHeaderContainer>
+    <SettingsPaddedContainer>
+      <SettingsPageHeaderContainer>
+        <Typography variant="headline">{translate('text_1765448879791epmkg4xijkn')}</Typography>
+        <Typography>{translate('text_1765449274238uzkq6xxdcev')}</Typography>
+      </SettingsPageHeaderContainer>
 
-        <SettingsListWrapper>
-          {isLoadingRoles && <SettingsListItemLoadingSkeleton />}
-          {!isLoadingRoles && (
-            <SettingsListItem className="[box-shadow:none]">
-              <SettingsListItemHeader
-                label={translate('text_1765448879791epmkg4xijkn')}
-                sublabel={translate('text_1765530135524j574y0dr6bb')}
-                action={getRoleHeaderAction()}
-              />
-              <Table
-                name="roles"
-                containerSize={{ default: 0 }}
-                data={roles}
-                columns={columns}
-                isLoading={isLoadingRoles}
-                actionColumnTooltip={actionColumnTooltip}
-                actionColumn={actionColumn}
-                onRowActionLink={handleRowClick}
-              />
-            </SettingsListItem>
-          )}
-          {!hasPremiumAddon && roles.length === 0 && (
-            <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
-              <div className="flex flex-col">
-                <div className="flex flex-row items-center gap-2">
-                  <Typography variant="bodyHl" color="grey700">
-                    {translate('text_1765450549863hmt6lo6scog')}
-                  </Typography>
-                  <Icon name="sparkles" />
-                </div>
-
-                <Typography variant="caption" color="grey600">
-                  {translate('text_1732286530467gnhwm6q5ftl')}
+      <SettingsListWrapper>
+        {isLoadingRoles && <SettingsListItemLoadingSkeleton />}
+        {!isLoadingRoles && (
+          <SettingsListItem className="[box-shadow:none]">
+            <SettingsListItemHeader
+              label={translate('text_1765448879791epmkg4xijkn')}
+              sublabel={translate('text_1765530135524j574y0dr6bb')}
+              action={getRoleHeaderAction()}
+            />
+            <Table
+              name="roles"
+              containerSize={{ default: 0 }}
+              data={roles}
+              columns={columns}
+              isLoading={isLoadingRoles}
+              actionColumnTooltip={actionColumnTooltip}
+              actionColumn={actionColumn}
+              onRowActionLink={handleRowClick}
+            />
+          </SettingsListItem>
+        )}
+        {!hasPremiumAddon && roles.length === 0 && (
+          <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
+            <div className="flex flex-col">
+              <div className="flex flex-row items-center gap-2">
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_1765450549863hmt6lo6scog')}
                 </Typography>
+                <Icon name="sparkles" />
               </div>
-              <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
-                {translate('text_65ae73ebe3a66bec2b91d72d')}
-              </Button>
+
+              <Typography variant="caption" color="grey600">
+                {translate('text_1732286530467gnhwm6q5ftl')}
+              </Typography>
             </div>
-          )}
-        </SettingsListWrapper>
-      </SettingsPaddedContainer>
-    </>
+            <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
+              {translate('text_65ae73ebe3a66bec2b91d72d')}
+            </Button>
+          </div>
+        )}
+      </SettingsListWrapper>
+    </SettingsPaddedContainer>
   )
 }
 
