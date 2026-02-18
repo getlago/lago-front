@@ -12,7 +12,7 @@ import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDial
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
-import { ROLES_LIST_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
+import { TEAM_AND_SECURITY_GROUP_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -65,6 +65,9 @@ const RoleDetails = () => {
 
   const displayName = getDisplayName(role)
   const displayDescription = getDisplayDescription(role)
+  const rolesListRoute = generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+    group: teamAndSecurityGroupOptions.roles,
+  })
   const getMembersListPath = () => {
     const basePath = generatePath(TEAM_AND_SECURITY_TAB_ROUTE, {
       group: teamAndSecurityGroupOptions.members,
@@ -79,7 +82,7 @@ const RoleDetails = () => {
       <PageHeader.Wrapper>
         <PageHeader.Group>
           <ButtonLink
-            to={ROLES_LIST_ROUTE}
+            to={rolesListRoute}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />

@@ -2,9 +2,11 @@ import { ApolloError, gql, useApolloClient } from '@apollo/client'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { addToast } from '~/core/apolloClient'
-import { ROLE_CREATE_ROUTE, ROLE_EDIT_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
+import { ROLE_CREATE_ROUTE, ROLE_EDIT_ROUTE, TEAM_AND_SECURITY_GROUP_ROUTE } from '~/core/router'
 import { DestroyRoleInput, GetRolesListDocument, useDeleteRoleMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { teamAndSecurityGroupOptions } from '../../common/teamAndSecurityConst'
 
 gql`
   mutation deleteRole($input: DestroyRoleInput!) {
@@ -42,7 +44,11 @@ export const useRoleActions = (): {
       include: [GetRolesListDocument],
     })
 
-    navigate(generatePath(ROLES_LIST_ROUTE))
+    navigate(
+      generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+        group: teamAndSecurityGroupOptions.roles,
+      }),
+    )
 
     addToast({
       message: translate('text_1766158947598m8ut1nw2vjq'),

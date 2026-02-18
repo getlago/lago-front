@@ -7,6 +7,7 @@ import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -15,7 +16,6 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { RoleItem, rolesNameMapping, systemRoles } from '~/core/constants/roles'
 import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -23,7 +23,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useRolesList } from '~/hooks/useRolesList'
-import { PageHeader } from '~/styles'
 
 import { DeleteRoleDialog, DeleteRoleDialogRef } from '../common/dialogs/DeleteRoleDialog'
 import RoleTypeChip from '../common/RoleTypeChip'
@@ -42,11 +41,11 @@ const RolesList = () => {
   const canEditRoles = hasPermissions(['rolesUpdate'])
   const canDeleteRoles = hasPermissions(['rolesDelete'])
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
 
   const openPremiumDialog = () => {
-    premiumWarningDialogRef.current?.openDialog()
+    premiumWarningDialog.open()
   }
 
   const openDeleteRoleDialog = (role: RoleItem) => {
@@ -170,12 +169,6 @@ const RolesList = () => {
 
   return (
     <>
-      <PageHeader.Wrapper>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_1765448879791epmkg4xijkn')}
-        </Typography>
-      </PageHeader.Wrapper>
-
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>
           <Typography variant="headline">{translate('text_1765448879791epmkg4xijkn')}</Typography>
@@ -225,7 +218,6 @@ const RolesList = () => {
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <DeleteRoleDialog ref={deleteRoleDialogRef} />
     </>
   )

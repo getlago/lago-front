@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { allPermissions } from '~/pages/settings/roles/common/permissionsConst'
-import { PermissionName } from '~/pages/settings/roles/common/permissionsTypes'
+import { allPermissions } from '~/pages/settings/teamAndSecurity/roles/common/permissionsConst'
+import { PermissionName } from '~/pages/settings/teamAndSecurity/roles/common/permissionsTypes'
 
 export const EMAIL_REGEX: RegExp =
   // eslint-disable-next-line no-control-regex

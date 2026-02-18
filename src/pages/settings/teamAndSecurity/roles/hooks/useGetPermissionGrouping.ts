@@ -4,8 +4,11 @@ import {
   hiddenPermissions,
   permissionDescriptionMapping,
   permissionGroupMapping,
-} from '~/pages/settings/roles/common/permissionsConst'
-import { PermissionGrouping, PermissionName } from '~/pages/settings/roles/common/permissionsTypes'
+} from '~/pages/settings/teamAndSecurity/roles/common/permissionsConst'
+import {
+  PermissionGrouping,
+  PermissionName,
+} from '~/pages/settings/teamAndSecurity/roles/common/permissionsTypes'
 
 export const useGetPermissionGrouping = (
   permissions: Array<PermissionName>,
