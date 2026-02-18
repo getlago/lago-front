@@ -30,7 +30,7 @@ describe('permissionRouteMap', () => {
 
       expect(map.organizationInvoicesView).toBe('/settings/invoice-sections')
       expect(map.organizationTaxesView).toBe('/settings/taxes')
-      expect(map.organizationMembersView).toBe('/settings/members')
+      expect(map.organizationMembersView).toBe('/settings/team-and-security')
       expect(map.dunningCampaignsView).toBe('/settings/dunnings')
     })
 
