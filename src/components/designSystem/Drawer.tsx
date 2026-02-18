@@ -21,6 +21,7 @@ import {
 interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string
   stickyBottomBarClassName?: string
+  stickyBottomBarSmall?: boolean
   title: string | ReactNode
   opener?: ReactElement
   forceOpen?: boolean
@@ -51,6 +52,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       fullContentHeight,
       withPadding = true,
       stickyBottomBarClassName,
+      stickyBottomBarSmall = false,
       onOpen,
       onClose,
     }: DrawerProps,
@@ -103,7 +105,10 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           PaperProps={{
             className: tw(
               'w-full max-w-[816px] md:w-[calc(100vw-48px)]',
-              !!stickyBottomBar && 'grid grid-rows-[72px_1fr_80px]',
+              !!stickyBottomBar &&
+                (stickyBottomBarSmall
+                  ? `grid grid-rows-[72px_1fr_60px]`
+                  : `grid grid-rows-[72px_1fr_80px]`),
             ),
           }}
         >
