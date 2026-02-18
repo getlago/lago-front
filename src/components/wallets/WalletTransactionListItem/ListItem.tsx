@@ -10,11 +10,17 @@ import {
   TRANSACTION_AMOUNT_DATA_TEST,
   TRANSACTION_CREDITS_DATA_TEST,
   TRANSACTION_LABEL_DATA_TEST,
+  TRANSACTION_PRIORITY_DATA_TEST,
+  TRANSACTION_REMAINING_CREDITS_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { TimezoneEnum, WalletTransactionStatusEnum } from '~/generated/graphql'
+import {
+  TimezoneEnum,
+  WalletTransactionStatusEnum,
+  WalletTransactionTransactionTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -37,6 +43,11 @@ interface ListItemProps {
   amount: string
   credits: string
   creditsColor: TypographyColor
+  priority?: number
+  remainingAmountCents: string
+  remainingCreditAmount: string
+  transactionType: WalletTransactionTransactionTypeEnum
+  isRealTimeTransaction?: boolean
   date?: string
   hasAction?: boolean
   iconName: IconName
@@ -53,6 +64,11 @@ export const ListItem: FC<ListItemProps> = ({
   amount,
   credits,
   creditsColor,
+  priority,
+  remainingAmountCents,
+  remainingCreditAmount,
+  transactionType,
+  isRealTimeTransaction,
   date,
   hasAction,
   iconName,
@@ -73,6 +89,8 @@ export const ListItem: FC<ListItemProps> = ({
   const isFailed = status === WalletTransactionStatusEnum.Failed
   const displayText = concatInfosTextForDisplay({ name, date, timezone })
 
+  const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
+
   return (
     <li className={tw('relative shadow-b', isClickable && 'hover:bg-grey-100')}>
       <div
@@ -85,12 +103,12 @@ export const ListItem: FC<ListItemProps> = ({
           }
         }}
         className={tw(
-          'flex items-center justify-between gap-2 px-4 py-3',
+          'grid grid-cols-4 items-center justify-between gap-2 px-4 py-3',
           isClickable && 'focus-visible:bg-grey-200 focus-visible:ring focus-visible:ring-inset',
         )}
         {...props}
       >
-        <div className="flex min-w-0 items-center">
+        <div className="col-span-3 flex min-w-0 flex-1 items-center">
           <Avatar className="mr-3" size="big" variant="connector">
             <Icon name={iconName} color="dark" />
             {isPending && <AvatarBadge icon="sync" color="dark" />}
@@ -112,92 +130,163 @@ export const ListItem: FC<ListItemProps> = ({
             )}
           </div>
         </div>
-        <div className="flex flex-row items-center gap-7">
-          <div className="flex flex-col items-end">
-            <Typography
-              variant="bodyHl"
-              color={isPending || isFailed ? 'grey500' : creditsColor}
-              blur={isBlurry}
-              data-test={TRANSACTION_CREDITS_DATA_TEST}
-              className={tw(isFailed && 'line-through')}
-            >
-              {credits}
-            </Typography>
-            <Typography
-              variant="caption"
-              color="grey600"
-              blur={isBlurry}
-              data-test={TRANSACTION_AMOUNT_DATA_TEST}
-            >
-              {amount}
-            </Typography>
-          </div>
-          {hasAction && <div className="size-10" />}
-        </div>
-      </div>
-      {hasAction && (
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={(opener) => (
-            <div className="absolute right-4 top-4">
-              <Tooltip
-                placement="top-start"
-                disableHoverListener={opener.isOpen}
-                title={translate('text_1741251836185jea576d14uj')}
-              >
-                <Button
-                  size="medium"
-                  variant="quaternary"
-                  icon="dots-horizontal"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    opener.onClick()
-                  }}
-                />
-              </Tooltip>
-            </div>
-          )}
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              {!!onClick && (
-                <Button
-                  startIcon="eye"
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    onClick()
-                    closePopper()
-                  }}
+
+        {isRealTimeTransaction && (
+          <div className="grid h-full grid-cols-7">
+            <div className="col-start-5 col-end-8 flex items-center justify-end">
+              <div className="flex flex-col items-end">
+                <Typography
+                  variant="bodyHl"
+                  color={isPending || isFailed ? 'grey500' : creditsColor}
+                  blur={isBlurry}
+                  data-test={TRANSACTION_CREDITS_DATA_TEST}
+                  className={tw(isFailed && 'line-through')}
                 >
-                  {translate('text_1742218191558g0ysnnxbb32')}
-                </Button>
-              )}
-              <Button
-                startIcon="duplicate"
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={(e) => {
-                  e.stopPropagation()
-                  copyToClipboard(transactionId)
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_17412580835361rm20fysfba',
-                  })
-                  closePopper()
-                }}
+                  {credits}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="grey600"
+                  blur={isBlurry}
+                  data-test={TRANSACTION_AMOUNT_DATA_TEST}
+                >
+                  {amount}
+                </Typography>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!isRealTimeTransaction && (
+          <div className="grid grid-cols-7">
+            <div className="col-span-2 flex flex-row justify-end">
+              <Typography
+                variant="body"
+                color="grey600"
+                blur={isBlurry}
+                data-test={TRANSACTION_PRIORITY_DATA_TEST}
               >
-                {translate('text_1741258064758s59ws4fg2l9')}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
-      )}
+                {!isInbound ? '-' : priority}
+              </Typography>
+            </div>
+
+            <div className="col-span-2 flex flex-row items-center justify-end">
+              <div className="flex flex-col items-end">
+                <Typography
+                  variant="bodyHl"
+                  color={isPending || isFailed ? 'grey500' : creditsColor}
+                  blur={isBlurry}
+                  data-test={TRANSACTION_CREDITS_DATA_TEST}
+                  className={tw(isFailed && 'line-through')}
+                >
+                  {credits}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="grey600"
+                  blur={isBlurry}
+                  data-test={TRANSACTION_AMOUNT_DATA_TEST}
+                >
+                  {amount}
+                </Typography>
+              </div>
+            </div>
+
+            <div className="col-span-2 flex flex-row items-center justify-end">
+              <div className="flex flex-col items-end">
+                <Typography
+                  variant="bodyHl"
+                  color={isPending || isFailed ? 'grey500' : 'grey700'}
+                  blur={isBlurry}
+                  data-test={TRANSACTION_REMAINING_CREDITS_DATA_TEST}
+                >
+                  {!isInbound
+                    ? '-'
+                    : translate(
+                        'text_62da6ec24a8e24e44f812896',
+                        {
+                          amount: remainingCreditAmount,
+                        },
+                        Number(remainingCreditAmount) || 0,
+                      )}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="grey600"
+                  blur={isBlurry}
+                  data-test={TRANSACTION_AMOUNT_DATA_TEST}
+                >
+                  {!isInbound ? '-' : remainingAmountCents}
+                </Typography>
+              </div>
+            </div>
+
+            {hasAction && (
+              <Popper
+                PopperProps={{ placement: 'bottom-end' }}
+                opener={(opener) => (
+                  <div className="flex h-full items-center justify-end">
+                    <Tooltip
+                      placement="top-start"
+                      disableHoverListener={opener.isOpen}
+                      title={translate('text_1741251836185jea576d14uj')}
+                    >
+                      <Button
+                        size="medium"
+                        variant="quaternary"
+                        icon="dots-horizontal"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          opener.onClick()
+                        }}
+                      />
+                    </Tooltip>
+                  </div>
+                )}
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    {!!onClick && (
+                      <Button
+                        startIcon="eye"
+                        variant="quaternary"
+                        align="left"
+                        fullWidth
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          onClick()
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1742218191558g0ysnnxbb32')}
+                      </Button>
+                    )}
+                    <Button
+                      startIcon="duplicate"
+                      variant="quaternary"
+                      align="left"
+                      fullWidth
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        copyToClipboard(transactionId)
+                        addToast({
+                          severity: 'info',
+                          translateKey: 'text_17412580835361rm20fysfba',
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1741258064758s59ws4fg2l9')}
+                    </Button>
+                  </MenuPopper>
+                )}
+              </Popper>
+            )}
+          </div>
+        )}
+      </div>
     </li>
   )
 }

@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { getIn, useFormik } from 'formik'
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import { boolean, object, string } from 'yup'
+import { boolean, number, object, string } from 'yup'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
@@ -50,6 +50,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import TopUpTypeSelector, {
+  WalletTransactionType,
+} from '~/pages/wallet/components/TopUpTypeSelector'
 import { topUpAmountError } from '~/pages/wallet/form'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -82,6 +85,7 @@ gql`
 `
 
 export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'
+const WALLET_TOP_UP_DEFAULT_PRIORITY = '50'
 
 const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()
@@ -92,6 +96,8 @@ const CreateWalletTopUp = () => {
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
   const warningDialogRef = useRef<WarningDialogRef>(null)
+
+  const [transactionType, setTransactionType] = useState(WalletTransactionType.PrepaidCredits)
 
   const { data: voidedInvoice } = useGetInvoiceStatusQuery({
     variables: {
@@ -157,6 +163,7 @@ const CreateWalletTopUp = () => {
       name: undefined,
       metadata: undefined,
       ignorePaidTopUpLimits: undefined,
+      priority: 50,
     },
     validationSchema: object().shape({
       paidCredits: string().test({
@@ -188,6 +195,7 @@ const CreateWalletTopUp = () => {
         },
       }),
       metadata: metadataSchema().nullable(),
+      priority: number(),
     }),
     validateOnMount: true,
     onSubmit: async ({
@@ -242,6 +250,13 @@ const CreateWalletTopUp = () => {
       navigateToCustomerWalletTab()
     },
   })
+
+  const updateTransactionType = (type: WalletTransactionType) => {
+    setTransactionType(type)
+
+    formikProps.setFieldValue('grantedCredits', '')
+    formikProps.setFieldValue('paidCredits', '')
+  }
 
   const navigateBack = useCallback(
     () =>
@@ -371,7 +386,6 @@ const CreateWalletTopUp = () => {
                   {translate('text_1741103892833plsi99wvuop')}
                 </Typography>
               </div>
-
               <TextInputField
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
@@ -381,84 +395,90 @@ const CreateWalletTopUp = () => {
                 placeholder={translate('text_17580145853390n3v83gao69')}
                 helperText={translate('text_1758014585339ly8tof8ub3r')}
               />
-
-              <AmountInputField
-                name="paidCredits"
-                currency={wallet.currency}
-                beforeChangeFormatter={['positiveNumber']}
-                label={translate('text_62e79671d23ae6ff149de944')}
-                formikProps={formikProps}
-                silentError={true}
-                error={paidCreditsError?.label}
-                helperText={translate('text_62d18855b22699e5cf55f88b', {
-                  paidCredits: intlFormatNumber(
-                    isNaN(Number(formikProps.values.paidCredits))
-                      ? 0
-                      : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount),
-
-                    {
-                      currencyDisplay: 'symbol',
-                      currency: wallet.currency,
-                    },
-                  ),
-                })}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {translate('text_62e79671d23ae6ff149de94c')}
-                    </InputAdornment>
-                  ),
-                }}
+              <TopUpTypeSelector
+                selectedType={transactionType}
+                setSelectedType={updateTransactionType}
               />
-
-              {formikProps.values.paidCredits && (
+              {transactionType === WalletTransactionType.PrepaidCredits && (
                 <>
-                  {hasMinMax && (
-                    <SwitchField
-                      name={'ignorePaidTopUpLimits'}
-                      formikProps={formikProps}
-                      label={translate('text_17587075291282to3nmogezj')}
-                      data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
-                    />
-                  )}
-
-                  <SwitchField
-                    name="invoiceRequiresSuccessfulPayment"
+                  <AmountInputField
+                    name="paidCredits"
+                    currency={wallet.currency}
+                    beforeChangeFormatter={['positiveNumber']}
+                    label={translate('text_62e79671d23ae6ff149de944')}
                     formikProps={formikProps}
-                    label={translate('text_66a8aed1c3e07b277ec3990d')}
-                    subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-                    data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
+                    silentError={true}
+                    error={paidCreditsError?.label}
+                    helperText={translate('text_62d18855b22699e5cf55f88b', {
+                      paidCredits: intlFormatNumber(
+                        isNaN(Number(formikProps.values.paidCredits))
+                          ? 0
+                          : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount),
+
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: wallet.currency,
+                        },
+                      ),
+                    })}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {translate('text_62e79671d23ae6ff149de94c')}
+                        </InputAdornment>
+                      ),
+                    }}
                   />
+                  {formikProps.values.paidCredits && (
+                    <>
+                      {hasMinMax && (
+                        <SwitchField
+                          name={'ignorePaidTopUpLimits'}
+                          formikProps={formikProps}
+                          label={translate('text_17587075291282to3nmogezj')}
+                          data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
+                        />
+                      )}
+
+                      <SwitchField
+                        name="invoiceRequiresSuccessfulPayment"
+                        formikProps={formikProps}
+                        label={translate('text_66a8aed1c3e07b277ec3990d')}
+                        subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                        data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
+                      />
+                    </>
+                  )}
                 </>
               )}
-
-              <AmountInputField
-                name="grantedCredits"
-                currency={wallet.currency}
-                beforeChangeFormatter={['positiveNumber']}
-                label={translate('text_62d18855b22699e5cf55f88d')}
-                formikProps={formikProps}
-                silentError={true}
-                helperText={translate('text_62d18855b22699e5cf55f893', {
-                  grantedCredits: intlFormatNumber(
-                    isNaN(Number(formikProps.values.grantedCredits))
-                      ? 0
-                      : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount),
-                    {
-                      currencyDisplay: 'symbol',
-                      currency: wallet.currency,
-                    },
-                  ),
-                })}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {translate('text_62e79671d23ae6ff149de95c')}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
+              {transactionType === WalletTransactionType.FreeCredits && (
+                <AmountInputField
+                  name="grantedCredits"
+                  currency={wallet.currency}
+                  beforeChangeFormatter={['positiveNumber']}
+                  label={translate('text_62d18855b22699e5cf55f88d')}
+                  formikProps={formikProps}
+                  silentError={true}
+                  helperText={translate('text_62d18855b22699e5cf55f893', {
+                    grantedCredits: intlFormatNumber(
+                      isNaN(Number(formikProps.values.grantedCredits))
+                        ? 0
+                        : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount),
+                      {
+                        currencyDisplay: 'symbol',
+                        currency: wallet.currency,
+                      },
+                    ),
+                  })}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {translate('text_62e79671d23ae6ff149de95c')}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
               <Alert type="info">
                 <Typography color="textSecondary">
                   {translate('text_17411038928333ksu96fbmam', {
@@ -470,6 +490,16 @@ const CreateWalletTopUp = () => {
                   })}
                 </Typography>
               </Alert>
+
+              <TextInputField
+                name="priority"
+                type="number"
+                beforeChangeFormatter={['positiveNumber', 'int']}
+                label={translate('text_17708227222843peys0u3ywu')}
+                description={translate('text_17708227222846t71arrz7dn')}
+                placeholder={WALLET_TOP_UP_DEFAULT_PRIORITY}
+                formikProps={formikProps}
+              />
             </section>
 
             {hasAccessToMultiPaymentFlow &&

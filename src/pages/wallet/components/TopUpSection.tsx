@@ -18,7 +18,6 @@ import {
   ComboBoxField,
   DatePickerField,
   Switch,
-  SwitchField,
   TextInputField,
 } from '~/components/form'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
@@ -27,8 +26,6 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
   ADD_METADATA_DATA_TEST,
-  IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
-  INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
@@ -117,7 +114,6 @@ interface TopUpSectionProps {
 
 export const TopUpSection: FC<TopUpSectionProps> = ({
   formikProps,
-  formType,
   customerData,
   isRecurringTopUpEnabled,
   setIsRecurringTopUpEnabled,
@@ -143,16 +139,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   const paidTopUpMinAmountCents = formikProps?.values?.paidTopUpMinAmountCents
   const paidTopUpMaxAmountCents = formikProps?.values?.paidTopUpMaxAmountCents
 
-  const paidCreditsError = topUpAmountError({
-    rateAmount: formikProps?.values?.rateAmount,
-    paidCredits: formikProps?.values?.paidCredits,
-    paidTopUpMinAmountCents,
-    paidTopUpMaxAmountCents,
-    currency: formikProps?.values?.currency,
-    skip: !!formikProps?.values?.ignorePaidTopUpLimitsOnCreation,
-    translate,
-  })
-
   const recurringPaidCreditsError = topUpAmountError({
     rateAmount: formikProps?.values?.rateAmount,
     paidCredits: formikProps?.values?.recurringTransactionRules?.[0]?.paidCredits || '',
@@ -170,86 +156,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
 
   return (
     <>
-      <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
-        <div className="flex flex-col gap-1">
-          <Typography variant="subhead1">{translate('text_6657be42151661006d2f3b89')}</Typography>
-          <Typography variant="caption">{translate('text_6657be42151661006d2f3b8a')}</Typography>
-        </div>
-
-        {formType === FORM_TYPE_ENUM.creation && (
-          <>
-            <TextInputField
-              name="transactionName"
-              formikProps={formikProps}
-              label={translate('text_17580145853389xkffv9cs1d')}
-              placeholder={translate('text_17580145853390n3v83gao69')}
-              helperText={translate('text_1758014585339ly8tof8ub3r')}
-            />
-            <AmountInputField
-              name="paidCredits"
-              currency={formikProps.values.currency}
-              label={translate('text_62d18855b22699e5cf55f885')}
-              formikProps={formikProps}
-              silentError={true}
-              error={paidCreditsError?.label}
-              helperText={translate('text_62d18855b22699e5cf55f88b', {
-                paidCredits: formatCreditsToCurrency(
-                  formikProps.values.rateAmount,
-                  formikProps.values.paidCredits,
-                  formikProps.values.currency,
-                ),
-              })}
-              {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
-            />
-
-            {formikProps.values.paidCredits && (
-              <>
-                {hasMinMax && (
-                  <SwitchField
-                    name={'ignorePaidTopUpLimitsOnCreation'}
-                    formikProps={formikProps}
-                    label={translate('text_17587075291282to3nmogezj')}
-                    data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
-                  />
-                )}
-
-                <SwitchField
-                  name="invoiceRequiresSuccessfulPayment"
-                  formikProps={formikProps}
-                  label={translate('text_66a8aed1c3e07b277ec3990d')}
-                  subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-                  data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
-                />
-              </>
-            )}
-            <AmountInputField
-              name="grantedCredits"
-              currency={formikProps.values.currency}
-              label={translate('text_62d18855b22699e5cf55f88d')}
-              formikProps={formikProps}
-              silentError={true}
-              helperText={translate('text_62d18855b22699e5cf55f893', {
-                grantedCredits: formatCreditsToCurrency(
-                  formikProps.values.rateAmount,
-                  formikProps.values.grantedCredits,
-                  formikProps.values.currency,
-                ),
-              })}
-              {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
-            />
-          </>
-        )}
-
-        {formType === FORM_TYPE_ENUM.edition && (
-          <SwitchField
-            name="invoiceRequiresSuccessfulPayment"
-            formikProps={formikProps}
-            label={translate('text_66a8aed1c3e07b277ec3990d')}
-            subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-          />
-        )}
-      </section>
-
       {hasAccessToMultiPaymentFlow &&
         (customerData?.customer?.externalId || customerData?.customer?.id) && (
           <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
