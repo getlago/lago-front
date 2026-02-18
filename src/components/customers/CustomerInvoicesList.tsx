@@ -97,6 +97,7 @@ gql`
       paymentProvider
       hasActiveWallet
       email
+      deletedAt
     }
     errorDetails {
       errorCode

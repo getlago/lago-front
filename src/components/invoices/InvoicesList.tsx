@@ -358,7 +358,9 @@ const InvoicesList = ({
     const voidInvoiceAction: ActionItem<InvoiceItem> | null = actions.canVoid(invoice)
       ? {
           startIcon: 'stop',
-          title: translate('text_1750678506388d4fr5etxbhh'),
+          title: invoice?.customer?.deletedAt
+            ? translate('text_65269b43d4d2b15dd929a259')
+            : translate('text_1750678506388d4fr5etxbhh'),
           onAction: () =>
             navigate(
               generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
