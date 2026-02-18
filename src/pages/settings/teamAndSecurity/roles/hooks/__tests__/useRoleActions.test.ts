@@ -129,7 +129,7 @@ describe('useRoleActions', () => {
       })
 
       await waitFor(() => {
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/settings/roles')
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/settings/team-and-security/roles')
       })
     })
 
@@ -183,7 +183,7 @@ describe('useRoleActions', () => {
         result.current.navigateToDuplicate(ROLE_ID)
       })
 
-      expect(testMockNavigateFn).toHaveBeenCalledWith('/settings/roles/create')
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/settings/team-and-security/roles/create')
     })
   })
 
@@ -206,7 +206,9 @@ describe('useRoleActions', () => {
         result.current.navigateToEdit(ROLE_ID)
       })
 
-      expect(testMockNavigateFn).toHaveBeenCalledWith(`/settings/roles/${ROLE_ID}/edit`)
+      expect(testMockNavigateFn).toHaveBeenCalledWith(
+        `/settings/team-and-security/roles/${ROLE_ID}/edit`,
+      )
     })
   })
 })

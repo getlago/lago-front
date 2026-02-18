@@ -36,12 +36,15 @@ jest.mock('../../hooks/useRoleDetails', () => ({
   }),
 }))
 
-jest.mock('~/pages/settings/roles/common/rolePermissionsForm/RolePermissionsForm', () => ({
-  __esModule: true,
-  default: function MockRolePermissionsForm() {
-    return <div data-test="role-permissions-form">Permissions Form</div>
-  },
-}))
+jest.mock(
+  '~/pages/settings/teamAndSecurity/roles/common/rolePermissionsForm/RolePermissionsForm',
+  () => ({
+    __esModule: true,
+    default: function MockRolePermissionsForm() {
+      return <div data-test="role-permissions-form">Permissions Form</div>
+    },
+  }),
+)
 
 describe('RoleCreateEdit', () => {
   beforeEach(() => {
