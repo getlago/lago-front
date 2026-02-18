@@ -7,7 +7,7 @@ export const WEBHOOK_ROUTE = `${DEVTOOL_ROUTE}/webhooks/:webhookId`
 export const WEBHOOK_LOGS_ROUTE = `${DEVTOOL_ROUTE}/webhooks/:webhookId/logs/:logId`
 
 export const EVENTS_ROUTE = `${DEVTOOL_ROUTE}/events`
-export const EVENT_LOG_ROUTE = `${DEVTOOL_ROUTE}/events/:eventId`
+export const EVENT_LOG_ROUTE = `${DEVTOOL_ROUTE}/events/*`
 
 export const API_LOGS_ROUTE = `${DEVTOOL_ROUTE}/api-logs`
 export const API_LOG_ROUTE = `${DEVTOOL_ROUTE}/api-logs/:logId`
