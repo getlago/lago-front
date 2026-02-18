@@ -235,7 +235,6 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
 
     const onClose = () => {
       setShowAllPayments(false)
-      setWalletTransactionId('')
       drawerRef.current?.closeDrawer()
     }
 
@@ -376,10 +375,12 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
         title={translate('text_1741944051511ju78ai43hw9')}
         onClose={onClose}
         stickyBottomBar={
-          <Button size="large" onClick={onClose}>
+          <Button size="medium" onClick={onClose}>
             {translate('text_62f50d26c989ab03196884ae')}
           </Button>
         }
+        stickyBottomBarClassName="md:py-3"
+        stickyBottomBarSmall
       >
         <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
           {loading && (
