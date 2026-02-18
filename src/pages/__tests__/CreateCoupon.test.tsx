@@ -15,6 +15,8 @@ import CreateCoupon, {
   COUPON_AMOUNT_INPUT_TEST_ID,
   COUPON_CODE_INPUT_TEST_ID,
   COUPON_DESCRIPTION_INPUT_TEST_ID,
+  COUPON_EXPIRATION_SECTION_TEST_ID,
+  COUPON_LIMIT_ERROR_TEST_ID,
   COUPON_NAME_INPUT_TEST_ID,
   COUPONS_FORM_ID,
 } from '../CreateCoupon'
@@ -621,6 +623,194 @@ describe('CreateCoupon', () => {
         // Wait a bit to ensure async validation completes
         await waitFor(() => {
           expect(mockOnSave).not.toHaveBeenCalled()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN checkbox validation errors on submit', () => {
+    describe('WHEN the expiration checkbox is checked but no date is selected', () => {
+      it('THEN should show the expiration date error after submit', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Check the expiration checkbox
+        const expirationCheckbox = screen.getByTestId('checkbox-hasLimit')
+
+        await user.click(expirationCheckbox)
+
+        // Expiration section should be visible but input should not have error state before submit
+        const expirationSection = screen.getByTestId(COUPON_EXPIRATION_SECTION_TEST_ID)
+        const dateInput = expirationSection.querySelector('input') as HTMLInputElement
+
+        expect(dateInput).not.toHaveAttribute('aria-invalid', 'true')
+
+        // Submit the form
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        // Date input should have error state after submit
+        await waitFor(() => {
+          expect(dateInput).toHaveAttribute('aria-invalid', 'true')
+        })
+      })
+    })
+
+    describe('WHEN the expiration checkbox is unchecked after submit', () => {
+      it('THEN should hide the expiration date section', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Check the expiration checkbox
+        const expirationCheckbox = screen.getByTestId('checkbox-hasLimit')
+
+        await user.click(expirationCheckbox)
+
+        // Submit the form to trigger errors
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          const expirationSection = screen.getByTestId(COUPON_EXPIRATION_SECTION_TEST_ID)
+          const dateInput = expirationSection.querySelector('input') as HTMLInputElement
+
+          expect(dateInput).toHaveAttribute('aria-invalid', 'true')
+        })
+
+        // Uncheck the expiration checkbox
+        await user.click(expirationCheckbox)
+
+        // Expiration section should no longer be visible
+        await waitFor(() => {
+          expect(screen.queryByTestId(COUPON_EXPIRATION_SECTION_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the plan/metric limit checkbox is checked but no items are added', () => {
+      it('THEN should show the limit selection error after submit', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Check the plan/metric limit checkbox
+        const limitCheckbox = screen.getByTestId('checkbox-hasPlanOrBillableMetricLimit')
+
+        await user.click(limitCheckbox)
+
+        // Error should NOT be visible before submit
+        expect(screen.queryByTestId(COUPON_LIMIT_ERROR_TEST_ID)).not.toBeInTheDocument()
+
+        // Submit the form
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        // Error Alert should be visible after submit
+        await waitFor(() => {
+          expect(screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN a plan is added after submit with limit error', () => {
+      it('THEN should hide the limit selection error', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Check the plan/metric limit checkbox
+        const limitCheckbox = screen.getByTestId('checkbox-hasPlanOrBillableMetricLimit')
+
+        await user.click(limitCheckbox)
+
+        // Submit the form to trigger errors
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)).toBeInTheDocument()
+        })
+
+        // Add a plan via the captured callback
+        await waitFor(() => {
+          expect(capturedAddPlanOnSubmit).toBeDefined()
+        })
+
+        capturedAddPlanOnSubmit?.({ id: 'plan-1', name: 'Plan 1', code: 'plan_1' })
+
+        // Error should disappear after adding a plan
+        await waitFor(() => {
+          expect(screen.queryByTestId(COUPON_LIMIT_ERROR_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN a billable metric is added after submit with limit error', () => {
+      it('THEN should hide the limit selection error', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Check the plan/metric limit checkbox
+        const limitCheckbox = screen.getByTestId('checkbox-hasPlanOrBillableMetricLimit')
+
+        await user.click(limitCheckbox)
+
+        // Submit the form to trigger errors
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)).toBeInTheDocument()
+        })
+
+        // Add a billable metric via the captured callback
+        await waitFor(() => {
+          expect(capturedAddBillableMetricOnSubmit).toBeDefined()
+        })
+
+        capturedAddBillableMetricOnSubmit?.({ id: 'bm-1', name: 'BM 1', code: 'bm_1' })
+
+        // Error should disappear after adding a billable metric
+        await waitFor(() => {
+          expect(screen.queryByTestId(COUPON_LIMIT_ERROR_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the plan/metric limit checkbox is unchecked after submit', () => {
+      it('THEN should hide the limit selection error', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateCoupon />)
+
+        // Check the plan/metric limit checkbox
+        const limitCheckbox = screen.getByTestId('checkbox-hasPlanOrBillableMetricLimit')
+
+        await user.click(limitCheckbox)
+
+        // Submit the form to trigger errors
+        const submitButton = screen.getByTestId('submit')
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)).toBeInTheDocument()
+        })
+
+        // Uncheck the plan/metric limit checkbox
+        await user.click(limitCheckbox)
+
+        // Error should disappear
+        await waitFor(() => {
+          expect(screen.queryByTestId(COUPON_LIMIT_ERROR_TEST_ID)).not.toBeInTheDocument()
         })
       })
     })

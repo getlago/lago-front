@@ -56,6 +56,8 @@ export const COUPON_DESCRIPTION_INPUT_TEST_ID = 'coupon-description-input'
 export const COUPON_AMOUNT_INPUT_TEST_ID = 'coupon-amount-input'
 export const COUPON_PERCENTAGE_INPUT_TEST_ID = 'coupon-percentage-input'
 export const COUPON_CODE_SNIPPET_TEST_ID = 'coupon-code-snippet'
+export const COUPON_EXPIRATION_SECTION_TEST_ID = 'coupon-expiration-section'
+export const COUPON_LIMIT_ERROR_TEST_ID = 'coupon-limit-error'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
@@ -122,6 +124,7 @@ const CreateCoupon = () => {
 
   // Subscribe to form state
   const isDirty = useStore(form.store, (state) => state.isDirty)
+  const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
 
   // Get all form values for the code snippet
   const formValues = useStore(form.store, (state) => state.values)
@@ -484,7 +487,10 @@ const CreateCoupon = () => {
                     />
 
                     {expiration === CouponExpiration.TimeLimit && (
-                      <div className="flex items-center gap-3">
+                      <div
+                        className="flex items-center gap-3"
+                        data-test={COUPON_EXPIRATION_SECTION_TEST_ID}
+                      >
                         <Typography variant="body" color="grey700" className="shrink-0">
                           {translate('text_632d68358f1fedc68eed3eb1')}
                         </Typography>
@@ -494,6 +500,13 @@ const CreateCoupon = () => {
                           name="expirationAt"
                           placement="top-end"
                           placeholder={translate('text_632d68358f1fedc68eed3ea5')}
+                          error={
+                            submissionAttempts > 0 &&
+                            expiration === CouponExpiration.TimeLimit &&
+                            !expirationAt
+                              ? translate('text_1771402708247nxe22ntllvd')
+                              : undefined
+                          }
                           onChange={(value) => {
                             form.setFieldValue('expirationAt', endOfDayIso(value as string))
                           }}
@@ -613,29 +626,35 @@ const CreateCoupon = () => {
                         ))}
 
                       {(!isEdition || !coupon?.appliedCouponsCount) && (
-                        <>
-                          <div className="flex flex-row flex-wrap gap-4">
-                            <Button
-                              variant="inline"
-                              startIcon="plus"
-                              disabled={formHasBillableMetricLimit && !formHasPlanLimit}
-                              onClick={addPlanToCouponDialogRef.current?.openDialog}
-                              data-test="add-plan-limit"
-                            >
-                              {translate('text_63d3a201113866a7fa5e6f6b')}
-                            </Button>
-                            <Button
-                              variant="inline"
-                              startIcon="plus"
-                              disabled={formHasPlanLimit && !formHasBillableMetricLimit}
-                              onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
-                              data-test="add-billable-metric-limit"
-                            >
-                              {translate('text_64352657267c3d916f9627bc')}
-                            </Button>
-                          </div>
-                        </>
+                        <div className="flex flex-row flex-wrap gap-4">
+                          <Button
+                            variant="inline"
+                            startIcon="plus"
+                            disabled={formHasBillableMetricLimit && !formHasPlanLimit}
+                            onClick={addPlanToCouponDialogRef.current?.openDialog}
+                            data-test="add-plan-limit"
+                          >
+                            {translate('text_63d3a201113866a7fa5e6f6b')}
+                          </Button>
+                          <Button
+                            variant="inline"
+                            startIcon="plus"
+                            disabled={formHasPlanLimit && !formHasBillableMetricLimit}
+                            onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
+                            data-test="add-billable-metric-limit"
+                          >
+                            {translate('text_64352657267c3d916f9627bc')}
+                          </Button>
+                        </div>
                       )}
+
+                      {submissionAttempts > 0 &&
+                        limitPlansList.length === 0 &&
+                        limitBillableMetricsList.length === 0 && (
+                          <Alert type="danger" data-test={COUPON_LIMIT_ERROR_TEST_ID}>
+                            {translate('text_1771402708247jyowmhc424h')}
+                          </Alert>
+                        )}
                     </>
                   )}
                 </Card>

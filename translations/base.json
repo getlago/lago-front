@@ -3799,5 +3799,7 @@
   "text_1771342980565bx64zqq2mjs": "Name is required",
   "text_1771342994699klxu2paz7g9": "Code is required",
   "text_1771344249653qh6ka7v6ot2": "Select at least one plan",
-  "text_1771344249653wx8dh32y28w": "Select at least one billable metric"
+  "text_1771344249653wx8dh32y28w": "Select at least one billable metric",
+  "text_1771402708247nxe22ntllvd": "Please select an expiration date",
+  "text_1771402708247jyowmhc424h": "Select at least one plan or billable metric"
 }
