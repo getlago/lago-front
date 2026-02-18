@@ -602,6 +602,24 @@ describe('usePermissionsInvoiceActions', () => {
         ),
       ).toBe(false)
     })
+
+    it('should return false if the invoice has a deleted customer', async () => {
+      const { result } = await prepare()
+
+      expect(
+        result.current.canRegenerate(
+          {
+            status: InvoiceStatusTypeEnum.Voided,
+            regeneratedInvoiceId: null,
+            invoiceType: InvoiceTypeEnum.Subscription,
+            customer: {
+              deletedAt: '2026',
+            },
+          },
+          false,
+        ),
+      ).toBe(false)
+    })
   })
 
   describe('canIssueCreditNote', () => {
@@ -924,7 +942,7 @@ describe('usePermissionsInvoiceActions', () => {
         integrationSyncable: true,
         integrationHubspotSyncable: true,
         taxProviderVoidable: true,
-        customer: { paymentProvider: ProviderTypeEnum.Stripe },
+        customer: { paymentProvider: ProviderTypeEnum.Stripe, deletedAt: '' },
       }
 
       expect(result.current.canDownload(complexInvoice)).toBe(true)
