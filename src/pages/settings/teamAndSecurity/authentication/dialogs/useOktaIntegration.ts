@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { z } from 'zod'
 
 import { addToast } from '~/core/apolloClient'
+import { zodDomain, zodHost } from '~/formValidation/zodCustoms'
 import {
   AddOktaIntegrationDialogFragment,
   CreateOktaIntegrationInput,
@@ -11,6 +12,7 @@ import {
   useUpdateOktaIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment AddOktaIntegrationDialog on OktaIntegration {
@@ -37,15 +39,6 @@ gql`
 
   ${DeleteOktaIntegrationDialogFragmentDoc}
 `
-
-export const getOktaIntegrationSchema = () =>
-  object().shape({
-    domain: string().domain('text_664c732c264d7eed1c74fe03').required(''),
-    host: string().host('text_664c732c264d7eed1c74fdd3'),
-    clientId: string().required(''),
-    clientSecret: string().required(''),
-    organizationName: string().required(''),
-  })
 
 export interface UseOktaIntegrationProps {
   initialValues?: AddOktaIntegrationDialogFragment
@@ -84,34 +77,45 @@ export const useOktaIntegration = ({ initialValues, onSubmit }: UseOktaIntegrati
     },
   })
 
-  const formikProps = useFormik<CreateOktaIntegrationInput>({
-    initialValues: {
-      domain: initialValues?.domain || '',
-      host: initialValues?.host || '',
-      clientId: initialValues?.clientId || '',
-      clientSecret: initialValues?.clientSecret || '',
-      organizationName: initialValues?.organizationName || '',
+  const defaultValues: CreateOktaIntegrationInput = {
+    domain: initialValues?.domain || '',
+    host: initialValues?.host || '',
+    clientId: initialValues?.clientId || '',
+    clientSecret: initialValues?.clientSecret || '',
+    organizationName: initialValues?.organizationName || '',
+  }
+
+  const validationSchema = z.object({
+    domain: zodDomain,
+    host: zodHost.optional(),
+    clientId: z.string(),
+    clientSecret: z.string(),
+    organizationName: z.string(),
+  })
+
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: getOktaIntegrationSchema(),
-    onSubmit: async (values) => {
+    onSubmit: async ({ value }) => {
       if (isEdition) {
         await updateIntegration({
           variables: {
             input: {
-              ...values,
+              ...value,
               id: initialValues?.id || '',
             },
           },
         })
       } else {
-        await createIntegration({ variables: { input: values } })
+        await createIntegration({ variables: { input: value } })
       }
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
   return {
-    formikProps,
+    form,
   }
 }

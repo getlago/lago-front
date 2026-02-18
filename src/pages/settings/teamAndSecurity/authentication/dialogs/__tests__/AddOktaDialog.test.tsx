@@ -1,16 +1,13 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { CreateOktaIntegrationDocument } from '~/generated/graphql'
 import {
   AddOktaDialog,
   AddOktaDialogRef,
   OKTA_INTEGRATION_SUBMIT_BTN,
-} from '~/components/settings/authentication/AddOktaDialog'
-import { initializeYup } from '~/formValidation/initializeYup'
-import { CreateOktaIntegrationDocument } from '~/generated/graphql'
+} from '~/pages/settings/teamAndSecurity/authentication/dialogs/AddOktaDialog'
 import { render, TestMocksType } from '~/test-utils'
-
-initializeYup()
 
 const mockOnSubmit = jest.fn()
 
@@ -26,7 +23,7 @@ async function prepare({ mocks = [] }: { mocks?: TestMocksType } = {}) {
   const dialogRef = { current: null as AddOktaDialogRef | null }
 
   await act(() =>
-    render(<AddOktaDialog ref={(ref) => (dialogRef.current = ref)} />, {
+    render(<AddOktaDialog ref={(ref: AddOktaDialogRef | null) => (dialogRef.current = ref)} />, {
       mocks,
     }),
   )

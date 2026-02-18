@@ -10,6 +10,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Selector } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
@@ -17,12 +18,6 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
-import {
-  DeleteOktaIntegrationDialog,
-  DeleteOktaIntegrationDialogRef,
-} from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
 import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
@@ -38,7 +33,9 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
 
-import { UpdateLoginMethodDialog, UpdateLoginMethodDialogRef } from './UpdateLoginMethodDialog'
+import { AddOktaDialog, AddOktaDialogRef } from './dialogs/AddOktaDialog'
+import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
+import { useUpdateLoginMethodDialog } from './dialogs/UpdateLoginMethodDialog'
 
 gql`
   query GetAuthIntegrations($limit: Int!) {
@@ -67,10 +64,10 @@ const Authentication = () => {
   } = useOrganizationInfos()
   const navigate = useNavigate()
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
-  const deleteOktaDialogRef = useRef<DeleteOktaIntegrationDialogRef>(null)
-  const updateLoginMethodDialogRef = useRef<UpdateLoginMethodDialogRef>(null)
+  const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
+  const { openUpdateLoginMethodDialog } = useUpdateLoginMethodDialog()
 
   const { data: authIntegrationsData, loading: authIntegrationsLoading } =
     useGetAuthIntegrationsQuery({ variables: { limit: 10 } })
@@ -146,7 +143,7 @@ const Authentication = () => {
                 loading={authIntegrationsLoading}
                 onClick={() => {
                   if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialogRef.current?.openDialog()
+                    return premiumWarningDialog.open()
                   }
 
                   return addOktaDialogRef.current?.openDialog({
@@ -185,7 +182,7 @@ const Authentication = () => {
                       onClick={(e) => {
                         e.stopPropagation()
 
-                        updateLoginMethodDialogRef.current?.openDialog({
+                        openUpdateLoginMethodDialog({
                           method,
                           type: 'enable',
                         })
@@ -204,7 +201,7 @@ const Authentication = () => {
                       onClick={(e) => {
                         e.stopPropagation()
 
-                        updateLoginMethodDialogRef.current?.openDialog({
+                        openUpdateLoginMethodDialog({
                           method,
                           type: 'disable',
                         })
@@ -255,7 +252,7 @@ const Authentication = () => {
                           onClick={(e) => {
                             e.stopPropagation()
 
-                            deleteOktaDialogRef.current?.openDialog({
+                            openDeleteOktaIntegrationDialog({
                               integration: oktaIntegration,
                               callback: () => {
                                 refetchOrganizationInfos()
@@ -332,7 +329,7 @@ const Authentication = () => {
                 }
                 onClick={() => {
                   if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialogRef.current?.openDialog()
+                    return premiumWarningDialog.open()
                   }
 
                   if (oktaIntegration?.id) {
@@ -361,10 +358,7 @@ const Authentication = () => {
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <AddOktaDialog ref={addOktaDialogRef} />
-      <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
-      <UpdateLoginMethodDialog ref={updateLoginMethodDialogRef} />
     </>
   )
 }
