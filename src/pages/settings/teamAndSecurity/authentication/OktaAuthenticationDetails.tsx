@@ -8,11 +8,6 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
-import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
-import {
-  DeleteOktaIntegrationDialog,
-  DeleteOktaIntegrationDialogRef,
-} from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
 import { AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
@@ -26,6 +21,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper, PageHeader } from '~/styles'
+
+import { AddOktaDialog, AddOktaDialogRef } from './dialogs/AddOktaDialog'
+import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 
 gql`
   fragment OktaIntegrationDetails on OktaIntegration {
@@ -60,7 +58,7 @@ const OktaAuthenticationDetails = () => {
   const navigate = useNavigate()
 
   const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
-  const deleteOktaDialogRef = useRef<DeleteOktaIntegrationDialogRef>(null)
+  const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
 
   const { data, loading, refetch } = useGetOktaIntegrationQuery({
     variables: { id: integrationId },
@@ -123,7 +121,7 @@ const OktaAuthenticationDetails = () => {
                   addOktaDialogRef.current?.openDialog({
                     integration,
                     callback: onEditCallback,
-                    deleteModalRef: deleteOktaDialogRef,
+                    openDeleteDialog: openDeleteOktaIntegrationDialog,
                     deleteDialogCallback: onDeleteCallback,
                   })
                 }}
@@ -137,7 +135,7 @@ const OktaAuthenticationDetails = () => {
                 disabled={!hasOtherAuthenticationMethodsThanOkta}
                 onClick={() => {
                   closePopper()
-                  deleteOktaDialogRef.current?.openDialog({
+                  openDeleteOktaIntegrationDialog({
                     integration,
                     callback: onDeleteCallback,
                   })
@@ -167,7 +165,7 @@ const OktaAuthenticationDetails = () => {
                 addOktaDialogRef.current?.openDialog({
                   integration,
                   callback: onEditCallback,
-                  deleteModalRef: deleteOktaDialogRef,
+                  openDeleteDialog: openDeleteOktaIntegrationDialog,
                   deleteDialogCallback: onDeleteCallback,
                 })
               }
@@ -214,7 +212,6 @@ const OktaAuthenticationDetails = () => {
         </section>
       </IntegrationsPage.Container>
       <AddOktaDialog ref={addOktaDialogRef} />
-      <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
     </>
   )
 }

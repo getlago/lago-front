@@ -1,22 +1,21 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
-import { DeleteOktaIntegrationDialogRef } from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
-import {
-  useOktaIntegration,
-  UseOktaIntegrationProps,
-} from '~/components/settings/authentication/useOktaIntegration'
 import { AddOktaIntegrationDialogFragment, AuthenticationMethodsEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { useOktaIntegration, UseOktaIntegrationProps } from './useOktaIntegration'
+
 type AddOktaDialogProps = Partial<{
   integration: AddOktaIntegrationDialogFragment
-  deleteModalRef: RefObject<DeleteOktaIntegrationDialogRef>
+  openDeleteDialog: (data: {
+    integration: AddOktaIntegrationDialogFragment | undefined
+    callback?: () => void
+  }) => void
   deleteDialogCallback: () => void
   callback?: UseOktaIntegrationProps['onSubmit']
 }>
@@ -41,7 +40,7 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
     (method) => method !== AuthenticationMethodsEnum.Okta,
   )
 
-  const { formikProps } = useOktaIntegration({
+  const { form } = useOktaIntegration({
     initialValues: integration,
     onSubmit: (id) => {
       localData?.callback?.(id)
@@ -67,7 +66,7 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
         description={translate(
           isEdition ? 'text_664c8fa719b5e7ad81c86019' : 'text_664c732c264d7eed1c74fd8e',
         )}
-        onClose={formikProps.resetForm}
+        onClose={form.reset}
         actions={({ closeDialog }) => (
           <Stack
             direction="row"
@@ -84,7 +83,7 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
                   variant="quaternary"
                   onClick={() => {
                     closeDialog()
-                    localData?.deleteModalRef?.current?.openDialog({
+                    localData?.openDeleteDialog?.({
                       integration,
                       callback: localData.deleteDialogCallback,
                     })
@@ -98,61 +97,81 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
               <Button variant="quaternary" onClick={closeDialog}>
                 {translate('text_63eba8c65a6c8043feee2a14')}
               </Button>
-              <Button
-                variant="primary"
-                disabled={!formikProps.isValid || !formikProps.dirty}
-                onClick={formikProps.submitForm}
-                data-test={OKTA_INTEGRATION_SUBMIT_BTN}
+              <form.Subscribe
+                selector={(state) => ({
+                  canSubmit: state.canSubmit,
+                  isSubmitting: state.isSubmitting,
+                })}
               >
-                {translate(
-                  isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_664c732c264d7eed1c74fdcb',
+                {({ canSubmit, isSubmitting }) => (
+                  <Button
+                    variant="primary"
+                    disabled={!canSubmit}
+                    loading={isSubmitting}
+                    onClick={() => form.handleSubmit()}
+                    data-test={OKTA_INTEGRATION_SUBMIT_BTN}
+                  >
+                    {translate(
+                      isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_664c732c264d7eed1c74fdcb',
+                    )}
+                  </Button>
                 )}
-              </Button>
+              </form.Subscribe>
             </Stack>
           </Stack>
         )}
       >
         <div className="mb-8 flex flex-col gap-6">
-          <TextInputField
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="domain"
-            label={translate('text_664c732c264d7eed1c74fd94')}
-            placeholder={translate('text_664c732c264d7eed1c74fd9a')}
-            helperText={translate('text_664c732c264d7eed1c74fda0')}
-          />
-          <TextInputField
-            formikProps={formikProps}
-            name="host"
-            label={translate('text_664c732c264d7eed1c74fdd0')}
-            placeholder={translate('text_664c732c264d7eed1c74fdd1')}
-          />
-          <TextInputField
-            formikProps={formikProps}
-            name="clientId"
-            label={translate('text_664c732c264d7eed1c74fda6')}
-            placeholder={translate('text_664c732c264d7eed1c74fdac')}
-          />
-          <TextInputField
-            formikProps={formikProps}
-            name="clientSecret"
-            label={translate('text_664c732c264d7eed1c74fdb2')}
-            placeholder={translate('text_664c732c264d7eed1c74fdb7')}
-          />
-          <TextInputField
-            formikProps={formikProps}
-            name="organizationName"
-            label={translate('text_664c732c264d7eed1c74fdbb')}
-            placeholder={translate('text_664c732c264d7eed1c74fdbf')}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  {translate('text_664c732c264d7eed1c74fdc3')}
-                </InputAdornment>
-              ),
-            }}
-          />
+          <form.AppField name="domain">
+            {(field) => (
+              <field.TextInputField
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+                label={translate('text_664c732c264d7eed1c74fd94')}
+                placeholder={translate('text_664c732c264d7eed1c74fd9a')}
+                helperText={translate('text_664c732c264d7eed1c74fda0')}
+              />
+            )}
+          </form.AppField>
+          <form.AppField name="host">
+            {(field) => (
+              <field.TextInputField
+                label={translate('text_664c732c264d7eed1c74fdd0')}
+                placeholder={translate('text_664c732c264d7eed1c74fdd1')}
+              />
+            )}
+          </form.AppField>
+          <form.AppField name="clientId">
+            {(field) => (
+              <field.TextInputField
+                label={translate('text_664c732c264d7eed1c74fda6')}
+                placeholder={translate('text_664c732c264d7eed1c74fdac')}
+              />
+            )}
+          </form.AppField>
+          <form.AppField name="clientSecret">
+            {(field) => (
+              <field.TextInputField
+                label={translate('text_664c732c264d7eed1c74fdb2')}
+                placeholder={translate('text_664c732c264d7eed1c74fdb7')}
+              />
+            )}
+          </form.AppField>
+          <form.AppField name="organizationName">
+            {(field) => (
+              <field.TextInputField
+                label={translate('text_664c732c264d7eed1c74fdbb')}
+                placeholder={translate('text_664c732c264d7eed1c74fdbf')}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {translate('text_664c732c264d7eed1c74fdc3')}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          </form.AppField>
         </div>
       </Dialog>
     </>
