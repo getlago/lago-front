@@ -55,8 +55,8 @@ describe('Multi-organization redirect flows', () => {
     cy.url().should('include', '/settings')
 
     // Navigate to members tab
-    cy.contains('Members').click()
-    cy.url().should('include', '/settings/members')
+    cy.contains('Team & Security').click()
+    cy.url().should('include', '/settings/team-and-security')
     // Wait for the page to load
     cy.get('[data-test="create-invite-button"]', { timeout: 10000 }).should('be.visible')
     cy.get('[data-test="create-invite-button"]').click()
