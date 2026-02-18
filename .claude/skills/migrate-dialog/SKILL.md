@@ -1,6 +1,6 @@
 ---
 name: migrate-dialog
-description: Migrate a dialog component from the legacy imperative ref-based Dialog system to the new hook-based NiceModal dialog system (FormDialog or CentralizedDialog). Use this skill when the user wants to migrate an old dialog to the new system.
+description: Migrate a dialog component from the legacy imperative ref-based Dialog system to the new hook-based NiceModal dialog system (FormDialog or CentralizedDialog). This skill focuses only on the migration — testing is handled separately.
 user-invocable: true
 argument-hint: '<path-to-dialog>'
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
@@ -13,6 +13,8 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
 > **Important:** If no path was provided above (empty or missing), use the AskUserQuestion tool to ask the user for the path to the dialog they want to migrate before proceeding.
 
 This skill guides the migration of dialog components from the legacy imperative ref-based system (`forwardRef` + `useImperativeHandle` + `Dialog` from design system) to the new hook-based NiceModal system (`useFormDialog` / `useCentralizedDialog`).
+
+> **Note:** This skill only handles the migration of the dialog and its parent component(s). Tests should be updated separately using a dedicated testing skill.
 
 ## Prerequisites
 
@@ -31,12 +33,8 @@ Before starting, gather context by reading these reference files:
 
 7. **FormDialog Example**: `src/pages/settings/teamAndSecurity/members/dialogs/CreateInviteDialog.tsx` - Hook-based FormDialog
 8. **FormDialog Example 2**: `src/pages/settings/teamAndSecurity/members/dialogs/EditInviteRoleDialog.tsx` - Hook-based FormDialog (simpler)
-9. **CentralizedDialog Example**: `src/pages/settings/teamAndSecurity/members/dialogs/CopyInviteLink.tsx` - Used within CentralizedDialog
-
-### Test Examples
-
-10. **FormDialog Test**: `src/components/dialogs/__tests__/FormDialog.test.tsx` - NiceModal test setup pattern
-11. **Hook-based Dialog Test**: `src/pages/settings/teamAndSecurity/members/dialogs/__tests__/EditInviteRoleDialog.test.tsx` - Testing a hook-based dialog
+9. **CentralizedDialog Example**: `src/pages/settings/teamAndSecurity/members/dialogs/RevokeInviteDialog.tsx` - Hook-based CentralizedDialog
+10. **CentralizedDialog Example 2**: `src/pages/settings/teamAndSecurity/members/dialogs/RevokeMembershipDialog.tsx` - CentralizedDialog with conditional behavior
 
 ---
 
@@ -58,11 +56,12 @@ Before starting, gather context by reading these reference files:
 
 #### Step 1.2: Determine Target Dialog Type
 
-| Old Dialog Pattern | New Dialog Type | When to Use |
-| --- | --- | --- |
-| Has form fields + submit button | `useFormDialog` | Dialog contains a form with validation |
-| Has a single action button (confirm/copy/etc.) | `useCentralizedDialog` | Dialog is for confirmation or simple action |
-| Chains to another dialog after success | Both | Use FormDialog for the form, chain to CentralizedDialog |
+| Old Dialog Pattern                             | New Dialog Type                                     | When to Use                                             |
+| ---------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------- |
+| Has form fields + submit button                | `useFormDialog`                                     | Dialog contains a form with validation                  |
+| Has a single action button (confirm/copy/etc.) | `useCentralizedDialog`                              | Dialog is for confirmation or simple action             |
+| Uses `useCentralizedDialog`                    | Confirmation/warning dialogs with danger/info modes |
+| Chains to another dialog after success         | Both                                                | Use FormDialog for the form, chain to CentralizedDialog |
 
 #### Step 1.3: Find All Usages
 
@@ -73,9 +72,10 @@ grep -r "DialogName\|DialogNameRef" src/ --include="*.tsx" --include="*.ts"
 ```
 
 Identify:
+
 - Parent components that create refs and render the dialog
 - How `openDialog` is called and what data is passed
-- Any test files that reference the dialog
+- Any props passed to the dialog component (these need to be moved to the open function data or computed in the parent)
 
 ---
 
@@ -192,21 +192,16 @@ export const useMyDialog = () => {
   const { translate } = useInternationalization()
 
   const openMyDialog = (data: MyData) => {
-    centralizedDialog
-      .open({
-        title: translate('...'),
-        description: translate('...'),
-        actionText: translate('...'),
-        children: <MyDialogContent data={data} />,
-        onAction: () => {
-          // Perform action (e.g., copy to clipboard, confirm delete)
-        },
-      })
-      .then((response) => {
-        if (response.reason === 'close') {
-          // Cleanup if needed
-        }
-      })
+    centralizedDialog.open({
+      title: translate('...'),
+      description: translate('...'),
+      actionText: translate('...'),
+      colorVariant: 'danger', // or 'info'
+      onAction: async () => {
+        // Perform action (e.g., mutation, copy to clipboard)
+        await myMutation({ variables: { input: { id: data.id } } })
+      },
+    })
   }
 
   return { openMyDialog }
@@ -216,38 +211,51 @@ export const useMyDialog = () => {
 #### Step 2.2: Key Migration Decisions
 
 **Handling `localData` state:**
+
 - Old: `useState` to store data passed via `openDialog`
 - New: Use a `useRef` to store data passed to the hook's open function. The ref is captured in closures for `onSubmit` and `children`.
 
 **Handling form initial values when editing:**
+
 - Old: `initialValues` depended on `localData` state, re-rendered on state change
 - New: Call `form.reset()` then `form.setFieldValue(...)` before opening the dialog. The form values are set synchronously before `formDialog.open()` is called.
 
 **Handling form submission:**
+
 - Old: `handleSubmit` called `e.preventDefault()` + `form.handleSubmit()`; dialog closed by calling `dialogRef.current?.closeDialog()` inside `onSubmit`
 - New: `handleSubmit` returns a `Promise<DialogResult>`. Use a `successRef` to track whether the mutation succeeded. The dialog auto-closes on success (when the promise resolves). Throw an error to keep the dialog open on failure.
 
 **Handling dialog close/cleanup:**
+
 - Old: `onClose` callback reset the form
 - New: Use `.then()` on the promise returned by `formDialog.open()`. Check `response.reason === 'close'` to reset form and clear refs.
+
+**Handling component props (like `admins` list):**
+
+- Old: Props passed to the dialog component `<MyDialog admins={admins} />`
+- New: Compute derived values (like `isDeletingLastAdmin`) in the parent and pass them as part of the open function data.
 
 #### Step 2.3: Update Imports in the Dialog File
 
 Remove:
+
 ```typescript
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { WarningDialog } from '~/components/designSystem/WarningDialog'
 ```
 
-Add:
+Add (for FormDialog):
+
 ```typescript
 import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 ```
 
-Or for CentralizedDialog:
+Or (for CentralizedDialog):
+
 ```typescript
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 ```
@@ -255,6 +263,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 #### Step 2.4: Remove Old Exports
 
 Remove:
+
 ```typescript
 export interface MyDialogRef {
   openDialog: (data: ...) => unknown
@@ -265,6 +274,7 @@ MyDialog.displayName = 'forwardRef'
 ```
 
 Replace with:
+
 ```typescript
 export const useMyDialog = () => { ... }
 ```
@@ -272,6 +282,7 @@ export const useMyDialog = () => { ... }
 #### Step 2.5: Update Parent Components
 
 **Old usage:**
+
 ```typescript
 import { MyDialog, MyDialogRef } from './dialogs/MyDialog'
 
@@ -292,6 +303,7 @@ const parentComponent = () => {
 ```
 
 **New usage:**
+
 ```typescript
 import { useMyDialog } from './dialogs/MyDialog'
 
@@ -312,6 +324,7 @@ const parentComponent = () => {
 ```
 
 Key changes in parent:
+
 1. Remove `useRef<MyDialogRef>` import and usage
 2. Import the new hook instead of the component + ref type
 3. Call the hook's open function directly (no `.current?.openDialog()`)
@@ -320,139 +333,21 @@ Key changes in parent:
 
 ---
 
-### Phase 3: Update Tests
+### Phase 3: Verification
 
-#### Step 3.1: Update Dialog Unit Tests
-
-The old test pattern uses `createRef<MyDialogRef>()` and renders the dialog component directly. The new pattern needs:
-
-1. **NiceModal registration** at the test file top level
-2. **NiceModal.Provider wrapper** around test components
-3. **A test wrapper component** that uses the hook and provides a button to trigger it
-
-**Test setup pattern:**
-
-```typescript
-import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
-import { ReactNode } from 'react'
-
-import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
-import FormDialog from '~/components/dialogs/FormDialog'
-import { render, TestMocksType } from '~/test-utils'
-
-import { useMyDialog } from '../MyDialog'
-
-// Register the dialog with NiceModal
-NiceModal.register(FORM_DIALOG_NAME, FormDialog)
-
-// NiceModal provider wrapper
-const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
-  return <NiceModal.Provider>{children}</NiceModal.Provider>
-}
-
-// Test component that uses the hook
-const TestComponent = () => {
-  const { openMyDialog } = useMyDialog()
-
-  return (
-    <button
-      data-test="open-dialog"
-      onClick={() => openMyDialog({ /* test data */ })}
-    >
-      Open Dialog
-    </button>
-  )
-}
-
-async function prepare({ mocks = [/* default mocks */] }: { mocks?: TestMocksType } = {}) {
-  await act(() =>
-    render(
-      <NiceModalWrapper>
-        <TestComponent />
-      </NiceModalWrapper>,
-      { mocks },
-    ),
-  )
-}
-
-describe('MyDialog', () => {
-  afterEach(() => {
-    cleanup()
-    jest.clearAllMocks()
-  })
-
-  it('opens the dialog when the hook function is called', async () => {
-    await prepare()
-
-    expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
-
-    await act(async () => {
-      screen.getByTestId('open-dialog').click()
-    })
-
-    await waitFor(() => {
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-    })
-  })
-})
-```
-
-For CentralizedDialog tests, register `CENTRALIZED_DIALOG_NAME` with `CentralizedDialog` instead.
-
-#### Step 3.2: Update Parent Component Tests
-
-The parent component test mocks need to change from ref-based to hook-based:
-
-**Old mock:**
-```typescript
-jest.mock('../dialogs/MyDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-  MockDialog.displayName = 'MyDialog'
-  return { MyDialog: MockDialog }
-})
-```
-
-**New mock:**
-```typescript
-jest.mock('../dialogs/MyDialog', () => ({
-  useMyDialog: () => ({
-    openMyDialog: jest.fn(),
-  }),
-}))
-```
-
-#### Step 3.3: Delete Old Snapshot Files
-
-If the old dialog had snapshot tests, delete the snapshot file as it will be invalid:
-
-```bash
-rm src/path/to/__tests__/__snapshots__/MyDialog.test.tsx.snap
-```
-
----
-
-### Phase 4: Verification
-
-#### Step 4.1: Type Check
+#### Step 3.1: Type Check
 
 ```bash
 npx tsc --noEmit
 ```
 
-#### Step 4.2: Lint
+#### Step 3.2: Lint
 
 ```bash
 pnpm lint
 ```
 
-#### Step 4.3: Run Tests
-
-```bash
-npx jest --config jest.config.ts "MyDialog"
-npx jest --config jest.config.ts "ParentComponent"
-```
+Ensure there are no TypeScript errors or lint violations before considering the migration complete.
 
 ---
 
@@ -492,7 +387,7 @@ type CentralizedDialogProps = {
   description?: ReactNode
   headerContent?: ReactNode
   children?: ReactNode
-  onAction: () => DialogResult | Promise<DialogResult> | void
+  onAction: () => DialogResult | Promise<DialogResult> | void | Promise<void>
   actionText: string
   colorVariant?: 'info' | 'danger'
   disableOnContinue?: boolean
@@ -507,30 +402,28 @@ type CentralizedDialogProps = {
 ## Checklist
 
 ### Phase 1: Analysis
+
 - [ ] Read the target dialog file completely
 - [ ] Determine dialog type (FormDialog vs CentralizedDialog)
-- [ ] Find all usages of the dialog (parent components, tests)
+- [ ] Find all usages of the dialog (parent components)
 - [ ] Identify data passed via `openDialog`
+- [ ] Identify any props passed to the dialog component
 
 ### Phase 2: Implementation
+
 - [ ] Convert `forwardRef` component to custom hook (`useMyDialog`)
-- [ ] Replace `useState(localData)` with `useRef`
-- [ ] Replace `Dialog` component with `useFormDialog()` or `useCentralizedDialog()`
+- [ ] Replace `useState(localData)` with `useRef` (for FormDialog) or function parameter (for CentralizedDialog)
+- [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()` or `useCentralizedDialog()`
 - [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog)
-- [ ] Handle form reset and cleanup in `.then()` callback
+- [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
 - [ ] Update parent components (replace ref with hook, remove JSX rendering)
+- [ ] Move any component props to open function data
 
-### Phase 3: Tests
-- [ ] Update dialog tests (add NiceModal registration + Provider wrapper)
-- [ ] Create test wrapper component that uses the hook
-- [ ] Update parent component test mocks (hook mock instead of forwardRef mock)
-- [ ] Delete old snapshot files
+### Phase 3: Verification
 
-### Phase 4: Verification
 - [ ] Type check passes (`npx tsc --noEmit`)
 - [ ] Lint passes (`pnpm lint`)
-- [ ] All tests pass
 
 ## Usage
 
