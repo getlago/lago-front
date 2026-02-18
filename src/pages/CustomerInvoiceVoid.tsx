@@ -124,7 +124,9 @@ const CustomerInvoiceVoid = () => {
   const maxCreditable = deserializeAmount(invoice?.creditableAmountCents, currency)
   const maxTotal = maxCreditable
 
-  const canGenerateCreditNote = isPremium && canCreateCreditNote(invoice)
+  const hasActiveCustomer = !invoice?.customer?.deletedAt
+
+  const canGenerateCreditNote = isPremium && hasActiveCustomer && canCreateCreditNote(invoice)
 
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {
@@ -230,6 +232,7 @@ const CustomerInvoiceVoid = () => {
   })
 
   const canRegenerate =
+    hasActiveCustomer &&
     customerId &&
     invoiceId &&
     invoice &&
@@ -372,113 +375,117 @@ const CustomerInvoiceVoid = () => {
             </div>
 
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <Typography variant="subhead1" color="grey700">
-                  {translate('text_1747902518582byw3i46x61k')}
-                </Typography>
+              {hasActiveCustomer && (
+                <div className="flex flex-col gap-2">
+                  <Typography variant="subhead1" color="grey700">
+                    {translate('text_1747902518582byw3i46x61k')}
+                  </Typography>
 
-                <Typography variant="body" color="grey600">
-                  {translate('text_1747902518582701lwmkfqfb')}
-                </Typography>
-              </div>
+                  <Typography variant="body" color="grey600">
+                    {translate('text_1747902518582701lwmkfqfb')}
+                  </Typography>
+                </div>
+              )}
 
-              <div className="flex flex-col gap-4">
-                <RadioField
-                  name="handle"
-                  labelVariant="body"
-                  value={HandleEnum.VoidOnly}
-                  label={translate('text_1747902518582w3ktz6anw68')}
-                  formikProps={formikProps}
-                />
-
-                <RadioField
-                  name="handle"
-                  labelVariant="body"
-                  disabled={!canGenerateCreditNote}
-                  value={HandleEnum.GenerateCreditNote}
-                  label={translate('text_1747902518582u0fpqsnmest')}
-                  formikProps={formikProps}
-                />
-
-                {!isPremium && (
-                  <PremiumFeature
-                    className="mt-2"
-                    title={translate('text_1759493418045q76j19qe39v')}
-                    description={translate('text_17594934180453sfrfaftk7g')}
-                    feature={translate('text_17594937101500zg231jc8bf')}
+              {hasActiveCustomer && (
+                <div className="flex flex-col gap-4">
+                  <RadioField
+                    name="handle"
+                    labelVariant="body"
+                    value={HandleEnum.VoidOnly}
+                    label={translate('text_1747902518582w3ktz6anw68')}
+                    formikProps={formikProps}
                   />
-                )}
 
-                {formikProps.values.handle === HandleEnum.GenerateCreditNote && (
-                  <div className="flex flex-col gap-4">
-                    {maxRefundable > 0 && (
-                      <div className="flex items-center justify-between">
-                        <Typography variant="bodyHl" color="grey700">
-                          {translate('text_1747908642632e4crd7uy2dp', {
-                            max: intlFormatNumber(maxRefundable, {
-                              currency,
-                            }),
-                          })}
-                        </Typography>
+                  <RadioField
+                    name="handle"
+                    labelVariant="body"
+                    disabled={!canGenerateCreditNote}
+                    value={HandleEnum.GenerateCreditNote}
+                    label={translate('text_1747902518582u0fpqsnmest')}
+                    formikProps={formikProps}
+                  />
 
-                        <AmountInputField
-                          name="payBack.0.value"
-                          formikProps={formikProps}
-                          currency={currency}
-                          beforeChangeFormatter={['positiveNumber']}
-                          error={
-                            !!getIn(formikProps.errors, 'payBack.0.value')
-                              ? translate('text_174790864263278xhv5s8l9k', {
-                                  max: intlFormatNumber(maxRefundable, { currency }),
-                                })
-                              : undefined
-                          }
-                          inputProps={{ style: { textAlign: 'right' } }}
-                          InputProps={
-                            currency && {
-                              startAdornment: (
-                                <InputAdornment position="start">{currencySymbol}</InputAdornment>
-                              ),
+                  {!isPremium && (
+                    <PremiumFeature
+                      className="mt-2"
+                      title={translate('text_1759493418045q76j19qe39v')}
+                      description={translate('text_17594934180453sfrfaftk7g')}
+                      feature={translate('text_17594937101500zg231jc8bf')}
+                    />
+                  )}
+
+                  {formikProps.values.handle === HandleEnum.GenerateCreditNote && (
+                    <div className="flex flex-col gap-4">
+                      {maxRefundable > 0 && (
+                        <div className="flex items-center justify-between">
+                          <Typography variant="bodyHl" color="grey700">
+                            {translate('text_1747908642632e4crd7uy2dp', {
+                              max: intlFormatNumber(maxRefundable, {
+                                currency,
+                              }),
+                            })}
+                          </Typography>
+
+                          <AmountInputField
+                            name="payBack.0.value"
+                            formikProps={formikProps}
+                            currency={currency}
+                            beforeChangeFormatter={['positiveNumber']}
+                            error={
+                              !!getIn(formikProps.errors, 'payBack.0.value')
+                                ? translate('text_174790864263278xhv5s8l9k', {
+                                    max: intlFormatNumber(maxRefundable, { currency }),
+                                  })
+                                : undefined
                             }
-                          }
-                        />
-                      </div>
-                    )}
-
-                    {maxCreditable > 0 && (
-                      <div className="flex items-center justify-between">
-                        <Typography variant="bodyHl" color="grey700">
-                          {translate('text_1747908642632dgxu0zy119d', {
-                            max: intlFormatNumber(maxCreditable, { currency }),
-                          })}
-                        </Typography>
-
-                        <AmountInputField
-                          name="payBack.1.value"
-                          formikProps={formikProps}
-                          currency={currency}
-                          beforeChangeFormatter={['positiveNumber']}
-                          error={
-                            !!getIn(formikProps.errors, 'payBack.1.value')
-                              ? translate('text_17479114962319ks0rk1nvla', {
-                                  max: intlFormatNumber(maxCreditable, { currency }),
-                                })
-                              : undefined
-                          }
-                          inputProps={{ style: { textAlign: 'right' } }}
-                          InputProps={
-                            currency && {
-                              startAdornment: (
-                                <InputAdornment position="start">{currencySymbol}</InputAdornment>
-                              ),
+                            inputProps={{ style: { textAlign: 'right' } }}
+                            InputProps={
+                              currency && {
+                                startAdornment: (
+                                  <InputAdornment position="start">{currencySymbol}</InputAdornment>
+                                ),
+                              }
                             }
-                          }
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                          />
+                        </div>
+                      )}
+
+                      {maxCreditable > 0 && (
+                        <div className="flex items-center justify-between">
+                          <Typography variant="bodyHl" color="grey700">
+                            {translate('text_1747908642632dgxu0zy119d', {
+                              max: intlFormatNumber(maxCreditable, { currency }),
+                            })}
+                          </Typography>
+
+                          <AmountInputField
+                            name="payBack.1.value"
+                            formikProps={formikProps}
+                            currency={currency}
+                            beforeChangeFormatter={['positiveNumber']}
+                            error={
+                              !!getIn(formikProps.errors, 'payBack.1.value')
+                                ? translate('text_17479114962319ks0rk1nvla', {
+                                    max: intlFormatNumber(maxCreditable, { currency }),
+                                  })
+                                : undefined
+                            }
+                            inputProps={{ style: { textAlign: 'right' } }}
+                            InputProps={
+                              currency && {
+                                startAdornment: (
+                                  <InputAdornment position="start">{currencySymbol}</InputAdornment>
+                                ),
+                              }
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {!!getIn(formikProps.errors, 'payBackErrors') && (
                 <Alert type="danger">
