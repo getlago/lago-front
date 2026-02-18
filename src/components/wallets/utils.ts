@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { getTimezoneConfig } from '~/core/timezone'
 import { Locale } from '~/core/translations'
 import {
@@ -10,8 +11,10 @@ import {
   RecurringTransactionTriggerEnum,
   TimezoneEnum,
   UpdateRecurringTransactionRuleInput,
+  WalletTransactionSourceEnum,
+  WalletTransactionTransactionStatusEnum,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { TWalletDataForm } from '~/pages/wallet'
 
 type TGetWordingForWalletAlert = {
@@ -201,3 +204,80 @@ export const getWordingForWalletCreationAlert = ({
 
   return `${startSentence} ${endSentence}`
 }
+
+type GetLabelForInboundTransactionProps = {
+  translate: TranslateFunc
+  source: WalletTransactionSourceEnum
+  creditAmount: string
+  transactionStatus: WalletTransactionTransactionStatusEnum
+}
+
+export const getLabelForInboundTransaction = ({
+  translate,
+  source,
+  creditAmount,
+  transactionStatus,
+}: GetLabelForInboundTransactionProps) => {
+  if (transactionStatus === WalletTransactionTransactionStatusEnum.Granted) {
+    return translate('text_662fc05d2cfe3a0596b29db0', undefined, Number(creditAmount) || 0)
+  }
+
+  // For purchased credits, check the source
+  if (transactionStatus === WalletTransactionTransactionStatusEnum.Purchased) {
+    if (source === WalletTransactionSourceEnum.Manual) {
+      return translate('text_194a7e73e00a1b2c3d4e5f67', undefined, Number(creditAmount) || 0)
+    }
+    if (
+      source === WalletTransactionSourceEnum.Interval ||
+      source === WalletTransactionSourceEnum.Threshold
+    ) {
+      return translate('text_194a7e73e00b8c9d0e1f2a34', undefined, Number(creditAmount) || 0)
+    }
+  }
+
+  // Fallback to the original purchased text for other cases
+  return translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
+}
+
+type GetLabelForOutboundTransactionProps = {
+  translate: TranslateFunc
+  creditAmount: string
+  transactionStatus: WalletTransactionTransactionStatusEnum
+}
+
+export const getLabelForOutboundTransaction = ({
+  translate,
+  creditAmount,
+  transactionStatus,
+}: GetLabelForOutboundTransactionProps) => {
+  return transactionStatus === WalletTransactionTransactionStatusEnum.Voided
+    ? translate('text_662fc05d2cfe3a0596b29d98', undefined, Number(creditAmount) || 0)
+    : translate('text_62da6ec24a8e24e44f812892', undefined, Number(creditAmount) || 0)
+}
+
+export const formatCredits = ({
+  credits,
+  isBlurry,
+}: {
+  credits?: string | null
+  isBlurry?: boolean
+}) =>
+  intlFormatNumber(Number(isBlurry ? 0 : credits) || 0, {
+    maximumFractionDigits: 15,
+    style: 'decimal',
+  })
+
+export const formatAmount = ({
+  amountCents,
+  currency = CurrencyEnum.Usd,
+  isBlurry,
+}: {
+  amountCents?: string | null
+  currency: CurrencyEnum
+  isBlurry?: boolean
+}) =>
+  intlFormatNumber(Number(isBlurry ? 0 : amountCents) || 0, {
+    currencyDisplay: 'symbol',
+    maximumFractionDigits: 15,
+    currency,
+  })
