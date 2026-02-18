@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { NavigateOptions, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -9,9 +9,9 @@ import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { Checkbox } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -165,7 +165,7 @@ const ApiKeysForm = () => {
   const { apiKeyId = '' } = useParams()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
   useEffect(() => {
@@ -275,279 +275,275 @@ const ApiKeysForm = () => {
   }
 
   return (
-    <>
-      <CenteredPage.Wrapper>
-        <form id={API_KEYS_FORM_ID} onSubmit={handleSubmit}>
-          <CenteredPage.Header>
-            {apiKeyLoading ? (
-              <Skeleton className="w-50" variant="text" />
-            ) : (
-              <>
-                <Typography
-                  variant="bodyHl"
-                  color="grey700"
-                  noWrap
-                  data-test={API_KEYS_FORM_HEADER_TITLE_TEST_ID}
-                >
+    <CenteredPage.Wrapper>
+      <form id={API_KEYS_FORM_ID} onSubmit={handleSubmit}>
+        <CenteredPage.Header>
+          {apiKeyLoading ? (
+            <Skeleton className="w-50" variant="text" />
+          ) : (
+            <>
+              <Typography
+                variant="bodyHl"
+                color="grey700"
+                noWrap
+                data-test={API_KEYS_FORM_HEADER_TITLE_TEST_ID}
+              >
+                {translate(
+                  isEdition ? 'text_1732286530467umtldbwri1j' : 'text_17322865304672acg4wvc0s0',
+                )}
+              </Typography>
+              <Button
+                variant="quaternary"
+                icon="close"
+                onClick={() => onClose()}
+                data-test={API_KEYS_FORM_CLOSE_BUTTON_TEST_ID}
+              />
+            </>
+          )}
+        </CenteredPage.Header>
+
+        <CenteredPage.Container>
+          {apiKeyLoading ? (
+            <FormLoadingSkeleton id="apiKeys" />
+          ) : (
+            <>
+              <div className="flex flex-col gap-1">
+                <Typography variant="headline" color="grey700">
                   {translate(
-                    isEdition ? 'text_1732286530467umtldbwri1j' : 'text_17322865304672acg4wvc0s0',
+                    isEdition ? 'text_1732286530467umtldbwri1j' : 'text_1732286530467r7oj4moo3al',
                   )}
                 </Typography>
-                <Button
-                  variant="quaternary"
-                  icon="close"
-                  onClick={() => onClose()}
-                  data-test={API_KEYS_FORM_CLOSE_BUTTON_TEST_ID}
-                />
-              </>
-            )}
-          </CenteredPage.Header>
+                <Typography variant="body" color="grey600">
+                  {translate('text_1732286530467bpqi7grn0vk')}
+                </Typography>
+              </div>
 
-          <CenteredPage.Container>
-            {apiKeyLoading ? (
-              <FormLoadingSkeleton id="apiKeys" />
-            ) : (
-              <>
-                <div className="flex flex-col gap-1">
-                  <Typography variant="headline" color="grey700">
-                    {translate(
-                      isEdition ? 'text_1732286530467umtldbwri1j' : 'text_1732286530467r7oj4moo3al',
-                    )}
+              {isEdition && !!apiKey?.lastUsedAt && (
+                <Alert type="info" data-test={API_KEYS_FORM_LAST_USED_ALERT_TEST_ID}>
+                  <Typography variant="body" color="grey700">
+                    {translate('text_1732286530467pwhhpj0aczl', {
+                      date: intlFormatDateTime(apiKey?.lastUsedAt, {
+                        timezone: TimezoneEnum.TzUtc,
+                      }).date,
+                    })}
                   </Typography>
-                  <Typography variant="body" color="grey600">
-                    {translate('text_1732286530467bpqi7grn0vk')}
+                </Alert>
+              )}
+
+              <div className="flex flex-col gap-6 pb-12 shadow-b">
+                <div className="flex flex-col gap-2">
+                  <Typography variant="subhead1" color="grey700">
+                    {translate('text_1732286530467tbfarkui5o8')}
+                  </Typography>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_17322865304675hom00lcbyt')}
                   </Typography>
                 </div>
 
-                {isEdition && !!apiKey?.lastUsedAt && (
-                  <Alert type="info" data-test={API_KEYS_FORM_LAST_USED_ALERT_TEST_ID}>
-                    <Typography variant="body" color="grey700">
-                      {translate('text_1732286530467pwhhpj0aczl', {
-                        date: intlFormatDateTime(apiKey?.lastUsedAt, {
-                          timezone: TimezoneEnum.TzUtc,
-                        }).date,
-                      })}
-                    </Typography>
-                  </Alert>
-                )}
-
-                <div className="flex flex-col gap-6 pb-12 shadow-b">
-                  <div className="flex flex-col gap-2">
-                    <Typography variant="subhead1" color="grey700">
-                      {translate('text_1732286530467tbfarkui5o8')}
-                    </Typography>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_17322865304675hom00lcbyt')}
-                    </Typography>
-                  </div>
-
-                  <form.AppField name="name">
-                    {(field) => (
-                      <field.TextInputField
-                        // eslint-disable-next-line jsx-a11y/no-autofocus
-                        autoFocus
-                        label={translate('text_1732286530467zstzwbegfiq')}
-                        placeholder={translate('text_17322865304681s5r90ntpdv')}
-                      />
-                    )}
-                  </form.AppField>
-                </div>
-
-                <div className="flex flex-col gap-6 pb-12">
-                  <div className="flex flex-col gap-2">
-                    <Typography variant="subhead1" color="grey700">
-                      {translate('text_1732895022171i6ewlfi5gle')}
-                    </Typography>
-                    <Typography variant="body" color="grey600">
-                      {translate('text_17328950221717jo8c119hbv')}
-                    </Typography>
-                  </div>
-
-                  {!hasAccessToApiPermissionsPremiumAddOn ? (
-                    <div
-                      className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4"
-                      data-test={API_KEYS_FORM_PREMIUM_BANNER_TEST_ID}
-                    >
-                      <div className="flex flex-col">
-                        <div className="flex flex-row items-center gap-2">
-                          <Typography variant="bodyHl" color="grey700">
-                            {translate('text_17328950221712ase46l0iwq')}
-                          </Typography>
-                          <Icon name="sparkles" />
-                        </div>
-
-                        <Typography variant="caption" color="grey600">
-                          {translate('text_1732895022171dkdzjnjtk10')}
-                        </Typography>
-                      </div>
-                      <Button
-                        endIcon="sparkles"
-                        variant="tertiary"
-                        data-test={API_KEYS_FORM_PREMIUM_BUTTON_TEST_ID}
-                        onClick={() =>
-                          premiumWarningDialogRef.current?.openDialog({
-                            title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                            description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                            mailtoSubject: translate('text_17328950221712tn2kbvuqrg'),
-                            mailtoBody: translate('text_1732895022171rrj3kk58023'),
-                          })
-                        }
-                      >
-                        {translate('text_65ae73ebe3a66bec2b91d72d')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <Table
-                      name="api-keys-permissions"
-                      data={permissions}
-                      containerSize={0}
-                      isLoading={apiKeyLoading}
-                      columns={[
-                        {
-                          key: 'id',
-                          maxSpace: true,
-                          title: (
-                            <Typography variant="captionHl" color="grey600">
-                              {translate('text_1732895022171f9vnwh5gm3q')}
-                            </Typography>
-                          ),
-                          content: ({ id }) => (
-                            <Typography variant="body" color="grey700">
-                              {translate(resourceTypeTranslationKeys[id])}
-                            </Typography>
-                          ),
-                        },
-                        {
-                          key: 'canRead',
-                          minWidth: 176,
-                          title: (
-                            <Checkbox
-                              canBeIndeterminate
-                              // The pl-1 class is used to prevent the focus ring from being cropped.
-                              className="pl-1"
-                              label={
-                                <Typography variant="captionHl" color="grey600">
-                                  {translate('text_1732893748379m7jh7zzz956')}
-                                </Typography>
-                              }
-                              value={getHeaderCheckboxValue(permissions, 'canRead')}
-                              onChange={() => {
-                                const nextValue = !permissions.every(
-                                  ({ canRead }) => canRead === true,
-                                )
-
-                                form.setFieldValue(
-                                  'permissions',
-                                  permissions.map((permission) => ({
-                                    ...permission,
-                                    canRead: nextValue,
-                                  })),
-                                )
-                              }}
-                            />
-                          ),
-                          content: ({ id, canRead }) => {
-                            return (
-                              <Checkbox
-                                // The pl-1 class is used to prevent the focus ring from being cropped.
-                                className="pl-1"
-                                label={translate('text_17328934519835pubx8tx7k7')}
-                                value={canRead}
-                                onChange={() => {
-                                  form.setFieldValue(
-                                    'permissions',
-                                    permissions.map((permission) =>
-                                      permission.id === id
-                                        ? { ...permission, canRead: !permission.canRead }
-                                        : permission,
-                                    ),
-                                  )
-                                }}
-                              />
-                            )
-                          },
-                        },
-                        {
-                          key: 'canWrite',
-                          minWidth: 150,
-                          title: (
-                            <Checkbox
-                              canBeIndeterminate
-                              // The pl-1 class is used to prevent the focus ring from being cropped.
-                              className="pl-1"
-                              label={
-                                <Typography variant="captionHl" color="grey600">
-                                  {translate('text_17328937483790tnuhasm2yr')}
-                                </Typography>
-                              }
-                              value={getHeaderCheckboxValue(permissions, 'canWrite')}
-                              onChange={() => {
-                                const nextValue = !permissions.every(
-                                  ({ canWrite }) => canWrite === true,
-                                )
-
-                                form.setFieldValue(
-                                  'permissions',
-                                  permissions.map((permission) => ({
-                                    ...permission,
-                                    canWrite: nextValue,
-                                  })),
-                                )
-                              }}
-                            />
-                          ),
-                          content: ({ id, canWrite }) => {
-                            if (canOnlyRead(id)) return null
-
-                            return (
-                              <Checkbox
-                                // The pl-1 class is used to prevent the focus ring from being cropped.
-                                className="pl-1"
-                                label={translate('text_1732893451983ghftswenkuh')}
-                                value={canWrite}
-                                onChange={() => {
-                                  form.setFieldValue(
-                                    'permissions',
-                                    permissions.map((permission) =>
-                                      permission.id === id
-                                        ? { ...permission, canWrite: !permission.canWrite }
-                                        : permission,
-                                    ),
-                                  )
-                                }}
-                              />
-                            )
-                          },
-                        },
-                      ]}
+                <form.AppField name="name">
+                  {(field) => (
+                    <field.TextInputField
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
+                      label={translate('text_1732286530467zstzwbegfiq')}
+                      placeholder={translate('text_17322865304681s5r90ntpdv')}
                     />
                   )}
+                </form.AppField>
+              </div>
+
+              <div className="flex flex-col gap-6 pb-12">
+                <div className="flex flex-col gap-2">
+                  <Typography variant="subhead1" color="grey700">
+                    {translate('text_1732895022171i6ewlfi5gle')}
+                  </Typography>
+                  <Typography variant="body" color="grey600">
+                    {translate('text_17328950221717jo8c119hbv')}
+                  </Typography>
                 </div>
-              </>
-            )}
-          </CenteredPage.Container>
 
-          <CenteredPage.StickyFooter>
-            <Button
-              variant="quaternary"
-              onClick={() => onClose()}
-              data-test={API_KEYS_FORM_CANCEL_BUTTON_TEST_ID}
-            >
-              {translate('text_6411e6b530cb47007488b027')}
-            </Button>
-            <form.AppForm>
-              <form.SubmitButton disabled={apiKeyLoading}>
-                {translate(
-                  isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1732522865354i0r12i6z9mu',
+                {!hasAccessToApiPermissionsPremiumAddOn ? (
+                  <div
+                    className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4"
+                    data-test={API_KEYS_FORM_PREMIUM_BANNER_TEST_ID}
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex flex-row items-center gap-2">
+                        <Typography variant="bodyHl" color="grey700">
+                          {translate('text_17328950221712ase46l0iwq')}
+                        </Typography>
+                        <Icon name="sparkles" />
+                      </div>
+
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_1732895022171dkdzjnjtk10')}
+                      </Typography>
+                    </div>
+                    <Button
+                      endIcon="sparkles"
+                      variant="tertiary"
+                      data-test={API_KEYS_FORM_PREMIUM_BUTTON_TEST_ID}
+                      onClick={() =>
+                        openPremiumWarningDialog({
+                          title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                          description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                          mailtoSubject: translate('text_17328950221712tn2kbvuqrg'),
+                          mailtoBody: translate('text_1732895022171rrj3kk58023'),
+                        })
+                      }
+                    >
+                      {translate('text_65ae73ebe3a66bec2b91d72d')}
+                    </Button>
+                  </div>
+                ) : (
+                  <Table
+                    name="api-keys-permissions"
+                    data={permissions}
+                    containerSize={0}
+                    isLoading={apiKeyLoading}
+                    columns={[
+                      {
+                        key: 'id',
+                        maxSpace: true,
+                        title: (
+                          <Typography variant="captionHl" color="grey600">
+                            {translate('text_1732895022171f9vnwh5gm3q')}
+                          </Typography>
+                        ),
+                        content: ({ id }) => (
+                          <Typography variant="body" color="grey700">
+                            {translate(resourceTypeTranslationKeys[id])}
+                          </Typography>
+                        ),
+                      },
+                      {
+                        key: 'canRead',
+                        minWidth: 176,
+                        title: (
+                          <Checkbox
+                            canBeIndeterminate
+                            // The pl-1 class is used to prevent the focus ring from being cropped.
+                            className="pl-1"
+                            label={
+                              <Typography variant="captionHl" color="grey600">
+                                {translate('text_1732893748379m7jh7zzz956')}
+                              </Typography>
+                            }
+                            value={getHeaderCheckboxValue(permissions, 'canRead')}
+                            onChange={() => {
+                              const nextValue = !permissions.every(
+                                ({ canRead }) => canRead === true,
+                              )
+
+                              form.setFieldValue(
+                                'permissions',
+                                permissions.map((permission) => ({
+                                  ...permission,
+                                  canRead: nextValue,
+                                })),
+                              )
+                            }}
+                          />
+                        ),
+                        content: ({ id, canRead }) => {
+                          return (
+                            <Checkbox
+                              // The pl-1 class is used to prevent the focus ring from being cropped.
+                              className="pl-1"
+                              label={translate('text_17328934519835pubx8tx7k7')}
+                              value={canRead}
+                              onChange={() => {
+                                form.setFieldValue(
+                                  'permissions',
+                                  permissions.map((permission) =>
+                                    permission.id === id
+                                      ? { ...permission, canRead: !permission.canRead }
+                                      : permission,
+                                  ),
+                                )
+                              }}
+                            />
+                          )
+                        },
+                      },
+                      {
+                        key: 'canWrite',
+                        minWidth: 150,
+                        title: (
+                          <Checkbox
+                            canBeIndeterminate
+                            // The pl-1 class is used to prevent the focus ring from being cropped.
+                            className="pl-1"
+                            label={
+                              <Typography variant="captionHl" color="grey600">
+                                {translate('text_17328937483790tnuhasm2yr')}
+                              </Typography>
+                            }
+                            value={getHeaderCheckboxValue(permissions, 'canWrite')}
+                            onChange={() => {
+                              const nextValue = !permissions.every(
+                                ({ canWrite }) => canWrite === true,
+                              )
+
+                              form.setFieldValue(
+                                'permissions',
+                                permissions.map((permission) => ({
+                                  ...permission,
+                                  canWrite: nextValue,
+                                })),
+                              )
+                            }}
+                          />
+                        ),
+                        content: ({ id, canWrite }) => {
+                          if (canOnlyRead(id)) return null
+
+                          return (
+                            <Checkbox
+                              // The pl-1 class is used to prevent the focus ring from being cropped.
+                              className="pl-1"
+                              label={translate('text_1732893451983ghftswenkuh')}
+                              value={canWrite}
+                              onChange={() => {
+                                form.setFieldValue(
+                                  'permissions',
+                                  permissions.map((permission) =>
+                                    permission.id === id
+                                      ? { ...permission, canWrite: !permission.canWrite }
+                                      : permission,
+                                  ),
+                                )
+                              }}
+                            />
+                          )
+                        },
+                      },
+                    ]}
+                  />
                 )}
-              </form.SubmitButton>
-            </form.AppForm>
-          </CenteredPage.StickyFooter>
-        </form>
-      </CenteredPage.Wrapper>
+              </div>
+            </>
+          )}
+        </CenteredPage.Container>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </>
+        <CenteredPage.StickyFooter>
+          <Button
+            variant="quaternary"
+            onClick={() => onClose()}
+            data-test={API_KEYS_FORM_CANCEL_BUTTON_TEST_ID}
+          >
+            {translate('text_6411e6b530cb47007488b027')}
+          </Button>
+          <form.AppForm>
+            <form.SubmitButton disabled={apiKeyLoading}>
+              {translate(
+                isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1732522865354i0r12i6z9mu',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
+        </CenteredPage.StickyFooter>
+      </form>
+    </CenteredPage.Wrapper>
   )
 }
 
