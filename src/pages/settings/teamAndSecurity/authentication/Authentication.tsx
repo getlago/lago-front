@@ -10,7 +10,6 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Selector } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
@@ -36,12 +35,10 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import {
-  UpdateLoginMethodDialog,
-  UpdateLoginMethodDialogRef,
-} from '~/pages/settings/Authentication/UpdateLoginMethodDialog'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
+
+import { UpdateLoginMethodDialog, UpdateLoginMethodDialogRef } from './UpdateLoginMethodDialog'
 
 gql`
   query GetAuthIntegrations($limit: Int!) {
@@ -282,12 +279,6 @@ const Authentication = () => {
 
   return (
     <>
-      <PageBannerHeaderWithBurgerMenu>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_664c732c264d7eed1c74fd96')}
-        </Typography>
-      </PageBannerHeaderWithBurgerMenu>
-
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>
           <Typography variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Typography>
