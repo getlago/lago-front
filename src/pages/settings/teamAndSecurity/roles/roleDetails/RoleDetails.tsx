@@ -1,5 +1,4 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -24,7 +23,7 @@ import {
 } from '~/pages/settings/teamAndSecurity/common/teamAndSecurityConst'
 import { MenuPopper, PageHeader } from '~/styles'
 
-import { DeleteRoleDialog, DeleteRoleDialogRef } from '../common/dialogs/DeleteRoleDialog'
+import { useDeleteRoleDialog } from '../common/dialogs/DeleteRoleDialog'
 import { mapPermissionsFromRole } from '../common/rolePermissionsForm/mappers/mapPermissionsFromRole'
 import RolePermissionsForm from '../common/rolePermissionsForm/RolePermissionsForm'
 import RoleTypeChip from '../common/RoleTypeChip'
@@ -42,15 +41,10 @@ const RoleDetails = () => {
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
 
   const premiumWarningDialog = usePremiumWarningDialog()
-  const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
+  const { openDeleteRoleDialog } = useDeleteRoleDialog()
 
   const openPremiumDialog = () => {
     premiumWarningDialog.open()
-  }
-
-  const openDeleteRoleDialog = () => {
-    if (!role) return
-    deleteRoleDialogRef.current?.openDialog(role)
   }
 
   const form = useAppForm({
@@ -149,7 +143,7 @@ const RoleDetails = () => {
                     fullWidth
                     align="left"
                     disabled={!canBeDeleted}
-                    onClick={openDeleteRoleDialog}
+                    onClick={() => role && openDeleteRoleDialog(role)}
                   >
                     {translate('text_6261640f28a49700f1290df5')}
                   </Button>
@@ -218,8 +212,6 @@ const RoleDetails = () => {
           )}
         </div>
       </DetailsPage.Container>
-
-      <DeleteRoleDialog ref={deleteRoleDialogRef} />
     </>
   )
 }

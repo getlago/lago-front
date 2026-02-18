@@ -1,5 +1,4 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -24,7 +23,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useRolesList } from '~/hooks/useRolesList'
 
-import { DeleteRoleDialog, DeleteRoleDialogRef } from '../common/dialogs/DeleteRoleDialog'
+import { useDeleteRoleDialog } from '../common/dialogs/DeleteRoleDialog'
 import RoleTypeChip from '../common/RoleTypeChip'
 import { useRoleActions } from '../hooks/useRoleActions'
 
@@ -42,14 +41,10 @@ const RolesList = () => {
   const canDeleteRoles = hasPermissions(['rolesDelete'])
 
   const premiumWarningDialog = usePremiumWarningDialog()
-  const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
+  const { openDeleteRoleDialog } = useDeleteRoleDialog()
 
   const openPremiumDialog = () => {
     premiumWarningDialog.open()
-  }
-
-  const openDeleteRoleDialog = (role: RoleItem) => {
-    deleteRoleDialogRef.current?.openDialog(role)
   }
 
   const getRoleHeaderAction = () => {
@@ -217,8 +212,6 @@ const RolesList = () => {
           )}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      <DeleteRoleDialog ref={deleteRoleDialogRef} />
     </>
   )
 }
