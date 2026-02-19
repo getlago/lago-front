@@ -37,6 +37,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
@@ -49,6 +50,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
@@ -82,11 +84,14 @@ gql`
         deletedAt
         id
         name
+        email
         displayName
         applicableTimezone
         billingEntity {
           id
+          name
           einvoicing
+          logoUrl
         }
       }
       payable {
@@ -106,6 +111,7 @@ gql`
       paymentReceipt {
         id
         xmlUrl
+        number
       }
     }
   }
@@ -174,6 +180,8 @@ const PaymentDetails = () => {
     },
   })
 
+  const { showResendEmailDialog } = useResendEmailDialog()
+
   const payment = data.payment
   const customer = payment?.customer
   const payable = payment?.payable
@@ -186,6 +194,8 @@ const PaymentDetails = () => {
   const canDownloadXmlFile =
     canDownloadPaymentReceipts &&
     (!!payment?.paymentReceipt?.xmlUrl || !!payment?.customer?.billingEntity?.einvoicing)
+
+  const canResendEmail = hasPermissions(['paymentReceiptsSend'])
 
   const goToPreviousRoute = useCallback(
     () =>
@@ -210,6 +220,19 @@ const PaymentDetails = () => {
     })
 
     return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
+  }
+
+  const resendEmail = () => {
+    showResendEmailDialog({
+      subject: translate('text_1770631139987tf8b59zentb', {
+        organization: payment?.customer?.billingEntity.name,
+        receiptNumber: payment?.paymentReceipt?.number,
+      }),
+      type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+      billingEntity: payment?.customer?.billingEntity,
+      documentId: payment?.paymentReceipt?.id,
+      customerEmail: payment?.customer?.email,
+    })
   }
 
   return (
@@ -305,6 +328,11 @@ const PaymentDetails = () => {
                     {translate('text_17625290034260szr7wfl8cs')}
                   </Button>
                 </>
+              )}
+              {canResendEmail && (
+                <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                  {translate('text_1770392315728uyw3zhs7kzh')}
+                </Button>
               )}
             </MenuPopper>
           )}

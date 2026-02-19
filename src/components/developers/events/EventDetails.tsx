@@ -43,7 +43,7 @@ const dateFormatOptions = {
 }
 
 export const EventDetails = ({ goBack }: { goBack: () => void }) => {
-  const { eventId } = useParams<{ eventId: string }>()
+  const { '*': eventId } = useParams<{ '*': string }>()
   const { translate } = useInternationalization()
 
   const { data, loading } = useGetSingleEventQuery({

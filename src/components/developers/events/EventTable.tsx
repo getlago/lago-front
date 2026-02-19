@@ -58,7 +58,7 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
           }
 
           return generatePath(EVENT_LOG_ROUTE, {
-            eventId: transactionId as string,
+            '*': transactionId as string,
           })
         }}
         columns={[
