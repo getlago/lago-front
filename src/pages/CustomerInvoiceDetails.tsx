@@ -34,7 +34,6 @@ import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
-import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
   CustomerDetailsTabsOptions,
@@ -58,10 +57,9 @@ import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   AvalaraIntegration,
   AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc,
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
-  Customer,
   CustomerForInvoiceOverviewFragmentDoc,
-  ErrorCodesEnum,
   FeeDetailsForInvoiceOverviewFragmentDoc,
   FeeForInvoiceDetailsTableFooterFragmentDoc,
   HubspotIntegration,
@@ -94,12 +92,12 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
-import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
+import { useInvoiceAuthorizations } from '~/pages/invoiceDetails/common/useInvoiceAuthorizations'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -133,6 +131,7 @@ gql`
     }
     customer {
       id
+      email
     }
 
     ...InvoiceDetailsForInvoiceOverview
@@ -297,53 +296,6 @@ gql`
   ${FeeForInvoiceDetailsTableFooterFragmentDoc}
 `
 
-const getErrorMessageFromErrorDetails = (
-  errors: AllInvoiceDetailsForCustomerInvoiceDetailsFragment['errorDetails'],
-): string | undefined => {
-  if (!errors || errors.length === 0) {
-    return undefined
-  }
-
-  const [{ errorCode, errorDetails }] = errors
-
-  if (errorCode === ErrorCodesEnum.TaxError) {
-    if (
-      // Anrok
-      errorDetails === LagoApiError.CurrencyCodeNotSupported ||
-      // Avalara
-      errorDetails === LagoApiError.InvalidEnumValue
-    ) {
-      return LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported
-    }
-
-    if (
-      // Anrok
-      errorDetails === LagoApiError.CustomerAddressCouldNotResolve ||
-      errorDetails === LagoApiError.CustomerAddressCountryNotSupported ||
-      // Avalara
-      errorDetails === LagoApiError.MissingAddress ||
-      errorDetails === LagoApiError.NotEnoughAddressesInfo ||
-      errorDetails === LagoApiError.InvalidAddress ||
-      errorDetails === LagoApiError.InvalidPostalCode ||
-      errorDetails === LagoApiError.AddressLocationNotFound
-    ) {
-      return LocalTaxProviderErrorsEnum.CustomerAddressError
-    }
-
-    if (
-      // Anrok
-      errorDetails === LagoApiError.ProductExternalIdUnknown ||
-      // Avalara
-      errorDetails === LagoApiError.TaxCodeAssociatedWithItemCodeNotFound ||
-      errorDetails === LagoApiError.EntityNotFoundError
-    ) {
-      return LocalTaxProviderErrorsEnum.ProductExternalIdUnknown
-    }
-
-    return LocalTaxProviderErrorsEnum.GenericErrorMessage
-  }
-}
-
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { customerId, invoiceId } = useParams()
@@ -351,7 +303,6 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const actions = usePermissionsInvoiceActions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -387,11 +338,12 @@ const CustomerInvoiceDetails = () => {
     },
   })
 
+  const { showResendEmailDialog } = useResendEmailDialog()
+
   const customer = customerData?.customer
 
-  const hasActiveWallet = useCustomerHasActiveWallet({
-    customerId: customer?.id,
-  })
+  const { authorizations, hasTaxProviderError, errorMessage, canRecordPayment } =
+    useInvoiceAuthorizations({ invoice, customer })
 
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
@@ -567,23 +519,12 @@ const CustomerInvoiceDetails = () => {
     creditableAmountCents,
     refundableAmountCents,
     offsettableAmountCents,
-    errorDetails,
     taxProviderVoidable,
     associatedActiveWalletPresent,
-    paymentDisputeLostAt,
-    integrationSyncable,
-    integrationHubspotSyncable,
-    regeneratedInvoiceId,
   } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
-
-  const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
   const isLoading = loading || customerLoading || feesLoading
   const hasError = (!!error || !!feesError || !data?.invoice) && !isLoading
-  const hasTaxProviderError = errorDetails?.find(
-    ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
-  )
-  const errorMessage = getErrorMessageFromErrorDetails(errorDetails)
 
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
@@ -770,15 +711,18 @@ const CustomerInvoiceDetails = () => {
     canRecordPayment,
   ])
 
-  const canFinalize = useMemo(() => actions.canFinalize({ status }), [actions, status])
-  const canDownload = useMemo(
-    () => actions.canDownload({ status, taxStatus }),
-    [actions, status, taxStatus],
-  )
-
-  const canDownloadXmlFile = useMemo(() => {
-    return invoice?.billingEntity.einvoicing || !!invoice?.xmlUrl
-  }, [invoice])
+  const resendEmail = () => {
+    showResendEmailDialog({
+      subject: translate('text_17706311399878xdnudpnjtt', {
+        organization: invoice?.billingEntity.name,
+        invoiceNumber: invoice?.number,
+      }),
+      type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
+      billingEntity: invoice?.billingEntity,
+      documentId: invoice?.id,
+      customerEmail: invoice?.customer?.email,
+    })
+  }
 
   return (
     <>
@@ -803,7 +747,7 @@ const CustomerInvoiceDetails = () => {
             {({ closePopper }) => {
               return (
                 <MenuPopper>
-                  {hasTaxProviderError && (
+                  {authorizations.canRetryInvoice && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -817,7 +761,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
                   )}
-                  {!hasTaxProviderError && canFinalize && (
+                  {authorizations.canFinalizeInvoice && (
                     <>
                       <Button
                         variant="quaternary"
@@ -842,7 +786,7 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
-                  {!hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile && (
+                  {authorizations.canDownloadOnlyPdf && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -857,41 +801,42 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_634687079be251fdb4383395')}
                     </Button>
                   )}
-                  {!hasTaxProviderError &&
-                    !canFinalize &&
-                    canDownload &&
-                    invoice &&
-                    canDownloadXmlFile && (
-                      <>
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          disabled={!!loadingInvoiceDownload}
-                          onClick={async () => {
-                            await downloadInvoice({
-                              variables: { input: { id: invoiceId || '' } },
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_1760447853022ebd47gmqjmp')}
-                        </Button>
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          disabled={!!loadingInvoiceXmlDownload}
-                          onClick={async () => {
-                            await downloadInvoiceXml({
-                              variables: { input: { id: invoiceId || '' } },
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_1760447853022hb1hdiprvet')}
-                        </Button>
-                      </>
-                    )}
-                  {actions.canIssueCreditNote({ status }) && (
+                  {authorizations.canDownloadPdfAndXml && (
+                    <>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        disabled={!!loadingInvoiceDownload}
+                        onClick={async () => {
+                          await downloadInvoice({
+                            variables: { input: { id: invoiceId || '' } },
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1760447853022ebd47gmqjmp')}
+                      </Button>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        disabled={!!loadingInvoiceXmlDownload}
+                        onClick={async () => {
+                          await downloadInvoiceXml({
+                            variables: { input: { id: invoiceId || '' } },
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1760447853022hb1hdiprvet')}
+                      </Button>
+                    </>
+                  )}
+                  {authorizations.canResendEmail && (
+                    <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                      {translate('text_1770392315728uyw3zhs7kzh')}
+                    </Button>
+                  )}
+                  {authorizations.canIssueCreditNote && (
                     <>
                       {isPremium ? (
                         <Tooltip
@@ -941,7 +886,7 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </>
                   )}
-                  {canRecordPayment && (
+                  {authorizations.canRecordPayment && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -977,11 +922,7 @@ const CustomerInvoiceDetails = () => {
                   >
                     {translate('text_634687079be251fdb438339b')}
                   </Button>
-                  {actions.canGeneratePaymentUrl({
-                    status,
-                    paymentStatus,
-                    customer: customer as Pick<Customer, 'paymentProvider'>,
-                  }) && (
+                  {authorizations.canGeneratePaymentUrl && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -995,7 +936,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1753384709668qrxbzpbskn8')}
                     </Button>
                   )}
-                  {actions.canUpdatePaymentStatus({ status, taxStatus }) && (
+                  {authorizations.canUpdatePaymentStatus && (
                     <>
                       <Button
                         variant="quaternary"
@@ -1020,7 +961,7 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
-                  {actions.canSyncAccountingIntegration({ integrationSyncable }) && (
+                  {authorizations.canSyncAccountingIntegration && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1037,7 +978,7 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </Button>
                   )}
-                  {actions.canSyncCRMIntegration({ integrationHubspotSyncable }) && (
+                  {authorizations.canSyncCRMIntegration && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1050,7 +991,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1729611609136sul07rowhfi')}
                     </Button>
                   )}
-                  {actions.canDispute({ status, paymentDisputeLostAt }) && (
+                  {authorizations.canDispute && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -1064,7 +1005,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_66141e30699a0631f0b2ec71')}
                     </Button>
                   )}
-                  {actions.canVoid({ status }) && (
+                  {authorizations.canVoid && (
                     <Button
                       className="w-full"
                       variant="quaternary"
@@ -1083,10 +1024,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1750678506388d4fr5etxbhh')}
                     </Button>
                   )}
-                  {actions.canRegenerate(
-                    { status, regeneratedInvoiceId, invoiceType },
-                    hasActiveWallet,
-                  ) && (
+                  {authorizations.canRegenerate && (
                     <Button
                       className="w-full"
                       variant="quaternary"
@@ -1100,7 +1038,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1750678506388oynw9hd01l9')}
                     </Button>
                   )}
-                  {actions.canSyncTaxIntegration({ taxProviderVoidable }) && (
+                  {authorizations.canSyncTaxIntegration && (
                     <Button
                       variant="quaternary"
                       align="left"

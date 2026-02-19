@@ -36,7 +36,7 @@ const BaseDialog = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    form?.submit()
+    return form?.submit()
   }
 
   const generateContent = () => {

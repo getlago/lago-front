@@ -39,6 +39,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'CreditNotesVoid',
     'CreditNotesUpdate',
     'CreditNotesExport',
+    'CreditNotesSend',
   ],
   customers: ['CustomersCreate', 'CustomersDelete', 'CustomersUpdate', 'CustomersView'],
   dataApi: ['DataApiView'],
@@ -89,6 +90,8 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'PaymentMethodsDelete',
     'PaymentMethodsUpdate',
     'PaymentMethodsView',
+    'PaymentReceiptsView',
+    'PaymentReceiptsSend',
   ],
   plans: ['PlansCreate', 'PlansDelete', 'PlansUpdate', 'PlansView'],
   pricingUnits: ['PricingUnitsCreate', 'PricingUnitsUpdate', 'PricingUnitsView'],
@@ -178,6 +181,7 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   CreditNotesUpdate: 'text_1766047581848fjq7h53nksy',
   CreditNotesView: 'text_17660475818489lrb93zbafu',
   CreditNotesVoid: 'text_1766047581848azlox6rihlr',
+  CreditNotesSend: 'text_1771003155244io0a00y67om',
 
   // Customers
   CustomersCreate: 'text_17660475818490917oik1suj',
@@ -241,6 +245,8 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   PaymentMethodsDelete: 'text_1766047581850s9h3mkqc749',
   PaymentMethodsUpdate: 'text_1766047581850pd2fl4vp3op',
   PaymentMethodsView: 'text_1766047581850j2zvnyrxs3v',
+  PaymentReceiptsSend: 'text_1771003155244j5yyywffre1',
+  PaymentReceiptsView: 'text_1771003155244uual9jklecz',
 
   // Payments
   PaymentsCreate: 'text_1766047581850ukn3u9te9qh',

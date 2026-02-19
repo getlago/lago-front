@@ -35,6 +35,7 @@ gql`
       creditNotesCreate
       creditNotesView
       creditNotesVoid
+      creditNotesSend
       customersCreate
       customersDelete
       customersUpdate
@@ -56,6 +57,7 @@ gql`
       invoicesUpdate
       invoicesView
       invoicesVoid
+      invoicesSend
       organizationEmailsUpdate
       organizationEmailsView
       organizationIntegrationsCreate
@@ -74,6 +76,8 @@ gql`
       organizationView
       paymentsCreate
       paymentsView
+      paymentReceiptsView
+      paymentReceiptsSend
       plansCreate
       plansDelete
       plansUpdate
