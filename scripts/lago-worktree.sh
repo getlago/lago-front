@@ -7,7 +7,7 @@ set -euo pipefail
 # Access via http://localhost:<port>. API is always the shared main stack.
 #
 # Usage:
-#   lago-worktree create <branch> [name]
+#   lago-worktree create <branch> [--from <base>]
 #   lago-worktree up <name>
 #   lago-worktree down <name>
 #   lago-worktree destroy <name>
@@ -31,7 +31,7 @@ find_free_port() {
   touch "$sf"
   for i in $(seq 0 99); do
     local p=$((PORT_START + i))
-    if ! grep -q ":${p}$" "$sf" 2>/dev/null && ! lsof -i ":${p}" &>/dev/null; then
+    if ! grep -q ":${p}:" "$sf" 2>/dev/null && ! lsof -i ":${p}" &>/dev/null; then
       echo "$p"
       return
     fi
@@ -39,30 +39,55 @@ find_free_port() {
   echo "Error: no free port" >&2; exit 1
 }
 
-register()   { local sf; sf="$(slot_file)"; touch "$sf"; grep -v "^${1}:" "$sf" > "$sf.tmp" 2>/dev/null || true; mv "$sf.tmp" "$sf"; echo "${1}:${2}" >> "$sf"; }
+register()   { local sf; sf="$(slot_file)"; touch "$sf"; grep -v "^${1}:" "$sf" > "$sf.tmp" 2>/dev/null || true; mv "$sf.tmp" "$sf"; echo "${1}:${2}:${3}" >> "$sf"; }
 unregister() { local sf; sf="$(slot_file)"; if [[ -f "$sf" ]]; then grep -v "^${1}:" "$sf" > "$sf.tmp" 2>/dev/null || true; mv "$sf.tmp" "$sf"; fi; }
 get_port()   { local sf; sf="$(slot_file)"; if [[ -f "$sf" ]]; then grep "^${1}:" "$sf" 2>/dev/null | head -1 | cut -d: -f2; fi; true; }
+get_base()   { local sf; sf="$(slot_file)"; if [[ -f "$sf" ]]; then local b; b="$(grep "^${1}:" "$sf" 2>/dev/null | head -1 | cut -d: -f3)"; echo "${b:-main}"; else echo "main"; fi; }
 sanitize()   { echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g'; }
 
 # --- Commands ---
 
 cmd_create() {
-  local branch="${1:-}" name="${2:-}"
-  [[ -z "$branch" ]] && { echo "Usage: lago-worktree create <branch> [name]" >&2; exit 1; }
-  [[ -z "$name" ]] && name="$(echo "$branch" | sed 's|/|-|g')"
+  local branch="" base="main"
+
+  # Parse arguments: <branch> [--from <base>]
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --from=*)
+        base="${1#--from=}"
+        [[ -z "$base" ]] && { echo "Error: --from requires a branch name." >&2; exit 1; }
+        shift ;;
+      --from)
+        [[ -z "${2:-}" ]] && { echo "Error: --from requires a branch name." >&2; exit 1; }
+        base="$2"; shift 2 ;;
+      *)
+        [[ -z "$branch" ]] && branch="$1" || { echo "Error: unexpected argument '$1'." >&2; exit 1; }
+        shift ;;
+    esac
+  done
+
+  [[ -z "$branch" ]] && { echo "Usage: lago-worktree create <branch> [--from <base>]" >&2; exit 1; }
+
+  local name
+  name="$(echo "$branch" | sed 's|/|-|g')"
+
+  # Validate base branch exists locally
+  cd "$FRONT_PATH"
+  if ! git rev-parse --verify "$base" &>/dev/null; then
+    echo "Error: base branch '$base' does not exist locally." >&2; exit 1
+  fi
 
   local wt_path="$WORKTREE_DIR/$name"
   mkdir -p "$WORKTREE_DIR"
 
-  echo "Creating worktree '$name' (branch: $branch, from main)..."
-  cd "$FRONT_PATH"
+  echo "Creating worktree '$name' (branch: $branch, from $base)..."
 
   # Clean up stale worktree/branch if leftover from a previous run
   git worktree prune 2>/dev/null || true
   git branch -D "$branch" 2>/dev/null || true
 
-  # Always create a fresh branch from main
-  git worktree add -b "$branch" "$wt_path" main
+  # Create a fresh branch from the base
+  git worktree add -b "$branch" "$wt_path" "$base"
 
   # Copy .env from main front
   if [[ -f "$FRONT_PATH/.env" ]]; then
@@ -70,11 +95,11 @@ cmd_create() {
   fi
 
   echo ""
-  cmd_up "$name"
+  cmd_up "$name" "$base"
 }
 
 cmd_up() {
-  local name="${1:-}"
+  local name="${1:-}" base="${2:-}"
   [[ -z "$name" ]] && { echo "Usage: lago-worktree up <name>" >&2; exit 1; }
 
   local wt_path="$WORKTREE_DIR/$name"
@@ -84,10 +109,13 @@ cmd_up() {
     echo "Error: Main stack not running. Run: lago up -d" >&2; exit 1
   fi
 
+  # Preserve existing base branch when called standalone (not from cmd_create)
+  [[ -z "$base" ]] && base="$(get_base "$name")"
+
   local port san compose_file
   port="$(get_port "$name")"
   [[ -z "$port" ]] && port="$(find_free_port)"
-  register "$name" "$port"
+  register "$name" "$port" "$base"
   san="$(sanitize "$name")"
   compose_file="$wt_path/docker-compose.worktree.yml"
 
@@ -209,14 +237,17 @@ cmd_ps() {
     echo ""; return
   fi
 
-  printf "  %-25s %-30s %-8s\n" "NAME" "URL" "STATUS"
-  printf "  %-25s %-30s %-8s\n" "----" "---" "------"
+  printf "  %-38s %-28s %-14s %-8s\n" "NAME" "URL" "BASE" "STATUS"
+  printf "  %-38s %-28s %-14s %-8s\n" "----" "---" "----" "------"
 
-  while IFS=: read -r n p; do
+  while IFS=: read -r n p b; do
+    [[ -z "$n" ]] && continue
+    [[ -z "$p" ]] && continue
     local san st="stopped"
     san="$(sanitize "$n")"
+    [[ -z "$b" ]] && b="main"
     docker ps --format '{{.Names}}' | grep -q "lago_front_wt_${san}" && st="running"
-    printf "  %-25s %-30s %-8s\n" "$n" "http://localhost:${p}" "$st"
+    printf "  %-38s %-28s %-14s %-8s\n" "$n" "http://localhost:${p}" "$b" "$st"
   done < "$sf"
   echo ""
 }
@@ -237,11 +268,11 @@ lago-worktree — Isolated frontend per git worktree
   Worktree:  http://localhost:<port>     (direct)
 
 Commands:
-  create <branch> [name]   Create worktree + start
-  up <name>                Start existing worktree
-  down <name>              Stop container
-  destroy <name>           Stop container + delete worktree
-  ps                       List instances
+  create <branch> [--from <base>]   Create worktree + start (default: from main)
+  up <name>                         Start existing worktree
+  down <name>                       Stop container
+  destroy <name>                    Stop container + delete worktree
+  ps                                List instances
 
 API is always shared from the main stack.
 Ports auto-assigned: 3001, 3002, 3003, ...
@@ -249,6 +280,7 @@ Browser tab title shows the worktree name.
 
 Examples:
   lago-worktree create LAGO-0001
+  lago-worktree create LAGO-0001 --from feature/payments
   lago-worktree ps
   lago-worktree down LAGO-0001
   lago-worktree destroy LAGO-0001
