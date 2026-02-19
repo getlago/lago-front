@@ -1,8 +1,18 @@
-import { DateTime } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 
 import { endOfDayIso } from '../dateUtils'
 
+const originalDefaultZone = Settings.defaultZone
+
 describe('dateUtils', () => {
+  beforeAll(() => {
+    Settings.defaultZone = 'UTC'
+  })
+
+  afterAll(() => {
+    Settings.defaultZone = originalDefaultZone
+  })
+
   describe('endOfDayIso', () => {
     it('should convert a date string to end of day ISO format', () => {
       const inputDate = '2023-12-15T10:30:00.000Z'
