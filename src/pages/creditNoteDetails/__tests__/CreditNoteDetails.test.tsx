@@ -43,10 +43,14 @@ const mockCreditNoteData = {
     refundStatus: null,
     metadata: [{ key: 'test_key', value: 'test_value' }],
     billingEntity: {
+      id: 'billing-entity-1',
+      name: 'Billing Entity',
       einvoicing: false,
+      logoUrl: null,
     },
     customer: {
       id: 'customer-123',
+      email: 'customer@example.com',
       netsuiteCustomer: null,
       xeroCustomer: null,
       anrokCustomer: null,
@@ -64,6 +68,12 @@ jest.mock('~/generated/graphql', () => ({
   useGetCreditNoteForDetailsQuery: () => mockUseGetCreditNoteForDetailsQuery(),
   useSyncIntegrationCreditNoteMutation: () => mockUseSyncIntegrationCreditNoteMutation(),
   useRetryTaxReportingMutation: () => mockUseRetryTaxReportingMutation(),
+}))
+
+jest.mock('~/hooks/useResendEmailDialog', () => ({
+  useResendEmailDialog: () => ({
+    showResendEmailDialog: jest.fn(),
+  }),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({

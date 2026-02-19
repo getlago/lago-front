@@ -126,6 +126,10 @@ export const usePermissionsInvoiceActions = () => {
     return !!invoice.taxProviderVoidable
   }
 
+  const canResendEmail = (invoice: Pick<Invoice, 'status'>): boolean => {
+    return invoice.status === InvoiceStatusTypeEnum.Finalized && hasPermissions(['invoicesSend'])
+  }
+
   return {
     canDownload,
     canFinalize,
@@ -140,5 +144,6 @@ export const usePermissionsInvoiceActions = () => {
     canSyncAccountingIntegration,
     canSyncCRMIntegration,
     canSyncTaxIntegration,
+    canResendEmail,
   }
 }
