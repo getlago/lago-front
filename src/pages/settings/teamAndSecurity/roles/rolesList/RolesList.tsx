@@ -1,5 +1,4 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,6 +6,7 @@ import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -15,7 +15,6 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { RoleItem, rolesNameMapping, systemRoles } from '~/core/constants/roles'
 import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -23,9 +22,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useRolesList } from '~/hooks/useRolesList'
-import { PageHeader } from '~/styles'
 
-import { DeleteRoleDialog, DeleteRoleDialogRef } from '../common/dialogs/DeleteRoleDialog'
+import { useDeleteRoleDialog } from '../common/dialogs/DeleteRoleDialog'
 import RoleTypeChip from '../common/RoleTypeChip'
 import { useRoleActions } from '../hooks/useRoleActions'
 
@@ -42,15 +40,11 @@ const RolesList = () => {
   const canEditRoles = hasPermissions(['rolesUpdate'])
   const canDeleteRoles = hasPermissions(['rolesDelete'])
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
+  const { openDeleteRoleDialog } = useDeleteRoleDialog()
 
   const openPremiumDialog = () => {
-    premiumWarningDialogRef.current?.openDialog()
-  }
-
-  const openDeleteRoleDialog = (role: RoleItem) => {
-    deleteRoleDialogRef.current?.openDialog(role)
+    premiumWarningDialog.open()
   }
 
   const getRoleHeaderAction = () => {
@@ -169,65 +163,54 @@ const RolesList = () => {
   }
 
   return (
-    <>
-      <PageHeader.Wrapper>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_1765448879791epmkg4xijkn')}
-        </Typography>
-      </PageHeader.Wrapper>
+    <SettingsPaddedContainer>
+      <SettingsPageHeaderContainer>
+        <Typography variant="headline">{translate('text_1765448879791epmkg4xijkn')}</Typography>
+        <Typography>{translate('text_1765449274238uzkq6xxdcev')}</Typography>
+      </SettingsPageHeaderContainer>
 
-      <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_1765448879791epmkg4xijkn')}</Typography>
-          <Typography>{translate('text_1765449274238uzkq6xxdcev')}</Typography>
-        </SettingsPageHeaderContainer>
-
-        <SettingsListWrapper>
-          {isLoadingRoles && <SettingsListItemLoadingSkeleton />}
-          {!isLoadingRoles && (
-            <SettingsListItem className="[box-shadow:none]">
-              <SettingsListItemHeader
-                label={translate('text_1765448879791epmkg4xijkn')}
-                sublabel={translate('text_1765530135524j574y0dr6bb')}
-                action={getRoleHeaderAction()}
-              />
-              <Table
-                name="roles"
-                containerSize={{ default: 0 }}
-                data={roles}
-                columns={columns}
-                isLoading={isLoadingRoles}
-                actionColumnTooltip={actionColumnTooltip}
-                actionColumn={actionColumn}
-                onRowActionLink={handleRowClick}
-              />
-            </SettingsListItem>
-          )}
-          {!hasPremiumAddon && roles.length === 0 && (
-            <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
-              <div className="flex flex-col">
-                <div className="flex flex-row items-center gap-2">
-                  <Typography variant="bodyHl" color="grey700">
-                    {translate('text_1765450549863hmt6lo6scog')}
-                  </Typography>
-                  <Icon name="sparkles" />
-                </div>
-
-                <Typography variant="caption" color="grey600">
-                  {translate('text_1732286530467gnhwm6q5ftl')}
+      <SettingsListWrapper>
+        {isLoadingRoles && <SettingsListItemLoadingSkeleton />}
+        {!isLoadingRoles && (
+          <SettingsListItem className="[box-shadow:none]">
+            <SettingsListItemHeader
+              label={translate('text_1765448879791epmkg4xijkn')}
+              sublabel={translate('text_1765530135524j574y0dr6bb')}
+              action={getRoleHeaderAction()}
+            />
+            <Table
+              name="roles"
+              containerSize={{ default: 0 }}
+              data={roles}
+              columns={columns}
+              isLoading={isLoadingRoles}
+              actionColumnTooltip={actionColumnTooltip}
+              actionColumn={actionColumn}
+              onRowActionLink={handleRowClick}
+            />
+          </SettingsListItem>
+        )}
+        {!hasPremiumAddon && roles.length === 0 && (
+          <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
+            <div className="flex flex-col">
+              <div className="flex flex-row items-center gap-2">
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_1765450549863hmt6lo6scog')}
                 </Typography>
+                <Icon name="sparkles" />
               </div>
-              <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
-                {translate('text_65ae73ebe3a66bec2b91d72d')}
-              </Button>
-            </div>
-          )}
-        </SettingsListWrapper>
-      </SettingsPaddedContainer>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <DeleteRoleDialog ref={deleteRoleDialogRef} />
-    </>
+              <Typography variant="caption" color="grey600">
+                {translate('text_1732286530467gnhwm6q5ftl')}
+              </Typography>
+            </div>
+            <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
+              {translate('text_65ae73ebe3a66bec2b91d72d')}
+            </Button>
+          </div>
+        )}
+      </SettingsListWrapper>
+    </SettingsPaddedContainer>
   )
 }
 

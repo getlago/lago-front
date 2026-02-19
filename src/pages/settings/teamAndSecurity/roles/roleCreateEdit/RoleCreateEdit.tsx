@@ -10,14 +10,15 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { RoleItem } from '~/core/constants/roles'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { ROLE_DETAILS_ROUTE, ROLES_LIST_ROUTE } from '~/core/router'
+import { ROLE_DETAILS_ROUTE, TEAM_AND_SECURITY_GROUP_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { mapFromApiToForm } from '~/pages/settings/roles/common/rolePermissionsForm/mappers/mapFromApiToForm'
+import { mapFromApiToForm } from '~/pages/settings/teamAndSecurity/roles/common/rolePermissionsForm/mappers/mapFromApiToForm'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 import { useRoleCreateEdit } from './useRoleCreateEdit'
 
+import { teamAndSecurityGroupOptions } from '../../common/teamAndSecurityConst'
 import { mapFromFormToApi } from '../common/rolePermissionsForm/mappers/mapFromFormToApi'
 import RolePermissionsForm from '../common/rolePermissionsForm/RolePermissionsForm'
 import { validationSchema } from '../common/rolePermissionsForm/validationSchema'
@@ -126,7 +127,11 @@ const RoleCreateEdit = () => {
     if (isEdition && roleId) {
       navigate(generatePath(ROLE_DETAILS_ROUTE, { roleId }))
     } else {
-      navigate(generatePath(ROLES_LIST_ROUTE))
+      navigate(
+        generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+          group: teamAndSecurityGroupOptions.roles,
+        }),
+      )
     }
   }
   const handleSubmit = (event: React.FormEvent) => {

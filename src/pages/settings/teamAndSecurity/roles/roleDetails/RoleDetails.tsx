@@ -1,5 +1,4 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -12,7 +11,7 @@ import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDial
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
-import { ROLES_LIST_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
+import { TEAM_AND_SECURITY_GROUP_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -24,7 +23,7 @@ import {
 } from '~/pages/settings/teamAndSecurity/common/teamAndSecurityConst'
 import { MenuPopper, PageHeader } from '~/styles'
 
-import { DeleteRoleDialog, DeleteRoleDialogRef } from '../common/dialogs/DeleteRoleDialog'
+import { useDeleteRoleDialog } from '../common/dialogs/DeleteRoleDialog'
 import { mapPermissionsFromRole } from '../common/rolePermissionsForm/mappers/mapPermissionsFromRole'
 import RolePermissionsForm from '../common/rolePermissionsForm/RolePermissionsForm'
 import RoleTypeChip from '../common/RoleTypeChip'
@@ -42,15 +41,10 @@ const RoleDetails = () => {
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
 
   const premiumWarningDialog = usePremiumWarningDialog()
-  const deleteRoleDialogRef = useRef<DeleteRoleDialogRef>(null)
+  const { openDeleteRoleDialog } = useDeleteRoleDialog()
 
   const openPremiumDialog = () => {
     premiumWarningDialog.open()
-  }
-
-  const openDeleteRoleDialog = () => {
-    if (!role) return
-    deleteRoleDialogRef.current?.openDialog(role)
   }
 
   const form = useAppForm({
@@ -65,6 +59,9 @@ const RoleDetails = () => {
 
   const displayName = getDisplayName(role)
   const displayDescription = getDisplayDescription(role)
+  const rolesListRoute = generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+    group: teamAndSecurityGroupOptions.roles,
+  })
   const getMembersListPath = () => {
     const basePath = generatePath(TEAM_AND_SECURITY_TAB_ROUTE, {
       group: teamAndSecurityGroupOptions.members,
@@ -79,7 +76,7 @@ const RoleDetails = () => {
       <PageHeader.Wrapper>
         <PageHeader.Group>
           <ButtonLink
-            to={ROLES_LIST_ROUTE}
+            to={rolesListRoute}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -146,7 +143,7 @@ const RoleDetails = () => {
                     fullWidth
                     align="left"
                     disabled={!canBeDeleted}
-                    onClick={openDeleteRoleDialog}
+                    onClick={() => role && openDeleteRoleDialog(role)}
                   >
                     {translate('text_6261640f28a49700f1290df5')}
                   </Button>
@@ -215,8 +212,6 @@ const RoleDetails = () => {
           )}
         </div>
       </DetailsPage.Container>
-
-      <DeleteRoleDialog ref={deleteRoleDialogRef} />
     </>
   )
 }

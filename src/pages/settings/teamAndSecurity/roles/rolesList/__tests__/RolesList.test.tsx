@@ -75,7 +75,7 @@ describe('RolesList', () => {
   it('renders page header', async () => {
     await act(() => render(<RolesList />))
 
-    expect(screen.getAllByText('text_1765448879791epmkg4xijkn')).toHaveLength(3)
+    expect(screen.getAllByText('text_1765448879791epmkg4xijkn')).toHaveLength(2)
   })
 
   it('renders roles table with correct columns', async () => {
@@ -131,7 +131,10 @@ describe('RolesList', () => {
       const createButton = screen.getByText('text_1765530400261k7yl3n4kk8h')
 
       expect(createButton).toBeInTheDocument()
-      expect(createButton.closest('a')).toHaveAttribute('href', '/settings/roles/create')
+      expect(createButton.closest('a')).toHaveAttribute(
+        'href',
+        '/settings/team-and-security/roles/create',
+      )
     })
   })
 

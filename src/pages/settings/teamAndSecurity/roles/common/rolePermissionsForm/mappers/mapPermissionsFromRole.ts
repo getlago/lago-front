@@ -1,7 +1,7 @@
 import { RoleItem } from '~/core/constants/roles'
 import { PermissionEnum } from '~/generated/graphql'
-import { allPermissions } from '~/pages/settings/roles/common/permissionsConst'
-import { PermissionName } from '~/pages/settings/roles/common/permissionsTypes'
+import { allPermissions } from '~/pages/settings/teamAndSecurity/roles/common/permissionsConst'
+import { PermissionName } from '~/pages/settings/teamAndSecurity/roles/common/permissionsTypes'
 
 export const mapPermissionsFromRole = (
   role: RoleItem | undefined,

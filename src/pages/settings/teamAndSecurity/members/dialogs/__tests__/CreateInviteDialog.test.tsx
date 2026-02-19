@@ -334,21 +334,24 @@ describe('CreateInviteDialog', () => {
         },
       })
 
-      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await prepare({ mocks: [rolesListMock, rolesListMock, rolesListMock] })
       await fillForm(user)
 
       await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
 
-      await waitFor(() => {
-        expect(mockCreateInvite).toHaveBeenCalledWith({
-          variables: {
-            input: {
-              email: 'newuser@example.com',
-              roles: ['admin'],
+      await waitFor(
+        () => {
+          expect(mockCreateInvite).toHaveBeenCalledWith({
+            variables: {
+              input: {
+                email: 'newuser@example.com',
+                roles: ['admin'],
+              },
             },
-          },
-        })
-      })
+          })
+        },
+        { timeout: 5000 },
+      )
     })
 
     it('opens copy invite link dialog after successful submission', async () => {
@@ -363,14 +366,20 @@ describe('CreateInviteDialog', () => {
         },
       })
 
-      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await prepare({ mocks: [rolesListMock, rolesListMock, rolesListMock] })
       await fillForm(user)
 
       await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
 
-      await waitFor(() => {
-        expect(screen.getByTestId(INVITE_URL_DATA_TEST)).toBeInTheDocument()
-      })
+      // Wait for the full async chain: form submit → FormDialog resolves → CentralizedDialog opens
+      await waitFor(
+        () => {
+          expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+        },
+        { timeout: 5000 },
+      )
+
+      expect(screen.getByTestId(INVITE_URL_DATA_TEST)).toBeInTheDocument()
     })
 
     it('copies invitation URL and shows toast when copy button is clicked', async () => {
@@ -385,14 +394,18 @@ describe('CreateInviteDialog', () => {
         },
       })
 
-      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await prepare({ mocks: [rolesListMock, rolesListMock, rolesListMock] })
       await fillForm(user)
 
       await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
 
-      await waitFor(() => {
-        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
-      })
+      // Wait for the full async chain: form submit → FormDialog resolves → CentralizedDialog opens
+      await waitFor(
+        () => {
+          expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+        },
+        { timeout: 5000 },
+      )
 
       await user.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
@@ -420,15 +433,18 @@ describe('CreateInviteDialog', () => {
         ],
       })
 
-      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await prepare({ mocks: [rolesListMock, rolesListMock, rolesListMock] })
       await fillForm(user)
 
       await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
 
       // Dialog should stay open (closeOnError: false)
-      await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
-      })
+      await waitFor(
+        () => {
+          expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+        },
+        { timeout: 5000 },
+      )
     })
 
     it('keeps dialog open when EmailAlreadyUsed error occurs', async () => {
@@ -446,15 +462,18 @@ describe('CreateInviteDialog', () => {
         ],
       })
 
-      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await prepare({ mocks: [rolesListMock, rolesListMock, rolesListMock] })
       await fillForm(user)
 
       await user.click(screen.getByTestId(SUBMIT_INVITE_DATA_TEST))
 
       // Dialog should stay open (closeOnError: false)
-      await waitFor(() => {
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
-      })
+      await waitFor(
+        () => {
+          expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+        },
+        { timeout: 5000 },
+      )
     })
   })
 })

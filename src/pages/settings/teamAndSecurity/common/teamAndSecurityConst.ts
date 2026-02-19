@@ -1,5 +1,6 @@
 export const teamAndSecurityGroupOptions = {
   members: 'members',
+  roles: 'roles',
 } as const
 
 export const teamAndSecurityTabOptions = {
