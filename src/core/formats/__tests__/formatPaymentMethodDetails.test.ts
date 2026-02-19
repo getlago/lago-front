@@ -1,4 +1,5 @@
-import { formatPaymentMethodDetails, OBFUSCATED_LAST4_PREFIX } from '../formatPaymentMethodDetails'
+import { formatPaymentMethodDetails } from '../formatPaymentMethodDetails'
+import { maskValue } from '../maskValue'
 
 describe('formatPaymentMethodDetails', () => {
   describe('WHEN formatting payment method details', () => {
@@ -9,7 +10,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`Card - Visa ${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`Card - Visa ${maskValue('4242', { withSpace: true })}`)
     })
 
     it('THEN returns correct format with type and brand only', () => {
@@ -29,7 +30,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`Card ${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`Card ${maskValue('4242', { withSpace: true })}`)
     })
 
     it('THEN returns correct format with brand and last4 only', () => {
@@ -39,7 +40,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`Visa ${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`Visa ${maskValue('4242', { withSpace: true })}`)
     })
 
     it('THEN returns correct format with only type', () => {
@@ -69,7 +70,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`${maskValue('4242', { withSpace: true })}`)
     })
 
     it('THEN normalizes brand with underscores to spaces and capitalizes', () => {
@@ -79,7 +80,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`Card - American Express ${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`Card - American Express ${maskValue('4242', { withSpace: true })}`)
     })
 
     it('THEN normalizes type with underscores to spaces and capitalizes', () => {
@@ -89,7 +90,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`Credit Card - Visa ${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`Credit Card - Visa ${maskValue('4242', { withSpace: true })}`)
     })
 
     it('THEN handles empty details object', () => {
@@ -117,7 +118,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`Visa ${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`Visa ${maskValue('4242', { withSpace: true })}`)
       expect(result).not.toContain(' - ')
     })
 
@@ -128,7 +129,7 @@ describe('formatPaymentMethodDetails', () => {
         last4: '4242',
       })
 
-      expect(result).toBe(`Card ${OBFUSCATED_LAST4_PREFIX} 4242`)
+      expect(result).toBe(`Card ${maskValue('4242', { withSpace: true })}`)
       expect(result).not.toContain(' - ')
     })
 

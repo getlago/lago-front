@@ -97,15 +97,18 @@ jest.mock('~/hooks/useDownloadFile', () => ({
 }))
 
 const mockDownloadInvoice = jest.fn()
-const mockRetryCollect = jest.fn()
 const mockGeneratePaymentUrl = jest.fn()
+const mockRetryInvoicePayment = jest.fn()
+const mockIsFeatureFlagActive = jest.fn()
+
+jest.mock('~/core/utils/featureFlags', () => ({
+  ...jest.requireActual('~/core/utils/featureFlags'),
+  isFeatureFlagActive: (...args: unknown[]) => mockIsFeatureFlagActive(...args),
+}))
 
 // Store callbacks to test mutation handlers
 let downloadInvoiceCallbacks: {
   onCompleted?: (data: { downloadInvoice: { fileUrl: string } | null }) => void
-} = {}
-let retryCollectCallbacks: {
-  onCompleted?: (data: { retryInvoicePayment: { id: string } | null }) => void
 } = {}
 let generatePaymentUrlCallbacks: {
   onCompleted?: (data: { generatePaymentUrl: { paymentUrl: string } | null }) => void
@@ -124,13 +127,12 @@ jest.mock('~/generated/graphql', () => ({
     downloadInvoiceCallbacks = options
     return [mockDownloadInvoice]
   },
-  useRetryInvoicePaymentMutation: (options: typeof retryCollectCallbacks) => {
-    retryCollectCallbacks = options
-    return [mockRetryCollect]
-  },
   useGeneratePaymentUrlMutation: (options: typeof generatePaymentUrlCallbacks) => {
     generatePaymentUrlCallbacks = options
     return [mockGeneratePaymentUrl]
+  },
+  useRetryInvoicePaymentMutation: () => {
+    return [mockRetryInvoicePayment, { loading: false }]
   },
 }))
 
@@ -163,6 +165,7 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
   customer: {
     __typename: 'Customer',
     id: 'customer-1',
+    externalId: 'ext-customer-1',
     name: 'John Doe',
     displayName: 'John Doe',
     applicableTimezone: TimezoneEnum.TzUtc,
@@ -189,6 +192,7 @@ const createMockInvoices = (count: number): InvoiceItem[] => {
       customer: {
         __typename: 'Customer',
         id: `customer-${index + 1}`,
+        externalId: `ext-customer-${index + 1}`,
         name: `Customer ${index + 1}`,
         displayName: `Customer ${index + 1}`,
         applicableTimezone: TimezoneEnum.TzUtc,
@@ -249,6 +253,8 @@ describe('InvoicesList', () => {
     mockCanRecordPayment.mockReturnValue(true)
     mockCanResendEmail.mockReturnValue(false)
     mockHasDefinedGQLError.mockReturnValue(false)
+    mockIsFeatureFlagActive.mockReturnValue(false)
+    mockRetryInvoicePayment.mockResolvedValue({ errors: null })
   })
 
   describe('Basic Rendering', () => {
@@ -371,7 +377,7 @@ describe('InvoicesList', () => {
             errorDetails: [
               {
                 __typename: 'ErrorDetail',
-                errorCode: 'tax_error' as any,
+                errorCode: 'tax_error' as never,
                 errorDetails: 'Tax calculation failed',
               },
             ],
@@ -1001,11 +1007,10 @@ describe('InvoicesList', () => {
       expect(finalizeButton).toBeInTheDocument()
     })
 
-    it('triggers retry collect mutation when retry action is clicked', async () => {
+    it('shows resend for collection action when canRetryCollect returns true', async () => {
       const user = userEvent.setup()
 
       mockCanRetryCollect.mockReturnValue(true)
-      mockRetryCollect.mockResolvedValue({ errors: null })
 
       await renderInvoicesList({
         invoices: [
@@ -1022,20 +1027,14 @@ describe('InvoicesList', () => {
 
       const retryButton = screen.getByRole('button', { name: 'text_63ac86d897f728a87b2fa039' })
 
-      await waitFor(() => user.click(retryButton))
-
-      expect(mockRetryCollect).toHaveBeenCalledWith({
-        variables: { input: { id: 'invoice-1' } },
-      })
+      expect(retryButton).toBeInTheDocument()
     })
 
-    it('shows info toast when retry collect returns PaymentProcessorIsCurrentlyHandlingPayment error', async () => {
+    it('opens resend for collection dialog when retry action is clicked', async () => {
       const user = userEvent.setup()
 
       mockCanRetryCollect.mockReturnValue(true)
-      mockRetryCollect.mockResolvedValue({
-        errors: [{ extensions: { code: 'PaymentProcessorIsCurrentlyHandlingPayment' } }],
-      })
+      mockIsFeatureFlagActive.mockReturnValue(true) // temporary as long as we remove the feature flag
 
       await renderInvoicesList({
         invoices: [
@@ -1054,7 +1053,10 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(retryButton))
 
-      expect(mockRetryCollect).toHaveBeenCalled()
+      // Dialog should be opened - verify by checking for dialog-title test id
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+      })
     })
 
     it('triggers generate payment URL mutation when action is clicked', async () => {
@@ -1169,6 +1171,7 @@ describe('InvoicesList', () => {
             customer: {
               __typename: 'Customer',
               id: 'customer-1',
+              externalId: 'ext-customer-1',
               name: null,
               displayName: '',
               applicableTimezone: TimezoneEnum.TzUtc,
@@ -1311,30 +1314,6 @@ describe('InvoicesList', () => {
       })
 
       expect(mockHandleDownloadFile).toHaveBeenCalledWith(undefined)
-    })
-
-    it('shows success toast when retry collect mutation completes with valid id', async () => {
-      await renderInvoicesList()
-
-      // Trigger the onCompleted callback with a valid id
-      retryCollectCallbacks.onCompleted?.({
-        retryInvoicePayment: { id: 'payment-123' },
-      })
-
-      expect(mockAddToast).toHaveBeenCalledWith({
-        severity: 'success',
-        translateKey: 'text_63ac86d897f728a87b2fa0b3',
-      })
-    })
-
-    it('does not show toast when retry collect returns null', async () => {
-      await renderInvoicesList()
-
-      retryCollectCallbacks.onCompleted?.({
-        retryInvoicePayment: null,
-      })
-
-      expect(mockAddToast).not.toHaveBeenCalled()
     })
 
     it('opens new tab when generate payment URL mutation completes with URL', async () => {
@@ -1584,38 +1563,6 @@ describe('InvoicesList', () => {
       await user.click(updateStatusButton)
 
       expect(mockCanUpdatePaymentStatus).toHaveBeenCalled()
-    })
-  })
-
-  describe('Retry Collect Error Handling', () => {
-    it('shows info toast when PaymentProcessorIsCurrentlyHandlingPayment error occurs', async () => {
-      const user = userEvent.setup()
-
-      mockCanRetryCollect.mockReturnValue(true)
-      mockHasDefinedGQLError.mockReturnValue(true)
-      mockRetryCollect.mockResolvedValue({
-        errors: [{ extensions: { code: 'PaymentProcessorIsCurrentlyHandlingPayment' } }],
-      })
-
-      await renderInvoicesList({
-        invoices: [
-          createMockInvoice({
-            status: InvoiceStatusTypeEnum.Finalized,
-            paymentStatus: InvoicePaymentStatusTypeEnum.Failed,
-          }),
-        ],
-      })
-
-      const actionButton = screen.getByTestId('open-action-button')
-
-      await waitFor(() => user.click(actionButton))
-
-      const retryButton = screen.getByRole('button', { name: 'text_63ac86d897f728a87b2fa039' })
-
-      await waitFor(() => user.click(retryButton))
-
-      // This tests line 264 - the error handling in retry collect
-      expect(mockRetryCollect).toHaveBeenCalled()
     })
   })
 

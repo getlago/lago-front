@@ -230,4 +230,92 @@ describe('PaymentMethodComboBox', () => {
       expect(data).toHaveLength(1)
     })
   })
+
+  describe('selectedValue behavior', () => {
+    describe('WHEN selectedPaymentMethod.paymentMethodId exists in the options list', () => {
+      it('THEN passes the paymentMethodId as value to ComboBox', () => {
+        prepare({
+          paymentMethodsList: [paymentMethod1, paymentMethod2],
+          selectedPaymentMethod: {
+            paymentMethodId: 'pm_001',
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+          },
+        })
+
+        const comboboxCall = mockComboBox.mock.calls[0]
+        const value = comboboxCall[0]?.value
+
+        expect(value).toBe('pm_001')
+      })
+    })
+
+    describe('WHEN selectedPaymentMethod.paymentMethodId does NOT exist in the options list', () => {
+      it('THEN passes undefined as value to ComboBox', () => {
+        prepare({
+          paymentMethodsList: [paymentMethod1, paymentMethod2],
+          selectedPaymentMethod: {
+            paymentMethodId: 'pm_nonexistent',
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+          },
+        })
+
+        const comboboxCall = mockComboBox.mock.calls[0]
+        const value = comboboxCall[0]?.value
+
+        expect(value).toBeUndefined()
+      })
+    })
+
+    describe('WHEN selectedPaymentMethod is null', () => {
+      it('THEN passes undefined as value to ComboBox', () => {
+        prepare({
+          paymentMethodsList: [paymentMethod1, paymentMethod2],
+          selectedPaymentMethod: null,
+        })
+
+        const comboboxCall = mockComboBox.mock.calls[0]
+        const value = comboboxCall[0]?.value
+
+        expect(value).toBeUndefined()
+      })
+    })
+
+    describe('WHEN selectedPaymentMethod is undefined', () => {
+      it('THEN passes undefined as value to ComboBox', () => {
+        prepare({
+          paymentMethodsList: [paymentMethod1, paymentMethod2],
+          selectedPaymentMethod: undefined,
+        })
+
+        const comboboxCall = mockComboBox.mock.calls[0]
+        const value = comboboxCall[0]?.value
+
+        expect(value).toBeUndefined()
+      })
+    })
+
+    describe('WHEN options list is empty', () => {
+      it('THEN passes undefined as value even if paymentMethodId is provided', () => {
+        mockUsePaymentMethodsList.mockReturnValue({
+          data: [],
+          loading: false,
+          error: false,
+          refetch: jest.fn(),
+        })
+
+        prepare({
+          paymentMethodsList: [],
+          selectedPaymentMethod: {
+            paymentMethodId: 'pm_001',
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+          },
+        })
+
+        const comboboxCall = mockComboBox.mock.calls[0]
+        const value = comboboxCall[0]?.value
+
+        expect(value).toBeUndefined()
+      })
+    })
+  })
 })
