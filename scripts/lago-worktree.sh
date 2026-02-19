@@ -351,7 +351,9 @@ cmd_down() {
 
   [[ -f "$compose_file" ]] && docker compose -f "$compose_file" down -v
   rm -f "$compose_file"
-  unregister "$name"
+  # NOTE: Do NOT unregister here — the slot entry preserves metadata (front_base,
+  # api_port, api_base) so that "lago-worktree up" can restore the same configuration.
+  # Unregistration happens only in cmd_destroy.
   echo "Done."
 }
 
@@ -386,6 +388,7 @@ cmd_destroy() {
 
   # 1. Stop containers + remove volumes
   cmd_down "$name"
+  unregister "$name"
 
   # 2. Remove front git worktree and branch
   cd "$FRONT_PATH"
