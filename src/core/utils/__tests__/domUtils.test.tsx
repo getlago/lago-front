@@ -9,9 +9,6 @@ import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 
 import { scrollToAndClickElement, scrollToAndExpandAccordion, scrollToTop } from '../domUtils'
 
-// Mock setTimeout to control timing in tests
-jest.useFakeTimers()
-
 // Mock scrollIntoView and scrollTo since they're not available in jsdom
 const mockScrollIntoView = jest.fn()
 const mockScrollTo = jest.fn()
@@ -53,10 +50,12 @@ const TestAppWrapper = ({ children, id }: { children: React.ReactNode; id?: stri
 
 describe('DomUtils', () => {
   beforeEach(() => {
+    jest.useFakeTimers()
     jest.clearAllMocks()
   })
 
   afterEach(() => {
+    jest.useRealTimers()
     jest.restoreAllMocks()
   })
 
