@@ -6,6 +6,7 @@ import {
   Customer,
   CustomerForInvoiceDetailsFragment,
   ErrorCodesEnum,
+  Invoice,
   LagoApiError,
 } from '~/generated/graphql'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
@@ -109,6 +110,7 @@ export const useInvoiceAuthorizations = ({
     integrationSyncable,
     integrationHubspotSyncable,
     regeneratedInvoiceId,
+    billingEntity,
   } = (invoice || {}) as AllInvoiceDetailsForCustomerInvoiceDetailsFragment
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
@@ -154,7 +156,10 @@ export const useInvoiceAuthorizations = ({
         hasActiveWallet,
       ),
       canSyncTaxIntegration: actions.canSyncTaxIntegration({ taxProviderVoidable }),
-      canResendEmail: actions.canResendEmail({ status }),
+      canResendEmail: actions.canResendEmail({
+        status,
+        billingEntity: billingEntity as Invoice['billingEntity'],
+      }),
     }
   }, [
     hasTaxProviderError,
@@ -174,6 +179,7 @@ export const useInvoiceAuthorizations = ({
     invoiceType,
     hasActiveWallet,
     taxProviderVoidable,
+    invoice,
   ])
 
   return {

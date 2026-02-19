@@ -46,6 +46,7 @@ import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   FeatureFlagEnum,
+  Invoice,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
@@ -108,6 +109,7 @@ gql`
       name
       code
       einvoicing
+      emailSettings
     }
     payments {
       createdAt
@@ -509,7 +511,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               },
               canDownloadOrFinalize(),
 
-              canResendEmail(invoice)
+              canResendEmail(invoice as Invoice)
                 ? {
                     startIcon: 'at',
                     title: translate('text_1770392315728uyw3zhs7kzh'),
