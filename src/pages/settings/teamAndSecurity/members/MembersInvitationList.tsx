@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -16,20 +16,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
-import {
-  CreateInviteDialog,
-  CreateInviteDialogRef,
-} from '~/pages/settings/members/dialogs/CreateInviteDialog'
-import {
-  EditInviteRoleDialog,
-  EditInviteRoleDialogRef,
-} from '~/pages/settings/members/dialogs/EditInviteRoleDialog'
-import {
-  RevokeInviteDialog,
-  RevokeInviteDialogRef,
-} from '~/pages/settings/members/dialogs/RevokeInviteDialog'
 
 import MembersFilters from './common/MembersFilters'
+import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
+import { useEditInviteRoleDialog } from './dialogs/EditInviteRoleDialog'
+import { useRevokeInviteDialog } from './dialogs/RevokeInviteDialog'
 import { useGetMembersInvitationList } from './hooks/useGetMembersInvitationsList'
 
 type Invitation = GetInvitesQuery['invites']['collection'][0]
@@ -63,9 +54,9 @@ const MembersInvitationList = () => {
 
   const RolesColumn = getRolesColumn(roles, getDisplayName)
 
-  const editInviteRoleDialogRef = useRef<EditInviteRoleDialogRef>(null)
-  const createInviteDialogRef = useRef<CreateInviteDialogRef>(null)
-  const revokeInviteDialogRef = useRef<RevokeInviteDialogRef>(null)
+  const { openCreateInviteDialog } = useCreateInviteDialog()
+  const { openEditInviteRoleDialog } = useEditInviteRoleDialog()
+  const { openRevokeInviteDialog } = useRevokeInviteDialog()
 
   const [searchParams] = useSearchParams()
 
@@ -126,9 +117,7 @@ const MembersInvitationList = () => {
             startIcon: 'pen',
             title: translate('text_664f035a68227f00e261b7f6'),
             onAction: () => {
-              editInviteRoleDialogRef.current?.openDialog({
-                invite,
-              })
+              openEditInviteRoleDialog(invite)
             },
           } as ActionItem<InviteItemForMembersSettingsFragment>,
         ]
@@ -158,7 +147,7 @@ const MembersInvitationList = () => {
             startIcon: 'trash',
             title: translate('text_63208c701ce25db78140745e'),
             onAction: () => {
-              revokeInviteDialogRef?.current?.openDialog({
+              openRevokeInviteDialog({
                 id: invite.id,
                 email: invite.email,
                 organizationName: invite.organization.name,
@@ -169,10 +158,6 @@ const MembersInvitationList = () => {
       : []
 
     return [...editAction, duplicateAction, ...deleteAction]
-  }
-
-  const openCreateInviteDialog = () => {
-    createInviteDialogRef.current?.openDialog()
   }
 
   const getTablePlaceholder = () => {
@@ -233,9 +218,6 @@ const MembersInvitationList = () => {
           actionColumn={actionColumn}
         />
       </InfiniteScroll>
-      <RevokeInviteDialog ref={revokeInviteDialogRef} />
-      <EditInviteRoleDialog ref={editInviteRoleDialogRef} />
-      <CreateInviteDialog ref={createInviteDialogRef} />
     </div>
   )
 }

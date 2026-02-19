@@ -60,29 +60,23 @@ jest.mock('~/hooks/useRolesList', () => ({
 }))
 
 // Mock dialog components to avoid complexity
-jest.mock('../dialogs/EditInviteRoleDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('../dialogs/EditInviteRoleDialog', () => ({
+  useEditInviteRoleDialog: () => ({
+    openEditInviteRoleDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'EditInviteRoleDialog'
-  return { EditInviteRoleDialog: MockDialog }
-})
+jest.mock('../dialogs/RevokeInviteDialog', () => ({
+  useRevokeInviteDialog: () => ({
+    openRevokeInviteDialog: jest.fn(),
+  }),
+}))
 
-jest.mock('../dialogs/RevokeInviteDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'RevokeInviteDialog'
-  return { RevokeInviteDialog: MockDialog }
-})
-
-jest.mock('../dialogs/CreateInviteDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'CreateInviteDialog'
-  return { CreateInviteDialog: MockDialog }
-})
+jest.mock('../dialogs/CreateInviteDialog', () => ({
+  useCreateInviteDialog: () => ({
+    openCreateInviteDialog: jest.fn(),
+  }),
+}))
 
 const mockInvitations = [
   {

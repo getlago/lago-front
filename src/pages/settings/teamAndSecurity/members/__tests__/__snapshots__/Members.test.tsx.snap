@@ -2,16 +2,6 @@
 
 exports[`Members Snapshot matches snapshot 1`] = `
 <div>
-  <header
-    class="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white px-17 shadow-b md:px-12"
-  >
-    <div
-      class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
-      data-test="bodyHl"
-    >
-      Members
-    </div>
-  </header>
   <div
     class="container flex flex-col gap-12 pb-20 pt-8"
   >

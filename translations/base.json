@@ -1035,7 +1035,6 @@
   "text_63208c701ce25db78140749b": "To generate a link for inviting a member to this organization, please enter the member’s email and select a role.",
   "text_63208c701ce25db7814074ab": "Email address",
   "text_63208c711ce25db7814074c1": "jane@banco.com",
-  "text_63208c711ce25db7814074cd": "Cancel",
   "text_63208c711ce25db7814074d9": "Generate invitation link",
   "text_63208c701ce25db781407485": "An error occurred, we can’t create an invitation link right now.",
   "text_63208c701ce25db78140743a": "Copy and send the generated link to this member to join {{organizationName}}.",
@@ -3815,5 +3814,6 @@
   "text_1771003155244j5yyywffre1": "Send a payment receipt",
   "text_17712489384641tbh5v5biae": "Email couldn't be sent. Please try again later",
   "text_1771317709944fi3nu3lw2gy": "Resend email",
-  "text_1771324685216i5c7k3bdv6t": "You need to resend this email to at least one person"
+  "text_1771324685216i5c7k3bdv6t": "You need to resend this email to at least one person",
+  "text_177073440645951fhlh2ofdc": "Team & Security"
 }
