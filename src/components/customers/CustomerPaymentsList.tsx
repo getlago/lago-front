@@ -15,6 +15,7 @@ import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { isInvoice, isPaymentRequest } from '~/core/utils/payableUtils'
 import {
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   GetPaymentsListQuery,
   GetPaymentsListQueryHookResult,
@@ -23,6 +24,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
+import { usePermissions } from '~/hooks/usePermissions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
 interface CustomerPaymentsListProps {
   payments: PaymentForPaymentsListFragment[]
@@ -39,7 +42,11 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
 }) => {
   const { translate } = useInternationalization()
 
+  const { hasPermissions } = usePermissions()
   const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
+
+  const { showResendEmailDialog } = useResendEmailDialog()
+  const canResendEmail = hasPermissions(['paymentReceiptsSend'])
 
   return (
     <InfiniteScroll
@@ -58,7 +65,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
         data={payments}
         containerSize={{ default: 4 }}
         isLoading={loading}
-        actionColumn={({ paymentReceipt }) => {
+        actionColumn={({ paymentReceipt, customer }) => {
           return [
             {
               startIcon: 'duplicate',
@@ -78,6 +85,25 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
                   onAction: ({ paymentReceipt: _paymentReceipt }) => {
                     downloadPaymentReceipts({
                       paymentReceiptId: _paymentReceipt?.id,
+                    })
+                  },
+                  disabled: !paymentReceipt?.id,
+                }
+              : null,
+            canResendEmail
+              ? {
+                  startIcon: 'at',
+                  title: translate('text_1770392315728uyw3zhs7kzh'),
+                  onAction: ({ paymentReceipt: _paymentReceipt }) => {
+                    showResendEmailDialog({
+                      subject: translate('text_1770631139987tf8b59zentb', {
+                        organization: customer?.billingEntity.name,
+                        receiptNumber: _paymentReceipt?.number,
+                      }),
+                      type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+                      billingEntity: customer?.billingEntity,
+                      documentId: _paymentReceipt?.id,
+                      customerEmail: customer.email,
                     })
                   },
                   disabled: !paymentReceipt?.id,

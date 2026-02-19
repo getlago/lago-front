@@ -794,6 +794,44 @@ describe('usePermissionsInvoiceActions', () => {
     })
   })
 
+  describe('canResendEmail', () => {
+    it('should return true when invoice is finalized and has invoicesSend permission', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Finalized })).toBe(true)
+    })
+
+    it('should return false when invoice is not finalized', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
+    })
+
+    it('should return false when invoice is voided', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Voided })).toBe(false)
+    })
+
+    it('should return false when invoice is pending', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Pending })).toBe(false)
+    })
+
+    it('should return false when invoice is failed', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Failed })).toBe(false)
+    })
+
+    it('should return false when user does not have invoicesSend permission', async () => {
+      const { result } = await prepare({ invoicesSend: false })
+
+      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Finalized })).toBe(false)
+    })
+  })
+
   describe('integration tests', () => {
     it('should return all expected methods from the hook', async () => {
       const { result } = await prepare()
@@ -811,6 +849,7 @@ describe('usePermissionsInvoiceActions', () => {
       expect(typeof result.current.canSyncAccountingIntegration).toBe('function')
       expect(typeof result.current.canSyncCRMIntegration).toBe('function')
       expect(typeof result.current.canSyncTaxIntegration).toBe('function')
+      expect(typeof result.current.canResendEmail).toBe('function')
     })
 
     it('should handle complex invoice scenarios correctly', async () => {
