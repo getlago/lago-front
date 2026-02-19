@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom'
-import { act, render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -396,7 +395,7 @@ describe('DomUtils', () => {
   })
 
   describe('scrollToTop', () => {
-    it('should scroll to the top of the page', async () => {
+    it('should scroll to the top of the page', () => {
       render(
         <TestAppWrapper>
           <Button
@@ -410,7 +409,7 @@ describe('DomUtils', () => {
         </TestAppWrapper>,
       )
 
-      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+      fireEvent.click(screen.getByTestId('scroll-test-button'))
 
       act(() => {
         jest.advanceTimersByTime(0)
@@ -422,7 +421,7 @@ describe('DomUtils', () => {
       })
     })
 
-    it('should scroll to the top of the page with a custom selector', async () => {
+    it('should scroll to the top of the page with a custom selector', () => {
       render(
         <TestAppWrapper id="scroll-test-button">
           <Button
@@ -436,7 +435,7 @@ describe('DomUtils', () => {
         </TestAppWrapper>,
       )
 
-      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+      fireEvent.click(screen.getByTestId('scroll-test-button'))
 
       act(() => {
         jest.advanceTimersByTime(0)
@@ -448,7 +447,7 @@ describe('DomUtils', () => {
       })
     })
 
-    it('should not scroll if the selector does not exist', async () => {
+    it('should not scroll if the selector does not exist', () => {
       render(
         <TestAppWrapper>
           <Button
@@ -462,7 +461,7 @@ describe('DomUtils', () => {
         </TestAppWrapper>,
       )
 
-      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+      fireEvent.click(screen.getByTestId('scroll-test-button'))
 
       act(() => {
         jest.advanceTimersByTime(0)
