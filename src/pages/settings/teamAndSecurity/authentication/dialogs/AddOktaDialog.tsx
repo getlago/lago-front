@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
-import { zodDomain, zodHost } from '~/formValidation/zodCustoms'
+import { zodDomain, zodOptionalHost } from '~/formValidation/zodCustoms'
 import {
   AddOktaIntegrationDialogFragment,
   AuthenticationMethodsEnum,
@@ -66,7 +66,7 @@ const defaultFormValues: CreateOktaIntegrationInput = {
 
 const validationSchema = z.object({
   domain: zodDomain,
-  host: zodHost.optional(),
+  host: zodOptionalHost,
   clientId: z.string(),
   clientSecret: z.string(),
   organizationName: z.string(),
@@ -174,7 +174,7 @@ export const useAddOktaDialog = () => {
           isEdition ? 'text_664c8fa719b5e7ad81c86019' : 'text_664c732c264d7eed1c74fd8e',
         ),
         children: (
-          <div className="mb-8 flex flex-col gap-6">
+          <div className="flex flex-col gap-6 p-8">
             <form.AppField name="domain">
               {(field) => (
                 <field.TextInputField

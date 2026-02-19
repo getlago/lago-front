@@ -37,6 +37,13 @@ export const zodHost = z.string().refine((val) => {
   return validateHostWithoutProtocol(val)
 }, 'text_664c732c264d7eed1c74fdd3')
 
+export const zodOptionalHost = z.string().refine((val) => {
+  if (typeof val !== 'string') return false
+  if (!val.length) return true
+
+  return validateHostWithoutProtocol(val)
+}, 'text_664c732c264d7eed1c74fdd3')
+
 export const zodOptionalUrl = z.string().refine((value) => {
   if (!value) return true
 
