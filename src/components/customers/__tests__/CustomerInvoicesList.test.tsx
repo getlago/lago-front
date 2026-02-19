@@ -77,6 +77,7 @@ const createMockInvoice = (
     id: 'billing-1',
     name: 'Billing Entity',
     code: 'BE-001',
+    einvoicing: false,
   },
   ...overrides,
 })
