@@ -18,6 +18,11 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import {
+  ResendInvoiceForCollectionDialog,
+  ResendInvoiceForCollectionDialogRef,
+} from '~/components/invoices/ResendInvoiceForCollectionDialog'
+import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -37,12 +42,14 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
+  InvoiceForResendInvoiceForCollectionDialogFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
@@ -83,6 +90,7 @@ gql`
     regeneratedInvoiceId
     customer {
       id
+      externalId
       name
       displayName
       applicableTimezone
@@ -100,9 +108,14 @@ gql`
       code
       einvoicing
     }
+    payments {
+      createdAt
+      paymentMethodId
+    }
 
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
+    ...InvoiceForResendInvoiceForCollectionDialog
   }
 
   fragment InvoiceForInvoiceList on InvoiceCollection {
@@ -143,6 +156,7 @@ gql`
 
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+  ${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}
 `
 
 interface CustomerInvoicesListProps {
@@ -168,14 +182,16 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
   const { handleDownloadFile, openNewTab } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-    onCompleted({ retryInvoicePayment }) {
-      if (!!retryInvoicePayment?.id) {
+    onCompleted({ retryInvoicePayment: data }) {
+      if (data?.id) {
         addToast({
           severity: 'success',
           translateKey: 'text_63ac86d897f728a87b2fa0b3',
@@ -183,6 +199,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
       }
     },
   })
+
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
       handleDownloadFile(data?.fileUrl)
@@ -520,22 +537,31 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 ? {
                     startIcon: 'push',
                     title: translate('text_63ac86d897f728a87b2fa039'),
-                    onAction: async ({ id }) => {
-                      const { errors } = await retryCollect({
-                        variables: {
-                          input: {
-                            id,
-                          },
-                        },
-                      })
-
-                      if (
-                        hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)
-                      ) {
-                        addToast({
-                          severity: 'info',
-                          translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                    onAction: async () => {
+                      if (hasAccessToMultiPaymentFlow) {
+                        resendInvoiceForCollectionDialogRef.current?.openDialog({
+                          invoice,
+                          preselectedPaymentMethodId: getMostRecentPaymentMethodId(
+                            invoice?.payments,
+                          ),
                         })
+                      } else {
+                        const { errors } = await retryCollect({
+                          variables: {
+                            input: {
+                              id: invoice.id,
+                            },
+                          },
+                        })
+
+                        if (
+                          hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)
+                        ) {
+                          addToast({
+                            severity: 'info',
+                            translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                          })
+                        }
                       }
                     },
                   }
@@ -612,6 +638,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>
   )
 }
