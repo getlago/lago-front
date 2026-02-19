@@ -32,6 +32,8 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canVoid: () => false,
     canIssueCreditNote: () => false,
     canRecordPayment: () => false,
+    canResendEmail: () => false,
+    canRegenerate: () => false,
   }),
 }))
 
