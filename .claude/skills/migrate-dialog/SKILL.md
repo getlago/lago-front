@@ -1,6 +1,6 @@
 ---
 name: migrate-dialog
-description: Migrate a dialog component from the legacy imperative ref-based Dialog system to the new hook-based NiceModal dialog system (FormDialog or CentralizedDialog). This skill focuses only on the migration — testing is handled separately.
+description: Migrate a dialog component from the legacy imperative ref-based Dialog system to the new hook-based NiceModal dialog system (FormDialog, CentralizedDialog, or FormDialogOpeningDialog). This skill focuses only on the migration — testing is handled separately.
 user-invocable: true
 argument-hint: '<path-to-dialog>'
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
@@ -12,7 +12,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
 
 > **Important:** If no path was provided above (empty or missing), use the AskUserQuestion tool to ask the user for the path to the dialog they want to migrate before proceeding.
 
-This skill guides the migration of dialog components from the legacy imperative ref-based system (`forwardRef` + `useImperativeHandle` + `Dialog` from design system) to the new hook-based NiceModal system (`useFormDialog` / `useCentralizedDialog`).
+This skill guides the migration of dialog components from the legacy imperative ref-based system (`forwardRef` + `useImperativeHandle` + `Dialog` from design system) to the new hook-based NiceModal system (`useFormDialog` / `useCentralizedDialog` / `useFormDialogOpeningDialog`).
 
 > **Note:** This skill only handles the migration of the dialog and its parent component(s). Tests should be updated separately using a dedicated testing skill.
 
@@ -24,10 +24,11 @@ Before starting, gather context by reading these reference files:
 
 1. **FormDialog**: `src/components/dialogs/FormDialog.tsx` - Dialog with form support
 2. **CentralizedDialog**: `src/components/dialogs/CentralizedDialog.tsx` - Simple action/confirmation dialog
-3. **BaseDialog**: `src/components/dialogs/BaseDialog.tsx` - Underlying dialog component
-4. **Dialog Types**: `src/components/dialogs/types.ts` - `DialogResult`, `HookDialogReturnType`, `FormProps`
-5. **Dialog Constants**: `src/components/dialogs/const.ts` - Dialog names and test IDs
-6. **Registered Dialogs**: `src/core/dialogs/registeredDialogs.ts` - NiceModal registration
+3. **FormDialogOpeningDialog**: `src/components/dialogs/FormDialogOpeningDialog.tsx` - Form dialog that can also open a secondary CentralizedDialog (e.g., delete from within edit)
+4. **BaseDialog**: `src/components/dialogs/BaseDialog.tsx` - Underlying dialog component
+5. **Dialog Types**: `src/components/dialogs/types.ts` - `DialogResult`, `HookDialogReturnType`, `FormProps`
+6. **Dialog Constants**: `src/components/dialogs/const.ts` - Dialog names and test IDs
+7. **Registered Dialogs**: `src/core/dialogs/registeredDialogs.ts` - NiceModal registration
 
 ### Migration Examples
 
@@ -35,6 +36,7 @@ Before starting, gather context by reading these reference files:
 8. **FormDialog Example 2**: `src/pages/settings/teamAndSecurity/members/dialogs/EditInviteRoleDialog.tsx` - Hook-based FormDialog (simpler)
 9. **CentralizedDialog Example**: `src/pages/settings/teamAndSecurity/members/dialogs/RevokeInviteDialog.tsx` - Hook-based CentralizedDialog
 10. **CentralizedDialog Example 2**: `src/pages/settings/teamAndSecurity/members/dialogs/RevokeMembershipDialog.tsx` - CentralizedDialog with conditional behavior
+11. **FormDialogOpeningDialog Example**: `src/pages/settings/teamAndSecurity/authentication/dialogs/AddOktaDialog.tsx` - Form dialog with optional secondary action (delete from within edit)
 
 ---
 
@@ -62,6 +64,7 @@ Before starting, gather context by reading these reference files:
 | Has a single action button (confirm/copy/etc.) | `useCentralizedDialog`                              | Dialog is for confirmation or simple action             |
 | Uses `useCentralizedDialog`                    | Confirmation/warning dialogs with danger/info modes |
 | Chains to another dialog after success         | Both                                                | Use FormDialog for the form, chain to CentralizedDialog |
+| Form dialog + optional secondary action button (e.g., delete from edit) | `useFormDialogOpeningDialog` | Form dialog with a danger/action button that opens a CentralizedDialog |
 
 #### Step 1.3: Find All Usages
 
@@ -208,6 +211,130 @@ export const useMyDialog = () => {
 }
 ```
 
+**New Pattern (hook-based with FormDialogOpeningDialog):**
+
+Use this when a form dialog also needs a secondary action button (typically a danger button like "Delete") that opens a CentralizedDialog. This combines FormDialog behavior (form fields, validation, submit) with the ability to open another dialog from within.
+
+```typescript
+export const useMyFormDialog = () => {
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
+  const { translate } = useInternationalization()
+  // ... other hooks (mutations for both form submit AND secondary action)
+  const dataRef = useRef<MyData | null>(null)
+  const successRef = useRef(false)
+
+  // Mutation for the form submit
+  const [updateItem] = useUpdateItemMutation({
+    onCompleted: (res) => {
+      if (!res.updateItem) return
+      successRef.current = true
+      dataRef.current?.callback?.(res.updateItem.id)
+      addToast({ severity: 'success', message: translate('...') })
+    },
+  })
+
+  // Mutation for the secondary action (e.g., delete)
+  const [deleteItem] = useDeleteItemMutation()
+
+  const form = useAppForm({
+    defaultValues: initialValues,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: validationSchema },
+    onSubmit: async ({ value }) => {
+      await updateItem({
+        variables: { input: { ...value, id: dataRef.current?.id as string } },
+      })
+    },
+  })
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
+
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openMyFormDialog = (data: MyData) => {
+    dataRef.current = data
+    const isEdition = !!data.existingItem
+
+    form.reset()
+    if (data.existingItem) {
+      form.setFieldValue('fieldName', data.existingItem.fieldValue || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(isEdition ? '...' : '...'),
+        description: translate('...'),
+        children: (
+          <div className="...">
+            <form.AppField name="fieldName">
+              {(field) => <field.TextInputField label={translate('...')} />}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('...')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: MY_FORM_ID,
+          submit: handleSubmit,
+        },
+        // Secondary action button (conditionally shown)
+        canOpenDialog: isEdition && !!data.deleteCallback && someCondition,
+        openDialogText: translate('...'), // e.g., "Delete integration"
+        otherDialogProps: {
+          title: translate('...'),
+          description: translate('...'),
+          colorVariant: 'danger',
+          actionText: translate('...'),
+          onAction: async () => {
+            const result = await deleteItem({
+              variables: { input: { id: data.existingItem?.id ?? '' } },
+            })
+
+            if (result.data?.deleteItem) {
+              data.deleteCallback?.()
+              addToast({ severity: 'success', message: translate('...') })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openMyFormDialog }
+}
+```
+
+**Key differences from FormDialog:**
+
+- Uses `useFormDialogOpeningDialog()` instead of `useFormDialog()`
+- Adds `canOpenDialog`, `openDialogText`, and `otherDialogProps` to the open call
+- `canOpenDialog` controls whether the secondary danger button is visible
+- `otherDialogProps` is a `CentralizedDialogProps` object (title, description, actionText, onAction, colorVariant)
+- The `.then()` handler should also check for `response.reason === 'open-other-dialog'` for cleanup
+- The secondary action's mutation (e.g., delete) is instantiated in the same hook, alongside the form's mutation
+
+**When to use FormDialogOpeningDialog vs FormDialog:**
+
+- Use `FormDialog` when the dialog only has form fields and a submit button
+- Use `FormDialogOpeningDialog` when the dialog has form fields AND a secondary action button (typically danger/delete) that should open a confirmation dialog
+- The secondary action button appears at the left side of the dialog actions bar (opposite the cancel/submit buttons)
+
 #### Step 2.2: Key Migration Decisions
 
 **Handling `localData` state:**
@@ -258,6 +385,14 @@ Or (for CentralizedDialog):
 
 ```typescript
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
+```
+
+Or (for FormDialogOpeningDialog):
+
+```typescript
+import { useRef } from 'react'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
 ```
 
 #### Step 2.4: Remove Old Exports
@@ -397,6 +532,16 @@ type CentralizedDialogProps = {
 }
 ```
 
+### FormDialogOpeningDialogProps
+
+```typescript
+type FormDialogOpeningDialogProps = FormDialogProps & {
+  canOpenDialog?: boolean         // Controls visibility of the secondary action button
+  openDialogText: string          // Label for the secondary action button (e.g., "Delete integration")
+  otherDialogProps: CentralizedDialogProps  // Props passed to the CentralizedDialog that opens
+}
+```
+
 ---
 
 ## Checklist
@@ -404,21 +549,24 @@ type CentralizedDialogProps = {
 ### Phase 1: Analysis
 
 - [ ] Read the target dialog file completely
-- [ ] Determine dialog type (FormDialog vs CentralizedDialog)
+- [ ] Determine dialog type (FormDialog vs CentralizedDialog vs FormDialogOpeningDialog)
 - [ ] Find all usages of the dialog (parent components)
 - [ ] Identify data passed via `openDialog`
 - [ ] Identify any props passed to the dialog component
+- [ ] (FormDialogOpeningDialog) Identify if the dialog has a secondary action button (e.g., delete from edit) that opens another dialog
 
 ### Phase 2: Implementation
 
 - [ ] Convert `forwardRef` component to custom hook (`useMyDialog`)
-- [ ] Replace `useState(localData)` with `useRef` (for FormDialog) or function parameter (for CentralizedDialog)
-- [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()` or `useCentralizedDialog()`
-- [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog)
-- [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog)
+- [ ] Replace `useState(localData)` with `useRef` (for FormDialog/FormDialogOpeningDialog) or function parameter (for CentralizedDialog)
+- [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()`, `useCentralizedDialog()`, or `useFormDialogOpeningDialog()`
+- [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
+- [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog/FormDialogOpeningDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
 - [ ] Update parent components (replace ref with hook, remove JSX rendering)
 - [ ] Move any component props to open function data
+- [ ] (FormDialogOpeningDialog) Configure `canOpenDialog`, `openDialogText`, and `otherDialogProps`
+- [ ] (FormDialogOpeningDialog) Handle `response.reason === 'open-other-dialog'` in `.then()` for cleanup
 
 ### Phase 3: Verification
 
