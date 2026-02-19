@@ -46,7 +46,6 @@ import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
-  Invoice,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
@@ -509,7 +508,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               },
               canDownloadOrFinalize(),
 
-              canResendEmail(invoice as Invoice)
+              canResendEmail(invoice)
                 ? {
                     startIcon: 'at',
                     title: translate('text_1770392315728uyw3zhs7kzh'),

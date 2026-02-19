@@ -251,9 +251,7 @@ const InvoicesList = ({
         }
       : null
 
-    const resendEmailAction: ActionItem<InvoiceItem> | null = actions.canResendEmail(
-      invoice as Invoice,
-    )
+    const resendEmailAction: ActionItem<InvoiceItem> | null = actions.canResendEmail(invoice)
       ? {
           startIcon: 'at',
           title: translate('text_1770392315728uyw3zhs7kzh'),

@@ -5,7 +5,6 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   BillingEntityEmailSettingsEnum,
   GetCurrentUserInfosDocument,
-  Invoice,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
@@ -802,14 +801,14 @@ describe('usePermissionsInvoiceActions', () => {
       name: 'Test',
       code: 'test',
       emailSettings: [BillingEntityEmailSettingsEnum.InvoiceFinalized],
-    } as Invoice['billingEntity']
+    }
 
     const billingEntityWithoutEmailSettings = {
       id: '1',
       name: 'Test',
       code: 'test',
       emailSettings: [] as BillingEntityEmailSettingsEnum[],
-    } as Invoice['billingEntity']
+    }
 
     it('should return true when invoice is finalized, has invoicesSend permission, and email scenario is active', async () => {
       const { result } = await prepare()
