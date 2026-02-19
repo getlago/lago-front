@@ -23,9 +23,6 @@ Before starting, gather context by reading these reference files:
 5. **Complex Validation Schema**: `src/pages/createCustomers/formInitialization/validationSchema.ts` - Nested Zod schemas with refinements
 6. **Sub-component with withForm**: `src/pages/createCustomers/customerInformation/CustomerInformation.tsx` - HOC pattern
 
-### Test Examples
-7. **TanStack Form Test**: `src/pages/createCustomers/__tests__/CreateCustomer.test.tsx` - Complete test example for TanStack forms
-
 ---
 
 ## Migration Steps
@@ -526,355 +523,25 @@ const form = useAppForm({
 
 **CRITICAL: This phase is mandatory. Never skip test migration/creation.**
 
-#### IMPORTANT: Use data-test Attributes (Not Translation Keys)
+After completing Phases 1-3 and verifying the form migration works correctly, invoke the `/make-tests` skill to handle test creation or migration.
 
-**Tests must NOT reference translation keys directly.** Instead:
-1. Export `data-test` ID constants from the component
-2. Import these constants in tests
-3. Use `getByTestId()` instead of `getByText()` with translation keys
+Pass the local branch name (not yet pushed to origin) so the skill can automatically detect all modified files:
 
-**Why?**
-- Translation keys can change without affecting functionality
-- `data-test` attributes are explicit contracts for testing
-- Tests become independent of i18n implementation
-
-**How to implement:**
-
-1. **Define constants in the component file:**
-```typescript
-// Export data-test constants at the top of the component file
-export const MY_FORM_TEST_ID = 'my-form'
-export const MY_FORM_TITLE_TEST_ID = 'my-form-title'
-export const MY_FORM_NAME_INPUT_TEST_ID = 'my-form-name-input'
-export const MY_FORM_SUBMIT_BUTTON_TEST_ID = 'my-form-submit-button'
-export const MY_FORM_CANCEL_BUTTON_TEST_ID = 'my-form-cancel-button'
-export const MY_FORM_LOADING_SKELETON_TEST_ID = 'my-form-loading-skeleton'
+```
+/make-tests <local-branch-name>
 ```
 
-2. **Add data-test attributes to JSX elements:**
-```tsx
-<div data-test={MY_FORM_TEST_ID}>
-  <Typography data-test={MY_FORM_TITLE_TEST_ID}>
-    {translate('form.title')}
-  </Typography>
-
-  <form.AppField name="name">
-    {(field) => (
-      <field.TextInputField
-        label={translate('form.name')}
-        data-test={MY_FORM_NAME_INPUT_TEST_ID}
-      />
-    )}
-  </form.AppField>
-
-  {/* For form.SubmitButton, use camelCase dataTest prop */}
-  <form.SubmitButton dataTest={MY_FORM_SUBMIT_BUTTON_TEST_ID}>
-    {translate('form.submit')}
-  </form.SubmitButton>
-</div>
+**Example:**
+```
+/make-tests feature/migrate-customer-form-to-tanstack
 ```
 
-3. **Note about special components:**
-   - `form.SubmitButton` uses `dataTest` prop (camelCase), not `data-test`
-   - For components that don't support `data-test` (like `Table`), wrap them in a `<div>` with the attribute
-
-4. **Import and use in tests:**
-```typescript
-import {
-  MY_FORM_TEST_ID,
-  MY_FORM_TITLE_TEST_ID,
-  MY_FORM_NAME_INPUT_TEST_ID,
-  MY_FORM_SUBMIT_BUTTON_TEST_ID,
-} from '../MyFormComponent'
-
-// Use getByTestId instead of getByText
-expect(screen.getByTestId(MY_FORM_TEST_ID)).toBeInTheDocument()
-expect(screen.getByTestId(MY_FORM_TITLE_TEST_ID)).toBeInTheDocument()
-```
-
-#### Step 4.1: Check for Existing Tests
-
-1. **Locate existing test files**:
-   ```bash
-   # Look for tests in the same directory
-   ls -la src/pages/<path>/<formName>/__tests__/
-
-   # Or search for test files by component name
-   find src -name "*<FormName>*.test.tsx"
-   ```
-
-2. **Determine test scope**:
-   - If tests exist → Migrate them to TanStack Form patterns
-   - If no tests exist → Create basic test coverage
-
-#### Step 4.2: Migrate Existing Tests from Formik
-
-**Before (Formik mock pattern):**
-```typescript
-const createMockFormikProps = (overrides: Record<string, unknown> = {}) => ({
-  values: { name: '', email: '' },
-  errors: {},
-  touched: {},
-  isSubmitting: false,
-  isValid: true,
-  dirty: false,
-  handleBlur: jest.fn(),
-  handleChange: jest.fn(),
-  handleSubmit: jest.fn(),
-  setFieldValue: jest.fn(),
-  // ... many more mocked methods
-  ...overrides,
-})
-
-const renderComponent = (formikOverrides = {}) => {
-  const formikProps = createMockFormikProps(formikOverrides)
-  return render(
-    <MyFormComponent formikProps={formikProps} />,
-    { wrapper: AllTheProviders }
-  )
-}
-```
-
-**After (TanStack Form - no mocking needed):**
-```typescript
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { AllTheProviders, TestMocksType } from '~/test-utils'
-
-import MyFormComponent, {
-  MY_FORM_SUBMIT_BUTTON_TEST_ID,
-  MY_FORM_NAME_INPUT_TEST_ID,
-  // ... import other data-test constants as needed
-} from '../MyFormComponent'
-
-// Mock GraphQL queries required by the component
-const defaultMocks: TestMocksType = [
-  {
-    request: { query: SomeRequiredQueryDocument },
-    result: { data: { /* mock data */ } },
-  },
-]
-
-const renderComponent = (mocks: TestMocksType = defaultMocks) =>
-  render(<MyFormComponent />, {
-    wrapper: (props) => (
-      <AllTheProviders {...props} mocks={mocks} forceTypenames={true} />
-    ),
-  })
-
-// Helper to wait for form to be ready (use your exported data-test constant)
-const waitForFormReady = async () => {
-  await waitFor(() => {
-    expect(screen.getByTestId(MY_FORM_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
-  })
-}
-```
-
-#### Step 4.3: Update Test Assertions
-
-**Form field interactions:**
-
-```diff
-- // Formik: Access mocked setFieldValue
-- expect(formikProps.setFieldValue).toHaveBeenCalledWith('name', 'John')
-
-+ // TanStack: Test actual UI behavior
-+ const nameInput = screen.getByLabelText(/name/i)
-+ await user.clear(nameInput)
-+ await user.type(nameInput, 'John')
-+ expect(nameInput).toHaveValue('John')
-```
-
-**Form validation errors:**
-
-```diff
-- // Formik: Mock errors object
-- const formikProps = createMockFormikProps({
--   errors: { email: 'Invalid email' },
--   touched: { email: true },
-- })
-
-+ // TanStack: Trigger validation through interaction
-+ const emailInput = screen.getByLabelText(/email/i)
-+ await user.type(emailInput, 'invalid-email')
-+ await user.tab() // Blur to trigger validation
-+ await waitFor(() => {
-+   expect(screen.getByText(/invalid email/i)).toBeInTheDocument()
-+ })
-```
-
-**Form submission:**
-
-```diff
-- // Formik: Check mocked handleSubmit
-- expect(formikProps.handleSubmit).toHaveBeenCalled()
-
-+ // TanStack: Test actual submission
-+ const submitButton = screen.getByRole('button', { name: /submit/i })
-+ await user.click(submitButton)
-+ await waitFor(() => {
-+   // Assert on mutation call or success state
-+   expect(mockMutation).toHaveBeenCalledWith(expectedVariables)
-+ })
-```
-
-#### Step 4.4: Test Structure for TanStack Forms
-
-**Recommended test structure (using data-test constants):**
-
-```typescript
-import {
-  MY_FORM_TEST_ID,
-  MY_FORM_TITLE_TEST_ID,
-  MY_FORM_NAME_INPUT_TEST_ID,
-  MY_FORM_EMAIL_INPUT_TEST_ID,
-  MY_FORM_SUBMIT_BUTTON_TEST_ID,
-} from '../MyFormComponent'
-
-describe('MyFormComponent', () => {
-  describe('WHEN rendering the component', () => {
-    it('THEN should render without crashing', async () => {
-      renderComponent()
-      await waitForFormReady()
-      expect(screen.getByTestId(MY_FORM_TEST_ID)).toBeInTheDocument()
-    })
-
-    it('THEN should display all required form fields', async () => {
-      renderComponent()
-      await waitForFormReady()
-
-      expect(screen.getByTestId(MY_FORM_NAME_INPUT_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(MY_FORM_EMAIL_INPUT_TEST_ID)).toBeInTheDocument()
-    })
-  })
-
-  describe('WHEN interacting with form fields', () => {
-    it('THEN should update field values correctly', async () => {
-      const user = userEvent.setup()
-      renderComponent()
-      await waitForFormReady()
-
-      const nameInput = screen.getByTestId(MY_FORM_NAME_INPUT_TEST_ID)
-      await user.type(nameInput, 'Test Name')
-
-      expect(nameInput).toHaveValue('Test Name')
-    })
-  })
-
-  describe('WHEN validating form fields', () => {
-    it('THEN should show error for required fields', async () => {
-      const user = userEvent.setup()
-      renderComponent()
-      await waitForFormReady()
-
-      // Try to submit without filling required fields
-      const submitButton = screen.getByTestId(MY_FORM_SUBMIT_BUTTON_TEST_ID)
-      await user.click(submitButton)
-
-      // Check for error state (component-specific assertion)
-      await waitFor(() => {
-        expect(submitButton).toBeDisabled()
-      })
-    })
-  })
-
-  describe('WHEN submitting the form', () => {
-    it('THEN should call mutation with correct values', async () => {
-      const user = userEvent.setup()
-      renderComponent()
-      await waitForFormReady()
-
-      // Fill form using data-test IDs
-      await user.type(screen.getByTestId(MY_FORM_NAME_INPUT_TEST_ID), 'Test')
-      await user.type(screen.getByTestId(MY_FORM_EMAIL_INPUT_TEST_ID), 'test@example.com')
-
-      // Submit
-      await user.click(screen.getByTestId(MY_FORM_SUBMIT_BUTTON_TEST_ID))
-
-      // Assert mutation was called
-      await waitFor(() => {
-        // Check for success state or mutation call
-      })
-    })
-  })
-})
-```
-
-#### Step 4.5: Common Test Patterns for TanStack Forms
-
-**Testing sub-components with `withForm`:**
-
-```typescript
-// For components using withForm HOC, you need to provide a form instance
-import { useAppForm } from '~/hooks/forms/useAppform'
-import { validationSchema, emptyDefaultValues } from '../validationSchema'
-
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const form = useAppForm({
-    defaultValues: emptyDefaultValues,
-    validators: { onDynamic: validationSchema },
-  })
-
-  return <>{children}</>
-}
-
-// Or render the parent form component that provides the form context
-```
-
-**Testing form dirty state:**
-
-```typescript
-it('THEN should enable submit when form is dirty and valid', async () => {
-  const user = userEvent.setup()
-  renderComponent()
-  await waitForFormReady()
-
-  // Initially disabled (not dirty)
-  const submitButton = screen.getByTestId(MY_FORM_SUBMIT_BUTTON_TEST_ID)
-  expect(submitButton).toBeDisabled()
-
-  // Make form dirty
-  await user.type(screen.getByTestId(MY_FORM_NAME_INPUT_TEST_ID), 'New Value')
-
-  // Should now be enabled
-  await waitFor(() => {
-    expect(submitButton).not.toBeDisabled()
-  })
-})
-```
-
-**Testing checkbox fields (use fireEvent for jsdom compatibility):**
-
-```typescript
-import { fireEvent } from '@testing-library/react'
-
-it('THEN should toggle checkbox correctly', async () => {
-  renderComponent()
-  await waitForFormReady()
-
-  const checkbox = screen.getByTestId(MY_FORM_AGREE_CHECKBOX_TEST_ID)
-
-  // Use fireEvent.click instead of userEvent for checkboxes in jsdom
-  fireEvent.click(checkbox)
-
-  expect(checkbox).toBeChecked()
-})
-```
-
-#### Step 4.6: Test Migration Checklist
-
-Before completing the migration, verify:
-
-- [ ] All existing tests pass after migration
-- [ ] Tests no longer import/use `createMockFormikProps` or similar Formik mocks
-- [ ] Tests use `waitFor` and `waitForFormReady` for async form operations
-- [ ] Tests verify actual UI behavior, not mocked function calls
-- [ ] Tests cover: rendering, field interactions, validation, and submission
-- [ ] Snapshot tests are updated if present
-- [ ] GraphQL mocks are properly configured for all required queries
-- [ ] **Component exports data-test constants for all testable elements**
-- [ ] **Tests import and use data-test constants (not translation keys)**
-- [ ] **Tests use `getByTestId()` instead of `getByText()` with translations**
+The `/make-tests` skill will:
+- Use git diff to find all component files modified in the branch
+- Add `data-test` attributes to the components
+- Check for existing tests and migrate them from Formik patterns
+- Create new tests if none exist
+- Follow all project testing conventions
 
 ---
 
@@ -885,25 +552,11 @@ Before completing the migration, verify:
 2. **Submit button always disabled**: Check `form.SubmitButton` is inside `form.AppForm`
 3. **Values not updating**: Use `useStore` to subscribe to values outside field components
 4. **TypeScript errors**: Ensure validation schema matches form field types
-5. **jsdom CSS selector errors in tests**: Use `fireEvent.click` instead of `userEvent.click` for checkbox tests
 
 ### Complex Form Issues
-6. **Sub-component not receiving form**: Pass `form={form}` prop explicitly to sub-components using `withForm`
-7. **Nested validation not working**: Ensure nested Zod schemas are properly composed (not just referenced)
-8. **Server errors not displaying**: Use `formApi.setErrorMap` with the correct field paths
-9. **Refine validation failing silently**: Check that the `path` option in `.refine()` matches the actual field name
-10. **Default values type mismatch**: Export and use `emptyDefaultValues` from validation schema for consistent typing
-11. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure
-
-### Test Migration Issues
-12. **Tests still using Formik mocks**: Remove `createMockFormikProps` and similar patterns; TanStack forms don't need mocking
-13. **Tests failing on async operations**: Add `waitFor` wrappers for form state changes
-14. **Checkbox tests failing in jsdom**: Use `fireEvent.click` instead of `userEvent.click` for checkbox interactions
-15. **Missing GraphQL mocks**: Ensure all queries used by the form component have mock responses in tests
-
-### Testing with data-test Attributes Issues
-16. **Tests using translation keys**: Never use `getByText(translate('key'))` - export data-test constants from component and use `getByTestId()`
-17. **Missing data-test exports**: Export constants like `MY_FORM_TEST_ID` from the component file for tests to import
-18. **form.SubmitButton data-test not working**: Use `dataTest` prop (camelCase) instead of `data-test` attribute
-19. **Component doesn't support data-test**: Wrap the component in a `<div data-test={...}>` container
-20. **Test can't find element by testId**: Verify the data-test attribute is on the correct element and the constant is properly exported/imported
+5. **Sub-component not receiving form**: Pass `form={form}` prop explicitly to sub-components using `withForm`
+6. **Nested validation not working**: Ensure nested Zod schemas are properly composed (not just referenced)
+7. **Server errors not displaying**: Use `formApi.setErrorMap` with the correct field paths
+8. **Refine validation failing silently**: Check that the `path` option in `.refine()` matches the actual field name
+9. **Default values type mismatch**: Export and use `emptyDefaultValues` from validation schema for consistent typing
+10. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure

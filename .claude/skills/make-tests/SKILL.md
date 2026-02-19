@@ -3,17 +3,43 @@
 **Target:** `<PR_NUMBER | BRANCH_NAME>`
 
 > **Important:** If no argument was provided above (empty or missing), use the AskUserQuestion tool to ask the user what they want to create tests for. They can provide:
+>
 > - A PR number (format: `#123` or `123`)
 > - A branch name (local or remote, e.g., `feature/my-feature` or `origin/feature/my-feature`)
 
 ## Input Detection
 
-Determine the input type:
+Determine the input type in this order:
 
-1. **PR Number**: If the argument is numeric or starts with `#` followed by numbers (e.g., `#123`, `123`)
-   - Remove the `#` prefix if present to get the numeric PR number
-2. **Branch Name**: If the argument contains letters, slashes, or dashes (e.g., `feature/my-feature`, `origin/fix-bug`)
-   - Can be a local branch or a remote branch (with `origin/` prefix)
+### Step 1: Check if PR Number (Remote)
+
+If the argument is numeric or starts with `#` followed by numbers (e.g., `#123`, `123`):
+
+- Remove the `#` prefix if present
+- Verify the PR exists: `gh pr view <PR_NUMBER> --json number`
+- If valid, use PR mode
+
+### Step 2: Check if Branch Name (Local)
+
+If the argument is not a PR number:
+
+- Check if the branch exists locally: `git branch --list <BRANCH_NAME>`
+- If found, use local branch mode
+
+### Step 3: Check if Branch Name (Remote)
+
+If the branch doesn't exist locally:
+
+- Fetch remote refs: `git fetch origin`
+- Check if branch exists on remote: `git branch -r --list origin/<BRANCH_NAME>`
+- If found, use remote branch mode
+
+### Step 4: Fallback - Current Branch
+
+If no valid input is detected or the branch doesn't exist:
+
+- Use the current branch: `git branch --show-current`
+- Confirm with user before proceeding
 
 This skill creates comprehensive tests for code changes in a GitHub Pull Request or a git branch, following the established patterns and conventions in this codebase.
 
@@ -114,34 +140,61 @@ Before starting, gather context by reading these reference files:
 
 ## Phase 1: Code Analysis
 
-### Step 1.1: Fetch Changed Files Information
+### Step 1.1: Detect Input Type and Fetch Changed Files
 
-Based on the input type, fetch the diff and changed files:
-
-#### Option A: PR Number
+Execute the following logic to detect input type and fetch the diff:
 
 ```bash
-# Get PR diff and changed files
-gh pr view <PR_NUMBER> --json files,additions,deletions,body,title
-gh pr diff <PR_NUMBER>
-```
+# Store the input argument
+INPUT="$ARGUMENTS"
 
-#### Option B: Branch Name
+# Step 1: Check if PR Number
+if [[ "$INPUT" =~ ^#?[0-9]+$ ]]; then
+  PR_NUMBER="${INPUT#\#}"  # Remove # prefix if present
 
-```bash
-# For local branch - get the diff against main
-git diff main...<BRANCH_NAME> --name-only  # List changed files
-git diff main...<BRANCH_NAME>               # Full diff
+  # Verify PR exists
+  if gh pr view "$PR_NUMBER" --json number &>/dev/null; then
+    echo "Detected: PR #$PR_NUMBER"
+    # Fetch PR info and diff
+    gh pr view "$PR_NUMBER" --json files,additions,deletions,body,title
+    gh pr diff "$PR_NUMBER"
+    exit 0
+  fi
+fi
 
-# If the branch is remote (origin/branch-name)
-git fetch origin
-git diff main...origin/<BRANCH_NAME> --name-only
-git diff main...origin/<BRANCH_NAME>
+# Step 2: Check if Local Branch
+if git branch --list "$INPUT" | grep -q "$INPUT"; then
+  echo "Detected: Local branch '$INPUT'"
+  git diff main..."$INPUT" --name-only
+  git diff main..."$INPUT"
+  exit 0
+fi
 
-# If you're currently ON the branch you want to test
+# Step 3: Check if Remote Branch
+git fetch origin &>/dev/null
+REMOTE_BRANCH="${INPUT#origin/}"  # Remove origin/ prefix if present
+if git branch -r --list "origin/$REMOTE_BRANCH" | grep -q "origin/$REMOTE_BRANCH"; then
+  echo "Detected: Remote branch 'origin/$REMOTE_BRANCH'"
+  git diff main...origin/"$REMOTE_BRANCH" --name-only
+  git diff main...origin/"$REMOTE_BRANCH"
+  exit 0
+fi
+
+# Step 4: Fallback to current branch
+CURRENT_BRANCH=$(git branch --show-current)
+echo "Input '$INPUT' not found. Using current branch: '$CURRENT_BRANCH'"
 git diff main...HEAD --name-only
 git diff main...HEAD
 ```
+
+#### Summary of Commands per Input Type
+
+| Input Type     | Example              | Diff Command                         |
+| -------------- | -------------------- | ------------------------------------ |
+| PR Number      | `#123`, `123`        | `gh pr diff 123`                     |
+| Local Branch   | `feature/my-feature` | `git diff main...feature/my-feature` |
+| Remote Branch  | `origin/feature/x`   | `git diff main...origin/feature/x`   |
+| Current Branch | (fallback)           | `git diff main...HEAD`               |
 
 ### Step 1.2: Identify Files Requiring Tests
 
@@ -209,6 +262,7 @@ Before creating tests, verify that ALL new files in the PR are accounted for:
 ### Step 1.5.1: Gather File Stats
 
 For each file in the PR/branch diff, collect:
+
 - **File path**: Full relative path
 - **Additions/Deletions**: Lines added (+) and removed (-)
 - **Status**: `NEW` (added), `Modified` (changed), `DELETED` (removed), `Renamed`
@@ -248,6 +302,7 @@ Complete File List — PR #<PR_NUMBER> (or Branch: <BRANCH_NAME>)
 ### Step 1.5.3: Wait for User Approval
 
 After displaying the table, ask the user to confirm:
+
 - Whether the file analysis is correct
 - Whether they agree with the test/skip decisions
 - Whether they want to add or remove files from the test list
@@ -265,24 +320,26 @@ After displaying the table, ask the user to confirm:
 The coverage map must list ALL added or modified files (NOT deleted files) with their test status.
 
 **Rules for classifying files — apply the "Testable Logic Checklist" from the Philosophy section:**
+
 - Open each file and scan for: `useState`, `useEffect`, `useMemo`, `useCallback`, `useNavigate`, `useParams`, `useSearchParams`, custom hooks (`use*`), GraphQL queries/mutations, conditional rendering, event handlers, `.map()/.filter()/.reduce()`, toast/clipboard/dialog operations
 - **If the file contains even ONE item from the checklist → Status = ✅ WILL TEST**
 - **Only files matching the Explicit Exclusions list → Status = ⏭️ SKIP**
 
 **For MODIFIED files (not just new files):**
+
 - A modified file with 20+ lines of additions that contains testable logic MUST be tested
 - "Minor refactor" or "props change" is NOT a valid skip reason if the file has testable logic
 - If the modified file has NO existing test file, this is an opportunity to add coverage — mark as ✅ WILL TEST
 - If the modified file already HAS a test file, mark as ✅ WILL TEST (update existing tests)
 
 ```markdown
-| # | File | Type | Lines Added | Test File | Status | Skip Reason |
-|---|------|------|-------------|-----------|--------|-------------|
-| 1 | `src/pages/WebhookForm.tsx` | Page | 327 | `__tests__/WebhookForm.test.tsx` | ✅ WILL TEST | — |
-| 2 | `src/hooks/useWebhookEventTypes.ts` | Hook | 211 | `__tests__/useWebhookEventTypes.test.ts` | ✅ WILL TEST | — |
-| 3 | `src/hooks/useDeleteWebhook.ts` | Hook | 50 | `__tests__/useDeleteWebhook.test.ts` | ✅ WILL TEST | — |
-| 4 | `src/types/webhook.ts` | Types | 15 | — | ⏭️ SKIP | Pure type definitions |
-| 5 | `src/generated/graphql.tsx` | Generated | 267 | — | ⏭️ SKIP | Generated file |
+| #   | File                                | Type      | Lines Added | Test File                                | Status       | Skip Reason           |
+| --- | ----------------------------------- | --------- | ----------- | ---------------------------------------- | ------------ | --------------------- |
+| 1   | `src/pages/WebhookForm.tsx`         | Page      | 327         | `__tests__/WebhookForm.test.tsx`         | ✅ WILL TEST | —                     |
+| 2   | `src/hooks/useWebhookEventTypes.ts` | Hook      | 211         | `__tests__/useWebhookEventTypes.test.ts` | ✅ WILL TEST | —                     |
+| 3   | `src/hooks/useDeleteWebhook.ts`     | Hook      | 50          | `__tests__/useDeleteWebhook.test.ts`     | ✅ WILL TEST | —                     |
+| 4   | `src/types/webhook.ts`              | Types     | 15          | —                                        | ⏭️ SKIP      | Pure type definitions |
+| 5   | `src/generated/graphql.tsx`         | Generated | 267         | —                                        | ⏭️ SKIP      | Generated file        |
 ```
 
 **Rules for the coverage map:**
@@ -320,6 +377,7 @@ For each file marked ✅ WILL TEST, briefly identify key test scenarios:
 ### File: `src/path/to/Component.tsx`
 
 **Key scenarios to test:**
+
 - Default rendering with required props
 - Conditional rendering paths (lines X-Y)
 - User interactions (form submit, button clicks)
@@ -744,7 +802,7 @@ export const createMockCustomer = (overrides = {}) => ({
 **Usage in tests:**
 
 ```typescript
-import { createMockInvoice, createMockCustomer } from '~/mocks/invoiceMocks'
+import { createMockCustomer, createMockInvoice } from '~/mocks/invoiceMocks'
 
 const mockInvoice = createMockInvoice({ status: InvoiceStatusTypeEnum.Draft })
 ```
@@ -780,15 +838,15 @@ When reviewing coverage results, for each uncovered line/branch ask:
 
 **Minimum: 80% on new code.** Aim higher for critical files:
 
-| Scenario                         | Minimum Coverage | Target Coverage | Reason                                    |
-| -------------------------------- | ---------------- | --------------- | ----------------------------------------- |
-| Custom hooks                     | 85%              | 95-100%         | Core contracts, always testable           |
-| Utility/helper functions         | 85%              | 95-100%         | Pure logic, easy to test                  |
-| Complex business logic           | 80%              | 90-100%         | High value, many edge cases               |
-| Form with validation             | 80%              | 85-95%          | Test validation + submission + errors     |
-| Component with conditional logic | 75%              | 85-90%          | Test all branches and interactions        |
-| Simple component with some logic | 65%              | 75-85%          | Test the logic paths                      |
-| Mostly presentational component  | 50%              | 60-70%          | Test meaningful interactions only         |
+| Scenario                         | Minimum Coverage | Target Coverage | Reason                                |
+| -------------------------------- | ---------------- | --------------- | ------------------------------------- |
+| Custom hooks                     | 85%              | 95-100%         | Core contracts, always testable       |
+| Utility/helper functions         | 85%              | 95-100%         | Pure logic, easy to test              |
+| Complex business logic           | 80%              | 90-100%         | High value, many edge cases           |
+| Form with validation             | 80%              | 85-95%          | Test validation + submission + errors |
+| Component with conditional logic | 75%              | 85-90%          | Test all branches and interactions    |
+| Simple component with some logic | 65%              | 75-85%          | Test the logic paths                  |
+| Mostly presentational component  | 50%              | 60-70%          | Test meaningful interactions only     |
 
 ### Step 4.4: Keep Test Files Clean
 
@@ -882,14 +940,14 @@ grep -E "text_[a-zA-Z0-9]+" src/path/to/__tests__/*.test.tsx
 
 **Files that get NO tests (Explicit Exclusions only):**
 
-| Exclusion Type                  | Example                        |
-| ------------------------------- | ------------------------------ |
-| Pure type definitions           | `types.ts`, `*.d.ts`           |
-| Auto-generated files            | `generated/graphql.tsx`        |
-| Translation files               | `translations/base.json`       |
-| Pure CSS/SCSS                   | `styles.css`                   |
-| Barrel/index re-exports         | `index.ts` with only exports   |
-| Static constants (no logic)     | `constants.ts` with plain values |
+| Exclusion Type              | Example                          |
+| --------------------------- | -------------------------------- |
+| Pure type definitions       | `types.ts`, `*.d.ts`             |
+| Auto-generated files        | `generated/graphql.tsx`          |
+| Translation files           | `translations/base.json`         |
+| Pure CSS/SCSS               | `styles.css`                     |
+| Barrel/index re-exports     | `index.ts` with only exports     |
+| Static constants (no logic) | `constants.ts` with plain values |
 
 ### Snapshot Tests (When Appropriate)
 

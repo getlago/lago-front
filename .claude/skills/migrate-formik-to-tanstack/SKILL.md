@@ -23,13 +23,12 @@ Before starting, gather context by reading these reference files:
 1. **Hook Pattern**: `src/hooks/forms/useAppform.ts` - The custom `useAppForm` hook
 2. **Validation Schema Example**: `src/pages/auth/signUpForm/validationSchema.ts`
 3. **Form Component Example**: `src/pages/settings/roles/roleCreateEdit/RoleCreateEdit.tsx`
-4. **Test Example**: `src/pages/auth/__tests__/SignUp.test.tsx`
 
 ### Complex Forms (with sub-components)
 
-5. **Complex Form Example**: `src/pages/createCustomers/CreateCustomer.tsx` - Main form with sub-components
-6. **Complex Validation Schema**: `src/pages/createCustomers/formInitialization/validationSchema.ts` - Nested Zod schemas with refinements
-7. **Sub-component with withForm**: `src/pages/createCustomers/customerInformation/CustomerInformation.tsx` - HOC pattern
+4. **Complex Form Example**: `src/pages/createCustomers/CreateCustomer.tsx` - Main form with sub-components
+5. **Complex Validation Schema**: `src/pages/createCustomers/formInitialization/validationSchema.ts` - Nested Zod schemas with refinements
+6. **Sub-component with withForm**: `src/pages/createCustomers/customerInformation/CustomerInformation.tsx` - HOC pattern
 
 ## Migration Steps
 
@@ -521,7 +520,7 @@ export const customerValidationSchema = z
     {
       message: 'Related field is required when condition is true',
       path: ['relatedField'],
-    }
+    },
   )
 
 // Export empty default values for typing
@@ -540,6 +539,7 @@ Separate concerns with mapper functions:
 ```typescript
 // mappers.ts
 import type { CustomerFragment } from '~/generated/graphql'
+
 import type { CustomerFormValues } from './validationSchema'
 
 export const mapFromApiToForm = (customer: CustomerFragment): CustomerFormValues => ({
@@ -567,9 +567,7 @@ export const mapFromFormToApi = (values: CustomerFormValues): CreateCustomerInpu
 
 ```typescript
 const form = useAppForm({
-  defaultValues: customer
-    ? mapFromApiToForm(customer)
-    : emptyDefaultValues,
+  defaultValues: customer ? mapFromApiToForm(customer) : emptyDefaultValues,
   // ...
   onSubmit: async ({ value }) => {
     const input = mapFromFormToApi(value)
@@ -617,7 +615,7 @@ const form = useAppForm({
   onSubmitInvalid: ({ formApi }) => {
     // Get the first field with an error
     const firstErrorField = Object.keys(formApi.state.fieldMeta).find(
-      (key) => formApi.state.fieldMeta[key]?.errors?.length > 0
+      (key) => formApi.state.fieldMeta[key]?.errors?.length > 0,
     )
 
     if (firstErrorField) {
@@ -656,247 +654,28 @@ return (
 
 ---
 
-## Test Migration
+### Phase 4: Test Migration
 
-### IMPORTANT: Use data-test Attributes (Not Translation Keys)
+**CRITICAL: This phase is mandatory. Never skip test migration/creation.**
 
-**Tests must NEVER reference translation keys directly.** Instead:
+After completing Phases 1-3 and verifying the form migration works correctly, invoke the `/make-tests` skill with the **local branch name**:
 
-1. **Export data-test constants from the component**
-2. **Import and use these constants in tests**
-
-This ensures tests are:
-
-- Decoupled from translation changes
-- More readable and maintainable
-- Consistent across the codebase
-
-### Step 1: Add data-test Constants to the Component
-
-Add exported constants at the top of your form component file:
-
-```typescript
-// Data-test attributes for testing
-export const MY_FORM_TEST_ID = 'my-form'
-export const MY_FORM_TITLE_TEST_ID = 'my-form-title'
-export const MY_FORM_HEADLINE_TEST_ID = 'my-form-headline'
-export const MY_FORM_DESCRIPTION_TEST_ID = 'my-form-description'
-export const MY_FORM_NAME_INPUT_TEST_ID = 'my-form-name-input'
-export const MY_FORM_SUBMIT_BUTTON_TEST_ID = 'my-form-submit-button'
-export const MY_FORM_CANCEL_BUTTON_TEST_ID = 'my-form-cancel-button'
-export const MY_FORM_CLOSE_BUTTON_TEST_ID = 'my-form-close-button'
-export const MY_FORM_LOADING_SKELETON_TEST_ID = 'my-form-loading-skeleton'
-// Add more as needed for sections, alerts, tables, etc.
+```
+/make-tests <local-branch-name>
 ```
 
-### Step 2: Add data-test Attributes to JSX Elements
+**Example:**
 
-```tsx
-// Form element
-<form data-test={MY_FORM_TEST_ID} onSubmit={handleSubmit}>
-
-// Typography/headings
-<Typography data-test={MY_FORM_TITLE_TEST_ID} variant="bodyHl">
-  {translate('...')}
-</Typography>
-
-// Buttons
-<Button data-test={MY_FORM_CLOSE_BUTTON_TEST_ID} variant="quaternary" icon="close" />
-
-// Form fields - use data-test prop
-<form.AppField name="name">
-  {(field) => (
-    <field.TextInputField
-      data-test={MY_FORM_NAME_INPUT_TEST_ID}
-      label={translate('...')}
-    />
-  )}
-</form.AppField>
-
-// Submit button - use dataTest prop (note: camelCase)
-<form.SubmitButton dataTest={MY_FORM_SUBMIT_BUTTON_TEST_ID}>
-  {translate('...')}
-</form.SubmitButton>
-
-// For components that don't support data-test, extend them allowing dataTest as optional prop or, if not possible, wrap in a div as following
-<div data-test={MY_FORM_TABLE_TEST_ID}>
-  <Table ... />
-</div>
+```
+/make-tests feature/migrate-customer-form-to-tanstack
 ```
 
-### Step 3: Create Test File
+The `/make-tests` skill will automatically:
 
-Create: `src/pages/<path>/<formName>/__tests__/<FormName>.test.tsx`
-
-### Step 4: Import Constants in Tests
-
-```typescript
-import { render } from '~/test-utils'
-
-import MyForm, {
-  MY_FORM_CANCEL_BUTTON_TEST_ID,
-  MY_FORM_CLOSE_BUTTON_TEST_ID,
-  MY_FORM_DESCRIPTION_TEST_ID,
-  MY_FORM_HEADLINE_TEST_ID,
-  MY_FORM_NAME_INPUT_TEST_ID,
-  MY_FORM_SUBMIT_BUTTON_TEST_ID,
-  MY_FORM_TEST_ID,
-  MY_FORM_TITLE_TEST_ID,
-} from '../MyForm'
-```
-
-### Step 5: Use getByTestId in Tests
-
-```typescript
-describe('MyForm', () => {
-  it('renders form element', async () => {
-    await act(() => render(<MyForm />))
-
-    // ✅ CORRECT: Use data-test constants
-    expect(screen.getByTestId(MY_FORM_TEST_ID)).toBeInTheDocument()
-    expect(screen.getByTestId(MY_FORM_TITLE_TEST_ID)).toBeInTheDocument()
-    expect(screen.getByTestId(MY_FORM_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
-  })
-
-  // ❌ WRONG: Never reference translation keys
-  // expect(screen.getByText('text_123456789')).toBeInTheDocument()
-})
-```
-
-### Required Mocks
-
-```typescript
-// Get mocked useParams
-const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
-
-// Mock translation
-jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({
-    translate: (key: string) => key,
-  }),
-}))
-
-// Mock navigation
-const mockGoBack = jest.fn()
-jest.mock('~/hooks/core/useLocationHistory', () => ({
-  useLocationHistory: () => ({ goBack: mockGoBack }),
-}))
-
-// Mock toast
-const mockAddToast = jest.fn()
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
-  addToast: (params: unknown) => mockAddToast(params),
-}))
-
-// Mock ResizeObserver (for tables)
-window.ResizeObserver = jest.fn().mockReturnValue({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-})
-```
-
-### Test Structure
-
-```typescript
-describe('FormName', () => {
-  beforeEach(() => {
-    mockUseParams.mockReturnValue({ id: '' })
-    // ... other mock setups
-  })
-
-  afterEach(() => {
-    cleanup()
-    jest.clearAllMocks()
-  })
-
-  describe('Create Mode', () => {
-    it('renders form element', async () => {
-      await act(() => render(<FormName />))
-      expect(screen.getByTestId(FORM_TEST_ID)).toBeInTheDocument()
-    })
-
-    it('renders all form sections', async () => {
-      await act(() => render(<FormName />))
-      expect(screen.getByTestId(FORM_TITLE_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(FORM_HEADLINE_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(FORM_DESCRIPTION_TEST_ID)).toBeInTheDocument()
-    })
-
-    it('renders form fields', async () => {
-      await act(() => render(<FormName />))
-      expect(screen.getByTestId(FORM_NAME_INPUT_TEST_ID)).toBeInTheDocument()
-    })
-
-    it('renders action buttons', async () => {
-      await act(() => render(<FormName />))
-      expect(screen.getByTestId(FORM_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(FORM_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
-    })
-
-    it('allows input in fields', async () => {
-      const user = userEvent.setup()
-      await act(() => render(<FormName />))
-
-      const inputContainer = screen.getByTestId(FORM_NAME_INPUT_TEST_ID)
-      const input = inputContainer.querySelector('input')
-
-      if (input) {
-        await user.type(input, 'Test Value')
-        expect(input).toHaveValue('Test Value')
-      }
-    })
-  })
-
-  describe('Edit Mode', () => {
-    beforeEach(() => {
-      mockUseParams.mockReturnValue({ id: 'item-123' })
-      // Setup mock data
-    })
-
-    it('renders form in edit mode', async () => {
-      await act(() => render(<FormName />))
-      expect(screen.getByTestId(FORM_TEST_ID)).toBeInTheDocument()
-    })
-  })
-
-  describe('Loading State', () => {
-    it('shows loading skeleton when data is loading', async () => {
-      // Set loading state in mocks
-      await act(() => render(<FormName />))
-      // Verify loading state - content should not be visible
-      expect(screen.queryByTestId(FORM_HEADLINE_TEST_ID)).not.toBeInTheDocument()
-    })
-  })
-
-  describe('Button Behavior', () => {
-    it('calls goBack on cancel', async () => {
-      const user = userEvent.setup()
-      await act(() => render(<FormName />))
-
-      const cancelButton = screen.getByTestId(FORM_CANCEL_BUTTON_TEST_ID)
-      await user.click(cancelButton)
-
-      expect(mockGoBack).toHaveBeenCalled()
-    })
-  })
-
-  describe('Snapshot Tests', () => {
-    it('matches snapshot in create mode', async () => {
-      const { container } = await act(() => render(<FormName />))
-      expect(container).toMatchSnapshot()
-    })
-
-    it('matches snapshot in edit mode', async () => {
-      mockUseParams.mockReturnValue({ id: 'item-123' })
-      // Setup mock data
-      const { container } = await act(() => render(<FormName />))
-      expect(container).toMatchSnapshot()
-    })
-  })
-})
-```
+- Fetch the diff against `main` branch
+- Identify all modified component files
+- Add `data-test` attributes to the components
+- Create or migrate tests following project conventions
 
 ## Checklist
 
@@ -948,18 +727,10 @@ describe('FormName', () => {
 - [ ] Run `pnpm eslint <file>`
 - [ ] Run `pnpm tsc --noEmit`
 
-### Phase 4: Testing (IMPORTANT: Use data-test Attributes)
+### Phase 4: Test Migration
 
-- [ ] **Add data-test constants to component:**
-  - [ ] Export `FORM_TEST_ID`, `FORM_TITLE_TEST_ID`, etc. from component
-  - [ ] Add `data-test` attributes to all testable elements only
-  - [ ] Use `dataTest` prop for `form.SubmitButton`
-  - [ ] Wrap unsupported components (like Table) in div with data-test
-- [ ] **Create test file:** `<formPath>/__tests__/<FormName>.test.tsx`
-- [ ] **Import data-test constants** from component (NOT translation keys)
-- [ ] **Write tests using `getByTestId()`** (NOT `getByText()` with translation keys)
-- [ ] Run tests: `pnpm test <test-file>`
-- [ ] Update snapshots if needed: `pnpm test --updateSnapshot -- <test-file>`
+- [ ] Invoke `/make-tests <local-branch-name>` skill
+- [ ] Follow the make-tests skill workflow to completion
 
 ## Common Issues
 
@@ -969,23 +740,15 @@ describe('FormName', () => {
 2. **Submit button always disabled**: Check `form.SubmitButton` is inside `form.AppForm`
 3. **Values not updating**: Use `useStore` to subscribe to values outside field components
 4. **TypeScript errors**: Ensure validation schema matches form field types
-5. **jsdom CSS selector errors in tests**: Use `fireEvent.click` instead of `userEvent.click` for checkbox tests
 
 ### Complex Form Issues
 
-6. **Sub-component not receiving form**: Pass `form={form}` prop explicitly to sub-components using `withForm`
-7. **Nested validation not working**: Ensure nested Zod schemas are properly composed (not just referenced)
-8. **Server errors not displaying**: Use `formApi.setErrorMap` with the correct field paths
-9. **Refine validation failing silently**: Check that the `path` option in `.refine()` matches the actual field name
-10. **Default values type mismatch**: Export and use `emptyDefaultValues` from validation schema for consistent typing
-11. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure
-
-### Testing Issues
-
-12. **Tests using translation keys**: NEVER use `getByText('text_123...')`. Always use `getByTestId()` with exported constants
-13. **Component doesn't support data-test**: Extend component to have an optional dataTest prop where possibile, if not possible, wrap component in a `<div data-test={...}>` container
-14. **SubmitButton data-test not working**: Use `dataTest` prop (camelCase), not `data-test`
-15. **Input field not found in tests**: Use `container.querySelector('input')` on the data-test container element
+5. **Sub-component not receiving form**: Pass `form={form}` prop explicitly to sub-components using `withForm`
+6. **Nested validation not working**: Ensure nested Zod schemas are properly composed (not just referenced)
+7. **Server errors not displaying**: Use `formApi.setErrorMap` with the correct field paths
+8. **Refine validation failing silently**: Check that the `path` option in `.refine()` matches the actual field name
+9. **Default values type mismatch**: Export and use `emptyDefaultValues` from validation schema for consistent typing
+10. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure
 
 ## Usage
 
