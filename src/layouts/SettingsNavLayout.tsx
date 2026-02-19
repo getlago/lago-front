@@ -17,7 +17,6 @@ import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSyste
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
-  AUTHENTICATION_ROUTE,
   BILLING_ENTITY_CREATE_ROUTE,
   BILLING_ENTITY_ROUTE,
   BILLING_ENTITY_UPDATE_ROUTE,
@@ -33,7 +32,6 @@ import {
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
-  OKTA_AUTHENTICATION_ROUTE,
   ROLE_CREATE_ROUTE,
   ROLE_DETAILS_ROUTE,
   ROLE_EDIT_ROUTE,
@@ -74,12 +72,6 @@ const generateTabs = ({
     }),
     match: [FULL_INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE_ID],
     hidden: !hasPermissions(['organizationIntegrationsView']),
-  },
-  {
-    title: translate('text_664c732c264d7eed1c74fd96'),
-    link: AUTHENTICATION_ROUTE,
-    match: [AUTHENTICATION_ROUTE, OKTA_AUTHENTICATION_ROUTE],
-    hidden: !hasPermissions(['organizationIntegrationsView', 'authenticationMethodsView']),
   },
   {
     title: translate('text_177073440645951fhlh2ofdc'),
