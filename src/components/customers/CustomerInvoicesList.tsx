@@ -107,6 +107,7 @@ gql`
       name
       code
       einvoicing
+      emailSettings
     }
     payments {
       createdAt

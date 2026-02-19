@@ -46,7 +46,6 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
 
   const { showResendEmailDialog } = useResendEmailDialog()
-  const canResendEmail = hasPermissions(['paymentReceiptsSend'])
 
   return (
     <InfiniteScroll
@@ -66,6 +65,12 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
         containerSize={{ default: 4 }}
         isLoading={loading}
         actionColumn={({ paymentReceipt, customer }) => {
+          const canResendEmail =
+            hasPermissions(['paymentReceiptsSend']) &&
+            customer?.billingEntity?.emailSettings?.includes(
+              BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+            )
+
           return [
             {
               startIcon: 'duplicate',

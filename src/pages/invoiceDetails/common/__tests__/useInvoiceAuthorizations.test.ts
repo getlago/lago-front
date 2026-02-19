@@ -558,7 +558,7 @@ describe('useInvoiceAuthorizations', () => {
         })
       })
 
-      it('should pass status to canResendEmail', () => {
+      it('should pass status and billingEntity to canResendEmail', () => {
         mockActions.canResendEmail.mockReturnValue(true)
 
         const { result } = prepare()
@@ -566,6 +566,57 @@ describe('useInvoiceAuthorizations', () => {
         expect(result.current.authorizations.canResendEmail).toBe(true)
         expect(mockActions.canResendEmail).toHaveBeenCalledWith({
           status: InvoiceStatusTypeEnum.Finalized,
+          billingEntity: { einvoicing: false },
+        })
+      })
+    })
+
+    describe('canResendEmail', () => {
+      it('should be true when actions.canResendEmail returns true', () => {
+        mockActions.canResendEmail.mockReturnValue(true)
+
+        const { result } = prepare()
+
+        expect(result.current.authorizations.canResendEmail).toBe(true)
+      })
+
+      it('should be false when actions.canResendEmail returns false', () => {
+        mockActions.canResendEmail.mockReturnValue(false)
+
+        const { result } = prepare()
+
+        expect(result.current.authorizations.canResendEmail).toBe(false)
+      })
+
+      it('should pass billingEntity with emailSettings to canResendEmail', () => {
+        mockActions.canResendEmail.mockReturnValue(true)
+
+        const { result } = prepare({
+          invoice: createMockInvoice({
+            billingEntity: { einvoicing: false, emailSettings: ['invoice_finalized'] },
+          }),
+        })
+
+        expect(result.current.authorizations.canResendEmail).toBe(true)
+        expect(mockActions.canResendEmail).toHaveBeenCalledWith({
+          status: InvoiceStatusTypeEnum.Finalized,
+          billingEntity: { einvoicing: false, emailSettings: ['invoice_finalized'] },
+        })
+      })
+
+      it('should pass billingEntity without emailSettings to canResendEmail', () => {
+        mockActions.canResendEmail.mockReturnValue(false)
+
+        const { result } = prepare({
+          invoice: createMockInvoice({
+            billingEntity: { einvoicing: false, emailSettings: [] },
+          }),
+        })
+
+        expect(result.current.authorizations.canResendEmail).toBe(false)
+        expect(mockActions.canResendEmail).toHaveBeenCalledWith({
+          status: InvoiceStatusTypeEnum.Finalized,
+          billingEntity: { einvoicing: false, emailSettings: [] },
         })
       })
     })

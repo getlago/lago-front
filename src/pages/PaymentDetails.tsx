@@ -91,6 +91,7 @@ gql`
           id
           name
           einvoicing
+          emailSettings
           logoUrl
         }
       }
@@ -195,7 +196,11 @@ const PaymentDetails = () => {
     canDownloadPaymentReceipts &&
     (!!payment?.paymentReceipt?.xmlUrl || !!payment?.customer?.billingEntity?.einvoicing)
 
-  const canResendEmail = hasPermissions(['paymentReceiptsSend'])
+  const canResendEmail =
+    hasPermissions(['paymentReceiptsSend']) &&
+    !!payment?.customer?.billingEntity?.emailSettings?.includes(
+      BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+    )
 
   const goToPreviousRoute = useCallback(
     () =>

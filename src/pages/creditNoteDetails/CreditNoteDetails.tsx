@@ -85,6 +85,7 @@ gql`
         id
         name
         einvoicing
+        emailSettings
         logoUrl
       }
       customer {
@@ -207,7 +208,11 @@ const CreditNoteDetails = () => {
       canCopy: true,
       canSync: !!creditNote?.integrationSyncable,
       canRetryTaxSync: !!creditNote?.taxProviderSyncable,
-      canResendEmail: hasPermissions(['creditNotesSend']),
+      canResendEmail:
+        hasPermissions(['creditNotesSend']) &&
+        !!creditNote?.billingEntity?.emailSettings?.includes(
+          BillingEntityEmailSettingsEnum.CreditNoteCreated,
+        ),
     }
   }, [creditNote, hasPermissions])
 
