@@ -84,7 +84,6 @@ lago-worktree create LAGO-0001 --from-front=feat/ui --from-api=feat/endpoint
 | `up <name>`                                                 | Start an existing (stopped) worktree                 |
 | `down <name>`                                               | Stop containers and free the port                    |
 | `destroy <name>`                                            | Stop containers **and delete** the worktree + branch |
-| `exec <name> <cmd...>`                                      | Run an arbitrary command inside the front container  |
 | `ps`                                                        | List all worktree instances with status and ports    |
 
 ### How It Works

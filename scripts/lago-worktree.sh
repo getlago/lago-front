@@ -462,24 +462,6 @@ cmd_ps() {
   echo ""
 }
 
-cmd_exec() {
-  local name="${1:-}"
-  [[ -z "$name" ]] && { echo "Usage: lago-worktree exec <name> <command...>" >&2; exit 1; }
-  shift
-
-  [[ $# -eq 0 ]] && { echo "Usage: lago-worktree exec <name> <command...>" >&2; exit 1; }
-
-  local san
-  san="$(sanitize "$name")"
-  local container="lago_front_wt_${san}"
-
-  if ! docker ps --format '{{.Names}}' | grep -q "^${container}$"; then
-    echo "Error: container '$container' is not running. Run: lago-worktree up $name" >&2; exit 1
-  fi
-
-  docker exec "$container" "$@"
-}
-
 # --- Main ---
 cmd="${1:-help}"; shift || true
 case "$cmd" in
@@ -487,7 +469,6 @@ case "$cmd" in
   up)      cmd_up "$@" ;;
   down)    cmd_down "$@" ;;
   destroy) cmd_destroy "$@" ;;
-  exec)    cmd_exec "$@" ;;
   ps)      cmd_ps ;;
   *)
     cat << 'EOF'
@@ -502,7 +483,6 @@ Commands:
   up <name>                         Start existing worktree(s)
   down <name>                       Stop container(s)
   destroy <name>                    Stop + delete worktree(s)
-  exec <name> <cmd...>              Run a command in the front container
   ps                                List instances
 
 Without --from-api, the front uses the shared main API (:3000).
