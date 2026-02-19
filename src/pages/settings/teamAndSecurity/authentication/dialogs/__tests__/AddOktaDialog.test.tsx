@@ -1,11 +1,18 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useEffect } from 'react'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import {
+  CENTRALIZED_DIALOG_NAME,
+  FORM_DIALOG_OPENING_DIALOG_NAME,
+} from '~/components/dialogs/const'
+import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
 import { CreateOktaIntegrationDocument } from '~/generated/graphql'
 import {
-  AddOktaDialog,
-  AddOktaDialogRef,
   OKTA_INTEGRATION_SUBMIT_BTN,
+  useAddOktaDialog,
 } from '~/pages/settings/teamAndSecurity/authentication/dialogs/AddOktaDialog'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -19,22 +26,24 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
-async function prepare({ mocks = [] }: { mocks?: TestMocksType } = {}) {
-  const dialogRef = { current: null as AddOktaDialogRef | null }
+NiceModal.register(FORM_DIALOG_OPENING_DIALOG_NAME, FormDialogOpeningDialog)
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
-  await act(() =>
-    render(<AddOktaDialog ref={(ref: AddOktaDialogRef | null) => (dialogRef.current = ref)} />, {
-      mocks,
-    }),
-  )
+const TestComponent = () => {
+  const { openAddOktaDialog } = useAddOktaDialog()
 
-  act(() => {
-    dialogRef.current?.openDialog({
+  useEffect(() => {
+    openAddOktaDialog({
       callback: mockOnSubmit,
     })
-  })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  return { dialogRef }
+  return null
+}
+
+async function prepare({ mocks = [] }: { mocks?: TestMocksType } = {}) {
+  await act(() => render(<TestComponent />, { mocks }))
 }
 
 describe('AddOktaDialog', () => {
