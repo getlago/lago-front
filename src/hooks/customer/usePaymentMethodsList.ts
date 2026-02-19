@@ -11,6 +11,8 @@ gql`
         paymentProviderCode
         paymentProviderCustomerId
         paymentProviderType
+        paymentProviderName
+        providerMethodId
         deletedAt
         details {
           brand

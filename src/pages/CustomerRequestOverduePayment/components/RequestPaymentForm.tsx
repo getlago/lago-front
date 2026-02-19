@@ -11,14 +11,17 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
 import { OverviewCard } from '~/components/OverviewCard'
+import { PaymentMethodComboBox } from '~/components/paymentMethodSelection/PaymentMethodComboBox'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { isSameDay } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   CurrencyEnum,
   InvoicesForRequestOverduePaymentFormFragment,
   LastPaymentRequestFragment,
+  PaymentMethodReferenceInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -42,6 +45,7 @@ gql`
 
 export interface CustomerRequestOverduePaymentForm {
   emails: string
+  paymentMethod: PaymentMethodReferenceInput
 }
 
 interface RequestPaymentFormProps {
@@ -51,6 +55,7 @@ interface RequestPaymentFormProps {
   currency: CurrencyEnum
   invoices: InvoicesForRequestOverduePaymentFormFragment[]
   lastSentDate?: LastPaymentRequestFragment
+  externalCustomerId?: string
 }
 
 export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
@@ -60,6 +65,7 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   currency,
   invoices,
   lastSentDate,
+  externalCustomerId,
 }) => {
   const { translate } = useInternationalization()
 
@@ -68,6 +74,8 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
 
   const date = useMemo(() => DateTime.fromISO(lastSentDate?.createdAt).toUTC(), [lastSentDate])
   const today = useMemo(() => DateTime.now().toUTC(), [])
+
+  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
 
   return (
     <div className="flex flex-col gap-10 md:max-w-168">
@@ -165,6 +173,22 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
           },
         ]}
       />
+
+      {hasAccessToMultiPaymentFlow && (
+        <div className="flex flex-col gap-1 pb-12">
+          <Typography variant="captionHl" color="textSecondary">
+            {translate('text_1766485465416wt41tyyecwa')}
+          </Typography>
+          <Typography variant="caption" className="mb-2">
+            {translate('text_1766485465416p3b95l4ng0m')}
+          </Typography>
+          <PaymentMethodComboBox
+            externalCustomerId={externalCustomerId}
+            selectedPaymentMethod={formikProps.values.paymentMethod}
+            setSelectedPaymentMethod={(value) => formikProps.setFieldValue('paymentMethod', value)}
+          />
+        </div>
+      )}
     </div>
   )
 }

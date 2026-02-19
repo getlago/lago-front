@@ -90,6 +90,7 @@ export const typeDefs = gql`
     payment
     payment_receipt
     payment_request
+    payment_method
     plan
     subscription
     tax
