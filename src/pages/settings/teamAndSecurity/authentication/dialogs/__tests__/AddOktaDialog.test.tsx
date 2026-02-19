@@ -1,7 +1,7 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import {
@@ -9,6 +9,7 @@ import {
   FORM_DIALOG_OPENING_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
+import { initializeTranslations } from '~/core/apolloClient'
 import { CreateOktaIntegrationDocument } from '~/generated/graphql'
 import {
   OKTA_INTEGRATION_SUBMIT_BTN,
@@ -29,6 +30,10 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 NiceModal.register(FORM_DIALOG_OPENING_DIALOG_NAME, FormDialogOpeningDialog)
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
+  return <NiceModal.Provider>{children}</NiceModal.Provider>
+}
+
 const TestComponent = () => {
   const { openAddOktaDialog } = useAddOktaDialog()
 
@@ -43,10 +48,25 @@ const TestComponent = () => {
 }
 
 async function prepare({ mocks = [] }: { mocks?: TestMocksType } = {}) {
-  await act(() => render(<TestComponent />, { mocks }))
+  await act(() =>
+    render(
+      <NiceModalWrapper>
+        <TestComponent />
+      </NiceModalWrapper>,
+      { mocks },
+    ),
+  )
+
+  await waitFor(() => {
+    expect(screen.getByLabelText(/Your domain name/i)).toBeInTheDocument()
+  })
 }
 
 describe('AddOktaDialog', () => {
+  beforeAll(async () => {
+    await initializeTranslations()
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -121,10 +141,13 @@ describe('AddOktaDialog', () => {
     await userEvent.type(screen.getByLabelText(/Okta client secret/i), 'client-secret')
     await userEvent.type(screen.getByLabelText(/Okta organization name/i), 'org-name')
 
-    await waitFor(() => {
-      const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
+    // Validation only runs on submit before the first submission attempt (revalidateLogic default)
+    const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
-      expect(submitButton).toBeDisabled()
+    await userEvent.click(submitButton)
+
+    await waitFor(() => {
+      expect(screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)).toBeDisabled()
     })
   })
 
@@ -178,15 +201,12 @@ describe('AddOktaDialog', () => {
   it('should disable submit button when required fields are missing', async () => {
     await prepare()
 
-    // Submit button should be disabled when form is empty
     const submitButton = screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)
 
-    expect(submitButton).toBeDisabled()
+    // Validation only runs on submit before the first submission attempt (revalidateLogic default)
+    await userEvent.click(submitButton)
 
-    // Fill only some fields - button should still be disabled
-    await userEvent.type(screen.getByLabelText(/Your domain name/i), 'example.com')
-    await userEvent.type(screen.getByLabelText(/Okta client ID/i), 'client-id')
-
+    // After submit attempt with empty domain (required), button should be disabled
     await waitFor(() => {
       expect(screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN)).toBeDisabled()
     })

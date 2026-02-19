@@ -5,6 +5,7 @@ import {
   zodHost,
   zodMultipleEmails,
   zodOneOfPermissions,
+  zodOptionalHost,
   zodOptionalUrl,
   zodRequiredEmail,
   zodRequiredPassword,
@@ -143,6 +144,62 @@ describe('zodCustoms', () => {
     describe('error message', () => {
       it('returns the correct error key on failure', () => {
         const result = zodHost.safeParse('https://example.com')
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe('text_664c732c264d7eed1c74fdd3')
+        }
+      })
+    })
+  })
+
+  describe('zodOptionalHost', () => {
+    describe('valid', () => {
+      it.each([
+        ['', 'empty string (optional)'],
+        ['example.com', 'simple domain'],
+        ['subdomain.example.com', 'subdomain'],
+        ['deep.subdomain.example.com', 'deep subdomain'],
+        ['test-domain.org', 'domain with hyphen'],
+        ['example.co.uk', 'multi-part TLD'],
+        ['192.168.1.1', 'IPv4 address'],
+        ['10.0.0.1', 'private IPv4'],
+        ['255.255.255.255', 'max IPv4'],
+        ['0.0.0.0', 'zero IPv4'],
+        ['::1', 'IPv6 loopback'],
+        ['::', 'IPv6 unspecified'],
+        ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', 'full IPv6'],
+        ['example.com:8080', 'domain with port'],
+        ['subdomain.example.com:3000', 'subdomain with port'],
+        ['192.168.1.1:443', 'IPv4 with port'],
+      ])('accepts "%s" (%s)', (value) => {
+        const result = zodOptionalHost.safeParse(value)
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('invalid', () => {
+      it.each([
+        ['http://example.com', 'http protocol'],
+        ['https://example.com', 'https protocol'],
+        ['HTTP://EXAMPLE.COM', 'uppercase http protocol'],
+        ['HTTPS://EXAMPLE.COM', 'uppercase https protocol'],
+        ['http://192.168.1.1', 'http with IP'],
+        ['https://192.168.1.1:8080', 'https with IP and port'],
+        ['not a host', 'contains spaces'],
+        ['-example.com', 'starts with hyphen'],
+      ])('rejects "%s" (%s)', (value) => {
+        const result = zodOptionalHost.safeParse(value)
+
+        expect(result.success).toBe(false)
+      })
+    })
+
+    describe('error message', () => {
+      it('returns the correct error key on failure', () => {
+        const result = zodOptionalHost.safeParse('https://example.com')
 
         expect(result.success).toBe(false)
 
