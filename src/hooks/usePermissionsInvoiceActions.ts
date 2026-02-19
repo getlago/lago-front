@@ -127,7 +127,11 @@ export const usePermissionsInvoiceActions = () => {
     return !!invoice.taxProviderVoidable
   }
 
-  const canResendEmail = (invoice: Pick<Invoice, 'status' | 'billingEntity'>): boolean => {
+  const canResendEmail = (
+    invoice: Pick<Invoice, 'status'> & {
+      billingEntity: Pick<Invoice['billingEntity'], 'emailSettings'>
+    },
+  ): boolean => {
     return (
       invoice.status === InvoiceStatusTypeEnum.Finalized &&
       hasPermissions(['invoicesSend']) &&
