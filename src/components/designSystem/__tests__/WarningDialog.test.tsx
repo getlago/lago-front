@@ -167,9 +167,7 @@ describe('WarningDialog', () => {
 
       expect(onContinue).not.toHaveBeenCalled()
 
-      await waitFor(() =>
-        userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)),
-      )
+      await userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       expect(onContinue).toHaveBeenCalledTimes(1)
     })
@@ -191,9 +189,7 @@ describe('WarningDialog', () => {
 
       expect(screen.getByTestId(WARNING_DIALOG_TEST_ID)).toBeVisible()
 
-      await waitFor(() =>
-        userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)),
-      )
+      await userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       // Dialog should close after callback
       await waitFor(() => {
@@ -216,9 +212,7 @@ describe('WarningDialog', () => {
         ),
       )
 
-      await waitFor(() =>
-        userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)),
-      )
+      await userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(onContinue).toHaveBeenCalled()
@@ -233,9 +227,7 @@ describe('WarningDialog', () => {
       )
 
       await expect(async () => {
-        await waitFor(() =>
-          userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)),
-        )
+        await userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
       }).resolves.not.toThrow()
     })
 
@@ -248,7 +240,7 @@ describe('WarningDialog', () => {
 
       expect(screen.getByTestId(WARNING_DIALOG_TEST_ID)).toBeVisible()
 
-      await waitFor(() => userEvent.click(screen.getByTestId(WARNING_DIALOG_CANCEL_BUTTON_TEST_ID)))
+      await userEvent.click(screen.getByTestId(WARNING_DIALOG_CANCEL_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(screen.queryByTestId(WARNING_DIALOG_TEST_ID)).not.toBeInTheDocument()
@@ -513,9 +505,7 @@ describe('WarningDialog', () => {
         ),
       )
 
-      await waitFor(() =>
-        userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)),
-      )
+      await userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(onContinue).toHaveBeenCalled()
@@ -543,9 +533,7 @@ describe('WarningDialog', () => {
         ),
       )
 
-      await waitFor(() =>
-        userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)),
-      )
+      await userEvent.click(screen.getByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
       await waitFor(
         () => {

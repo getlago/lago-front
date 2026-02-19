@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom'
-import { act, render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -9,9 +8,6 @@ import { ComboBox } from '~/components/form'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 
 import { scrollToAndClickElement, scrollToAndExpandAccordion, scrollToTop } from '../domUtils'
-
-// Mock setTimeout to control timing in tests
-jest.useFakeTimers()
 
 // Mock scrollIntoView and scrollTo since they're not available in jsdom
 const mockScrollIntoView = jest.fn()
@@ -54,10 +50,12 @@ const TestAppWrapper = ({ children, id }: { children: React.ReactNode; id?: stri
 
 describe('DomUtils', () => {
   beforeEach(() => {
+    jest.useFakeTimers()
     jest.clearAllMocks()
   })
 
   afterEach(() => {
+    jest.useRealTimers()
     jest.restoreAllMocks()
   })
 
@@ -396,7 +394,7 @@ describe('DomUtils', () => {
   })
 
   describe('scrollToTop', () => {
-    it('should scroll to the top of the page', async () => {
+    it('should scroll to the top of the page', () => {
       render(
         <TestAppWrapper>
           <Button
@@ -410,7 +408,7 @@ describe('DomUtils', () => {
         </TestAppWrapper>,
       )
 
-      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+      fireEvent.click(screen.getByTestId('scroll-test-button'))
 
       act(() => {
         jest.advanceTimersByTime(0)
@@ -422,7 +420,7 @@ describe('DomUtils', () => {
       })
     })
 
-    it('should scroll to the top of the page with a custom selector', async () => {
+    it('should scroll to the top of the page with a custom selector', () => {
       render(
         <TestAppWrapper id="scroll-test-button">
           <Button
@@ -436,7 +434,7 @@ describe('DomUtils', () => {
         </TestAppWrapper>,
       )
 
-      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+      fireEvent.click(screen.getByTestId('scroll-test-button'))
 
       act(() => {
         jest.advanceTimersByTime(0)
@@ -448,7 +446,7 @@ describe('DomUtils', () => {
       })
     })
 
-    it('should not scroll if the selector does not exist', async () => {
+    it('should not scroll if the selector does not exist', () => {
       render(
         <TestAppWrapper>
           <Button
@@ -462,7 +460,7 @@ describe('DomUtils', () => {
         </TestAppWrapper>,
       )
 
-      await waitFor(() => userEvent.click(screen.getByTestId('scroll-test-button')))
+      fireEvent.click(screen.getByTestId('scroll-test-button'))
 
       act(() => {
         jest.advanceTimersByTime(0)

@@ -70,9 +70,9 @@ describe('ButtonLink', () => {
 
       expect(onContinueMock).not.toHaveBeenCalled()
 
-      userEvent.click(screen.queryByTestId('button-link-button') as HTMLElement).then(() => {
-        expect(onContinueMock).toHaveBeenCalled()
-      })
+      await userEvent.click(screen.queryByTestId('button-link-button') as HTMLElement)
+
+      expect(onContinueMock).toHaveBeenCalled()
     })
 
     it('should not trigger the confirm action on click if button is disabled', async () => {
