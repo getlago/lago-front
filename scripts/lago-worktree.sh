@@ -459,22 +459,6 @@ cmd_ps() {
   echo ""
 }
 
-cmd_codegen() {
-  local name="${1:-}"
-  [[ -z "$name" ]] && { echo "Usage: lago-worktree codegen <name>" >&2; exit 1; }
-
-  local san
-  san="$(sanitize "$name")"
-  local container="lago_front_wt_${san}"
-
-  if ! docker ps --format '{{.Names}}' | grep -q "^${container}$"; then
-    echo "Error: container '$container' is not running. Run: lago-worktree up $name" >&2; exit 1
-  fi
-
-  echo "Running codegen in '$name'..."
-  docker exec "$container" pnpm run codegen
-}
-
 cmd_exec() {
   local name="${1:-}"
   [[ -z "$name" ]] && { echo "Usage: lago-worktree exec <name> <command...>" >&2; exit 1; }
@@ -500,7 +484,6 @@ case "$cmd" in
   up)      cmd_up "$@" ;;
   down)    cmd_down "$@" ;;
   destroy) cmd_destroy "$@" ;;
-  codegen) cmd_codegen "$@" ;;
   exec)    cmd_exec "$@" ;;
   ps)      cmd_ps ;;
   *)
@@ -516,7 +499,6 @@ Commands:
   up <name>                         Start existing worktree(s)
   down <name>                       Stop container(s)
   destroy <name>                    Stop + delete worktree(s)
-  codegen <name>                    Run GraphQL codegen (uses correct API)
   exec <name> <cmd...>              Run a command in the front container
   ps                                List instances
 
