@@ -3,7 +3,9 @@ import { renderHook } from '@testing-library/react'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
+  BillingEntityEmailSettingsEnum,
   GetCurrentUserInfosDocument,
+  Invoice,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
@@ -795,40 +797,95 @@ describe('usePermissionsInvoiceActions', () => {
   })
 
   describe('canResendEmail', () => {
-    it('should return true when invoice is finalized and has invoicesSend permission', async () => {
+    const billingEntityWithEmailSettings = {
+      id: '1',
+      name: 'Test',
+      code: 'test',
+      emailSettings: [BillingEntityEmailSettingsEnum.InvoiceFinalized],
+    } as Invoice['billingEntity']
+
+    const billingEntityWithoutEmailSettings = {
+      id: '1',
+      name: 'Test',
+      code: 'test',
+      emailSettings: [] as BillingEntityEmailSettingsEnum[],
+    } as Invoice['billingEntity']
+
+    it('should return true when invoice is finalized, has invoicesSend permission, and email scenario is active', async () => {
       const { result } = await prepare()
 
-      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Finalized })).toBe(true)
+      expect(
+        result.current.canResendEmail({
+          status: InvoiceStatusTypeEnum.Finalized,
+          billingEntity: billingEntityWithEmailSettings,
+        }),
+      ).toBe(true)
     })
 
     it('should return false when invoice is not finalized', async () => {
       const { result } = await prepare()
 
-      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
+      expect(
+        result.current.canResendEmail({
+          status: InvoiceStatusTypeEnum.Draft,
+          billingEntity: billingEntityWithEmailSettings,
+        }),
+      ).toBe(false)
     })
 
     it('should return false when invoice is voided', async () => {
       const { result } = await prepare()
 
-      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Voided })).toBe(false)
+      expect(
+        result.current.canResendEmail({
+          status: InvoiceStatusTypeEnum.Voided,
+          billingEntity: billingEntityWithEmailSettings,
+        }),
+      ).toBe(false)
     })
 
     it('should return false when invoice is pending', async () => {
       const { result } = await prepare()
 
-      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Pending })).toBe(false)
+      expect(
+        result.current.canResendEmail({
+          status: InvoiceStatusTypeEnum.Pending,
+          billingEntity: billingEntityWithEmailSettings,
+        }),
+      ).toBe(false)
     })
 
     it('should return false when invoice is failed', async () => {
       const { result } = await prepare()
 
-      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Failed })).toBe(false)
+      expect(
+        result.current.canResendEmail({
+          status: InvoiceStatusTypeEnum.Failed,
+          billingEntity: billingEntityWithEmailSettings,
+        }),
+      ).toBe(false)
     })
 
     it('should return false when user does not have invoicesSend permission', async () => {
       const { result } = await prepare({ invoicesSend: false })
 
-      expect(result.current.canResendEmail({ status: InvoiceStatusTypeEnum.Finalized })).toBe(false)
+      expect(
+        result.current.canResendEmail({
+          status: InvoiceStatusTypeEnum.Finalized,
+          billingEntity: billingEntityWithEmailSettings,
+        }),
+      ).toBe(false)
+    })
+
+    it('should return false when email scenario is inactive', async () => {
+      const { result } = await prepare()
+
+      expect(
+        result.current.canResendEmail({
+          status: InvoiceStatusTypeEnum.Finalized,
+          billingEntity: billingEntityWithoutEmailSettings,
+        }),
+      ).toBe(false)
     })
   })
 

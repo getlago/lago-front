@@ -84,6 +84,7 @@ gql`
         code
         name
         einvoicing
+        emailSettings
       }
     }
     paymentReceipt {
@@ -115,7 +116,6 @@ export const PaymentsList: FC<PaymentsListProps> = ({
   const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
 
   const { showResendEmailDialog } = useResendEmailDialog()
-  const canResendEmail = hasPermissions(['paymentReceiptsSend'])
 
   return (
     <InfiniteScroll
@@ -139,6 +139,12 @@ export const PaymentsList: FC<PaymentsListProps> = ({
         isLoading={isLoading}
         hasError={!!error}
         actionColumn={({ paymentReceipt, customer }) => {
+          const canResendEmail =
+            hasPermissions(['paymentReceiptsSend']) &&
+            customer?.billingEntity?.emailSettings?.includes(
+              BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+            )
+
           return [
             {
               startIcon: 'duplicate',
