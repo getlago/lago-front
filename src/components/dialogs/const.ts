@@ -5,6 +5,10 @@ export const CENTRALIZED_DIALOG_TEST_ID = 'centralized-dialog' as const
 export const CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID = 'centralized-cancel' as const
 export const CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID = 'centralized-confirm' as const
 
+export const FORM_DIALOG_NAME = 'FormDialog' as const
+export const FORM_DIALOG_TEST_ID = 'form-dialog' as const
+export const FORM_DIALOG_CANCEL_BUTTON_TEST_ID = 'form-cancel' as const
+
 export const DIALOG_OPENING_DIALOG_NAME = 'DialogOpeningDialog' as const
 
 export const PREMIUM_WARNING_DIALOG_NAME = 'PremiumWarningDialog' as const

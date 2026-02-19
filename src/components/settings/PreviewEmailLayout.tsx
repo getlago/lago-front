@@ -19,7 +19,7 @@ import {
 
 interface PreviewEmailLayoutProps extends PropsWithChildren {
   language: LocaleEnum
-  emailObject: string
+  emailObject?: string
   emailFrom?: string
   emailTo?: string
   isLoading?: boolean
@@ -51,42 +51,46 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
   return (
     <>
       <div>
-        {isLoading ? (
-          <Skeleton color="dark" variant="text" className="mb-5 w-90" />
-        ) : (
-          <Typography className="mb-4" variant="bodyHl" color="grey700">
-            {emailObject}
-          </Typography>
-        )}
+        {!!emailObject && (
+          <>
+            {isLoading ? (
+              <Skeleton color="dark" variant="text" className="mb-5 w-90" />
+            ) : (
+              <Typography className="mb-4" variant="bodyHl" color="grey700">
+                {emailObject}
+              </Typography>
+            )}
 
-        <div className="mb-12 flex w-full items-center">
-          {isLoading ? (
-            <>
-              <Skeleton color="dark" variant="circular" size="big" className="mr-4" />
-              <div>
-                <Skeleton color="dark" variant="text" className="mb-2 w-60" />
-                <Skeleton color="dark" variant="text" className="w-30" />
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="mr-4 size-10 rounded-full bg-grey-300" />
-              <div>
-                <div className="h-[1em]">
-                  <Typography variant="captionHl" color="grey700" component="span">
-                    {name}
-                  </Typography>
-                  <Typography variant="note" component="span" className="ml-1">
-                    {emailFrom || translate('text_64188b3d9735d5007d712260')}
-                  </Typography>
-                </div>
-                <Typography variant="note" component="span">
-                  {emailTo || translateWithContextualLocal('text_64188b3d9735d5007d712262')}
-                </Typography>
-              </div>
-            </>
-          )}
-        </div>
+            <div className="mb-12 flex w-full items-center">
+              {isLoading ? (
+                <>
+                  <Skeleton color="dark" variant="circular" size="big" className="mr-4" />
+                  <div>
+                    <Skeleton color="dark" variant="text" className="mb-2 w-60" />
+                    <Skeleton color="dark" variant="text" className="w-30" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mr-4 size-10 rounded-full bg-grey-300" />
+                  <div>
+                    <div className="h-[1em]">
+                      <Typography variant="captionHl" color="grey700" component="span">
+                        {name}
+                      </Typography>
+                      <Typography variant="note" component="span" className="ml-1">
+                        {emailFrom || translate('text_64188b3d9735d5007d712260')}
+                      </Typography>
+                    </div>
+                    <Typography variant="note" component="span">
+                      {emailTo || translateWithContextualLocal('text_64188b3d9735d5007d712262')}
+                    </Typography>
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
 
         <div>
           <div className="mb-8 flex items-center justify-center not-last-child:mr-3">

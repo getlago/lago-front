@@ -69,6 +69,8 @@ const mockCanRegenerate = jest.fn(() => false)
 const mockCanIssueCreditNote = jest.fn(() => true)
 const mockCanRecordPayment = jest.fn(() => true)
 
+const mockCanResendEmail = jest.fn(() => false)
+
 jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
   usePermissionsInvoiceActions: () => ({
     canDownload: mockCanDownload,
@@ -80,6 +82,7 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canRegenerate: mockCanRegenerate,
     canIssueCreditNote: mockCanIssueCreditNote,
     canRecordPayment: mockCanRecordPayment,
+    canResendEmail: mockCanResendEmail,
   }),
 }))
 
@@ -112,10 +115,11 @@ let generatePaymentUrlCallbacks: {
   onError?: (error: { graphQLErrors?: Array<{ extensions?: { code?: string } }> }) => void
 } = {}
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-let retryInvoicePaymentCallbacks: {
-  onCompleted?: (data: { retryInvoicePayment: { id: string } | null }) => void
-} = {}
+jest.mock('~/hooks/useResendEmailDialog', () => ({
+  useResendEmailDialog: () => ({
+    showResendEmailDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
@@ -127,8 +131,7 @@ jest.mock('~/generated/graphql', () => ({
     generatePaymentUrlCallbacks = options
     return [mockGeneratePaymentUrl]
   },
-  useRetryInvoicePaymentMutation: (options: typeof retryInvoicePaymentCallbacks) => {
-    retryInvoicePaymentCallbacks = options
+  useRetryInvoicePaymentMutation: () => {
     return [mockRetryInvoicePayment, { loading: false }]
   },
 }))
@@ -168,6 +171,7 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
     applicableTimezone: TimezoneEnum.TzUtc,
     paymentProvider: ProviderTypeEnum.Stripe,
     hasActiveWallet: false,
+    email: 'john@example.com',
   },
   errorDetails: null,
   billingEntity: {
@@ -175,6 +179,7 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
     id: 'billing-entity-1',
     name: 'Acme Corp',
     code: 'acme',
+    einvoicing: false,
   },
   ...overrides,
 })
@@ -193,6 +198,7 @@ const createMockInvoices = (count: number): InvoiceItem[] => {
         applicableTimezone: TimezoneEnum.TzUtc,
         paymentProvider: ProviderTypeEnum.Stripe,
         hasActiveWallet: false,
+        email: `customer${index + 1}@example.com`,
       },
     }),
   )
@@ -245,6 +251,7 @@ describe('InvoicesList', () => {
     mockCanRegenerate.mockReturnValue(false)
     mockCanIssueCreditNote.mockReturnValue(true)
     mockCanRecordPayment.mockReturnValue(true)
+    mockCanResendEmail.mockReturnValue(false)
     mockHasDefinedGQLError.mockReturnValue(false)
     mockIsFeatureFlagActive.mockReturnValue(false)
     mockRetryInvoicePayment.mockResolvedValue({ errors: null })
@@ -1170,6 +1177,7 @@ describe('InvoicesList', () => {
               applicableTimezone: TimezoneEnum.TzUtc,
               paymentProvider: ProviderTypeEnum.Stripe,
               hasActiveWallet: false,
+              email: null,
             },
           }),
         ],
@@ -1192,6 +1200,7 @@ describe('InvoicesList', () => {
               id: 'billing-entity-1',
               name: '',
               code: 'billing-code-123',
+              einvoicing: false,
             },
           }),
         ],
@@ -1209,6 +1218,7 @@ describe('InvoicesList', () => {
               id: 'billing-entity-1',
               name: '',
               code: '',
+              einvoicing: false,
             },
           }),
         ],

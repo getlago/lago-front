@@ -1,0 +1,115 @@
+# Cursor Rules for Lago Frontend
+
+## Testing Rules
+
+### CRITICAL: Never Use Translation Keys in Tests
+
+Translation keys (e.g., `text_6271200984178801ba8bdec0`) must **NEVER** be used in tests. This applies to:
+
+1. **Selectors** - Never use translation keys to find elements:
+   ```typescript
+   // ❌ WRONG - Never do this
+   screen.getByText('text_6271200984178801ba8bdec0')
+   screen.findByText('text_6271200984178801ba8bdec0')
+
+   // ✅ CORRECT - Use data-test attributes
+   screen.getByTestId('webhook-form-submit-button')
+   screen.getByRole('button', { name: /submit/i })
+   ```
+
+2. **Assertions** - Never assert on translation keys:
+   ```typescript
+   // ❌ WRONG - Never include translation keys in assertions
+   expect(addToast).toHaveBeenCalledWith({
+     message: 'text_6271200984178801ba8bdf7f',  // ❌ NEVER
+     severity: 'success',
+   })
+
+   // ✅ CORRECT - Use partial matching
+   expect(addToast).toHaveBeenCalledWith(
+     expect.objectContaining({ severity: 'success' })
+   )
+   ```
+
+3. **Verification** - Never verify text content using translation keys:
+   ```typescript
+   // ❌ WRONG
+   expect(element).toHaveTextContent('text_6271200984178801ba8bdec0')
+
+   // ✅ CORRECT - Use data-test attributes or verify element exists
+   expect(screen.getByTestId('my-element')).toBeInTheDocument()
+   ```
+
+### Why This Rule Exists
+- Translation keys are implementation details that can change
+- Tests should be resilient to translation changes
+- Using data-test attributes makes tests more maintainable
+- Tests become readable and self-documenting
+
+### CRITICAL: Type Assertions for DOM Elements
+
+Always use type assertions (`as HTMLInputElement`) instead of non-null assertions (`!`):
+
+```typescript
+// ✅ CORRECT - Use type assertion
+const inputContainer = screen.getByTestId(COMPONENT_INPUT_TEST_ID)
+const input = inputContainer.querySelector('input') as HTMLInputElement
+await user.type(input, 'test value')
+
+// ❌ WRONG - Non-null assertion causes ESLint errors
+const input = inputContainer.querySelector('input')
+await user.type(input!, 'test value')  // ESLint error: @typescript-eslint/no-non-null-assertion
+```
+
+**Common type assertions for DOM elements:**
+```typescript
+const input = container.querySelector('input') as HTMLInputElement
+const button = container.querySelector('button') as HTMLButtonElement
+const select = container.querySelector('select') as HTMLSelectElement
+const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+```
+
+### Required Test Patterns
+
+1. **Add data-test IDs to components being tested**
+2. **Export test ID constants from the component file**
+3. **Import and use test ID constants in test files**
+4. **Use `expect.objectContaining()` for partial assertions**
+5. **Use type assertions (`as HTMLInputElement`) not non-null assertions (`!`)**
+6. **Mock `useInternationalization` to return the key as-is for debugging**
+
+### MANDATORY: Code Quality Verification
+
+**Before finalizing ANY test file, you MUST run ESLint:**
+
+```bash
+pnpm eslint src/path/to/__tests__/file.test.tsx
+```
+
+**Common ESLint errors to fix:**
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `@typescript-eslint/no-non-null-assertion` | Using `!` operator | Use `as HTMLInputElement` type assertion |
+| `@typescript-eslint/no-explicit-any` | Using `any` type | Use proper types |
+| `@typescript-eslint/no-unused-vars` | Unused imports/variables | Remove or prefix with `_` |
+
+### Final Checklist Before Committing Tests
+
+**Translation Keys:**
+- [ ] No `screen.getByText('text_')` calls
+- [ ] No `screen.findByText('text_')` calls
+- [ ] No `toHaveTextContent('text_')` assertions
+- [ ] No `message: 'text_'` in mock assertions
+
+**Type Safety:**
+- [ ] No non-null assertions (`!`) - use `as HTMLInputElement` instead
+- [ ] No `any` types
+
+**Data Test IDs:**
+- [ ] All interactive elements have data-test attributes
+- [ ] Test ID constants are exported from component files
+
+**Code Quality:**
+- [ ] Tests pass: `pnpm test <test-file>`
+- [ ] ESLint passes: `pnpm eslint <test-file>` (MANDATORY)

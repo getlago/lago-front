@@ -24,14 +24,17 @@ const FetchableIntegrationItemList = ({
 }: FetchIntegrationItemsListProps) => {
   const itemsToDisplay = data?.collection || []
 
+  // Only show loading state when no data exists yet to preserve scroll position during background refetches
+  const showLoadingState = isLoading && !itemsToDisplay.length
+
   const metadata = data?.metadata
 
   const displayCorrectState = () => {
-    if (!isLoading && !!hasError) {
+    if (!showLoadingState && !!hasError) {
       return <FetchableIntegrationItemError hasSearchTerm={!!searchTerm} />
     }
 
-    if (!isLoading && (!itemsToDisplay || !itemsToDisplay.length)) {
+    if (!showLoadingState && !itemsToDisplay.length) {
       return (
         <FetchableIntegrationItemEmpty
           hasSearchTerm={!!searchTerm}
@@ -71,7 +74,7 @@ const FetchableIntegrationItemList = ({
           provider={provider}
           items={formattedItems}
           firstColumnName={firstColumnName}
-          isLoading={isLoading}
+          isLoading={showLoadingState}
         />
       </InfiniteScroll>
     )

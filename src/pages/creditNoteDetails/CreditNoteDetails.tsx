@@ -40,6 +40,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   CustomerForCreditNoteDetailsExternalSyncFragmentDoc,
   useGetCreditNoteForDetailsQuery,
@@ -50,6 +51,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadCreditNote } from '~/pages/creditNoteDetails/common/useDownloadCreditNote'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -81,9 +83,13 @@ gql`
       }
       billingEntity {
         id
+        name
         einvoicing
+        logoUrl
       }
       customer {
+        id
+        email
         ...CustomerForCreditNoteDetailsExternalSync
       }
     }
@@ -123,6 +129,8 @@ const CreditNoteDetails = () => {
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
   })
+
+  const { showResendEmailDialog } = useResendEmailDialog()
 
   const [syncIntegrationCreditNote, { loading: loadingSyncIntegrationCreditNote }] =
     useSyncIntegrationCreditNoteMutation({
@@ -199,12 +207,26 @@ const CreditNoteDetails = () => {
       canCopy: true,
       canSync: !!creditNote?.integrationSyncable,
       canRetryTaxSync: !!creditNote?.taxProviderSyncable,
+      canResendEmail: hasPermissions(['creditNotesSend']),
     }
   }, [creditNote, hasPermissions])
 
   const canDownloadXmlFile = useMemo(() => {
     return creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
   }, [creditNote])
+
+  const resendEmail = () => {
+    showResendEmailDialog({
+      subject: translate('text_17706311399872btwgaui8va', {
+        organization: creditNote?.billingEntity.name,
+        creditNoteNumber: creditNote?.number,
+      }),
+      type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
+      billingEntity: creditNote?.billingEntity,
+      documentId: creditNote?.id,
+      customerEmail: creditNote?.customer?.email,
+    })
+  }
 
   return (
     <>
@@ -229,6 +251,22 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
+                {actions.canCopy && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      copyToClipboard(creditNote?.id || '')
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_63766b1c4eeb35667c48f26d',
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_637655cb50f04bf1c8379cee')}
+                  </Button>
+                )}
                 {actions.canDownload && !canDownloadXmlFile && (
                   <Button
                     variant="quaternary"
@@ -274,6 +312,11 @@ const CreditNoteDetails = () => {
                     </Button>
                   </>
                 )}
+                {actions.canResendEmail && (
+                  <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
+                    {translate('text_1770392315728uyw3zhs7kzh')}
+                  </Button>
+                )}
                 {actions.canVoid && (
                   <Button
                     variant="quaternary"
@@ -293,22 +336,7 @@ const CreditNoteDetails = () => {
                     {translate('text_637655cb50f04bf1c8379cec')}
                   </Button>
                 )}
-                {actions.canCopy && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      copyToClipboard(creditNote?.id || '')
-                      addToast({
-                        severity: 'info',
-                        translateKey: 'text_63766b1c4eeb35667c48f26d',
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_637655cb50f04bf1c8379cee')}
-                  </Button>
-                )}
+
                 {actions.canSync && (
                   <Button
                     variant="quaternary"

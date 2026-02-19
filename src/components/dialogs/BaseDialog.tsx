@@ -5,6 +5,7 @@ import { ReactNode } from 'react'
 import { Typography } from '~/components/designSystem/Typography'
 
 import { DIALOG_TITLE_TEST_ID } from './const'
+import { FormProps } from './types'
 
 export type BaseDialogProps = {
   title: ReactNode
@@ -16,6 +17,7 @@ export type BaseDialogProps = {
   closeDialog: () => Promise<unknown>
   removeDialog: () => void
   'data-test'?: string
+  form?: FormProps
 }
 
 const BaseDialog = ({
@@ -28,8 +30,50 @@ const BaseDialog = ({
   closeDialog,
   removeDialog,
   'data-test': dataTest,
+  form,
 }: BaseDialogProps) => {
   const childrenNeedsWrapping = children && typeof children === 'string'
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    return form?.submit()
+  }
+
+  const generateContent = () => {
+    return (
+      <>
+        {/* Header */}
+        <header className="p-8">
+          <div className="flex flex-col gap-8">
+            {/* Header is made of two main parts: title/description and optional header content */}
+            <div className="flex flex-col gap-2">
+              <Typography variant="subhead1" data-test={DIALOG_TITLE_TEST_ID}>
+                {title}
+              </Typography>
+              {description && <Typography variant="body">{description}</Typography>}
+            </div>
+            {headerContent && <div>{headerContent}</div>}
+          </div>
+        </header>
+
+        {/* Content */}
+        {children && (
+          <div
+            className={tw('overflow-auto shadow-t', {
+              'p-8': childrenNeedsWrapping,
+            })}
+          >
+            {children}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row">
+          {actions}
+        </div>
+      </>
+    )
+  }
 
   return (
     <MuiDialog
@@ -63,35 +107,17 @@ const BaseDialog = ({
       transitionDuration={80}
       data-test={dataTest}
     >
-      {/* Header */}
-      <header className="p-8">
-        <div className="flex flex-col gap-8">
-          {/* Header is made of two main parts: title/description and optional header content */}
-          <div className="flex flex-col gap-2">
-            <Typography variant="subhead1" data-test={DIALOG_TITLE_TEST_ID}>
-              {title}
-            </Typography>
-            {description && <Typography variant="body">{description}</Typography>}
-          </div>
-          {headerContent && <div>{headerContent}</div>}
-        </div>
-      </header>
-
-      {/* Content */}
-      {children && (
-        <div
-          className={tw('overflow-auto shadow-t', {
-            'p-8': childrenNeedsWrapping,
-          })}
+      {form ? (
+        <form
+          id={form.id}
+          onSubmit={handleSubmit}
+          className="flex max-h-[calc(100vh-10rem)] flex-col"
         >
-          {children}
-        </div>
+          {generateContent()}
+        </form>
+      ) : (
+        <>{generateContent()}</>
       )}
-
-      {/* Footer */}
-      <div className="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row">
-        {actions}
-      </div>
     </MuiDialog>
   )
 }

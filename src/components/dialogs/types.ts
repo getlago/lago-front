@@ -27,3 +27,8 @@ export type PremiumWarningHookDialogReturnType<Props> = {
   open: (props?: Props) => Promise<DialogResult>
   close: () => void
 }
+
+export type FormProps = {
+  id: string
+  submit: () => void | Promise<void> | DialogResult | Promise<DialogResult>
+}

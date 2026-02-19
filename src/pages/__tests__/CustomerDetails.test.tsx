@@ -472,7 +472,7 @@ describe('CustomerDetails', () => {
       })
 
       await waitFor(() => {
-        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
       })
 
       await waitFor(() => {

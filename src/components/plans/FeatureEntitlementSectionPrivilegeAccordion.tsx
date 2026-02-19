@@ -15,6 +15,7 @@ import {
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
+  LagoApiError,
   PrivilegeValueTypeEnum,
   useGetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery,
 } from '~/generated/graphql'
@@ -80,6 +81,9 @@ export const FeatureEntitlementSectionPrivilegeAccordion: FC<
     useGetFeatureDetailsForFeatureEntitlementPrivilegeSectionQuery({
       variables: {
         code: entitlement.featureCode,
+      },
+      context: {
+        silentErrorCodes: [LagoApiError.NotFound],
       },
     })
 
