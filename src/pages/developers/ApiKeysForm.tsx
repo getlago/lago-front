@@ -97,6 +97,7 @@ const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.Payment]: 'text_6419c64eace749372fc72b40',
   [ApiKeysPermissionsEnum.PaymentReceipt]: 'text_1747209600169a6v8atibi3n',
   [ApiKeysPermissionsEnum.PaymentRequest]: 'text_1732894820485dzoobhyzly1',
+  [ApiKeysPermissionsEnum.PaymentMethod]: 'text_64aeb7b998c4322918c84204',
   [ApiKeysPermissionsEnum.Plan]: 'text_62442e40cea25600b0b6d85a',
   [ApiKeysPermissionsEnum.Subscription]: 'text_6250304370f0f700a8fdc28d',
   [ApiKeysPermissionsEnum.Tax]: 'text_645bb193927b375079d28a8f',

@@ -7,10 +7,12 @@ export const createMockPaymentMethod = (
   return {
     __typename: 'PaymentMethod',
     id: 'pm_001',
+    providerMethodId: 'pm_001',
     isDefault: false,
     paymentProviderCode: 'stripe',
     paymentProviderCustomerId: 'cus_001',
     paymentProviderType: ProviderTypeEnum.Stripe,
+    paymentProviderName: null,
     deletedAt: null,
     details: {
       __typename: 'PaymentMethodDetails',
@@ -27,6 +29,7 @@ export const createMockPaymentMethod = (
 const DEFAULT_PAYMENT_METHODS: PaymentMethodItem[] = [
   createMockPaymentMethod({
     id: 'pm_001',
+    providerMethodId: 'pm_001',
     isDefault: true,
     details: {
       __typename: 'PaymentMethodDetails',
@@ -39,6 +42,7 @@ const DEFAULT_PAYMENT_METHODS: PaymentMethodItem[] = [
   }),
   createMockPaymentMethod({
     id: 'pm_002',
+    providerMethodId: 'pm_002',
     isDefault: false,
     details: {
       __typename: 'PaymentMethodDetails',
