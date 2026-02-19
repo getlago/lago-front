@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -22,7 +21,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 
-import { AddOktaDialog, AddOktaDialogRef } from './dialogs/AddOktaDialog'
+import { useAddOktaDialog } from './dialogs/AddOktaDialog'
 import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 
 gql`
@@ -57,7 +56,7 @@ const OktaAuthenticationDetails = () => {
   const { organization } = useOrganizationInfos()
   const navigate = useNavigate()
 
-  const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
+  const { openAddOktaDialog } = useAddOktaDialog()
   const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
 
   const { data, loading, refetch } = useGetOktaIntegrationQuery({
@@ -118,11 +117,10 @@ const OktaAuthenticationDetails = () => {
                 align="left"
                 onClick={() => {
                   closePopper()
-                  addOktaDialogRef.current?.openDialog({
+                  openAddOktaDialog({
                     integration,
                     callback: onEditCallback,
-                    openDeleteDialog: openDeleteOktaIntegrationDialog,
-                    deleteDialogCallback: onDeleteCallback,
+                    deleteCallback: onDeleteCallback,
                   })
                 }}
               >
@@ -162,11 +160,10 @@ const OktaAuthenticationDetails = () => {
               variant="inline"
               disabled={loading}
               onClick={() =>
-                addOktaDialogRef.current?.openDialog({
+                openAddOktaDialog({
                   integration,
                   callback: onEditCallback,
-                  openDeleteDialog: openDeleteOktaIntegrationDialog,
-                  deleteDialogCallback: onDeleteCallback,
+                  deleteCallback: onDeleteCallback,
                 })
               }
             >
@@ -211,7 +208,6 @@ const OktaAuthenticationDetails = () => {
           </>
         </section>
       </IntegrationsPage.Container>
-      <AddOktaDialog ref={addOktaDialogRef} />
     </>
   )
 }

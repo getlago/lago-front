@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -33,7 +32,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
 
-import { AddOktaDialog, AddOktaDialogRef } from './dialogs/AddOktaDialog'
+import { useAddOktaDialog } from './dialogs/AddOktaDialog'
 import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 import { useUpdateLoginMethodDialog } from './dialogs/UpdateLoginMethodDialog'
 
@@ -65,7 +64,7 @@ const Authentication = () => {
   const navigate = useNavigate()
 
   const premiumWarningDialog = usePremiumWarningDialog()
-  const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
+  const { openAddOktaDialog } = useAddOktaDialog()
   const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
   const { openUpdateLoginMethodDialog } = useUpdateLoginMethodDialog()
 
@@ -146,7 +145,7 @@ const Authentication = () => {
                     return premiumWarningDialog.open()
                   }
 
-                  return addOktaDialogRef.current?.openDialog({
+                  return openAddOktaDialog({
                     integration: oktaIntegration,
                     callback: (id) =>
                       navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
@@ -221,7 +220,7 @@ const Authentication = () => {
                         onClick={(e) => {
                           e.stopPropagation()
 
-                          addOktaDialogRef.current?.openDialog({
+                          openAddOktaDialog({
                             integration: oktaIntegration,
                             callback: () => {
                               refetchOrganizationInfos()
@@ -340,7 +339,7 @@ const Authentication = () => {
                     )
                   }
 
-                  return addOktaDialogRef.current?.openDialog({
+                  return openAddOktaDialog({
                     integration: oktaIntegration,
                     callback: (id) =>
                       navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
@@ -357,8 +356,6 @@ const Authentication = () => {
           )}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      <AddOktaDialog ref={addOktaDialogRef} />
     </>
   )
 }
