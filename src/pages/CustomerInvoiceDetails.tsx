@@ -145,6 +145,7 @@ gql`
     id
     name
     paymentProvider
+    deletedAt
     avalaraCustomer {
       id
       integrationId
