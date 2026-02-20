@@ -254,27 +254,13 @@ const CustomerInvoiceVoid = () => {
               />
             </div>
 
-            <div className="flex flex-col gap-6">
-              {hasActiveCustomer && (
-                <div className="flex flex-col gap-2">
-                  <Typography variant="subhead1" color="grey700">
-                    {translate('text_1747902518582byw3i46x61k')}
-                  </Typography>
-
-                  <Typography variant="body" color="grey600">
-                    {translate('text_1747902518582701lwmkfqfb')}
-                  </Typography>
-                </div>
-              )}
-
-              {isPremium && (
-                <Alert type="info">
-                  <Typography className="text-grey-700">
-                    {translate('text_1747908642632nja67p9ig0e')}
-                  </Typography>
-                </Alert>
-              )}
-            </div>
+            {isPremium && (
+              <Alert type="info">
+                <Typography className="text-grey-700">
+                  {translate('text_1747908642632nja67p9ig0e')}
+                </Typography>
+              </Alert>
+            )}
           </div>
         </CenteredPage.Container>
       )}
