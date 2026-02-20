@@ -7684,10 +7684,15 @@ export type QueryWebhookEndpointsArgs = {
 
 
 export type QueryWebhooksArgs = {
+  eventTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  httpStatuses?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<WebhookStatusEnum>;
+  statuses?: InputMaybe<Array<WebhookStatusEnum>>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   webhookEndpointId: Scalars['String']['input'];
 };
 
@@ -9553,6 +9558,7 @@ export type WebhookEndpointUpdateInput = {
 export enum WebhookStatusEnum {
   Failed = 'failed',
   Pending = 'pending',
+  Retrying = 'retrying',
   Succeeded = 'succeeded'
 }
 
@@ -10611,7 +10617,11 @@ export type GetWebhookLogQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   webhookEndpointId: Scalars['String']['input'];
-  status?: InputMaybe<WebhookStatusEnum>;
+  statuses?: InputMaybe<Array<WebhookStatusEnum> | WebhookStatusEnum>;
+  eventTypes?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  httpStatuses?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
@@ -23963,12 +23973,16 @@ export type GetWebhookInformationsLazyQueryHookResult = ReturnType<typeof useGet
 export type GetWebhookInformationsSuspenseQueryHookResult = ReturnType<typeof useGetWebhookInformationsSuspenseQuery>;
 export type GetWebhookInformationsQueryResult = Apollo.QueryResult<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>;
 export const GetWebhookLogDocument = gql`
-    query getWebhookLog($page: Int, $limit: Int, $webhookEndpointId: String!, $status: WebhookStatusEnum, $searchTerm: String) {
+    query getWebhookLog($page: Int, $limit: Int, $webhookEndpointId: String!, $statuses: [WebhookStatusEnum!], $eventTypes: [String!], $httpStatuses: [String!], $fromDate: ISO8601DateTime, $toDate: ISO8601DateTime, $searchTerm: String) {
   webhooks(
     page: $page
     limit: $limit
     webhookEndpointId: $webhookEndpointId
-    status: $status
+    statuses: $statuses
+    eventTypes: $eventTypes
+    httpStatuses: $httpStatuses
+    fromDate: $fromDate
+    toDate: $toDate
     searchTerm: $searchTerm
   ) {
     metadata {

@@ -45,6 +45,9 @@ import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElem
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
 import { FiltersItemSubscriptionStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscriptionStatus'
 import { FiltersItemUserEmails } from '~/components/designSystem/Filters/filtersElements/FiltersItemUserEmails'
+import { FiltersItemWebhookDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookDate'
+import { FiltersItemWebhookEventTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookEventTypes'
+import { FiltersItemWebhookHttpStatuses } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookHttpStatuses'
 import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemZipcodes } from '~/components/designSystem/Filters/filtersElements/FiltersItemZipcodes'
 import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
@@ -116,6 +119,9 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.subscriptionStatus]: <FiltersItemSubscriptionStatus {...props} />,
     [AvailableFiltersEnum.subscriptionExternalId]: <FiltersItemSubscription {...props} />,
     [AvailableFiltersEnum.userEmails]: <FiltersItemUserEmails {...props} />,
+    [AvailableFiltersEnum.webhookDate]: <FiltersItemWebhookDate {...props} />,
+    [AvailableFiltersEnum.webhookEventTypes]: <FiltersItemWebhookEventTypes {...props} />,
+    [AvailableFiltersEnum.webhookHttpStatuses]: <FiltersItemWebhookHttpStatuses {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
     [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
     [AvailableFiltersEnum.zipcodes]: <FiltersItemZipcodes {...props} />,

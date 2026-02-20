@@ -3,11 +3,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import {
-  AvailableFiltersEnum,
-  Filters,
-  formatFiltersForWebhookLogsQuery,
-} from '~/components/designSystem/Filters'
+import { Filters, formatFiltersForWebhookLogsQuery } from '~/components/designSystem/Filters'
+import { WebhookLogsAvailableFilters } from '~/components/designSystem/Filters/types'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
@@ -48,14 +45,22 @@ gql`
     $page: Int
     $limit: Int
     $webhookEndpointId: String!
-    $status: WebhookStatusEnum
+    $statuses: [WebhookStatusEnum!]
+    $eventTypes: [String!]
+    $httpStatuses: [String!]
+    $fromDate: ISO8601DateTime
+    $toDate: ISO8601DateTime
     $searchTerm: String
   ) {
     webhooks(
       page: $page
       limit: $limit
       webhookEndpointId: $webhookEndpointId
-      status: $status
+      statuses: $statuses
+      eventTypes: $eventTypes
+      httpStatuses: $httpStatuses
+      fromDate: $fromDate
+      toDate: $toDate
       searchTerm: $searchTerm
     ) {
       metadata {
@@ -79,9 +84,11 @@ export const WebhookLogs = () => {
 
   const logListRef = useRef<ListSectionRef>(null)
 
+  const searchParamsString = searchParams.toString()
+
   const filtersForWebhookLogsQuery = useMemo(() => {
-    return formatFiltersForWebhookLogsQuery(searchParams)
-  }, [searchParams])
+    return formatFiltersForWebhookLogsQuery(new URLSearchParams(searchParamsString))
+  }, [searchParamsString])
 
   const { data: webhookUrlData, loading: webhookUrlLoading } = useGetWebhookInformationsQuery({
     variables: { id: webhookId },
@@ -172,7 +179,7 @@ export const WebhookLogs = () => {
                   <div>
                     <Filters.Provider
                       filtersNamePrefix={WEBHOOK_LOGS_FILTER_PREFIX}
-                      availableFilters={[AvailableFiltersEnum.webhookStatus]}
+                      availableFilters={WebhookLogsAvailableFilters}
                       displayInDialog
                     >
                       <Filters.Component />

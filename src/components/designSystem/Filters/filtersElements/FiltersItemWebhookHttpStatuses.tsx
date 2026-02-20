@@ -1,19 +1,28 @@
 import { useFilterContext } from '~/components/designSystem/Filters/context'
 import { MultipleComboBox } from '~/components/form'
-import { WebhookStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersFormValues } from '../types'
 
-type FiltersItemWebhookStatusProps = {
+type FiltersItemWebhookHttpStatusesProps = {
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
 }
 
-export const FiltersItemWebhookStatus = ({
+const WEBHOOK_HTTP_STATUS_CATEGORIES = [
+  { value: '1xx', label: '1xx' },
+  { value: '2xx', label: '2xx' },
+  { value: '3xx', label: '3xx' },
+  { value: '4xx', label: '4xx' },
+  { value: '5xx', label: '5xx' },
+  // TODO: Timeout filter not yet supported by the backend
+  { value: 'timeout', label: 'Timeout' },
+]
+
+export const FiltersItemWebhookHttpStatuses = ({
   value,
   setFilterValue,
-}: FiltersItemWebhookStatusProps) => {
+}: FiltersItemWebhookHttpStatusesProps) => {
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilterContext()
 
@@ -34,25 +43,7 @@ export const FiltersItemWebhookStatus = ({
       disableClearable
       disableCloseOnSelect
       placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
-      data={[
-        {
-          label: translate('text_62da6db136909f52c2704c30'),
-          value: WebhookStatusEnum.Pending,
-        },
-        {
-          label: translate('text_1746621029319goh9pr7g67d'),
-          value: WebhookStatusEnum.Succeeded,
-        },
-        {
-          label: translate('text_637656ef3d876b0269edc7a1'),
-          value: WebhookStatusEnum.Failed,
-        },
-        // TODO: Retrying filter not yet supported by the backend
-        {
-          label: translate('text_1771575108779dcpijdenr1q'),
-          value: WebhookStatusEnum.Retrying,
-        },
-      ]}
+      data={WEBHOOK_HTTP_STATUS_CATEGORIES}
       onChange={handleChange}
       value={selectedValues}
     />

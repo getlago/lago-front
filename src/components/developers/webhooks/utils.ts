@@ -13,6 +13,11 @@ export const statusWebhookMapping = (status?: WebhookStatusEnum | null): StatusP
         type: StatusType.danger,
         label: 'failed',
       }
+    case WebhookStatusEnum.Retrying:
+      return {
+        type: StatusType.warning,
+        label: 'retrying',
+      }
     case WebhookStatusEnum.Succeeded:
       return {
         type: StatusType.success,
@@ -24,4 +29,13 @@ export const statusWebhookMapping = (status?: WebhookStatusEnum | null): StatusP
         label: 'pending',
       }
   }
+}
+
+export const formatWebhookResponseLabel = (
+  httpStatus: string | number | null | undefined,
+  status: WebhookStatusEnum | null | undefined,
+): string => {
+  const label = String(statusWebhookMapping(status).label)
+
+  return `${httpStatus} ${label.charAt(0).toUpperCase() + label.slice(1)}`
 }
