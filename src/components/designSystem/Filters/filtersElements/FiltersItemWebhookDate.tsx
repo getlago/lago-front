@@ -60,6 +60,7 @@ export const FiltersItemWebhookDate = ({
       <DatePicker
         disableFuture
         showErrorInTooltip
+        placement="auto"
         className="flex-1"
         defaultZone={defaultZone}
         onChange={handleFromChange}
@@ -74,6 +75,7 @@ export const FiltersItemWebhookDate = ({
       <DatePicker
         disableFuture
         showErrorInTooltip
+        placement="auto"
         className="flex-1"
         defaultZone={defaultZone}
         onChange={handleToChange}
