@@ -7,6 +7,7 @@ import {
   TimeZonesConfig,
 } from '~/core/timezone'
 import {
+  FeatureFlagEnum,
   MainOrganizationInfosFragment,
   OrganizationForDatePickerFragmentDoc,
   PremiumIntegrationTypeEnum,
@@ -22,6 +23,7 @@ gql`
     logoUrl
     timezone
     defaultCurrency
+    featureFlags
     premiumIntegrations
     canCreateBillingEntity
     authenticationMethods
@@ -44,6 +46,7 @@ type UseOrganizationInfos = () => {
   organization?: MainOrganizationInfosFragment
   timezone: TimezoneEnum
   timezoneConfig: TimezoneConfigObject
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
   hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) => boolean
   refetchOrganizationInfos: () => void
   intlFormatDateTimeOrgaTZ: (
@@ -64,6 +67,7 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
   const orgaTimezone = data?.organization?.timezone || TimezoneEnum.TzUtc
   const timezoneConfig = TimeZonesConfig[orgaTimezone]
 
+  const featureFlags = data?.organization?.featureFlags
   const premiumIntegrations = data?.organization?.premiumIntegrations
 
   return {
@@ -71,6 +75,7 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     organization: data?.organization || undefined,
     timezone: orgaTimezone || TimezoneEnum.TzUtc,
     timezoneConfig,
+    hasFeatureFlag: (flag: FeatureFlagEnum) => !!featureFlags?.includes(flag),
     hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) =>
       !!premiumIntegrations?.includes(integration),
     refetchOrganizationInfos: refetch,

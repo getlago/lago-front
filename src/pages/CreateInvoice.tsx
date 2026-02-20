@@ -53,12 +53,12 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { formatInvoiceDisplayValue, invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
   CustomerAccountTypeEnum,
+  FeatureFlagEnum,
   FeeForInvoiceFeesToFeeInputFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   Invoice,
@@ -74,6 +74,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -245,6 +246,7 @@ const CreateInvoice = () => {
   const { goBack } = useLocationHistory()
   const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
   const actions = usePermissionsInvoiceActions()
+  const { hasFeatureFlag } = useOrganizationInfos()
 
   const [showAddItem, setShowAddItem] = useState(false)
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
@@ -611,7 +613,7 @@ const CreateInvoice = () => {
     total,
     currency,
   )
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   return (
     <>

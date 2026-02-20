@@ -3,11 +3,12 @@ import { useParams } from 'react-router-dom'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
+  FeatureFlagEnum,
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { PaymentInvoiceDetails } from './PaymentInvoiceDetails'
 import { SubscriptionInformations } from './SubscriptionInformations'
@@ -36,7 +37,8 @@ gql`
 `
 
 export const SubscriptionDetailsOverview = () => {
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
   const { subscriptionId } = useParams()
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsOverviewQuery({
