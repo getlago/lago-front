@@ -572,6 +572,8 @@ describe('useInvoiceAuthorizations', () => {
 
     describe('canRegenerate', () => {
       it('should pass hasActiveWallet=true to actions when customer has active wallet', () => {
+        const customer = createMockCustomer()
+
         mockHasActiveWallet = true
         mockActions.canRegenerate.mockReturnValue(true)
 
@@ -585,6 +587,7 @@ describe('useInvoiceAuthorizations', () => {
         expect(result.current.authorizations.canRegenerate).toBe(true)
         expect(mockActions.canRegenerate).toHaveBeenCalledWith(
           {
+            customer,
             status: InvoiceStatusTypeEnum.Voided,
             regeneratedInvoiceId: null,
             invoiceType: InvoiceTypeEnum.Credit,
