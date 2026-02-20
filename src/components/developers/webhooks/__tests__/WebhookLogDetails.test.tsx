@@ -214,7 +214,7 @@ describe('WebhookLogDetails', () => {
       await prepare(failedWebhookData)
 
       await waitFor(() => {
-        expect(screen.queryByText('500')).toBeInTheDocument()
+        expect(screen.queryByText('500 Failed')).toBeInTheDocument()
       })
     })
 
