@@ -9590,7 +9590,6 @@ export type WebhookEventType = {
 export enum WebhookStatusEnum {
   Failed = 'failed',
   Pending = 'pending',
-  Retrying = 'retrying',
   Succeeded = 'succeeded'
 }
 
@@ -23893,7 +23892,11 @@ export const GetWebhookLogDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      webhookEndpointId: // value for 'webhookEndpointId'
- *      status: // value for 'status'
+ *      statuses: // value for 'statuses'
+ *      eventTypes: // value for 'eventTypes'
+ *      httpStatuses: // value for 'httpStatuses'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
  *      searchTerm: // value for 'searchTerm'
  *   },
  * });

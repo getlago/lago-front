@@ -13,11 +13,6 @@ export const statusWebhookMapping = (status?: WebhookStatusEnum | null): StatusP
         type: StatusType.danger,
         label: 'failed',
       }
-    case WebhookStatusEnum.Retrying:
-      return {
-        type: StatusType.warning,
-        label: 'retrying',
-      }
     case WebhookStatusEnum.Succeeded:
       return {
         type: StatusType.success,

@@ -47,11 +47,6 @@ export const FiltersItemWebhookStatus = ({
           label: translate('text_637656ef3d876b0269edc7a1'),
           value: WebhookStatusEnum.Failed,
         },
-        // TODO: Retrying filter not yet supported by the backend
-        {
-          label: translate('text_1771575108779dcpijdenr1q'),
-          value: WebhookStatusEnum.Retrying,
-        },
       ]}
       onChange={handleChange}
       value={selectedValues}
