@@ -32,12 +32,20 @@ export interface DeveloperToolContextType extends UsePanelReturn {
   // Used to navigate within the BrowserRouter (main app) from the MemoryRouter
   mainRouterUrl: string
   setMainRouterUrl: (url: string) => void
+  // Header height offsets for calculating log section heights
+  headerOffset: number
+  webhookDetailHeaderOffset: number
 }
 
 export const MAX_RESIZABLE_HEIGHT = 88
 export const MIN_RESIZABLE_HEIGHT = 20
 export const DEFAULT_RESIZABLE_HEIGHT = 40
 export const FULLSCREEN = 100
+
+// Header height offsets for calculating log section heights
+// These account for fixed headers above the scrollable log area
+const DEVTOOLS_HEADER_OFFSET = 182 // devtools tabs (52px) + CTA section (64px) + inner tabs (64px) + borders (2px)
+const WEBHOOK_DETAIL_HEADER_OFFSET = 98 // webhook detail hero (~82px) + inner navigation tabs (~16px)
 
 export function DeveloperToolProvider({ children }: { children: ReactNode }) {
   const panel = usePanel({
@@ -75,6 +83,8 @@ export function DeveloperToolProvider({ children }: { children: ReactNode }) {
         setUrl,
         mainRouterUrl,
         setMainRouterUrl,
+        headerOffset: DEVTOOLS_HEADER_OFFSET,
+        webhookDetailHeaderOffset: WEBHOOK_DETAIL_HEADER_OFFSET,
       }}
     >
       {children}

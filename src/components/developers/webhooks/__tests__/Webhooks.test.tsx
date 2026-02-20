@@ -1,79 +1,135 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
-import { maskValue } from '~/core/formats/maskValue'
-import { GetOrganizationHmacDataDocument, GetWebhookListDocument } from '~/generated/graphql'
-import { AllTheProviders } from '~/test-utils'
+import {
+  GetOrganizationHmacDataQuery,
+  GetWebhookListQuery,
+  useGetOrganizationHmacDataQuery,
+  useGetWebhookListQuery,
+} from '~/generated/graphql'
+import { render } from '~/test-utils'
 
 import { Webhooks } from '../Webhooks'
 
-const MOCK_HMAC_KEY = 'hmac-secret-key-12345-abcde'
-const MOCK_WEBHOOK_ID = 'webhook-12345'
-const MOCK_WEBHOOK_URL = 'https://example.com/webhook'
+// Mock hooks
+const mockClosePanel = jest.fn()
+const mockSetMainRouterUrl = jest.fn()
 
-const mockOrganizationHmacData = {
-  request: {
-    query: GetOrganizationHmacDataDocument,
-  },
-  result: {
-    data: {
-      organization: {
-        __typename: 'Organization',
-        id: 'org-123',
-        hmacKey: MOCK_HMAC_KEY,
-      },
+jest.mock('~/hooks/useDeveloperTool', () => ({
+  useDeveloperTool: () => ({
+    closePanel: mockClosePanel,
+    setMainRouterUrl: mockSetMainRouterUrl,
+  }),
+}))
+
+jest.mock('~/components/developers/webhooks/useDeleteWebhook', () => ({
+  useDeleteWebhook: () => ({
+    openDialog: jest.fn(),
+  }),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => {
+      if (key === 'text_1746190277237vdc9v07s2fe') return 'Add a webhook endpoint'
+      return key
     },
+  }),
+}))
+
+jest.mock('~/hooks/useWebhookEventTypes', () => ({
+  useWebhookEventTypes: () => ({
+    getEventDisplayInfo: () => ({ eventCount: 1 }),
+  }),
+}))
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetWebhookListQuery: jest.fn(),
+  useGetOrganizationHmacDataQuery: jest.fn(),
+}))
+
+// Mock data
+const mockWebhookListData: GetWebhookListQuery = {
+  webhookEndpoints: {
+    collection: [
+      {
+        id: 'webhook-1',
+        webhookUrl: 'https://example.com/webhook1',
+        eventTypes: ['customer.created'],
+      },
+      {
+        id: 'webhook-2',
+        webhookUrl: 'https://example.com/webhook2',
+        eventTypes: null,
+      },
+    ],
   },
 }
 
-const mockWebhookListData = {
-  request: {
-    query: GetWebhookListDocument,
-    variables: { limit: 10 },
-  },
-  result: {
-    data: {
-      webhookEndpoints: {
-        __typename: 'WebhookEndpointCollection',
-        collection: [
-          {
-            __typename: 'WebhookEndpoint',
-            id: MOCK_WEBHOOK_ID,
-            webhookUrl: MOCK_WEBHOOK_URL,
-            signatureAlgo: 'jwt',
-          },
-        ],
-      },
-    },
-  },
+const mockOrganizationHmacData: GetOrganizationHmacDataQuery = {
+  organization: { id: 'org-1', hmacKey: 'test-hmac-key' },
 }
 
-const renderComponent = () => {
-  return render(<Webhooks />, {
-    wrapper: ({ children }) =>
-      AllTheProviders({
-        children,
-        mocks: [mockOrganizationHmacData, mockWebhookListData],
-        forceTypenames: true,
-      }),
-  })
+const maxWebhooksListData: GetWebhookListQuery = {
+  webhookEndpoints: {
+    collection: Array.from({ length: 25 }, (_, i) => ({
+      id: `webhook-${i + 1}`,
+      webhookUrl: `https://example.com/webhook${i + 1}`,
+      eventTypes: ['customer.created'],
+    })),
+  },
 }
 
 describe('Webhooks', () => {
-  it('should show masked HMAC key by default', async () => {
-    renderComponent()
+  beforeEach(() => {
+    jest.clearAllMocks()
 
-    const maskedKey = maskValue(MOCK_HMAC_KEY, { dotsCount: 8, visibleChars: 3 })
+    jest.mocked(useGetWebhookListQuery).mockReturnValue({
+      data: mockWebhookListData,
+      loading: false,
+    } as ReturnType<typeof useGetWebhookListQuery>)
 
-    await waitFor(() => {
-      expect(screen.getByText(maskedKey)).toBeInTheDocument()
+    jest.mocked(useGetOrganizationHmacDataQuery).mockReturnValue({
+      data: mockOrganizationHmacData,
+      loading: false,
+    } as ReturnType<typeof useGetOrganizationHmacDataQuery>)
+  })
+
+  describe('GIVEN webhooks data is loaded', () => {
+    it('THEN should display webhook URLs in the table', () => {
+      render(<Webhooks />)
+
+      expect(screen.getByText('https://example.com/webhook1')).toBeInTheDocument()
+      expect(screen.getByText('https://example.com/webhook2')).toBeInTheDocument()
     })
   })
 
-  it('should display webhook URL in table', async () => {
-    renderComponent()
+  describe('GIVEN user clicks the add webhook button', () => {
+    it('THEN should navigate to create route and close the panel', async () => {
+      const user = userEvent.setup()
 
-    await waitFor(() => {
-      expect(screen.getByText(MOCK_WEBHOOK_URL)).toBeInTheDocument()
+      render(<Webhooks />)
+
+      await user.click(screen.getByRole('button', { name: /add a webhook endpoint/i }))
+
+      expect(mockSetMainRouterUrl).toHaveBeenCalledWith('/webhook/create')
+      expect(mockClosePanel).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN webhook count is at the limit (25)', () => {
+    beforeEach(() => {
+      jest.mocked(useGetWebhookListQuery).mockReturnValue({
+        data: maxWebhooksListData,
+        loading: false,
+      } as ReturnType<typeof useGetWebhookListQuery>)
+    })
+
+    it('THEN should disable the add webhook button', () => {
+      render(<Webhooks />)
+
+      expect(screen.getByRole('button', { name: /add a webhook endpoint/i })).toBeDisabled()
     })
   })
 })

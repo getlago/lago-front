@@ -38,7 +38,7 @@ export const Events = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { '*': eventId } = useParams<{ '*': string }>()
-  const { panelSize: size } = useDeveloperTool()
+  const { panelSize: size, headerOffset } = useDeveloperTool()
   const logListRef = useRef<ListSectionRef>(null)
 
   const getEventsResult = useEventsQuery({
@@ -113,7 +113,7 @@ export const Events = () => {
         leftSide={<EventTable getEventsResult={getEventsResult} logListRef={logListRef} />}
         rightSide={<EventDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
-        sectionHeight={shouldDisplayLogDetails ? `calc(${size}vh - 182px)` : '100%'} // 182px is the height of the headers (52px+64px+64px+2px of borders)
+        sectionHeight={shouldDisplayLogDetails ? `calc(${size}vh - ${headerOffset}px)` : '100%'}
       />
     </div>
   )
