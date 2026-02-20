@@ -70,10 +70,15 @@ export const usePermissionsInvoiceActions = () => {
   }
 
   const canRegenerate = (
-    invoice: Pick<Invoice, 'status' | 'regeneratedInvoiceId' | 'invoiceType'>,
+    invoice: Pick<Invoice, 'status' | 'regeneratedInvoiceId' | 'invoiceType'> & {
+      customer?: {
+        deletedAt?: string
+      } | null
+    },
     hasActiveWallet: boolean,
   ): boolean => {
     const isRegenerable =
+      !invoice?.customer?.deletedAt &&
       invoice.status === InvoiceStatusTypeEnum.Voided &&
       !invoice.regeneratedInvoiceId &&
       hasPermissions(['invoicesVoid'])

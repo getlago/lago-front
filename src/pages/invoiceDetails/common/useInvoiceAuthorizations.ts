@@ -150,7 +150,7 @@ export const useInvoiceAuthorizations = ({
       canDispute: actions.canDispute({ status, paymentDisputeLostAt }),
       canVoid: actions.canVoid({ status }),
       canRegenerate: actions.canRegenerate(
-        { status, regeneratedInvoiceId, invoiceType },
+        { customer, status, regeneratedInvoiceId, invoiceType },
         hasActiveWallet,
       ),
       canSyncTaxIntegration: actions.canSyncTaxIntegration({ taxProviderVoidable }),

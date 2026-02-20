@@ -145,6 +145,7 @@ gql`
     id
     name
     paymentProvider
+    deletedAt
     avalaraCustomer {
       id
       integrationId
@@ -1021,7 +1022,9 @@ const CustomerInvoiceDetails = () => {
                         }
                       }}
                     >
-                      {translate('text_1750678506388d4fr5etxbhh')}
+                      {invoice?.customer?.deletedAt
+                        ? translate('text_65269b43d4d2b15dd929a259')
+                        : translate('text_1750678506388d4fr5etxbhh')}
                     </Button>
                   )}
                   {authorizations.canRegenerate && (
