@@ -5,6 +5,8 @@ import { MultipleComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 
+import { formatMultiFilterValue, parseMultiFilterValue } from './utils'
+
 import { FiltersFormValues } from '../types'
 
 type FiltersItemWebhookEventTypesProps = {
@@ -29,15 +31,6 @@ export const FiltersItemWebhookEventTypes = ({
     [allEventNames],
   )
 
-  const selectedValues = (value || '')
-    .split(',')
-    .filter((v) => !!v)
-    .map((v) => ({ value: v }))
-
-  const handleChange = (eventTypes: { value: string }[]) => {
-    setFilterValue(eventTypes.map((v) => v.value).join(','))
-  }
-
   return (
     <MultipleComboBox
       PopperProps={{
@@ -48,8 +41,8 @@ export const FiltersItemWebhookEventTypes = ({
       sortValues={false}
       placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
       data={eventTypeOptions}
-      onChange={handleChange}
-      value={selectedValues}
+      onChange={(eventTypes) => setFilterValue(formatMultiFilterValue(eventTypes))}
+      value={parseMultiFilterValue(value)}
     />
   )
 }

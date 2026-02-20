@@ -3,6 +3,8 @@ import { MultipleComboBox } from '~/components/form'
 import { WebhookStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { formatMultiFilterValue, parseMultiFilterValue } from './utils'
+
 import { FiltersFormValues } from '../types'
 
 type FiltersItemWebhookStatusProps = {
@@ -16,15 +18,6 @@ export const FiltersItemWebhookStatus = ({
 }: FiltersItemWebhookStatusProps) => {
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilterContext()
-
-  const selectedValues = (value || '')
-    .split(',')
-    .filter((v) => !!v)
-    .map((v) => ({ value: v }))
-
-  const handleChange = (statuses: { value: string }[]) => {
-    setFilterValue(statuses.map((v) => v.value).join(','))
-  }
 
   return (
     <MultipleComboBox
@@ -48,8 +41,8 @@ export const FiltersItemWebhookStatus = ({
           value: WebhookStatusEnum.Failed,
         },
       ]}
-      onChange={handleChange}
-      value={selectedValues}
+      onChange={(statuses) => setFilterValue(formatMultiFilterValue(statuses))}
+      value={parseMultiFilterValue(value)}
     />
   )
 }
