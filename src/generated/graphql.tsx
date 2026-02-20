@@ -7739,10 +7739,15 @@ export type QueryWebhookEndpointsArgs = {
 
 
 export type QueryWebhooksArgs = {
+  eventTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  httpStatuses?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<WebhookStatusEnum>;
+  statuses?: InputMaybe<Array<WebhookStatusEnum>>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   webhookEndpointId: Scalars['String']['input'];
 };
 
@@ -10672,7 +10677,11 @@ export type GetWebhookLogQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   webhookEndpointId: Scalars['String']['input'];
-  status?: InputMaybe<WebhookStatusEnum>;
+  statuses?: InputMaybe<Array<WebhookStatusEnum> | WebhookStatusEnum>;
+  eventTypes?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  httpStatuses?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
@@ -23903,12 +23912,16 @@ export type GetSingleWebhookLogLazyQueryHookResult = ReturnType<typeof useGetSin
 export type GetSingleWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetSingleWebhookLogSuspenseQuery>;
 export type GetSingleWebhookLogQueryResult = Apollo.QueryResult<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>;
 export const GetWebhookLogDocument = gql`
-    query getWebhookLog($page: Int, $limit: Int, $webhookEndpointId: String!, $status: WebhookStatusEnum, $searchTerm: String) {
+    query getWebhookLog($page: Int, $limit: Int, $webhookEndpointId: String!, $statuses: [WebhookStatusEnum!], $eventTypes: [String!], $httpStatuses: [String!], $fromDate: ISO8601DateTime, $toDate: ISO8601DateTime, $searchTerm: String) {
   webhooks(
     page: $page
     limit: $limit
     webhookEndpointId: $webhookEndpointId
-    status: $status
+    statuses: $statuses
+    eventTypes: $eventTypes
+    httpStatuses: $httpStatuses
+    fromDate: $fromDate
+    toDate: $toDate
     searchTerm: $searchTerm
   ) {
     metadata {
@@ -23938,7 +23951,11 @@ export const GetWebhookLogDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      webhookEndpointId: // value for 'webhookEndpointId'
- *      status: // value for 'status'
+ *      statuses: // value for 'statuses'
+ *      eventTypes: // value for 'eventTypes'
+ *      httpStatuses: // value for 'httpStatuses'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
  *      searchTerm: // value for 'searchTerm'
  *   },
  * });

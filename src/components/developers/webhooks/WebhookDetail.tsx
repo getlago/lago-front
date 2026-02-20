@@ -1,11 +1,11 @@
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { WEBHOOKS_ROUTE } from '~/components/developers/devtoolsRoutes'
+import { WEBHOOK_LOGS_ROUTE, WEBHOOKS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { WebhookLogs } from '~/components/developers/webhooks/WebhookLogs'
 import { WebhookOverview } from '~/components/developers/webhooks/WebhookOverview'
 import { UPDATE_WEBHOOK_ROUTE } from '~/core/router'
@@ -27,6 +27,7 @@ export const WEBHOOK_DETAIL_DELETE_BUTTON_TEST_ID = 'webhook-detail-delete-butto
 
 export const WebhookDetail = () => {
   const { webhookId = '' } = useParams<{ webhookId: string }>()
+  const { pathname } = useLocation()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { closePanel, setMainRouterUrl } = useDeveloperTool()
@@ -35,6 +36,20 @@ export const WebhookDetail = () => {
 
   const signatureLabel =
     webhook?.signatureAlgo === WebhookEndpointSignatureAlgoEnum.Jwt ? 'JWT' : 'HMAC'
+
+  const webhookDetailTabs = [
+    {
+      title: translate('text_634687079be251fdb43833b7'),
+      component: (
+        <WebhookOverview webhook={webhook} loading={loading} signatureLabel={signatureLabel} />
+      ),
+    },
+    {
+      title: translate('text_1746622271766kgqyug3llin'),
+      match: [WEBHOOK_LOGS_ROUTE],
+      component: <WebhookLogs webhookId={webhookId} />,
+    },
+  ]
 
   return (
     <div>
@@ -123,22 +138,10 @@ export const WebhookDetail = () => {
         name="webhook-detail"
         managedBy={TabManagedBy.INDEX}
         loading={loading}
-        tabs={[
-          {
-            title: translate('text_634687079be251fdb43833b7'),
-            component: (
-              <WebhookOverview
-                webhook={webhook}
-                loading={loading}
-                signatureLabel={signatureLabel}
-              />
-            ),
-          },
-          {
-            title: translate('text_1746622271766kgqyug3llin'),
-            component: <WebhookLogs webhookId={webhookId} />,
-          },
-        ]}
+        currentTab={webhookDetailTabs.findIndex((tab) =>
+          tab.match?.some((pattern) => matchPath(pattern, pathname)),
+        )}
+        tabs={webhookDetailTabs}
       />
     </div>
   )

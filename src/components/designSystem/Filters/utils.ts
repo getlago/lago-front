@@ -34,7 +34,6 @@ import {
   ActivityTypeEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
-  WebhookStatusEnum,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -129,6 +128,7 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.issuingDate,
   AvailableFiltersEnum.loggedDate,
+  AvailableFiltersEnum.webhookDate,
 ]
 
 // TODO: Fix this type
@@ -203,6 +203,14 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
+  [AvailableFiltersEnum.webhookDate]: (value: string) => {
+    return {
+      fromDate: (value as string).split(',')[0] || undefined,
+      toDate: (value as string).split(',')[1] || undefined,
+    }
+  },
+  [AvailableFiltersEnum.webhookEventTypes]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.webhookHttpStatuses]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.zipcodes]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -217,14 +225,15 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
 export const defineDefaultToDateValue = (
   searchParams: URLSearchParams,
   filtersNamePrefix: string,
+  dateFilterKey: AvailableFiltersEnum = AvailableFiltersEnum.loggedDate,
 ): URLSearchParams => {
-  const now = DateTime.now()
+  // Truncate to the second to produce a stable value within the same second.
+  // Without this, consecutive calls return different millisecond-precision timestamps,
+  // causing Apollo to see different query variables and cancel+re-fire the request.
+  const now = DateTime.now().startOf('second')
   const searchParamsCopy = new URLSearchParams(searchParams)
 
-  const searchParamsLoggedDateEntryKey = keyWithPrefix(
-    AvailableFiltersEnum.loggedDate,
-    filtersNamePrefix,
-  )
+  const searchParamsLoggedDateEntryKey = keyWithPrefix(dateFilterKey, filtersNamePrefix)
   const searchParamsLoggedDateEntryValue: string | undefined = Object.fromEntries(
     searchParamsCopy.entries(),
   )[searchParamsLoggedDateEntryKey]
@@ -447,24 +456,22 @@ export const formatFiltersForAnalyticsInvoicesQuery = (searchParams: URLSearchPa
 }
 
 export const formatFiltersForWebhookLogsQuery = (searchParams: URLSearchParams) => {
-  const filters = formatFiltersForQuery({
-    searchParams,
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.webhookStatus]: 'statuses',
+    [AvailableFiltersEnum.webhookEventTypes]: 'eventTypes',
+    [AvailableFiltersEnum.webhookHttpStatuses]: 'httpStatuses',
+  }
+
+  return formatFiltersForQuery({
+    searchParams: defineDefaultToDateValue(
+      searchParams,
+      WEBHOOK_LOGS_FILTER_PREFIX,
+      AvailableFiltersEnum.webhookDate,
+    ),
+    keyMap,
     availableFilters: WebhookLogsAvailableFilters,
     filtersNamePrefix: WEBHOOK_LOGS_FILTER_PREFIX,
   })
-
-  // Convert webhookStatus array to status property
-  if (
-    filters.webhookStatus &&
-    Array.isArray(filters.webhookStatus) &&
-    filters.webhookStatus.length > 0
-  ) {
-    return {
-      status: filters.webhookStatus[0] as WebhookStatusEnum,
-    }
-  }
-
-  return undefined
 }
 
 export const formatFiltersForUsageOverviewQuery = (searchParams: URLSearchParams) => {
@@ -627,6 +634,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:
+    case AvailableFiltersEnum.webhookDate:
       return value
         .split(',')
         .map((v) => {

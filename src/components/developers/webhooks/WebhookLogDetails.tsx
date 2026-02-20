@@ -7,8 +7,11 @@ import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import {
+  formatWebhookResponseLabel,
+  statusWebhookMapping,
+} from '~/components/developers/webhooks/utils'
 import { addToast } from '~/core/apolloClient'
-import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
 import { pollUntilCondition } from '~/core/utils/pollUntilCondition'
 import {
   LagoApiError,
@@ -223,7 +226,7 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
                   className="overflow-wrap-anywhere flex min-w-0 max-w-full"
                   color="grey700"
                 >
-                  {!hasError ? translate('text_63e27c56dfe64b846474ef73') : httpStatus}
+                  {formatWebhookResponseLabel(httpStatus, status)}
                 </Typography>
               </>
             )}

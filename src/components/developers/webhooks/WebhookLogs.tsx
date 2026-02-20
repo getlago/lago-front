@@ -4,9 +4,9 @@ import { generatePath, useNavigate, useParams, useSearchParams } from 'react-rou
 
 import { Button } from '~/components/designSystem/Button'
 import {
-  AvailableFiltersEnum,
   Filters,
   formatFiltersForWebhookLogsQuery,
+  WebhookLogsAvailableFilters,
 } from '~/components/designSystem/Filters'
 import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
@@ -34,14 +34,22 @@ gql`
     $page: Int
     $limit: Int
     $webhookEndpointId: String!
-    $status: WebhookStatusEnum
+    $statuses: [WebhookStatusEnum!]
+    $eventTypes: [String!]
+    $httpStatuses: [String!]
+    $fromDate: ISO8601DateTime
+    $toDate: ISO8601DateTime
     $searchTerm: String
   ) {
     webhooks(
       page: $page
       limit: $limit
       webhookEndpointId: $webhookEndpointId
-      status: $status
+      statuses: $statuses
+      eventTypes: $eventTypes
+      httpStatuses: $httpStatuses
+      fromDate: $fromDate
+      toDate: $toDate
       searchTerm: $searchTerm
     ) {
       metadata {
@@ -69,9 +77,11 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
 
   const logListRef = useRef<ListSectionRef>(null)
 
+  const searchParamsString = searchParams.toString()
+
   const filtersForWebhookLogsQuery = useMemo(() => {
-    return formatFiltersForWebhookLogsQuery(searchParams)
-  }, [searchParams])
+    return formatFiltersForWebhookLogsQuery(new URLSearchParams(searchParamsString))
+  }, [searchParamsString])
 
   const [getWebhookLogs, getWebhookLogsResult] = useGetWebhookLogLazyQuery({
     variables: {
@@ -90,14 +100,20 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   )
 
   const navigateToFirstLog = useCallback(
-    (logCollection?: WebhookLogFragment[]) => {
+    (logCollection?: WebhookLogFragment[], currentSearchParams?: URLSearchParams) => {
       if (logCollection?.length) {
         const firstLog = logCollection[0]
 
         if (firstLog && getCurrentBreakpoint() !== 'sm') {
-          navigate(generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }), {
-            replace: true,
-          })
+          navigate(
+            {
+              pathname: generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }),
+              search: currentSearchParams?.toString(),
+            },
+            {
+              replace: true,
+            },
+          )
         }
       }
     },
@@ -107,7 +123,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   // If no logId is provided in params, navigate to the first log
   useEffect(() => {
     if (!logId) {
-      navigateToFirstLog(data?.webhooks?.collection)
+      navigateToFirstLog(data?.webhooks?.collection, searchParams)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.webhooks.collection, logId])
@@ -133,7 +149,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
         <div>
           <Filters.Provider
             filtersNamePrefix={WEBHOOK_LOGS_FILTER_PREFIX}
-            availableFilters={[AvailableFiltersEnum.webhookStatus]}
+            availableFilters={WebhookLogsAvailableFilters}
             displayInDialog
           >
             <Filters.Component />
@@ -149,7 +165,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
           onClick={async () => {
             const result = await refetch()
 
-            navigateToFirstLog(result.data?.webhooks?.collection)
+            navigateToFirstLog(result.data?.webhooks?.collection, searchParams)
           }}
         >
           {translate('text_1738748043939zqoqzz350yj')}
