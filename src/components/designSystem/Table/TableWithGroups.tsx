@@ -179,11 +179,6 @@ const TableWithGroupsInner = (
     })
   }, [rows, expandedGroups])
 
-  // Calculate total table height
-  const tableHeight = useMemo(() => {
-    return HEADER_ROW_HEIGHT + visibleRows.length * ROW_HEIGHT
-  }, [visibleRows.length])
-
   // Calculate fixed sticky columns width (columns without isFullWidth)
   const fixedStickyColumnsWidth = useMemo(() => {
     return stickyColumns.reduce((sum, col) => {
@@ -267,11 +262,12 @@ const TableWithGroupsInner = (
     columnVirtualizer.measure()
   }, [containerWidth, columnVirtualizer])
 
-  // Vertical virtualizer for rows
+  // Vertical virtualizer for rows — uses measureElement for dynamic CSS-driven heights
   const rowVirtualizer = useVirtualizer({
     count: visibleRows.length,
     estimateSize: () => ROW_HEIGHT,
     getScrollElement: () => parentRef.current,
+    measureElement: (element) => element.getBoundingClientRect().height,
     overscan: 5,
   })
 
@@ -410,7 +406,7 @@ const TableWithGroupsInner = (
                   isHovered ? 'bg-grey-100' : 'bg-white',
                 )}
                 style={{
-                  height: ROW_HEIGHT,
+                  height: virtualRow.size,
                   width: totalStickyWidth,
                   top: HEADER_ROW_HEIGHT + virtualRow.start - scrollTop,
                   borderBottom: `1px solid ${theme.palette.grey[300]}`,
@@ -464,7 +460,7 @@ const TableWithGroupsInner = (
           className="relative"
           style={{
             width: columnVirtualizer.getTotalSize(),
-            height: tableHeight,
+            height: HEADER_ROW_HEIGHT + rowVirtualizer.getTotalSize(),
           }}
         >
           {/* Header Row */}
@@ -506,10 +502,12 @@ const TableWithGroupsInner = (
               // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
               <div
                 key={`row-${virtualRow.index}`}
+                ref={rowVirtualizer.measureElement}
+                data-index={virtualRow.index}
                 className={tw('absolute flex', isGroup && 'cursor-pointer')}
                 style={{
+                  minHeight: ROW_HEIGHT,
                   top: HEADER_ROW_HEIGHT + virtualRow.start,
-                  height: ROW_HEIGHT,
                   width: columnVirtualizer.getTotalSize(),
                 }}
                 onClick={() => handleRowClick(row)}
@@ -526,11 +524,9 @@ const TableWithGroupsInner = (
                   return (
                     <div
                       key={`cell-${virtualRow.index}-${virtualColumn.index}`}
-                      className={tw('absolute flex', isHovered ? 'bg-grey-100' : 'bg-white')}
+                      className={tw('flex shrink-0', isHovered ? 'bg-grey-100' : 'bg-white')}
                       style={{
                         width: virtualColumn.size,
-                        height: ROW_HEIGHT,
-                        left: virtualColumn.start,
                         borderBottom: `1px solid ${theme.palette.grey[300]}`,
                       }}
                     >

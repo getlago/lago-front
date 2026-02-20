@@ -742,7 +742,6 @@
   "text_64d23a81a7d807f8aa570517": "Problemas de limitação de tamanho podem surgir devido ao payload do cabeçalho",
   "text_64d23a81a7d807f8aa570519": "Assinatura HMAC",
   "text_64d23a81a7d807f8aa57051b": "Sem problemas de limitação de tamanho, pois o payload do cabeçalho é menor",
-  "text_64d23a81a7d807f8aa57051f": "Editar webhook",
   "text_64d23b49d481ab00681c22ab": "Webhook editado com sucesso",
   "text_6560809c38fb9de88d8a505e": "Criar carteira",
   "text_6560809c38fb9de88d8a5090": "Configurações da carteira",

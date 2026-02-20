@@ -75,7 +75,7 @@ export const ActivityLogs = () => {
   const navigate = useNavigate()
   const { logId } = useParams<{ logId: string }>()
   const [searchParams] = useSearchParams()
-  const { panelSize: size } = useDeveloperTool()
+  const { panelSize: size, headerOffset } = useDeveloperTool()
   const logListRef = useRef<ListSectionRef>(null)
 
   const filtersForActivityLogsQuery = useMemo(() => {
@@ -176,9 +176,7 @@ export const ActivityLogs = () => {
         }
         rightSide={<ActivityLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
-        sectionHeight={
-          shouldDisplayLogDetails ? `calc(${size}vh - 182px)` : '100%' // 182px is the height of the headers (52px+64px+64px+2px of borders)
-        }
+        sectionHeight={shouldDisplayLogDetails ? `calc(${size}vh - ${headerOffset}px)` : '100%'}
       />
     </div>
   )

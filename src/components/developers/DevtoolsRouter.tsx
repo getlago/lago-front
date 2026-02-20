@@ -17,7 +17,7 @@ import {
   ApiKeys,
   ApiLogs,
   Events,
-  WebhookLogs,
+  WebhookDetail,
   Webhooks,
 } from '~/components/developers/views'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -31,8 +31,8 @@ export const DevtoolsRouter = () => {
       path: WEBHOOKS_ROUTE,
       element: <Webhooks />,
     },
-    { path: WEBHOOK_ROUTE, element: <WebhookLogs /> },
-    { path: WEBHOOK_LOGS_ROUTE, element: <WebhookLogs /> },
+    { path: WEBHOOK_ROUTE, element: <WebhookDetail /> },
+    { path: WEBHOOK_LOGS_ROUTE, element: <WebhookDetail /> },
 
     { path: EVENTS_ROUTE, element: <Events /> },
     { path: EVENT_LOG_ROUTE, element: <Events /> },
