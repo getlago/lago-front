@@ -51,12 +51,14 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+const mockHasFeatureFlag = jest.fn(() => false)
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {
       premiumIntegrations: ['revenue_share'],
     },
-    hasFeatureFlag: jest.fn(() => false),
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -1028,6 +1030,7 @@ describe('InvoicesList', () => {
       const user = userEvent.setup()
 
       mockCanRetryCollect.mockReturnValue(true)
+      mockHasFeatureFlag.mockReturnValue(true)
 
       await renderInvoicesList({
         invoices: [
