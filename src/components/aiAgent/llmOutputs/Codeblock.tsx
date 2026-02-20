@@ -2,7 +2,7 @@
 import { CodeToHtmlOptions, loadHighlighter, useCodeBlockToHtml } from '@llm-ui/code'
 import { type LLMOutputComponent } from '@llm-ui/react'
 import parseHtml from 'html-react-parser'
-import { bundledLanguages, createHighlighter } from 'shiki/bundle/web'
+import { bundledLanguages, createHighlighter } from 'shiki/bundle/full'
 import catppuccinLatte from 'shiki/themes/catppuccin-latte.mjs'
 
 import './codeblock.css'
