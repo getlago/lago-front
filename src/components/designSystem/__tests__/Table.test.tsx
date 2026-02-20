@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { Button } from '~/components/designSystem/Button'
@@ -108,8 +108,8 @@ describe('Table', () => {
     expect(within(bodyRows[0]).queryByTestId('open-action-button')).toBeInTheDocument()
 
     // Click on action menu
-    await waitFor(() =>
-      userEvent.click(within(bodyRows[0]).queryByTestId('open-action-button') as HTMLButtonElement),
+    await userEvent.click(
+      within(bodyRows[0]).queryByTestId('open-action-button') as HTMLButtonElement,
     )
 
     // Check if action menu is visible
@@ -119,11 +119,11 @@ describe('Table', () => {
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
 
     // Click on Edit
-    await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })))
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }))
     expect(onEdit).toHaveBeenNthCalledWith(1, data[0])
 
     // Click on row
-    await waitFor(() => userEvent.click(bodyRows[0]))
+    await userEvent.click(bodyRows[0])
     expect(onRow).toHaveBeenNthCalledWith(1, data[0])
     expect(onEdit).toHaveBeenCalledTimes(1)
   })
@@ -146,11 +146,11 @@ describe('Table', () => {
     // On row action
     const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
 
-    await waitFor(() => userEvent.click(bodyRows[0]))
+    await userEvent.click(bodyRows[0])
     expect(onRow).toHaveBeenNthCalledWith(1, data[0])
 
     // On click action
-    await waitFor(() => userEvent.click(within(bodyRows[0]).getByText('Click me')))
+    await userEvent.click(within(bodyRows[0]).getByText('Click me'))
     expect(onClick).toHaveBeenNthCalledWith(1, data[0])
     expect(onRow).toHaveBeenCalledTimes(1)
   })

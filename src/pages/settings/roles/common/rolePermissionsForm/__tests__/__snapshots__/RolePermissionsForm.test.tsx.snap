@@ -107,7 +107,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -4014,6 +4014,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -4449,7 +4491,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -8458,6 +8500,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </label>
         <label
           class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
           data-test="checkbox-permissions.SubscriptionsCreate"
           for=:r-mui-id:
         >
@@ -8863,7 +8947,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -12753,6 +12837,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -13205,7 +13331,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -18734,6 +18860,66 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               <input
                 aria-checked="true"
                 aria-labelledby="permissions.RolesView"
+                checked=""
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-blue-600 hover:text-blue-700 active:text-blue-800"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 4C0 1.79086 1.79086 0 4 0H12C14.2091 0 16 1.79086 16 4V12C16 14.2091 14.2091 16 12 16H4C1.79086 16 0 14.2091 0 12V4Z"
+                  fill="currentColor"
+                />
+                <g
+                  clip-path="url(#clip0)"
+                >
+                  <path
+                    clip-rule="evenodd"
+                    d="M6.49994 11C6.59828 11.0001 6.69564 10.9804 6.78625 10.9422C6.87686 10.904 6.95887 10.848 7.02744 10.7775L11.8499 5.85749C11.8976 5.81093 11.9354 5.75532 11.9612 5.69392C11.9871 5.63253 12.0004 5.5666 12.0004 5.49999C12.0004 5.43339 11.9871 5.36745 11.9612 5.30606C11.9354 5.24467 11.8976 5.18906 11.8499 5.14249C11.8035 5.096 11.7484 5.05913 11.6877 5.03396C11.627 5.0088 11.5619 4.99585 11.4962 4.99585C11.4305 4.99585 11.3654 5.0088 11.3047 5.03396C11.244 5.05913 11.1889 5.096 11.1424 5.14249L6.49994 9.88749L4.84994 8.15249C4.75626 8.05937 4.62954 8.0071 4.49744 8.0071C4.36535 8.0071 4.23863 8.05937 4.14494 8.15249C4.09732 8.19906 4.05948 8.25467 4.03365 8.31606C4.00781 8.37745 3.99451 8.44339 3.99451 8.50999C3.99451 8.5766 4.00781 8.64253 4.03365 8.70392C4.05948 8.76532 4.09732 8.82093 4.14494 8.86749L5.96994 10.78C6.11046 10.9207 6.3011 10.9998 6.49994 11Z"
+                    fill="white"
+                    fill-rule="evenodd"
+                  />
+                </g>
+                <defs>
+                  <clippath
+                    id="clip0"
+                  >
+                    <rect
+                      fill="white"
+                      height="8"
+                      transform="translate(4 4)"
+                      width="8"
+                    />
+                  </clippath>
+                </defs>
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="true"
+                aria-labelledby="permissions.SecurityLogsView"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
@@ -19313,7 +19499,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -23220,6 +23406,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -23655,7 +23883,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -27562,6 +27790,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -27997,7 +28267,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -31917,6 +32187,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </label>
         <label
           class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
           data-test="checkbox-permissions.SubscriptionsCreate"
           for=:r-mui-id:
         >
@@ -32322,7 +32634,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -36295,6 +36607,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </label>
         <label
           class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
           data-test="checkbox-permissions.SubscriptionsCreate"
           for=:r-mui-id:
         >
@@ -36700,7 +37054,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -40590,6 +40944,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -44985,6 +45381,48 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         </label>
         <label
           class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
           data-test="checkbox-permissions.SubscriptionsCreate"
           for=:r-mui-id:
         >
@@ -45429,7 +45867,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in editable mode wi
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -49355,6 +49793,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in editable mode wi
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -49790,7 +50270,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state 1`
         >
           <div
             class="relative"
-            style="width: 1480px; height: 1192px;"
+            style="width: 1480px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -53680,6 +54160,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state 1`
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -54154,7 +54676,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state wi
         >
           <div
             class="relative"
-            style="width: 1480px; height: 1192px;"
+            style="width: 1480px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -58044,6 +58566,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state wi
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -58479,7 +59043,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
         >
           <div
             class="relative"
-            style="width: 350px; height: 1192px;"
+            style="width: 350px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -62369,6 +62933,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -62804,7 +63410,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
         >
           <div
             class="relative"
-            style="width: 350px; height: 1192px;"
+            style="width: 350px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -68350,6 +68956,66 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
               <input
                 aria-checked="true"
                 aria-labelledby="permissions.RolesView"
+                checked=""
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-blue-600 hover:text-blue-700 active:text-blue-800"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 4C0 1.79086 1.79086 0 4 0H12C14.2091 0 16 1.79086 16 4V12C16 14.2091 14.2091 16 12 16H4C1.79086 16 0 14.2091 0 12V4Z"
+                  fill="currentColor"
+                />
+                <g
+                  clip-path="url(#clip0)"
+                >
+                  <path
+                    clip-rule="evenodd"
+                    d="M6.49994 11C6.59828 11.0001 6.69564 10.9804 6.78625 10.9422C6.87686 10.904 6.95887 10.848 7.02744 10.7775L11.8499 5.85749C11.8976 5.81093 11.9354 5.75532 11.9612 5.69392C11.9871 5.63253 12.0004 5.5666 12.0004 5.49999C12.0004 5.43339 11.9871 5.36745 11.9612 5.30606C11.9354 5.24467 11.8976 5.18906 11.8499 5.14249C11.8035 5.096 11.7484 5.05913 11.6877 5.03396C11.627 5.0088 11.5619 4.99585 11.4962 4.99585C11.4305 4.99585 11.3654 5.0088 11.3047 5.03396C11.244 5.05913 11.1889 5.096 11.1424 5.14249L6.49994 9.88749L4.84994 8.15249C4.75626 8.05937 4.62954 8.0071 4.49744 8.0071C4.36535 8.0071 4.23863 8.05937 4.14494 8.15249C4.09732 8.19906 4.05948 8.25467 4.03365 8.31606C4.00781 8.37745 3.99451 8.44339 3.99451 8.50999C3.99451 8.5766 4.00781 8.64253 4.03365 8.70392C4.05948 8.76532 4.09732 8.82093 4.14494 8.86749L5.96994 10.78C6.11046 10.9207 6.3011 10.9998 6.49994 11Z"
+                    fill="white"
+                    fill-rule="evenodd"
+                  />
+                </g>
+                <defs>
+                  <clippath
+                    id="clip0"
+                  >
+                    <rect
+                      fill="white"
+                      height="8"
+                      transform="translate(4 4)"
+                      width="8"
+                    />
+                  </clippath>
+                </defs>
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="true"
+                aria-labelledby="permissions.SecurityLogsView"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
@@ -68929,7 +69595,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
         >
           <div
             class="relative"
-            style="width: 350px; height: 1192px;"
+            style="width: 350px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -72873,6 +73539,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in non-editable mod
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -73308,7 +74016,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all invoice pe
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -77306,6 +78014,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all invoice pe
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -77741,7 +78491,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all permission
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -83287,6 +84037,66 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all permission
               <input
                 aria-checked="true"
                 aria-labelledby="permissions.RolesView"
+                checked=""
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-blue-600 hover:text-blue-700 active:text-blue-800"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 4C0 1.79086 1.79086 0 4 0H12C14.2091 0 16 1.79086 16 4V12C16 14.2091 14.2091 16 12 16H4C1.79086 16 0 14.2091 0 12V4Z"
+                  fill="currentColor"
+                />
+                <g
+                  clip-path="url(#clip0)"
+                >
+                  <path
+                    clip-rule="evenodd"
+                    d="M6.49994 11C6.59828 11.0001 6.69564 10.9804 6.78625 10.9422C6.87686 10.904 6.95887 10.848 7.02744 10.7775L11.8499 5.85749C11.8976 5.81093 11.9354 5.75532 11.9612 5.69392C11.9871 5.63253 12.0004 5.5666 12.0004 5.49999C12.0004 5.43339 11.9871 5.36745 11.9612 5.30606C11.9354 5.24467 11.8976 5.18906 11.8499 5.14249C11.8035 5.096 11.7484 5.05913 11.6877 5.03396C11.627 5.0088 11.5619 4.99585 11.4962 4.99585C11.4305 4.99585 11.3654 5.0088 11.3047 5.03396C11.244 5.05913 11.1889 5.096 11.1424 5.14249L6.49994 9.88749L4.84994 8.15249C4.75626 8.05937 4.62954 8.0071 4.49744 8.0071C4.36535 8.0071 4.23863 8.05937 4.14494 8.15249C4.09732 8.19906 4.05948 8.25467 4.03365 8.31606C4.00781 8.37745 3.99451 8.44339 3.99451 8.50999C3.99451 8.5766 4.00781 8.64253 4.03365 8.70392C4.05948 8.76532 4.09732 8.82093 4.14494 8.86749L5.96994 10.78C6.11046 10.9207 6.3011 10.9998 6.49994 11Z"
+                    fill="white"
+                    fill-rule="evenodd"
+                  />
+                </g>
+                <defs>
+                  <clippath
+                    id="clip0"
+                  >
+                    <rect
+                      fill="white"
+                      height="8"
+                      transform="translate(4 4)"
+                      width="8"
+                    />
+                  </clippath>
+                </defs>
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="true"
+                aria-labelledby="permissions.SecurityLogsView"
                 checked=""
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
@@ -83866,7 +84676,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with default props 
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -87756,6 +88566,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with default props 
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -88242,7 +89094,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with errors 1`] = `
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -92132,6 +92984,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with errors 1`] = `
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -92567,7 +93461,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with organization p
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -96529,6 +97423,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with organization p
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -97003,7 +97939,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with single error 1
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -100893,6 +101829,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with single error 1
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""
@@ -101328,7 +102306,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with some permissio
         >
           <div
             class="relative"
-            style="width: 400px; height: 1192px;"
+            style="width: 400px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -105326,6 +106304,48 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with some permissio
               <input
                 aria-checked="false"
                 aria-labelledby="permissions.RolesView"
+                class="absolute m-0 size-0 p-0 opacity-0"
+                id=:r-mui-id:
+                readonly=""
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="text-white hover:text-grey-200 active:text-grey-300"
+                fill="none"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  fill="currentColor"
+                  height="15"
+                  rx="3.5"
+                  stroke="#8C95A6"
+                  width="15"
+                  x="0.5"
+                  y="0.5"
+                />
+              </svg>
+            </div>
+            <div />
+          </div>
+        </label>
+        <label
+          class="flex flex-col cursor-pointer"
+          data-test="checkbox-permissions.SecurityLogsView"
+          for=:r-mui-id:
+        >
+          <div
+            class="mx-0 flex items-start align-middle *:leading-7"
+          >
+            <div
+              class="mr-3 inline-flex items-center pt-1"
+            >
+              <input
+                aria-checked="false"
+                aria-labelledby="permissions.SecurityLogsView"
                 class="absolute m-0 size-0 p-0 opacity-0"
                 id=:r-mui-id:
                 readonly=""

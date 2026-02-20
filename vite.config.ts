@@ -21,6 +21,13 @@ const titles: Record<string, string> = {
   staging: 'Lago - Cloud',
 }
 
+// Local dev only: when running inside a worktree instance (see scripts/lago-worktree.sh),
+// show the worktree name in the browser tab to distinguish it from the main app.
+const getPageTitle = (mode: string, env: Record<string, string>): string => {
+  if (mode === 'development' && env.LAGO_WORKTREE_NAME) return `WT - ${env.LAGO_WORKTREE_NAME}`
+  return titles[env.APP_ENV] || titles.production
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const port = env.PORT ? parseInt(env.PORT) : 8080
@@ -58,7 +65,7 @@ export default defineConfig(({ mode }) => {
     createHtmlPlugin({
       inject: {
         data: {
-          title: titles[env.APP_ENV] || titles.production,
+          title: getPageTitle(mode, env),
           favicon: icons[env.APP_ENV] || icons.production,
         },
       },
@@ -149,6 +156,20 @@ export default defineConfig(({ mode }) => {
           '**/src/generated/**',
         ],
       },
+      // Local dev only: proxy API requests through Vite to avoid CORS when
+      // running isolated frontend worktrees (see scripts/lago-worktree.sh).
+      // Activated by LAGO_API_PROXY_TARGET in the worktree .env file.
+      ...(mode === 'development' && env.LAGO_API_PROXY_TARGET && {
+        proxy: {
+          '/api': {
+            target: env.LAGO_API_PROXY_TARGET,
+            changeOrigin: true,
+            rewrite: (path: string) => path.replace(/^\/api/, ''),
+            secure: false,
+            ws: true,
+          },
+        },
+      }),
     },
     optimizeDeps: {
       include: [

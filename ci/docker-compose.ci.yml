@@ -37,6 +37,9 @@ services:
       LAGO_FRONT_URL: http://localhost
       SECRET_KEY_BASE: secret-key
       LAGO_RSA_PRIVATE_KEY: ${LAGO_RSA_PRIVATE_KEY}
+      LAGO_ENCRYPTION_PRIMARY_KEY: encryption-primary-key
+      LAGO_ENCRYPTION_DETERMINISTIC_KEY: encryption-deterministic-key
+      LAGO_ENCRYPTION_KEY_DERIVATION_SALT: encryption-derivation-salt
       LAGO_DISABLE_SEGMENT: "true"
       RAILS_LOG_TO_STDOUT: "true"
       LAGO_LICENSE: ${LAGO_LICENSE}
