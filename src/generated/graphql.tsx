@@ -4227,6 +4227,7 @@ export enum IntegrationTypeEnum {
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
+  SecurityLogs = 'security_logs',
   Xero = 'xero'
 }
 
@@ -4562,6 +4563,18 @@ export type LimitationInput = {
   billableMetricIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   planIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
+
+/** Security Log event */
+export enum LogEventEnum {
+  /** user.signed_up */
+  UserSignedUp = 'user_signed_up'
+}
+
+/** Security Log type */
+export enum LogTypeEnum {
+  /** user */
+  User = 'user'
+}
 
 export type LoginUser = {
   __typename?: 'LoginUser';
@@ -6285,6 +6298,7 @@ export enum PermissionEnum {
   RolesDelete = 'roles_delete',
   RolesUpdate = 'roles_update',
   RolesView = 'roles_view',
+  SecurityLogsView = 'security_logs_view',
   SubscriptionsCreate = 'subscriptions_create',
   SubscriptionsUpdate = 'subscriptions_update',
   SubscriptionsView = 'subscriptions_view',
@@ -6390,6 +6404,7 @@ export type Permissions = {
   rolesDelete: Scalars['Boolean']['output'];
   rolesUpdate: Scalars['Boolean']['output'];
   rolesView: Scalars['Boolean']['output'];
+  securityLogsView: Scalars['Boolean']['output'];
   subscriptionsCreate: Scalars['Boolean']['output'];
   subscriptionsUpdate: Scalars['Boolean']['output'];
   subscriptionsView: Scalars['Boolean']['output'];
@@ -6518,6 +6533,7 @@ export enum PremiumIntegrationTypeEnum {
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
+  SecurityLogs = 'security_logs',
   Xero = 'xero'
 }
 
@@ -6893,6 +6909,10 @@ export type Query = {
   role?: Maybe<Role>;
   /** Query roles available for the organization */
   roles: Array<Role>;
+  /** Query a single security log by ID */
+  securityLog?: Maybe<SecurityLog>;
+  /** Query security logs of an organization */
+  securityLogs?: Maybe<SecurityLogCollection>;
   /** Query a single subscription of an organization */
   subscription?: Maybe<Subscription>;
   /** Retrieve an entitlement of a subscriptions */
@@ -7581,6 +7601,23 @@ export type QueryRoleArgs = {
 };
 
 
+export type QuerySecurityLogArgs = {
+  logId: Scalars['ID']['input'];
+};
+
+
+export type QuerySecurityLogsArgs = {
+  apiKeyIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  logEvents?: InputMaybe<Array<LogEventEnum>>;
+  logTypes?: InputMaybe<Array<LogTypeEnum>>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  toDatetime: Scalars['ISO8601DateTime']['input'];
+  userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
+
 export type QuerySubscriptionArgs = {
   externalId?: InputMaybe<Scalars['ID']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -8010,6 +8047,28 @@ export type SanitizedApiKeyCollection = {
   __typename?: 'SanitizedApiKeyCollection';
   /** A collection of paginated SanitizedApiKeyCollection */
   collection: Array<SanitizedApiKey>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+/** Security log entry */
+export type SecurityLog = {
+  __typename?: 'SecurityLog';
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  deviceInfo?: Maybe<Scalars['JSON']['output']>;
+  logEvent: LogEventEnum;
+  logId: Scalars['ID']['output'];
+  logType: LogTypeEnum;
+  loggedAt: Scalars['ISO8601DateTime']['output'];
+  resources?: Maybe<Scalars['JSON']['output']>;
+  userEmail?: Maybe<Scalars['String']['output']>;
+};
+
+/** SecurityLogCollection type */
+export type SecurityLogCollection = {
+  __typename?: 'SecurityLogCollection';
+  /** A collection of paginated SecurityLogCollection */
+  collection: Array<SecurityLog>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
 };

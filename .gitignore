@@ -14,3 +14,4 @@ v8-compile-cache*
 .prettiercache
 /.vscode
 TestResults/
+docker-compose.worktree.yml

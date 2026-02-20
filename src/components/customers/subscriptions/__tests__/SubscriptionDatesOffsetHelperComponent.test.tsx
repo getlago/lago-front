@@ -3,7 +3,7 @@
 // Leading to not being able to test the text content exactly via test
 // Letting the code here for now, but will need to retry later
 import { act, cleanup, renderHook, screen } from '@testing-library/react'
-import { DateTime } from 'luxon'
+import { Settings } from 'luxon'
 
 import {
   SubscriptionDatesOffsetHelperComponent,
@@ -13,11 +13,10 @@ import { GetOrganizationInfosDocument, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { render } from '~/test-utils'
 
+const originalDefaultZone = Settings.defaultZone
+
 const DATA_TEST_ID = 'subscription-dates-offset-helper-component'
-// const DEFAULT_SUBSCRIPTION_AT_NOW = DateTime.now().toISO() as string
-// const DEFAULT_SUBSCRIPTION_AT_TOMORROW = DateTime.now().plus({ day: 1 }).toISO() as string
-// const DEFAULT_SUBSCRIPTION_AT_YESTERDAY = DateTime.now().minus({ day: 1 }).toISO() as string
-// const DEFAULT_ENDING_AT = DateTime.now().plus({ month: 1 }).toISO() as string
+const FIXED_SUBSCRIPTION_AT = '2024-06-15T10:00:00.000Z'
 
 type PrepareType = SubscriptionDatesOffsetHelperComponentProps & {
   organizationTimezone?: TimezoneEnum
@@ -26,7 +25,7 @@ type PrepareType = SubscriptionDatesOffsetHelperComponentProps & {
 async function prepare(
   { customerTimezone, subscriptionAt, endingAt, organizationTimezone }: PrepareType = {
     customerTimezone: TimezoneEnum.TzUtc,
-    subscriptionAt: DateTime.now().toISO() as string,
+    subscriptionAt: FIXED_SUBSCRIPTION_AT,
   },
 ) {
   const { result } = renderHook(() => useInternationalization())
@@ -65,6 +64,14 @@ async function prepare(
 }
 
 describe('SubscriptionDatesOffsetHelperComponent', () => {
+  beforeAll(() => {
+    Settings.defaultZone = 'UTC'
+  })
+
+  afterAll(() => {
+    Settings.defaultZone = originalDefaultZone
+  })
+
   afterEach(cleanup)
 
   it('renders', async () => {
