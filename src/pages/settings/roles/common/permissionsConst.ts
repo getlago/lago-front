@@ -274,6 +274,9 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   SubscriptionsUpdate: 'text_17660476446752sbul6dha24',
   SubscriptionsView: 'text_176604764467582epdk23rja',
 
+  // Security logs
+  SecurityLogsView: 'text_1771594976281yf0uews8jce',
+
   // Wallets
   WalletsCreate: 'text_1766047644675qckx90hacmh',
   WalletsTerminate: 'text_17660476446757dl68yksj13',
