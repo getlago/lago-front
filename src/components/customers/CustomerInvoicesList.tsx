@@ -42,10 +42,10 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
+  FeatureFlagEnum,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
@@ -62,6 +62,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
@@ -182,7 +183,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
   const { handleDownloadFile, openNewTab } = useDownloadFile()

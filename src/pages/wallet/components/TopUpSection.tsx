@@ -36,13 +36,13 @@ import {
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
 } from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   GetCustomerInfosForWalletFormQuery,
   RecurringTransactionIntervalEnum,
   RecurringTransactionMethodEnum,
@@ -51,6 +51,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { topUpAmountError, walletFormErrorCodes } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 
@@ -166,7 +167,8 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   const hasMinMax =
     !!formikProps?.values?.paidTopUpMinAmountCents || !!formikProps?.values?.paidTopUpMaxAmountCents
 
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   return (
     <>

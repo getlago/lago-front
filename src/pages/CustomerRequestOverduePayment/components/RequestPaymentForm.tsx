@@ -16,14 +16,15 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { isSameDay } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   InvoicesForRequestOverduePaymentFormFragment,
   LastPaymentRequestFragment,
   PaymentMethodReferenceInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CustomerForRequestOverduePaymentForm on Customer {
@@ -75,7 +76,8 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   const date = useMemo(() => DateTime.fromISO(lastSentDate?.createdAt).toUTC(), [lastSentDate])
   const today = useMemo(() => DateTime.now().toUTC(), [])
 
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   return (
     <div className="flex flex-col gap-10 md:max-w-168">

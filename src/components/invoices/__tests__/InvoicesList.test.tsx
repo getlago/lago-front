@@ -51,11 +51,14 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+const mockHasFeatureFlag = jest.fn(() => false)
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {
       premiumIntegrations: ['revenue_share'],
     },
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -99,12 +102,6 @@ jest.mock('~/hooks/useDownloadFile', () => ({
 const mockDownloadInvoice = jest.fn()
 const mockGeneratePaymentUrl = jest.fn()
 const mockRetryInvoicePayment = jest.fn()
-const mockIsFeatureFlagActive = jest.fn()
-
-jest.mock('~/core/utils/featureFlags', () => ({
-  ...jest.requireActual('~/core/utils/featureFlags'),
-  isFeatureFlagActive: (...args: unknown[]) => mockIsFeatureFlagActive(...args),
-}))
 
 // Store callbacks to test mutation handlers
 let downloadInvoiceCallbacks: {
@@ -253,7 +250,6 @@ describe('InvoicesList', () => {
     mockCanRecordPayment.mockReturnValue(true)
     mockCanResendEmail.mockReturnValue(false)
     mockHasDefinedGQLError.mockReturnValue(false)
-    mockIsFeatureFlagActive.mockReturnValue(false)
     mockRetryInvoicePayment.mockResolvedValue({ errors: null })
   })
 
@@ -1034,7 +1030,7 @@ describe('InvoicesList', () => {
       const user = userEvent.setup()
 
       mockCanRetryCollect.mockReturnValue(true)
-      mockIsFeatureFlagActive.mockReturnValue(true) // temporary as long as we remove the feature flag
+      mockHasFeatureFlag.mockReturnValue(true)
 
       await renderInvoicesList({
         invoices: [
