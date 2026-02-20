@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar } from '~/core/apolloClient'
-import { SupersetDashboard, useSupersetDashboardsLazyQuery } from '~/generated/graphql'
+import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
 import { PageHeader } from '~/styles'
@@ -22,32 +22,16 @@ gql`
   }
 `
 
-const currentDashboard = (dashboards: Omit<SupersetDashboard, 'supersetUrl'>[] | undefined) => {
-  return dashboards?.find((d) => d.id === '1')
-}
-
 const Dashboards = () => {
   const { translate } = useInternationalization()
 
   const dashboardRef = useRef<string>('')
 
-  const [getSupersetDashboards, { data }] = useSupersetDashboardsLazyQuery({})
+  const { data } = useSupersetDashboardsQuery({})
 
   const dashboard = useMemo(() => {
-    return currentDashboard(data?.supersetDashboards)
+    return data?.supersetDashboards?.find((d) => d.id === '1')
   }, [data?.supersetDashboards])
-
-  const fetchGuestToken = useCallback(async () => {
-    const supersetDashboards = await getSupersetDashboards()
-
-    const token = currentDashboard(supersetDashboards?.data?.supersetDashboards)?.guestToken || ''
-
-    return token
-  }, [getSupersetDashboards])
-
-  useEffect(() => {
-    getSupersetDashboards()
-  }, [getSupersetDashboards])
 
   useEffect(() => {
     if (!dashboard || dashboard?.id === dashboardRef?.current) {
@@ -67,7 +51,7 @@ const Dashboards = () => {
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
         mountPoint,
-        fetchGuestToken,
+        fetchGuestToken: async () => dashboard?.guestToken,
         dashboardUiConfig: {
           hideTitle: true,
           filters: {
@@ -84,8 +68,9 @@ const Dashboards = () => {
 
     return () => {
       embedded?.unmount()
+      dashboardRef.current = ''
     }
-  }, [dashboard, fetchGuestToken])
+  }, [dashboard])
 
   return (
     <>
