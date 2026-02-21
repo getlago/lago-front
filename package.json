@@ -148,7 +148,7 @@
     "react-ace": "14.0.1",
     "react-dom": "18.3.1",
     "react-markdown": "10.1.0",
-    "react-resizable-panels": "3.0.6",
+    "react-resizable-panels": "4.6.4",
     "react-router-dom": "6.30.3",
     "recharts": "2.15.4",
     "remark-gfm": "4.0.1",
