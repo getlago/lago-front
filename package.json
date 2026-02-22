@@ -124,7 +124,7 @@
     "@nangohq/frontend": "0.69.33",
     "@sentry/react": "10.38.0",
     "@superset-ui/embedded-sdk": "0.3.0",
-    "@tanstack/react-form": "1.28.0",
+    "@tanstack/react-form": "1.28.3",
     "@tanstack/react-virtual": "3.13.18",
     "ace-builds": "1.43.6",
     "actioncable": "5.2.8-1",
