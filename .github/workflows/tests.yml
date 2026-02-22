@@ -107,7 +107,7 @@ jobs:
       - name: SonarQube Scan (Pull Request)
         if: github.event_name == 'pull_request'
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@40f5b61913e891f9d316696628698051136015be
+        uses: SonarSource/sonarqube-scan-action@dcc5211de53084482f1c6779dda263459f5274f6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -120,7 +120,7 @@ jobs:
       - name: SonarQube Scan (Main Branch)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@40f5b61913e891f9d316696628698051136015be
+        uses: SonarSource/sonarqube-scan-action@dcc5211de53084482f1c6779dda263459f5274f6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
