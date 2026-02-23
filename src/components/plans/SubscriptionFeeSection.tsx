@@ -6,12 +6,12 @@ import { memo, RefObject, useEffect, useState } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
 import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -61,15 +61,11 @@ export const SubscriptionFeeSection = memo(
     }, [formikProps.initialValues.trialPeriod])
 
     return (
-      <Card>
-        <div className="flex flex-col gap-2">
-          <Typography variant="subhead1">{translate('text_642d5eb2783a2ad10d670336')}</Typography>
-          <Typography variant="caption">
-            {translate('text_6661fc17337de3591e29e3ed', {
-              interval: translate(getIntervalTranslationKey[formikProps.values.interval]),
-            })}
-          </Typography>
-        </div>
+      <CenteredPage.PageSection>
+        <CenteredPage.PageSectionTitle
+          title={translate('text_642d5eb2783a2ad10d670336')}
+          description={translate('text_1770063200028xc3xmcvi7bw')}
+        />
 
         <Accordion
           noContentMargin
@@ -229,7 +225,7 @@ export const SubscriptionFeeSection = memo(
             </div>
           </div>
         </Accordion>
-      </Card>
+      </CenteredPage.PageSection>
     )
   },
 )
