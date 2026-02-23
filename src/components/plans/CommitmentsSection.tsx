@@ -50,11 +50,13 @@ gql`
 type CommitmentsSectionProps = {
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
+  isInitiallyOpen?: boolean
 }
 
 export const CommitmentsSection = ({
   editInvoiceDisplayNameDialogRef,
   formikProps,
+  isInitiallyOpen = false,
 }: CommitmentsSectionProps) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
@@ -79,6 +81,7 @@ export const CommitmentsSection = ({
 
   const renderAddButton = () => (
     <Button
+      align="left"
       variant="inline"
       startIcon="plus"
       disabled={showMinimumCommitment}
@@ -99,6 +102,7 @@ export const CommitmentsSection = ({
   const renderMinimumCommitmentAccordion = useMemo(
     () => (
       <Accordion
+        initiallyOpen={isInitiallyOpen}
         className="w-full"
         summary={
           <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
@@ -192,6 +196,7 @@ export const CommitmentsSection = ({
       editInvoiceDisplayNameDialogRef,
       formikProps,
       hasErrorInGroup,
+      isInitiallyOpen,
       taxValueForBadgeDisplay,
       translate,
     ],

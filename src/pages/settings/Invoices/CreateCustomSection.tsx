@@ -213,7 +213,6 @@ const CreateInvoiceCustomSection = () => {
         <CenteredPage.StickyFooter>
           <Button
             variant="quaternary"
-            size="large"
             onClick={() =>
               formikProps.dirty
                 ? warningDirtyAttributesDialogRef.current?.openDialog()
@@ -224,7 +223,6 @@ const CreateInvoiceCustomSection = () => {
           </Button>
           <Button
             variant="primary"
-            size="large"
             disabled={!formikProps.isValid || !formikProps.dirty}
             onClick={formikProps.submitForm}
           >

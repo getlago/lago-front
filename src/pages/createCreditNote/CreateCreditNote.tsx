@@ -525,7 +525,6 @@ const CreateCreditNote = () => {
         <div className="flex h-full items-center justify-end gap-3">
           <Button
             variant="quaternary"
-            size="large"
             onClick={() =>
               navigate(
                 generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
@@ -541,7 +540,6 @@ const CreateCreditNote = () => {
           <Button
             disabled={!formikProps.isValid || !formHasAtLeastOneFeeChecked}
             fullWidth
-            size="large"
             onClick={formikProps.submitForm}
             data-test={SUBMIT_BUTTON_TEST_ID}
           >
