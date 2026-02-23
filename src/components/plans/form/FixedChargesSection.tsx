@@ -3,11 +3,11 @@ import { FormikProps } from 'formik'
 import { memo, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { FixedChargeAccordion } from '~/components/plans/FixedChargeAccordion'
 import {
   RemoveChargeWarningDialog,
@@ -209,11 +209,11 @@ export const FixedChargesSection = memo(
 
     return (
       <>
-        <Card>
-          <div className="flex flex-col gap-2">
-            <Typography variant="subhead1">{translate('text_176072970726728iw4tc8ucl')}</Typography>
-            <Typography variant="caption">{translate('text_1760729707268c05r06ip8vg')}</Typography>
-          </div>
+        <CenteredPage.PageSection>
+          <CenteredPage.PageSectionTitle
+            title={translate('text_176072970726728iw4tc8ucl')}
+            description={translate('text_1760729707268c05r06ip8vg')}
+          />
 
           {!!hasAnyFixedCharge && canApplyChargesMonthly && (
             <SwitchField
@@ -226,9 +226,9 @@ export const FixedChargesSection = memo(
           )}
 
           {(!!formFixedCharges?.length || !isInSubscriptionForm) && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               {!!formFixedCharges?.length && (
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                   {formFixedCharges.map((fixedCharge: LocalFixedChargeInput, i) => {
                     const id = getNewChargeId(fixedCharge.addOn.id, i)
                     const isNew = !alreadyExistingFixedChargesIds?.includes(fixedCharge?.id || '')
@@ -258,7 +258,7 @@ export const FixedChargesSection = memo(
                   })}
                 </div>
               )}
-              {showAddFixedChargeCombobox ? (
+              {showAddFixedChargeCombobox && (
                 <div className="flex items-center gap-3">
                   <ComboBox
                     containerClassName="flex-1"
@@ -280,31 +280,30 @@ export const FixedChargesSection = memo(
                     />
                   </Tooltip>
                 </div>
-              ) : (
-                !isInSubscriptionForm && (
-                  <Button
-                    fitContent
-                    startIcon="plus"
-                    variant="inline"
-                    data-test="add-fixed-charge"
-                    onClick={() => {
-                      setShowAddFixedChargeCombobox(true)
-                      setTimeout(() => {
-                        ;(
-                          document.querySelector(
-                            `.${SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                          ) as HTMLElement
-                        )?.click()
-                      }, 0)
-                    }}
-                  >
-                    {translate('text_176072970726882uau5y69f1')}
-                  </Button>
-                )
+              )}
+              {!showAddFixedChargeCombobox && !isInSubscriptionForm && (
+                <Button
+                  fitContent
+                  startIcon="plus"
+                  variant="inline"
+                  data-test="add-fixed-charge"
+                  onClick={() => {
+                    setShowAddFixedChargeCombobox(true)
+                    setTimeout(() => {
+                      ;(
+                        document.querySelector(
+                          `.${SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                        ) as HTMLElement
+                      )?.click()
+                    }, 0)
+                  }}
+                >
+                  {translate('text_176072970726882uau5y69f1')}
+                </Button>
               )}
             </div>
           )}
-        </Card>
+        </CenteredPage.PageSection>
 
         <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
       </>
