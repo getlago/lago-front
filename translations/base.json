@@ -3975,8 +3975,6 @@
   "text_1773063868176dy5v3kvne2l": "Name",
   "text_1773063868176jh122suh1lx": "Credits threshold",
   "text_1773223136519pcuvc8zwoyf": "This threshold overlaps with previous one, please set a value lower than {{value}}",
-  "text_1770063200028ww5znt6yree": "A plan defines pricing rules and creates a subscription when assigned to a customer.",
-  "text_1770063200028xc3xmcvi7bw": "Recurring fee treated as the base subscription charge. It follows the plan interval defined above.",
   "text_177196303346655qni6k55jr": "Pricing settings",
   "text_1771963033467yduu33x3qw9": "Specifies the name that will be displayed on an invoice.",
   "text_17719630334671lxunwzo7ae": "Open drawer",
@@ -3985,5 +3983,7 @@
   "text_177334593394555w48sxw5na": "Agreed monthly minimum usage or payment that the customer is required to fulfill.",
   "text_1773346168045bj2x1626228": "Commitment settings",
   "text_1773346168045bj2x1626229": "Set specific tax rates to apply to this fee",
-  "text_1773428494589gq89ubgz99i": "Select a feature as an entitlement"
+  "text_1773428494589gq89ubgz99i": "Select a feature as an entitlement",
+  "text_1770063200028ww5znt6yree": "A plan defines pricing rules and creates a subscription when assigned to a customer.",
+  "text_1770063200028xc3xmcvi7bw": "Recurring fee treated as the base subscription charge. It follows the plan interval defined above."
 }
