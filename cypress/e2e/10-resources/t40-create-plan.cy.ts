@@ -27,7 +27,12 @@ describe('Create plan', () => {
     cy.get('input[name="code"]').should('have.value', planCode)
     cy.get('[data-test="show-description"]').click({ force: true })
     cy.get('textarea[name="description"]').type('I am a description')
+
+    // Open subscription fee drawer, set amount, and save
+    cy.get('[data-test="open-subscription-fee-drawer"]').click({ force: true })
     cy.get('input[name="amountCents"]').type('30000')
+    cy.get('[data-test="subscription-fee-drawer-save"]').click({ force: true })
+
     cy.get('[data-test="submit"]').click({ force: true })
     cy.url().should('include', '/overview')
     cy.contains(planName).should('exist')

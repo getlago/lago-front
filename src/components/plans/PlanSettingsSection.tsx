@@ -87,6 +87,8 @@ export const PlanSettingsSection = memo(
 
         <div className="flex gap-6">
           <TextInput
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus={!isInSubscriptionForm}
             className="flex-1"
             name="name"
             label={translate('text_629728388c4d2300e2d38091')}

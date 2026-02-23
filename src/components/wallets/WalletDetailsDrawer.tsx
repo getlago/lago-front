@@ -381,7 +381,6 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
           </Button>
         }
         stickyBottomBarClassName="md:py-3"
-        stickyBottomBarSmall
       >
         <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
           {loading && (
