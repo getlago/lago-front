@@ -443,11 +443,15 @@ const CreateCoupon = () => {
                     />
 
                     {expiration === CouponExpiration.TimeLimit && (
-                      <div
-                        className="flex items-center gap-3"
-                        data-test={COUPON_EXPIRATION_SECTION_TEST_ID}
-                      >
-                        <Typography variant="body" color="grey700" className="shrink-0">
+                      <div className="flex gap-3" data-test={COUPON_EXPIRATION_SECTION_TEST_ID}>
+                        <Typography
+                          variant="body"
+                          color="grey700"
+                          className="shrink-0"
+                          sx={{
+                            pt: 2.5,
+                          }}
+                        >
                           {translate('text_632d68358f1fedc68eed3eb1')}
                         </Typography>
                         <DatePicker
