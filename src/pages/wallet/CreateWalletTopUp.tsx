@@ -29,7 +29,6 @@ import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
@@ -38,6 +37,7 @@ import {
 import {
   CreateCustomerWalletTransactionInput,
   CurrencyEnum,
+  FeatureFlagEnum,
   useCreateCustomerWalletTransactionMutation,
   useGetCustomerInfosForWalletFormQuery,
   useGetCustomerWalletListQuery,
@@ -89,7 +89,7 @@ const CreateWalletTopUp = () => {
   const { goBack } = useLocationHistory()
   const actions = usePermissionsInvoiceActions()
 
-  const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
+  const { hasFeatureFlag, organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
   const warningDialogRef = useRef<WarningDialogRef>(null)
 
@@ -124,7 +124,7 @@ const CreateWalletTopUp = () => {
     skip: !customerId,
   })
 
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 

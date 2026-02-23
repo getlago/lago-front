@@ -55,11 +55,11 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
 } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
   FeatureEntitlementForPlanFragmentDoc,
+  FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
@@ -245,7 +245,7 @@ const CreateSubscription = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe } = useSalesForceConfig()
 
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
@@ -253,7 +253,7 @@ const CreateSubscription = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const isResponsive = useMediaQuery(`(max-width:${BREAKPOINT_LG - 1}px)`)
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },

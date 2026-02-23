@@ -71,6 +71,7 @@ gql`
       name
       code
       einvoicing
+      emailSettings
     }
     customer {
       id
@@ -222,7 +223,11 @@ const CreditNotesTable = ({
 
             const canDownload = hasPermissions(['creditNotesView']) && !disablePdfGeneration
             const canVoid = creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
-            const canResendEmail = hasPermissions(['creditNotesSend'])
+            const canResendEmail =
+              hasPermissions(['creditNotesSend']) &&
+              !!creditNote?.billingEntity?.emailSettings?.includes(
+                BillingEntityEmailSettingsEnum.CreditNoteCreated,
+              )
 
             actions = [
               ...actions,
