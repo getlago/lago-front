@@ -1,6 +1,7 @@
 import Stack from '@mui/material/Stack'
 import { memo, useEffect, useMemo, useState } from 'react'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -17,6 +18,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { LocalChargeFilterInput } from '../types'
 import { transformFilterObjectToString } from '../utils'
 
+// Test ID constants
+export const CHARGE_FILTER_VALUES_CONTAINER_TEST_ID = 'charge-filter-values-container'
+
 export const buildChargeFilterAddFilterButtonId = (chargeIndex: number, filterIndex: number) =>
   `charge-${chargeIndex}-add-filter-${filterIndex}`
 
@@ -25,6 +29,8 @@ interface ChargeFilterProps {
   filterIndex: number
   chargeIndex: number
   billableMetricFilters?: BillableMetricFilter[]
+  /** Values already selected by other filters on the same charge */
+  existingFilterValues?: Set<string>
   setFilterValues: (values: LocalChargeFilterInput['values']) => void
   deleteFilterValue: (valueIndex: number) => void
 }
@@ -35,12 +41,19 @@ export const ChargeFilter = memo(
     filterIndex,
     chargeIndex,
     billableMetricFilters,
+    existingFilterValues,
     setFilterValues,
     deleteFilterValue,
   }: ChargeFilterProps) => {
     const { translate } = useInternationalization()
     const [showComboBox, setShowComboBox] = useState(false)
     const hasValuesDefined = Object.keys(filter?.values || {}).length > 0
+
+    const hasDuplicateValues = useMemo(() => {
+      if (!existingFilterValues?.size) return false
+
+      return filter.values.some((v) => existingFilterValues.has(v))
+    }, [existingFilterValues, filter.values])
 
     const filterValues: BasicComboBoxData[] = useMemo(() => {
       if (!billableMetricFilters) return []
@@ -94,47 +107,53 @@ export const ChargeFilter = memo(
     }, [showComboBox])
 
     return (
-      <div className="flex flex-col gap-6 p-4">
-        {hasValuesDefined && (
-          <Stack spacing={1}>
-            <Typography variant="captionHl" color="grey700">
-              {translate('text_65f8472df7593301061e27d3')}
-            </Typography>
-            {!!filter?.values.length && (
-              <Stack direction="row" flexWrap="wrap" gap={2}>
-                {filter?.values.map((value, valueIndex) => {
-                  const formatedValue = Object.entries(JSON.parse(value as string))[0]
-                  const valueToDisplay = `${formatedValue[0]}${
-                    !!formatedValue[1] && formatedValue[1] !== ALL_FILTER_VALUES
-                      ? `: ${formatedValue[1]}`
-                      : ''
-                  }`
+      <div className="flex flex-col gap-3 p-4">
+        <Typography variant="captionHl" color="grey700">
+          {translate('text_65f8472df7593301061e27d3')}
+        </Typography>
 
-                  return (
-                    <Stack
-                      key={`filter-${filterIndex}-value-${valueIndex}`}
-                      direction="row"
-                      flexWrap="wrap"
-                      alignItems="center"
-                      gap={2}
-                    >
-                      <Chip
-                        label={valueToDisplay}
-                        deleteIconLabel={translate('text_6261640f28a49700f1290df5')}
-                        onDelete={() => {
-                          deleteFilterValue(valueIndex)
-                        }}
-                      />
-                      {valueIndex !== Object.keys(filter?.values).length - 1 && (
-                        <Typography variant="body" color="grey700">
-                          {translate('text_65f8472df7593301061e27d6')}
-                        </Typography>
-                      )}
-                    </Stack>
-                  )
-                })}
-              </Stack>
-            )}
+        {hasDuplicateValues && (
+          <Alert type="warning">{translate('text_1773693201084rlj6btz4xe1')}</Alert>
+        )}
+
+        {hasValuesDefined && (
+          <Stack
+            data-test={CHARGE_FILTER_VALUES_CONTAINER_TEST_ID}
+            direction="row"
+            flexWrap="wrap"
+            gap={2}
+          >
+            {filter?.values.map((value, valueIndex) => {
+              const formatedValue = Object.entries(JSON.parse(value as string))[0]
+              const valueToDisplay = `${formatedValue[0]}${
+                !!formatedValue[1] && formatedValue[1] !== ALL_FILTER_VALUES
+                  ? `: ${formatedValue[1]}`
+                  : ''
+              }`
+
+              return (
+                <Stack
+                  key={`filter-${filterIndex}-value-${valueIndex}`}
+                  direction="row"
+                  flexWrap="wrap"
+                  alignItems="center"
+                  gap={2}
+                >
+                  <Chip
+                    label={valueToDisplay}
+                    deleteIconLabel={translate('text_6261640f28a49700f1290df5')}
+                    onDelete={() => {
+                      deleteFilterValue(valueIndex)
+                    }}
+                  />
+                  {valueIndex !== Object.keys(filter?.values).length - 1 && (
+                    <Typography variant="body" color="grey700">
+                      {translate('text_65f8472df7593301061e27d6')}
+                    </Typography>
+                  )}
+                </Stack>
+              )
+            })}
           </Stack>
         )}
 
@@ -154,7 +173,7 @@ export const ChargeFilter = memo(
         ) : (
           <Stack
             sx={{
-              '> *:first-child': {
+              '> *:first-of-type': {
                 flex: 1,
               },
             }}

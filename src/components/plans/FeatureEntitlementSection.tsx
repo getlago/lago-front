@@ -93,11 +93,6 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
                   <SelectorActions
                     actions={[
                       {
-                        icon: 'pen',
-                        tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
-                        onClick: () => openFeatureEntitlementDrawer(),
-                      },
-                      {
                         icon: 'trash',
                         tooltipCopy: translate('text_63aa085d28b8510cd46443ff'),
                         onClick: () => {
@@ -108,6 +103,11 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
                             ),
                           )
                         },
+                      },
+                      {
+                        icon: 'pen',
+                        tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+                        onClick: () => openFeatureEntitlementDrawer(),
                       },
                     ]}
                   />
@@ -120,7 +120,7 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
       )}
 
       <Button
-        align="left"
+        fitContent
         variant="inline"
         startIcon="plus"
         data-test={ADD_FEATURE_ENTITLEMENT_TEST_ID}

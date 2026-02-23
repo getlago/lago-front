@@ -4,7 +4,7 @@ import { memo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { Selector } from '~/components/designSystem/Selector'
+import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
@@ -52,6 +52,15 @@ export const SubscriptionFeeSection = memo(
     const { interval, currency } = usePlanFormContext()
     const subscriptionFeeDrawerRef = useRef<SubscriptionFeeDrawerRef>(null)
 
+    const openSubscriptionFeeDrawer = () => {
+      subscriptionFeeDrawerRef.current?.openDrawer({
+        amountCents: formikProps.values.amountCents || '',
+        payInAdvance: formikProps.values.payInAdvance || false,
+        trialPeriod: formikProps.values.trialPeriod ?? 0,
+        invoiceDisplayName: formikProps.values.invoiceDisplayName || undefined,
+      })
+    }
+
     return (
       <CenteredPage.PageSection>
         <CenteredPage.PageSectionTitle
@@ -77,22 +86,18 @@ export const SubscriptionFeeSection = memo(
             </div>
           }
           hoverActions={
-            <div className="flex items-center gap-3">
-              <Chip label={translate(getIntervalTranslationKey[interval])} />
-              <Tooltip placement="top-end" title={translate('text_63e51ef4985f0ebd75c212fc')}>
-                <Button icon="pen" variant="quaternary" />
-              </Tooltip>
-            </div>
+            <SelectorActions
+              actions={[
+                {
+                  icon: 'pen',
+                  tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+                  onClick: () => openSubscriptionFeeDrawer(),
+                },
+              ]}
+            />
           }
           data-test="open-subscription-fee-drawer"
-          onClick={() => {
-            subscriptionFeeDrawerRef.current?.openDrawer({
-              amountCents: formikProps.values.amountCents || '',
-              payInAdvance: formikProps.values.payInAdvance || false,
-              trialPeriod: formikProps.values.trialPeriod ?? 0,
-              invoiceDisplayName: formikProps.values.invoiceDisplayName || undefined,
-            })
-          }}
+          onClick={() => openSubscriptionFeeDrawer()}
         />
 
         <SubscriptionFeeDrawer

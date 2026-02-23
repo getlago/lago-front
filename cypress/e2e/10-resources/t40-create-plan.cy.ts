@@ -1,3 +1,15 @@
+import {
+  CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_MAX_CTA_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID,
+  CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
+} from '~/components/plans/ChargePercentage'
+import { GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID } from '~/components/plans/GraduatedChargeTable'
+import { GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID } from '~/components/plans/GraduatedPercentageChargeTable'
+import { VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID } from '~/components/plans/VolumeChargeTable'
+
 import { planWithChargesName } from '../../support/reusableConstants'
 
 describe('Create plan', () => {
@@ -65,7 +77,7 @@ describe('Create plan', () => {
     cy.get('[data-test="graduated"]').click({ force: true })
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Graduated pricing')
     cy.get('[data-test="row-2"]').should('not.exist')
-    cy.get('[data-test="add-tier"]').click({ force: true })
+    cy.get(`[data-test="${GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`).click({ force: true })
     cy.get('[data-test="row-2"]').should('exist')
     cy.get('[data-test="cell-amount-0"]').type('1')
     cy.get('[data-test="cell-amount-1"]').type('1')
@@ -83,7 +95,9 @@ describe('Create plan', () => {
       cy.get('input[name="chargeModel"]')
         .last()
         .should('have.value', 'Graduated percentage pricing')
-      cy.get('[data-test="add-tier"]').last().click({ force: true })
+      cy.get(`[data-test="${GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`)
+        .last()
+        .click({ force: true })
       cy.get('[data-test="cell-rate-0"]').type('1')
       cy.get('[data-test="cell-rate-1"]').type('1')
       cy.get('[data-test="cell-rate-2"]').type('1')
@@ -111,21 +125,21 @@ describe('Create plan', () => {
     cy.get('[data-test="percentage"]').click({ force: true })
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Percentage pricing')
     cy.get('input[name="properties.rate"]').last().type('1')
-    cy.get('[data-test="add-fixed-fee"]').click({ force: true })
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID}"]`).click({ force: true })
     cy.get('input[name="properties.fixedAmount"]').should('exist')
-    cy.get('[data-test="add-free-units"]').click({ force: true })
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
     cy.get('[data-test="add-free-units-events"]').click({ force: true })
     cy.get('[data-test="free-unit-per-event"] input').should('exist')
-    cy.get('[data-test="add-free-units"]').click({ force: true })
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
     cy.get('[data-test="add-free-units-total-amount"]').click({ force: true })
     cy.get('[data-test="free-unit-per-total-aggregation"] input').should('exist')
 
     // Min max
-    cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
-    cy.get('[data-test="add-min-cta"]').click({ force: true })
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID}"]`).click({ force: true })
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID}"]`).click({ force: true })
     cy.get('[data-test="per-transaction-min-amount"]').should('exist')
-    cy.get('[data-test="add-min-max-drowdown-cta"]').click({ force: true })
-    cy.get('[data-test="add-max-cta"]').click({ force: true })
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID}"]`).click({ force: true })
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MAX_CTA_TEST_ID}"]`).click({ force: true })
     cy.get('[data-test="per-transaction-max-amount"]').should('exist')
     cy.get('[data-test="submit"]').should('not.be.disabled')
 
@@ -137,7 +151,7 @@ describe('Create plan', () => {
     cy.get('input[name="chargeModel"]').last().click({ force: true })
     cy.get('[data-test="volume"]').click({ force: true })
     cy.get('input[name="chargeModel"]').last().should('have.value', 'Volume pricing')
-    cy.get('[data-test="add-tier"]').last().click({ force: true })
+    cy.get(`[data-test="${VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`).last().click({ force: true })
     cy.get('[data-test="cell-amount-0"]').last().type('1')
     cy.get('[data-test="cell-amount-1"]').last().type('1')
     cy.get('[data-test="cell-amount-2"]').last().type('1')
@@ -173,17 +187,17 @@ describe('Create plan', () => {
       cy.get('[data-test="percentage"]').click({ force: true })
       cy.get('input[name="chargeModel"]').last().should('have.value', 'Percentage pricing')
       cy.get('input[name="properties.rate"]').last().type('1')
-      cy.get('[data-test="add-fixed-fee"]').click({ force: true })
+      cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID}"]`).click({ force: true })
       cy.get('input[name="properties.fixedAmount"]').last().type('1')
-      cy.get('[data-test="add-free-units"]').click({ force: true })
+      cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
       cy.get('[data-test="add-free-units-events"]').click({ force: true })
       cy.get('[data-test="free-unit-per-event"] input').last().type('1')
-      cy.get('[data-test="add-free-units"]').click({ force: true })
+      cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
       cy.get('[data-test="add-free-units-total-amount"]').click({ force: true })
       cy.get('[data-test="free-unit-per-total-aggregation"] input').last().type('1')
 
       // Test regression scenario
-      cy.get('[data-test="remove-fixed-fee"]').click({ force: true })
+      cy.get(`[data-test="${CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID}"]`).click({ force: true })
       cy.get('[data-test="remove-free-units-per-event"]').click({ force: true })
       cy.get('[data-test="remove-free-unit-per-total-aggregation"]').click({ force: true })
       cy.get('[data-test="submit"]').should('not.be.disabled')
