@@ -493,11 +493,10 @@ const CreateWallet = () => {
         )}
 
         <CenteredPage.StickyFooter>
-          <Button size="large" variant="quaternary" onClick={onAbort}>
+          <Button variant="quaternary" onClick={onAbort}>
             {translate('text_62e79671d23ae6ff149de968')}
           </Button>
           <Button
-            size="large"
             variant="primary"
             disabled={!formikProps.isValid}
             onClick={formikProps.submitForm}
