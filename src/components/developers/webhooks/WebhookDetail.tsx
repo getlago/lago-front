@@ -5,7 +5,11 @@ import { NavigationTab, TabManagedBy } from '~/components/designSystem/Navigatio
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { WEBHOOK_LOGS_ROUTE, WEBHOOKS_ROUTE } from '~/components/developers/devtoolsRoutes'
+import {
+  WEBHOOK_LOGS_ROUTE,
+  WEBHOOK_ROUTE,
+  WEBHOOKS_ROUTE,
+} from '~/components/developers/devtoolsRoutes'
 import { WebhookLogs } from '~/components/developers/webhooks/WebhookLogs'
 import { WebhookOverview } from '~/components/developers/webhooks/WebhookOverview'
 import { UPDATE_WEBHOOK_ROUTE } from '~/core/router'
@@ -40,6 +44,7 @@ export const WebhookDetail = () => {
   const webhookDetailTabs = [
     {
       title: translate('text_634687079be251fdb43833b7'),
+      match: [WEBHOOK_ROUTE],
       component: (
         <WebhookOverview webhook={webhook} loading={loading} signatureLabel={signatureLabel} />
       ),
