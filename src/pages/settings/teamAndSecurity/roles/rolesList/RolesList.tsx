@@ -12,8 +12,8 @@ import {
   SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
-  SettingsPaddedContainer,
   SettingsPageHeaderContainer,
+  SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { RoleItem, rolesNameMapping, systemRoles } from '~/core/constants/roles'
 import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
@@ -163,7 +163,7 @@ const RolesList = () => {
   }
 
   return (
-    <SettingsPaddedContainer>
+    <SettingsWithTabsPaddedContainer>
       <SettingsPageHeaderContainer>
         <Typography variant="headline">{translate('text_1765448879791epmkg4xijkn')}</Typography>
         <Typography>{translate('text_1765449274238uzkq6xxdcev')}</Typography>
@@ -210,7 +210,7 @@ const RolesList = () => {
           </div>
         )}
       </SettingsListWrapper>
-    </SettingsPaddedContainer>
+    </SettingsWithTabsPaddedContainer>
   )
 }
 

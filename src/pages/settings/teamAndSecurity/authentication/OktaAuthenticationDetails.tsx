@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -8,11 +7,6 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
-import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
-import {
-  DeleteOktaIntegrationDialog,
-  DeleteOktaIntegrationDialogRef,
-} from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
 import { AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
@@ -26,6 +20,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper, PageHeader } from '~/styles'
+
+import { useAddOktaDialog } from './dialogs/AddOktaDialog'
+import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 
 gql`
   fragment OktaIntegrationDetails on OktaIntegration {
@@ -59,8 +56,8 @@ const OktaAuthenticationDetails = () => {
   const { organization } = useOrganizationInfos()
   const navigate = useNavigate()
 
-  const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
-  const deleteOktaDialogRef = useRef<DeleteOktaIntegrationDialogRef>(null)
+  const { openAddOktaDialog } = useAddOktaDialog()
+  const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
 
   const { data, loading, refetch } = useGetOktaIntegrationQuery({
     variables: { id: integrationId },
@@ -120,11 +117,10 @@ const OktaAuthenticationDetails = () => {
                 align="left"
                 onClick={() => {
                   closePopper()
-                  addOktaDialogRef.current?.openDialog({
+                  openAddOktaDialog({
                     integration,
                     callback: onEditCallback,
-                    deleteModalRef: deleteOktaDialogRef,
-                    deleteDialogCallback: onDeleteCallback,
+                    deleteCallback: onDeleteCallback,
                   })
                 }}
               >
@@ -137,7 +133,7 @@ const OktaAuthenticationDetails = () => {
                 disabled={!hasOtherAuthenticationMethodsThanOkta}
                 onClick={() => {
                   closePopper()
-                  deleteOktaDialogRef.current?.openDialog({
+                  openDeleteOktaIntegrationDialog({
                     integration,
                     callback: onDeleteCallback,
                   })
@@ -164,11 +160,10 @@ const OktaAuthenticationDetails = () => {
               variant="inline"
               disabled={loading}
               onClick={() =>
-                addOktaDialogRef.current?.openDialog({
+                openAddOktaDialog({
                   integration,
                   callback: onEditCallback,
-                  deleteModalRef: deleteOktaDialogRef,
-                  deleteDialogCallback: onDeleteCallback,
+                  deleteCallback: onDeleteCallback,
                 })
               }
             >
@@ -176,45 +171,41 @@ const OktaAuthenticationDetails = () => {
             </Button>
           </IntegrationsPage.Headline>
 
-          <>
-            {loading ? (
-              [0, 1, 2, 3].map((i) => (
-                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
-              ))
-            ) : (
-              <>
-                <IntegrationsPage.DetailsItem
-                  icon="globe"
-                  label={translate('text_664c732c264d7eed1c74fd94')}
-                  value={integration.domain}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="globe"
-                  label={translate('text_1763560144639jp40amfwhn5')}
-                  value={integration.host || 'N/A'}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="key"
-                  label={translate('text_664c732c264d7eed1c74fda6')}
-                  value={integration.clientId || 'N/A'}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="key"
-                  label={translate('text_664c732c264d7eed1c74fdb2')}
-                  value={integration.clientSecret || 'N/A'}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="text"
-                  label={translate('text_664c732c264d7eed1c74fdbb')}
-                  value={integration.organizationName}
-                />
-              </>
-            )}
-          </>
+          {loading ? (
+            [0, 1, 2, 3].map((i) => (
+              <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+            ))
+          ) : (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="globe"
+                label={translate('text_664c732c264d7eed1c74fd94')}
+                value={integration.domain}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="globe"
+                label={translate('text_1763560144639jp40amfwhn5')}
+                value={integration.host || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_664c732c264d7eed1c74fda6')}
+                value={integration.clientId || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_664c732c264d7eed1c74fdb2')}
+                value={integration.clientSecret || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_664c732c264d7eed1c74fdbb')}
+                value={integration.organizationName}
+              />
+            </>
+          )}
         </section>
       </IntegrationsPage.Container>
-      <AddOktaDialog ref={addOktaDialogRef} />
-      <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
     </>
   )
 }

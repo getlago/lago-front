@@ -2,7 +2,10 @@ import { generatePath } from 'react-router-dom'
 
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Typography } from '~/components/designSystem/Typography'
-import { SettingsPaddedContainer, SettingsPageHeaderContainer } from '~/components/layouts/Settings'
+import {
+  SettingsPageHeaderContainer,
+  SettingsWithTabsPaddedContainer,
+} from '~/components/layouts/Settings'
 import { TEAM_AND_SECURITY_GROUP_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -18,7 +21,7 @@ const Members = () => {
   const { translate } = useInternationalization()
 
   return (
-    <SettingsPaddedContainer>
+    <SettingsWithTabsPaddedContainer>
       <SettingsPageHeaderContainer>
         <Typography variant="headline">{translate('text_63208b630aaf8df6bbfb2657')}</Typography>
         <Typography>{translate('text_63208b630aaf8df6bbfb2659')}</Typography>
@@ -56,7 +59,7 @@ const Members = () => {
           ]}
         />
       </div>
-    </SettingsPaddedContainer>
+    </SettingsWithTabsPaddedContainer>
   )
 }
 

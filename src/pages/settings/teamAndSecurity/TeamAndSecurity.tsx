@@ -10,6 +10,7 @@ import {
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import Authentication from './authentication/Authentication'
 import {
   teamAndSecurityGroupOptions,
   teamAndSecurityTabOptions,
@@ -63,6 +64,18 @@ const TeamAndSecurity = () => {
               group: teamAndSecurityGroupOptions.roles,
             }),
             component: <RolesList />,
+          },
+          {
+            title: translate('text_664c732c264d7eed1c74fd96'),
+            match: [
+              generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+                group: teamAndSecurityGroupOptions.authentication,
+              }),
+            ],
+            link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+              group: teamAndSecurityGroupOptions.authentication,
+            }),
+            component: <Authentication />,
           },
         ]}
       />

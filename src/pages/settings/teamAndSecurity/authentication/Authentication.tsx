@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -10,20 +9,14 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Selector } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
-  SettingsPaddedContainer,
   SettingsPageHeaderContainer,
+  SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
-import {
-  DeleteOktaIntegrationDialog,
-  DeleteOktaIntegrationDialogRef,
-} from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
 import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
@@ -36,12 +29,12 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import {
-  UpdateLoginMethodDialog,
-  UpdateLoginMethodDialogRef,
-} from '~/pages/settings/Authentication/UpdateLoginMethodDialog'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
+
+import { useAddOktaDialog } from './dialogs/AddOktaDialog'
+import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
+import { useUpdateLoginMethodDialog } from './dialogs/UpdateLoginMethodDialog'
 
 gql`
   query GetAuthIntegrations($limit: Int!) {
@@ -70,10 +63,10 @@ const Authentication = () => {
   } = useOrganizationInfos()
   const navigate = useNavigate()
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
-  const deleteOktaDialogRef = useRef<DeleteOktaIntegrationDialogRef>(null)
-  const updateLoginMethodDialogRef = useRef<UpdateLoginMethodDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
+  const { openAddOktaDialog } = useAddOktaDialog()
+  const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
+  const { openUpdateLoginMethodDialog } = useUpdateLoginMethodDialog()
 
   const { data: authIntegrationsData, loading: authIntegrationsLoading } =
     useGetAuthIntegrationsQuery({ variables: { limit: 10 } })
@@ -149,10 +142,10 @@ const Authentication = () => {
                 loading={authIntegrationsLoading}
                 onClick={() => {
                   if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialogRef.current?.openDialog()
+                    return premiumWarningDialog.open()
                   }
 
-                  return addOktaDialogRef.current?.openDialog({
+                  return openAddOktaDialog({
                     integration: oktaIntegration,
                     callback: (id) =>
                       navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
@@ -188,7 +181,7 @@ const Authentication = () => {
                       onClick={(e) => {
                         e.stopPropagation()
 
-                        updateLoginMethodDialogRef.current?.openDialog({
+                        openUpdateLoginMethodDialog({
                           method,
                           type: 'enable',
                         })
@@ -207,7 +200,7 @@ const Authentication = () => {
                       onClick={(e) => {
                         e.stopPropagation()
 
-                        updateLoginMethodDialogRef.current?.openDialog({
+                        openUpdateLoginMethodDialog({
                           method,
                           type: 'disable',
                         })
@@ -227,7 +220,7 @@ const Authentication = () => {
                         onClick={(e) => {
                           e.stopPropagation()
 
-                          addOktaDialogRef.current?.openDialog({
+                          openAddOktaDialog({
                             integration: oktaIntegration,
                             callback: () => {
                               refetchOrganizationInfos()
@@ -258,7 +251,7 @@ const Authentication = () => {
                           onClick={(e) => {
                             e.stopPropagation()
 
-                            deleteOktaDialogRef.current?.openDialog({
+                            openDeleteOktaIntegrationDialog({
                               integration: oktaIntegration,
                               callback: () => {
                                 refetchOrganizationInfos()
@@ -281,100 +274,87 @@ const Authentication = () => {
   }
 
   return (
-    <>
-      <PageBannerHeaderWithBurgerMenu>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_664c732c264d7eed1c74fd96')}
-        </Typography>
-      </PageBannerHeaderWithBurgerMenu>
+    <SettingsWithTabsPaddedContainer>
+      <SettingsPageHeaderContainer>
+        <Typography variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Typography>
+        <Typography>{translate('text_664c732c264d7eed1c74fd9c')}</Typography>
+      </SettingsPageHeaderContainer>
 
-      <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Typography>
-          <Typography>{translate('text_664c732c264d7eed1c74fd9c')}</Typography>
-        </SettingsPageHeaderContainer>
+      <SettingsListWrapper>
+        {organizationLoading ? (
+          <SettingsListItemLoadingSkeleton count={3} />
+        ) : (
+          <SettingsListItem>
+            <Selector
+              title={translate('text_1752157864304mscddgsda6b')}
+              subtitle={translate('text_1752157864305xgsua4ux0s7')}
+              icon={
+                <Avatar size="big" variant="connector">
+                  <Icon name="key" color="black" />
+                </Avatar>
+              }
+              endIcon={getEndIcon({
+                type: authenticationMethods?.includes(AuthenticationMethodsEnum.EmailPassword)
+                  ? 'enabled'
+                  : 'disabled',
+                method: AuthenticationMethodsEnum.EmailPassword,
+              })}
+            />
 
-        <SettingsListWrapper>
-          {organizationLoading ? (
-            <SettingsListItemLoadingSkeleton count={3} />
-          ) : (
-            <SettingsListItem>
-              <Selector
-                title={translate('text_1752157864304mscddgsda6b')}
-                subtitle={translate('text_1752157864305xgsua4ux0s7')}
-                icon={
-                  <Avatar size="big" variant="connector">
-                    <Icon name="key" color="black" />
-                  </Avatar>
+            <Selector
+              title={translate('text_17521578643056ojd79f7ilq')}
+              subtitle={translate('text_1752157864305y1yi854blva')}
+              icon={
+                <Avatar size="big" variant="connector">
+                  <Icon name="google" size="medium" />
+                </Avatar>
+              }
+              endIcon={getEndIcon({
+                type: authenticationMethods?.includes(AuthenticationMethodsEnum.GoogleOauth)
+                  ? 'enabled'
+                  : 'disabled',
+                method: AuthenticationMethodsEnum.GoogleOauth,
+              })}
+            />
+
+            <Selector
+              title={translate('text_664c732c264d7eed1c74fda2')}
+              subtitle={translate('text_664c732c264d7eed1c74fda8')}
+              icon={
+                <Avatar size="big" variant="connector-full">
+                  <Okta />
+                </Avatar>
+              }
+              onClick={() => {
+                if (!shouldSeeOktaIntegration) {
+                  return premiumWarningDialog.open()
                 }
-                endIcon={getEndIcon({
-                  type: authenticationMethods?.includes(AuthenticationMethodsEnum.EmailPassword)
-                    ? 'enabled'
-                    : 'disabled',
-                  method: AuthenticationMethodsEnum.EmailPassword,
-                })}
-              />
 
-              <Selector
-                title={translate('text_17521578643056ojd79f7ilq')}
-                subtitle={translate('text_1752157864305y1yi854blva')}
-                icon={
-                  <Avatar size="big" variant="connector">
-                    <Icon name="google" size="medium" />
-                  </Avatar>
+                if (oktaIntegration?.id) {
+                  return navigate(
+                    generatePath(OKTA_AUTHENTICATION_ROUTE, {
+                      integrationId: oktaIntegration.id,
+                    }),
+                  )
                 }
-                endIcon={getEndIcon({
-                  type: authenticationMethods?.includes(AuthenticationMethodsEnum.GoogleOauth)
-                    ? 'enabled'
-                    : 'disabled',
-                  method: AuthenticationMethodsEnum.GoogleOauth,
-                })}
-              />
 
-              <Selector
-                title={translate('text_664c732c264d7eed1c74fda2')}
-                subtitle={translate('text_664c732c264d7eed1c74fda8')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    <Okta />
-                  </Avatar>
-                }
-                onClick={() => {
-                  if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialogRef.current?.openDialog()
-                  }
-
-                  if (oktaIntegration?.id) {
-                    return navigate(
-                      generatePath(OKTA_AUTHENTICATION_ROUTE, {
-                        integrationId: oktaIntegration.id,
-                      }),
-                    )
-                  }
-
-                  return addOktaDialogRef.current?.openDialog({
-                    integration: oktaIntegration,
-                    callback: (id) =>
-                      navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
-                  })
-                }}
-                endIcon={getEndIcon({
-                  method: AuthenticationMethodsEnum.Okta,
-                  type: authenticationMethods?.includes(AuthenticationMethodsEnum.Okta)
-                    ? 'enabled'
-                    : 'disabled',
-                })}
-              />
-            </SettingsListItem>
-          )}
-        </SettingsListWrapper>
-      </SettingsPaddedContainer>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <AddOktaDialog ref={addOktaDialogRef} />
-      <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
-      <UpdateLoginMethodDialog ref={updateLoginMethodDialogRef} />
-    </>
+                return openAddOktaDialog({
+                  integration: oktaIntegration,
+                  callback: (id) =>
+                    navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
+                })
+              }}
+              endIcon={getEndIcon({
+                method: AuthenticationMethodsEnum.Okta,
+                type: authenticationMethods?.includes(AuthenticationMethodsEnum.Okta)
+                  ? 'enabled'
+                  : 'disabled',
+              })}
+            />
+          </SettingsListItem>
+        )}
+      </SettingsListWrapper>
+    </SettingsWithTabsPaddedContainer>
   )
 }
 
