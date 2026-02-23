@@ -36,6 +36,7 @@ import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
@@ -884,32 +885,23 @@ const CreateSubscription = () => {
                           !isPremium && 'pointer-events-none opacity-40',
                         )}
                       >
-                        <div className="not-last-child:mb-8">
-                          <div className="flex flex-col gap-1">
-                            <Typography variant="headline">
-                              {translate('text_642d5eb2783a2ad10d67031a')}
-                            </Typography>
-                            <Typography variant="body">
-                              {translate('text_66630368f4333b00795b0e1c')}
-                            </Typography>
-                          </div>
-                          <PlanSettingsSection
-                            isInSubscriptionForm={isInSubscriptionForm}
-                            subscriptionFormType={formType}
-                            formikProps={planFormikProps}
-                          />
-                        </div>
-                        <div className="not-last-child:mb-8">
-                          <div className="flex flex-col gap-1">
-                            <Typography variant="headline">
-                              {translate('text_6661fc17337de3591e29e3e7')}
-                            </Typography>
-                            <Typography variant="body">
-                              {translate('text_66630368f4333b00795b0e2d')}
-                            </Typography>
-                          </div>
+                        <Card>
+                          <CenteredPage.SubsectionWrapper>
+                            <PlanSettingsSection
+                              isInSubscriptionForm={isInSubscriptionForm}
+                              subscriptionFormType={formType}
+                              formikProps={planFormikProps}
+                            />
+                          </CenteredPage.SubsectionWrapper>
+                        </Card>
 
-                          <div className="flex flex-col gap-4">
+                        <Card className="gap-12">
+                          <CenteredPage.PageTitle
+                            title={translate('text_6661fc17337de3591e29e3e7')}
+                            description={translate('text_66630368f4333b00795b0e2d')}
+                          />
+
+                          <CenteredPage.SubsectionWrapper>
                             <SubscriptionFeeSection
                               editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                               formikProps={planFormikProps}
@@ -936,18 +928,16 @@ const CreateSubscription = () => {
                               premiumWarningDialogRef={premiumWarningDialogRef}
                               subscriptionFormType={formType}
                             />
-                          </div>
-                        </div>
-                        <div className="not-last-child:mb-8">
-                          <div className="flex flex-col gap-1">
-                            <Typography variant="headline">
-                              {translate('text_6661fc17337de3591e29e44d')}
-                            </Typography>
-                            <Typography variant="body">
-                              {translate('text_66676ed0d8c3d481637e99b7')}
-                            </Typography>
-                          </div>
-                          <Card className="gap-8">
+                          </CenteredPage.SubsectionWrapper>
+                        </Card>
+
+                        <Card className="gap-12">
+                          <CenteredPage.PageTitle
+                            title={translate('text_6661fc17337de3591e29e44d')}
+                            description={translate('text_66676ed0d8c3d481637e99b7')}
+                          />
+
+                          <CenteredPage.SubsectionWrapper>
                             <ProgressiveBillingSection
                               formikProps={planFormikProps}
                               isInSubscriptionForm={isInSubscriptionForm}
@@ -957,8 +947,8 @@ const CreateSubscription = () => {
                               premiumWarningDialogRef={premiumWarningDialogRef}
                               editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                             />
-                          </Card>
-                        </div>
+                          </CenteredPage.SubsectionWrapper>
+                        </Card>
                       </div>
                     </div>
                   </>

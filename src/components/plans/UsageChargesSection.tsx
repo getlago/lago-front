@@ -3,12 +3,12 @@ import { FormikProps } from 'formik'
 import { memo, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   FORM_TYPE_ENUM,
@@ -228,16 +228,12 @@ export const UsageChargesSection = memo(
 
     return (
       <>
-        <Card className="gap-8">
+        <CenteredPage.PageSection>
           <div className="flex items-center justify-between gap-8">
-            <div className="flex flex-col gap-2">
-              <Typography variant="subhead1">
-                {translate('text_6435888d7cc86500646d8977')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_6661ffe746c680007e2df0d6')}
-              </Typography>
-            </div>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_6435888d7cc86500646d8977')}
+              description={translate('text_6661ffe746c680007e2df0d6')}
+            />
 
             {!isInSubscriptionForm && (
               <Popper
@@ -301,7 +297,7 @@ export const UsageChargesSection = memo(
           )}
 
           {(hasAnyMeteredCharge || !isInSubscriptionForm) && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <Typography variant="bodyHl" color="grey700">
                   {translate('text_6661fc17337de3591e29e40f')}
@@ -312,7 +308,7 @@ export const UsageChargesSection = memo(
               </div>
 
               {hasAnyMeteredCharge && (
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                   {formikProps.values.charges.map((charge, i) => {
                     // Prevent displaying recurring charges
                     if (charge.billableMetric.recurring) return
@@ -430,7 +426,7 @@ export const UsageChargesSection = memo(
 
           {/* RECURRING */}
           {(hasAnyRecurringCharge || !isInSubscriptionForm) && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <Typography variant="bodyHl" color="grey700">
                   {translate('text_64d271e20a9c11005bd6688a')}
@@ -441,7 +437,7 @@ export const UsageChargesSection = memo(
               </div>
 
               {hasAnyRecurringCharge && (
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                   {formikProps.values.charges.map((charge, i) => {
                     // Prevent displaying metered charges
                     if (!charge.billableMetric.recurring) return
@@ -553,7 +549,7 @@ export const UsageChargesSection = memo(
               )}
             </div>
           )}
-        </Card>
+        </CenteredPage.PageSection>
 
         <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
       </>

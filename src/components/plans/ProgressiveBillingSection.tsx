@@ -8,12 +8,11 @@ import { FC, useEffect, useState } from 'react'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { AmountInput, Switch, TextInput } from '~/components/form'
-import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -21,6 +20,8 @@ import { useProgressiveBillingForm } from '~/hooks/plans/useProgressiveBillingFo
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { PlanFormInput } from './types'
+
+import PremiumFeature from '../premium/PremiumFeature'
 
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
@@ -69,42 +70,18 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
   ])
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <div className="flex flex-col gap-1">
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_1724179887722baucvj7bvc1')}
-        </Typography>
-        <Typography
-          variant="caption"
-          color="grey600"
-          html={translate('text_1724179887723kdf3nisf6hp', { href: PROGRESSIVE_BILLING_DOC_URL })}
-        />
-      </div>
+    <CenteredPage.PageSection>
+      <CenteredPage.PageSectionTitle
+        title={translate('text_1724179887722baucvj7bvc1')}
+        description={translate('text_1724179887723kdf3nisf6hp')}
+      />
 
       {!hasPremiumIntegration && (
-        <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
-          <Box>
-            <div className="flex items-center gap-2">
-              <Typography variant="bodyHl" color="textSecondary">
-                {translate('text_1724345142892pcnx5m2k3r2')}
-              </Typography>
-              <Icon name="sparkles" />
-            </div>
-            <Typography variant="caption">{translate('text_1724345142892ljzi79afhmc')}</Typography>
-          </Box>
-          <ButtonLink
-            buttonProps={{
-              variant: 'tertiary',
-              size: 'medium',
-              endIcon: 'sparkles',
-            }}
-            type="button"
-            external
-            to={`mailto:hello@getlago.com?subject=${translate('text_172434514289283gmf8bdhh3')}&body=${translate('text_1724346450317iqs2rtvx1tp')}`}
-          >
-            {translate('text_65ae73ebe3a66bec2b91d72d')}
-          </ButtonLink>
-        </div>
+        <PremiumFeature
+          title={translate('text_1724345142892pcnx5m2k3r2')}
+          description={translate('text_1724345142892ljzi79afhmc')}
+          feature={translate('text_1724179887722baucvj7bvc1')}
+        />
       )}
 
       {hasPremiumIntegration && displayProgressiveBillingAccordion && (
@@ -306,6 +283,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
 
       {hasPremiumIntegration && !displayProgressiveBillingAccordion && (
         <Button
+          align="left"
           variant="inline"
           startIcon="plus"
           disabled={displayProgressiveBillingAccordion}
@@ -317,7 +295,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
           {translate('text_1724233213996upb98e8b8xx')}
         </Button>
       )}
-    </div>
+    </CenteredPage.PageSection>
   )
 }
 
