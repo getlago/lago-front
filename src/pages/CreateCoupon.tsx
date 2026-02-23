@@ -9,7 +9,6 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -37,7 +36,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useAddBillableMetricToCouponDialog } from '~/pages/createCoupon/dialogs/AddBillableMetricToCouponDialog'
 import { useAddPlanToCouponDialog } from '~/pages/createCoupon/dialogs/AddPlanToCouponDialog'
 import { PageHeader } from '~/styles'
-import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+import { FormLoadingSkeleton, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 import { CouponFormValues, couponValidationSchema } from './createCoupon/validationSchema'
 
@@ -221,21 +220,7 @@ const CreateCoupon = () => {
         <Main>
           <div>
             {loading ? (
-              <>
-                <div className="px-8">
-                  <Skeleton variant="text" className="mb-5 w-70" />
-                  <Skeleton variant="text" className="mb-4" />
-                  <Skeleton variant="text" className="w-30" />
-                </div>
-
-                {[0, 1].map((skeletonCard) => (
-                  <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" className="w-70" />
-                    <Skeleton variant="text" />
-                    <Skeleton variant="text" className="w-30" />
-                  </Card>
-                ))}
-              </>
+              <FormLoadingSkeleton id="create-coupon" />
             ) : (
               <>
                 <div>
