@@ -81,21 +81,39 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
     return formatFiltersForWebhookLogsQuery(new URLSearchParams(searchParamsString))
   }, [searchParamsString])
 
-  const [getWebhookLogs, getWebhookLogsResult] = useGetWebhookLogLazyQuery({
-    variables: {
+  const queryVariables = useMemo(
+    () => ({
       webhookEndpointId: webhookId,
       limit: 20,
       ...filtersForWebhookLogsQuery,
-    },
+    }),
+    [webhookId, filtersForWebhookLogsQuery],
+  )
+
+  const [getWebhookLogs, getWebhookLogsResult] = useGetWebhookLogLazyQuery({
+    variables: queryVariables,
     notifyOnNetworkStatusChange: true,
   })
 
-  const { data, loading, refetch } = getWebhookLogsResult
+  const { data, loading } = getWebhookLogsResult
 
   const { debouncedSearch, isLoading: isSearchLoading } = useDebouncedSearch(
     getWebhookLogs,
     loading,
   )
+
+  // Refetch with fresh filters to avoid stale toDate from the memoized query variables.
+  // Standard refetch() reuses variables from the initial execution, which includes a frozen toDate.
+  const refetchWithFreshFilters = useCallback(async () => {
+    const freshFilters = formatFiltersForWebhookLogsQuery(
+      new URLSearchParams(searchParams.toString()),
+    )
+
+    return getWebhookLogs({
+      variables: { ...queryVariables, ...freshFilters },
+      fetchPolicy: 'network-only',
+    })
+  }, [getWebhookLogs, queryVariables, searchParams])
 
   const navigateToFirstLog = useCallback(
     (logCollection?: WebhookLogFragment[], currentSearchParams?: URLSearchParams) => {
@@ -161,7 +179,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
           size="small"
           variant="quaternary"
           onClick={async () => {
-            const result = await refetch()
+            const result = await refetchWithFreshFilters()
 
             navigateToFirstLog(result.data?.webhooks?.collection, searchParams)
           }}

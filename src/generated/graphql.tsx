@@ -3679,7 +3679,8 @@ export type EventCollection = {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   MultiplePaymentMethods = 'multiple_payment_methods',
-  PostgresEnrichedEvents = 'postgres_enriched_events'
+  PostgresEnrichedEvents = 'postgres_enriched_events',
+  WalletTraceability = 'wallet_traceability'
 }
 
 export type FeatureObject = {
@@ -4589,14 +4590,68 @@ export type LimitationInput = {
 
 /** Security Log event */
 export enum LogEventEnum {
+  /** api_key.created */
+  ApiKeyCreated = 'api_key_created',
+  /** api_key.deleted */
+  ApiKeyDeleted = 'api_key_deleted',
+  /** api_key.rotated */
+  ApiKeyRotated = 'api_key_rotated',
+  /** api_key.updated */
+  ApiKeyUpdated = 'api_key_updated',
+  /** billing_entity.created */
+  BillingEntityCreated = 'billing_entity_created',
+  /** billing_entity.updated */
+  BillingEntityUpdated = 'billing_entity_updated',
+  /** export.created */
+  ExportCreated = 'export_created',
+  /** integration.created */
+  IntegrationCreated = 'integration_created',
+  /** integration.deleted */
+  IntegrationDeleted = 'integration_deleted',
+  /** integration.updated */
+  IntegrationUpdated = 'integration_updated',
+  /** role.created */
+  RoleCreated = 'role_created',
+  /** role.deleted */
+  RoleDeleted = 'role_deleted',
+  /** role.updated */
+  RoleUpdated = 'role_updated',
+  /** user.deleted */
+  UserDeleted = 'user_deleted',
+  /** user.invited */
+  UserInvited = 'user_invited',
+  /** user.password_edited */
+  UserPasswordEdited = 'user_password_edited',
+  /** user.password_reset_requested */
+  UserPasswordResetRequested = 'user_password_reset_requested',
+  /** user.role_edited */
+  UserRoleEdited = 'user_role_edited',
   /** user.signed_up */
-  UserSignedUp = 'user_signed_up'
+  UserSignedUp = 'user_signed_up',
+  /** webhook_endpoint.created */
+  WebhookEndpointCreated = 'webhook_endpoint_created',
+  /** webhook_endpoint.deleted */
+  WebhookEndpointDeleted = 'webhook_endpoint_deleted',
+  /** webhook_endpoint.updated */
+  WebhookEndpointUpdated = 'webhook_endpoint_updated'
 }
 
 /** Security Log type */
 export enum LogTypeEnum {
+  /** api_key */
+  ApiKey = 'api_key',
+  /** billing_entity */
+  BillingEntity = 'billing_entity',
+  /** export */
+  Export = 'export',
+  /** integration */
+  Integration = 'integration',
+  /** role */
+  Role = 'role',
   /** user */
-  User = 'user'
+  User = 'user',
+  /** webhook_endpoint */
+  WebhookEndpoint = 'webhook_endpoint'
 }
 
 export type LoginUser = {
