@@ -3985,5 +3985,10 @@
   "text_1773346168045bj2x1626229": "Set specific tax rates to apply to this fee",
   "text_1773428494589gq89ubgz99i": "Select a feature as an entitlement",
   "text_1770063200028ww5znt6yree": "A plan defines pricing rules and creates a subscription when assigned to a customer.",
-  "text_1770063200028xc3xmcvi7bw": "Recurring fee treated as the base subscription charge. It follows the plan interval defined above."
+  "text_1770063200028xc3xmcvi7bw": "Recurring fee treated as the base subscription charge. It follows the plan interval defined above.",
+  "text_177196303346655qni6k55jr": "Pricing settings",
+  "text_1771963033467yduu33x3qw9": "Specifies the name that will be displayed on an invoice.",
+  "text_17719630334671lxunwzo7ae": "Open drawer",
+  "text_1772030294690kg96fwsazm4": "Frequency at which the fee recurs.",
+  "text_1772030324507alr5hywedel": "{{interval}} (inherit from plan)"
 }
