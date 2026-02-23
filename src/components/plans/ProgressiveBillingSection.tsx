@@ -27,9 +27,13 @@ type ThresholdTableData = UsageThresholdInput & { [key: string]: unknown }
 
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
+  isInitiallyOpen?: boolean
 }
 
-export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ formikProps }) => {
+export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
+  formikProps,
+  isInitiallyOpen,
+}) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
@@ -85,6 +89,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
       {hasPremiumIntegration && displayProgressiveBillingAccordion && (
         <Accordion
           className="w-full"
+          initiallyOpen={isInitiallyOpen}
           summary={
             <AccordionSummary
               hasErrorInGroup={hasErrorInGroup}
