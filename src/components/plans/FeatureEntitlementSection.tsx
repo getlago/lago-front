@@ -6,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { FeatureEntitlementSectionPrivilegeAccordion } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -99,18 +100,11 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
   }, [featuresListData, formikProps.values.entitlements])
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <div className="flex flex-col gap-1">
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_63e26d8308d03687188221a6')}
-        </Typography>
-
-        <Typography
-          variant="caption"
-          color="grey600"
-          html={translate('text_17538642230602p03937fj0f')}
-        />
-      </div>
+    <CenteredPage.PageSection>
+      <CenteredPage.PageSectionTitle
+        title={translate('text_63e26d8308d03687188221a6')}
+        description={translate('text_17538642230602p03937fj0f')}
+      />
 
       {!!formikProps.values.entitlements?.length && (
         <div className="flex w-full flex-col gap-4">
@@ -173,6 +167,7 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
 
       {!displayAddFeatureEntitlementInput && (
         <Button
+          align="left"
           variant="inline"
           startIcon="plus"
           onClick={() => {
@@ -186,7 +181,7 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
           {translate('text_1753864223060devvklm7vk0')}
         </Button>
       )}
-    </div>
+    </CenteredPage.PageSection>
   )
 }
 

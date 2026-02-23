@@ -11,6 +11,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
@@ -197,19 +198,19 @@ export const CommitmentsSection = ({
   )
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <div className="flex flex-col gap-1">
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_65d601bffb11e0f9d1d9f569')}
-        </Typography>
-        <Typography variant="caption" color="grey600">
-          {translate('text_6661fc17337de3591e29e451', {
-            interval: translate(
-              mapChargeIntervalCopy(formikProps.values.interval, false),
-            ).toLocaleLowerCase(),
-          })}
-        </Typography>
-      </div>
+    <CenteredPage.PageSection>
+      <CenteredPage.PageSectionTitle
+        title={translate('text_65d601bffb11e0f9d1d9f569')}
+        description={
+          <Typography variant="caption" color="grey600">
+            {translate('text_6661fc17337de3591e29e451', {
+              interval: translate(
+                mapChargeIntervalCopy(formikProps.values.interval, false),
+              ).toLocaleLowerCase(),
+            })}
+          </Typography>
+        }
+      />
 
       {showMinimumCommitment && renderMinimumCommitmentAccordion}
       {!showMinimumCommitment && !isPremium && (
@@ -220,7 +221,7 @@ export const CommitmentsSection = ({
         />
       )}
       {!showMinimumCommitment && isPremium && renderAddButton()}
-    </div>
+    </CenteredPage.PageSection>
   )
 }
 
