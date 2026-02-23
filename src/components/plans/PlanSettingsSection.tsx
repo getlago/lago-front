@@ -3,9 +3,9 @@ import { FormikProps } from 'formik'
 import { memo, useEffect, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { ButtonSelectorField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   FORM_TYPE_ENUM,
@@ -79,69 +79,73 @@ export const PlanSettingsSection = memo(
     }, [formikProps.initialValues.description])
 
     return (
-      <Card>
-        <div className="flex flex-col gap-6">
-          <div className="flex gap-3">
-            <TextInput
-              className="flex-1"
-              name="name"
-              label={translate('text_629728388c4d2300e2d38091')}
-              placeholder={translate('text_624453d52e945301380e499c')}
-              value={formikProps.values.name}
-              onChange={(name) => {
-                updateNameAndMaybeCode({ name, formikProps })
-              }}
-            />
+      <CenteredPage.PageSection>
+        <CenteredPage.PageSectionTitle
+          title={translate('text_642d5eb2783a2ad10d67031a')}
+          description={translate('text_6661fc17337de3591e29e3c1')}
+        />
+
+        <div className="flex gap-6">
+          <TextInput
+            className="flex-1"
+            name="name"
+            label={translate('text_629728388c4d2300e2d38091')}
+            placeholder={translate('text_624453d52e945301380e499c')}
+            value={formikProps.values.name}
+            onChange={(name) => {
+              updateNameAndMaybeCode({ name, formikProps })
+            }}
+          />
+          <TextInputField
+            className="flex-1"
+            name="code"
+            label={translate('text_62876e85e32e0300e1803127')}
+            infoText={translate('text_6661fc17337de3591e29e3cd')}
+            beforeChangeFormatter="code"
+            disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+            placeholder={translate('text_624453d52e945301380e499e')}
+            formikProps={formikProps}
+          />
+        </div>
+
+        {shouldDisplayDescription && (
+          <div className="flex items-center">
             <TextInputField
-              className="flex-1"
-              name="code"
-              label={translate('text_62876e85e32e0300e1803127')}
-              infoText={translate('text_6661fc17337de3591e29e3cd')}
-              beforeChangeFormatter="code"
-              disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-              placeholder={translate('text_624453d52e945301380e499e')}
+              multiline
+              className="mr-3 flex-1"
+              name="description"
+              label={translate('text_629728388c4d2300e2d380f1')}
+              placeholder={translate('text_6661fc17337de3591e29e3c9')}
+              rows="3"
               formikProps={formikProps}
             />
-          </div>
-
-          {shouldDisplayDescription ? (
-            <div className="flex items-center">
-              <TextInputField
-                multiline
-                className="mr-3 flex-1"
-                name="description"
-                label={translate('text_629728388c4d2300e2d380f1')}
-                placeholder={translate('text_6661fc17337de3591e29e3c9')}
-                rows="3"
-                formikProps={formikProps}
-              />
-              <Tooltip
-                className="mt-6"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    formikProps.setFieldValue('description', '')
-                    setShouldDisplayDescription(false)
-                  }}
-                />
-              </Tooltip>
-            </div>
-          ) : (
-            <Button
-              fitContent
-              startIcon="plus"
-              variant="inline"
-              onClick={() => setShouldDisplayDescription(true)}
-              data-test="show-description"
+            <Tooltip
+              className="mt-6"
+              placement="top-end"
+              title={translate('text_63aa085d28b8510cd46443ff')}
             >
-              {translate('text_642d5eb2783a2ad10d670324')}
-            </Button>
-          )}
-        </div>
+              <Button
+                icon="trash"
+                variant="quaternary"
+                onClick={() => {
+                  formikProps.setFieldValue('description', '')
+                  setShouldDisplayDescription(false)
+                }}
+              />
+            </Tooltip>
+          </div>
+        )}
+        {!shouldDisplayDescription && (
+          <Button
+            fitContent
+            startIcon="plus"
+            variant="inline"
+            onClick={() => setShouldDisplayDescription(true)}
+            data-test="show-description"
+          >
+            {translate('text_642d5eb2783a2ad10d670324')}
+          </Button>
+        )}
 
         <ButtonSelectorField
           disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
@@ -193,7 +197,7 @@ export const PlanSettingsSection = memo(
             formikProps.setFieldValue('taxes', newTaxArray)
           }}
         />
-      </Card>
+      </CenteredPage.PageSection>
     )
   },
 )
