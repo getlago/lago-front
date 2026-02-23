@@ -5,12 +5,13 @@ import { CustomerIntegrationRows } from '~/components/customers/CustomerIntegrat
 import { CustomerPaymentMethods } from '~/components/customers/CustomerPaymentMethods'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   CustomerMainInfosFragment,
+  FeatureFlagEnum,
   usePaymentProvidersListForCustomerMainInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CustomerMainInfos on Customer {
@@ -144,7 +145,8 @@ interface CustomerMainInfosProps {
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
     variables: { limit: 1000 },
