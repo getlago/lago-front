@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useStore } from '@tanstack/react-form'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
@@ -53,18 +52,9 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
     },
   })
 
-  const selectedPlan = useStore(form.store, (state) => state.values.selectedPlan)
-
   useEffect(() => {
     getPlans()
   }, [getPlans])
-
-  useEffect(() => {
-    const plan = data?.plans?.collection.find((p) => p.id === selectedPlan)
-
-    onSelect(selectedPlan ? plan : undefined)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPlan, data])
 
   const comboboxPlansData = useMemo(() => {
     if (!data || !data?.plans || !data?.plans?.collection) return []
@@ -92,7 +82,16 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
 
   return (
     <div className="p-8">
-      <form.AppField name="selectedPlan">
+      <form.AppField
+        name="selectedPlan"
+        listeners={{
+          onChange: ({ value }) => {
+            const plan = data?.plans?.collection.find((p) => p.id === value)
+
+            onSelect(value ? plan : undefined)
+          },
+        }}
+      >
         {(field) => (
           <field.ComboBoxField
             data={comboboxPlansData}

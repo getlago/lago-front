@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useStore } from '@tanstack/react-form'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -56,23 +55,9 @@ const AddBillableMetricContent = ({
     },
   })
 
-  const selectedBillableMetric = useStore(
-    form.store,
-    (state) => state.values.selectedBillableMetric,
-  )
-
   useEffect(() => {
     getBillableMetrics()
   }, [getBillableMetrics])
-
-  useEffect(() => {
-    const billableMetric = data?.billableMetrics?.collection.find(
-      (b) => b.id === selectedBillableMetric,
-    )
-
-    onSelect(selectedBillableMetric ? billableMetric : undefined)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBillableMetric, data])
 
   const comboboxBillableMetricsData = useMemo(() => {
     if (!data || !data?.billableMetrics || !data?.billableMetrics?.collection) return []
@@ -100,7 +85,16 @@ const AddBillableMetricContent = ({
 
   return (
     <div className="p-8">
-      <form.AppField name="selectedBillableMetric">
+      <form.AppField
+        name="selectedBillableMetric"
+        listeners={{
+          onChange: ({ value }) => {
+            const billableMetric = data?.billableMetrics?.collection.find((b) => b.id === value)
+
+            onSelect(value ? billableMetric : undefined)
+          },
+        }}
+      >
         {(field) => (
           <field.ComboBoxField
             className="mb-8"
