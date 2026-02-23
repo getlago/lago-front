@@ -50,11 +50,11 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
+  FeatureFlagEnum,
   GetInvoicesListQuery,
   GetInvoicesListQueryResult,
   Invoice,
@@ -96,7 +96,7 @@ const InvoicesList = ({
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { hasFeatureFlag, organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const { handleDownloadFile, openNewTab } = useDownloadFile()
@@ -104,7 +104,7 @@ const InvoicesList = ({
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
   )
-  const hasAccessToMultiPaymentFlow = isFeatureFlagActive(FeatureFlags.MULTI_PAYMENT_FLOW)
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)

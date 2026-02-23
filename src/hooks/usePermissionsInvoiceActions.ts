@@ -1,6 +1,7 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { isPrepaidCredit } from '~/core/utils/invoiceUtils'
 import {
+  BillingEntityEmailSettingsEnum,
   Invoice,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
@@ -126,8 +127,18 @@ export const usePermissionsInvoiceActions = () => {
     return !!invoice.taxProviderVoidable
   }
 
-  const canResendEmail = (invoice: Pick<Invoice, 'status'>): boolean => {
-    return invoice.status === InvoiceStatusTypeEnum.Finalized && hasPermissions(['invoicesSend'])
+  const canResendEmail = (
+    invoice: Pick<Invoice, 'status'> & {
+      billingEntity: Pick<Invoice['billingEntity'], 'emailSettings'>
+    },
+  ): boolean => {
+    return (
+      invoice.status === InvoiceStatusTypeEnum.Finalized &&
+      hasPermissions(['invoicesSend']) &&
+      !!invoice?.billingEntity?.emailSettings?.includes(
+        BillingEntityEmailSettingsEnum.InvoiceFinalized,
+      )
+    )
   }
 
   return {
