@@ -14,8 +14,8 @@ import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
-  SettingsPaddedContainer,
   SettingsPageHeaderContainer,
+  SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
 import {
@@ -274,89 +274,87 @@ const Authentication = () => {
   }
 
   return (
-    <>
-      <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Typography>
-          <Typography>{translate('text_664c732c264d7eed1c74fd9c')}</Typography>
-        </SettingsPageHeaderContainer>
+    <SettingsWithTabsPaddedContainer>
+      <SettingsPageHeaderContainer>
+        <Typography variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Typography>
+        <Typography>{translate('text_664c732c264d7eed1c74fd9c')}</Typography>
+      </SettingsPageHeaderContainer>
 
-        <SettingsListWrapper>
-          {organizationLoading ? (
-            <SettingsListItemLoadingSkeleton count={3} />
-          ) : (
-            <SettingsListItem>
-              <Selector
-                title={translate('text_1752157864304mscddgsda6b')}
-                subtitle={translate('text_1752157864305xgsua4ux0s7')}
-                icon={
-                  <Avatar size="big" variant="connector">
-                    <Icon name="key" color="black" />
-                  </Avatar>
+      <SettingsListWrapper>
+        {organizationLoading ? (
+          <SettingsListItemLoadingSkeleton count={3} />
+        ) : (
+          <SettingsListItem>
+            <Selector
+              title={translate('text_1752157864304mscddgsda6b')}
+              subtitle={translate('text_1752157864305xgsua4ux0s7')}
+              icon={
+                <Avatar size="big" variant="connector">
+                  <Icon name="key" color="black" />
+                </Avatar>
+              }
+              endIcon={getEndIcon({
+                type: authenticationMethods?.includes(AuthenticationMethodsEnum.EmailPassword)
+                  ? 'enabled'
+                  : 'disabled',
+                method: AuthenticationMethodsEnum.EmailPassword,
+              })}
+            />
+
+            <Selector
+              title={translate('text_17521578643056ojd79f7ilq')}
+              subtitle={translate('text_1752157864305y1yi854blva')}
+              icon={
+                <Avatar size="big" variant="connector">
+                  <Icon name="google" size="medium" />
+                </Avatar>
+              }
+              endIcon={getEndIcon({
+                type: authenticationMethods?.includes(AuthenticationMethodsEnum.GoogleOauth)
+                  ? 'enabled'
+                  : 'disabled',
+                method: AuthenticationMethodsEnum.GoogleOauth,
+              })}
+            />
+
+            <Selector
+              title={translate('text_664c732c264d7eed1c74fda2')}
+              subtitle={translate('text_664c732c264d7eed1c74fda8')}
+              icon={
+                <Avatar size="big" variant="connector-full">
+                  <Okta />
+                </Avatar>
+              }
+              onClick={() => {
+                if (!shouldSeeOktaIntegration) {
+                  return premiumWarningDialog.open()
                 }
-                endIcon={getEndIcon({
-                  type: authenticationMethods?.includes(AuthenticationMethodsEnum.EmailPassword)
-                    ? 'enabled'
-                    : 'disabled',
-                  method: AuthenticationMethodsEnum.EmailPassword,
-                })}
-              />
 
-              <Selector
-                title={translate('text_17521578643056ojd79f7ilq')}
-                subtitle={translate('text_1752157864305y1yi854blva')}
-                icon={
-                  <Avatar size="big" variant="connector">
-                    <Icon name="google" size="medium" />
-                  </Avatar>
+                if (oktaIntegration?.id) {
+                  return navigate(
+                    generatePath(OKTA_AUTHENTICATION_ROUTE, {
+                      integrationId: oktaIntegration.id,
+                    }),
+                  )
                 }
-                endIcon={getEndIcon({
-                  type: authenticationMethods?.includes(AuthenticationMethodsEnum.GoogleOauth)
-                    ? 'enabled'
-                    : 'disabled',
-                  method: AuthenticationMethodsEnum.GoogleOauth,
-                })}
-              />
 
-              <Selector
-                title={translate('text_664c732c264d7eed1c74fda2')}
-                subtitle={translate('text_664c732c264d7eed1c74fda8')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    <Okta />
-                  </Avatar>
-                }
-                onClick={() => {
-                  if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialog.open()
-                  }
-
-                  if (oktaIntegration?.id) {
-                    return navigate(
-                      generatePath(OKTA_AUTHENTICATION_ROUTE, {
-                        integrationId: oktaIntegration.id,
-                      }),
-                    )
-                  }
-
-                  return openAddOktaDialog({
-                    integration: oktaIntegration,
-                    callback: (id) =>
-                      navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
-                  })
-                }}
-                endIcon={getEndIcon({
-                  method: AuthenticationMethodsEnum.Okta,
-                  type: authenticationMethods?.includes(AuthenticationMethodsEnum.Okta)
-                    ? 'enabled'
-                    : 'disabled',
-                })}
-              />
-            </SettingsListItem>
-          )}
-        </SettingsListWrapper>
-      </SettingsPaddedContainer>
-    </>
+                return openAddOktaDialog({
+                  integration: oktaIntegration,
+                  callback: (id) =>
+                    navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
+                })
+              }}
+              endIcon={getEndIcon({
+                method: AuthenticationMethodsEnum.Okta,
+                type: authenticationMethods?.includes(AuthenticationMethodsEnum.Okta)
+                  ? 'enabled'
+                  : 'disabled',
+              })}
+            />
+          </SettingsListItem>
+        )}
+      </SettingsListWrapper>
+    </SettingsWithTabsPaddedContainer>
   )
 }
 

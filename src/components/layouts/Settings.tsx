@@ -11,6 +11,13 @@ export const SettingsPaddedContainer = ({
   <div className={tw('container flex flex-col gap-12 pb-20 pt-8', className)}>{children}</div>
 )
 
+export const SettingsWithTabsPaddedContainer = ({
+  children,
+  className,
+}: PropsWithChildren & { className?: string }) => (
+  <div className={tw('container flex flex-col gap-12 pb-20 pt-10', className)}>{children}</div>
+)
+
 export const SettingsPageHeaderContainer = ({ children }: PropsWithChildren) => (
   <div className="flex flex-col gap-1">{children}</div>
 )

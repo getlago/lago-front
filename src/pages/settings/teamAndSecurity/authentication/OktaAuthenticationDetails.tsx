@@ -171,41 +171,39 @@ const OktaAuthenticationDetails = () => {
             </Button>
           </IntegrationsPage.Headline>
 
-          <>
-            {loading ? (
-              [0, 1, 2, 3].map((i) => (
-                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
-              ))
-            ) : (
-              <>
-                <IntegrationsPage.DetailsItem
-                  icon="globe"
-                  label={translate('text_664c732c264d7eed1c74fd94')}
-                  value={integration.domain}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="globe"
-                  label={translate('text_1763560144639jp40amfwhn5')}
-                  value={integration.host || 'N/A'}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="key"
-                  label={translate('text_664c732c264d7eed1c74fda6')}
-                  value={integration.clientId || 'N/A'}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="key"
-                  label={translate('text_664c732c264d7eed1c74fdb2')}
-                  value={integration.clientSecret || 'N/A'}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="text"
-                  label={translate('text_664c732c264d7eed1c74fdbb')}
-                  value={integration.organizationName}
-                />
-              </>
-            )}
-          </>
+          {loading ? (
+            [0, 1, 2, 3].map((i) => (
+              <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+            ))
+          ) : (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="globe"
+                label={translate('text_664c732c264d7eed1c74fd94')}
+                value={integration.domain}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="globe"
+                label={translate('text_1763560144639jp40amfwhn5')}
+                value={integration.host || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_664c732c264d7eed1c74fda6')}
+                value={integration.clientId || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_664c732c264d7eed1c74fdb2')}
+                value={integration.clientSecret || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_664c732c264d7eed1c74fdbb')}
+                value={integration.organizationName}
+              />
+            </>
+          )}
         </section>
       </IntegrationsPage.Container>
     </>
