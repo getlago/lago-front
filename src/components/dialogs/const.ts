@@ -11,6 +11,9 @@ export const FORM_DIALOG_CANCEL_BUTTON_TEST_ID = 'form-cancel' as const
 
 export const DIALOG_OPENING_DIALOG_NAME = 'DialogOpeningDialog' as const
 
+export const FORM_DIALOG_OPENING_DIALOG_NAME = 'FormDialogOpeningDialog' as const
+export const FORM_DIALOG_OPENING_DIALOG_TEST_ID = 'form-dialog-opening-dialog' as const
+
 export const PREMIUM_WARNING_DIALOG_NAME = 'PremiumWarningDialog' as const
 
 export const CLOSE_PARAMS = {

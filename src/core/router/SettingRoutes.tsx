@@ -41,10 +41,6 @@ const CreateInvoiceCustomSection = lazyLoad(
 
 const TaxesSettings = lazyLoad(() => import('~/pages/settings/TaxesSettings'))
 const Integrations = lazyLoad(() => import('~/pages/settings/Integrations'))
-const Authentication = lazyLoad(() => import('~/pages/settings/Authentication/Authentication'))
-const OktaAuthenticationDetails = lazyLoad(
-  () => import('~/pages/settings/Authentication/OktaAuthenticationDetails'),
-)
 
 const AnrokIntegrationDetails = lazyLoad(() => import('~/pages/settings/AnrokIntegrationDetails'))
 const AnrokIntegrations = lazyLoad(() => import('~/pages/settings/AnrokIntegrations'))
@@ -96,13 +92,18 @@ const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnin
 const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDunning'))
 const CreatePricingUnit = lazyLoad(() => import('~/pages/settings/Invoices/CreatePricingUnit'))
 
-const RolesList = lazyLoad(() => import('~/pages/settings/roles/rolesList/RolesList'))
-const RoleDetails = lazyLoad(() => import('~/pages/settings/roles/roleDetails/RoleDetails'))
+const TeamAndSecurity = lazyLoad(() => import('~/pages/settings/teamAndSecurity/TeamAndSecurity'))
+
+const RoleDetails = lazyLoad(
+  () => import('~/pages/settings/teamAndSecurity/roles/roleDetails/RoleDetails'),
+)
 const RoleCreateEdit = lazyLoad(
-  () => import('~/pages/settings/roles/roleCreateEdit/RoleCreateEdit'),
+  () => import('~/pages/settings/teamAndSecurity/roles/roleCreateEdit/RoleCreateEdit'),
 )
 
-const TeamAndSecurity = lazyLoad(() => import('~/pages/settings/teamAndSecurity/TeamAndSecurity'))
+const OktaAuthenticationDetails = lazyLoad(
+  () => import('~/pages/settings/teamAndSecurity/authentication/OktaAuthenticationDetails'),
+)
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
@@ -112,8 +113,6 @@ export const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup`
 export const FULL_INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab`
 export const FULL_INTEGRATIONS_ROUTE_ID = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab/:id`
-export const AUTHENTICATION_ROUTE = `${SETTINGS_ROUTE}/authentication`
-export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
 export const ANROK_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/anrok`
 export const ANROK_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/anrok/:integrationId/:tab`
 export const AVALARA_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/avalara`
@@ -156,14 +155,17 @@ export const BILLING_ENTITY_INVOICE_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH
 export const BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-custom-sections`
 export const BILLING_ENTITY_TAXES_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/taxes`
 
-const ROOT_ROLES_ROUTE = `${SETTINGS_ROUTE}/roles`
+export const TEAM_AND_SECURITY_ROOT_ROUTE = `${SETTINGS_ROUTE}/team-and-security`
 
-export const ROLES_LIST_ROUTE = `${ROOT_ROLES_ROUTE}`
+const ROOT_ROLES_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/roles`
+
 export const ROLE_DETAILS_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId`
 export const ROLE_CREATE_ROUTE = `${ROOT_ROLES_ROUTE}/create`
 export const ROLE_EDIT_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/edit`
 
-export const TEAM_AND_SECURITY_ROOT_ROUTE = `${SETTINGS_ROUTE}/team-and-security`
+export const AUTHENTICATION_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/authentication`
+export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
+
 export const TEAM_AND_SECURITY_GROUP_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/:group`
 export const TEAM_AND_SECURITY_TAB_ROUTE = `${TEAM_AND_SECURITY_GROUP_ROUTE}/:tab`
 
@@ -239,12 +241,6 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <Integrations />,
         permissions: ['organizationIntegrationsView'],
-      },
-      {
-        path: AUTHENTICATION_ROUTE,
-        private: true,
-        element: <Authentication />,
-        permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
       },
       {
         path: OKTA_AUTHENTICATION_ROUTE,
@@ -464,12 +460,6 @@ export const settingRoutes: CustomRouteObject[] = [
         permissions: ['billingEntitiesView'],
       },
       {
-        path: ROLES_LIST_ROUTE,
-        private: true,
-        element: <RolesList />,
-        permissions: ['rolesView'],
-      },
-      {
         path: ROLE_DETAILS_ROUTE,
         private: true,
         element: <RoleDetails />,
@@ -483,7 +473,12 @@ export const settingRoutes: CustomRouteObject[] = [
         ],
         private: true,
         element: <TeamAndSecurity />,
-        permissionsOr: ['organizationMembersView'],
+        permissionsOr: [
+          'organizationMembersView',
+          'rolesView',
+          'organizationIntegrationsView',
+          'authenticationMethodsView',
+        ],
       },
     ],
   },

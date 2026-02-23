@@ -3,7 +3,7 @@
 exports[`Members Snapshot matches snapshot 1`] = `
 <div>
   <div
-    class="container flex flex-col gap-12 pb-20 pt-8"
+    class="container flex flex-col gap-12 pb-20 pt-10"
   >
     <div
       class="flex flex-col gap-1"

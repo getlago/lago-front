@@ -17,7 +17,6 @@ import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSyste
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
-  AUTHENTICATION_ROUTE,
   BILLING_ENTITY_CREATE_ROUTE,
   BILLING_ENTITY_ROUTE,
   BILLING_ENTITY_UPDATE_ROUTE,
@@ -33,11 +32,9 @@ import {
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
-  OKTA_AUTHENTICATION_ROUTE,
   ROLE_CREATE_ROUTE,
   ROLE_DETAILS_ROUTE,
   ROLE_EDIT_ROUTE,
-  ROLES_LIST_ROUTE,
   settingRoutes,
   TAXES_SETTINGS_ROUTE,
   TEAM_AND_SECURITY_GROUP_ROUTE,
@@ -77,26 +74,15 @@ const generateTabs = ({
     hidden: !hasPermissions(['organizationIntegrationsView']),
   },
   {
-    title: translate('text_664c732c264d7eed1c74fd96'),
-    link: AUTHENTICATION_ROUTE,
-    match: [AUTHENTICATION_ROUTE, OKTA_AUTHENTICATION_ROUTE],
-    hidden: !hasPermissions(['organizationIntegrationsView', 'authenticationMethodsView']),
-  },
-  {
     title: translate('text_177073440645951fhlh2ofdc'),
     link: TEAM_AND_SECURITY_ROOT_ROUTE,
     match: [
       TEAM_AND_SECURITY_ROOT_ROUTE,
       TEAM_AND_SECURITY_GROUP_ROUTE,
       TEAM_AND_SECURITY_TAB_ROUTE,
+      ROLE_DETAILS_ROUTE,
     ],
-    hidden: !hasPermissions(['organizationMembersView']),
-  },
-  {
-    title: translate('text_1765448879791epmkg4xijkn'),
-    link: ROLES_LIST_ROUTE,
-    match: [ROLES_LIST_ROUTE, ROLE_DETAILS_ROUTE],
-    hidden: !hasPermissions(['rolesView']),
+    hidden: !hasPermissions(['organizationMembersView']) && !hasPermissions(['rolesView']),
   },
   {
     title: translate('text_63ac86d797f728a87b2f9f85'),

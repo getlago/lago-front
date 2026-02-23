@@ -10,11 +10,13 @@ import {
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import Authentication from './authentication/Authentication'
 import {
   teamAndSecurityGroupOptions,
   teamAndSecurityTabOptions,
 } from './common/teamAndSecurityConst'
 import Members from './members/Members'
+import RolesList from './roles/rolesList/RolesList'
 
 const TeamAndSecurity = () => {
   const { translate } = useInternationalization()
@@ -50,6 +52,30 @@ const TeamAndSecurity = () => {
               group: teamAndSecurityGroupOptions.members,
             }),
             component: <Members />,
+          },
+          {
+            title: translate('text_1765448879791epmkg4xijkn'),
+            match: [
+              generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+                group: teamAndSecurityGroupOptions.roles,
+              }),
+            ],
+            link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+              group: teamAndSecurityGroupOptions.roles,
+            }),
+            component: <RolesList />,
+          },
+          {
+            title: translate('text_664c732c264d7eed1c74fd96'),
+            match: [
+              generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+                group: teamAndSecurityGroupOptions.authentication,
+              }),
+            ],
+            link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+              group: teamAndSecurityGroupOptions.authentication,
+            }),
+            component: <Authentication />,
           },
         ]}
       />
