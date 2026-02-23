@@ -69,11 +69,14 @@ const PageSectionTitle = ({
       <Typography variant="subhead1" color="grey700">
         {title}
       </Typography>
-      {description && (
-        <Typography variant="caption" color="grey600">
-          {description}
-        </Typography>
-      )}
+      {description &&
+        (typeof description === 'string' ? (
+          <Typography variant="caption" color="grey600">
+            {description}
+          </Typography>
+        ) : (
+          description
+        ))}
     </div>
   )
 }
