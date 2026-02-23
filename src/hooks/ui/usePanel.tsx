@@ -14,7 +14,6 @@ interface UsePanelProps {
 export interface UsePanelReturn<T = unknown> {
   panelRef: RefObject<ImperativePanelHandle>
   panelOpen: boolean
-  panelSize: number
   currentPanelOpened: T | undefined
   isFullscreen: boolean
   openPanel: (panel?: T) => void
@@ -29,7 +28,6 @@ export const usePanel = <T,>({ size }: UsePanelProps) => {
   const [panelOpen, setOpenPanel] = useState(false)
   const [currentPanelOpened, setCurrentPanel] = useState<T>()
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [panelSize, setPanelSize] = useState(0)
 
   const openPanel = (panel?: T) => {
     if (panelRef.current) {
@@ -81,8 +79,6 @@ export const usePanel = <T,>({ size }: UsePanelProps) => {
   }
 
   const resizePanel = (value: number) => {
-    setPanelSize(value)
-
     if (size.fullscreen && value === size.fullscreen) {
       setIsFullscreen(true)
     } else if (size.fullscreen && value < size.fullscreen) {
@@ -94,7 +90,6 @@ export const usePanel = <T,>({ size }: UsePanelProps) => {
     panelRef,
     currentPanelOpened,
     panelOpen,
-    panelSize,
     isFullscreen,
     openPanel,
     closePanel,

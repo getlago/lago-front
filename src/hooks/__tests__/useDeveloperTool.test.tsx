@@ -19,7 +19,6 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 const mockOpenPanel = jest.fn()
 const mockClosePanel = jest.fn()
 const mockTogglePanel = jest.fn()
-const mockSetPanelSize = jest.fn()
 
 jest.mock('~/hooks/ui/usePanel', () => ({
   usePanel: () => ({
@@ -27,8 +26,6 @@ jest.mock('~/hooks/ui/usePanel', () => ({
     openPanel: mockOpenPanel,
     closePanel: mockClosePanel,
     togglePanel: mockTogglePanel,
-    setPanelSize: mockSetPanelSize,
-    panelSize: 40,
   }),
 }))
 

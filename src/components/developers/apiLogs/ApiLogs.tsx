@@ -17,7 +17,6 @@ import { API_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { ApiLogItemFragment, useGetApiLogsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 gql`
   fragment ApiLogItem on ApiLog {
@@ -66,7 +65,6 @@ export const ApiLogs = () => {
   const navigate = useNavigate()
   const { logId } = useParams<{ logId: string }>()
   const [searchParams] = useSearchParams()
-  const { panelSize: size, headerOffset } = useDeveloperTool()
   const logListRef = useRef<ListSectionRef>(null)
 
   const filtersForApiLogsQuery = useMemo(() => {
@@ -124,7 +122,7 @@ export const ApiLogs = () => {
   const shouldDisplayLogDetails = !!logId && !!data?.apiLogs?.collection.length
 
   return (
-    <div className="not-last-child:shadow-b">
+    <div className="flex h-full flex-col not-last-child:shadow-b">
       <Typography variant="headline" className="p-4">
         {translate('text_1749644023729atl2vw7ad3z')}
       </Typography>
@@ -165,7 +163,6 @@ export const ApiLogs = () => {
         leftSide={<ApiLogsTable getApiLogsResult={getApiLogsResult} logListRef={logListRef} />}
         rightSide={<ApiLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
-        sectionHeight={shouldDisplayLogDetails ? `calc(${size}vh - ${headerOffset}px)` : '100%'}
       />
     </div>
   )

@@ -139,7 +139,7 @@ export const ApiKeys = () => {
   }, [getApiKeyValue, state])
 
   return (
-    <>
+    <div className="flex h-full flex-col not-last-child:shadow-b">
       <div className="flex flex-col gap-12 p-4">
         <SettingsPageHeaderContainer>
           <Typography variant="headline">{translate('text_637f813d31381b1ed90ab2f6')}</Typography>
@@ -544,6 +544,6 @@ export const ApiKeys = () => {
         openPremiumDialog={() => premiumWarningDialogRef.current?.openDialog()}
       />
       <DeleteApiKeyDialog ref={deleteApiKeyDialogRef} />
-    </>
+    </div>
   )
 }

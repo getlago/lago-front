@@ -23,7 +23,7 @@ type ListSectionProps = {
   leftSide: ReactNode
   rightSide: ReactNode
   shouldDisplayRightSide: boolean
-  sectionHeight: CSSProperties['height']
+  sectionHeight?: CSSProperties['height']
 }
 
 const ListSection = forwardRef<ListSectionRef, ListSectionProps>(
@@ -60,7 +60,7 @@ const ListSection = forwardRef<ListSectionRef, ListSectionProps>(
     return (
       <section
         className="relative flex flex-1 flex-row overflow-hidden md:min-h-20"
-        style={{ height: sectionHeight }}
+        style={sectionHeight ? { height: sectionHeight } : undefined}
       >
         <div
           ref={logListRef}
@@ -73,7 +73,9 @@ const ListSection = forwardRef<ListSectionRef, ListSectionProps>(
           <div className="flex h-full flex-1 flex-row items-stretch justify-start overflow-hidden">
             <div
               className={tw(
-                shouldDisplayRightSide ? 'h-full w-1/2 flex-1 overflow-auto' : 'h-full w-full',
+                shouldDisplayRightSide
+                  ? 'h-full w-1/2 flex-1 overflow-auto'
+                  : 'h-full w-full overflow-auto',
               )}
             >
               {leftSide}

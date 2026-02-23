@@ -81,11 +81,11 @@ export const DevtoolsView: FC = () => {
           resizePanel(size)
         }}
       >
-        <div className="relative size-full overflow-auto">
+        <div className="relative flex size-full flex-col overflow-hidden">
           <NavigationTab
             name="devtools"
             managedBy={TabManagedBy.URL}
-            className="sticky top-0 z-navBar bg-white px-4"
+            className="z-navBar bg-white px-4"
             tabs={devToolsNavigationMapping(translate, hasPermissions, isPremium)}
           >
             <Button
@@ -120,7 +120,9 @@ export const DevtoolsView: FC = () => {
               />
             </Tooltip>
           </NavigationTab>
-          <DevtoolsRouter />
+          <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+            <DevtoolsRouter />
+          </div>
         </div>
       </Panel>
     </>

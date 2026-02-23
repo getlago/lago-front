@@ -18,7 +18,6 @@ import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { useGetWebhookLogLazyQuery, WebhookLogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 gql`
   fragment WebhookLog on Webhook {
@@ -73,7 +72,6 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { panelSize: size, headerOffset, webhookDetailHeaderOffset } = useDeveloperTool()
 
   const logListRef = useRef<ListSectionRef>(null)
 
@@ -139,7 +137,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const shouldDisplayLogDetails = !!logId && !!data?.webhooks.collection.length
 
   return (
-    <div className="not-last-child:shadow-b">
+    <div className="flex h-full flex-col not-last-child:shadow-b">
       <LogsLayout.CTASection>
         <SearchInput
           onChange={debouncedSearch}
@@ -182,11 +180,6 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
         }
         rightSide={<WebhookLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
-        sectionHeight={
-          shouldDisplayLogDetails
-            ? `calc(${size}vh - ${headerOffset + webhookDetailHeaderOffset}px)`
-            : '100%'
-        }
       />
     </div>
   )

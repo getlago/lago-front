@@ -17,7 +17,6 @@ import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { ActivityItemFragment, LagoApiError, useActivityLogsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 gql`
   fragment ActivityItem on ActivityLog {
@@ -75,7 +74,6 @@ export const ActivityLogs = () => {
   const navigate = useNavigate()
   const { logId } = useParams<{ logId: string }>()
   const [searchParams] = useSearchParams()
-  const { panelSize: size, headerOffset } = useDeveloperTool()
   const logListRef = useRef<ListSectionRef>(null)
 
   const filtersForActivityLogsQuery = useMemo(() => {
@@ -134,7 +132,7 @@ export const ActivityLogs = () => {
   const shouldDisplayLogDetails = !!logId && !!data?.activityLogs?.collection.length
 
   return (
-    <div className="not-last-child:shadow-b">
+    <div className="flex h-full flex-col not-last-child:shadow-b">
       <Typography variant="headline" className="p-4">
         {translate('text_1747314141347qq6rasuxisl')}
       </Typography>
@@ -176,7 +174,6 @@ export const ActivityLogs = () => {
         }
         rightSide={<ActivityLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
-        sectionHeight={shouldDisplayLogDetails ? `calc(${size}vh - ${headerOffset}px)` : '100%'}
       />
     </div>
   )

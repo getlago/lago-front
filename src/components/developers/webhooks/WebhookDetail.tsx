@@ -57,7 +57,7 @@ export const WebhookDetail = () => {
   ]
 
   return (
-    <div>
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-start justify-between gap-4 p-4 shadow-b">
         <div className="flex flex-col items-start gap-2">
           <Button
@@ -140,6 +140,7 @@ export const WebhookDetail = () => {
 
       <NavigationTab
         className="px-4"
+        tabPanelClassName="min-h-0 flex-1 overflow-auto"
         name="webhook-detail"
         managedBy={TabManagedBy.INDEX}
         loading={loading}
