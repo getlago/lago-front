@@ -289,7 +289,10 @@ const CreatePlan = () => {
                 />
 
                 <CenteredPage.SubsectionWrapper>
-                  <ProgressiveBillingSection formikProps={formikProps} />
+                  <ProgressiveBillingSection
+                    isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
+                    formikProps={formikProps}
+                  />
                   <CommitmentsSection
                     formikProps={formikProps}
                     premiumWarningDialogRef={premiumWarningDialogRef}

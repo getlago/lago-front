@@ -938,10 +938,7 @@ const CreateSubscription = () => {
                           />
 
                           <CenteredPage.SubsectionWrapper>
-                            <ProgressiveBillingSection
-                              formikProps={planFormikProps}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                            />
+                            <ProgressiveBillingSection formikProps={planFormikProps} />
                             <CommitmentsSection
                               formikProps={planFormikProps}
                               premiumWarningDialogRef={premiumWarningDialogRef}

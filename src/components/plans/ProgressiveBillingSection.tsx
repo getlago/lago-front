@@ -25,12 +25,12 @@ import PremiumFeature from '../premium/PremiumFeature'
 
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
-  isInSubscriptionForm?: boolean
+  isInitiallyOpen?: boolean
 }
 
 export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
   formikProps,
-  isInSubscriptionForm,
+  isInitiallyOpen,
 }) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
@@ -87,7 +87,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
       {hasPremiumIntegration && displayProgressiveBillingAccordion && (
         <Accordion
           className="w-full"
-          initiallyOpen={!isInSubscriptionForm}
+          initiallyOpen={isInitiallyOpen}
           summary={
             <AccordionSummary
               hasErrorInGroup={hasErrorInGroup}
