@@ -47,7 +47,11 @@ export const PaymentMethodDisplay = ({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2">
-        <PaymentMethodDetails details={paymentMethod.details} isDefault={paymentMethod.isDefault} />
+        <PaymentMethodDetails
+          details={paymentMethod.details}
+          createdAt={paymentMethod.createdAt}
+          isDefault={paymentMethod.isDefault}
+        />
         {isInherited && inheritedComp()}
       </div>
     </div>

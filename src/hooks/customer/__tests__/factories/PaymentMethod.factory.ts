@@ -13,6 +13,7 @@ export const createMockPaymentMethod = (
     paymentProviderCustomerId: 'cus_001',
     paymentProviderType: ProviderTypeEnum.Stripe,
     paymentProviderName: null,
+    createdAt: '2024-01-15T10:00:00Z',
     deletedAt: null,
     details: {
       __typename: 'PaymentMethodDetails',
