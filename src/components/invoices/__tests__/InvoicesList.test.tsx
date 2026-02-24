@@ -92,12 +92,10 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
 }))
 
 const mockHandleDownloadFile = jest.fn()
-const mockOpenNewTab = jest.fn()
 
 jest.mock('~/hooks/useDownloadFile', () => ({
   useDownloadFile: () => ({
     handleDownloadFile: mockHandleDownloadFile,
-    openNewTab: mockOpenNewTab,
   }),
 }))
 
@@ -109,10 +107,12 @@ const mockRetryInvoicePayment = jest.fn()
 let downloadInvoiceCallbacks: {
   onCompleted?: (data: { downloadInvoice: { fileUrl: string } | null }) => void
 } = {}
-let generatePaymentUrlCallbacks: {
-  onCompleted?: (data: { generatePaymentUrl: { paymentUrl: string } | null }) => void
-  onError?: (error: { graphQLErrors?: Array<{ extensions?: { code?: string } }> }) => void
-} = {}
+
+jest.mock('~/hooks/useGeneratePaymentUrl', () => ({
+  useGeneratePaymentUrl: () => ({
+    generatePaymentUrl: mockGeneratePaymentUrl,
+  }),
+}))
 
 jest.mock('~/hooks/useResendEmailDialog', () => ({
   useResendEmailDialog: () => ({
@@ -125,10 +125,6 @@ jest.mock('~/generated/graphql', () => ({
   useDownloadInvoiceItemMutation: (options: typeof downloadInvoiceCallbacks) => {
     downloadInvoiceCallbacks = options
     return [mockDownloadInvoice]
-  },
-  useGeneratePaymentUrlMutation: (options: typeof generatePaymentUrlCallbacks) => {
-    generatePaymentUrlCallbacks = options
-    return [mockGeneratePaymentUrl]
   },
   useRetryInvoicePaymentMutation: () => {
     return [mockRetryInvoicePayment, { loading: false }]
@@ -1313,84 +1309,6 @@ describe('InvoicesList', () => {
       })
 
       expect(mockHandleDownloadFile).toHaveBeenCalledWith(undefined)
-    })
-
-    it('opens new tab when generate payment URL mutation completes with URL', async () => {
-      await renderInvoicesList()
-
-      generatePaymentUrlCallbacks.onCompleted?.({
-        generatePaymentUrl: { paymentUrl: 'https://stripe.com/pay/123' },
-      })
-
-      expect(mockOpenNewTab).toHaveBeenCalledWith('https://stripe.com/pay/123')
-    })
-
-    it('does not open new tab when generate payment URL returns null', async () => {
-      mockOpenNewTab.mockClear()
-      await renderInvoicesList()
-
-      generatePaymentUrlCallbacks.onCompleted?.({
-        generatePaymentUrl: null,
-      })
-
-      expect(mockOpenNewTab).not.toHaveBeenCalled()
-    })
-
-    it('shows error toast when MissingPaymentProviderCustomer error occurs', async () => {
-      mockHasDefinedGQLError.mockReturnValue(true)
-      await renderInvoicesList()
-
-      const mockError = {
-        graphQLErrors: [{ extensions: { code: 'MissingPaymentProviderCustomer' } }],
-      }
-
-      generatePaymentUrlCallbacks.onError?.(mockError)
-
-      expect(mockHasDefinedGQLError).toHaveBeenCalledWith(
-        'MissingPaymentProviderCustomer',
-        mockError,
-      )
-      expect(mockAddToast).toHaveBeenCalledWith({
-        severity: 'danger',
-        translateKey: 'text_1756225393560tonww8d3bgq',
-      })
-    })
-
-    it('does not show error toast when error is not MissingPaymentProviderCustomer', async () => {
-      mockHasDefinedGQLError.mockReturnValue(false)
-      await renderInvoicesList()
-
-      generatePaymentUrlCallbacks.onError?.({
-        graphQLErrors: [{ extensions: { code: 'SomeOtherError' } }],
-      })
-
-      expect(mockAddToast).not.toHaveBeenCalled()
-    })
-
-    it('shows toast with PSP message when third_party_error occurs', async () => {
-      const pspMessage = 'Amount must be at least $0.50 usd'
-
-      mockHasDefinedGQLError.mockReturnValue(false)
-      mockExtractThirdPartyErrorMessage.mockReturnValue(pspMessage)
-      await renderInvoicesList()
-
-      const mockError = {
-        graphQLErrors: [
-          {
-            extensions: {
-              code: 'third_party_error',
-              details: { error: pspMessage },
-            },
-          },
-        ],
-      }
-
-      generatePaymentUrlCallbacks.onError?.(mockError)
-
-      expect(mockAddToast).toHaveBeenCalledWith({
-        severity: 'danger',
-        message: pspMessage,
-      })
     })
   })
 
