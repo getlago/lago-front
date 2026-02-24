@@ -44,6 +44,8 @@ gql`
   }
 `
 
+export const LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID = 'lago-tax-management-remove-button'
+
 const TaxItem: FC<{ name: string; code: string; rate: number }> = ({ name, code, rate }) => {
   const { translate } = useInternationalization()
 
@@ -146,6 +148,7 @@ const LagoTaxManagementIntegration = () => {
         </PageHeader.Group>
         {hasPermissions(['billingEntitiesUpdate']) && (
           <Button
+            data-test={LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID}
             variant="secondary"
             disabled={loading}
             onClick={deleteConnectionRef.current?.openDialog}

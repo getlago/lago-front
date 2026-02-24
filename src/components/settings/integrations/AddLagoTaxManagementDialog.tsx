@@ -29,6 +29,8 @@ type BillingEntityFormItem = {
   initialCountry?: CountryCode | null
 }
 
+export const ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID = 'add-lago-tax-management-submit-button'
+
 export type AddLagoTaxManagementDialogRef = DialogRef
 
 type AddLagoTaxManagementDialogProps = {
@@ -231,6 +233,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
           </Button>
 
           <Button
+            data-test={ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID}
             variant="primary"
             disabled={!formikProps.isValid}
             onClick={async () => {
