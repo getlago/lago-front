@@ -14,7 +14,6 @@ import {
 } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
-import { hasDefinedGQLError } from '~/core/apolloClient'
 import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
 
@@ -37,11 +36,10 @@ const CustomerPortal = () => {
     translate,
     error: customerPortalTranslateError,
     loading: portalIsLoading,
+    isUnauthenticated,
   } = useCustomerPortalTranslate()
 
-  const portalIsError =
-    customerPortalTranslateError && hasDefinedGQLError('Unauthorized', customerPortalTranslateError)
-
+  const portalIsError = isUnauthenticated || !!customerPortalTranslateError
   const customerPortalContentRef = useRef<HTMLDivElement>(null)
 
   const { pathname } = useCustomerPortalNavigation()
