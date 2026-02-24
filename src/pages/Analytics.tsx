@@ -1,7 +1,7 @@
 import { Spinner } from '~/components/designSystem/Spinner'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import NewAnalytics from '~/pages/analytics/NewAnalytics'
+import Dashboards from '~/pages/dashboards/Dashboards'
 import OldAnalytics from '~/pages/OldAnalytics'
 
 const Analytics = () => {
@@ -20,7 +20,7 @@ const Analytics = () => {
   }
 
   if (hasAccessToAnalyticsDashboardsFeature) {
-    return <NewAnalytics />
+    return <Dashboards />
   }
 
   return <OldAnalytics />

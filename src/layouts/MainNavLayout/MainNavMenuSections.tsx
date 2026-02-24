@@ -2,7 +2,6 @@ import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSyste
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
-  ANALYTIC_NEW_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -52,12 +51,10 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
 
-  const canSeeSupersetDashboards = isFeatureFlagActive(FeatureFlags.SUPERSET_ANALYTICS)
-
   const getReportsTabs = (): NavTab[] => [
     {
       title: translate('text_6553885df387fd0097fd7384'),
-      icon: 'chart-bar',
+      icon: 'eye',
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
@@ -69,13 +66,6 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       match: [FORECASTS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
       extraComponent: <BadgeAI />,
-    },
-    {
-      title: translate('text_1762346890583hgqcnuvj2rh'),
-      icon: 'eye',
-      link: ANALYTIC_NEW_ROUTE,
-      match: [ANALYTIC_NEW_ROUTE],
-      hidden: !hasPermissions(['analyticsView']) || !canSeeSupersetDashboards,
     },
   ]
 
