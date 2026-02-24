@@ -7,6 +7,9 @@ This document shows patterns from `CreateCustomer`, a complex form with sub-comp
 - Main form: `src/pages/createCustomers/CreateCustomer.tsx`
 - Validation: `src/pages/createCustomers/formInitialization/validationSchema.ts`
 - Sub-component: `src/pages/createCustomers/customerInformation/CustomerInformation.tsx`
+- Coupon form (medium complexity): `src/pages/CreateCoupon.tsx`
+- Dialog with form: `src/pages/createCoupon/dialogs/AddBillableMetricToCouponDialog.tsx`
+- Reusable field group: `src/components/form/NameAndCodeGroup/NameAndCodeGroup.tsx`
 
 ---
 
@@ -438,6 +441,267 @@ const MetadataSection = withForm({
 
 ---
 
+---
+
+## Pattern 6: Field Listeners for Side-Effects
+
+Use `listeners` on `form.AppField` to react to value changes. Preferred over `useStore` + `useEffect`:
+
+**File: `AddBillableMetricToCouponDialog.tsx`**
+
+```tsx
+// Propagate combobox selection to parent via callback
+<form.AppField
+  name="selectedBillableMetric"
+  listeners={{
+    onChange: ({ value }) => {
+      const billableMetric = data?.billableMetrics?.collection.find((b) => b.id === value)
+      onSelect(value ? billableMetric : undefined)
+    },
+  }}
+>
+  {(field) => (
+    <field.ComboBoxField
+      data={comboboxBillableMetricsData}
+      label={translate('text_select_billable_metric')}
+      loading={loading}
+      PopperProps={{ displayInDialog: true }}
+      searchQuery={getBillableMetrics}
+    />
+  )}
+</form.AppField>
+```
+
+**File: `NameAndCodeGroup.tsx`** — Auto-generate code from name:
+
+```tsx
+const handleNameChange = ({ value }: { value: string }) => {
+  const isCodeBlurred = group.getFieldMeta('code')?.isBlurred
+  if (isCodeBlurred || isDisabled) return
+  group.setFieldValue('code', formatCodeFromName(value))
+}
+
+<group.AppField name="name" listeners={{ onChange: handleNameChange }}>
+  {(field) => <field.TextInputField label={translate('text_name')} />}
+</group.AppField>
+```
+
+**When to use:**
+
+| Use case | Tool |
+|----------|------|
+| Read value for conditional rendering | `useStore(form.store, ...)` |
+| Side-effect on value change | `listeners={{ onChange }}` |
+| Derive another field's value | `listeners={{ onChange }}` |
+
+---
+
+## Pattern 7: `withFieldGroup` for Reusable Field Groups
+
+Different from `withForm` — use `withFieldGroup` for groups of fields reusable across multiple forms:
+
+**File: `NameAndCodeGroup.tsx`**
+
+```tsx
+import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+
+export type NameAndCodeGroupValues = {
+  code: string
+  name: string
+}
+
+export type NameAndCodeGroupProps = {
+  isDisabled?: boolean
+}
+
+const defaultValues: NameAndCodeGroupValues = { code: '', name: '' }
+const defaultProps: NameAndCodeGroupProps = { isDisabled: false }
+
+const NameAndCodeGroup = withFieldGroup({
+  defaultValues,
+  props: defaultProps,
+  render: function Render({ group, isDisabled }) {
+    const { translate } = useInternationalization()
+
+    const handleNameChange = ({ value }: { value: string }) => {
+      const isCodeBlurred = group.getFieldMeta('code')?.isBlurred
+      if (isCodeBlurred || isDisabled) return
+      group.setFieldValue('code', formatCodeFromName(value))
+    }
+
+    return (
+      <div className="grid grid-cols-2 gap-6">
+        <group.AppField name="name" listeners={{ onChange: handleNameChange }}>
+          {(field) => <field.TextInputField label={translate('text_name')} />}
+        </group.AppField>
+        <group.AppField name="code">
+          {(field) => (
+            <field.TextInputField
+              label={translate('text_code')}
+              beforeChangeFormatter="code"
+              disabled={isDisabled}
+            />
+          )}
+        </group.AppField>
+      </div>
+    )
+  },
+})
+
+export default NameAndCodeGroup
+```
+
+**Usage in parent form:**
+```tsx
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+
+<NameAndCodeGroup group={form} isDisabled={isEdition} />
+```
+
+**Key differences: `withForm` vs `withFieldGroup`:**
+
+| Aspect | `withForm` | `withFieldGroup` |
+|--------|-----------|-----------------|
+| Purpose | Sub-component of a specific form | Reusable field group across forms |
+| Receives | `form` prop | `group` prop |
+| Usage | `<Section form={form} />` | `<NameAndCodeGroup group={form} />` |
+| Scope | Specific to one form | Generic, any form with matching fields |
+
+---
+
+## Pattern 8: Dialog with Independent Form
+
+When a dialog needs a form (e.g., selecting an item), use a separate `useAppForm` inside the dialog. Communicate with the parent via callbacks:
+
+**File: `AddBillableMetricToCouponDialog.tsx`**
+
+```tsx
+// Dialog content component — has its own independent form
+const AddBillableMetricContent = ({ attachedBillableMetricsIds, onSelect }: Props) => {
+  const [getBillableMetrics, { loading, data }] = useGetBillableMetricsForCouponsLazyQuery({
+    variables: { limit: 50 },
+  })
+
+  // Independent form — NOT the parent form
+  const form = useAppForm({
+    defaultValues: { selectedBillableMetric: '' },
+  })
+
+  useEffect(() => { getBillableMetrics() }, [getBillableMetrics])
+
+  return (
+    <div className="p-8">
+      <form.AppField
+        name="selectedBillableMetric"
+        listeners={{
+          onChange: ({ value }) => {
+            const bm = data?.billableMetrics?.collection.find((b) => b.id === value)
+            onSelect(value ? bm : undefined)
+          },
+        }}
+      >
+        {(field) => (
+          <field.ComboBoxField
+            data={comboboxData}
+            label="Select billable metric"
+            loading={loading}
+            PopperProps={{ displayInDialog: true }}
+            searchQuery={getBillableMetrics}
+          />
+        )}
+      </form.AppField>
+    </div>
+  )
+}
+
+// Hook to open the dialog
+export const useAddBillableMetricToCouponDialog = () => {
+  const formDialog = useFormDialog()
+  const selectedRef = useRef<BillableMetricsForCouponsFragment | undefined>()
+  const setDisabledRef = useSetDisabledRef()
+
+  const open = ({ onSubmit, attachedBillableMetricsIds }: Params) => {
+    selectedRef.current = undefined
+
+    formDialog.open({
+      title: 'Add billable metric',
+      description: 'Select a billable metric to attach',
+      children: (
+        <AddBillableMetricContent
+          attachedBillableMetricsIds={attachedBillableMetricsIds}
+          onSelect={(bm) => {
+            selectedRef.current = bm
+            setDisabledRef.current(!bm)
+          }}
+        />
+      ),
+      mainAction: <DialogActionButton label="Add" setDisabledRef={setDisabledRef} />,
+      form: {
+        id: 'add-billable-metric-form',
+        submit: () => {
+          if (!selectedRef.current) throw new Error('No item selected')
+          onSubmit(selectedRef.current)
+        },
+      },
+    })
+  }
+
+  return { open }
+}
+```
+
+**Key points:**
+- Dialog has its own `useAppForm`, fully independent from the parent form
+- Data flows to parent via callback (`onSelect`) + `useRef`
+- `useFormDialog` + `DialogActionButton` + `useSetDisabledRef` handle dialog UX
+- The `form.id` in dialog config links the submit button to the form element
+
+---
+
+## Pattern 9: Derive State Instead of Storing Flags
+
+Prefer deriving boolean state from form values rather than storing separate flags:
+
+```tsx
+// AVOID: separate boolean flag
+const form = useAppForm({
+  defaultValues: {
+    hasLimitPlans: false,       // redundant flag
+    limitPlansList: [],
+  },
+})
+
+// PREFER: derive from array length
+const limitPlansList = useStore(form.store, (state) => state.values.limitPlansList)
+const hasLimitPlans = limitPlansList.length > 0
+```
+
+---
+
+## Pattern 10: `<form>` Wrapper CSS Impact
+
+The `<form>` element (required by TanStack) adds a new DOM node. This can break layouts:
+
+```tsx
+// Often needed to preserve sticky footer and flex layout:
+<form className="flex min-h-full flex-col" onSubmit={handleSubmit}>
+  <CenteredPage.Header>{/* ... */}</CenteredPage.Header>
+  <CenteredPage.Container>{/* ... */}</CenteredPage.Container>
+  <CenteredPage.StickyFooter>{/* ... */}</CenteredPage.StickyFooter>
+</form>
+```
+
+Common issues:
+- Sticky footer height changes → add `flex min-h-full flex-col`
+- Datepicker/popover misalignment → check positioned ancestor chain
+- Error message spacing shifts → verify margin collapse behavior
+- Flex children sizing changes → ensure form fills available space
+
+**Always compare the rendered UI before and after migration.**
+
+---
+
 ## Key Differences: Simple vs Complex Forms
 
 | Aspect | Simple Form | Complex Form |
@@ -446,6 +710,10 @@ const MetadataSection = withForm({
 | Validation | Flat schema | Nested schemas with `.refine()` |
 | Data flow | Direct values | Mappers (API ↔ Form) |
 | Sub-components | N/A | `withForm` HOC |
+| Reusable field groups | N/A | `withFieldGroup` HOC |
+| Side-effects on change | N/A | `listeners={{ onChange }}` |
+| Dialogs with forms | N/A | Independent `useAppForm` + callback |
 | Error handling | Toast only | `formApi.setErrorMap` + toast |
 | Invalid submit | N/A | `onSubmitInvalid` + scroll |
 | Default values | Inline | Exported from schema |
+| Loading state | N/A or custom | `FormLoadingSkeleton` |

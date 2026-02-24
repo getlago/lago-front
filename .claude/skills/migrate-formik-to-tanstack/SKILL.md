@@ -23,12 +23,22 @@ Before starting, gather context by reading these reference files:
 1. **Hook Pattern**: `src/hooks/forms/useAppform.ts` - The custom `useAppForm` hook
 2. **Validation Schema Example**: `src/pages/auth/signUpForm/validationSchema.ts`
 3. **Form Component Example**: `src/pages/settings/roles/roleCreateEdit/RoleCreateEdit.tsx`
+4. **Simple Form with Table**: `src/pages/developers/ApiKeysForm.tsx` - Form with permissions table
+
+### Medium Complexity Forms
+
+5. **Coupon Form**: `src/pages/CreateCoupon.tsx` - Conditional fields, plan/metric limits, listeners pattern
+6. **Dialog with Independent Form**: `src/pages/createCoupon/dialogs/AddBillableMetricToCouponDialog.tsx` - Dialog containing its own TanStack form
 
 ### Complex Forms (with sub-components)
 
-4. **Complex Form Example**: `src/pages/createCustomers/CreateCustomer.tsx` - Main form with sub-components
-5. **Complex Validation Schema**: `src/pages/createCustomers/formInitialization/validationSchema.ts` - Nested Zod schemas with refinements
-6. **Sub-component with withForm**: `src/pages/createCustomers/customerInformation/CustomerInformation.tsx` - HOC pattern
+7. **Complex Form Example**: `src/pages/createCustomers/CreateCustomer.tsx` - Main form with sub-components
+8. **Complex Validation Schema**: `src/pages/createCustomers/formInitialization/validationSchema.ts` - Nested Zod schemas with refinements
+9. **Sub-component with withForm**: `src/pages/createCustomers/customerInformation/CustomerInformation.tsx` - HOC pattern
+
+### Reusable Field Groups
+
+10. **NameAndCodeGroup**: `src/components/form/NameAndCodeGroup/NameAndCodeGroup.tsx` - Reusable name+code field group using `withFieldGroup`
 
 ## Migration Steps
 
@@ -304,7 +314,56 @@ For accessing form values outside of field components:
 const someField = useStore(form.store, (state) => state.values.someField)
 ```
 
-#### Step 2.5: Update Field Components
+#### Step 2.5: Use Field Listeners for Side-Effects
+
+When you need to **react to a field value change** (e.g., propagate a selection, derive another field's value), use `listeners` on `form.AppField` instead of `useStore` + `useEffect`:
+
+```tsx
+<form.AppField
+  name="selectedItem"
+  listeners={{
+    onChange: ({ value }) => {
+      // React to the change: update derived state, call a callback, etc.
+      const item = items.find((i) => i.id === value)
+      onSelect(item)
+    },
+  }}
+>
+  {(field) => (
+    <field.ComboBoxField data={comboboxData} label="Select item" />
+  )}
+</form.AppField>
+```
+
+**When to use `listeners` vs `useStore`:**
+
+| Use case | Tool |
+|----------|------|
+| Read a value for conditional rendering in JSX | `useStore` |
+| Execute a side-effect when a value changes | `listeners.onChange` |
+| Derive another field's value from a change | `listeners.onChange` |
+
+> **Reference**: See `AddBillableMetricToCouponDialog.tsx` and `NameAndCodeGroup.tsx` for real-world examples of listeners.
+
+#### Step 2.6: Use NameAndCodeGroup for Name + Code Fields
+
+If the form has `name` and `code` fields, use the `NameAndCodeGroup` reusable component instead of separate TextInputField components:
+
+```tsx
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+
+// In your form JSX:
+<NameAndCodeGroup group={form} isDisabled={isEdition} />
+```
+
+This component:
+- Renders name and code fields in a 2-column grid
+- Auto-generates the `code` from `name` using `formatCodeFromName` (until the user manually edits the code field)
+- Uses the `withFieldGroup` HOC (different from `withForm` — see Advanced Patterns)
+
+> **Reference**: See `src/components/form/NameAndCodeGroup/NameAndCodeGroup.tsx` and its usage in `CreateCoupon.tsx`.
+
+#### Step 2.7: Update Field Components
 
 **Text Input Field:**
 
@@ -330,7 +389,7 @@ const someField = useStore(form.store, (state) => state.values.someField)
 - `field.CheckboxField`
 - etc.
 
-#### Step 2.6: Update Form Submission
+#### Step 2.8: Update Form Submission
 
 **Wrap content in a form element:**
 
@@ -346,6 +405,19 @@ return (
   </form>
 )
 ```
+
+> **WARNING: `<form>` wrapper and CSS/layout impact**
+>
+> Formik forms did not require a `<form>` HTML element. TanStack Form does. This introduces **a new DOM node** that can break existing CSS layouts. Common issues include:
+>
+> - Sticky footer height changes
+> - Flex/grid alignment breaks
+> - Spacing or overflow issues
+> - `min-height` behavior changes
+>
+> You will often need to add `className="flex min-h-full flex-col"` to the `<form>` element to preserve the existing layout.
+>
+> **The UI before and after the migration MUST be visually identical**, unless the change is an intentional UI/UX improvement. Always compare the rendered page before and after the migration to catch layout regressions.
 
 **Replace submit button:**
 
@@ -363,7 +435,7 @@ return (
 
 Note: `form.SubmitButton` handles `canSubmit` (validity + dirty state) automatically.
 
-#### Step 2.7: Update Field Value Changes
+#### Step 2.9: Update Field Value Changes
 
 **Before:**
 
@@ -377,7 +449,7 @@ formikProps.setFieldValue('fieldName', newValue)
 form.setFieldValue('fieldName', newValue)
 ```
 
-#### Step 2.8: Update Value Access
+#### Step 2.10: Update Value Access
 
 **Before:**
 
@@ -397,6 +469,21 @@ field.state.value
 const fieldValue = useStore(form.store, (state) => state.values.fieldName)
 ```
 
+#### Step 2.11: Use FormLoadingSkeleton for Loading State
+
+When the form fetches existing data (edit mode), use `FormLoadingSkeleton` to display a loading state:
+
+```tsx
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+// In your form component:
+if (loading) {
+  return <FormLoadingSkeleton id="my-form-skeleton" length={3} />
+}
+```
+
+> **Reference**: See `src/styles/mainObjectsForm.tsx` for the component definition and `ApiKeysForm.tsx` for usage.
+
 ---
 
 ### Phase 3: Verification
@@ -411,7 +498,18 @@ Go back to your Validation Migration Plan and verify:
 - [ ] All custom error messages are preserved
 - [ ] Validation timing matches original (onChange, onBlur, onMount)
 
-#### Step 3.2: Test Validation Behavior
+#### Step 3.2: Visual Regression Check
+
+**CRITICAL: The UI before and after the migration MUST be visually identical** (unless changes are intentional UI/UX improvements).
+
+Verify:
+1. **Layout**: The `<form>` wrapper hasn't broken flex/grid layouts, sticky footers, or spacing
+2. **Field alignment**: All form fields maintain their original positioning and sizing
+3. **Error messages**: Error states display in the same position and style as before
+4. **Loading state**: Loading skeleton renders correctly (if using `FormLoadingSkeleton`)
+5. **Responsive behavior**: The form looks correct on different viewport sizes
+
+#### Step 3.3: Test Validation Behavior
 
 Manually test each validation case:
 
@@ -652,6 +750,235 @@ return (
 )
 ```
 
+### Pattern 7: Field Listeners for Side-Effects
+
+Use `listeners` on `form.AppField` to react to field value changes. This is preferred over `useStore` + `useEffect` for side-effects:
+
+```tsx
+// Example from AddBillableMetricToCouponDialog: propagate selection to parent via callback
+<form.AppField
+  name="selectedBillableMetric"
+  listeners={{
+    onChange: ({ value }) => {
+      const billableMetric = data?.billableMetrics?.collection.find((b) => b.id === value)
+      onSelect(value ? billableMetric : undefined)
+    },
+  }}
+>
+  {(field) => (
+    <field.ComboBoxField
+      data={comboboxData}
+      label={translate('text_select_billable_metric')}
+      loading={loading}
+      PopperProps={{ displayInDialog: true }}
+      searchQuery={getBillableMetrics}
+    />
+  )}
+</form.AppField>
+```
+
+```tsx
+// Example from NameAndCodeGroup: auto-generate code from name
+<group.AppField name="name" listeners={{ onChange: handleNameChange }}>
+  {(field) => (
+    <field.TextInputField label={translate('text_name')} />
+  )}
+</group.AppField>
+```
+
+**When to use `listeners` vs `useStore`:**
+
+| Use case | Tool |
+|----------|------|
+| Read a value for conditional rendering in JSX | `useStore(form.store, ...)` |
+| Execute a side-effect when a value changes | `listeners={{ onChange }}` |
+| Derive another field's value from a change | `listeners={{ onChange }}` |
+| Update external state (refs, callbacks) on change | `listeners={{ onChange }}` |
+
+### Pattern 8: `withFieldGroup` for Reusable Field Groups
+
+`withFieldGroup` is different from `withForm`. Use it for **reusable groups of fields** that can be shared across multiple forms (e.g., name + code, address fields):
+
+```tsx
+import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+
+export type NameAndCodeGroupValues = {
+  code: string
+  name: string
+}
+
+export type NameAndCodeGroupProps = {
+  isDisabled?: boolean
+}
+
+const defaultValues: NameAndCodeGroupValues = {
+  code: '',
+  name: '',
+}
+
+const defaultProps: NameAndCodeGroupProps = {
+  isDisabled: false,
+}
+
+const NameAndCodeGroup = withFieldGroup({
+  defaultValues,
+  props: defaultProps,
+  render: function Render({ group, isDisabled }) {
+    const { translate } = useInternationalization()
+
+    const handleNameChange = ({ value }: { value: string }) => {
+      const isCodeBlurred = group.getFieldMeta('code')?.isBlurred
+
+      // Don't auto-generate code if user has manually edited it or form is disabled
+      if (isCodeBlurred || isDisabled) return
+      group.setFieldValue('code', formatCodeFromName(value))
+    }
+
+    return (
+      <div className="grid grid-cols-2 gap-6">
+        <group.AppField name="name" listeners={{ onChange: handleNameChange }}>
+          {(field) => (
+            <field.TextInputField
+              label={translate('text_name')}
+              placeholder={translate('text_name_placeholder')}
+            />
+          )}
+        </group.AppField>
+        <group.AppField name="code">
+          {(field) => (
+            <field.TextInputField
+              label={translate('text_code')}
+              beforeChangeFormatter="code"
+              placeholder={translate('text_code_placeholder')}
+              disabled={isDisabled}
+            />
+          )}
+        </group.AppField>
+      </div>
+    )
+  },
+})
+```
+
+**Key differences: `withForm` vs `withFieldGroup`:**
+
+| Aspect | `withForm` | `withFieldGroup` |
+|--------|-----------|-----------------|
+| Purpose | Sub-component of a specific form | Reusable field group across multiple forms |
+| Receives | `form` prop | `group` prop |
+| Usage | `<MySection form={form} />` | `<NameAndCodeGroup group={form} />` |
+| Scope | Specific to one form's structure | Generic, works with any form that has matching fields |
+
+### Pattern 9: Dialog with Independent Form
+
+When a dialog contains a form (e.g., selecting an item from a list), use an **independent TanStack form** inside the dialog content. The dialog communicates with the parent via callbacks, not by sharing form state:
+
+```tsx
+// Dialog content component with its own form
+const AddItemContent = ({ attachedIds, onSelect }: AddItemContentProps) => {
+  const [getItems, { loading, data }] = useGetItemsLazyQuery({ variables: { limit: 50 } })
+
+  const form = useAppForm({
+    defaultValues: { selectedItem: '' },
+  })
+
+  useEffect(() => { getItems() }, [getItems])
+
+  return (
+    <div className="p-8">
+      <form.AppField
+        name="selectedItem"
+        listeners={{
+          onChange: ({ value }) => {
+            const item = data?.items?.collection.find((i) => i.id === value)
+            onSelect(value ? item : undefined)
+          },
+        }}
+      >
+        {(field) => (
+          <field.ComboBoxField
+            data={comboboxData}
+            label="Select item"
+            loading={loading}
+            PopperProps={{ displayInDialog: true }}
+            searchQuery={getItems}
+          />
+        )}
+      </form.AppField>
+    </div>
+  )
+}
+
+// Hook that opens the dialog
+export const useAddItemDialog = () => {
+  const formDialog = useFormDialog()
+  const selectedItemRef = useRef<ItemFragment | undefined>()
+  const setDisabledRef = useSetDisabledRef()
+
+  const openDialog = ({ onSubmit, attachedIds }: OpenDialogParams) => {
+    selectedItemRef.current = undefined
+
+    formDialog.open({
+      title: 'Add item',
+      description: 'Select an item to add',
+      children: (
+        <AddItemContent
+          attachedIds={attachedIds}
+          onSelect={(item) => {
+            selectedItemRef.current = item
+            setDisabledRef.current(!item)
+          }}
+        />
+      ),
+      mainAction: (
+        <DialogActionButton
+          label="Add"
+          setDisabledRef={setDisabledRef}
+        />
+      ),
+      form: {
+        id: 'add-item-form',
+        submit: () => {
+          if (!selectedItemRef.current) throw new Error('No item selected')
+          onSubmit(selectedItemRef.current)
+        },
+      },
+    })
+  }
+
+  return { openDialog }
+}
+```
+
+**Key points:**
+- The dialog has its own `useAppForm`, separate from the parent form
+- Data flows to the parent via callback (`onSelect` prop) and `useRef`
+- `useFormDialog` + `DialogActionButton` + `useSetDisabledRef` handle dialog UX
+- The `form.id` in dialog config links the submit button to the form element
+
+> **Reference**: See `AddBillableMetricToCouponDialog.tsx` and `AddPlanToCouponDialog.tsx` for real-world examples.
+
+### Pattern 10: Derive State from Form Values
+
+Prefer deriving boolean state from form values rather than storing separate flags:
+
+```tsx
+// AVOID: separate boolean flag in form state
+const form = useAppForm({
+  defaultValues: {
+    hasLimits: false,           // redundant flag
+    limitPlansList: [],
+  },
+})
+
+// PREFER: derive the boolean from the array length
+const limitPlansList = useStore(form.store, (state) => state.values.limitPlansList)
+const hasLimits = limitPlansList.length > 0
+```
+
+This reduces form state complexity and avoids synchronization issues between the flag and the actual data.
+
 ---
 
 ### Phase 4: Test Migration
@@ -701,21 +1028,33 @@ The `/make-tests` skill will automatically:
 - [ ] Update imports (remove Formik/Yup, add TanStack)
 - [ ] Replace `useFormik` with `useAppForm`
 - [ ] Add `useStore` for form state subscriptions (if needed)
+- [ ] Add `listeners` for field-change side-effects (if needed)
+- [ ] Use `NameAndCodeGroup` for name + code fields (if applicable)
 - [ ] Wrap content in `<form>` element with `onSubmit`
+- [ ] Verify `<form>` wrapper doesn't break CSS layout (add `className="flex min-h-full flex-col"` if needed)
 - [ ] Update each field to use `form.AppField` pattern
 - [ ] Replace submit button with `form.SubmitButton`
 - [ ] Update `setFieldValue` calls
+- [ ] Use `FormLoadingSkeleton` for loading state (if form fetches data)
 
 ### Phase 2b: Complex Forms (if applicable)
 
 - [ ] Create mappers for API ↔ Form data transformation
 - [ ] Update sub-components to use `withForm` HOC
+- [ ] Use `withFieldGroup` for reusable field groups shared across forms
 - [ ] Add `.refine()` validations for cross-field dependencies
 - [ ] Implement `onSubmitInvalid` for error scrolling
 - [ ] Add `formApi.setErrorMap` for server-side errors
+- [ ] Migrate dialogs with forms to independent TanStack forms (Pattern 9)
+- [ ] Derive boolean state from form values instead of separate flags (Pattern 10)
 
 ### Phase 3: Verification
 
+- [ ] **Visual Regression Check (CRITICAL):**
+  - [ ] Compare UI before and after migration — must be visually identical
+  - [ ] Verify `<form>` wrapper hasn't broken: sticky footer, flex/grid layout, spacing, overflow
+  - [ ] Check field alignment, datepicker positioning, error message placement
+  - [ ] Test loading state renders correctly (if using `FormLoadingSkeleton`)
 - [ ] **Validation Verification:**
   - [ ] Test all required field validations
   - [ ] Test all format validations (email, URL, etc.)
@@ -741,14 +1080,25 @@ The `/make-tests` skill will automatically:
 3. **Values not updating**: Use `useStore` to subscribe to values outside field components
 4. **TypeScript errors**: Ensure validation schema matches form field types
 
+### Layout & CSS Issues
+
+5. **Layout broken after adding `<form>` wrapper**: The `<form>` element introduces a new DOM node that wasn't there with Formik. Common fixes:
+   - Add `className="flex min-h-full flex-col"` to the `<form>` element
+   - Check if sticky footer height changed — the form needs to fill the available space
+   - Verify datepicker/popover alignment — extra DOM nesting can shift positioned elements
+   - Check error message spacing — the `<form>` may affect margin collapse
+6. **Sticky footer not sticking or wrong height**: The `<form>` must be a flex container with `min-h-full` so the footer can stick to the bottom
+
 ### Complex Form Issues
 
-5. **Sub-component not receiving form**: Pass `form={form}` prop explicitly to sub-components using `withForm`
-6. **Nested validation not working**: Ensure nested Zod schemas are properly composed (not just referenced)
-7. **Server errors not displaying**: Use `formApi.setErrorMap` with the correct field paths
-8. **Refine validation failing silently**: Check that the `path` option in `.refine()` matches the actual field name
-9. **Default values type mismatch**: Export and use `emptyDefaultValues` from validation schema for consistent typing
-10. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure
+7. **Sub-component not receiving form**: Pass `form={form}` prop explicitly to sub-components using `withForm`
+8. **Nested validation not working**: Ensure nested Zod schemas are properly composed (not just referenced)
+9. **Server errors not displaying**: Use `formApi.setErrorMap` with the correct field paths
+10. **Refine validation failing silently**: Check that the `path` option in `.refine()` matches the actual field name
+11. **Default values type mismatch**: Export and use `emptyDefaultValues` from validation schema for consistent typing
+12. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure
+13. **Side-effect on field change not working**: Use `listeners={{ onChange }}` on `form.AppField` instead of `useStore` + `useEffect`
+14. **Dialog form state leaking to parent**: Dialogs should use their own `useAppForm` instance, not share the parent form. Communicate via callbacks and `useRef`
 
 ## Usage
 
