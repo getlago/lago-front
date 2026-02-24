@@ -25,3 +25,12 @@ export const statusWebhookMapping = (status?: WebhookStatusEnum | null): StatusP
       }
   }
 }
+
+export const formatWebhookResponseLabel = (
+  httpStatus: string | number | null | undefined,
+  status: WebhookStatusEnum | null | undefined,
+): string => {
+  const label = String(statusWebhookMapping(status).label)
+
+  return `${httpStatus} ${label.charAt(0).toUpperCase() + label.slice(1)}`
+}

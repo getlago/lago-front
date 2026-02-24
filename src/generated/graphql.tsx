@@ -3679,7 +3679,8 @@ export type EventCollection = {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   MultiplePaymentMethods = 'multiple_payment_methods',
-  PostgresEnrichedEvents = 'postgres_enriched_events'
+  PostgresEnrichedEvents = 'postgres_enriched_events',
+  WalletTraceability = 'wallet_traceability'
 }
 
 export type FeatureObject = {
@@ -4589,14 +4590,68 @@ export type LimitationInput = {
 
 /** Security Log event */
 export enum LogEventEnum {
+  /** api_key.created */
+  ApiKeyCreated = 'api_key_created',
+  /** api_key.deleted */
+  ApiKeyDeleted = 'api_key_deleted',
+  /** api_key.rotated */
+  ApiKeyRotated = 'api_key_rotated',
+  /** api_key.updated */
+  ApiKeyUpdated = 'api_key_updated',
+  /** billing_entity.created */
+  BillingEntityCreated = 'billing_entity_created',
+  /** billing_entity.updated */
+  BillingEntityUpdated = 'billing_entity_updated',
+  /** export.created */
+  ExportCreated = 'export_created',
+  /** integration.created */
+  IntegrationCreated = 'integration_created',
+  /** integration.deleted */
+  IntegrationDeleted = 'integration_deleted',
+  /** integration.updated */
+  IntegrationUpdated = 'integration_updated',
+  /** role.created */
+  RoleCreated = 'role_created',
+  /** role.deleted */
+  RoleDeleted = 'role_deleted',
+  /** role.updated */
+  RoleUpdated = 'role_updated',
+  /** user.deleted */
+  UserDeleted = 'user_deleted',
+  /** user.invited */
+  UserInvited = 'user_invited',
+  /** user.password_edited */
+  UserPasswordEdited = 'user_password_edited',
+  /** user.password_reset_requested */
+  UserPasswordResetRequested = 'user_password_reset_requested',
+  /** user.role_edited */
+  UserRoleEdited = 'user_role_edited',
   /** user.signed_up */
-  UserSignedUp = 'user_signed_up'
+  UserSignedUp = 'user_signed_up',
+  /** webhook_endpoint.created */
+  WebhookEndpointCreated = 'webhook_endpoint_created',
+  /** webhook_endpoint.deleted */
+  WebhookEndpointDeleted = 'webhook_endpoint_deleted',
+  /** webhook_endpoint.updated */
+  WebhookEndpointUpdated = 'webhook_endpoint_updated'
 }
 
 /** Security Log type */
 export enum LogTypeEnum {
+  /** api_key */
+  ApiKey = 'api_key',
+  /** billing_entity */
+  BillingEntity = 'billing_entity',
+  /** export */
+  Export = 'export',
+  /** integration */
+  Integration = 'integration',
+  /** role */
+  Role = 'role',
   /** user */
-  User = 'user'
+  User = 'user',
+  /** webhook_endpoint */
+  WebhookEndpoint = 'webhook_endpoint'
 }
 
 export type LoginUser = {
@@ -7746,10 +7801,15 @@ export type QueryWebhookEndpointsArgs = {
 
 
 export type QueryWebhooksArgs = {
+  eventTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  httpStatuses?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<WebhookStatusEnum>;
+  statuses?: InputMaybe<Array<WebhookStatusEnum>>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   webhookEndpointId: Scalars['String']['input'];
 };
 
@@ -10679,7 +10739,11 @@ export type GetWebhookLogQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   webhookEndpointId: Scalars['String']['input'];
-  status?: InputMaybe<WebhookStatusEnum>;
+  statuses?: InputMaybe<Array<WebhookStatusEnum> | WebhookStatusEnum>;
+  eventTypes?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  httpStatuses?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
@@ -23915,12 +23979,16 @@ export type GetSingleWebhookLogLazyQueryHookResult = ReturnType<typeof useGetSin
 export type GetSingleWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetSingleWebhookLogSuspenseQuery>;
 export type GetSingleWebhookLogQueryResult = Apollo.QueryResult<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>;
 export const GetWebhookLogDocument = gql`
-    query getWebhookLog($page: Int, $limit: Int, $webhookEndpointId: String!, $status: WebhookStatusEnum, $searchTerm: String) {
+    query getWebhookLog($page: Int, $limit: Int, $webhookEndpointId: String!, $statuses: [WebhookStatusEnum!], $eventTypes: [String!], $httpStatuses: [String!], $fromDate: ISO8601DateTime, $toDate: ISO8601DateTime, $searchTerm: String) {
   webhooks(
     page: $page
     limit: $limit
     webhookEndpointId: $webhookEndpointId
-    status: $status
+    statuses: $statuses
+    eventTypes: $eventTypes
+    httpStatuses: $httpStatuses
+    fromDate: $fromDate
+    toDate: $toDate
     searchTerm: $searchTerm
   ) {
     metadata {
@@ -23950,7 +24018,11 @@ export const GetWebhookLogDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      webhookEndpointId: // value for 'webhookEndpointId'
- *      status: // value for 'status'
+ *      statuses: // value for 'statuses'
+ *      eventTypes: // value for 'eventTypes'
+ *      httpStatuses: // value for 'httpStatuses'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
  *      searchTerm: // value for 'searchTerm'
  *   },
  * });

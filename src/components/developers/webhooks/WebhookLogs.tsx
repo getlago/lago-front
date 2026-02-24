@@ -4,9 +4,9 @@ import { generatePath, useNavigate, useParams, useSearchParams } from 'react-rou
 
 import { Button } from '~/components/designSystem/Button'
 import {
-  AvailableFiltersEnum,
   Filters,
   formatFiltersForWebhookLogsQuery,
+  WebhookLogsAvailableFilters,
 } from '~/components/designSystem/Filters'
 import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
@@ -18,7 +18,6 @@ import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { useGetWebhookLogLazyQuery, WebhookLogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 gql`
   fragment WebhookLog on Webhook {
@@ -34,14 +33,22 @@ gql`
     $page: Int
     $limit: Int
     $webhookEndpointId: String!
-    $status: WebhookStatusEnum
+    $statuses: [WebhookStatusEnum!]
+    $eventTypes: [String!]
+    $httpStatuses: [String!]
+    $fromDate: ISO8601DateTime
+    $toDate: ISO8601DateTime
     $searchTerm: String
   ) {
     webhooks(
       page: $page
       limit: $limit
       webhookEndpointId: $webhookEndpointId
-      status: $status
+      statuses: $statuses
+      eventTypes: $eventTypes
+      httpStatuses: $httpStatuses
+      fromDate: $fromDate
+      toDate: $toDate
       searchTerm: $searchTerm
     ) {
       metadata {
@@ -65,39 +72,64 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { panelSize: size, headerOffset, webhookDetailHeaderOffset } = useDeveloperTool()
 
   const logListRef = useRef<ListSectionRef>(null)
 
-  const filtersForWebhookLogsQuery = useMemo(() => {
-    return formatFiltersForWebhookLogsQuery(searchParams)
-  }, [searchParams])
+  const searchParamsString = searchParams.toString()
 
-  const [getWebhookLogs, getWebhookLogsResult] = useGetWebhookLogLazyQuery({
-    variables: {
+  const filtersForWebhookLogsQuery = useMemo(() => {
+    return formatFiltersForWebhookLogsQuery(new URLSearchParams(searchParamsString))
+  }, [searchParamsString])
+
+  const queryVariables = useMemo(
+    () => ({
       webhookEndpointId: webhookId,
       limit: 20,
       ...filtersForWebhookLogsQuery,
-    },
+    }),
+    [webhookId, filtersForWebhookLogsQuery],
+  )
+
+  const [getWebhookLogs, getWebhookLogsResult] = useGetWebhookLogLazyQuery({
+    variables: queryVariables,
     notifyOnNetworkStatusChange: true,
   })
 
-  const { data, loading, refetch } = getWebhookLogsResult
+  const { data, loading } = getWebhookLogsResult
 
   const { debouncedSearch, isLoading: isSearchLoading } = useDebouncedSearch(
     getWebhookLogs,
     loading,
   )
 
+  // Refetch with fresh filters to avoid stale toDate from the memoized query variables.
+  // Standard refetch() reuses variables from the initial execution, which includes a frozen toDate.
+  const refetchWithFreshFilters = useCallback(async () => {
+    const freshFilters = formatFiltersForWebhookLogsQuery(
+      new URLSearchParams(searchParams.toString()),
+    )
+
+    return getWebhookLogs({
+      variables: { ...queryVariables, ...freshFilters },
+      fetchPolicy: 'network-only',
+    })
+  }, [getWebhookLogs, queryVariables, searchParams])
+
   const navigateToFirstLog = useCallback(
-    (logCollection?: WebhookLogFragment[]) => {
+    (logCollection?: WebhookLogFragment[], currentSearchParams?: URLSearchParams) => {
       if (logCollection?.length) {
         const firstLog = logCollection[0]
 
         if (firstLog && getCurrentBreakpoint() !== 'sm') {
-          navigate(generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }), {
-            replace: true,
-          })
+          navigate(
+            {
+              pathname: generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }),
+              search: currentSearchParams?.toString(),
+            },
+            {
+              replace: true,
+            },
+          )
         }
       }
     },
@@ -107,7 +139,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   // If no logId is provided in params, navigate to the first log
   useEffect(() => {
     if (!logId) {
-      navigateToFirstLog(data?.webhooks?.collection)
+      navigateToFirstLog(data?.webhooks?.collection, searchParams)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.webhooks.collection, logId])
@@ -123,7 +155,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const shouldDisplayLogDetails = !!logId && !!data?.webhooks.collection.length
 
   return (
-    <div className="not-last-child:shadow-b">
+    <div className="flex h-full flex-col not-last-child:shadow-b">
       <LogsLayout.CTASection>
         <SearchInput
           onChange={debouncedSearch}
@@ -133,7 +165,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
         <div>
           <Filters.Provider
             filtersNamePrefix={WEBHOOK_LOGS_FILTER_PREFIX}
-            availableFilters={[AvailableFiltersEnum.webhookStatus]}
+            availableFilters={WebhookLogsAvailableFilters}
             displayInDialog
           >
             <Filters.Component />
@@ -147,9 +179,9 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
           size="small"
           variant="quaternary"
           onClick={async () => {
-            const result = await refetch()
+            const result = await refetchWithFreshFilters()
 
-            navigateToFirstLog(result.data?.webhooks?.collection)
+            navigateToFirstLog(result.data?.webhooks?.collection, searchParams)
           }}
         >
           {translate('text_1738748043939zqoqzz350yj')}
@@ -166,11 +198,6 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
         }
         rightSide={<WebhookLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
-        sectionHeight={
-          shouldDisplayLogDetails
-            ? `calc(${size}vh - ${headerOffset + webhookDetailHeaderOffset}px)`
-            : '100%'
-        }
       />
     </div>
   )

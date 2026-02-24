@@ -1,11 +1,15 @@
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { WEBHOOKS_ROUTE } from '~/components/developers/devtoolsRoutes'
+import {
+  WEBHOOK_LOGS_ROUTE,
+  WEBHOOK_ROUTE,
+  WEBHOOKS_ROUTE,
+} from '~/components/developers/devtoolsRoutes'
 import { WebhookLogs } from '~/components/developers/webhooks/WebhookLogs'
 import { WebhookOverview } from '~/components/developers/webhooks/WebhookOverview'
 import { UPDATE_WEBHOOK_ROUTE } from '~/core/router'
@@ -27,6 +31,7 @@ export const WEBHOOK_DETAIL_DELETE_BUTTON_TEST_ID = 'webhook-detail-delete-butto
 
 export const WebhookDetail = () => {
   const { webhookId = '' } = useParams<{ webhookId: string }>()
+  const { pathname } = useLocation()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { closePanel, setMainRouterUrl } = useDeveloperTool()
@@ -36,8 +41,23 @@ export const WebhookDetail = () => {
   const signatureLabel =
     webhook?.signatureAlgo === WebhookEndpointSignatureAlgoEnum.Jwt ? 'JWT' : 'HMAC'
 
+  const webhookDetailTabs = [
+    {
+      title: translate('text_634687079be251fdb43833b7'),
+      match: [WEBHOOK_ROUTE],
+      component: (
+        <WebhookOverview webhook={webhook} loading={loading} signatureLabel={signatureLabel} />
+      ),
+    },
+    {
+      title: translate('text_1746622271766kgqyug3llin'),
+      match: [WEBHOOK_LOGS_ROUTE],
+      component: <WebhookLogs webhookId={webhookId} />,
+    },
+  ]
+
   return (
-    <div>
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-start justify-between gap-4 p-4 shadow-b">
         <div className="flex flex-col items-start gap-2">
           <Button
@@ -120,25 +140,14 @@ export const WebhookDetail = () => {
 
       <NavigationTab
         className="px-4"
+        tabPanelClassName="min-h-0 flex-1 overflow-auto"
         name="webhook-detail"
         managedBy={TabManagedBy.INDEX}
         loading={loading}
-        tabs={[
-          {
-            title: translate('text_634687079be251fdb43833b7'),
-            component: (
-              <WebhookOverview
-                webhook={webhook}
-                loading={loading}
-                signatureLabel={signatureLabel}
-              />
-            ),
-          },
-          {
-            title: translate('text_1746622271766kgqyug3llin'),
-            component: <WebhookLogs webhookId={webhookId} />,
-          },
-        ]}
+        currentTab={webhookDetailTabs.findIndex((tab) =>
+          tab.match?.some((pattern) => matchPath(pattern, pathname)),
+        )}
+        tabs={webhookDetailTabs}
       />
     </div>
   )

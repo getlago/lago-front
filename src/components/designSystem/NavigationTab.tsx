@@ -30,6 +30,7 @@ type NavigationTabProps = {
   loading?: boolean
   name?: string
   className?: string
+  tabPanelClassName?: string
   tabs: Array<NavigationTabItem>
   children?: ReactNode
   onChange?: (index: number) => void
@@ -40,6 +41,7 @@ interface TabPanelProps {
   children?: React.ReactNode
   index: number
   value: number
+  className?: string
 }
 
 const CustomTabPanel = (props: TabPanelProps) => {
@@ -67,6 +69,7 @@ const a11yProps = (index: number) => {
 
 export const NavigationTab = ({
   className,
+  tabPanelClassName,
   loading,
   managedBy = TabManagedBy.URL,
   name = 'Navigation tab',
@@ -198,7 +201,12 @@ export const NavigationTab = ({
       {value !== null &&
         nonHiddenTabs.map((tab, index) => {
           return (
-            <CustomTabPanel key={`custom-tab-panel-${index}`} value={value} index={index}>
+            <CustomTabPanel
+              key={`custom-tab-panel-${index}`}
+              value={value}
+              index={index}
+              className={tabPanelClassName}
+            >
               {tab.component}
             </CustomTabPanel>
           )
