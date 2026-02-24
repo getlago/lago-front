@@ -17,6 +17,8 @@ import useCustomerPortalTranslate from '~/components/customerPortal/common/useCu
 import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
 
+export const CUSTOMER_PORTAL_CONTENT_TEST_ID = 'customer-portal-content'
+
 gql`
   query getPortalOrgaInfos {
     customerPortalOrganization {
@@ -145,7 +147,7 @@ const CustomerPortal = () => {
           {portalOrgasInfoLoading && <CustomerPortalLoading />}
 
           {!portalOrgasInfoLoading && (
-            <div className={pageContainerClassName}>
+            <div className={pageContainerClassName} data-test={CUSTOMER_PORTAL_CONTENT_TEST_ID}>
               <Outlet />
             </div>
           )}
