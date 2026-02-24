@@ -58,6 +58,7 @@ gql`
     ongoingUsageBalanceCents
     creditsOngoingUsageBalance
     rateAmount
+    traceable
   }
 
   query getWalletTransactions($walletId: ID!, $page: Int, $limit: Int) {

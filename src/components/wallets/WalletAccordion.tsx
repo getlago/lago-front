@@ -70,7 +70,6 @@ gql`
     ongoingBalanceCents
     creditsOngoingBalance
     priority
-    traceable
 
     ...WalletInfosForTransactions
   }

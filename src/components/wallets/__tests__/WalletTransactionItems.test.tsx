@@ -36,6 +36,7 @@ const mockWallet = {
   ongoingUsageBalanceCents: '0',
   creditsOngoingUsageBalance: 0,
   rateAmount: 1,
+  traceable: true,
 }
 
 const createMockTransaction = (
