@@ -195,9 +195,10 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
     const walletTransactionType = data?.walletTransaction?.transactionType
 
     const showConsumptionTab =
-      walletTransactionType === WalletTransactionTransactionTypeEnum.Inbound
+      wallet?.traceable && walletTransactionType === WalletTransactionTransactionTypeEnum.Inbound
 
-    const showFundingTab = walletTransactionType === WalletTransactionTransactionTypeEnum.Outbound
+    const showFundingTab =
+      wallet?.traceable && walletTransactionType === WalletTransactionTransactionTypeEnum.Outbound
 
     const {
       data: fundings,
