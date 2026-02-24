@@ -90,7 +90,7 @@ const LagoTaxManagementIntegration = () => {
   const removeEuTaxManagement = async () => {
     const entities = billingEntitiesData?.billingEntities?.collection || []
 
-    await Promise.all(
+    const results = await Promise.all(
       entities.map((billingEntity) => {
         return update({
           variables: {
@@ -102,6 +102,10 @@ const LagoTaxManagementIntegration = () => {
         })
       }),
     )
+
+    const hasErrors = results.some((res) => !!res.errors)
+
+    if (hasErrors) return
 
     navigate(
       generatePath(INTEGRATIONS_ROUTE, {

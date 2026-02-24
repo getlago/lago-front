@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
-import { forwardRef } from 'react'
+import { forwardRef, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
@@ -16,6 +16,7 @@ import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { TAX_MANAGEMENT_INTEGRATION_ROUTE } from '~/core/router'
 import {
   CountryCode,
+  LagoApiError,
   useGetBillingEntitiesQuery,
   useUpdateBillingEntityMutation,
 } from '~/generated/graphql'
@@ -54,7 +55,13 @@ export const AddLagoTaxManagementDialog = forwardRef<
 
   const maxBillingEntities = billingEntitiesList?.length || 0
 
-  const [update] = useUpdateBillingEntityMutation()
+  const [update] = useUpdateBillingEntityMutation({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
+  })
+
+  const submitSucceededRef = useRef(false)
 
   const formikProps = useFormik<{
     billingEntities: Array<BillingEntityFormItem>
@@ -80,9 +87,10 @@ export const AddLagoTaxManagementDialog = forwardRef<
         .min(isUpdate ? 0 : 1, ''),
     }),
     onSubmit: async (values) => {
+      submitSucceededRef.current = false
       const entities = billingEntitiesData?.billingEntities?.collection || []
 
-      await Promise.all(
+      const results = await Promise.all(
         entities.map((billingEntity) => {
           const updated = values.billingEntities.find((b) => b.id === billingEntity.id)
 
@@ -97,6 +105,18 @@ export const AddLagoTaxManagementDialog = forwardRef<
           })
         }),
       )
+
+      const hasErrors = results.some((res) => !!res.errors)
+
+      if (hasErrors) {
+        addToast({
+          severity: 'danger',
+          message: translate('text_1740672955723utwsgy8vzy2'),
+        })
+        return
+      }
+
+      submitSucceededRef.current = true
 
       navigate(
         generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
@@ -216,7 +236,9 @@ export const AddLagoTaxManagementDialog = forwardRef<
             onClick={async () => {
               await formikProps.submitForm()
 
-              closeDialog()
+              if (submitSucceededRef.current) {
+                closeDialog()
+              }
             }}
           >
             {translate(
