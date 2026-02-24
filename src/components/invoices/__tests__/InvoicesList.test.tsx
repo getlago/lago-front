@@ -36,11 +36,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const mockAddToast = jest.fn()
 const mockHasDefinedGQLError = jest.fn()
+const mockExtractThirdPartyErrorMessage = jest.fn()
 
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: (...args: unknown[]) => mockAddToast(...args),
   hasDefinedGQLError: (...args: unknown[]) => mockHasDefinedGQLError(...args),
+  extractThirdPartyErrorMessage: (...args: unknown[]) => mockExtractThirdPartyErrorMessage(...args),
 }))
 
 const mockIsPremium = jest.fn(() => true)
@@ -250,6 +252,7 @@ describe('InvoicesList', () => {
     mockCanRecordPayment.mockReturnValue(true)
     mockCanResendEmail.mockReturnValue(false)
     mockHasDefinedGQLError.mockReturnValue(false)
+    mockExtractThirdPartyErrorMessage.mockReturnValue(undefined)
     mockRetryInvoicePayment.mockResolvedValue({ errors: null })
   })
 
@@ -1362,6 +1365,32 @@ describe('InvoicesList', () => {
       })
 
       expect(mockAddToast).not.toHaveBeenCalled()
+    })
+
+    it('shows toast with PSP message when third_party_error occurs', async () => {
+      const pspMessage = 'Amount must be at least $0.50 usd'
+
+      mockHasDefinedGQLError.mockReturnValue(false)
+      mockExtractThirdPartyErrorMessage.mockReturnValue(pspMessage)
+      await renderInvoicesList()
+
+      const mockError = {
+        graphQLErrors: [
+          {
+            extensions: {
+              code: 'third_party_error',
+              details: { error: pspMessage },
+            },
+          },
+        ],
+      }
+
+      generatePaymentUrlCallbacks.onError?.(mockError)
+
+      expect(mockAddToast).toHaveBeenCalledWith({
+        severity: 'danger',
+        message: pspMessage,
+      })
     })
   })
 

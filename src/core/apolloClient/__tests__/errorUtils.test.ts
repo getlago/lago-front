@@ -1,7 +1,12 @@
 import { ApolloError } from '@apollo/client'
 import { GraphQLFormattedError } from 'graphql'
 
-import { hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient/errorUtils'
+import {
+  extractThirdPartyErrorMessage,
+  hasDefinedGQLError,
+  LagoGQLError,
+  PspErrorCode,
+} from '~/core/apolloClient/errorUtils'
 
 const createApolloError: (details: Record<string, string | string[]>) => ApolloError = (details) =>
   ({
@@ -68,6 +73,62 @@ describe('Test apollo utils', () => {
       expect(hasDefinedGQLError('UserAlreadyExists', emailError)).toBeTruthy()
       expect(hasDefinedGQLError('Forbidden', emailError)).toBeTruthy()
       expect(hasDefinedGQLError('CurrenciesDoesNotMatch', emailError)).toBeFalsy()
+    })
+  })
+
+  describe('extractThirdPartyErrorMessage', () => {
+    const createThirdPartyApolloError = (errorDetail: string | string[]) =>
+      ({
+        graphQLErrors: [
+          {
+            message: 'Third Party Error',
+            locations: [{ line: 2, column: 3 }],
+            path: ['generateCheckoutUrl'],
+            extensions: {
+              status: 422,
+              code: PspErrorCode.ThirdPartyError,
+              details: { error: errorDetail },
+            },
+          },
+        ],
+      }) as unknown as ApolloError
+
+    it('should return undefined if no error specified', () => {
+      expect(extractThirdPartyErrorMessage()).toBeUndefined()
+    })
+
+    it('should return the error message from a third_party_error ApolloError', () => {
+      const error = createThirdPartyApolloError('Amount must be at least $0.50 usd')
+
+      expect(extractThirdPartyErrorMessage(error)).toBe('Amount must be at least $0.50 usd')
+    })
+
+    it('should return the first element when error detail is an array', () => {
+      const error = createThirdPartyApolloError(['Amount must be at least $0.50 usd'])
+
+      expect(extractThirdPartyErrorMessage(error)).toBe('Amount must be at least $0.50 usd')
+    })
+
+    it('should return undefined for non-third_party_error codes', () => {
+      const error = createApolloError({ email: ['user_already_exists'] })
+
+      expect(extractThirdPartyErrorMessage(error)).toBeUndefined()
+    })
+
+    it('should return undefined when details has no error key', () => {
+      const error = {
+        graphQLErrors: [
+          {
+            message: 'Third Party Error',
+            extensions: {
+              code: PspErrorCode.ThirdPartyError,
+              details: { someOtherKey: ['value'] },
+            },
+          },
+        ],
+      } as unknown as ApolloError
+
+      expect(extractThirdPartyErrorMessage(error)).toBeUndefined()
     })
   })
 

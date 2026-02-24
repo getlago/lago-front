@@ -25,7 +25,12 @@ import {
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  addToast,
+  extractThirdPartyErrorMessage,
+  hasDefinedGQLError,
+  PspErrorCode,
+} from '~/core/apolloClient'
 import {
   invoiceStatusMapping,
   isInvoicePartiallyPaid,
@@ -211,18 +216,28 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
 
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
     context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, PspErrorCode.ThirdPartyError],
     },
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
         openNewTab(generatedPaymentUrl.paymentUrl)
       }
     },
-    onError(error) {
-      if (hasDefinedGQLError('MissingPaymentProviderCustomer', error)) {
+    onError(resError) {
+      if (hasDefinedGQLError('MissingPaymentProviderCustomer', resError)) {
         addToast({
           severity: 'danger',
           translateKey: 'text_1756225393560tonww8d3bgq',
+        })
+        return
+      }
+
+      const pspMessage = extractThirdPartyErrorMessage(resError)
+
+      if (pspMessage) {
+        addToast({
+          severity: 'danger',
+          message: pspMessage,
         })
       }
     },

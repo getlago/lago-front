@@ -33,7 +33,13 @@ import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteLi
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
+import {
+  addToast,
+  extractThirdPartyErrorMessage,
+  hasDefinedGQLError,
+  LagoGQLError,
+  PspErrorCode,
+} from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
   CustomerDetailsTabsOptions,
@@ -389,7 +395,7 @@ const CustomerInvoiceDetails = () => {
 
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
     context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, PspErrorCode.ThirdPartyError],
     },
     onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
       if (generatedPaymentUrl?.paymentUrl) {
@@ -401,6 +407,16 @@ const CustomerInvoiceDetails = () => {
         addToast({
           severity: 'danger',
           translateKey: 'text_1756225393560tonww8d3bgq',
+        })
+        return
+      }
+
+      const pspMessage = extractThirdPartyErrorMessage(resError)
+
+      if (pspMessage) {
+        addToast({
+          severity: 'danger',
+          message: pspMessage,
         })
       }
     },
