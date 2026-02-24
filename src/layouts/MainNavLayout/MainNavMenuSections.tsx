@@ -28,7 +28,6 @@ import {
   PLANS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
