@@ -798,20 +798,20 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                               </Typography>
                             </div>
 
-                            <div className="not-last-child:mb-12 not-last-child:pb-12 not-last-child:shadow-b">
-                              {!consumptions?.walletTransactionConsumptions?.collection?.length && (
-                                <Alert type="info">
-                                  <Typography variant="body" color="grey700">
-                                    {status === WalletTransactionStatusEnum.Failed &&
-                                      translate('text_17703831122275gplx4hf9zw')}
-                                    {status === WalletTransactionStatusEnum.Pending &&
-                                      translate('text_1770383112227fm7xs39y88v')}
-                                    {status === WalletTransactionStatusEnum.Settled &&
-                                      translate('text_1770381610089ayq9wo7d6xk')}
-                                  </Typography>
-                                </Alert>
-                              )}
+                            {!consumptions?.walletTransactionConsumptions?.collection?.length && (
+                              <Alert type="info">
+                                <Typography variant="body" color="grey700">
+                                  {status === WalletTransactionStatusEnum.Failed &&
+                                    translate('text_17703831122275gplx4hf9zw')}
+                                  {status === WalletTransactionStatusEnum.Pending &&
+                                    translate('text_1770383112227fm7xs39y88v')}
+                                  {status === WalletTransactionStatusEnum.Settled &&
+                                    translate('text_1770381610089ayq9wo7d6xk')}
+                                </Typography>
+                              </Alert>
+                            )}
 
+                            <div className="not-last-child:mb-12 not-last-child:pb-12 not-last-child:shadow-b">
                               <WalletTransactionItems
                                 error={consumptionsError}
                                 transactions={
