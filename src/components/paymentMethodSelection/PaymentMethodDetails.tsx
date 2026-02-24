@@ -2,6 +2,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 interface PaymentMethodDetailsProps {
   details?: {
@@ -11,6 +12,7 @@ interface PaymentMethodDetailsProps {
     expirationMonth?: string | null
     expirationYear?: string | null
   } | null
+  createdAt?: string | null
   isDefault?: boolean
   showExpiration?: boolean
   className?: string
@@ -19,20 +21,28 @@ interface PaymentMethodDetailsProps {
 
 export const PaymentMethodDetails = ({
   details,
+  createdAt,
   isDefault = false,
   showExpiration = true,
   className = 'gap-2',
   'data-test': dataTest,
 }: PaymentMethodDetailsProps): JSX.Element | null => {
   const { translate } = useInternationalization()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const formattedDetails = formatPaymentMethodDetails(details)
 
-  if (!formattedDetails) return null
+  if (!formattedDetails && !createdAt) return null
+
+  const displayText =
+    formattedDetails ||
+    translate('text_1771854080250kv3j6oa9nxj', {
+      date: intlFormatDateTimeOrgaTZ(createdAt as string).date,
+    })
 
   return (
     <div className={`flex flex-wrap items-center ${className}`}>
       <Typography variant="body" color="grey700">
-        {formattedDetails}
+        {displayText}
       </Typography>
       {showExpiration && details?.expirationMonth && details?.expirationYear && (
         <Chip

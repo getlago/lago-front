@@ -42,12 +42,14 @@ const useCustomerPortalTranslate = () => {
     'en'
 
   const { translateWithContextualLocal: translate } = useContextualLocale(documentLocale)
+  const isUnauthenticated = !loading && data?.customerPortalUser === null
 
   return {
     translate,
     documentLocale: documentLocale as LocaleEnum,
     error,
     loading,
+    isUnauthenticated,
   }
 }
 

@@ -30,7 +30,7 @@ export const PaymentMethodComboBox = ({
     ? paymentMethodsListProp
     : fetchedPaymentMethodsList
 
-  const paymentMethodOptions = usePaymentMethodOptions(paymentMethodsList, translate)
+  const paymentMethodOptions = usePaymentMethodOptions(paymentMethodsList)
 
   const selectedValue = paymentMethodOptions.some(
     (option) => option.value === selectedPaymentMethod?.paymentMethodId,

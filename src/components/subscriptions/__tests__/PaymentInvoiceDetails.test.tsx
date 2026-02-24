@@ -14,7 +14,21 @@ import {
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: (key: string, params?: Record<string, string>) => {
+      if (params) return `${key}::${JSON.stringify(params)}`
+      return key
+    },
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    intlFormatDateTimeOrgaTZ: (dateStr: string) => ({
+      date: `formatted-${dateStr}`,
+      time: '',
+      timezone: '',
+    }),
+    hasFeatureFlag: () => false,
   }),
 }))
 
@@ -97,6 +111,36 @@ describe('PaymentInvoiceDetails', () => {
 
       // Verify the payment method details are displayed (formatted string)
       expect(screen.getByText(/Card - Visa •••• 4242/i)).toBeInTheDocument()
+    })
+
+    it('THEN shows createdAt date fallback when payment method has no metadata details', () => {
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: 'payment-method-no-details',
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+      }
+
+      const mockPaymentMethodInList = createMockPaymentMethod({
+        id: 'payment-method-no-details',
+        createdAt: '2024-01-15T10:00:00Z',
+        details: {
+          __typename: 'PaymentMethodDetails',
+          brand: null,
+          last4: null,
+          type: null,
+          expirationMonth: null,
+          expirationYear: null,
+        },
+      })
+
+      ;(usePaymentMethodsList as jest.Mock).mockReturnValue({
+        data: [mockPaymentMethodInList],
+        loading: false,
+        error: false,
+      })
+
+      render(<PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />)
+
+      expect(screen.getByText(/formatted-2024-01-15T10:00:00Z/)).toBeInTheDocument()
     })
 
     it('THEN shows manual payment method as fallback when paymentMethodId points to deleted payment method and no default exists', () => {
@@ -269,6 +313,37 @@ describe('PaymentInvoiceDetails', () => {
       render(
         <PaymentInvoiceDetails
           selectedPaymentMethod={selectedPaymentMethod}
+          selectedInvoiceCustomSections={[]}
+          skipInvoiceCustomSections={false}
+        />,
+      )
+
+      expect(screen.queryByTestId(INVOICE_CUSTOM_FOOTER_SECTION)).not.toBeInTheDocument()
+    })
+
+    it('does not display ICS section when customerId exists but customer has no ICS data (fallback_empty)', () => {
+      ;(useCustomerInvoiceCustomSections as jest.Mock).mockReturnValue({
+        data: {
+          customerId: 'customer-id',
+          externalId: 'customer-external-id',
+          configurableInvoiceCustomSections: [],
+          hasOverwrittenInvoiceCustomSectionsSelection: false,
+          skipInvoiceCustomSections: false,
+        },
+        loading: false,
+        error: false,
+        customer: null,
+      })
+
+      const selectedPaymentMethod: SelectedPaymentMethod = {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Manual,
+      }
+
+      render(
+        <PaymentInvoiceDetails
+          selectedPaymentMethod={selectedPaymentMethod}
+          customerId="customer-id"
           selectedInvoiceCustomSections={[]}
           skipInvoiceCustomSections={false}
         />,

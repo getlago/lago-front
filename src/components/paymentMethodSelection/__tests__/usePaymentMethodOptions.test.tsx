@@ -6,6 +6,23 @@ import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 import { usePaymentMethodOptions } from '../usePaymentMethodOptions'
 
 const mockTranslate = jest.fn()
+const mockIntlFormatDateTimeOrgaTZ = (date: string) => ({
+  date: new Date(date).toLocaleDateString(),
+  time: '',
+  timezone: 'UTC',
+})
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: mockTranslate,
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    intlFormatDateTimeOrgaTZ: mockIntlFormatDateTimeOrgaTZ,
+  }),
+}))
 
 describe('usePaymentMethodOptions', () => {
   describe('WHEN payment methods list is empty, null or undefined', () => {
@@ -15,7 +32,7 @@ describe('usePaymentMethodOptions', () => {
       { input: [], description: 'empty array' },
     ])('THEN returns empty array when list is $description', ({ input }) => {
       const { result } = renderHook(() =>
-        usePaymentMethodOptions(input as PaymentMethodList | undefined, mockTranslate),
+        usePaymentMethodOptions(input as PaymentMethodList | undefined),
       )
 
       expect(result.current).toHaveLength(0)
@@ -64,7 +81,7 @@ describe('usePaymentMethodOptions', () => {
         }),
       ]
 
-      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods, mockTranslate))
+      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods))
 
       expect(result.current).toHaveLength(3) // 3 payment methods only
       expect(result.current[0].value).toBe('pm_002') // Default first
@@ -94,11 +111,30 @@ describe('usePaymentMethodOptions', () => {
         }),
       ]
 
-      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods, mockTranslate))
+      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods))
 
       expect(result.current).toHaveLength(1)
       expect(result.current[0].type).toBe('provider') // Provider payment method
       expect(result.current[0].value).toBe('pm_001')
+    })
+
+    it('THEN uses fallback label with date when details are null', () => {
+      const paymentMethods: PaymentMethodList = [
+        createMockPaymentMethod({
+          id: 'pm_no_details',
+          isDefault: false,
+          createdAt: '2024-03-20T10:00:00Z',
+          details: null,
+        }),
+      ]
+
+      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods))
+
+      expect(result.current).toHaveLength(1)
+      expect(mockTranslate).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ date: expect.any(String) }),
+      )
     })
 
     it('THEN filters out deleted payment methods', () => {
@@ -131,7 +167,7 @@ describe('usePaymentMethodOptions', () => {
         }),
       ]
 
-      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods, mockTranslate))
+      const { result } = renderHook(() => usePaymentMethodOptions(paymentMethods))
 
       expect(result.current).toHaveLength(1) // Only 1 active payment method (deleted one is filtered out)
       expect(result.current[0].value).toBe('pm_001')

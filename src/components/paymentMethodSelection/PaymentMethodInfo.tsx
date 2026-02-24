@@ -9,7 +9,12 @@ export const DEFAULT_BADGE_TEST_ID = 'default-badge'
 
 type PaymentMethodData = Pick<
   PaymentMethodItem,
-  'details' | 'isDefault' | 'paymentProviderType' | 'paymentProviderName' | 'providerMethodId'
+  | 'createdAt'
+  | 'details'
+  | 'isDefault'
+  | 'paymentProviderType'
+  | 'paymentProviderName'
+  | 'providerMethodId'
 >
 
 interface PaymentMethodInfoProps {
@@ -23,13 +28,20 @@ export const PaymentMethodInfo = ({
   showExpiration,
   showProviderAvatar,
 }: PaymentMethodInfoProps): JSX.Element => {
-  const { details, isDefault, paymentProviderType, paymentProviderName, providerMethodId } =
-    paymentMethod
+  const {
+    createdAt,
+    details,
+    isDefault,
+    paymentProviderType,
+    paymentProviderName,
+    providerMethodId,
+  } = paymentMethod
 
   return (
     <div className="flex flex-1 flex-col">
       <PaymentMethodDetails
         details={details}
+        createdAt={createdAt}
         isDefault={isDefault}
         showExpiration={showExpiration}
         className="gap-1"

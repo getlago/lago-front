@@ -62,12 +62,12 @@ import {
   LagoApiError,
   PremiumIntegrationTypeEnum,
   useDownloadInvoiceItemMutation,
-  useGeneratePaymentUrlMutation,
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
+import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
@@ -99,7 +99,7 @@ const InvoicesList = ({
   const { hasFeatureFlag, organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { showResendEmailDialog } = useResendEmailDialog()
 
-  const { handleDownloadFile, openNewTab } = useDownloadFile()
+  const { handleDownloadFile } = useDownloadFile()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
@@ -130,24 +130,7 @@ const InvoicesList = ({
     },
   })
 
-  const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
-    context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
-    },
-    onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
-      if (generatedPaymentUrl?.paymentUrl) {
-        openNewTab(generatedPaymentUrl.paymentUrl)
-      }
-    },
-    onError(resError) {
-      if (hasDefinedGQLError('MissingPaymentProviderCustomer', resError)) {
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_1756225393560tonww8d3bgq',
-        })
-      }
-    },
-  })
+  const { generatePaymentUrl } = useGeneratePaymentUrl()
 
   const emptyState = getEmptyStateConfig({
     hasSearchTerm: !!variables?.searchTerm,

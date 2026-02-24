@@ -14,6 +14,7 @@ gql`
         paymentProviderName
         providerMethodId
         deletedAt
+        createdAt
         details {
           brand
           expirationYear

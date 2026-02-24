@@ -56,12 +56,12 @@ import {
   LagoApiError,
   TimezoneEnum,
   useDownloadInvoiceItemMutation,
-  useGeneratePaymentUrlMutation,
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
+import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
@@ -188,7 +188,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
-  const { handleDownloadFile, openNewTab } = useDownloadFile()
+  const { handleDownloadFile } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
@@ -209,24 +209,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
     },
   })
 
-  const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
-    context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
-    },
-    onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
-      if (generatedPaymentUrl?.paymentUrl) {
-        openNewTab(generatedPaymentUrl.paymentUrl)
-      }
-    },
-    onError(error) {
-      if (hasDefinedGQLError('MissingPaymentProviderCustomer', error)) {
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_1756225393560tonww8d3bgq',
-        })
-      }
-    },
-  })
+  const { generatePaymentUrl } = useGeneratePaymentUrl()
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)

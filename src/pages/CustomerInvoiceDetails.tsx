@@ -33,7 +33,7 @@ import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteLi
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
+import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
   CustomerDetailsTabsOptions,
@@ -78,7 +78,6 @@ import {
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
   SalesforceIntegration,
   SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
-  useGeneratePaymentUrlMutation,
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
   useGetInvoiceFeesQuery,
@@ -93,7 +92,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
+import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
@@ -310,8 +309,6 @@ const CustomerInvoiceDetails = () => {
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
 
-  const { openNewTab } = useDownloadFile()
-
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
@@ -387,24 +384,7 @@ const CustomerInvoiceDetails = () => {
     },
   })
 
-  const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
-    context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
-    },
-    onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
-      if (generatedPaymentUrl?.paymentUrl) {
-        openNewTab(generatedPaymentUrl.paymentUrl)
-      }
-    },
-    onError(resError) {
-      if (hasDefinedGQLError('MissingPaymentProviderCustomer', resError)) {
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_1756225393560tonww8d3bgq',
-        })
-      }
-    },
-  })
+  const { generatePaymentUrl } = useGeneratePaymentUrl()
 
   const [retryTaxProviderVoiding, { loading: loadingRetryTaxProviderVoiding }] =
     useRetryTaxProviderVoidingMutation({

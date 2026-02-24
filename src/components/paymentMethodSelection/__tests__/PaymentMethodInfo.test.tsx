@@ -17,6 +17,16 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    intlFormatDateTimeOrgaTZ: (date: string) => ({
+      date: new Date(date).toLocaleDateString(),
+      time: '',
+      timezone: 'UTC',
+    }),
+  }),
+}))
+
 const mockDetails = {
   type: 'card',
   brand: 'visa',
@@ -27,6 +37,7 @@ const mockDetails = {
 
 const createMockPaymentMethod = (
   overrides: Partial<{
+    createdAt: string
     details: typeof mockDetails | null
     isDefault: boolean
     paymentProviderType: ProviderTypeEnum | null
@@ -34,6 +45,7 @@ const createMockPaymentMethod = (
     providerMethodId: string
   }> = {},
 ) => ({
+  createdAt: '2024-01-15T10:00:00Z',
   details: mockDetails,
   isDefault: false,
   paymentProviderType: null as ProviderTypeEnum | null,

@@ -1,8 +1,12 @@
+import { useMemo } from 'react'
+
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { InvoiceCustomSection } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
+import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { InvoiceCustomSectionDisplay } from '../invoceCustomFooter/InvoiceCustomSectionDisplay'
 import { SelectedPaymentMethod } from '../paymentMethodSelection/types'
@@ -30,6 +34,7 @@ export const PaymentInvoiceDetails = ({
   skipInvoiceCustomSections,
 }: PaymentInvoiceDetailsProps): JSX.Element | null => {
   const { translate } = useInternationalization()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { data: paymentMethodsList } = usePaymentMethodsList({
     externalCustomerId: externalCustomerId || '',
@@ -48,7 +53,10 @@ export const PaymentInvoiceDetails = ({
     formattedPaymentMethodDetails = translate('text_173799550683709p2rqkoqd5')
   } else if (displayedPaymentMethod.paymentMethod) {
     formattedPaymentMethodDetails =
-      formatPaymentMethodDetails(displayedPaymentMethod.paymentMethod.details) || ''
+      formatPaymentMethodDetails(displayedPaymentMethod.paymentMethod.details) ||
+      translate('text_1771854080250kv3j6oa9nxj', {
+        date: intlFormatDateTimeOrgaTZ(displayedPaymentMethod.paymentMethod.createdAt).date,
+      })
   }
 
   // Add inherited badge if needed
@@ -59,8 +67,21 @@ export const PaymentInvoiceDetails = ({
   // Check if we have content to display
   const hasPaymentMethod = !!formattedPaymentMethodDetails
 
-  const hasIcsContent =
-    skipInvoiceCustomSections === true || !!selectedInvoiceCustomSections?.length || !!customerId
+  const { data: customerIcsData } = useCustomerInvoiceCustomSections(customerId || '')
+
+  const hasIcsContent = useMemo(() => {
+    if (skipInvoiceCustomSections === true) return true
+    if (selectedInvoiceCustomSections?.length) return true
+    if (!customerIcsData) return false
+
+    const {
+      configurableInvoiceCustomSections: sections,
+      hasOverwrittenInvoiceCustomSectionsSelection: hasOverwritten,
+      skipInvoiceCustomSections: customerSkip,
+    } = customerIcsData
+
+    return (!hasOverwritten && !!customerSkip) || (!customerSkip && sections.length > 0)
+  }, [skipInvoiceCustomSections, selectedInvoiceCustomSections, customerIcsData])
 
   // Return null if nothing to display
   if (!hasPaymentMethod && !hasIcsContent) return null

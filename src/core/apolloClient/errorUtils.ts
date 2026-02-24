@@ -3,11 +3,35 @@ import { GraphQLFormattedError } from 'graphql'
 
 import { LagoApiError } from '~/generated/graphql'
 
+export enum PspErrorCode {
+  ThirdPartyError = 'third_party_error',
+}
+
 export interface LagoGQLError extends GraphQLFormattedError {
   extensions: {
-    code: LagoApiError
+    code: LagoApiError | PspErrorCode
     details: Record<string, string[]>
   }
+}
+
+export const extractThirdPartyErrorMessage = (
+  errorObject?: ApolloError | readonly GraphQLFormattedError[],
+): string | undefined => {
+  if (!errorObject) return undefined
+
+  const errors = ((errorObject as ApolloError)?.graphQLErrors ||
+    errorObject ||
+    []) as LagoGQLError[]
+
+  if (!errors?.length) return undefined
+
+  const { code, details } = errors[0]?.extensions as LagoGQLError['extensions']
+
+  if (code !== PspErrorCode.ThirdPartyError || !details?.error) return undefined
+
+  const errorDetail = details.error
+
+  return Array.isArray(errorDetail) ? errorDetail[0] : errorDetail
 }
 
 // --------------------- Graphql errors checker ---------------------

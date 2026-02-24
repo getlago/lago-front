@@ -14,10 +14,9 @@ import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
-  AUTHENTICATION_ROUTE,
   BILLING_ENTITY_CREATE_ROUTE,
   BILLING_ENTITY_ROUTE,
   BILLING_ENTITY_UPDATE_ROUTE,
@@ -33,15 +32,14 @@ import {
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
-  MEMBERS_ROUTE,
-  MEMBERS_TAB_ROUTE,
-  OKTA_AUTHENTICATION_ROUTE,
   ROLE_CREATE_ROUTE,
   ROLE_DETAILS_ROUTE,
   ROLE_EDIT_ROUTE,
-  ROLES_LIST_ROUTE,
   settingRoutes,
   TAXES_SETTINGS_ROUTE,
+  TEAM_AND_SECURITY_GROUP_ROUTE,
+  TEAM_AND_SECURITY_ROOT_ROUTE,
+  TEAM_AND_SECURITY_TAB_ROUTE,
   UPDATE_DUNNING_ROUTE,
   UPDATE_TAX_ROUTE,
 } from '~/core/router'
@@ -76,22 +74,15 @@ const generateTabs = ({
     hidden: !hasPermissions(['organizationIntegrationsView']),
   },
   {
-    title: translate('text_664c732c264d7eed1c74fd96'),
-    link: AUTHENTICATION_ROUTE,
-    match: [AUTHENTICATION_ROUTE, OKTA_AUTHENTICATION_ROUTE],
-    hidden: !hasPermissions(['organizationIntegrationsView', 'authenticationMethodsView']),
-  },
-  {
-    title: translate('text_63208b630aaf8df6bbfb2655'),
-    link: MEMBERS_ROUTE,
-    match: [MEMBERS_ROUTE, MEMBERS_TAB_ROUTE],
-    hidden: !hasPermissions(['organizationMembersView']),
-  },
-  {
-    title: translate('text_1765448879791epmkg4xijkn'),
-    link: ROLES_LIST_ROUTE,
-    match: [ROLES_LIST_ROUTE, ROLE_DETAILS_ROUTE],
-    hidden: !hasPermissions(['rolesView']),
+    title: translate('text_177073440645951fhlh2ofdc'),
+    link: TEAM_AND_SECURITY_ROOT_ROUTE,
+    match: [
+      TEAM_AND_SECURITY_ROOT_ROUTE,
+      TEAM_AND_SECURITY_GROUP_ROUTE,
+      TEAM_AND_SECURITY_TAB_ROUTE,
+      ROLE_DETAILS_ROUTE,
+    ],
+    hidden: !hasPermissions(['organizationMembersView']) && !hasPermissions(['rolesView']),
   },
   {
     title: translate('text_63ac86d797f728a87b2f9f85'),
@@ -128,7 +119,7 @@ const SettingsNavLayout = () => {
 
   const { data: billingEntities, loading: billingEntitiesLoading } = useGetBillingEntitiesQuery({})
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const TABS_ORGANIZATION = generateTabs({
     translate,
@@ -245,7 +236,7 @@ const SettingsNavLayout = () => {
                       if (canCreateBillingEntity) {
                         navigate(generatePath(BILLING_ENTITY_CREATE_ROUTE))
                       } else {
-                        premiumWarningDialogRef.current?.openDialog()
+                        premiumWarningDialog.open()
                       }
                     }}
                   >
@@ -271,8 +262,6 @@ const SettingsNavLayout = () => {
           </NavLayout.NavSectionGroup>
         </NavLayout.Nav>
       </ClickAwayListener>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
 
       <NavLayout.ContentWrapper ref={contentRef}>
         <Outlet />
