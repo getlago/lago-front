@@ -11,6 +11,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { SubscriptionFeeFormValues } from '~/components/plans/drawers/SubscriptionFeeDrawer'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import {
@@ -24,6 +25,7 @@ import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
+import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
@@ -37,6 +39,7 @@ import {
   PLANS_ROUTE,
 } from '~/core/router'
 import {
+  CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FixedChargeAccordionFragmentDoc,
   FixedChargesOnPlanFormFragmentDoc,
@@ -44,6 +47,7 @@ import {
   PlanForSettingsSectionFragmentDoc,
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
+  PlanInterval,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
@@ -215,8 +219,22 @@ const CreatePlan = () => {
     return translate('text_624453d52e945301380e4988')
   }, [isEdition, translate])
 
+  const handleSubscriptionFeeSave = useCallback(
+    (values: SubscriptionFeeFormValues) => {
+      formikProps.setValues({
+        ...formikProps.values,
+        ...values,
+        trialPeriod: values.trialPeriod ? Number(values.trialPeriod) : null,
+      })
+    },
+    [formikProps],
+  )
+
   return (
-    <>
+    <PlanFormProvider
+      currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
+      interval={formikProps.values.interval || PlanInterval.Monthly}
+    >
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -260,6 +278,7 @@ const CreatePlan = () => {
                     formikProps={formikProps}
                     isEdition={isEdition}
                     editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                    onDrawerSave={handleSubscriptionFeeSave}
                   />
 
                   <FixedChargesSection
@@ -350,7 +369,7 @@ const CreatePlan = () => {
       <ImpactOverridenSubscriptionsDialog ref={impactOverridenSubscriptionsDialogRef} />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </>
+    </PlanFormProvider>
   )
 }
 

@@ -929,11 +929,11 @@
   "text_6661fc17337de3591e29e3c1": "Define the parameters of the plan, such as interval, and currency.",
   "text_6661fc17337de3591e29e3c9": "Explain the goal of this plan",
   "text_6661fc17337de3591e29e3cd": "Unique identifier to identify the plan through API.",
-  "text_6661fc17337de3591e29e3d1": "Billing period",
+  "text_6661fc17337de3591e29e3d1": "Billing period interval",
   "text_6661fc17337de3591e29e3d3": "Frequency at which the subscription recurs.",
   "text_6661fc17337de3591e29e3e7": "Pricing definition",
   "text_6661fc17337de3591e29e3e9": "A plan can include fixed and usage-based charges. Add them here and set your pricing and invoicing rules.",
-  "text_6661fc17337de3591e29e403": "Timeframe during which users can access the plan for free before being billed.",
+  "text_6661fc17337de3591e29e403": "Period during which the plan is free before billing starts. Applies to the subscription fee only.",
   "text_6661fc17337de3591e29e40f": "Metered charge",
   "text_6661fc17337de3591e29e411": "Fee that is fully billed and reset at the end of each billing period.",
   "text_6661fc17337de3591e29e425": "Aggregate fees upon specific dynamic properties or attributes, such as user type, location, or usage category. It creates one fee per grouping value.",
@@ -3850,5 +3850,8 @@
   "text_17708227222843peys0u3ywu": "Wallet transaction priority",
   "text_17708227222846t71arrz7dn": "Order in which this wallet transaction is used compared to others (1 and 50 — 1 is the highest). If wallet transactions share the same priority, the oldest will be used first.",
   "text_1770063200028ww5znt6yree": "A plan defines pricing rules and creates a subscription when assigned to a customer.",
-  "text_1770063200028xc3xmcvi7bw": "Recurring fee treated as the base subscription charge. It follows the plan interval defined above."
+  "text_1770063200028xc3xmcvi7bw": "Recurring fee treated as the base subscription charge. It follows the plan interval defined above.",
+  "text_177196303346655qni6k55jr": "Pricing settings",
+  "text_1771963033467yduu33x3qw9": "Specifies the name that will be displayed on an invoice.",
+  "text_17719630334671lxunwzo7ae": "Open drawer"
 }

@@ -314,6 +314,23 @@ For accessing form values outside of field components:
 const someField = useStore(form.store, (state) => state.values.someField)
 ```
 
+**CRITICAL — Reactive form state requires `useStore`:**
+
+Reading `form.state.isDirty`, `form.state.isValid`, or any other form state property directly is a **passive read** — it does NOT create a React subscription, so the component will never re-render when that value changes.
+
+Always use `useStore` for form state you need to react to in the render:
+
+```typescript
+// ❌ WRONG: passive read, component won't re-render when dirty changes
+const isDirty = form.state.isDirty
+
+// ✅ CORRECT: creates a React subscription, re-renders on change
+const isDirty = useStore(form.store, (state) => state.isDirty)
+const isValid = useStore(form.store, (state) => state.canSubmit)
+```
+
+Note: Reading `form.state.*` inside **event handlers** (onClick, onSubmit, etc.) is fine since you only need the current snapshot there, not reactivity.
+
 #### Step 2.5: Use Field Listeners for Side-Effects
 
 When you need to **react to a field value change** (e.g., propagate a selection, derive another field's value), use `listeners` on `form.AppField` instead of `useStore` + `useEffect`:
@@ -1079,6 +1096,7 @@ The `/make-tests` skill will automatically:
 2. **Submit button always disabled**: Check `form.SubmitButton` is inside `form.AppForm`
 3. **Values not updating**: Use `useStore` to subscribe to values outside field components
 4. **TypeScript errors**: Ensure validation schema matches form field types
+5. **`isDirty` / `isValid` not reactive**: Reading `form.state.isDirty` directly is a passive read — it does NOT trigger re-renders. Use `useStore(form.store, (state) => state.isDirty)` instead. This applies to any form-level state used in JSX (e.g., `showCloseWarningDialog={isDirty}`).
 
 ### Layout & CSS Issues
 

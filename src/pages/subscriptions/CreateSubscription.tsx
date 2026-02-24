@@ -48,6 +48,7 @@ import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
+import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -59,6 +60,7 @@ import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
+  CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
   PlanInterval,
@@ -895,41 +897,55 @@ const CreateSubscription = () => {
                           </CenteredPage.SubsectionWrapper>
                         </Card>
 
-                        <Card className="gap-12">
-                          <CenteredPage.PageTitle
-                            title={translate('text_6661fc17337de3591e29e3e7')}
-                            description={translate('text_66630368f4333b00795b0e2d')}
-                          />
-
-                          <CenteredPage.SubsectionWrapper>
-                            <SubscriptionFeeSection
-                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                              formikProps={planFormikProps}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                              subscriptionFormType={formType}
+                        <PlanFormProvider
+                          currency={planFormikProps.values.amountCurrency || CurrencyEnum.Usd}
+                          interval={planFormikProps.values.interval || PlanInterval.Monthly}
+                        >
+                          <Card className="gap-12">
+                            <CenteredPage.PageTitle
+                              title={translate('text_6661fc17337de3591e29e3e7')}
+                              description={translate('text_66630368f4333b00795b0e2d')}
                             />
 
-                            <FixedChargesSection
-                              alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
-                              canBeEdited={formType === FORM_TYPE_ENUM.edition}
-                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                              formikProps={planFormikProps}
-                              isEdition={formType === FORM_TYPE_ENUM.edition}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
-                            />
+                            <CenteredPage.SubsectionWrapper>
+                              <SubscriptionFeeSection
+                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                                formikProps={planFormikProps}
+                                isInSubscriptionForm={isInSubscriptionForm}
+                                subscriptionFormType={formType}
+                                onDrawerSave={(values) => {
+                                  planFormikProps.setValues({
+                                    ...planFormikProps.values,
+                                    ...values,
+                                    trialPeriod: values.trialPeriod
+                                      ? Number(values.trialPeriod)
+                                      : null,
+                                  })
+                                }}
+                              />
 
-                            <UsageChargesSection
-                              alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
-                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                              formikProps={planFormikProps}
-                              isEdition={formType === FORM_TYPE_ENUM.edition}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
-                              subscriptionFormType={formType}
-                            />
-                          </CenteredPage.SubsectionWrapper>
-                        </Card>
+                              <FixedChargesSection
+                                alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
+                                canBeEdited={formType === FORM_TYPE_ENUM.edition}
+                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                                formikProps={planFormikProps}
+                                isEdition={formType === FORM_TYPE_ENUM.edition}
+                                isInSubscriptionForm={isInSubscriptionForm}
+                                premiumWarningDialogRef={premiumWarningDialogRef}
+                              />
+
+                              <UsageChargesSection
+                                alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
+                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                                formikProps={planFormikProps}
+                                isEdition={formType === FORM_TYPE_ENUM.edition}
+                                isInSubscriptionForm={isInSubscriptionForm}
+                                premiumWarningDialogRef={premiumWarningDialogRef}
+                                subscriptionFormType={formType}
+                              />
+                            </CenteredPage.SubsectionWrapper>
+                          </Card>
+                        </PlanFormProvider>
 
                         <Card className="gap-12">
                           <CenteredPage.PageTitle

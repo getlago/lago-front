@@ -2,19 +2,25 @@ import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { FormikProps } from 'formik'
 import { Icon } from 'lago-design-system'
-import { memo, RefObject, useEffect, useState } from 'react'
+import { memo, RefObject, useEffect, useRef, useState } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
+import { Selector } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  SubscriptionFeeDrawer,
+  SubscriptionFeeDrawerRef,
+  SubscriptionFeeFormValues,
+} from '~/components/plans/drawers/SubscriptionFeeDrawer'
 import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PlanFormInput } from './types'
@@ -37,6 +43,7 @@ interface SubscriptionFeeSectionProps {
   formikProps: FormikProps<PlanFormInput>
   isEdition?: boolean
   isInitiallyOpen?: boolean
+  onDrawerSave: (values: SubscriptionFeeFormValues) => void
 }
 
 export const SubscriptionFeeSection = memo(
@@ -45,11 +52,13 @@ export const SubscriptionFeeSection = memo(
     isInSubscriptionForm,
     subscriptionFormType,
     editInvoiceDisplayNameDialogRef,
+    onDrawerSave,
     formikProps,
     isEdition,
     isInitiallyOpen,
   }: SubscriptionFeeSectionProps) => {
     const { translate } = useInternationalization()
+    const subscriptionFeeDrawerRef = useRef<SubscriptionFeeDrawerRef>(null)
     const [shouldDisplayTrialPeriod, setShouldDisplayTrialPeriod] = useState(false)
     const hasErrorInSection =
       Boolean(formikProps.errors.amountCents) || formikProps.errors.amountCents === ''
@@ -65,6 +74,37 @@ export const SubscriptionFeeSection = memo(
         <CenteredPage.PageSectionTitle
           title={translate('text_642d5eb2783a2ad10d670336')}
           description={translate('text_1770063200028xc3xmcvi7bw')}
+        />
+
+        <Selector
+          icon="board"
+          title={
+            formikProps.values.invoiceDisplayName || translate('text_642d5eb2783a2ad10d670336')
+          }
+          subtitle={intlFormatNumber(Number(formikProps.values.amountCents), {
+            style: 'currency',
+            currency: formikProps.values.amountCurrency || CurrencyEnum.Usd,
+          })}
+          endIcon={
+            <div className="flex items-center gap-3">
+              <Chip label={translate(getIntervalTranslationKey[formikProps.values.interval])} />
+              <Tooltip placement="top-end" title={translate('text_17719630334671lxunwzo7ae')}>
+                <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
+              </Tooltip>
+            </div>
+          }
+          data-test="open-subscription-fee-drawer"
+          onClick={() => {
+            subscriptionFeeDrawerRef.current?.openDrawer({
+              amountCents: formikProps.values.amountCents || '',
+              interval: formikProps.values.interval || PlanInterval.Monthly,
+              payInAdvance: formikProps.values.payInAdvance || false,
+              trialPeriod: formikProps.values.trialPeriod
+                ? String(formikProps.values.trialPeriod)
+                : '',
+              invoiceDisplayName: formikProps.values.invoiceDisplayName || '',
+            })
+          }}
         />
 
         <Accordion
@@ -225,6 +265,12 @@ export const SubscriptionFeeSection = memo(
             </div>
           </div>
         </Accordion>
+
+        <SubscriptionFeeDrawer
+          ref={subscriptionFeeDrawerRef}
+          disableBillingTiming={isInSubscriptionForm || (isEdition && !canBeEdited)}
+          onSave={onDrawerSave}
+        />
       </CenteredPage.PageSection>
     )
   },

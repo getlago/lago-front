@@ -128,9 +128,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               withPadding && 'px-4 pb-20 pt-12 md:px-12',
             )}
           >
-            {typeof children === 'function'
-              ? children({ closeDrawer: () => setIsOpen(false) })
-              : children}
+            {typeof children === 'function' ? children({ closeDrawer: closeAction }) : children}
           </div>
 
           {!!stickyBottomBar && (
@@ -141,7 +139,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               )}
             >
               {typeof stickyBottomBar === 'function'
-                ? stickyBottomBar({ closeDrawer: () => setIsOpen(false) })
+                ? stickyBottomBar({ closeDrawer: closeAction })
                 : stickyBottomBar}
             </div>
           )}
