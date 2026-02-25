@@ -107,12 +107,22 @@ describe('AddLagoTaxManagementDialog', () => {
     })
   })
 
-  describe('GIVEN the form is submitted and mutations return errors', () => {
+  describe('GIVEN the form is submitted and a non-EU eligibility error is returned', () => {
+    const nonEuError = {
+      errors: [
+        {
+          message: 'Unprocessable entity',
+          extensions: {
+            code: 'unprocessable_entity',
+            details: { euTaxManagement: ['billing_entity_must_be_in_eu'] },
+          },
+        },
+      ],
+    }
+
     describe('WHEN the submit button is clicked', () => {
-      it('THEN should show a danger toast', async () => {
-        mockUpdate.mockResolvedValue({
-          errors: [{ message: 'billing_entity_must_be_in_eu' }],
-        })
+      it('THEN should show a danger toast with the EU-specific message', async () => {
+        mockUpdate.mockResolvedValue(nonEuError)
 
         const user = userEvent.setup()
 
@@ -126,15 +136,14 @@ describe('AddLagoTaxManagementDialog', () => {
           expect(mockAddToast).toHaveBeenCalledWith(
             expect.objectContaining({
               severity: 'danger',
+              message: 'text_1740672955723utwsgy8vzy2',
             }),
           )
         })
       })
 
       it('THEN should NOT navigate away', async () => {
-        mockUpdate.mockResolvedValue({
-          errors: [{ message: 'billing_entity_must_be_in_eu' }],
-        })
+        mockUpdate.mockResolvedValue(nonEuError)
 
         const user = userEvent.setup()
 
@@ -145,16 +154,14 @@ describe('AddLagoTaxManagementDialog', () => {
         await user.click(submitButton)
 
         await waitFor(() => {
-          expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+          expect(mockAddToast).toHaveBeenCalled()
         })
 
         expect(mockNavigate).not.toHaveBeenCalled()
       })
 
       it('THEN should keep the dialog open', async () => {
-        mockUpdate.mockResolvedValue({
-          errors: [{ message: 'billing_entity_must_be_in_eu' }],
-        })
+        mockUpdate.mockResolvedValue(nonEuError)
 
         const user = userEvent.setup()
 
@@ -165,10 +172,59 @@ describe('AddLagoTaxManagementDialog', () => {
         await user.click(submitButton)
 
         await waitFor(() => {
-          expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+          expect(mockAddToast).toHaveBeenCalled()
         })
 
         expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the form is submitted and a generic error is returned', () => {
+    const genericError = {
+      errors: [
+        {
+          message: 'Internal server error',
+          extensions: { code: 'internal_error' },
+        },
+      ],
+    }
+
+    describe('WHEN the submit button is clicked', () => {
+      it('THEN should NOT show the EU-specific danger toast', async () => {
+        mockUpdate.mockResolvedValue(genericError)
+
+        const user = userEvent.setup()
+
+        await renderAndOpenDialog()
+
+        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          expect(mockUpdate).toHaveBeenCalled()
+        })
+
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should NOT navigate away', async () => {
+        mockUpdate.mockResolvedValue(genericError)
+
+        const user = userEvent.setup()
+
+        await renderAndOpenDialog()
+
+        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          expect(mockUpdate).toHaveBeenCalled()
+        })
+
+        expect(mockNavigate).not.toHaveBeenCalled()
       })
     })
   })

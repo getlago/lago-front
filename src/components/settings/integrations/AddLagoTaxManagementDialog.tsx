@@ -23,6 +23,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useIntegrations } from '~/hooks/useIntegrations'
 
+import { hasNonEuEligibilityError } from './utils'
+
 type BillingEntityFormItem = {
   id?: string
   country?: CountryCode | null
@@ -111,10 +113,13 @@ export const AddLagoTaxManagementDialog = forwardRef<
       const hasErrors = results.some((res) => !!res.errors)
 
       if (hasErrors) {
-        addToast({
-          severity: 'danger',
-          message: translate('text_1740672955723utwsgy8vzy2'),
-        })
+        if (hasNonEuEligibilityError(results)) {
+          addToast({
+            severity: 'danger',
+            message: translate('text_1740672955723utwsgy8vzy2'),
+          })
+        }
+
         return
       }
 
