@@ -44,7 +44,6 @@ import {
   WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
@@ -109,7 +108,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   selectedTransaction,
 }) => {
   const { translate } = useInternationalization()
-  const { isPremium } = useCurrentUser()
   const { customerId } = useParams()
   const navigate = useNavigate()
   const walletDetailsDrawerRef = useRef<WalletDetailsDrawerRef>(null)
@@ -122,7 +120,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   const list = data?.walletTransactions?.collection
   const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
 
-  const isBlurry = !isPremium
   const hasData = !!list && !!list?.length
   const hasError = !!error && !loading
   const isLoading = loading && !error
@@ -373,13 +370,11 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
 
                     const formattedCreditAmount = formatCredits({
                       credits: creditAmount,
-                      isBlurry,
                     })
 
                     const formattedCurrencyAmount = formatAmount({
                       amountCents: amount,
                       currency: wallet?.currency,
-                      isBlurry,
                     })
 
                     const transactionAmountTranslationKey = translate(
@@ -399,7 +394,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                         <Typography
                           variant="bodyHl"
                           color={isPending || isFailed ? 'grey500' : creditsColor}
-                          blur={isBlurry}
                           data-test={TRANSACTION_CREDITS_DATA_TEST}
                           className={tw('whitespace-nowrap', isFailed && 'line-through')}
                         >
@@ -408,7 +402,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                         <Typography
                           variant="caption"
                           color="grey600"
-                          blur={isBlurry}
                           data-test={TRANSACTION_AMOUNT_DATA_TEST}
                           className="whitespace-nowrap"
                         >
@@ -436,7 +429,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
 
                     const formattedRemainingCreditAmount = formatCredits({
                       credits: remainingCreditAmount,
-                      isBlurry,
                     })
                     const formattedRemainingAmountCents = formatAmount({
                       amountCents: deserializeAmount(
@@ -444,7 +436,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                         wallet?.currency || CurrencyEnum.Usd,
                       )?.toString(),
                       currency: wallet?.currency,
-                      isBlurry,
                     })
 
                     return (
@@ -452,7 +443,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                         <Typography
                           variant="bodyHl"
                           color={isPending || isFailed ? 'grey500' : 'grey700'}
-                          blur={isBlurry}
                           data-test={TRANSACTION_REMAINING_CREDITS_DATA_TEST}
                           className="whitespace-nowrap"
                         >
@@ -469,7 +459,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                         <Typography
                           variant="caption"
                           color="grey600"
-                          blur={isBlurry}
                           data-test={TRANSACTION_AMOUNT_DATA_TEST}
                           className="whitespace-nowrap"
                         >
