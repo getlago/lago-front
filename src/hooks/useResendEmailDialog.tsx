@@ -1,4 +1,5 @@
 import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import EmailPreview, { BillingEntity } from '~/components/emails/EmailPreview'
@@ -8,11 +9,12 @@ import {
 } from '~/components/emails/resendEmail/formInitialization'
 import ResendEmailHeaderContent from '~/components/emails/resendEmail/ResendEmailHeaderContent'
 import { addToast } from '~/core/apolloClient'
-import { BillingEntityEmailSettingsEnum } from '~/generated/graphql'
+import { LagoGQLError } from '~/core/apolloClient/errorUtils'
+import { BillingEntityEmailSettingsEnum, LagoApiError } from '~/generated/graphql'
 
 import { useInternationalization } from './core/useInternationalization'
 import { useAppForm } from './forms/useAppform'
-import { useResendEmail } from './useResendEmail'
+import { ResendEmailFetchResult, useResendEmail } from './useResendEmail'
 
 export const SUBMIT_RESEND_EMAIL_DATA_TEST = 'submit-resend-email'
 export const RESEND_EMAIL_FORM_ID = 'resend-email'
@@ -34,6 +36,9 @@ const formatRecipients = (recipients: Recipients) => {
 export const useResendEmailDialog = () => {
   const formDialog = useFormDialog()
   const { resendEmail } = useResendEmail()
+  const { translate } = useInternationalization()
+  const successRef = useRef<ResendEmailFetchResult>(null)
+  const errorRef = useRef<string | null>(null)
 
   const form = useAppForm({
     defaultValues: resendEmailFormDefaultValues,
@@ -46,16 +51,23 @@ export const useResendEmailDialog = () => {
       documentId: string
     },
     onSubmit: async ({ value, meta }) => {
-      await resendEmail({
+      const result = await resendEmail({
         type: meta.type,
         documentId: meta.documentId,
         to: formatRecipients(value.to),
         cc: formatRecipients(value.cc),
         bcc: formatRecipients(value.bcc),
       })
+
+      if (!result.success) {
+        errorRef.current = (result.graphQLErrors?.[0] as LagoGQLError)?.extensions?.code || null
+
+        return
+      }
+
+      successRef.current = result.response
     },
   })
-  const { translate } = useInternationalization()
 
   const handleSubmit = async ({
     type,
@@ -64,6 +76,9 @@ export const useResendEmailDialog = () => {
     type: BillingEntityEmailSettingsEnum
     documentId: string
   }) => {
+    successRef.current = null
+    errorRef.current = null
+
     await form.handleSubmit({
       type,
       documentId,
@@ -73,15 +88,21 @@ export const useResendEmailDialog = () => {
     if (!form.state.canSubmit) {
       throw new Error(INVALID_FORM_ERROR_MESSAGE)
     }
+
+    if (!successRef.current || errorRef.current) {
+      throw new Error(errorRef.current ?? undefined)
+    }
   }
 
   const onError = (error: Error) => {
     if (error.message === INVALID_FORM_ERROR_MESSAGE) return
 
-    addToast({
-      severity: 'danger',
-      message: translate('text_17712489384641tbh5v5biae'),
-    })
+    if (error.message === LagoApiError.UnprocessableEntity) {
+      addToast({
+        severity: 'danger',
+        message: translate('text_17712489384641tbh5v5biae'),
+      })
+    }
   }
 
   const showResendEmailDialog = ({
