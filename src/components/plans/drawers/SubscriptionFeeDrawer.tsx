@@ -6,8 +6,8 @@ import { z } from 'zod'
 import { Button } from '~/components/designSystem/Button'
 import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/PlanBillingPeriodInfoSection'
 import { usePlanFormContext } from '~/contexts/PlanFormContext'
-import { getIntervalTranslationKey } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -147,36 +147,7 @@ export const SubscriptionFeeDrawer = forwardRef<
               )}
             </form.AppField>
 
-            <form.AppField name="interval">
-              {(field) => (
-                <field.ButtonSelectorField
-                  label={translate('text_6661fc17337de3591e29e3d1')}
-                  description={translate('text_6661fc17337de3591e29e3d3')}
-                  options={[
-                    {
-                      label: translate(getIntervalTranslationKey[PlanInterval.Weekly]),
-                      value: PlanInterval.Weekly,
-                    },
-                    {
-                      label: translate(getIntervalTranslationKey[PlanInterval.Monthly]),
-                      value: PlanInterval.Monthly,
-                    },
-                    {
-                      label: translate(getIntervalTranslationKey[PlanInterval.Quarterly]),
-                      value: PlanInterval.Quarterly,
-                    },
-                    {
-                      label: translate(getIntervalTranslationKey[PlanInterval.Semiannual]),
-                      value: PlanInterval.Semiannual,
-                    },
-                    {
-                      label: translate(getIntervalTranslationKey[PlanInterval.Yearly]),
-                      value: PlanInterval.Yearly,
-                    },
-                  ]}
-                />
-              )}
-            </form.AppField>
+            <PlanBillingPeriodInfoSection />
 
             <form.AppField name="payInAdvance">
               {(field) => (
