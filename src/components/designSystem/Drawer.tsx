@@ -107,7 +107,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               'w-full max-w-[816px] md:w-[calc(100vw-48px)]',
               !!stickyBottomBar &&
                 (stickyBottomBarSmall
-                  ? `grid grid-rows-[72px_1fr_60px]`
+                  ? `grid grid-rows-[72px_1fr_64px]`
                   : `grid grid-rows-[72px_1fr_80px]`),
             ),
           }}

@@ -87,6 +87,7 @@ export const SubscriptionFeeDrawer = forwardRef<
 
   return (
     <Drawer
+      stickyBottomBarSmall
       ref={drawerRef}
       title={translate('text_642d5eb2783a2ad10d670336')}
       showCloseWarningDialog={isDirty}
@@ -95,14 +96,15 @@ export const SubscriptionFeeDrawer = forwardRef<
       }}
       stickyBottomBar={({ closeDrawer }) => (
         <div className="flex justify-end gap-3">
-          <Button size="large" variant="quaternary" onClick={closeDrawer}>
+          <Button variant="quaternary" onClick={closeDrawer}>
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
-          <Button size="large" data-test="subscription-fee-drawer-save" onClick={handleSave}>
+          <Button data-test="subscription-fee-drawer-save" onClick={handleSave}>
             {translate('text_17295436903260tlyb1gp1i7')}
           </Button>
         </div>
       )}
+      stickyBottomBarClassName="md:py-0 flex items-center justify-end gap-3"
     >
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
