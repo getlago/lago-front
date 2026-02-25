@@ -313,9 +313,10 @@ const CreatePlan = () => {
                     formikProps={formikProps}
                   />
                   <CommitmentsSection
-                    formikProps={formikProps}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
                     editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
+                    formikProps={formikProps}
+                    isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
                   />
 
                   <FeatureEntitlementSection formikProps={formikProps} isEdition={isEdition} />

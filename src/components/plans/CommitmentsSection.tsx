@@ -50,12 +50,14 @@ gql`
 type CommitmentsSectionProps = {
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
+  isInitiallyOpen?: boolean
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
 export const CommitmentsSection = ({
   editInvoiceDisplayNameDialogRef,
   formikProps,
+  isInitiallyOpen = false,
   premiumWarningDialogRef,
 }: CommitmentsSectionProps) => {
   const { isPremium } = useCurrentUser()
@@ -96,6 +98,7 @@ export const CommitmentsSection = ({
 
       {displayMinimumCommitment && (
         <Accordion
+          initiallyOpen={isInitiallyOpen}
           className="w-full"
           summary={
             <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
