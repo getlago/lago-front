@@ -156,7 +156,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
 
   return (
     <div className="flex h-full flex-col not-last-child:shadow-b">
-      <LogsLayout.CTASection>
+      <LogsLayout.CTASection className="min-h-[70px]">
         <SearchInput
           onChange={debouncedSearch}
           placeholder={translate('text_1746622271766lr6wf4y0ppn')}
