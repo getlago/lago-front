@@ -5,7 +5,7 @@ import {
   CUSTOMER_PORTAL_ROUTE,
   CUSTOMER_PORTAL_USAGE_ROUTE,
   CUSTOMER_PORTAL_WALLET_ROUTE,
-} from '~/core/router/CustomerPortalRoutes'
+} from '~/core/router/paths/customerPortal'
 
 const useCustomerPortalNavigation = () => {
   const { token } = useParams()

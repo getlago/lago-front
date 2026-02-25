@@ -9,8 +9,9 @@ import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
 import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
 import localForage from 'localforage'
-
 // IMPORTANT: Keep reactiveVars import before cacheUtils
+import { matchPath } from 'react-router-dom'
+
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
@@ -21,6 +22,7 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
@@ -155,7 +157,10 @@ export const initializeApolloClient = async () => {
         if (isUnauthorized) {
           // Skip logout in customer portal context — the portal handles auth errors
           // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
-          const isCustomerPortal = window.location.pathname.startsWith('/customer-portal/')
+          const isCustomerPortal = !!matchPath(
+            `${CUSTOMER_PORTAL_ROUTE}/*`,
+            window.location.pathname,
+          )
 
           if (!isCustomerPortal && onAuthError) {
             onAuthError()
