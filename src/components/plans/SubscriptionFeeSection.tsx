@@ -18,9 +18,10 @@ import {
   SubscriptionFeeDrawerRef,
   SubscriptionFeeFormValues,
 } from '~/components/plans/drawers/SubscriptionFeeDrawer'
+import { usePlanFormContext } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PlanFormInput } from './types'
@@ -58,6 +59,7 @@ export const SubscriptionFeeSection = memo(
     isInitiallyOpen,
   }: SubscriptionFeeSectionProps) => {
     const { translate } = useInternationalization()
+    const { interval } = usePlanFormContext()
     const subscriptionFeeDrawerRef = useRef<SubscriptionFeeDrawerRef>(null)
     const [shouldDisplayTrialPeriod, setShouldDisplayTrialPeriod] = useState(false)
     const hasErrorInSection =
@@ -87,7 +89,7 @@ export const SubscriptionFeeSection = memo(
           })}
           endIcon={
             <div className="flex items-center gap-3">
-              <Chip label={translate(getIntervalTranslationKey[formikProps.values.interval])} />
+              <Chip label={translate(getIntervalTranslationKey[interval])} />
               <Tooltip placement="top-end" title={translate('text_17719630334671lxunwzo7ae')}>
                 <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
               </Tooltip>
@@ -97,7 +99,6 @@ export const SubscriptionFeeSection = memo(
           onClick={() => {
             subscriptionFeeDrawerRef.current?.openDrawer({
               amountCents: formikProps.values.amountCents || '',
-              interval: formikProps.values.interval || PlanInterval.Monthly,
               payInAdvance: formikProps.values.payInAdvance || false,
               trialPeriod: formikProps.values.trialPeriod
                 ? String(formikProps.values.trialPeriod)

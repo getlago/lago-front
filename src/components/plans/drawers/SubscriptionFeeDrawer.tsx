@@ -10,13 +10,12 @@ import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/PlanBil
 import { usePlanFormContext } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 export interface SubscriptionFeeFormValues {
   amountCents: string
-  interval: PlanInterval
   payInAdvance: boolean
   trialPeriod: string
   invoiceDisplayName: string
@@ -24,7 +23,6 @@ export interface SubscriptionFeeFormValues {
 
 const subscriptionFeeSchema = z.object({
   amountCents: z.string().min(1, 'text_1771342994699klxu2paz7g8'),
-  interval: z.enum(PlanInterval),
   payInAdvance: z.boolean(),
   trialPeriod: z.string(),
   invoiceDisplayName: z.string(),
@@ -32,7 +30,6 @@ const subscriptionFeeSchema = z.object({
 
 const DEFAULT_VALUES: SubscriptionFeeFormValues = {
   amountCents: '',
-  interval: PlanInterval.Monthly,
   payInAdvance: false,
   trialPeriod: '',
   invoiceDisplayName: '',
