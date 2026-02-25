@@ -293,7 +293,7 @@ describe('useResendEmailDialog', () => {
     })
 
     describe('WHEN error is a generic error', () => {
-      it('THEN should show generic danger toast', () => {
+      it('THEN should not show local toast (global errorLink handles it)', () => {
         const { result } = renderHook(() => useResendEmailDialog(), {
           wrapper: customWrapper,
         })
@@ -307,12 +307,7 @@ describe('useResendEmailDialog', () => {
 
         onError(new Error())
 
-        expect(addToast).toHaveBeenCalledWith(
-          expect.objectContaining({
-            severity: 'danger',
-            translateKey: 'text_622f7a3dc32ce100c46a5154',
-          }),
-        )
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })
