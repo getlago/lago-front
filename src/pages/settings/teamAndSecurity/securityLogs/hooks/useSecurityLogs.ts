@@ -45,7 +45,7 @@ gql`
   }
 `
 
-const formatSecurityLogs = (securityLogs: SecurityLogs): Array<SecurityLogWithId> => {
+export const formatSecurityLogs = (securityLogs: SecurityLogs): Array<SecurityLogWithId> => {
   return securityLogs.map((securityLog) => ({ id: securityLog.logId, ...securityLog }))
 }
 
