@@ -44,7 +44,7 @@ const TextInputField = ({
       {...props}
       name={field.name}
       value={field.state.value}
-      onChange={(value) => field.handleChange(value)}
+      onChange={(value) => field.handleChange(String(value))}
       onBlur={field.handleBlur}
       error={finalError}
     />

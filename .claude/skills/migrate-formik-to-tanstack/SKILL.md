@@ -196,7 +196,7 @@ import { SomeEnum } from '~/generated/graphql'
 
 // Define field schemas
 const fieldSchema = z.object({
-  id: z.nativeEnum(SomeEnum),
+  id: z.enum(SomeEnum),
   // ... other fields
 })
 
@@ -215,7 +215,7 @@ export const <formName>ValidationSchema = z.object({
   percentage: z.number().min(0).max(100),
 
   // Enum (was: yup.string().oneOf([...]))
-  status: z.nativeEnum(SomeEnum),
+  status: z.enum(SomeEnum),
 
   // Array (was: yup.array().of(...))
   items: z.array(fieldSchema),
