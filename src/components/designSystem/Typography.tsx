@@ -6,6 +6,29 @@ import sanitizeHtml from 'sanitize-html'
 
 import { tw } from '~/styles/utils'
 
+/**
+ * Validates that a URL is safe to use as an internal link href.
+ * Only allows relative paths (no protocol schemes, no protocol-relative URLs).
+ */
+const isSafeHref = (href: string): boolean => {
+  if (!href) return false
+
+  // Reject protocol-relative URLs (//evil.com → open redirect)
+  if (href.startsWith('//')) return false
+
+  // Allow absolute paths within the app (/customers/123)
+  if (href.startsWith('/')) return true
+
+  // Reject anything with a protocol scheme (javascript:, data:, http:, etc.)
+  if (/^[a-zA-Z][a-zA-Z0-9+\-.]*:/.test(href)) return false
+
+  // Allow relative paths (customers/123) - safe for React Router
+  return true
+}
+
+const INTERNAL_LINK_PLACEHOLDER = '{{link}}'
+const INTERNAL_LINK_PLACEHOLDER_HTML = `<span class="internal-link-placeholder">${INTERNAL_LINK_PLACEHOLDER}</span>`
+
 const defaultSanitizerOptions = {
   allowedTags: ['b', 'i', 'em', 'strong', 'a', 'sup', 'span'],
   allowedAttributes: {
@@ -95,10 +118,13 @@ export const Typography = memo(
             if (!!attribs['data-text']) {
               internalLinks.push(attribs)
 
+              // Return a proper tagName to prevent sanitize-html from truncating
+              // content after the closing tag (known bug when tagName is omitted)
               return {
-                text: '{{link}}', // This will be replaced later by the <Link /> component
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              } as any
+                tagName: 'span',
+                attribs: { class: 'internal-link-placeholder' },
+                text: INTERNAL_LINK_PLACEHOLDER,
+              }
             }
             // For external links, don't change anything
             return { tagName, attribs }
@@ -111,7 +137,7 @@ export const Typography = memo(
       if (!internalLinks.length) return <span dangerouslySetInnerHTML={sanitized} />
 
       // Otherwise, replace all the {{link}} by the <Link /> component
-      const splitted = sanitized.__html.split('{{link}}')
+      const splitted = sanitized.__html.split(INTERNAL_LINK_PLACEHOLDER_HTML)
       const sanitizedWithInternalLinks: JSX.Element[] = []
 
       // Add each string + the links in between
@@ -119,11 +145,17 @@ export const Typography = memo(
         const internalLink = i > 0 ? internalLinks[i - 1] : null
 
         if (internalLink) {
-          sanitizedWithInternalLinks.push(
-            <Link key={`link-${i}`} to={internalLink.href}>
-              {internalLink['data-text']}
-            </Link>,
-          )
+          if (isSafeHref(internalLink.href)) {
+            sanitizedWithInternalLinks.push(
+              <Link key={`link-${i}`} to={internalLink.href}>
+                {internalLink['data-text']}
+              </Link>,
+            )
+          } else {
+            sanitizedWithInternalLinks.push(
+              <span key={`link-${i}`}>{internalLink['data-text']}</span>,
+            )
+          }
         }
 
         sanitizedWithInternalLinks.push(
