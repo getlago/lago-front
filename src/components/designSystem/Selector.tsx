@@ -18,6 +18,7 @@ interface SelectorProps {
   fullWidth?: boolean
   disabled?: boolean
   onClick?: () => Promise<void> | unknown
+  'data-test'?: string
 }
 
 const selectorVariants = cva('flex h-18 items-center rounded-xl border p-4', {
@@ -69,6 +70,7 @@ export const Selector = ({
   fullWidth = true,
   disabled = false,
   onClick,
+  'data-test': dataTest,
 }: SelectorProps) => {
   const [loading, setLoading] = useState(false)
   const clickable = !!onClick && !loading && !disabled
@@ -77,6 +79,7 @@ export const Selector = ({
     <div
       role="button"
       tabIndex={clickable ? 0 : -1}
+      data-test={dataTest}
       className={tw(
         selectorVariants({
           selected,
