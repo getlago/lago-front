@@ -8,6 +8,8 @@ import { SecurityLogWithId } from './common/securityLogsTypes'
 import { useSecurityLogs } from './hooks/useSecurityLogs'
 import { useSecurityLogsFormatting } from './hooks/useSecurityLogsFormatting'
 
+export const SECURITY_LOGS_CONTAINER_TEST_ID = 'security-logs-container'
+
 const SecurityLogs = () => {
   const { translate } = useInternationalization()
 
@@ -44,7 +46,10 @@ const SecurityLogs = () => {
   ]
 
   return (
-    <div className="flex flex-col gap-4 px-12 pb-20 pt-10">
+    <div
+      className="flex flex-col gap-4 px-12 pb-20 pt-10"
+      data-test={SECURITY_LOGS_CONTAINER_TEST_ID}
+    >
       <SettingsPageHeaderContainer>
         <Typography variant="headline">{translate('text_1771855827236eqkaiznri70')}</Typography>
         <Typography>{translate('text_1771855926675ji0pee3p6a6')}</Typography>
