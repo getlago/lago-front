@@ -1,7 +1,11 @@
+import { Button } from '~/components/designSystem/Button'
+import { Filters, SecurityLogsAvailableFilters } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { LogsLayout } from '~/components/developers/LogsLayout'
 import { SettingsPageHeaderContainer } from '~/components/layouts/Settings'
+import { SECURITY_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { SecurityLogWithId } from './common/securityLogsTypes'
@@ -13,8 +17,13 @@ export const SECURITY_LOGS_CONTAINER_TEST_ID = 'security-logs-container'
 const SecurityLogs = () => {
   const { translate } = useInternationalization()
 
-  const { securityLogs, securityLogsMetadata, isLoadingSecurityLogs, fetchMoreSecurityLogs } =
-    useSecurityLogs()
+  const {
+    securityLogs,
+    securityLogsMetadata,
+    isLoadingSecurityLogs,
+    fetchMoreSecurityLogs,
+    refetchSecurityLogs,
+  } = useSecurityLogs()
 
   const { getFormattedLogEvent, getSecurityLogDescription, getSecurityLogDate } =
     useSecurityLogsFormatting()
@@ -55,6 +64,31 @@ const SecurityLogs = () => {
         <Typography>{translate('text_1771855926675ji0pee3p6a6')}</Typography>
       </SettingsPageHeaderContainer>
 
+      <LogsLayout.CTASection className="shadow-b">
+        <div>
+          <Filters.Provider
+            displayInDialog
+            filtersNamePrefix={SECURITY_LOGS_FILTER_PREFIX}
+            availableFilters={SecurityLogsAvailableFilters}
+          >
+            <Filters.Component />
+          </Filters.Provider>
+        </div>
+
+        <div className="h-8 w-px shadow-r" />
+
+        <Button
+          variant="quaternary"
+          size="small"
+          startIcon="reload"
+          loading={isLoadingSecurityLogs}
+          onClick={async () => {
+            await refetchSecurityLogs()
+          }}
+        >
+          {translate('text_1738748043939zqoqzz350yj')}
+        </Button>
+      </LogsLayout.CTASection>
       <InfiniteScroll
         onBottom={async () => {
           const { currentPage = 0, totalPages = 0 } = securityLogsMetadata || {}

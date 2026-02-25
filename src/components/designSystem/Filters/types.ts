@@ -69,6 +69,8 @@ export enum AvailableFiltersEnum {
   invoiceType = 'invoiceType',
   issuingDate = 'issuingDate',
   loggedDate = 'loggedDate',
+  logEvents = 'logEvents',
+  logTypes = 'logTypes',
   metadata = 'metadata',
   overriden = 'overriden',
   partiallyPaid = 'partiallyPaid',
@@ -88,6 +90,7 @@ export enum AvailableFiltersEnum {
   timeGranularity = 'timeGranularity',
   period = 'period',
   userEmails = 'userEmails',
+  userIds = 'userIds',
   webhookStatus = 'webhookStatus',
   zipcodes = 'zipcodes',
 }
@@ -271,6 +274,13 @@ export const SubscriptionAvailableFilters = [
   AvailableFiltersEnum.subscriptionStatus,
 ]
 
+export const SecurityLogsAvailableFilters = [
+  AvailableFiltersEnum.loggedDate,
+  AvailableFiltersEnum.logEvents,
+  AvailableFiltersEnum.logTypes,
+  AvailableFiltersEnum.userIds,
+]
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.activitySources]: 'text_1747666154075g4ceq9ii0xm',
@@ -301,6 +311,8 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.invoiceType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.issuingDate]: 'text_6419c64eace749372fc72b39',
   [AvailableFiltersEnum.loggedDate]: 'text_1747666154074cdsfaq5c4bz',
+  [AvailableFiltersEnum.logEvents]: 'text_1772026899880ogvwyuadgu7',
+  [AvailableFiltersEnum.logTypes]: 'text_1772026899880bb07acdof6w',
   [AvailableFiltersEnum.metadata]: 'text_63fcc3218d35b9377840f59b',
   [AvailableFiltersEnum.overriden]: 'text_65281f686a80b400c8e2f6dd',
   [AvailableFiltersEnum.partiallyPaid]: 'text_1738071221799vib0l2z1bxe',
@@ -320,6 +332,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
   [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
   [AvailableFiltersEnum.userEmails]: 'text_1747666154075t42hri31gvz',
+  [AvailableFiltersEnum.userIds]: 'text_1772026899880swtnqcqd6s3',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.zipcodes]: 'text_1759909828496sof33smekse',
 }

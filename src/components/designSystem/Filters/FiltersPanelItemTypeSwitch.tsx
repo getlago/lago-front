@@ -26,7 +26,9 @@ import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filt
 import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceType'
 import { FiltersItemIsCustomerTinEmpty } from '~/components/designSystem/Filters/filtersElements/FiltersItemIsCustomerTinEmpty'
 import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
+import { FiltersItemLogEvents } from '~/components/designSystem/Filters/filtersElements/FiltersItemLogEvents'
 import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
+import { FiltersItemLogTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemLogTypes'
 import { FiltersItemMetadata } from '~/components/designSystem/Filters/filtersElements/FiltersItemMetadata'
 import { FiltersItemOverridden } from '~/components/designSystem/Filters/filtersElements/FiltersItemOverridden'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
@@ -45,6 +47,7 @@ import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElem
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
 import { FiltersItemSubscriptionStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscriptionStatus'
 import { FiltersItemUserEmails } from '~/components/designSystem/Filters/filtersElements/FiltersItemUserEmails'
+import { FiltersItemUserIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemUserIds'
 import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemZipcodes } from '~/components/designSystem/Filters/filtersElements/FiltersItemZipcodes'
 import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
@@ -98,6 +101,8 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
     [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,
     [AvailableFiltersEnum.loggedDate]: <FiltersItemLoggedDate {...props} />,
+    [AvailableFiltersEnum.logEvents]: <FiltersItemLogEvents {...props} />,
+    [AvailableFiltersEnum.logTypes]: <FiltersItemLogTypes {...props} />,
     [AvailableFiltersEnum.metadata]: <FiltersItemMetadata {...props} />,
     [AvailableFiltersEnum.overriden]: <FiltersItemOverridden {...props} />,
     [AvailableFiltersEnum.partiallyPaid]: <FiltersItemPartiallyPaid {...props} />,
@@ -116,6 +121,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.subscriptionStatus]: <FiltersItemSubscriptionStatus {...props} />,
     [AvailableFiltersEnum.subscriptionExternalId]: <FiltersItemSubscription {...props} />,
     [AvailableFiltersEnum.userEmails]: <FiltersItemUserEmails {...props} />,
+    [AvailableFiltersEnum.userIds]: <FiltersItemUserIds {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
     [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
     [AvailableFiltersEnum.zipcodes]: <FiltersItemZipcodes {...props} />,
