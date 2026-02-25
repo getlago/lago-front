@@ -916,6 +916,7 @@ const CreateSubscription = () => {
                                   planFormikProps.setValues({
                                     ...planFormikProps.values,
                                     ...values,
+                                    invoiceDisplayName: values.invoiceDisplayName || undefined,
                                     trialPeriod: values.trialPeriod
                                       ? Number(values.trialPeriod)
                                       : undefined,

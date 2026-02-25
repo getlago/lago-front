@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FormikProps } from 'formik'
 
@@ -10,6 +10,13 @@ import { PlanFormInput } from '../types'
 
 // --- Mocks ---
 
+jest.mock('~/contexts/PlanFormContext', () => ({
+  usePlanFormContext: () => ({
+    currency: 'USD',
+    interval: 'monthly',
+  }),
+}))
+
 jest.mock('~/core/formats/intlFormatNumber', () => ({
   getCurrencySymbol: (currency: string) => currency,
   intlFormatNumber: (value: number, opts?: { style?: string; currency?: string }) => {
@@ -17,6 +24,11 @@ jest.mock('~/core/formats/intlFormatNumber', () => ({
     if (opts?.style === 'percent') return `${value}%`
     return String(value)
   },
+}))
+
+jest.mock('~/core/constants/form', () => ({
+  FORM_TYPE_ENUM: { creation: 'creation', edition: 'edition' },
+  getIntervalTranslationKey: { monthly: 'monthly_key', yearly: 'yearly_key' },
 }))
 
 // Mock the SubscriptionFeeDrawer
@@ -99,13 +111,12 @@ const createFormikProps = (overrides: Partial<PlanFormInput> = {}): FormikProps<
   } as unknown as FormikProps<PlanFormInput>
 }
 
-const editInvoiceDisplayNameDialogRef = { current: { openDialog: jest.fn() } }
-
 const defaultProps = {
   formikProps: createFormikProps(),
   onDrawerSave: jest.fn(),
-  editInvoiceDisplayNameDialogRef: editInvoiceDisplayNameDialogRef as never,
 }
+
+const getSelector = () => screen.getByRole('button', { name: /\$100/i })
 
 describe('SubscriptionFeeSection', () => {
   beforeEach(() => {
@@ -118,26 +129,16 @@ describe('SubscriptionFeeSection', () => {
 
   describe('GIVEN the component is rendered', () => {
     describe('WHEN default props are provided', () => {
-      it('THEN should render the accordion', () => {
+      it('THEN should render the selector with formatted amount', () => {
         render(<SubscriptionFeeSection {...defaultProps} />)
 
-        expect(screen.getByTestId('subscription-fee-section-accordion')).toBeInTheDocument()
+        expect(getSelector()).toBeInTheDocument()
       })
 
       it('THEN should render the SubscriptionFeeDrawer', () => {
         render(<SubscriptionFeeSection {...defaultProps} />)
 
         expect(screen.getByTestId('subscription-fee-drawer-mock')).toBeInTheDocument()
-      })
-
-      it('THEN should render the selector as a clickable button', () => {
-        render(<SubscriptionFeeSection {...defaultProps} />)
-
-        // Selector renders with role="button"
-        const buttons = screen.getAllByRole('button')
-
-        // At least one button should be the Selector (clickable)
-        expect(buttons.length).toBeGreaterThan(0)
       })
     })
 
@@ -146,7 +147,6 @@ describe('SubscriptionFeeSection', () => {
         const user = userEvent.setup()
         const formikProps = createFormikProps({
           amountCents: '250',
-          interval: PlanInterval.Yearly,
           payInAdvance: true,
           trialPeriod: 14,
           invoiceDisplayName: 'Custom Fee',
@@ -154,24 +154,14 @@ describe('SubscriptionFeeSection', () => {
 
         render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
 
-        // The Selector renders role="button" — find it by the formatted amount subtitle
-        const selectorButtons = screen.getAllByRole('button')
-        // The first role="button" element with tabIndex=0 is the Selector
-        const selectorButton = selectorButtons.find(
-          (btn) => btn.getAttribute('tabindex') === '0' && btn.tagName === 'DIV',
-        )
+        await user.click(screen.getByRole('button', { name: /\$250/i }))
 
-        if (selectorButton) {
-          await user.click(selectorButton)
-
-          expect(mockOpenDrawer).toHaveBeenCalledWith({
-            amountCents: '250',
-            interval: PlanInterval.Yearly,
-            payInAdvance: true,
-            trialPeriod: '14',
-            invoiceDisplayName: 'Custom Fee',
-          })
-        }
+        expect(mockOpenDrawer).toHaveBeenCalledWith({
+          amountCents: '250',
+          payInAdvance: true,
+          trialPeriod: '14',
+          invoiceDisplayName: 'Custom Fee',
+        })
       })
     })
 
@@ -184,20 +174,30 @@ describe('SubscriptionFeeSection', () => {
 
         render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
 
-        const selectorButtons = screen.getAllByRole('button')
-        const selectorButton = selectorButtons.find(
-          (btn) => btn.getAttribute('tabindex') === '0' && btn.tagName === 'DIV',
+        await user.click(getSelector())
+
+        expect(mockOpenDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            trialPeriod: '',
+          }),
         )
+      })
+    })
 
-        if (selectorButton) {
-          await user.click(selectorButton)
+    describe('WHEN formik trialPeriod is 0', () => {
+      it('THEN should preserve 0 as "0" instead of converting to empty string', async () => {
+        const user = userEvent.setup()
+        const formikProps = createFormikProps({ trialPeriod: 0 })
 
-          expect(mockOpenDrawer).toHaveBeenCalledWith(
-            expect.objectContaining({
-              trialPeriod: '',
-            }),
-          )
-        }
+        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
+
+        await user.click(getSelector())
+
+        expect(mockOpenDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            trialPeriod: '0',
+          }),
+        )
       })
     })
   })
@@ -213,53 +213,7 @@ describe('SubscriptionFeeSection', () => {
 
         render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
 
-        expect(screen.getByTestId('subscription-fee-section-accordion')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the trial period section', () => {
-    describe('WHEN initialValues has a trial period > 0', () => {
-      it('THEN should not display the add trial period button in the accordion', async () => {
-        const formikProps = createFormikProps({ trialPeriod: 30 })
-
-        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
-
-        // Wait for useEffect to run and set shouldDisplayTrialPeriod
-        await waitFor(() => {
-          expect(screen.queryByTestId('show-trial-period')).not.toBeInTheDocument()
-        })
-      })
-    })
-
-    describe('WHEN initialValues has no trial period', () => {
-      it('THEN should display the add trial period button when accordion is open', async () => {
-        const formikProps = createFormikProps({ trialPeriod: 0 })
-
-        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
-
-        await waitFor(() => {
-          expect(screen.getByTestId('show-trial-period')).toBeInTheDocument()
-        })
-      })
-    })
-
-    describe('WHEN user clicks add trial period button', () => {
-      it('THEN should hide the add button', async () => {
-        const user = userEvent.setup()
-        const formikProps = createFormikProps({ trialPeriod: 0 })
-
-        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
-
-        await waitFor(() => {
-          expect(screen.getByTestId('show-trial-period')).toBeInTheDocument()
-        })
-
-        const addButton = screen.getByTestId('show-trial-period')
-
-        await user.click(addButton)
-
-        expect(screen.queryByTestId('show-trial-period')).not.toBeInTheDocument()
+        expect(getSelector()).toBeInTheDocument()
       })
     })
   })

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { useFieldContext } from '~/hooks/forms/formContext'
+import { useFieldError } from '~/hooks/forms/useFieldError'
 
 import ButtonSelectorField from '../ButtonSelectorFieldForTanstack'
 
@@ -9,25 +10,20 @@ jest.mock('~/hooks/forms/formContext', () => ({
   useFieldContext: jest.fn(),
 }))
 
-jest.mock('@tanstack/react-form', () => ({
-  useStore: jest.fn((store, selector) => selector(store.getState())),
+jest.mock('~/hooks/forms/useFieldError', () => ({
+  useFieldError: jest.fn(),
 }))
 
 const mockHandleChange = jest.fn()
+const mockedUseFieldError = useFieldError as jest.Mock
 
-const createMockField = (
-  value: string | number | boolean = '',
-  errors: Array<{ message: string }> = [],
-) => ({
+const createMockField = (value: string | number | boolean = '') => ({
   name: 'testField',
   state: { value },
   store: {
     subscribe: jest.fn(() => jest.fn()),
     getState: jest.fn(() => ({
-      meta: {
-        errors,
-        errorMap: {},
-      },
+      meta: { errors: [], errorMap: {} },
       values: { testField: value },
     })),
   },
@@ -40,6 +36,7 @@ const mockedUseFieldContext = useFieldContext as jest.Mock
 describe('ButtonSelectorFieldForTanstack', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockedUseFieldError.mockReturnValue(undefined)
   })
 
   afterEach(() => {
@@ -103,12 +100,11 @@ describe('ButtonSelectorFieldForTanstack', () => {
     })
 
     describe('WHEN there are validation errors', () => {
-      it('THEN should pass error to the underlying ButtonSelector', () => {
-        const errors = [{ message: 'error_required' }]
+      it('THEN should call useFieldError with translateErrors true', () => {
+        mockedUseFieldContext.mockReturnValue(createMockField(''))
+        mockedUseFieldError.mockReturnValue('Field is required')
 
-        mockedUseFieldContext.mockReturnValue(createMockField('', errors))
-
-        const { container } = render(
+        render(
           <ButtonSelectorField
             options={[
               { label: 'Option 1', value: 'option1' },
@@ -117,8 +113,10 @@ describe('ButtonSelectorFieldForTanstack', () => {
           />,
         )
 
-        // When there are errors, the component should render with error state
-        expect(container).toBeInTheDocument()
+        expect(mockedUseFieldError).toHaveBeenCalledWith({
+          translateErrors: true,
+          noBoolean: true,
+        })
       })
     })
 
