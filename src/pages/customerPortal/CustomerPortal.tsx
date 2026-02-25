@@ -37,10 +37,13 @@ const CustomerPortal = () => {
     translate,
     error: customerPortalTranslateError,
     loading: portalIsLoading,
+    isUnauthenticated,
   } = useCustomerPortalTranslate()
 
   const portalIsError =
-    customerPortalTranslateError && hasDefinedGQLError('Unauthorized', customerPortalTranslateError)
+    isUnauthenticated ||
+    (customerPortalTranslateError &&
+      hasDefinedGQLError('Unauthorized', customerPortalTranslateError))
 
   const customerPortalContentRef = useRef<HTMLDivElement>(null)
 

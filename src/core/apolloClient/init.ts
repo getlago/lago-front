@@ -152,8 +152,14 @@ export const initializeApolloClient = async () => {
 
         const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code as LagoApiError)
 
-        if (isUnauthorized && onAuthError) {
-          onAuthError()
+        if (isUnauthorized) {
+          // Skip logout in customer portal context — the portal handles auth errors
+          // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
+          const isCustomerPortal = window.location.pathname.startsWith('/customer-portal/')
+
+          if (!isCustomerPortal && onAuthError) {
+            onAuthError()
+          }
         }
 
         // Capture non-silent GraphQL errors with Sentry
