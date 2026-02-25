@@ -17,6 +17,7 @@ import {
 } from './common/teamAndSecurityConst'
 import Members from './members/Members'
 import RolesList from './roles/rolesList/RolesList'
+import SecurityLogs from './securityLogs/SecurityLogs'
 
 const TeamAndSecurity = () => {
   const { translate } = useInternationalization()
@@ -76,6 +77,18 @@ const TeamAndSecurity = () => {
               group: teamAndSecurityGroupOptions.authentication,
             }),
             component: <Authentication />,
+          },
+          {
+            title: translate('text_1771855827236eqkaiznri70'),
+            match: [
+              generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+                group: teamAndSecurityGroupOptions.logs,
+              }),
+            ],
+            link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
+              group: teamAndSecurityGroupOptions.logs,
+            }),
+            component: <SecurityLogs />,
           },
         ]}
       />
