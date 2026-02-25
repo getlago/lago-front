@@ -328,13 +328,12 @@ const CreatePlan = () => {
 
         {(!loading || plan) && (
           <CenteredPage.StickyFooter>
-            <Button variant="quaternary" size="large" onClick={onLeave}>
+            <Button variant="quaternary" onClick={onLeave}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
             <Button
               disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
               loading={formikProps.isSubmitting}
-              size="large"
               onClick={() => {
                 if (plan?.hasOverriddenPlans && isEdition) {
                   return impactOverridenSubscriptionsDialogRef.current?.openDialog({

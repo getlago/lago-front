@@ -277,7 +277,6 @@ const BillingEntityCreateEdit = () => {
         <CenteredPage.StickyFooter>
           <Button
             variant="quaternary"
-            size="large"
             onClick={() =>
               formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onClose()
             }
@@ -287,7 +286,6 @@ const BillingEntityCreateEdit = () => {
 
           <Button
             variant="primary"
-            size="large"
             disabled={!formikProps.isValid || !formikProps.dirty}
             onClick={formikProps.submitForm}
           >

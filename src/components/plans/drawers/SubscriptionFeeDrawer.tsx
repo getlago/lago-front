@@ -88,7 +88,6 @@ export const SubscriptionFeeDrawer = forwardRef<
 
   return (
     <Drawer
-      stickyBottomBarSmall
       ref={drawerRef}
       title={translate('text_642d5eb2783a2ad10d670336')}
       showCloseWarningDialog={isDirty}

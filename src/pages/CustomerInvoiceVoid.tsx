@@ -513,13 +513,12 @@ const CustomerInvoiceVoid = () => {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="quaternary" size="large" onClick={() => onClose()}>
+            <Button variant="quaternary" onClick={() => onClose()}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
 
             <Button
               variant="primary"
-              size="large"
               danger
               disabled={
                 formikProps.values.handle === HandleEnum.GenerateCreditNote && !formikProps.isValid

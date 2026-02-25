@@ -21,7 +21,7 @@ exports[`IntegrationMapItemDrawer matches snapshot 1`] = `
       tabindex="0"
     />
     <div
-      class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_80px] css-hash-MuiPaper-root-MuiDrawer-paper
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_64px] css-hash-MuiPaper-root-MuiDrawer-paper
       style="-webkit-transform: none; transform: none; transition: transform 250ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;"
       tabindex="-1"
     >
@@ -197,7 +197,7 @@ exports[`IntegrationMapItemDrawer matches snapshot 1`] = `
         </div>
       </div>
       <div
-        class="sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4"
+        class="sticky bottom-0 box-border flex items-center bg-white text-right shadow-t md:px-12"
       >
         <div
           class="flex justify-end gap-3"
