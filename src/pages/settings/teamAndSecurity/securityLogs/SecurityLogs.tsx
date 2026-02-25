@@ -1,10 +1,13 @@
+import { useMemo } from 'react'
+
 import { Button } from '~/components/designSystem/Button'
 import { Filters, SecurityLogsAvailableFilters } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
-import { Table, TableColumn } from '~/components/designSystem/Table'
+import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { LogsLayout } from '~/components/developers/LogsLayout'
 import { SettingsPageHeaderContainer } from '~/components/layouts/Settings'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { SECURITY_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -23,6 +26,8 @@ const SecurityLogs = () => {
     isLoadingSecurityLogs,
     fetchMoreSecurityLogs,
     refetchSecurityLogs,
+    securityLogsError,
+    hasFilters,
   } = useSecurityLogs()
 
   const { getFormattedLogEvent, getSecurityLogDescription, getSecurityLogDate } =
@@ -53,6 +58,35 @@ const SecurityLogs = () => {
       },
     },
   ]
+
+  const tablePlaceholder: TablePlaceholder = useMemo(() => {
+    const emptyState = hasFilters
+      ? {
+          title: translate('text_1772037888232uwswdk5tahg'),
+          subtitle: translate('text_1772037888232iziwtsooe9f'),
+        }
+      : {
+          title: translate('text_1772037769752re3uqwz8msa'),
+          subtitle: translate('text_1772037769752vckbe8j9pbq'),
+        }
+
+    const errorState = hasDefinedGQLError('FeatureUnavailable', securityLogsError)
+      ? {
+          title: translate('text_1771855827236eqkaiznri70'),
+          subtitle: translate('text_17720377697524xye1g2ks8k'),
+        }
+      : {
+          title: translate('text_1747058197364dm3no1jnete'),
+          subtitle: translate('text_63e27c56dfe64b846474ef3b'),
+          buttonTitle: translate('text_63e27c56dfe64b846474ef3c'),
+          buttonAction: () => refetchSecurityLogs(),
+        }
+
+    return {
+      emptyState,
+      errorState,
+    }
+  }, [hasFilters, securityLogsError, refetchSecurityLogs, translate])
 
   return (
     <div
@@ -106,6 +140,7 @@ const SecurityLogs = () => {
           columns={columns}
           data={securityLogs}
           isLoading={isLoadingSecurityLogs}
+          placeholder={tablePlaceholder}
         />
       </InfiniteScroll>
     </div>

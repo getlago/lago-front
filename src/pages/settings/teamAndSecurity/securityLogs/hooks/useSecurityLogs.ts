@@ -65,6 +65,7 @@ export const useSecurityLogs = () => {
     loading: isLoadingSecurityLogs,
     fetchMore: fetchMoreSecurityLogs,
     refetch,
+    error,
   } = useGetSecurityLogsQuery({
     variables: { limit: 20, toDate: defaultToDateTime, ...filtersForSecurityLogsQuery },
     notifyOnNetworkStatusChange: true,
@@ -87,5 +88,7 @@ export const useSecurityLogs = () => {
     isLoadingSecurityLogs,
     fetchMoreSecurityLogs,
     refetchSecurityLogs,
+    securityLogsError: error,
+    hasFilters: Object.keys(filtersForSecurityLogsQuery).length > 0,
   }
 }
