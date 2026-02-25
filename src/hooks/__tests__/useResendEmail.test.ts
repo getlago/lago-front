@@ -214,19 +214,42 @@ describe('useResendEmail', () => {
     })
   })
 
-  describe('GIVEN an unsupported type', () => {
+  describe('GIVEN the mutation throws a network error', () => {
     describe('WHEN resendEmail is called', () => {
-      it('THEN should throw Missing type error', async () => {
+      it('THEN should return failure without graphQLErrors', async () => {
+        mockResendInvoiceEmail.mockRejectedValue(new Error('Network error'))
+
         const { result } = renderHook(() => useResendEmail(), {
           wrapper: customWrapper,
         })
 
-        await expect(
-          result.current.resendEmail({
-            type: 'unsupported_type' as BillingEntityEmailSettingsEnum,
-            documentId: 'doc-1',
-          }),
-        ).rejects.toThrow('Missing type')
+        const response = await result.current.resendEmail({
+          type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
+          documentId: 'inv-1',
+        })
+
+        expect(response).toEqual({
+          success: false,
+        })
+      })
+    })
+  })
+
+  describe('GIVEN an unsupported type', () => {
+    describe('WHEN resendEmail is called', () => {
+      it('THEN should return failure', async () => {
+        const { result } = renderHook(() => useResendEmail(), {
+          wrapper: customWrapper,
+        })
+
+        const response = await result.current.resendEmail({
+          type: 'unsupported_type' as BillingEntityEmailSettingsEnum,
+          documentId: 'doc-1',
+        })
+
+        expect(response).toEqual({
+          success: false,
+        })
       })
     })
   })
