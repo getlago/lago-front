@@ -26,6 +26,13 @@ jest.mock('../roles/rolesList/RolesList', () => {
   }
 })
 
+jest.mock('../securityLogs/SecurityLogs', () => {
+  return {
+    __esModule: true,
+    default: () => <div data-test="security-logs-tab">Security Logs Content</div>,
+  }
+})
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {},
@@ -52,14 +59,14 @@ describe('TeamAndSecurity', () => {
     })
   })
 
-  it('renders 3 navigation tabs', async () => {
+  it('renders 4 navigation tabs', async () => {
     render(<TeamAndSecurity />)
 
     await waitFor(() => {
       // NavigationTab renders MUI Tabs as buttons with role="tab"
       const tabs = screen.getAllByRole('tab')
 
-      expect(tabs).toHaveLength(3)
+      expect(tabs).toHaveLength(4)
     })
   })
 
