@@ -8,6 +8,7 @@ import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/PlanBillingPeriodInfoSection'
 import { usePlanFormContext } from '~/contexts/PlanFormContext'
+import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -45,14 +46,17 @@ export interface SubscriptionFeeDrawerRef {
 }
 
 interface SubscriptionFeeDrawerProps {
-  disableBillingTiming?: boolean
+  canBeEdited?: boolean
+  isInSubscriptionForm?: boolean
+  subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
+  isEdition?: boolean
   onSave: (values: SubscriptionFeeFormValues) => void
 }
 
 export const SubscriptionFeeDrawer = forwardRef<
   SubscriptionFeeDrawerRef,
   SubscriptionFeeDrawerProps
->(({ disableBillingTiming, onSave }, ref) => {
+>(({ canBeEdited, isInSubscriptionForm, subscriptionFormType, isEdition, onSave }, ref) => {
   const { translate } = useInternationalization()
   const { currency } = usePlanFormContext()
   const drawerRef = useRef<DrawerRef>(null)
@@ -169,7 +173,7 @@ export const SubscriptionFeeDrawer = forwardRef<
               <form.AppField name="payInAdvance">
                 {(field) => (
                   <field.RadioGroupField
-                    disabled={disableBillingTiming}
+                    disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
                     label={translate('text_6682c52081acea90520743a8')}
                     description={translate('text_6682c52081acea90520743aa')}
                     optionLabelVariant="body"
@@ -193,6 +197,9 @@ export const SubscriptionFeeDrawer = forwardRef<
                     beforeChangeFormatter={['positiveNumber', 'int']}
                     className="flex-1"
                     description={translate('text_6661fc17337de3591e29e403')}
+                    disabled={
+                      subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+                    }
                     label={translate('text_624453d52e945301380e49c2')}
                     placeholder={translate('text_62824f0e5d93bc008d268d00')}
                     InputProps={{

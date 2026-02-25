@@ -1,6 +1,7 @@
 import { act, render } from '@testing-library/react'
 import { createRef } from 'react'
 
+import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { PlanInterval } from '~/generated/graphql'
 import { useFieldContext } from '~/hooks/forms/formContext'
 
@@ -141,7 +142,13 @@ jest.mock('~/hooks/forms/useAppform', () => ({
 const MockFieldComponent = (props: Record<string, unknown>) => {
   const inputRef = (props.InputProps as { inputRef?: unknown })?.inputRef
 
-  return <input name={props.name as string} ref={inputRef as React.Ref<HTMLInputElement>} />
+  return (
+    <input
+      name={props.name as string}
+      disabled={props.disabled as boolean | undefined}
+      ref={inputRef as React.Ref<HTMLInputElement>}
+    />
+  )
 }
 
 const createFieldCtx = (name: string, value: unknown) => ({
@@ -257,6 +264,69 @@ describe('SubscriptionFeeDrawer', () => {
         })
 
         expect(document.activeElement).toBe(amountInput)
+      })
+    })
+  })
+
+  describe('GIVEN the drawer receives disabling props', () => {
+    const getInput = (name: string) =>
+      document.querySelector(`input[name="${name}"]`) as HTMLInputElement
+
+    describe('WHEN isInSubscriptionForm is true', () => {
+      it('THEN should disable the payInAdvance field', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} isInSubscriptionForm />)
+
+        expect(getInput('payInAdvance')).toBeDisabled()
+        expect(getInput('trialPeriod')).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN isEdition is true and canBeEdited is false', () => {
+      it('THEN should disable the payInAdvance and trialPeriod fields', () => {
+        render(
+          <SubscriptionFeeDrawer
+            ref={drawerRef}
+            onSave={mockOnSave}
+            isEdition
+            canBeEdited={false}
+          />,
+        )
+
+        expect(getInput('payInAdvance')).toBeDisabled()
+        expect(getInput('trialPeriod')).toBeDisabled()
+      })
+    })
+
+    describe('WHEN isEdition is true and canBeEdited is true', () => {
+      it('THEN should not disable the payInAdvance and trialPeriod fields', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} isEdition canBeEdited />)
+
+        expect(getInput('payInAdvance')).not.toBeDisabled()
+        expect(getInput('trialPeriod')).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN subscriptionFormType is edition', () => {
+      it('THEN should disable the trialPeriod field but not payInAdvance', () => {
+        render(
+          <SubscriptionFeeDrawer
+            ref={drawerRef}
+            onSave={mockOnSave}
+            subscriptionFormType={FORM_TYPE_ENUM.edition}
+          />,
+        )
+
+        expect(getInput('trialPeriod')).toBeDisabled()
+        expect(getInput('payInAdvance')).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN no disabling props are provided', () => {
+      it('THEN should not disable any fields', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        expect(getInput('payInAdvance')).not.toBeDisabled()
+        expect(getInput('trialPeriod')).not.toBeDisabled()
       })
     })
   })

@@ -268,8 +268,11 @@ export const SubscriptionFeeSection = memo(
 
         <SubscriptionFeeDrawer
           ref={subscriptionFeeDrawerRef}
-          disableBillingTiming={isInSubscriptionForm || (isEdition && !canBeEdited)}
+          canBeEdited={canBeEdited}
+          isEdition={isEdition}
+          isInSubscriptionForm={isInSubscriptionForm}
           onSave={onDrawerSave}
+          subscriptionFormType={subscriptionFormType}
         />
       </CenteredPage.PageSection>
     )
