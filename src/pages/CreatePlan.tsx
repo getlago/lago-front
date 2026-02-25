@@ -224,7 +224,7 @@ const CreatePlan = () => {
       formikProps.setValues({
         ...formikProps.values,
         ...values,
-        trialPeriod: values.trialPeriod ? Number(values.trialPeriod) : null,
+        trialPeriod: values.trialPeriod ? Number(values.trialPeriod) : undefined,
       })
     },
     [formikProps],
@@ -273,11 +273,9 @@ const CreatePlan = () => {
 
                 <CenteredPage.SubsectionWrapper>
                   <SubscriptionFeeSection
-                    isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
                     canBeEdited={canBeEdited}
                     formikProps={formikProps}
                     isEdition={isEdition}
-                    editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                     onDrawerSave={handleSubscriptionFeeSave}
                   />
 

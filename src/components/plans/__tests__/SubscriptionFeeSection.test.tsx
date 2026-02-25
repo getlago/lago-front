@@ -223,9 +223,7 @@ describe('SubscriptionFeeSection', () => {
       it('THEN should not display the add trial period button in the accordion', async () => {
         const formikProps = createFormikProps({ trialPeriod: 30 })
 
-        render(
-          <SubscriptionFeeSection {...defaultProps} formikProps={formikProps} isInitiallyOpen />,
-        )
+        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
 
         // Wait for useEffect to run and set shouldDisplayTrialPeriod
         await waitFor(() => {
@@ -238,9 +236,7 @@ describe('SubscriptionFeeSection', () => {
       it('THEN should display the add trial period button when accordion is open', async () => {
         const formikProps = createFormikProps({ trialPeriod: 0 })
 
-        render(
-          <SubscriptionFeeSection {...defaultProps} formikProps={formikProps} isInitiallyOpen />,
-        )
+        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
 
         await waitFor(() => {
           expect(screen.getByTestId('show-trial-period')).toBeInTheDocument()
@@ -253,9 +249,7 @@ describe('SubscriptionFeeSection', () => {
         const user = userEvent.setup()
         const formikProps = createFormikProps({ trialPeriod: 0 })
 
-        render(
-          <SubscriptionFeeSection {...defaultProps} formikProps={formikProps} isInitiallyOpen />,
-        )
+        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
 
         await waitFor(() => {
           expect(screen.getByTestId('show-trial-period')).toBeInTheDocument()

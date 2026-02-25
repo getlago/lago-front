@@ -909,7 +909,6 @@ const CreateSubscription = () => {
 
                             <CenteredPage.SubsectionWrapper>
                               <SubscriptionFeeSection
-                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                                 formikProps={planFormikProps}
                                 isInSubscriptionForm={isInSubscriptionForm}
                                 subscriptionFormType={formType}
@@ -919,7 +918,7 @@ const CreateSubscription = () => {
                                     ...values,
                                     trialPeriod: values.trialPeriod
                                       ? Number(values.trialPeriod)
-                                      : null,
+                                      : undefined,
                                   })
                                 }}
                               />

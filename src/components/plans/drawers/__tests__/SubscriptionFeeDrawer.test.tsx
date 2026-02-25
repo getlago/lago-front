@@ -2,7 +2,6 @@ import { act, render } from '@testing-library/react'
 import { createRef } from 'react'
 
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { PlanInterval } from '~/generated/graphql'
 import { useFieldContext } from '~/hooks/forms/formContext'
 
 import {
@@ -180,7 +179,6 @@ describe('SubscriptionFeeDrawer', () => {
 
   const defaultFormValues: SubscriptionFeeFormValues = {
     amountCents: '100',
-    interval: PlanInterval.Monthly,
     payInAdvance: false,
     trialPeriod: '30',
     invoiceDisplayName: 'Test Fee',
@@ -234,14 +232,12 @@ describe('SubscriptionFeeDrawer', () => {
       it('THEN should contain all required fields', () => {
         const values: SubscriptionFeeFormValues = {
           amountCents: '50',
-          interval: PlanInterval.Yearly,
           payInAdvance: true,
           trialPeriod: '14',
           invoiceDisplayName: 'Custom Name',
         }
 
         expect(values.amountCents).toBe('50')
-        expect(values.interval).toBe(PlanInterval.Yearly)
         expect(values.payInAdvance).toBe(true)
         expect(values.trialPeriod).toBe('14')
         expect(values.invoiceDisplayName).toBe('Custom Name')
