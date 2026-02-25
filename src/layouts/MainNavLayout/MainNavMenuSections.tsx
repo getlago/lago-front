@@ -53,7 +53,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const getReportsTabs = (): NavTab[] => [
     {
       title: translate('text_6553885df387fd0097fd7384'),
-      icon: 'eye',
+      icon: 'chart-bar',
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
