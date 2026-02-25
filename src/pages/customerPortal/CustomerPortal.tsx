@@ -14,10 +14,9 @@ import {
 } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
-
-export const CUSTOMER_PORTAL_CONTENT_TEST_ID = 'customer-portal-content'
 
 gql`
   query getPortalOrgaInfos {
@@ -38,10 +37,11 @@ const CustomerPortal = () => {
     translate,
     error: customerPortalTranslateError,
     loading: portalIsLoading,
-    isUnauthenticated,
   } = useCustomerPortalTranslate()
 
-  const portalIsError = isUnauthenticated || !!customerPortalTranslateError
+  const portalIsError =
+    customerPortalTranslateError && hasDefinedGQLError('Unauthorized', customerPortalTranslateError)
+
   const customerPortalContentRef = useRef<HTMLDivElement>(null)
 
   const { pathname } = useCustomerPortalNavigation()
@@ -147,7 +147,7 @@ const CustomerPortal = () => {
           {portalOrgasInfoLoading && <CustomerPortalLoading />}
 
           {!portalOrgasInfoLoading && (
-            <div className={pageContainerClassName} data-test={CUSTOMER_PORTAL_CONTENT_TEST_ID}>
+            <div className={pageContainerClassName}>
               <Outlet />
             </div>
           )}
