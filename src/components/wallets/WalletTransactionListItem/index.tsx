@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
+import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { ListItem } from '~/components/wallets/WalletTransactionListItem/ListItem'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -86,28 +86,27 @@ export const WalletTransactionListItem = ({
   const isFailed = status === WalletTransactionStatusEnum.Failed
   const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
 
-  const formatCredits = (credits?: string | null) =>
-    intlFormatNumber(Number(blurValue ? 0 : credits) || 0, {
-      maximumFractionDigits: 15,
-      style: 'decimal',
-    })
-
-  const formatAmount = (amountCents?: string | null) =>
-    intlFormatNumber(Number(blurValue ? 0 : amountCents) || 0, {
-      currencyDisplay: 'symbol',
-      maximumFractionDigits: 15,
-      currency: transaction?.wallet?.currency,
-    })
-
-  const formattedCreditAmount = formatCredits(creditAmount)
-  const formattedCurrencyAmount = formatAmount(amount)
-  const formattedRemainingCreditAmount = formatCredits(remainingCreditAmount)
-  const formattedRemainingAmountCents = formatAmount(
-    deserializeAmount(
+  const formattedCreditAmount = formatCredits({
+    credits: creditAmount,
+    isBlurry: blurValue,
+  })
+  const formattedCurrencyAmount = formatAmount({
+    amountCents: amount,
+    currency: transaction?.wallet?.currency,
+    isBlurry: blurValue,
+  })
+  const formattedRemainingCreditAmount = formatCredits({
+    credits: remainingCreditAmount,
+    isBlurry: blurValue,
+  })
+  const formattedRemainingAmountCents = formatAmount({
+    amountCents: deserializeAmount(
       remainingAmountCents,
       transaction?.wallet?.currency || CurrencyEnum.Usd,
     )?.toString(),
-  )
+    currency: transaction?.wallet?.currency,
+    isBlurry: blurValue,
+  })
 
   const transactionAmountTranslationKey = translate(
     'text_62da6ec24a8e24e44f812896',

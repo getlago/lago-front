@@ -273,7 +273,7 @@ export const formatAmount = ({
   isBlurry,
 }: {
   amountCents?: string | null
-  currency: CurrencyEnum
+  currency?: CurrencyEnum
   isBlurry?: boolean
 }) =>
   intlFormatNumber(Number(isBlurry ? 0 : amountCents) || 0, {
