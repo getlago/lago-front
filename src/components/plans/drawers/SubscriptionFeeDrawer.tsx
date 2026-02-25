@@ -1,6 +1,6 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { forwardRef, useImperativeHandle, useRef } from 'react'
+import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
@@ -56,6 +56,11 @@ export const SubscriptionFeeDrawer = forwardRef<
   const { translate } = useInternationalization()
   const { currency } = usePlanFormContext()
   const drawerRef = useRef<DrawerRef>(null)
+  const amountRef = useRef<HTMLInputElement>(null)
+
+  const focusAmount = useCallback(() => {
+    amountRef.current?.focus()
+  }, [])
 
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
@@ -91,6 +96,7 @@ export const SubscriptionFeeDrawer = forwardRef<
       ref={drawerRef}
       title={translate('text_642d5eb2783a2ad10d670336')}
       showCloseWarningDialog={isDirty}
+      onEntered={focusAmount}
       onClose={() => {
         form.reset()
       }}
@@ -133,6 +139,7 @@ export const SubscriptionFeeDrawer = forwardRef<
                     beforeChangeFormatter={['positiveNumber']}
                     label={translate('text_624453d52e945301380e49b6')}
                     InputProps={{
+                      inputRef: amountRef,
                       endAdornment: (
                         <InputAdornment position="end">
                           {getCurrencySymbol(currency || CurrencyEnum.Usd)}

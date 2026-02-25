@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import { createRef } from 'react'
 
 import { PlanInterval } from '~/generated/graphql'
@@ -11,6 +11,34 @@ import {
 } from '../SubscriptionFeeDrawer'
 
 // --- Mocks ---
+
+// Capture onEntered callback passed to the Drawer
+let capturedOnEntered: (() => void) | undefined
+
+jest.mock('~/components/designSystem/Drawer', () => {
+  const React = jest.requireActual('react')
+
+  const MockDrawer = React.forwardRef(
+    ({ children, onEntered }: { children: unknown; onEntered?: () => void }, ref: unknown) => {
+      capturedOnEntered = onEntered
+
+      React.useImperativeHandle(ref, () => ({
+        openDrawer: jest.fn(),
+        closeDrawer: jest.fn(),
+      }))
+
+      return (
+        <div data-test="mocked-drawer">
+          {typeof children === 'function' ? children({ closeDrawer: jest.fn() }) : children}
+        </div>
+      )
+    },
+  )
+
+  MockDrawer.displayName = 'Drawer'
+
+  return { Drawer: MockDrawer }
+})
 
 const mockTranslate = jest.fn((key: string) => `translated_${key}`)
 
@@ -35,6 +63,10 @@ jest.mock('~/contexts/PlanFormContext', () => {
 jest.mock('~/core/formats/intlFormatNumber', () => ({
   getCurrencySymbol: (currency: string) => currency,
   intlFormatNumber: jest.fn(),
+}))
+
+jest.mock('~/components/plans/drawers/PlanBillingPeriodInfoSection', () => ({
+  PlanBillingPeriodInfoSection: () => <div data-test="plan-billing-period-info-section" />,
 }))
 
 // Mock TanStack form infrastructure
@@ -106,6 +138,12 @@ jest.mock('~/hooks/forms/useAppform', () => ({
   ),
 }))
 
+const MockFieldComponent = (props: Record<string, unknown>) => {
+  const inputRef = (props.InputProps as { inputRef?: unknown })?.inputRef
+
+  return <input name={props.name as string} ref={inputRef as React.Ref<HTMLInputElement>} />
+}
+
 const createFieldCtx = (name: string, value: unknown) => ({
   name,
   state: { value },
@@ -118,6 +156,13 @@ const createFieldCtx = (name: string, value: unknown) => ({
   },
   handleChange: mockHandleChange,
   handleBlur: mockHandleBlur,
+  AmountInputField: (props: Record<string, unknown>) => (
+    <MockFieldComponent {...props} name={name} />
+  ),
+  TextInputField: (props: Record<string, unknown>) => <MockFieldComponent {...props} name={name} />,
+  RadioGroupField: (props: Record<string, unknown>) => (
+    <MockFieldComponent {...props} name={name} />
+  ),
 })
 
 const mockedUseFieldContext = useFieldContext as jest.Mock
@@ -193,6 +238,25 @@ describe('SubscriptionFeeDrawer', () => {
         expect(values.payInAdvance).toBe(true)
         expect(values.trialPeriod).toBe('14')
         expect(values.invoiceDisplayName).toBe('Custom Name')
+      })
+    })
+  })
+
+  describe('GIVEN the drawer has an onEntered callback', () => {
+    describe('WHEN onEntered is triggered after the slide transition', () => {
+      it('THEN should focus the amountCents input', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        const amountInput = document.querySelector('input[name="amountCents"]') as HTMLInputElement
+
+        expect(amountInput).toBeTruthy()
+        expect(document.activeElement).not.toBe(amountInput)
+
+        act(() => {
+          capturedOnEntered?.()
+        })
+
+        expect(document.activeElement).toBe(amountInput)
       })
     })
   })

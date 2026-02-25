@@ -31,6 +31,7 @@ interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   withPadding?: boolean
   onOpen?: () => void
   onClose?: () => void
+  onEntered?: () => void
 }
 
 export interface DrawerRef {
@@ -53,6 +54,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       stickyBottomBarClassName,
       onOpen,
       onClose,
+      onEntered,
     }: DrawerProps,
     ref,
   ) => {
@@ -93,6 +95,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           elevation={4}
           onClose={closeAction}
           transitionDuration={250}
+          SlideProps={{ onEntered }}
           slotProps={{
             backdrop: {
               classes: {
