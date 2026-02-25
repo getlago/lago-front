@@ -112,20 +112,27 @@ export const useResendEmail = () => {
         graphQLErrors?: readonly GraphQLFormattedError[]
       }
   > => {
-    const result = await resendEmailPerType(params)
+    try {
+      const result = await resendEmailPerType(params)
 
-    const { errors } = result
+      const { errors } = result
 
-    if (errors?.length) {
+      if (errors?.length) {
+        return {
+          success: false,
+          graphQLErrors: errors,
+        }
+      }
+
+      return {
+        success: true,
+        response: result.data,
+      }
+    } catch {
+      // Network errors (500, timeout, etc.) - let them fall through as a generic failure.
       return {
         success: false,
-        graphQLErrors: errors,
       }
-    }
-
-    return {
-      success: true,
-      response: result.data,
     }
   }
 

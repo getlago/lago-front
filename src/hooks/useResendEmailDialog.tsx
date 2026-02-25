@@ -102,6 +102,11 @@ export const useResendEmailDialog = () => {
         severity: 'danger',
         message: translate('text_17712489384641tbh5v5biae'),
       })
+    } else {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_622f7a3dc32ce100c46a5154',
+      })
     }
   }
 
