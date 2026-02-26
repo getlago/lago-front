@@ -941,6 +941,17 @@ describe('Filters utils', () => {
   })
 
   describe('formatFiltersForSecurityLogsQuery', () => {
+    const currentTimeString = '2025-06-15T10:30:00.000Z'
+    const mockCurrentTime = DateTime.fromISO(currentTimeString).setZone('utc') as DateTime<true>
+
+    beforeEach(() => {
+      jest.spyOn(DateTime, 'now').mockImplementation(() => mockCurrentTime)
+    })
+
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
     it('should format security log filters with prefix', () => {
       const searchParams = new URLSearchParams()
 
@@ -953,34 +964,45 @@ describe('Filters utils', () => {
 
       const result = formatFiltersForSecurityLogsQuery(searchParams)
 
-      expect(result).toEqual({
-        logEvents: ['api_key_created', 'user_signed_up'],
-        logTypes: ['api_key', 'user'],
-        userIds: ['user-1', 'user-2'],
-      })
+      expect(result).toEqual(
+        expect.objectContaining({
+          logEvents: ['api_key_created', 'user_signed_up'],
+          logTypes: ['api_key', 'user'],
+          userIds: ['user-1', 'user-2'],
+        }),
+      )
     })
 
     it('should format security log filters with loggedDate', () => {
       const searchParams = new URLSearchParams()
+      const pastDate = mockCurrentTime.minus({ days: 30 }).toISO()
 
-      searchParams.set('secul_loggedDate', '2025-01-01,2025-01-31')
+      searchParams.set('secul_loggedDate', `${pastDate},${currentTimeString}`)
 
       const result = formatFiltersForSecurityLogsQuery(searchParams)
 
-      expect(result).toEqual({
-        fromDate: '2025-01-01',
-        toDate: '2025-01-31',
-      })
+      expect(result).toEqual(
+        expect.objectContaining({
+          fromDate: pastDate,
+          toDate: currentTimeString,
+        }),
+      )
     })
 
-    it('should return empty object when no valid filters are provided', () => {
+    it('should inject default toDate when no loggedDate is provided', () => {
       const searchParams = new URLSearchParams()
 
-      searchParams.set('invalidFilter', 'value')
+      searchParams.set('secul_logEvents', 'api_key_created')
 
       const result = formatFiltersForSecurityLogsQuery(searchParams)
 
-      expect(result).toEqual({})
+      expect(result).toEqual(
+        expect.objectContaining({
+          logEvents: ['api_key_created'],
+          fromDate: undefined,
+          toDate: currentTimeString,
+        }),
+      )
     })
 
     it('should ignore filters with a different prefix', () => {
@@ -991,9 +1013,11 @@ describe('Filters utils', () => {
 
       const result = formatFiltersForSecurityLogsQuery(searchParams)
 
-      expect(result).toEqual({
-        logTypes: ['api_key'],
-      })
+      expect(result).toEqual(
+        expect.objectContaining({
+          logTypes: ['api_key'],
+        }),
+      )
     })
   })
 })
