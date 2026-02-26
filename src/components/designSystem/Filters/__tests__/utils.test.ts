@@ -10,6 +10,7 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
   formatFiltersForRevenueStreamsQuery,
+  formatFiltersForSecurityLogsQuery,
   formatMetadataFilter,
   getFilterValue,
   keyWithPrefix,
@@ -858,6 +859,28 @@ describe('Filters utils', () => {
 
       expect(result).toEqual(['credit'])
     })
+
+    it('should parse logEvents filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.logEvents](
+        'api_key_created,user_signed_up',
+      )
+
+      expect(result).toEqual(['api_key_created', 'user_signed_up'])
+    })
+
+    it('should parse logTypes filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.logTypes]('api_key,user')
+
+      expect(result).toEqual(['api_key', 'user'])
+    })
+
+    it('should parse userIds filter and extract ids before separator', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.userIds](
+        `user-1${filterDataInlineSeparator}alice@example.com,user-2${filterDataInlineSeparator}bob@example.com`,
+      )
+
+      expect(result).toEqual(['user-1', 'user-2'])
+    })
   })
 
   describe('formatMetadataFilter', () => {
@@ -914,6 +937,63 @@ describe('Filters utils', () => {
       const result = formatMetadataFilter([])
 
       expect(result).toEqual('')
+    })
+  })
+
+  describe('formatFiltersForSecurityLogsQuery', () => {
+    it('should format security log filters with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('secul_logEvents', 'api_key_created,user_signed_up')
+      searchParams.set('secul_logTypes', 'api_key,user')
+      searchParams.set(
+        'secul_userIds',
+        `user-1${filterDataInlineSeparator}alice@example.com,user-2${filterDataInlineSeparator}bob@example.com`,
+      )
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual({
+        logEvents: ['api_key_created', 'user_signed_up'],
+        logTypes: ['api_key', 'user'],
+        userIds: ['user-1', 'user-2'],
+      })
+    })
+
+    it('should format security log filters with loggedDate', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('secul_loggedDate', '2025-01-01,2025-01-31')
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual({
+        fromDate: '2025-01-01',
+        toDate: '2025-01-31',
+      })
+    })
+
+    it('should return empty object when no valid filters are provided', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual({})
+    })
+
+    it('should ignore filters with a different prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('actl_logEvents', 'api_key_created')
+      searchParams.set('secul_logTypes', 'api_key')
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual({
+        logTypes: ['api_key'],
+      })
     })
   })
 })
