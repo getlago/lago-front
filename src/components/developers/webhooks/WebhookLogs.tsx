@@ -63,6 +63,11 @@ gql`
   }
 `
 
+// Test ID constants
+export const WEBHOOK_LOGS_CONTAINER_TEST_ID = 'webhook-logs-container'
+export const WEBHOOK_LOGS_RELOAD_BUTTON_TEST_ID = 'webhook-logs-reload-button'
+export const WEBHOOK_LOGS_SEARCH_INPUT_TEST_ID = 'webhook-logs-search-input'
+
 type WebhookLogsProps = {
   webhookId: string
 }
@@ -155,11 +160,15 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const shouldDisplayLogDetails = !!logId && !!data?.webhooks.collection.length
 
   return (
-    <div className="flex h-full flex-col not-last-child:shadow-b">
+    <div
+      className="flex h-full flex-col not-last-child:shadow-b"
+      data-test={WEBHOOK_LOGS_CONTAINER_TEST_ID}
+    >
       <LogsLayout.CTASection className="min-h-[70px]">
         <SearchInput
           onChange={debouncedSearch}
           placeholder={translate('text_1746622271766lr6wf4y0ppn')}
+          data-test={WEBHOOK_LOGS_SEARCH_INPUT_TEST_ID}
         />
 
         <div>
@@ -178,6 +187,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
           startIcon="reload"
           size="small"
           variant="quaternary"
+          data-test={WEBHOOK_LOGS_RELOAD_BUTTON_TEST_ID}
           onClick={async () => {
             const result = await refetchWithFreshFilters()
 
