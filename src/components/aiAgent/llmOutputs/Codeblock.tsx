@@ -53,7 +53,7 @@ export const Codeblock: LLMOutputComponent = ({ blockMatch }) => {
   }, [shiki])
 
   const { code = '\n', language } = parseCompleteMarkdownCodeBlock(blockMatch.output)
-  const lang = language ?? 'plaintext'
+  const lang = language ?? 'text'
 
   if (!shiki) {
     return (
@@ -83,7 +83,7 @@ export const Codeblock: LLMOutputComponent = ({ blockMatch }) => {
         })
     }
 
-    html = shiki.codeToHtml(code, { ...codeToHtmlOptions, lang: 'plaintext' })
+    html = shiki.codeToHtml(code, { ...codeToHtmlOptions, lang: 'text' })
   }
 
   return <>{parseHtml(html)}</>

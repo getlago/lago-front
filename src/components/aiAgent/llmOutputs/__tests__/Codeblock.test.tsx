@@ -116,7 +116,7 @@ describe('Codeblock', () => {
   })
 
   describe('when Shiki throws "Language not found" (original bug)', () => {
-    it('catches the error and falls back to plaintext instead of crashing', async () => {
+    it('catches the error and falls back to text instead of crashing', async () => {
       // Reproduce the exact Shiki error users were hitting.
       // Use a language NOT in bundledLanguages (full bundle) so no lazy-load
       // is attempted — this isolates the try-catch fallback behavior.
@@ -146,10 +146,10 @@ describe('Codeblock', () => {
         expect.objectContaining({ lang: 'brainfuck' }),
       )
 
-      // …then the catch block retried with plaintext.
+      // …then the catch block retried with text.
       expect(mockCodeToHtml).toHaveBeenCalledWith(
         expect.anything(),
-        expect.objectContaining({ lang: 'plaintext' }),
+        expect.objectContaining({ lang: 'text' }),
       )
 
       // No lazy-load attempted because 'brainfuck' isn't in the full bundle.
@@ -161,7 +161,7 @@ describe('Codeblock', () => {
 
     it('lazy-loads a language from the full bundle then re-renders with highlighting', async () => {
       // 'go' is in the full bundle but NOT in the web bundle.
-      // First render: codeToHtml('go') throws → shows plaintext + triggers lazy-load.
+      // First render: codeToHtml('go') throws → shows text + triggers lazy-load.
       // After loadLanguage resolves: re-render → codeToHtml('go') succeeds.
       let goLoaded = false
 
@@ -220,7 +220,7 @@ describe('Codeblock', () => {
         expect(mockLoadLanguage).toHaveBeenCalledTimes(1)
       })
 
-      // Component shows plaintext fallback — no crash.
+      // Component shows text fallback — no crash.
       expect(screen.getByText('puts "hello"')).toBeInTheDocument()
 
       // Second attempt: succeed now that the "network" is back.
@@ -278,7 +278,7 @@ describe('Codeblock', () => {
   })
 
   describe('when no language is specified in the code block', () => {
-    it('defaults to plaintext', async () => {
+    it('defaults to text', async () => {
       mockCodeToHtml.mockReturnValue('<pre class="shiki"><code>some code</code></pre>')
 
       await act(async () => {
@@ -291,7 +291,7 @@ describe('Codeblock', () => {
 
       expect(mockCodeToHtml).toHaveBeenCalledWith(
         expect.anything(),
-        expect.objectContaining({ lang: 'plaintext' }),
+        expect.objectContaining({ lang: 'text' }),
       )
 
       expect(screen.getByText('some code')).toBeInTheDocument()
