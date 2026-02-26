@@ -121,7 +121,7 @@ export const Selector = ({
           'flex-col-reverse': !titleFirst,
         })}
       >
-        <Typography variant={'bodyHl'} color={disabled ? 'disabled' : 'textSecondary'} noWrap>
+        <Typography variant="bodyHl" color={disabled ? 'disabled' : 'textSecondary'} noWrap>
           {title}
         </Typography>
         <Typography variant="caption" color={disabled ? 'disabled' : undefined} noWrap>

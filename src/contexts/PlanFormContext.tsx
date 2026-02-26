@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from 'react'
+import { createContext, ReactNode, useContext, useMemo } from 'react'
 
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 
@@ -14,9 +14,9 @@ interface PlanFormProviderProps extends PlanFormContextValue {
 }
 
 export const PlanFormProvider = ({ currency, interval, children }: PlanFormProviderProps) => {
-  return (
-    <PlanFormContext.Provider value={{ currency, interval }}>{children}</PlanFormContext.Provider>
-  )
+  const value = useMemo(() => ({ currency, interval }), [currency, interval])
+
+  return <PlanFormContext.Provider value={value}>{children}</PlanFormContext.Provider>
 }
 
 export const usePlanFormContext = (): PlanFormContextValue => {

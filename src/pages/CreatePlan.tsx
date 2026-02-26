@@ -219,15 +219,12 @@ const CreatePlan = () => {
     return translate('text_624453d52e945301380e4988')
   }, [isEdition, translate])
 
-  const handleSubscriptionFeeSave = useCallback(
-    (values: SubscriptionFeeFormValues) => {
-      formikProps.setValues({
-        ...formikProps.values,
-        ...values,
-      })
-    },
-    [formikProps],
-  )
+  const handleSubscriptionFeeSave = (values: SubscriptionFeeFormValues) => {
+    formikProps.setValues({
+      ...formikProps.values,
+      ...values,
+    })
+  }
 
   return (
     <PlanFormProvider
