@@ -3864,5 +3864,6 @@
   "text_1770383112227fm7xs39y88v": "The wallet transaction is still pending and can’t be linked to outbound transactions.",
   "text_17703831122275gplx4hf9zw": "The wallet transaction has failed and can’t be linked to outbound transactions.",
   "text_17708227222843peys0u3ywu": "Wallet transaction priority",
-  "text_17708227222846t71arrz7dn": "Order in which this wallet transaction is used compared to others (1 and 50 — 1 is the highest). If wallet transactions share the same priority, the oldest will be used first."
+  "text_17708227222846t71arrz7dn": "Order in which this wallet transaction is used compared to others (1 and 50 — 1 is the highest). If wallet transactions share the same priority, the oldest will be used first.",
+  "text_1772097794980io9uophxmwm": "Retrying"
 }

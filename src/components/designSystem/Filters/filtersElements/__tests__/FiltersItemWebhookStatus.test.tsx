@@ -64,6 +64,16 @@ describe('FiltersItemWebhookStatus', () => {
         })
       })
     })
+
+    describe('WHEN value is "retrying"', () => {
+      it('THEN should display the retrying chip', async () => {
+        renderComponent(WebhookStatusEnum.Retrying)
+
+        await waitFor(() => {
+          expect(screen.getByRole('combobox')).toBeInTheDocument()
+        })
+      })
+    })
   })
 
   describe('GIVEN multiple values', () => {

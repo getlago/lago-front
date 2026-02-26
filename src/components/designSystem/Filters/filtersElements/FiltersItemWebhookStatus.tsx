@@ -40,6 +40,10 @@ export const FiltersItemWebhookStatus = ({
           label: translate('text_637656ef3d876b0269edc7a1'),
           value: WebhookStatusEnum.Failed,
         },
+        {
+          label: translate('text_1772097794980io9uophxmwm'),
+          value: WebhookStatusEnum.Retrying,
+        },
       ]}
       onChange={(statuses) => setFilterValue(formatMultiFilterValue(statuses))}
       value={parseMultiFilterValue(value)}

@@ -17,7 +17,6 @@ const WEBHOOK_HTTP_STATUS_CATEGORIES = [
   { value: '3xx', label: '3xx' },
   { value: '4xx', label: '4xx' },
   { value: '5xx', label: '5xx' },
-  // TODO: Timeout filter not yet supported by the backend
   { value: 'timeout', label: 'Timeout' },
 ]
 
