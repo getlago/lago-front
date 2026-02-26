@@ -71,6 +71,16 @@ describe('FiltersItemUserIds', () => {
     })
   })
 
+  describe('GIVEN undefined value', () => {
+    it('THEN should not crash and displays the combobox', async () => {
+      renderComponent(undefined)
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a value with user id and email', () => {
     describe('WHEN a single user is selected', () => {
       it('THEN displays the user email as a chip', async () => {

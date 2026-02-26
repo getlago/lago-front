@@ -38,8 +38,8 @@ export const FiltersItemUserIds = ({ value, setFilterValue }: FiltersItemUserIds
       onChange={(userIds) => {
         setFilterValue(String(userIds.map((v) => v.value).join(',')))
       }}
-      value={value
-        ?.split(',')
+      value={(value ?? '')
+        .split(',')
         .filter((v) => !!v)
         .map((v) => ({
           label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],

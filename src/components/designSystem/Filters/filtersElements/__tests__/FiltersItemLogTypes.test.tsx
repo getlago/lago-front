@@ -34,6 +34,16 @@ describe('FiltersItemLogTypes', () => {
     })
   })
 
+  describe('GIVEN undefined value', () => {
+    it('THEN should not crash and displays the combobox', async () => {
+      renderComponent(undefined)
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a single value', () => {
     describe('WHEN value is "api_key"', () => {
       it('THEN displays the chip', async () => {

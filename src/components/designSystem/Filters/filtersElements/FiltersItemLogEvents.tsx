@@ -29,8 +29,8 @@ export const FiltersItemLogEvents = ({ value, setFilterValue }: FiltersItemLogEv
       onChange={(invoiceType) => {
         setFilterValue(String(invoiceType.map((v) => v.value).join(',')))
       }}
-      value={value
-        ?.split(',')
+      value={(value ?? '')
+        .split(',')
         .filter((v) => !!v)
         .map((v) => ({ value: v }))}
     />
