@@ -195,6 +195,60 @@ describe('Codeblock', () => {
 
       expect(screen.getByText('package main')).toBeInTheDocument()
     })
+
+    it('retries lazy-loading after a transient failure', async () => {
+      // Simulate a network error on the first lazy-load attempt (e.g. chunk
+      // failed to fetch). The .catch() handler should remove the language from
+      // lazyLoadRequested so the next render can retry.
+      let rubyLoaded = false
+
+      mockCodeToHtml.mockImplementation((_code: string, options: { lang: string }) => {
+        if (options.lang === 'ruby' && !rubyLoaded) {
+          throw new Error('Language `ruby` not found, you may need to load it first')
+        }
+
+        return `<pre class="shiki"><code>${_code}</code></pre>`
+      })
+
+      // First attempt: reject (transient network failure).
+      mockLoadLanguage.mockRejectedValueOnce(new Error('Failed to fetch chunk'))
+
+      const { rerender } = await act(async () => renderCodeblock('```ruby\nputs "hello"\n```'))
+
+      // The lazy-load was attempted and failed.
+      await waitFor(() => {
+        expect(mockLoadLanguage).toHaveBeenCalledTimes(1)
+      })
+
+      // Component shows plaintext fallback — no crash.
+      expect(screen.getByText('puts "hello"')).toBeInTheDocument()
+
+      // Second attempt: succeed now that the "network" is back.
+      mockLoadLanguage.mockImplementation(() => {
+        rubyLoaded = true
+        return Promise.resolve()
+      })
+
+      // Trigger a re-render (e.g. parent streams a new token).
+      await act(async () => {
+        rerender(
+          <Codeblock
+            blockMatch={
+              { output: '```ruby\nputs "hello"\n```' } as Parameters<
+                typeof Codeblock
+              >[0]['blockMatch']
+            }
+          />,
+        )
+      })
+
+      // The retry succeeded — loadLanguage called a second time.
+      await waitFor(() => {
+        expect(mockLoadLanguage).toHaveBeenCalledTimes(2)
+      })
+
+      expect(screen.getByText('puts "hello"')).toBeInTheDocument()
+    })
   })
 
   describe('when the language is already loaded (web bundle)', () => {

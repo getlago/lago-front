@@ -72,9 +72,15 @@ export const Codeblock: LLMOutputComponent = ({ blockMatch }) => {
     // (code-split by Vite), then re-render. Show plaintext in the meantime.
     if (!lazyLoadRequested.has(lang)) {
       lazyLoadRequested.add(lang)
-      lazyLoadLanguage(shiki, lang).then((loaded) => {
-        if (loaded) forceRender()
-      })
+      lazyLoadLanguage(shiki, lang)
+        .then((loaded) => {
+          if (loaded) forceRender()
+        })
+        .catch(() => {
+          // Chunk load or grammar registration failed — remove from the set
+          // so a subsequent render can retry (e.g. after a transient network error).
+          lazyLoadRequested.delete(lang)
+        })
     }
 
     html = shiki.codeToHtml(code, { ...codeToHtmlOptions, lang: 'plaintext' })
