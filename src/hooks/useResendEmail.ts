@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
+import { GraphQLFormattedError } from 'graphql'
 
 import {
   BillingEntityEmailSettingsEnum,
+  LagoApiError,
   ResendCreditNoteEmailMutation,
   ResendInvoiceEmailMutation,
   ResendPaymentReceiptEmailMutation,
@@ -57,6 +59,8 @@ export const useResendEmail = () => {
       ...(bcc?.length ? { bcc } : {}),
     }
 
+    const context = { silentErrorCodes: [LagoApiError.UnprocessableEntity] }
+
     switch (type) {
       case BillingEntityEmailSettingsEnum.CreditNoteCreated:
         return await resendCreditNoteEmail({
@@ -66,6 +70,7 @@ export const useResendEmail = () => {
               ...recipients,
             },
           },
+          context,
         })
 
       case BillingEntityEmailSettingsEnum.InvoiceFinalized:
@@ -76,6 +81,7 @@ export const useResendEmail = () => {
               ...recipients,
             },
           },
+          context,
         })
 
       case BillingEntityEmailSettingsEnum.PaymentReceiptCreated:
@@ -86,6 +92,7 @@ export const useResendEmail = () => {
               ...recipients,
             },
           },
+          context,
         })
 
       default:
@@ -102,20 +109,29 @@ export const useResendEmail = () => {
       }
     | {
         success: false
-        error: Error
+        graphQLErrors?: readonly GraphQLFormattedError[]
       }
   > => {
     try {
       const result = await resendEmailPerType(params)
 
+      const { errors } = result
+
+      if (errors?.length) {
+        return {
+          success: false,
+          graphQLErrors: errors,
+        }
+      }
+
       return {
         success: true,
         response: result.data,
       }
-    } catch (error) {
+    } catch {
+      // Network errors (500, timeout, etc.) - let them fall through as a generic failure.
       return {
         success: false,
-        error: error as Error,
       }
     }
   }

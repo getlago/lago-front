@@ -29,6 +29,8 @@ export const cache = new InMemoryCache({
         taxes: createPaginatedFieldPolicy(),
         wallets: createPaginatedFieldPolicy(),
         walletTransactions: createPaginatedFieldPolicy(),
+        walletTransactionFundings: createPaginatedFieldPolicy(),
+        walletTransactionConsumptions: createPaginatedFieldPolicy(),
         webhook: createPaginatedFieldPolicy(),
         webhookEndpoint: createPaginatedFieldPolicy(),
         webhooks: createPaginatedFieldPolicy(),

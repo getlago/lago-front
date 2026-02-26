@@ -11,6 +11,14 @@ export const WALLET_TOPUP_BUTTON_DATA_TEST = 'wallet-topup-button'
 export const TRANSACTION_LABEL_DATA_TEST = 'transaction-label'
 export const TRANSACTION_CREDITS_DATA_TEST = 'credits'
 export const TRANSACTION_AMOUNT_DATA_TEST = 'amount'
+export const TRANSACTION_PRIORITY_DATA_TEST = 'priority'
+export const TRANSACTION_REMAINING_CREDITS_DATA_TEST = 'remaining-credits'
+
+// WalletTransactionItems
+export const WALLET_TRANSACTION_ITEMS_LOADING_TEST_ID = 'wallet-transaction-items-loading'
+export const WALLET_TRANSACTION_ITEMS_ERROR_TEST_ID = 'wallet-transaction-items-error'
+export const WALLET_TRANSACTION_ITEMS_LIST_TEST_ID = 'wallet-transaction-items-list'
+export const WALLET_TRANSACTION_ITEM_ROW_TEST_ID = 'wallet-transaction-item-row'
 
 // CreateWallet & CreateWalletTopUp - Common
 export const SUBMIT_WALLET_DATA_TEST = 'submit-wallet'

@@ -44,6 +44,8 @@ gql`
   }
 `
 
+export const LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID = 'lago-tax-management-remove-button'
+
 const TaxItem: FC<{ name: string; code: string; rate: number }> = ({ name, code, rate }) => {
   const { translate } = useInternationalization()
 
@@ -90,7 +92,7 @@ const LagoTaxManagementIntegration = () => {
   const removeEuTaxManagement = async () => {
     const entities = billingEntitiesData?.billingEntities?.collection || []
 
-    await Promise.all(
+    const results = await Promise.all(
       entities.map((billingEntity) => {
         return update({
           variables: {
@@ -102,6 +104,10 @@ const LagoTaxManagementIntegration = () => {
         })
       }),
     )
+
+    const hasErrors = results.some((res) => !!res.errors)
+
+    if (hasErrors) return
 
     navigate(
       generatePath(INTEGRATIONS_ROUTE, {
@@ -142,6 +148,7 @@ const LagoTaxManagementIntegration = () => {
         </PageHeader.Group>
         {hasPermissions(['billingEntitiesUpdate']) && (
           <Button
+            data-test={LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID}
             variant="secondary"
             disabled={loading}
             onClick={deleteConnectionRef.current?.openDialog}

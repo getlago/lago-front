@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react'
 
-import { BillingEntityEmailSettingsEnum } from '~/generated/graphql'
+import { BillingEntityEmailSettingsEnum, LagoApiError } from '~/generated/graphql'
 import { useResendEmail } from '~/hooks/useResendEmail'
 import { AllTheProviders } from '~/test-utils'
 
@@ -14,6 +14,10 @@ jest.mock('~/generated/graphql', () => ({
   useResendInvoiceEmailMutation: () => [mockResendInvoiceEmail],
   useResendPaymentReceiptEmailMutation: () => [mockResendPaymentReceiptEmail],
 }))
+
+const expectedContext = {
+  silentErrorCodes: [LagoApiError.UnprocessableEntity],
+}
 
 describe('useResendEmail', () => {
   const customWrapper = ({ children }: { children: React.ReactNode }) =>
@@ -41,7 +45,7 @@ describe('useResendEmail', () => {
 
   describe('GIVEN the type is CreditNoteCreated', () => {
     describe('WHEN resendEmail is called successfully', () => {
-      it('THEN should call resendCreditNoteEmail mutation with correct variables', async () => {
+      it('THEN should call resendCreditNoteEmail mutation with correct variables and context', async () => {
         mockResendCreditNoteEmail.mockResolvedValue({
           data: { resendCreditNoteEmail: { id: 'cn-1' } },
         })
@@ -63,6 +67,7 @@ describe('useResendEmail', () => {
               to: ['test@example.com'],
             },
           },
+          context: expectedContext,
         })
         expect(response).toEqual({
           success: true,
@@ -74,7 +79,7 @@ describe('useResendEmail', () => {
 
   describe('GIVEN the type is InvoiceFinalized', () => {
     describe('WHEN resendEmail is called successfully', () => {
-      it('THEN should call resendInvoiceEmail mutation with correct variables', async () => {
+      it('THEN should call resendInvoiceEmail mutation with correct variables and context', async () => {
         mockResendInvoiceEmail.mockResolvedValue({
           data: { resendInvoiceEmail: { id: 'inv-1' } },
         })
@@ -100,6 +105,7 @@ describe('useResendEmail', () => {
               bcc: ['bcc@example.com'],
             },
           },
+          context: expectedContext,
         })
         expect(response).toEqual({
           success: true,
@@ -111,7 +117,7 @@ describe('useResendEmail', () => {
 
   describe('GIVEN the type is PaymentReceiptCreated', () => {
     describe('WHEN resendEmail is called successfully', () => {
-      it('THEN should call resendPaymentReceiptEmail mutation with correct variables', async () => {
+      it('THEN should call resendPaymentReceiptEmail mutation with correct variables and context', async () => {
         mockResendPaymentReceiptEmail.mockResolvedValue({
           data: { resendPaymentReceiptEmail: { id: 'pr-1' } },
         })
@@ -131,6 +137,7 @@ describe('useResendEmail', () => {
               id: 'pr-1',
             },
           },
+          context: expectedContext,
         })
         expect(response).toEqual({
           success: true,
@@ -165,17 +172,30 @@ describe('useResendEmail', () => {
               id: 'inv-1',
             },
           },
+          context: expectedContext,
         })
       })
     })
   })
 
-  describe('GIVEN the mutation fails', () => {
+  describe('GIVEN the mutation returns GraphQL errors', () => {
     describe('WHEN resendEmail is called', () => {
-      it('THEN should return error result', async () => {
-        const mockError = new Error('Network error')
+      it('THEN should return failure with graphQLErrors', async () => {
+        const mockErrors = [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { billingEntity: ['must have email configured'] },
+            },
+          },
+        ]
 
-        mockResendInvoiceEmail.mockRejectedValue(mockError)
+        mockResendInvoiceEmail.mockResolvedValue({
+          data: { resendInvoiceEmail: null },
+          errors: mockErrors,
+        })
 
         const { result } = renderHook(() => useResendEmail(), {
           wrapper: customWrapper,
@@ -188,7 +208,28 @@ describe('useResendEmail', () => {
 
         expect(response).toEqual({
           success: false,
-          error: mockError,
+          graphQLErrors: mockErrors,
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the mutation throws a network error', () => {
+    describe('WHEN resendEmail is called', () => {
+      it('THEN should return failure without graphQLErrors', async () => {
+        mockResendInvoiceEmail.mockRejectedValue(new Error('Network error'))
+
+        const { result } = renderHook(() => useResendEmail(), {
+          wrapper: customWrapper,
+        })
+
+        const response = await result.current.resendEmail({
+          type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
+          documentId: 'inv-1',
+        })
+
+        expect(response).toEqual({
+          success: false,
         })
       })
     })
@@ -196,7 +237,7 @@ describe('useResendEmail', () => {
 
   describe('GIVEN an unsupported type', () => {
     describe('WHEN resendEmail is called', () => {
-      it('THEN should return error result for missing type', async () => {
+      it('THEN should return failure', async () => {
         const { result } = renderHook(() => useResendEmail(), {
           wrapper: customWrapper,
         })
@@ -208,7 +249,6 @@ describe('useResendEmail', () => {
 
         expect(response).toEqual({
           success: false,
-          error: expect.any(Error),
         })
       })
     })

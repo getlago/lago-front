@@ -2,7 +2,7 @@ import { ApolloError } from '@apollo/client'
 import { act, waitFor } from '@testing-library/react'
 
 import { addToast } from '~/core/apolloClient'
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/CustomerPortalRoutes'
+import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 

@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
-import { forwardRef } from 'react'
+import { forwardRef, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
@@ -16,17 +16,22 @@ import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { TAX_MANAGEMENT_INTEGRATION_ROUTE } from '~/core/router'
 import {
   CountryCode,
+  LagoApiError,
   useGetBillingEntitiesQuery,
   useUpdateBillingEntityMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useIntegrations } from '~/hooks/useIntegrations'
 
+import { hasNonEuEligibilityError } from './utils'
+
 type BillingEntityFormItem = {
   id?: string
   country?: CountryCode | null
   initialCountry?: CountryCode | null
 }
+
+export const ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID = 'add-lago-tax-management-submit-button'
 
 export type AddLagoTaxManagementDialogRef = DialogRef
 
@@ -54,7 +59,13 @@ export const AddLagoTaxManagementDialog = forwardRef<
 
   const maxBillingEntities = billingEntitiesList?.length || 0
 
-  const [update] = useUpdateBillingEntityMutation()
+  const [update] = useUpdateBillingEntityMutation({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
+  })
+
+  const submitSucceededRef = useRef(false)
 
   const formikProps = useFormik<{
     billingEntities: Array<BillingEntityFormItem>
@@ -80,9 +91,10 @@ export const AddLagoTaxManagementDialog = forwardRef<
         .min(isUpdate ? 0 : 1, ''),
     }),
     onSubmit: async (values) => {
+      submitSucceededRef.current = false
       const entities = billingEntitiesData?.billingEntities?.collection || []
 
-      await Promise.all(
+      const results = await Promise.all(
         entities.map((billingEntity) => {
           const updated = values.billingEntities.find((b) => b.id === billingEntity.id)
 
@@ -97,6 +109,21 @@ export const AddLagoTaxManagementDialog = forwardRef<
           })
         }),
       )
+
+      const hasErrors = results.some((res) => !!res.errors)
+
+      if (hasErrors) {
+        if (hasNonEuEligibilityError(results)) {
+          addToast({
+            severity: 'danger',
+            message: translate('text_1740672955723utwsgy8vzy2'),
+          })
+        }
+
+        return
+      }
+
+      submitSucceededRef.current = true
 
       navigate(
         generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
@@ -211,12 +238,15 @@ export const AddLagoTaxManagementDialog = forwardRef<
           </Button>
 
           <Button
+            data-test={ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID}
             variant="primary"
             disabled={!formikProps.isValid}
             onClick={async () => {
               await formikProps.submitForm()
 
-              closeDialog()
+              if (submitSucceededRef.current) {
+                closeDialog()
+              }
             }}
           >
             {translate(

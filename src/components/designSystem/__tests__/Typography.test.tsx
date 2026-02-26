@@ -281,4 +281,69 @@ describe('Typography', () => {
       expect(Typography.displayName).toBe('Typography')
     })
   })
+
+  describe('XSS Prevention', () => {
+    it('renders javascript: href as plain text instead of a link', () => {
+      const { container } = render(
+        <Typography html='<a href="javascript:alert(1)" data-text="Click me">placeholder</a>' />,
+      )
+
+      expect(screen.getByText('Click me')).toBeInTheDocument()
+      // Should render as <span>, not as a <Link>/<a>
+      expect(screen.getByText('Click me').tagName).toBe('SPAN')
+      expect(container.querySelector('a[href="javascript:alert(1)"]')).not.toBeInTheDocument()
+    })
+
+    it('renders safe relative href as a link', () => {
+      render(<Typography html='<a href="/customers/123" data-text="Customer">placeholder</a>' />)
+
+      const link = screen.getByText('Customer')
+
+      expect(link).toBeInTheDocument()
+      expect(link.tagName).toBe('A')
+      expect(link).toHaveAttribute('href', '/customers/123')
+    })
+
+    it('renders data: protocol href as plain text instead of a link', () => {
+      const { container } = render(
+        <Typography html='<a href="data:text/html,<script>alert(1)</script>" data-text="Data link">placeholder</a>' />,
+      )
+
+      expect(screen.getByText('Data link')).toBeInTheDocument()
+      expect(screen.getByText('Data link').tagName).toBe('SPAN')
+      expect(container.querySelector('a[href^="data:"]')).not.toBeInTheDocument()
+    })
+
+    it('renders protocol-relative href as plain text instead of a link', () => {
+      const { container } = render(
+        <Typography html='<a href="//evil.com" data-text="Evil link">placeholder</a>' />,
+      )
+
+      expect(screen.getByText('Evil link')).toBeInTheDocument()
+      expect(screen.getByText('Evil link').tagName).toBe('SPAN')
+      expect(container.querySelector('a[href="//evil.com"]')).not.toBeInTheDocument()
+    })
+
+    it('preserves text after internal link with unsafe href (no truncation)', () => {
+      const { container } = render(
+        <Typography html='Before <a href="javascript:alert(1)" data-text="XSS">click</a> after the link' />,
+      )
+
+      expect(screen.getByText('XSS')).toBeInTheDocument()
+      // Verify text after the link is not truncated
+      expect(container.textContent).toContain('after the link')
+      expect(container.textContent).toContain('Before')
+    })
+
+    it('preserves text after internal link with safe href (no truncation)', () => {
+      const { container } = render(
+        <Typography html='Before <a href="/customers/123" data-text="Customer">click</a> after the link' />,
+      )
+
+      expect(screen.getByText('Customer')).toBeInTheDocument()
+      // Verify text after the link is not truncated
+      expect(container.textContent).toContain('after the link')
+      expect(container.textContent).toContain('Before')
+    })
+  })
 })

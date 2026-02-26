@@ -1,10 +1,12 @@
 import { act, renderHook, screen } from '@testing-library/react'
 
-import { BillingEntityEmailSettingsEnum } from '~/generated/graphql'
+import { addToast } from '~/core/apolloClient'
+import { BillingEntityEmailSettingsEnum, LagoApiError } from '~/generated/graphql'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { AllTheProviders, render } from '~/test-utils'
 
-const mockFormDialogOpen = jest.fn().mockResolvedValue({})
+const mockFormDialogOpen = jest.fn()
+const mockResendEmail = jest.fn()
 
 jest.mock('~/components/dialogs/FormDialog', () => ({
   ...jest.requireActual('~/components/dialogs/FormDialog'),
@@ -16,8 +18,13 @@ jest.mock('~/components/dialogs/FormDialog', () => ({
 
 jest.mock('~/hooks/useResendEmail', () => ({
   useResendEmail: () => ({
-    resendEmail: jest.fn(),
+    resendEmail: mockResendEmail,
   }),
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
 }))
 
 describe('useResendEmailDialog', () => {
@@ -36,317 +43,295 @@ describe('useResendEmailDialog', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockFormDialogOpen.mockResolvedValue({})
   })
 
-  it('returns showResendEmailDialog function', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    expect(result.current.showResendEmailDialog).toBeDefined()
-    expect(typeof result.current.showResendEmailDialog).toBe('function')
-  })
-
-  it('opens form dialog when showResendEmailDialog is called', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
-    })
-
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not open dialog when documentId is undefined', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        documentId: undefined,
-      })
-    })
-
-    expect(mockFormDialogOpen).not.toHaveBeenCalled()
-  })
-
-  it('pre-fills to field with customerEmail when provided', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    render(callArgs.headerContent)
-
-    expect(screen.getByText('customer@example.com')).toBeInTheDocument()
-  })
-
-  it('does not pre-fill to field when customerEmail is undefined', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        customerEmail: undefined,
-      })
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    render(callArgs.headerContent)
-
-    expect(screen.queryByText('customer@example.com')).not.toBeInTheDocument()
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not pre-fill to field when customerEmail is null', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        customerEmail: null,
-      })
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    render(callArgs.headerContent)
-
-    expect(screen.queryByText('customer@example.com')).not.toBeInTheDocument()
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
-  })
-
-  it('passes correct subject to dialog', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        subject: 'My Custom Subject',
-      })
-    })
-
-    expect(mockFormDialogOpen).toHaveBeenCalled()
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    expect(callArgs).toBeDefined()
-  })
-
-  it('passes type to dialog when provided', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
-      })
-    })
-
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
-  })
-
-  it('passes billingEntity to dialog when provided', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    const mockBillingEntity = {
-      id: '1',
-      name: 'Test Company',
-      logoUrl: 'https://example.com/logo.png',
-      einvoicing: true,
-    }
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        billingEntity: mockBillingEntity,
-      })
-    })
-
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
-  })
-
-  it('opens dialog with all parameters provided', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    const mockBillingEntity = {
-      id: '1',
-      name: 'Test Company',
-      logoUrl: 'https://example.com/logo.png',
-      einvoicing: true,
-    }
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        subject: 'Invoice from Test Company',
-        documentId: 'doc-456',
-        type: BillingEntityEmailSettingsEnum.InvoiceFinalized,
-        billingEntity: mockBillingEntity,
-        customerEmail: 'customer@example.com',
-      })
-    })
-
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
-  })
-
-  it('dialog config includes title', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    expect(callArgs.title).toBeDefined()
-    expect(typeof callArgs.title).toBe('string')
-  })
-
-  it('dialog config includes headerContent', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    expect(callArgs.headerContent).toBeDefined()
-  })
-
-  it('dialog config includes children (EmailPreview)', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    expect(callArgs.children).toBeDefined()
-  })
-
-  it('dialog config includes mainAction', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    expect(callArgs.mainAction).toBeDefined()
-  })
-
-  it('dialog config includes form with id and submit', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
-    })
-
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
-
-    expect(callArgs.form).toBeDefined()
-    expect(callArgs.form.id).toBeDefined()
-    expect(typeof callArgs.form.submit).toBe('function')
-  })
-
-  it('can be called multiple times', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        subject: 'First Subject',
-      })
-    })
-
-    act(() => {
-      result.current.showResendEmailDialog({
-        ...defaultParams,
-        subject: 'Second Subject',
-      })
-    })
-
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(2)
-  })
-
-  it('handles different email types', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
-    })
-
-    const types = [
-      BillingEntityEmailSettingsEnum.InvoiceFinalized,
-      BillingEntityEmailSettingsEnum.CreditNoteCreated,
-      BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
-    ]
-
-    types.forEach((type) => {
-      act(() => {
-        result.current.showResendEmailDialog({
-          ...defaultParams,
-          type,
+  describe('GIVEN the hook is initialized', () => {
+    describe('WHEN rendered', () => {
+      it('THEN should return showResendEmailDialog function', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
         })
+
+        expect(typeof result.current.showResendEmailDialog).toBe('function')
+      })
+    })
+  })
+
+  describe('GIVEN showResendEmailDialog is called', () => {
+    describe('WHEN documentId is provided', () => {
+      it('THEN should open the form dialog', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
       })
     })
 
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(types.length)
+    describe('WHEN documentId is undefined', () => {
+      it('THEN should not open the dialog', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog({
+            ...defaultParams,
+            documentId: undefined,
+          })
+        })
+
+        expect(mockFormDialogOpen).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN customerEmail is provided', () => {
+      it('THEN should pre-fill the to field in headerContent', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        render(callArgs.headerContent)
+
+        expect(screen.getByText('customer@example.com')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN customerEmail is undefined', () => {
+      it('THEN should not pre-fill the to field', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog({
+            ...defaultParams,
+            customerEmail: undefined,
+          })
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        render(callArgs.headerContent)
+
+        expect(screen.queryByText('customer@example.com')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN customerEmail is null', () => {
+      it('THEN should not pre-fill the to field', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog({
+            ...defaultParams,
+            customerEmail: null,
+          })
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        render(callArgs.headerContent)
+
+        expect(screen.queryByText('customer@example.com')).not.toBeInTheDocument()
+      })
+    })
   })
 
-  it('works without optional parameters', () => {
-    const { result } = renderHook(() => useResendEmailDialog(), {
-      wrapper: customWrapper,
+  describe('GIVEN the dialog config', () => {
+    describe('WHEN dialog opens', () => {
+      it('THEN should include closeOnError false', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(callArgs.closeOnError).toBe(false)
+      })
+
+      it('THEN should include onError callback', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(typeof callArgs.onError).toBe('function')
+      })
+
+      it.each([
+        ['title', 'string'],
+        ['headerContent', 'object'],
+        ['children', 'object'],
+        ['mainAction', 'object'],
+      ])('THEN should include %s', (prop, expectedType) => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(callArgs[prop]).toBeDefined()
+        expect(typeof callArgs[prop]).toBe(expectedType)
+      })
+
+      it('THEN should include form with id and submit', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(callArgs.form).toBeDefined()
+        expect(callArgs.form.id).toBeDefined()
+        expect(typeof callArgs.form.submit).toBe('function')
+      })
+    })
+  })
+
+  describe('GIVEN the dialog resolves with success', () => {
+    describe('WHEN result reason is success', () => {
+      it('THEN should show success toast', async () => {
+        mockFormDialogOpen.mockResolvedValue({ reason: 'success' })
+
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
     })
 
-    act(() => {
-      result.current.showResendEmailDialog(defaultParams)
+    describe('WHEN result reason is not success', () => {
+      it('THEN should not show success toast', async () => {
+        mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
+
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the onError callback', () => {
+    describe('WHEN error is UnprocessableEntity', () => {
+      it('THEN should show danger toast', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+        const { onError } = callArgs
+
+        onError(new Error(LagoApiError.UnprocessableEntity))
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
     })
 
-    expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
+    describe('WHEN error is form validation', () => {
+      it('THEN should not show any toast', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
 
-    const callArgs = mockFormDialogOpen.mock.calls[0][0]
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
 
-    expect(callArgs).toBeDefined()
-    expect(callArgs.title).toBeDefined()
-    expect(callArgs.headerContent).toBeDefined()
-    expect(callArgs.children).toBeDefined()
-    expect(callArgs.mainAction).toBeDefined()
-    expect(callArgs.form).toBeDefined()
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+        const { onError } = callArgs
+
+        onError(new Error('form.invalid'))
+
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN error is a generic error', () => {
+      it('THEN should not show local toast (global errorLink handles it)', () => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog(defaultParams)
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+        const { onError } = callArgs
+
+        onError(new Error())
+
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN different email types', () => {
+    describe('WHEN called with each type', () => {
+      it.each([
+        BillingEntityEmailSettingsEnum.InvoiceFinalized,
+        BillingEntityEmailSettingsEnum.CreditNoteCreated,
+        BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+      ])('THEN should open dialog for type %s', (type) => {
+        const { result } = renderHook(() => useResendEmailDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.showResendEmailDialog({
+            ...defaultParams,
+            type,
+          })
+        })
+
+        expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
+      })
+    })
   })
 })

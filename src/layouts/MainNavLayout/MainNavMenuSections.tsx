@@ -2,7 +2,6 @@ import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSyste
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
-  ANALYTIC_NEW_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -29,7 +28,6 @@ import {
   PLANS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
@@ -52,8 +50,6 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
 
-  const canSeeSupersetDashboards = isFeatureFlagActive(FeatureFlags.SUPERSET_ANALYTICS)
-
   const getReportsTabs = (): NavTab[] => [
     {
       title: translate('text_6553885df387fd0097fd7384'),
@@ -69,13 +65,6 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       match: [FORECASTS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
       extraComponent: <BadgeAI />,
-    },
-    {
-      title: translate('text_1762346890583hgqcnuvj2rh'),
-      icon: 'eye',
-      link: ANALYTIC_NEW_ROUTE,
-      match: [ANALYTIC_NEW_ROUTE],
-      hidden: !hasPermissions(['analyticsView']) || !canSeeSupersetDashboards,
     },
   ]
 

@@ -19,7 +19,7 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 jest.mock('~/core/utils/featureFlags', () => ({
-  FeatureFlags: { SUPERSET_ANALYTICS: 'SUPERSET_ANALYTICS' },
+  FeatureFlags: {},
   isFeatureFlagActive: jest.fn(() => false),
 }))
 

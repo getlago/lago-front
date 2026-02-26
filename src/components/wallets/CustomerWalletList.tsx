@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -60,6 +60,10 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+
+  const [searchParams] = useSearchParams()
+  const walletId = searchParams?.get('walletId')
+  const transactionId = searchParams?.get('transactionId')
 
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 10 },
@@ -152,6 +156,8 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
                 premiumWarningDialogRef={premiumWarningDialogRef}
                 wallet={wallet}
                 customerTimezone={customerTimezone}
+                initiallyOpen={wallet.id === walletId}
+                selectedTransaction={transactionId}
               />
             ))}
           </div>

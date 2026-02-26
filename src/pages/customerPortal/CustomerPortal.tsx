@@ -18,6 +18,10 @@ import { hasDefinedGQLError } from '~/core/apolloClient'
 import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
 
+export const CUSTOMER_PORTAL_ERROR_STATE_TEST_ID = 'customer-portal-error-state'
+export const CUSTOMER_PORTAL_LOADING_STATE_TEST_ID = 'customer-portal-loading-state'
+export const CUSTOMER_PORTAL_CONTENT_STATE_TEST_ID = 'customer-portal-content-state'
+
 gql`
   query getPortalOrgaInfos {
     customerPortalOrganization {
@@ -37,10 +41,13 @@ const CustomerPortal = () => {
     translate,
     error: customerPortalTranslateError,
     loading: portalIsLoading,
+    isUnauthenticated,
   } = useCustomerPortalTranslate()
 
   const portalIsError =
-    customerPortalTranslateError && hasDefinedGQLError('Unauthorized', customerPortalTranslateError)
+    isUnauthenticated ||
+    (customerPortalTranslateError &&
+      hasDefinedGQLError('Unauthorized', customerPortalTranslateError))
 
   const customerPortalContentRef = useRef<HTMLDivElement>(null)
 
@@ -77,7 +84,7 @@ const CustomerPortal = () => {
 
   if (portalIsError) {
     return (
-      <div className={containerClassName}>
+      <div data-test={CUSTOMER_PORTAL_ERROR_STATE_TEST_ID} className={containerClassName}>
         {showSidebar && (
           <CustomerPortalSidebar
             organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
@@ -102,7 +109,7 @@ const CustomerPortal = () => {
 
   if (portalIsLoading) {
     return (
-      <div className={containerClassName}>
+      <div data-test={CUSTOMER_PORTAL_LOADING_STATE_TEST_ID} className={containerClassName}>
         {showSidebar && <CustomerPortalSidebar isLoading={true} />}
 
         <div className={contentContainerClassName}>
@@ -132,7 +139,7 @@ const CustomerPortal = () => {
   }
 
   return (
-    <div className={containerClassName}>
+    <div data-test={CUSTOMER_PORTAL_CONTENT_STATE_TEST_ID} className={containerClassName}>
       {showSidebar && (
         <CustomerPortalSidebar
           organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}

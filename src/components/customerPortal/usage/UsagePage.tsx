@@ -14,7 +14,7 @@ import {
 } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import { SubscriptionUsageLifetimeGraphComponent } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/CustomerPortalRoutes'
+import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import {
   CustomerProjectedUsageForUsageDetailsFragmentDoc,
   CustomerUsageForUsageDetailsFragmentDoc,
