@@ -81,12 +81,8 @@ export const SubscriptionFeeSection = memo(
             subscriptionFeeDrawerRef.current?.openDrawer({
               amountCents: formikProps.values.amountCents || '',
               payInAdvance: formikProps.values.payInAdvance || false,
-              trialPeriod:
-                formikProps.values.trialPeriod !== undefined &&
-                formikProps.values.trialPeriod !== null
-                  ? String(formikProps.values.trialPeriod)
-                  : '',
-              invoiceDisplayName: formikProps.values.invoiceDisplayName || '',
+              trialPeriod: formikProps.values.trialPeriod ?? 0,
+              invoiceDisplayName: formikProps.values.invoiceDisplayName || undefined,
             })
           }}
         />

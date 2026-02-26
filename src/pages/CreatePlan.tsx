@@ -224,8 +224,6 @@ const CreatePlan = () => {
       formikProps.setValues({
         ...formikProps.values,
         ...values,
-        invoiceDisplayName: values.invoiceDisplayName || undefined,
-        trialPeriod: values.trialPeriod ? Number(values.trialPeriod) : undefined,
       })
     },
     [formikProps],

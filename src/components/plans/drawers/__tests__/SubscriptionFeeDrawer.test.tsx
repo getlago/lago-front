@@ -14,6 +14,11 @@ import {
 
 // Capture onEntered callback passed to the Drawer
 let capturedOnEntered: (() => void) | undefined
+let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | undefined
+let capturedDefaultValues: Record<string, unknown> | undefined
+let capturedTrialPeriodOnChange:
+  | ((args: { value: unknown; fieldApi: { setValue: (v: unknown) => void } }) => void)
+  | undefined
 
 jest.mock('~/components/designSystem/Drawer', () => {
   const React = jest.requireActual('react')
@@ -95,9 +100,12 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       onSubmit,
       defaultValues,
     }: {
-      onSubmit?: (args: { value: unknown }) => void
+      onSubmit?: (args: { value: Record<string, unknown> }) => void
       defaultValues: Record<string, unknown>
     }) => {
+      capturedOnSubmit = onSubmit
+      capturedDefaultValues = defaultValues
+
       const store = {
         subscribe: jest.fn(() => jest.fn()),
         getState: jest.fn(() => ({ isDirty: false })),
@@ -114,10 +122,21 @@ jest.mock('~/hooks/forms/useAppform', () => ({
         AppField: ({
           children,
           name,
+          listeners,
         }: {
           children: (field: ReturnType<typeof createFieldCtx>) => React.ReactNode
           name: string
+          listeners?: {
+            onChange?: (args: {
+              value: unknown
+              fieldApi: { setValue: (v: unknown) => void }
+            }) => void
+          }
         }) => {
+          if (name === 'trialPeriod' && listeners?.onChange) {
+            capturedTrialPeriodOnChange = listeners.onChange
+          }
+
           const fieldCtx = createFieldCtx(name, defaultValues[name] ?? '')
 
           return <>{children(fieldCtx)}</>
@@ -180,12 +199,15 @@ describe('SubscriptionFeeDrawer', () => {
   const defaultFormValues: SubscriptionFeeFormValues = {
     amountCents: '100',
     payInAdvance: false,
-    trialPeriod: '30',
+    trialPeriod: 30,
     invoiceDisplayName: 'Test Fee',
   }
 
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedOnSubmit = undefined
+    capturedDefaultValues = undefined
+    capturedTrialPeriodOnChange = undefined
     drawerRef = createRef<SubscriptionFeeDrawerRef>()
     mockedUseFieldContext.mockReturnValue(createFieldCtx('testField', ''))
   })
@@ -233,13 +255,13 @@ describe('SubscriptionFeeDrawer', () => {
         const values: SubscriptionFeeFormValues = {
           amountCents: '50',
           payInAdvance: true,
-          trialPeriod: '14',
+          trialPeriod: 14,
           invoiceDisplayName: 'Custom Name',
         }
 
         expect(values.amountCents).toBe('50')
         expect(values.payInAdvance).toBe(true)
-        expect(values.trialPeriod).toBe('14')
+        expect(values.trialPeriod).toBe(14)
         expect(values.invoiceDisplayName).toBe('Custom Name')
       })
     })
@@ -323,6 +345,184 @@ describe('SubscriptionFeeDrawer', () => {
 
         expect(getInput('payInAdvance')).not.toBeDisabled()
         expect(getInput('trialPeriod')).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the form default values', () => {
+    describe('WHEN the form is initialized', () => {
+      it('THEN trialPeriod defaults to 0 as a number', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        expect(capturedDefaultValues).toBeDefined()
+        expect(capturedDefaultValues?.trialPeriod).toBe(0)
+        expect(typeof capturedDefaultValues?.trialPeriod).toBe('number')
+      })
+
+      it('THEN trialPeriod is not undefined or an empty string', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        expect(capturedDefaultValues?.trialPeriod).not.toBeUndefined()
+        expect(capturedDefaultValues?.trialPeriod).not.toBe('')
+      })
+    })
+  })
+
+  describe('GIVEN the onSubmit handler', () => {
+    describe('WHEN trialPeriod is a valid number', () => {
+      it('THEN should preserve the number value', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: 30 } })
+
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 30 }))
+      })
+    })
+
+    describe('WHEN trialPeriod is 0', () => {
+      it('THEN should preserve 0 as the value', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: 0 } })
+
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }))
+      })
+    })
+
+    describe('WHEN trialPeriod is NaN', () => {
+      it('THEN should normalize to 0', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: NaN } })
+
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }))
+      })
+    })
+
+    describe('WHEN trialPeriod is undefined', () => {
+      it('THEN should normalize to 0', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: undefined } })
+
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }))
+      })
+    })
+
+    describe('WHEN invoiceDisplayName is empty string', () => {
+      it('THEN should normalize to undefined', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        capturedOnSubmit?.({ value: { ...defaultFormValues, invoiceDisplayName: '' } })
+
+        expect(mockOnSave).toHaveBeenCalledWith(
+          expect.objectContaining({ invoiceDisplayName: undefined }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the openDrawer normalization', () => {
+    describe('WHEN called with a defined trialPeriod', () => {
+      it('THEN should pass the value as-is to form.reset', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        drawerRef.current?.openDrawer({ ...defaultFormValues, trialPeriod: 14 })
+
+        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 14 }), {
+          keepDefaultValues: true,
+        })
+      })
+    })
+
+    describe('WHEN called with trialPeriod as 0', () => {
+      it('THEN should preserve 0', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        drawerRef.current?.openDrawer({ ...defaultFormValues, trialPeriod: 0 })
+
+        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }), {
+          keepDefaultValues: true,
+        })
+      })
+    })
+
+    describe('WHEN called with trialPeriod as undefined (cast)', () => {
+      it('THEN should normalize to 0 via nullish coalescing', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        drawerRef.current?.openDrawer({
+          ...defaultFormValues,
+          trialPeriod: undefined as unknown as number,
+        })
+
+        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }), {
+          keepDefaultValues: true,
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the trialPeriod field listener', () => {
+    describe('WHEN the value is a string (from TextInputField)', () => {
+      it('THEN should call setValue with 0', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        expect(capturedTrialPeriodOnChange).toBeDefined()
+
+        const mockSetValue = jest.fn()
+
+        capturedTrialPeriodOnChange?.({
+          value: '10' as unknown,
+          fieldApi: { setValue: mockSetValue },
+        })
+
+        expect(mockSetValue).toHaveBeenCalledWith(0)
+      })
+    })
+
+    describe('WHEN the value is NaN (from parseInt of empty string)', () => {
+      it('THEN should call setValue with 0', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        const mockSetValue = jest.fn()
+
+        capturedTrialPeriodOnChange?.({
+          value: NaN,
+          fieldApi: { setValue: mockSetValue },
+        })
+
+        expect(mockSetValue).toHaveBeenCalledWith(0)
+      })
+    })
+
+    describe('WHEN the value is a valid number', () => {
+      it('THEN should not call setValue', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        const mockSetValue = jest.fn()
+
+        capturedTrialPeriodOnChange?.({
+          value: 30,
+          fieldApi: { setValue: mockSetValue },
+        })
+
+        expect(mockSetValue).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the value is 0', () => {
+      it('THEN should not call setValue (0 is a valid number)', () => {
+        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        const mockSetValue = jest.fn()
+
+        capturedTrialPeriodOnChange?.({
+          value: 0,
+          fieldApi: { setValue: mockSetValue },
+        })
+
+        expect(mockSetValue).not.toHaveBeenCalled()
       })
     })
   })

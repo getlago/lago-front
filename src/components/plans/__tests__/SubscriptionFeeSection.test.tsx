@@ -159,14 +159,14 @@ describe('SubscriptionFeeSection', () => {
         expect(mockOpenDrawer).toHaveBeenCalledWith({
           amountCents: '250',
           payInAdvance: true,
-          trialPeriod: '14',
+          trialPeriod: 14,
           invoiceDisplayName: 'Custom Fee',
         })
       })
     })
 
     describe('WHEN formik values have no trialPeriod', () => {
-      it('THEN should pass empty string for trialPeriod when drawer is opened', async () => {
+      it('THEN should default to 0 when drawer is opened', async () => {
         const user = userEvent.setup()
         const formikProps = createFormikProps({
           trialPeriod: undefined as unknown as number,
@@ -178,14 +178,14 @@ describe('SubscriptionFeeSection', () => {
 
         expect(mockOpenDrawer).toHaveBeenCalledWith(
           expect.objectContaining({
-            trialPeriod: '',
+            trialPeriod: 0,
           }),
         )
       })
     })
 
     describe('WHEN formik trialPeriod is 0', () => {
-      it('THEN should preserve 0 as "0" instead of converting to empty string', async () => {
+      it('THEN should preserve 0 as a number instead of converting to undefined', async () => {
         const user = userEvent.setup()
         const formikProps = createFormikProps({ trialPeriod: 0 })
 
@@ -195,7 +195,7 @@ describe('SubscriptionFeeSection', () => {
 
         expect(mockOpenDrawer).toHaveBeenCalledWith(
           expect.objectContaining({
-            trialPeriod: '0',
+            trialPeriod: 0,
           }),
         )
       })

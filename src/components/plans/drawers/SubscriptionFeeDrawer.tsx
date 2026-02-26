@@ -17,22 +17,22 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 export interface SubscriptionFeeFormValues {
   amountCents: string
   payInAdvance: boolean
-  trialPeriod: string
-  invoiceDisplayName: string
+  trialPeriod: number
+  invoiceDisplayName?: string
 }
 
 const subscriptionFeeSchema = z.object({
   amountCents: z.string().min(1, 'text_1771342994699klxu2paz7g8'),
   payInAdvance: z.boolean(),
-  trialPeriod: z.string(),
-  invoiceDisplayName: z.string(),
+  trialPeriod: z.number(),
+  invoiceDisplayName: z.string().optional(),
 })
 
 const DEFAULT_VALUES: SubscriptionFeeFormValues = {
   amountCents: '',
   payInAdvance: false,
-  trialPeriod: '',
-  invoiceDisplayName: '',
+  trialPeriod: 0,
+  invoiceDisplayName: undefined,
 }
 
 const SUBSCRIPTION_FEE_FORM_ID = 'subscription-fee-drawer-form'
@@ -70,14 +70,24 @@ export const SubscriptionFeeDrawer = forwardRef<
       onDynamic: subscriptionFeeSchema,
     },
     onSubmit: async ({ value }) => {
-      onSave(value)
+      onSave({
+        ...value,
+        trialPeriod: Number(value.trialPeriod) || 0,
+        invoiceDisplayName: value.invoiceDisplayName || undefined,
+      })
       drawerRef.current?.closeDrawer()
     },
   })
 
   useImperativeHandle(ref, () => ({
     openDrawer: (values: SubscriptionFeeFormValues) => {
-      form.reset(values, { keepDefaultValues: true })
+      form.reset(
+        {
+          ...values,
+          trialPeriod: values.trialPeriod ?? 0,
+        },
+        { keepDefaultValues: true },
+      )
       drawerRef.current?.openDrawer()
     },
     closeDrawer: () => {
@@ -188,7 +198,18 @@ export const SubscriptionFeeDrawer = forwardRef<
                 )}
               </form.AppField>
 
-              <form.AppField name="trialPeriod">
+              <form.AppField
+                name="trialPeriod"
+                listeners={{
+                  onChange: ({ value, fieldApi }) => {
+                    // beforeChangeFormatter int produces NaN when cleared (parseInt(""))
+                    // and may produce a string if the formatter is ever removed
+                    if (typeof value !== 'number' || Number.isNaN(value)) {
+                      fieldApi.setValue(0)
+                    }
+                  },
+                }}
+              >
                 {(field) => (
                   <field.TextInputField
                     beforeChangeFormatter={['positiveNumber', 'int']}
