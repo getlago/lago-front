@@ -1,4 +1,4 @@
-FROM node:24.11.1-alpine AS build
+FROM node:24.13.1-alpine AS build
 
 ARG SENTRY_DSN
 ARG SENTRY_ORG
