@@ -184,8 +184,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       toDate: (value as string).split(',')[1] || undefined,
     }
   },
-  [AvailableFiltersEnum.logEvents]: (value: string) => value.split(','),
-  [AvailableFiltersEnum.logTypes]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.logEvents]: (value: string) => value.split(',').filter(Boolean),
+  [AvailableFiltersEnum.logTypes]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.metadata]: (value: string) => parseMetadataFilter(value),
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
@@ -208,7 +208,10 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.userIds]: (value: string) =>
-    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+    value
+      .split(',')
+      .filter(Boolean)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.zipcodes]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -648,9 +651,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.userIds:
       return value
         .split(',')
-        .map(
-          (v) => v.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
-        )
+        .map((v) => v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0])
         .join(', ')
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
