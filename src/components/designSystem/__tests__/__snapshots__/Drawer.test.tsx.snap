@@ -220,7 +220,7 @@ exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
     </div>
   </div>
   <div
-    class="sticky bottom-0 box-border flex items-center bg-white text-right shadow-t md:px-12"
+    class="sticky bottom-0 box-border flex items-center justify-end bg-white px-4 shadow-t md:px-12"
   >
     <div>
       <button>
@@ -276,7 +276,7 @@ exports[`Drawer Snapshot Tests matches snapshot with stickyBottomBar and custom 
     </div>
   </div>
   <div
-    class="sticky bottom-0 box-border flex items-center bg-white text-right shadow-t md:px-12 custom-sticky-class"
+    class="sticky bottom-0 box-border flex items-center justify-end bg-white px-4 shadow-t md:px-12 custom-sticky-class"
   >
     <div>
       <button>

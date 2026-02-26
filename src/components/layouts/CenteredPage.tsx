@@ -39,7 +39,7 @@ const CenteredContainer = ({ className, children }: PropsWithChildren & { classN
 const CenteredStickyFooter = ({ children }: PropsWithChildren) => {
   return (
     <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
-      <div className="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 md:px-0">
+      <div className="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0">
         {children}
       </div>
     </footer>

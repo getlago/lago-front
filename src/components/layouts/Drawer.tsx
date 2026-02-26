@@ -46,7 +46,7 @@ const SectionTitle: FC<{ title: string; description: string }> = ({ description,
 const StickyFooter: FC<PropsWithChildren> = ({ children }) => {
   return (
     <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
-      <div className="flex min-h-footer w-full flex-row flex-wrap-reverse items-center justify-end gap-3 md:px-12">
+      <div className="flex min-h-footer w-full flex-row flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
         {children}
       </div>
     </footer>

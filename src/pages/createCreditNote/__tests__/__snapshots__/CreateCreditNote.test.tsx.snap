@@ -109,7 +109,7 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
       class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
     >
       <div
-        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 md:px-0"
+        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
       >
         <div
           class="flex h-full items-center justify-end gap-3"
@@ -1075,7 +1075,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
       class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
     >
       <div
-        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 md:px-0"
+        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
       >
         <div
           class="flex h-full items-center justify-end gap-3"
@@ -1996,7 +1996,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
       class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
     >
       <div
-        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 md:px-0"
+        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
       >
         <div
           class="flex h-full items-center justify-end gap-3"
@@ -2917,7 +2917,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
       class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
     >
       <div
-        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 md:px-0"
+        class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
       >
         <div
           class="flex h-full items-center justify-end gap-3"
