@@ -110,6 +110,7 @@ export const useSecurityLogs = () => {
     fetchMoreSecurityLogs,
     refetchSecurityLogs,
     securityLogsError: error,
-    hasFilters: Object.keys(filtersForSecurityLogsQuery).length > 0,
+    // We always have toDate in our filters
+    hasFilters: Object.keys(filtersForSecurityLogsQuery).length > 1,
   }
 }
