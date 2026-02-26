@@ -141,6 +141,7 @@ const SecurityLogs = () => {
           data={securityLogs}
           isLoading={isLoadingSecurityLogs}
           placeholder={tablePlaceholder}
+          hasError={!!securityLogsError}
         />
       </InfiniteScroll>
     </div>

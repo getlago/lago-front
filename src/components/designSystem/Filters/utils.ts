@@ -184,8 +184,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       toDate: (value as string).split(',')[1] || undefined,
     }
   },
-  [AvailableFiltersEnum.logEvents]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.logTypes]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.logEvents]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.logTypes]: (value: string) => value.split(','),
   [AvailableFiltersEnum.metadata]: (value: string) => parseMetadataFilter(value),
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
@@ -668,7 +668,7 @@ export const formatActiveFilterValueDisplay = (
 
 export const formatFiltersForSecurityLogsQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
-    searchParams,
+    searchParams: defineDefaultToDateValue(searchParams, SECURITY_LOGS_FILTER_PREFIX),
     availableFilters: SecurityLogsAvailableFilters,
     filtersNamePrefix: SECURITY_LOGS_FILTER_PREFIX,
   })

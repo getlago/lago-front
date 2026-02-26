@@ -48,8 +48,20 @@ gql`
   }
 `
 
+type FilterForSecurityLogsQuery = {
+  [key: string]: string | string[] | boolean
+  toDate: string
+}
+
 export const formatSecurityLogs = (securityLogs: SecurityLogs): Array<SecurityLogWithId> => {
   return securityLogs.map((securityLog) => ({ id: securityLog.logId, ...securityLog }))
+}
+
+const isFilterForSecurityLogsQuery = (
+  filter: Record<string, string | string[] | boolean>,
+): filter is FilterForSecurityLogsQuery => {
+  if (!filter.toDate || typeof filter.toDate !== 'string') return false
+  return true
 }
 
 export const useSecurityLogs = () => {
@@ -57,8 +69,17 @@ export const useSecurityLogs = () => {
   const defaultToDateTime = DateTime.now().endOf('day').toISO()
 
   const filtersForSecurityLogsQuery = useMemo(() => {
-    return formatFiltersForSecurityLogsQuery(searchParams)
-  }, [searchParams])
+    const formattedFilters = formatFiltersForSecurityLogsQuery(searchParams)
+
+    if (!isFilterForSecurityLogsQuery(formattedFilters)) {
+      return {
+        ...formattedFilters,
+        toDate: defaultToDateTime,
+      }
+    }
+
+    return formattedFilters
+  }, [defaultToDateTime, searchParams])
 
   const {
     data,
@@ -67,16 +88,16 @@ export const useSecurityLogs = () => {
     refetch,
     error,
   } = useGetSecurityLogsQuery({
-    variables: { limit: 20, toDate: defaultToDateTime, ...filtersForSecurityLogsQuery },
+    variables: { limit: 20, ...filtersForSecurityLogsQuery },
     notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
     },
   })
 
-  const refetchSecurityLogs = () => {
-    refetch({
-      toDate: defaultToDateTime,
+  const refetchSecurityLogs = async () => {
+    await refetch({
+      limit: 20,
       ...filtersForSecurityLogsQuery,
       page: 1,
     })
