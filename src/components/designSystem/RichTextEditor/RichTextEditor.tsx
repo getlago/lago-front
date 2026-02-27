@@ -42,7 +42,7 @@ const RichTextEditor = () => {
   if (!editor) return null
 
   return (
-    <div className="rich-text-editor overflow-hidden rounded-xl border border-grey-300">
+    <div className="rich-text-editor relative h-full max-h-screen overflow-auto">
       <Toolbar editor={editor} />
       <EditorContent editor={editor} />
     </div>
