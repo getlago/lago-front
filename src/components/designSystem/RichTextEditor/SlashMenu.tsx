@@ -50,17 +50,11 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
             variant={index === selectedIndex ? 'secondary' : 'quaternary'}
             align="left"
             fullWidth
-            className="!h-auto py-2"
             onClick={() => command(item)}
           >
-            <div className="flex flex-col items-start">
-              <Typography variant="bodyHl" color="grey700">
-                {item.title}
-              </Typography>
-              <Typography variant="caption" color="grey500">
-                {item.description}
-              </Typography>
-            </div>
+            <Typography variant="bodyHl" color="grey700">
+              {item.title}
+            </Typography>
           </Button>
         ))}
       </MenuPopper>
