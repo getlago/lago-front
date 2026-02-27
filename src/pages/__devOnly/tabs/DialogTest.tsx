@@ -1,5 +1,3 @@
-import { tw } from 'lago-design-system'
-
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -11,13 +9,8 @@ import { useDialogOpeningDialog } from '~/components/dialogs/DialogOpeningDialog
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { TextInput } from '~/components/form'
 
-const Container = ({ children }: { children: React.ReactNode }) => (
-  <div className="px-12 pb-20 pt-8">{children}</div>
-)
-
-const Block = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={tw('mb-6 flex flex-wrap gap-4', className)}>{children}</div>
-)
+import Block from '../common/Block'
+import Container from '../common/Container'
 
 const LongModalHeaderContent = () => {
   return (
