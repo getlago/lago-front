@@ -13,7 +13,7 @@ const EditorTest = () => {
       <Typography className="mb-4" variant="subhead1">
         Simple &#60;RichTextEditor/&#62;
       </Typography>
-      <Block>
+      <Block className="h-80">
         <RichTextEditor />
       </Block>
     </Container>
