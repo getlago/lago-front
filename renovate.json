@@ -17,6 +17,11 @@
   },
   "packageRules": [
     {
+      "matchDepTypes": ["overrides"],
+      "enabled": false,
+      "description": "Disable updates for pnpm overrides used to pin transitive security patches"
+    },
+    {
       "matchDepNames": ["node"],
       "rangeStrategy": "bump"
     },
