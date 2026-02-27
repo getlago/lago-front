@@ -26,9 +26,8 @@ import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filt
 import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceType'
 import { FiltersItemIsCustomerTinEmpty } from '~/components/designSystem/Filters/filtersElements/FiltersItemIsCustomerTinEmpty'
 import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
-import { FiltersItemLogEvents } from '~/components/designSystem/Filters/filtersElements/FiltersItemLogEvents'
+import { FiltersItemLogEventsAndTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemLogEventsAndTypes'
 import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
-import { FiltersItemLogTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemLogTypes'
 import { FiltersItemMetadata } from '~/components/designSystem/Filters/filtersElements/FiltersItemMetadata'
 import { FiltersItemOverridden } from '~/components/designSystem/Filters/filtersElements/FiltersItemOverridden'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
@@ -52,6 +51,7 @@ import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filt
 import { FiltersItemZipcodes } from '~/components/designSystem/Filters/filtersElements/FiltersItemZipcodes'
 import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
 import { Typography } from '~/components/designSystem/Typography'
+import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { AvailableFiltersEnum, FiltersFormValues } from './types'
@@ -101,8 +101,12 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
     [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,
     [AvailableFiltersEnum.loggedDate]: <FiltersItemLoggedDate {...props} />,
-    [AvailableFiltersEnum.logEvents]: <FiltersItemLogEvents {...props} />,
-    [AvailableFiltersEnum.logTypes]: <FiltersItemLogTypes {...props} />,
+    [AvailableFiltersEnum.logEvents]: (
+      <FiltersItemLogEventsAndTypes {...props} enumToUse={LogEventEnum} />
+    ),
+    [AvailableFiltersEnum.logTypes]: (
+      <FiltersItemLogEventsAndTypes {...props} enumToUse={LogTypeEnum} />
+    ),
     [AvailableFiltersEnum.metadata]: <FiltersItemMetadata {...props} />,
     [AvailableFiltersEnum.overriden]: <FiltersItemOverridden {...props} />,
     [AvailableFiltersEnum.partiallyPaid]: <FiltersItemPartiallyPaid {...props} />,
