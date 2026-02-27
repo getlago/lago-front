@@ -79,7 +79,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     possibleTextStylings.find((s) => s.value === getActualTextStyling())?.label ?? 'M'
 
   return (
-    <div className="flex flex-wrap gap-1 p-2 shadow-b">
+    <div className="sticky top-0 z-10 flex flex-wrap gap-1 bg-white p-2 shadow-b">
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         opener={
