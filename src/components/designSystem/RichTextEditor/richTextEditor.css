@@ -1,0 +1,93 @@
+/* Strip default tippy styling so the SlashMenu controls its own appearance */
+.tippy-box {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.tippy-content {
+  padding: 0;
+}
+
+/* Restore styles stripped by Tailwind preflight inside the TipTap editor */
+.ProseMirror {
+  @apply text-base font-normal leading-6 text-grey-700;
+  font-family: Inter, Arial, Verdana, Helvetica, sans-serif;
+  letter-spacing: -0.16px;
+
+  /* Placeholder */
+  p.is-editor-empty:first-child::before {
+    @apply pointer-events-none float-left h-0 text-grey-400;
+    content: attr(data-placeholder);
+  }
+
+  /* Headings — match headline / subhead1 / subhead2 MUI variants */
+  h1 {
+    @apply my-3 text-2xl font-semibold leading-8 text-grey-700;
+    letter-spacing: -0.4px;
+  }
+
+  h2 {
+    @apply my-2 text-lg font-semibold leading-6 text-grey-700;
+    letter-spacing: -0.4px;
+  }
+
+  h3 {
+    @apply my-2 text-base font-semibold leading-6 text-grey-700;
+    letter-spacing: -0.4px;
+  }
+
+  /* Paragraphs — match MUI body variant (16px/24px/400) */
+  p {
+    @apply my-1 text-base font-normal leading-6 text-grey-700;
+    letter-spacing: -0.16px;
+  }
+
+  /* Inline styles */
+  strong {
+    @apply font-medium;
+  }
+
+  /* Lists */
+  ul {
+    @apply my-2 pl-6;
+
+    li {
+      @apply list-disc;
+    }
+  }
+
+  ol {
+    @apply my-2 pl-6;
+
+    li {
+      @apply list-decimal;
+    }
+  }
+
+  li p {
+    @apply m-0;
+  }
+
+  /* Code — match captionCode MUI variant */
+  code {
+    @apply rounded bg-grey-100 px-1 py-0.5 text-sm leading-6;
+    font-family: IBM Plex Mono, monospace;
+  }
+
+  /* Tables */
+  table {
+    @apply my-2 w-full border-collapse;
+  }
+
+  th,
+  td {
+    @apply min-w-[100px] border border-grey-300 px-3 py-2 text-base leading-6;
+    letter-spacing: -0.16px;
+  }
+
+  th {
+    @apply bg-grey-100 font-medium;
+  }
+}
