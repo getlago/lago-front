@@ -4,7 +4,6 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { Icon, IconName } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
 
@@ -15,7 +14,6 @@ import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Chip } from '~/components/designSystem/Chip'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Drawer } from '~/components/designSystem/Drawer'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
@@ -62,6 +60,7 @@ import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import DialogTest from './tabs/DialogTest'
+import EditorTest from './tabs/EditorTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -72,6 +71,9 @@ const AVATAR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'av
 const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'skeleton' })
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
 const DIALOG_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'dialog' })
+const RICH_TEXT_EDITOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
+  tab: 'rich-text-editor',
+})
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -94,7 +96,6 @@ const ComboboxHeader = ({ children }: { children: React.ReactNode }) => (
 )
 
 const DesignSystem = () => {
-  const dialogRef = useRef<DialogRef>(null)
   const formikProps = useFormik({
     initialValues: {
       checkbox: false,
@@ -319,31 +320,6 @@ const DesignSystem = () => {
                       allowFullScreen
                     ></iframe>
                   </Drawer>
-                  <Button onClick={() => dialogRef.current?.openDialog()}>Dialog</Button>
-                  <Dialog
-                    ref={dialogRef}
-                    title="Imma dialog"
-                    description="And I'm happy to see you"
-                    actions={({ closeDialog }) => (
-                      <>
-                        <Button variant="quaternary" onClick={() => closeDialog()}>
-                          Oups
-                        </Button>
-                        <Button onClick={() => closeDialog()}>Ok bye</Button>
-                      </>
-                    )}
-                  >
-                    <Typography className="mb-4">
-                      <iframe
-                        title="Happy to see you"
-                        src="https://giphy.com/embed/l2Jhok92mZ2PZHjDG"
-                        width="480"
-                        height="256"
-                        frameBorder="0"
-                        allowFullScreen
-                      ></iframe>
-                    </Typography>
-                  </Dialog>
                   <Tooltip placement="top-end" title="Hola muchacho 🥸!">
                     <Button variant="secondary">Tooltip</Button>
                   </Tooltip>
@@ -1991,6 +1967,11 @@ const DesignSystem = () => {
             title: 'Dialogs',
             link: DIALOG_TAB_URL,
             component: <DialogTest />,
+          },
+          {
+            title: 'Rich Text Editor',
+            link: RICH_TEXT_EDITOR_TAB_URL,
+            component: <EditorTest />,
           },
           // disabled simple tab
           {
