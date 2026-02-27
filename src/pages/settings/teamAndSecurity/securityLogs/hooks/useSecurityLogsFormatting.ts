@@ -11,6 +11,7 @@ import {
   isRoleEditedResource,
   isRoleResource,
   isRotatedApiKeyResource,
+  isWebhookEditedResource,
   isWebhookResource,
 } from '../common/securityLogsResourcesTypeGuards'
 import { SecurityLogWithId } from '../common/securityLogsTypes'
@@ -121,6 +122,16 @@ export const useSecurityLogsFormatting = () => {
       url: securityLog.resources.webhook_url,
     }
   }
+  const getWebhookEditedResources = (securityLog: SecurityLogWithId) => {
+    if (!isWebhookEditedResource(securityLog.resources)) {
+      return { urlFrom: 'unknown', urlTo: 'unknown' }
+    }
+
+    return {
+      urlFrom: securityLog.resources.webhook_url.deleted,
+      urlTo: securityLog.resources.webhook_url.added,
+    }
+  }
 
   const getSecurityLogDescription = (securityLog: SecurityLogWithId) => {
     switch (securityLog.logEvent) {
@@ -177,7 +188,7 @@ export const useSecurityLogsFormatting = () => {
       case LogEventEnum.WebhookEndpointDeleted:
         return translate('text_177193798706284nfb2tmxkb', getWebhookResources(securityLog))
       case LogEventEnum.WebhookEndpointUpdated:
-        return translate('text_1771937987062rw8agotc8gs', getWebhookResources(securityLog))
+        return translate('text_1771937987062rw8agotc8gs', getWebhookEditedResources(securityLog))
       default:
         return '-'
     }

@@ -8,7 +8,7 @@ export type SecurityLogWithId = SecurityLog & { id: string }
 // Resource interfaces for type-safe access to the JSON `resources` field
 export interface ApiKeyResource {
   name: string
-  value_ending: string
+  value_ending: number
 }
 
 export interface RotatedApiKeyResource {
@@ -44,4 +44,10 @@ export interface RoleEditedResource {
 
 export interface WebhookResource {
   webhook_url: string
+}
+export interface WebhookEditedResource {
+  webhook_url: {
+    deleted: string
+    added: string
+  }
 }

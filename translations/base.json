@@ -3861,7 +3861,7 @@
   "text_1771937987062jy68yxfqjwx": "{{email}} joined",
   "text_1771937987062g2z0d9cegyj": "A new webhook endpoint {{url}} was created",
   "text_177193798706284nfb2tmxkb": "A webhook endpoint {{url}} was deleted",
-  "text_1771937987062rw8agotc8gs": "A webhook endpoint {{url}} was updated",
+  "text_1771937987062rw8agotc8gs": "A webhook endpoint {{urlFrom}} was updated to {{urlTo}}",
   "text_1772026899880ogvwyuadgu7": "Log event",
   "text_1772026899880bb07acdof6w": "Log type",
   "text_1772026899880swtnqcqd6s3": "User",

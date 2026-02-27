@@ -6,6 +6,7 @@ import {
   RoleEditedResource,
   RoleResource,
   RotatedApiKeyResource,
+  WebhookEditedResource,
   WebhookResource,
 } from './securityLogsTypes'
 
@@ -15,9 +16,9 @@ export const isApiKeyResource = (resources: unknown): resources is ApiKeyResourc
     !!resources &&
     typeof resources === 'object' &&
     'name' in resources &&
-    typeof (resources as ApiKeyResource).name === 'string' &&
+    typeof resources.name === 'string' &&
     'value_ending' in resources &&
-    typeof (resources as ApiKeyResource).value_ending === 'string'
+    typeof resources.value_ending === 'number'
   )
 }
 
@@ -26,14 +27,14 @@ export const isRotatedApiKeyResource = (resources: unknown): resources is Rotate
     !!resources &&
     typeof resources === 'object' &&
     'name' in resources &&
-    typeof (resources as RotatedApiKeyResource).name === 'string' &&
+    typeof resources.name === 'string' &&
     'value_ending' in resources &&
-    typeof (resources as RotatedApiKeyResource).value_ending === 'object' &&
-    !!(resources as RotatedApiKeyResource).value_ending &&
-    'deleted' in (resources as RotatedApiKeyResource).value_ending &&
-    typeof (resources as RotatedApiKeyResource).value_ending.deleted === 'string' &&
-    'added' in (resources as RotatedApiKeyResource).value_ending &&
-    typeof (resources as RotatedApiKeyResource).value_ending.added === 'string'
+    typeof resources.value_ending === 'object' &&
+    !!resources.value_ending &&
+    'deleted' in resources.value_ending &&
+    typeof resources.value_ending.deleted === 'string' &&
+    'added' in resources.value_ending &&
+    typeof resources.value_ending.added === 'string'
   )
 }
 
@@ -42,7 +43,7 @@ export const isBillingEntityResource = (resources: unknown): resources is Billin
     !!resources &&
     typeof resources === 'object' &&
     'billing_entity_name' in resources &&
-    typeof (resources as BillingEntityResource).billing_entity_name === 'string'
+    typeof resources.billing_entity_name === 'string'
   )
 }
 
@@ -51,7 +52,7 @@ export const isIntegrationResource = (resources: unknown): resources is Integrat
     !!resources &&
     typeof resources === 'object' &&
     'integration_name' in resources &&
-    typeof (resources as IntegrationResource).integration_name === 'string'
+    typeof resources.integration_name === 'string'
   )
 }
 
@@ -60,7 +61,7 @@ export const isRoleResource = (resources: unknown): resources is RoleResource =>
     !!resources &&
     typeof resources === 'object' &&
     'role_code' in resources &&
-    typeof (resources as RoleResource).role_code === 'string'
+    typeof resources.role_code === 'string'
   )
 }
 
@@ -69,7 +70,7 @@ export const isInviteResource = (resources: unknown): resources is InviteResourc
     !!resources &&
     typeof resources === 'object' &&
     'invitee_email' in resources &&
-    typeof (resources as InviteResource).invitee_email === 'string'
+    typeof resources.invitee_email === 'string'
   )
 }
 
@@ -78,12 +79,12 @@ export const isRoleEditedResource = (resources: unknown): resources is RoleEdite
     !!resources &&
     typeof resources === 'object' &&
     'email' in resources &&
-    typeof (resources as RoleEditedResource).email === 'string' &&
+    typeof resources.email === 'string' &&
     'roles' in resources &&
-    typeof (resources as RoleEditedResource).roles === 'object' &&
-    !!(resources as RoleEditedResource).roles &&
-    'added' in (resources as RoleEditedResource).roles &&
-    typeof (resources as RoleEditedResource).roles.added === 'string'
+    typeof resources.roles === 'object' &&
+    !!resources.roles &&
+    'added' in resources.roles &&
+    typeof resources.roles.added === 'string'
   )
 }
 
@@ -92,6 +93,20 @@ export const isWebhookResource = (resources: unknown): resources is WebhookResou
     !!resources &&
     typeof resources === 'object' &&
     'webhook_url' in resources &&
-    typeof (resources as WebhookResource).webhook_url === 'string'
+    typeof resources.webhook_url === 'string'
+  )
+}
+
+export const isWebhookEditedResource = (resources: unknown): resources is WebhookEditedResource => {
+  return (
+    !!resources &&
+    typeof resources === 'object' &&
+    'webhook_url' in resources &&
+    typeof resources.webhook_url === 'object' &&
+    !!resources.webhook_url &&
+    'added' in resources.webhook_url &&
+    typeof resources.webhook_url.added === 'string' &&
+    'deleted' in resources.webhook_url &&
+    typeof resources.webhook_url.deleted === 'string'
   )
 }
