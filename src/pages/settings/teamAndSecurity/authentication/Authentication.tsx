@@ -81,7 +81,7 @@ const Authentication = () => {
 
   const shouldSeeOktaIntegration = hasAccessToOktaPremiumIntegration && isPremium
 
-  const getEndIcon = ({
+  const getEndContent = ({
     type,
     method,
   }: {
@@ -293,7 +293,7 @@ const Authentication = () => {
                   <Icon name="key" color="black" />
                 </Avatar>
               }
-              endIcon={getEndIcon({
+              endContent={getEndContent({
                 type: authenticationMethods?.includes(AuthenticationMethodsEnum.EmailPassword)
                   ? 'enabled'
                   : 'disabled',
@@ -309,7 +309,7 @@ const Authentication = () => {
                   <Icon name="google" size="medium" />
                 </Avatar>
               }
-              endIcon={getEndIcon({
+              endContent={getEndContent({
                 type: authenticationMethods?.includes(AuthenticationMethodsEnum.GoogleOauth)
                   ? 'enabled'
                   : 'disabled',
@@ -344,7 +344,7 @@ const Authentication = () => {
                     navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
                 })
               }}
-              endIcon={getEndIcon({
+              endContent={getEndContent({
                 method: AuthenticationMethodsEnum.Okta,
                 type: authenticationMethods?.includes(AuthenticationMethodsEnum.Okta)
                   ? 'enabled'

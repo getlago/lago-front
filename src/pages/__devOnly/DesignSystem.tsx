@@ -20,7 +20,7 @@ import { Drawer } from '~/components/designSystem/Drawer'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
-import { Selector } from '~/components/designSystem/Selector'
+import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { ShowMoreText } from '~/components/designSystem/ShowMoreText'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusType } from '~/components/designSystem/Status'
@@ -388,53 +388,311 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Selector
                 </Typography>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Default states
+                </Typography>
                 <Block>
                   <Selector
-                    title="A simple selector"
-                    subtitle="with more info"
+                    title="Clickable with chip"
+                    subtitle="endContent only, no hover swap"
                     icon={
-                      <Avatar variant="connector-full">
+                      <Avatar size="big" variant="connector-full">
                         <Stripe />
                       </Avatar>
                     }
-                    endIcon={
+                    endContent={
                       <Chip
                         icon="validate-filled"
                         iconSize="medium"
                         iconColor="success"
-                        label="With chip"
+                        label="Connected"
                       />
                     }
-                    onClick={() => {}}
+                    onClick={() => alert('Selector clicked')}
                     fullWidth
                   />
                   <Selector
-                    title="A simple selector selected"
+                    title="Selected with subtitle first"
                     subtitle="Subtitle first"
                     titleFirst={false}
                     selected
                     icon="target"
-                    endIcon={<Chip label="With chip" />}
-                    onClick={() => {}}
+                    endContent={<Chip label="Active" />}
+                    onClick={() => alert('Selected clicked')}
                   />
                   <Selector
-                    title="Non clickable selector"
-                    subtitle="Alexandre Monjol"
+                    title="Non clickable"
+                    subtitle="No onClick, no endContent"
                     titleFirst={false}
                     icon="user"
                   />
                   <Selector
-                    title="A simple selector disabled"
-                    subtitle="Subtitle first"
+                    title="Disabled with chip"
+                    subtitle="Cannot interact"
                     titleFirst={false}
                     disabled
                     icon={
-                      <Avatar variant="connector">
+                      <Avatar size="big" variant="connector">
                         <Stripe />
                       </Avatar>
                     }
-                    endIcon={<Chip label="With chip" />}
-                    onClick={() => {}}
+                    endContent={<Chip label="Connected" />}
+                    onClick={() => alert('Should not fire')}
+                  />
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Integration patterns — default arrow + hover swap
+                </Typography>
+                <Block>
+                  <Selector
+                    title="Not connected"
+                    subtitle="Click opens add dialog"
+                    icon={
+                      <Avatar size="big" variant="connector-full">
+                        <Stripe />
+                      </Avatar>
+                    }
+                    endContent={<Button icon="chevron-right" variant="quaternary" />}
+                    onClick={() => alert('Open add dialog')}
+                    fullWidth
+                  />
+                  <Selector
+                    title="Connected — hover to see edit"
+                    subtitle="endContent swaps to hoverActions on hover"
+                    icon={
+                      <Avatar size="big" variant="connector-full">
+                        <Stripe />
+                      </Avatar>
+                    }
+                    endContent={
+                      <>
+                        <Chip label="Connected" />
+                        <Button icon="chevron-right" variant="quaternary" />
+                      </>
+                    }
+                    hoverActions={
+                      <>
+                        <Chip label="Connected" />
+                        <SelectorActions
+                          actions={[
+                            {
+                              icon: 'pen',
+                              onClick: () => alert('Edit integration'),
+                            },
+                          ]}
+                        />
+                      </>
+                    }
+                    onClick={() => alert('Navigate to integration')}
+                    fullWidth
+                  />
+                  <Selector
+                    title="Connected — multiple hover actions"
+                    subtitle="Edit and delete on hover"
+                    icon={
+                      <Avatar size="big" variant="connector-full">
+                        <Stripe />
+                      </Avatar>
+                    }
+                    endContent={
+                      <>
+                        <Chip label="Connected" />
+                        <Button icon="chevron-right" variant="quaternary" />
+                      </>
+                    }
+                    hoverActions={
+                      <>
+                        <Chip label="Connected" />
+                        <SelectorActions
+                          actions={[
+                            {
+                              icon: 'pen',
+                              tooltipCopy: 'Edit',
+                              onClick: () => alert('Edit'),
+                            },
+                            {
+                              icon: 'trash',
+                              tooltipCopy: 'Delete',
+                              onClick: () => alert('Delete'),
+                            },
+                          ]}
+                        />
+                      </>
+                    }
+                    onClick={() => alert('Navigate to integration')}
+                    fullWidth
+                  />
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Multiple hover actions only (no chip on hover)
+                </Typography>
+                <Block>
+                  <Selector
+                    title="Item with actions"
+                    subtitle="Only action buttons on hover"
+                    icon="target"
+                    endContent={<Button icon="chevron-right" variant="quaternary" />}
+                    hoverActions={
+                      <SelectorActions
+                        actions={[
+                          {
+                            icon: 'pen',
+                            tooltipCopy: 'Edit',
+                            onClick: () => alert('Edit'),
+                          },
+                          {
+                            icon: 'trash',
+                            tooltipCopy: 'Delete',
+                            onClick: () => alert('Delete'),
+                          },
+                        ]}
+                      />
+                    }
+                    onClick={() => alert('Navigate')}
+                    fullWidth
+                  />
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Premium gating — sparkles icon
+                </Typography>
+                <Block>
+                  <Selector
+                    title="Premium locked"
+                    subtitle="Sparkles shown, no hover swap"
+                    icon={
+                      <Avatar size="big" variant="connector-full">
+                        <Stripe />
+                      </Avatar>
+                    }
+                    endContent={<Button icon="sparkles" variant="quaternary" disabled />}
+                    onClick={() => alert('Open premium warning')}
+                    fullWidth
+                  />
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  External link
+                </Typography>
+                <Block>
+                  <Selector
+                    title="Documentation link"
+                    subtitle="Opens external URL"
+                    icon={
+                      <Avatar size="big" variant="connector-full">
+                        <Stripe />
+                      </Avatar>
+                    }
+                    endContent={<Button icon="outside" variant="quaternary" />}
+                    onClick={() => alert('Open external link')}
+                    fullWidth
+                  />
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Authentication patterns — endContent with Popper menu
+                </Typography>
+                <Block>
+                  <Selector
+                    title="Enabled method with menu"
+                    subtitle="Chip + dots-horizontal Popper"
+                    icon={
+                      <Avatar size="big" variant="connector">
+                        <Icon name="key" color="black" />
+                      </Avatar>
+                    }
+                    endContent={
+                      <div className="flex items-center gap-2">
+                        <Chip
+                          icon="validate-filled"
+                          iconSize="medium"
+                          iconColor="success"
+                          label="Enabled"
+                        />
+                        <Popper
+                          PopperProps={{ placement: 'bottom-end' }}
+                          opener={({ onClick }) => (
+                            <Button
+                              icon="dots-horizontal"
+                              variant="quaternary"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onClick()
+                              }}
+                            />
+                          )}
+                        >
+                          {({ closePopper }) => (
+                            <div className="flex flex-col p-2">
+                              <Button
+                                startIcon="eye-hidden"
+                                variant="quaternary"
+                                align="left"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  alert('Disable method')
+                                  closePopper()
+                                }}
+                              >
+                                Disable
+                              </Button>
+                            </div>
+                          )}
+                        </Popper>
+                      </div>
+                    }
+                  />
+                  <Selector
+                    title="Disabled method with menu"
+                    subtitle="Chip + dots-horizontal Popper"
+                    icon={
+                      <Avatar size="big" variant="connector">
+                        <Icon name="google" size="medium" />
+                      </Avatar>
+                    }
+                    endContent={
+                      <div className="flex items-center gap-2">
+                        <Chip
+                          icon="close-circle-filled"
+                          iconSize="medium"
+                          iconColor="disabled"
+                          label="Disabled"
+                        />
+                        <Popper
+                          PopperProps={{ placement: 'bottom-end' }}
+                          opener={({ onClick }) => (
+                            <Button
+                              icon="dots-horizontal"
+                              variant="quaternary"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onClick()
+                              }}
+                            />
+                          )}
+                        >
+                          {({ closePopper }) => (
+                            <div className="flex flex-col p-2">
+                              <Button
+                                startIcon="plus"
+                                variant="quaternary"
+                                align="left"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  alert('Enable method')
+                                  closePopper()
+                                }}
+                              >
+                                Enable
+                              </Button>
+                            </div>
+                          )}
+                        </Popper>
+                      </div>
+                    }
                   />
                 </Block>
 

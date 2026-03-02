@@ -4,9 +4,10 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
+import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Selector } from '~/components/designSystem/Selector'
+import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
@@ -255,7 +256,7 @@ const Integrations = () => {
     (integration) => integration.__typename === 'SalesforceIntegration',
   )
 
-  const getEndIcon = ({
+  const getEndContent = ({
     showSparkles,
     showConnectedBadge,
   }: {
@@ -263,14 +264,30 @@ const Integrations = () => {
     showConnectedBadge?: boolean
   }) => {
     if (showSparkles === true) {
-      return 'sparkles'
+      return <Button icon="sparkles" variant="quaternary" disabled />
     }
 
     if (showConnectedBadge === true) {
-      return <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+      return (
+        <>
+          <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+          <Button icon="chevron-right" variant="quaternary" />
+        </>
+      )
     }
 
-    return undefined
+    return <Button icon="chevron-right" variant="quaternary" />
+  }
+
+  const getHoverActions = (isConnected: boolean | undefined, route: string) => {
+    if (!isConnected) return undefined
+
+    return (
+      <>
+        <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+        <SelectorActions actions={[{ icon: 'pen', onClick: () => navigate(route) }]} />
+      </>
+    )
   }
 
   return (
@@ -308,9 +325,15 @@ const Integrations = () => {
                             <Adyen />
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasAdyenIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasAdyenIntegration,
+                          generatePath(ADYEN_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         onClick={() => {
                           if (hasAdyenIntegration) {
                             navigate(
@@ -331,10 +354,16 @@ const Integrations = () => {
                         fullWidth
                         title={translate('text_6668821d94e4da4dfd8b3834')}
                         subtitle={translate('text_6668821d94e4da4dfd8b3840')}
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showSparkles: !isPremium,
                           showConnectedBadge: hasAnrokIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          isPremium && hasAnrokIntegration,
+                          generatePath(ANROK_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         icon={
                           <Avatar size="big" variant="connector-full">
                             {<Anrok />}
@@ -363,10 +392,16 @@ const Integrations = () => {
                         fullWidth
                         title={translate('text_1744293609277s53zn6jcoq4')}
                         subtitle={translate('text_6668821d94e4da4dfd8b3840')}
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showSparkles: !hasAccessToAvalaraPremiumIntegration,
                           showConnectedBadge: hasAvalaraIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasAccessToAvalaraPremiumIntegration && hasAvalaraIntegration,
+                          generatePath(AVALARA_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         icon={
                           <Avatar size="big" variant="connector-full">
                             {<Avalara />}
@@ -399,6 +434,7 @@ const Integrations = () => {
                             {<Oso />}
                           </Avatar>
                         }
+                        endContent={<Button icon="outside" variant="quaternary" />}
                         onClick={() => {
                           window.open(DOCUMENTATION_OSO, '_blank')
                         }}
@@ -412,9 +448,15 @@ const Integrations = () => {
                             <GoCardless />
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasGocardlessIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasGocardlessIntegration,
+                          generatePath(GOCARDLESS_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         onClick={() => {
                           if (hasGocardlessIntegration) {
                             navigate(
@@ -436,6 +478,7 @@ const Integrations = () => {
                             {<HightTouch />}
                           </Avatar>
                         }
+                        endContent={<Button icon="outside" variant="quaternary" />}
                         onClick={() => {
                           window.open(DOCUMENTATION_HIGHTTOUCH, '_blank')
                         }}
@@ -449,10 +492,16 @@ const Integrations = () => {
                             {<Hubspot />}
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showSparkles: !hasAccessToHubspotPremiumIntegration,
                           showConnectedBadge: hasHubspotIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasAccessToHubspotPremiumIntegration && hasHubspotIntegration,
+                          generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         onClick={() => {
                           if (!hasAccessToHubspotPremiumIntegration) {
                             premiumWarningDialogRef.current?.openDialog({
@@ -482,9 +531,15 @@ const Integrations = () => {
                             {<LagoTaxManagement />}
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasTaxManagement,
                         })}
+                        hoverActions={getHoverActions(
+                          hasTaxManagement,
+                          generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         onClick={() => {
                           if (hasTaxManagement) {
                             navigate(
@@ -501,10 +556,16 @@ const Integrations = () => {
                         fullWidth
                         title={translate('text_661ff6e56ef7e1b7c542b239')}
                         subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showSparkles: !hasAccessToNetsuitePremiumIntegration,
                           showConnectedBadge: hasNetsuiteIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasAccessToNetsuitePremiumIntegration && hasNetsuiteIntegration,
+                          generatePath(NETSUITE_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         icon={
                           <Avatar size="big" variant="connector-full">
                             {<Netsuite />}
@@ -538,10 +599,16 @@ const Integrations = () => {
                             {<Salesforce />}
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasSalesforceIntegration,
                           showSparkles: !hasAccessToSalesforcePremiumIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasAccessToSalesforcePremiumIntegration && hasSalesforceIntegration,
+                          generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         onClick={() => {
                           if (!hasAccessToSalesforcePremiumIntegration) {
                             premiumWarningDialogRef.current?.openDialog({
@@ -569,6 +636,7 @@ const Integrations = () => {
                             {<Segment />}
                           </Avatar>
                         }
+                        endContent={<Button icon="outside" variant="quaternary" />}
                         onClick={() => {
                           window.open(DOCUMENTATION_SEGMENT, '_blank')
                         }}
@@ -582,9 +650,15 @@ const Integrations = () => {
                             <Stripe />
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasStripeIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasStripeIntegration,
+                          generatePath(STRIPE_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         onClick={() => {
                           if (hasStripeIntegration) {
                             navigate(
@@ -605,10 +679,16 @@ const Integrations = () => {
                         fullWidth
                         title={translate('text_6672ebb8b1b50be550eccaf8')}
                         subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showSparkles: !hasAccessToXeroPremiumIntegration,
                           showConnectedBadge: hasXeroIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasAccessToXeroPremiumIntegration && hasXeroIntegration,
+                          generatePath(XERO_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          }),
+                        )}
                         icon={
                           <Avatar size="big" variant="connector-full">
                             {<Xero />}
@@ -659,6 +739,7 @@ const Integrations = () => {
                             <Airbyte />
                           </Avatar>
                         }
+                        endContent={<Button icon="outside" variant="quaternary" />}
                         onClick={() => {
                           window.open(DOCUMENTATION_AIRBYTE, '_blank')
                         }}
@@ -672,9 +753,15 @@ const Integrations = () => {
                             <Cashfree />
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasCashfreeIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasCashfreeIntegration,
+                          generatePath(CASHFREE_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                          }),
+                        )}
                         onClick={() => {
                           if (hasCashfreeIntegration) {
                             navigate(
@@ -695,9 +782,13 @@ const Integrations = () => {
                             <Moneyhash />
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasMoneyhashIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasMoneyhashIntegration,
+                          MONEYHASH_INTEGRATION_ROUTE,
+                        )}
                         onClick={() => {
                           if (hasMoneyhashIntegration) {
                             navigate(MONEYHASH_INTEGRATION_ROUTE)
@@ -718,9 +809,13 @@ const Integrations = () => {
                             <Flutterwave />
                           </Avatar>
                         }
-                        endIcon={getEndIcon({
+                        endContent={getEndContent({
                           showConnectedBadge: hasFlutterwaveIntegration,
                         })}
+                        hoverActions={getHoverActions(
+                          hasFlutterwaveIntegration,
+                          FLUTTERWAVE_INTEGRATION_ROUTE,
+                        )}
                         onClick={() => {
                           if (hasFlutterwaveIntegration) {
                             navigate(FLUTTERWAVE_INTEGRATION_ROUTE)
