@@ -3676,6 +3676,69 @@ export type EventCollection = {
   metadata: CollectionMetadata;
 };
 
+export enum EventTypeEnum {
+  AlertTriggered = 'alert_triggered',
+  All = 'all',
+  CreditNoteCreated = 'credit_note_created',
+  CreditNoteGenerated = 'credit_note_generated',
+  CreditNoteProviderRefundFailure = 'credit_note_provider_refund_failure',
+  CustomerAccountingProviderCreated = 'customer_accounting_provider_created',
+  CustomerAccountingProviderError = 'customer_accounting_provider_error',
+  CustomerCheckoutUrlGenerated = 'customer_checkout_url_generated',
+  CustomerCreated = 'customer_created',
+  CustomerCrmProviderCreated = 'customer_crm_provider_created',
+  CustomerCrmProviderError = 'customer_crm_provider_error',
+  CustomerPaymentProviderCreated = 'customer_payment_provider_created',
+  CustomerPaymentProviderError = 'customer_payment_provider_error',
+  CustomerTaxProviderError = 'customer_tax_provider_error',
+  CustomerUpdated = 'customer_updated',
+  CustomerViesCheck = 'customer_vies_check',
+  DunningCampaignFinished = 'dunning_campaign_finished',
+  EventError = 'event_error',
+  EventsErrors = 'events_errors',
+  FeatureCreated = 'feature_created',
+  FeatureDeleted = 'feature_deleted',
+  FeatureUpdated = 'feature_updated',
+  FeeCreated = 'fee_created',
+  FeeTaxProviderError = 'fee_tax_provider_error',
+  IntegrationProviderError = 'integration_provider_error',
+  InvoiceCreated = 'invoice_created',
+  InvoiceDrafted = 'invoice_drafted',
+  InvoiceGenerated = 'invoice_generated',
+  InvoiceOneOffCreated = 'invoice_one_off_created',
+  InvoicePaidCreditAdded = 'invoice_paid_credit_added',
+  InvoicePaymentDisputeLost = 'invoice_payment_dispute_lost',
+  InvoicePaymentFailure = 'invoice_payment_failure',
+  InvoicePaymentOverdue = 'invoice_payment_overdue',
+  InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  InvoiceResynced = 'invoice_resynced',
+  InvoiceVoided = 'invoice_voided',
+  PaymentProviderError = 'payment_provider_error',
+  PaymentReceiptCreated = 'payment_receipt_created',
+  PaymentReceiptGenerated = 'payment_receipt_generated',
+  PaymentRequestCreated = 'payment_request_created',
+  PaymentRequestPaymentFailure = 'payment_request_payment_failure',
+  PaymentRequestPaymentStatusUpdated = 'payment_request_payment_status_updated',
+  PaymentRequiresAction = 'payment_requires_action',
+  PaymentSucceeded = 'payment_succeeded',
+  PlanCreated = 'plan_created',
+  PlanDeleted = 'plan_deleted',
+  PlanUpdated = 'plan_updated',
+  SubscriptionStarted = 'subscription_started',
+  SubscriptionTerminated = 'subscription_terminated',
+  SubscriptionTerminationAlert = 'subscription_termination_alert',
+  SubscriptionTrialEnded = 'subscription_trial_ended',
+  SubscriptionUpdated = 'subscription_updated',
+  SubscriptionUsageThresholdReached = 'subscription_usage_threshold_reached',
+  WalletCreated = 'wallet_created',
+  WalletDepletedOngoingBalance = 'wallet_depleted_ongoing_balance',
+  WalletTerminated = 'wallet_terminated',
+  WalletTransactionCreated = 'wallet_transaction_created',
+  WalletTransactionPaymentFailure = 'wallet_transaction_payment_failure',
+  WalletTransactionUpdated = 'wallet_transaction_updated',
+  WalletUpdated = 'wallet_updated'
+}
+
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   MultiplePaymentMethods = 'multiple_payment_methods',
@@ -9657,7 +9720,7 @@ export type WebhookCollection = {
 export type WebhookEndpoint = {
   __typename?: 'WebhookEndpoint';
   createdAt: Scalars['ISO8601DateTime']['output'];
-  eventTypes?: Maybe<Array<Scalars['String']['output']>>;
+  eventTypes?: Maybe<Array<EventTypeEnum>>;
   id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
   organization?: Maybe<Organization>;
@@ -9679,7 +9742,7 @@ export type WebhookEndpointCollection = {
 export type WebhookEndpointCreateInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  eventTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  eventTypes?: InputMaybe<Array<EventTypeEnum>>;
   name?: InputMaybe<Scalars['String']['input']>;
   signatureAlgo?: InputMaybe<WebhookEndpointSignatureAlgoEnum>;
   webhookUrl: Scalars['String']['input'];
@@ -9694,7 +9757,7 @@ export enum WebhookEndpointSignatureAlgoEnum {
 export type WebhookEndpointUpdateInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  eventTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  eventTypes?: InputMaybe<Array<EventTypeEnum>>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   signatureAlgo?: InputMaybe<WebhookEndpointSignatureAlgoEnum>;
@@ -9706,6 +9769,7 @@ export type WebhookEventType = {
   category: EventCategoryEnum;
   deprecated: Scalars['Boolean']['output'];
   description: Scalars['String']['output'];
+  key: EventTypeEnum;
   name: Scalars['String']['output'];
 };
 
@@ -10738,7 +10802,7 @@ export type GetOrganizationHmacDataQuery = { __typename?: 'Query', organization?
 export type GetWebhookListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, eventTypes?: Array<string> | null }> } };
+export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, eventTypes?: Array<EventTypeEnum> | null }> } };
 
 export type DeleteWebhookMutationVariables = Exact<{
   input: DestroyWebhookEndpointInput;
@@ -12488,7 +12552,7 @@ export type GetWebhookEndpointQueryVariables = Exact<{
 }>;
 
 
-export type GetWebhookEndpointQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
+export type GetWebhookEndpointQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<EventTypeEnum> | null } | null };
 
 export type EventTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13308,14 +13372,14 @@ export type CreateWebhookEndpointMutationVariables = Exact<{
 }>;
 
 
-export type CreateWebhookEndpointMutation = { __typename?: 'Mutation', createWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
+export type CreateWebhookEndpointMutation = { __typename?: 'Mutation', createWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<EventTypeEnum> | null } | null };
 
 export type UpdateWebhookEndpointMutationVariables = Exact<{
   input: WebhookEndpointUpdateInput;
 }>;
 
 
-export type UpdateWebhookEndpointMutation = { __typename?: 'Mutation', updateWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<string> | null } | null };
+export type UpdateWebhookEndpointMutation = { __typename?: 'Mutation', updateWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<EventTypeEnum> | null } | null };
 
 export type GetFeatureForDetailsQueryVariables = Exact<{
   feature: Scalars['ID']['input'];
