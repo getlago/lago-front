@@ -3662,6 +3662,7 @@ export type EventCollection = {
 
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
+  EnrichedEventsAggregation = 'enriched_events_aggregation',
   MultiplePaymentMethods = 'multiple_payment_methods',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   WalletTraceability = 'wallet_traceability'

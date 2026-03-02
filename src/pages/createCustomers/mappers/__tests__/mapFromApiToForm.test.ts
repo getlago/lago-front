@@ -479,6 +479,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.accountingProviderCode).toBe('xero_1')
       expect(result.accountingCustomer).toEqual({
+        id: 'xero-1',
         accountingCustomerId: 'xero-123',
         syncWithProvider: true,
         subsidiaryId: undefined,
@@ -506,6 +507,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.accountingProviderCode).toBe('netsuite_1')
       expect(result.accountingCustomer).toEqual({
+        id: 'netsuite-1',
         accountingCustomerId: 'netsuite-456',
         syncWithProvider: false,
         subsidiaryId: 'subsidiary-789',
@@ -540,6 +542,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.accountingProviderCode).toBe('xero_1')
       expect(result.accountingCustomer).toEqual({
+        id: 'xero-1',
         accountingCustomerId: 'xero-123',
         syncWithProvider: true,
         subsidiaryId: undefined,
@@ -569,6 +572,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.crmProviderCode).toBe('hubspot_1')
       expect(result.crmCustomer).toEqual({
+        id: 'hubspot-1',
         crmCustomerId: 'hubspot-123',
         syncWithProvider: true,
         targetedObject: HubspotTargetedObjectsEnum.Contacts,
@@ -596,6 +600,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.crmProviderCode).toBe('salesforce_1')
       expect(result.crmCustomer).toEqual({
+        id: 'salesforce-1',
         crmCustomerId: 'salesforce-456',
         syncWithProvider: false,
         providerType: IntegrationTypeEnum.Salesforce,
@@ -629,6 +634,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.crmProviderCode).toBe('hubspot_1')
       expect(result.crmCustomer).toEqual({
+        id: 'hubspot-1',
         crmCustomerId: 'hubspot-123',
         syncWithProvider: true,
       })
@@ -656,6 +662,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.taxProviderCode).toBe('anrok_1')
       expect(result.taxCustomer).toEqual({
+        id: 'anrok-1',
         taxCustomerId: 'anrok-123',
         syncWithProvider: true,
       })
@@ -681,6 +688,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.taxProviderCode).toBe('avalara_1')
       expect(result.taxCustomer).toEqual({
+        id: 'avalara-1',
         taxCustomerId: 'avalara-456',
         syncWithProvider: false,
       })
@@ -713,6 +721,7 @@ describe('mapFromApiToForm', () => {
 
       expect(result.taxProviderCode).toBe('anrok_1')
       expect(result.taxCustomer).toEqual({
+        id: 'anrok-1',
         taxCustomerId: 'anrok-123',
         syncWithProvider: true,
       })
@@ -929,6 +938,7 @@ describe('mapFromApiToForm', () => {
         url: 'https://complete.example.com',
         accountingProviderCode: 'xero_complete',
         accountingCustomer: {
+          id: 'xero-1',
           accountingCustomerId: 'xero-complete',
           syncWithProvider: true,
           subsidiaryId: undefined,
@@ -936,12 +946,14 @@ describe('mapFromApiToForm', () => {
         },
         crmProviderCode: 'hubspot_complete',
         crmCustomer: {
+          id: 'hubspot-1',
           crmCustomerId: 'hubspot-complete',
           syncWithProvider: false,
           providerType: undefined,
         },
         taxProviderCode: 'anrok_complete',
         taxCustomer: {
+          id: 'anrok-1',
           taxCustomerId: 'anrok-complete',
           syncWithProvider: true,
           providerType: undefined,

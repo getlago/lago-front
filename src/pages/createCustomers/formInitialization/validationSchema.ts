@@ -56,6 +56,7 @@ export const validationSchema = z.object({
   accountingProviderCode: z.string().optional(),
   accountingCustomer: z
     .object({
+      id: z.string().optional(),
       accountingCustomerId: z.string().optional(),
       syncWithProvider: z.boolean().optional(),
       subsidiaryId: z.string().optional(),
@@ -101,6 +102,7 @@ export const validationSchema = z.object({
   taxProviderCode: z.string().optional(),
   taxCustomer: z
     .object({
+      id: z.string().optional(),
       taxCustomerId: z.string().optional(),
       syncWithProvider: z.boolean().optional(),
       providerType: z.enum(IntegrationTypeEnum).optional(),
@@ -129,6 +131,7 @@ export const validationSchema = z.object({
   crmProviderCode: z.string().optional(),
   crmCustomer: z
     .object({
+      id: z.string().optional(),
       crmCustomerId: z.string().optional(),
       syncWithProvider: z.boolean().optional(),
       targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
@@ -273,6 +276,7 @@ export const emptyCreateCustomerDefaultValues: CreateCustomerDefaultValues = {
   url: undefined,
   accountingProviderCode: undefined,
   accountingCustomer: {
+    id: undefined,
     accountingCustomerId: '',
     syncWithProvider: false,
     providerType: undefined,
@@ -280,12 +284,14 @@ export const emptyCreateCustomerDefaultValues: CreateCustomerDefaultValues = {
   },
   taxProviderCode: undefined,
   taxCustomer: {
+    id: undefined,
     taxCustomerId: '',
     providerType: undefined,
     syncWithProvider: false,
   },
   crmProviderCode: undefined,
   crmCustomer: {
+    id: undefined,
     crmCustomerId: '',
     syncWithProvider: false,
     providerType: undefined,
