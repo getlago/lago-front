@@ -52,6 +52,8 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
       /signal aborted/i,
       // Also catch generic AbortError messages
       'AbortError',
+      // Browser extension / antivirus COM automation errors (Kaspersky, Norton, etc.)
+      /Object Not Found Matching Id/i,
     ],
     // Deny URLs from browser extensions and other noise
     denyUrls: [
@@ -65,15 +67,6 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
       // Safari extensions
       /^safari-extension:\/\//i,
     ],
-  })
-
-  // Capture unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
-    Sentry.withScope((scope) => {
-      scope.setTag('errorType', 'unhandledRejection')
-      scope.setTag('location', 'window')
-      Sentry.captureException(event.reason)
-    })
   })
 }
 
