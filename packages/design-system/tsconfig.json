@@ -7,8 +7,5 @@
       "~/*": ["./src/*"],
     }
   },
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "./tsconfig.playground.json" }
-  ]
+  "exclude": ["node_modules", "dist"]
 }

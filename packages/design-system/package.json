@@ -22,10 +22,8 @@
     "dist/images"
   ],
   "scripts": {
-    "dev": "vite --config playground/vite.config.playground.ts",
     "build": "rm -rf dist && tsc --build tsconfig.build.json && vite build",
-    "lint": "prettier --check \"./src/**/*.{ts,tsx,svg}\" \"./playground/**/*.{ts,tsx,svg}\" && eslint .",
-    "preview": "vite preview"
+    "lint": "prettier --check \"./src/**/*.{ts,tsx,svg}\" && eslint ."
   },
   "peerDependencies": {
     "@mui/material": "5.18.0",
