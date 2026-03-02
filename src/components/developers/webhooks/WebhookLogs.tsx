@@ -107,6 +107,19 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
     loading,
   )
 
+  // Re-fetch when filter variables change (after the initial mount fetch handled by useDebouncedSearch)
+  const hasInitiallyFetched = useRef(false)
+
+  useEffect(() => {
+    if (!hasInitiallyFetched.current) {
+      hasInitiallyFetched.current = true
+      return
+    }
+
+    getWebhookLogs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryVariables])
+
   // Refetch with fresh filters to avoid stale toDate from the memoized query variables.
   // Standard refetch() reuses variables from the initial execution, which includes a frozen toDate.
   const refetchWithFreshFilters = useCallback(async () => {

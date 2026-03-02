@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
+import { EventTypeEnum, WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -39,7 +39,7 @@ const mockWebhook = {
   name: 'My Webhook',
   webhookUrl: 'https://example.com/webhook',
   signatureAlgo: WebhookEndpointSignatureAlgoEnum.Hmac,
-  eventTypes: ['customer.created', 'invoice.paid'],
+  eventTypes: [EventTypeEnum.CustomerCreated, EventTypeEnum.InvoiceDrafted],
 }
 
 describe('WebhookOverview', () => {

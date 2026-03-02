@@ -1,7 +1,7 @@
 import { act, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
+import { EventTypeEnum, WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
 import { useWebhookEndpoint } from '~/hooks/useWebhookEndpoint'
 import { AllTheProviders } from '~/test-utils'
 
@@ -38,7 +38,7 @@ const mockWebhookEndpointData = {
   name: 'My Webhook',
   webhookUrl: 'https://example.com/webhook',
   signatureAlgo: WebhookEndpointSignatureAlgoEnum.Hmac,
-  eventTypes: ['customer.created'],
+  eventTypes: [EventTypeEnum.CustomerCreated],
 }
 
 jest.mock('~/hooks/useWebhookEndpoint', () => ({
@@ -51,27 +51,25 @@ jest.mock('~/hooks/useWebhookEndpoint', () => ({
 jest.mock('~/hooks/useWebhookEventTypes', () => ({
   useWebhookEventTypes: () => ({
     defaultEventFormValues: {
-      customer__created: false,
-      invoice__created: false,
+      customer_created: false,
+      invoice_created: false,
     },
     groups: [
       {
-        id: 'customer',
+        id: 'CUSTOMERS',
         label: 'Customers',
         items: [
-          { id: 'customer__created', label: 'customer.created', sublabel: 'Customer created' },
+          { id: 'customer_created', label: 'customer.created', sublabel: 'Customer created' },
         ],
       },
       {
-        id: 'invoice',
+        id: 'INVOICES',
         label: 'Invoices',
-        items: [{ id: 'invoice__created', label: 'invoice.created', sublabel: 'Invoice created' }],
+        items: [{ id: 'invoice_created', label: 'invoice.created', sublabel: 'Invoice created' }],
       },
     ],
     loading: false,
   }),
-  eventNameToFormKey: (eventName: string) => eventName.replace(/\./g, '__'),
-  formKeyToEventName: (formKey: string) => formKey.replace(/__/g, '.'),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({

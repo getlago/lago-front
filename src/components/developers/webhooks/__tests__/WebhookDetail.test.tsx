@@ -2,7 +2,7 @@ import { render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { WEBHOOKS_ROUTE } from '~/components/developers/devtoolsRoutes'
-import { WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
+import { EventTypeEnum, WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
 import { useWebhookEndpoint } from '~/hooks/useWebhookEndpoint'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
@@ -59,7 +59,7 @@ const mockWebhookData = {
   name: 'My Webhook',
   webhookUrl: 'https://example.com/webhook',
   signatureAlgo: WebhookEndpointSignatureAlgoEnum.Hmac,
-  eventTypes: ['customer.created'],
+  eventTypes: [EventTypeEnum.CustomerCreated],
 }
 
 // Custom render that passes useParams to AllTheProviders

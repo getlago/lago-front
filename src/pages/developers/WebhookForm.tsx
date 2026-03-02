@@ -14,9 +14,7 @@ import {
   LagoApiError,
   useCreateWebhookEndpointMutation,
   useUpdateWebhookEndpointMutation,
-  WebhookEndpointCreateInput,
   WebhookEndpointSignatureAlgoEnum,
-  WebhookEndpointUpdateInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -119,7 +117,7 @@ const WebhookForm = () => {
               id: webhookId,
               ...rest,
               eventTypes,
-            } as WebhookEndpointUpdateInput,
+            },
           },
         })
       } else {
@@ -128,7 +126,7 @@ const WebhookForm = () => {
             input: {
               ...rest,
               eventTypes,
-            } as WebhookEndpointCreateInput,
+            },
           },
         })
       }

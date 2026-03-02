@@ -12557,7 +12557,7 @@ export type GetWebhookEndpointQuery = { __typename?: 'Query', webhookEndpoint?: 
 export type EventTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type EventTypesQuery = { __typename?: 'Query', eventTypes: Array<{ __typename?: 'WebhookEventType', name: string, description: string }> };
+export type EventTypesQuery = { __typename?: 'Query', eventTypes: Array<{ __typename?: 'WebhookEventType', key: EventTypeEnum, name: string, description: string, category: EventCategoryEnum, deprecated: boolean }> };
 
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -31741,8 +31741,11 @@ export type GetWebhookEndpointQueryResult = Apollo.QueryResult<GetWebhookEndpoin
 export const EventTypesDocument = gql`
     query eventTypes {
   eventTypes {
+    key
     name
     description
+    category
+    deprecated
   }
 }
     `;

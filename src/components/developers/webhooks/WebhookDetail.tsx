@@ -148,6 +148,15 @@ export const WebhookDetail = () => {
           tab.match?.some((pattern) => matchPath(pattern, pathname)),
         )}
         tabs={webhookDetailTabs}
+        onChange={(index) => {
+          // Keep the MemoryRouter URL in sync with the active tab so that
+          // "Copy Link" in DevtoolsView always copies the correct route.
+          const tab = webhookDetailTabs[index]
+
+          if (tab?.match?.includes(WEBHOOK_ROUTE)) {
+            navigate(generatePath(WEBHOOK_ROUTE, { webhookId }))
+          }
+        }}
       />
     </div>
   )

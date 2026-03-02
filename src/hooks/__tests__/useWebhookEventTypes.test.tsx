@@ -1,24 +1,56 @@
 import { renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
-import { useEventTypesQuery } from '~/generated/graphql'
+import { EventCategoryEnum, EventTypeEnum, useEventTypesQuery } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import {
-  eventNameToFormKey,
-  formKeyToEventName,
-  useWebhookEventTypes,
-} from '../useWebhookEventTypes'
+import { useWebhookEventTypes } from '../useWebhookEventTypes'
 
 // Mock the GraphQL query
 const mockEventTypesData = {
   eventTypes: [
-    { name: 'customer.created', description: 'Customer created event' },
-    { name: 'customer.updated', description: 'Customer updated event' },
-    { name: 'invoice.created', description: 'Invoice created event' },
-    { name: 'invoice.paid', description: 'Invoice paid event' },
-    { name: 'subscription.started', description: 'Subscription started event' },
-    { name: 'payment_receipts.plans', description: 'Payment receipts plans event' },
+    {
+      key: EventTypeEnum.CustomerCreated,
+      name: 'customer.created',
+      description: 'Customer created event',
+      category: EventCategoryEnum.Customers,
+      deprecated: false,
+    },
+    {
+      key: EventTypeEnum.CustomerUpdated,
+      name: 'customer.updated',
+      description: 'Customer updated event',
+      category: EventCategoryEnum.Customers,
+      deprecated: false,
+    },
+    {
+      key: EventTypeEnum.InvoiceCreated,
+      name: 'invoice.created',
+      description: 'Invoice created event',
+      category: EventCategoryEnum.Invoices,
+      deprecated: false,
+    },
+    {
+      key: EventTypeEnum.InvoiceDrafted,
+      name: 'invoice.drafted',
+      description: 'Invoice drafted event',
+      category: EventCategoryEnum.Invoices,
+      deprecated: false,
+    },
+    {
+      key: EventTypeEnum.SubscriptionStarted,
+      name: 'subscription.started',
+      description: 'Subscription started event',
+      category: EventCategoryEnum.SubscriptionsAndFees,
+      deprecated: false,
+    },
+    {
+      key: EventTypeEnum.PaymentReceiptCreated,
+      name: 'payment_receipt.created',
+      description: 'Payment receipt created event',
+      category: EventCategoryEnum.PaymentReceipts,
+      deprecated: false,
+    },
   ],
 }
 
@@ -41,34 +73,6 @@ describe('useWebhookEventTypes', () => {
     jest.clearAllMocks()
   })
 
-  describe('eventNameToFormKey', () => {
-    describe('GIVEN an event name with a dot', () => {
-      describe('WHEN converting to form key', () => {
-        it('THEN should replace dot with double underscore', () => {
-          expect(eventNameToFormKey('customer.created')).toBe('customer__created')
-        })
-      })
-    })
-
-    describe('GIVEN an event name with underscores and dot', () => {
-      describe('WHEN converting to form key', () => {
-        it('THEN should only replace the dot', () => {
-          expect(eventNameToFormKey('payment_receipts.plans')).toBe('payment_receipts__plans')
-        })
-      })
-    })
-  })
-
-  describe('formKeyToEventName', () => {
-    describe('GIVEN a form key with double underscore', () => {
-      describe('WHEN converting to event name', () => {
-        it('THEN should replace double underscore with dot', () => {
-          expect(formKeyToEventName('customer__created')).toBe('customer.created')
-        })
-      })
-    })
-  })
-
   describe('hook return values', () => {
     describe('GIVEN the hook is called', () => {
       describe('WHEN data is loaded', () => {
@@ -83,11 +87,26 @@ describe('useWebhookEventTypes', () => {
 
           expect(result.current.groups).toHaveLength(4)
 
-          const customerGroup = result.current.groups.find((g) => g.id === 'customer')
+          const customerGroup = result.current.groups.find(
+            (g) => g.id === EventCategoryEnum.Customers,
+          )
 
           expect(customerGroup).toBeDefined()
           expect(customerGroup?.label).toBe('Customers')
           expect(customerGroup?.items).toHaveLength(2)
+        })
+
+        it('THEN should return all event keys', () => {
+          const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
+
+          expect(result.current.allEventKeys).toEqual([
+            EventTypeEnum.CustomerCreated,
+            EventTypeEnum.CustomerUpdated,
+            EventTypeEnum.InvoiceCreated,
+            EventTypeEnum.InvoiceDrafted,
+            EventTypeEnum.SubscriptionStarted,
+            EventTypeEnum.PaymentReceiptCreated,
+          ])
         })
 
         it('THEN should return all event names', () => {
@@ -97,9 +116,9 @@ describe('useWebhookEventTypes', () => {
             'customer.created',
             'customer.updated',
             'invoice.created',
-            'invoice.paid',
+            'invoice.drafted',
             'subscription.started',
-            'payment_receipts.plans',
+            'payment_receipt.created',
           ])
         })
 
@@ -107,13 +126,24 @@ describe('useWebhookEventTypes', () => {
           const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
 
           expect(result.current.defaultEventFormValues).toEqual({
-            customer__created: false,
-            customer__updated: false,
-            invoice__created: false,
-            invoice__paid: false,
-            subscription__started: false,
-            payment_receipts__plans: false,
+            [EventTypeEnum.CustomerCreated]: false,
+            [EventTypeEnum.CustomerUpdated]: false,
+            [EventTypeEnum.InvoiceCreated]: false,
+            [EventTypeEnum.InvoiceDrafted]: false,
+            [EventTypeEnum.SubscriptionStarted]: false,
+            [EventTypeEnum.PaymentReceiptCreated]: false,
           })
+        })
+
+        it('THEN should return eventKeyToNameMap', () => {
+          const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
+
+          expect(result.current.eventKeyToNameMap[EventTypeEnum.CustomerCreated]).toBe(
+            'customer.created',
+          )
+          expect(result.current.eventKeyToNameMap[EventTypeEnum.InvoiceCreated]).toBe(
+            'invoice.created',
+          )
         })
       })
     })
@@ -147,6 +177,20 @@ describe('useWebhookEventTypes', () => {
       })
     })
 
+    describe('GIVEN eventTypes contains EventTypeEnum.All', () => {
+      describe('WHEN getting display info', () => {
+        it('THEN should indicate listening to all events', () => {
+          const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
+
+          const displayInfo = result.current.getEventDisplayInfo([EventTypeEnum.All])
+
+          expect(displayInfo.isListeningToAll).toBe(true)
+          expect(displayInfo.displayedEvents).toEqual(result.current.allEventNames)
+          expect(displayInfo.eventCount).toBe(6)
+        })
+      })
+    })
+
     describe('GIVEN eventTypes is an empty array', () => {
       describe('WHEN getting display info', () => {
         it('THEN should indicate not listening to all events with count 0', () => {
@@ -163,14 +207,14 @@ describe('useWebhookEventTypes', () => {
 
     describe('GIVEN eventTypes has specific events', () => {
       describe('WHEN getting display info', () => {
-        it('THEN should return the specific events', () => {
+        it('THEN should return the human-readable display names', () => {
           const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
 
-          const eventTypes = ['customer.created', 'invoice.paid']
+          const eventTypes = [EventTypeEnum.CustomerCreated, EventTypeEnum.InvoiceDrafted]
           const displayInfo = result.current.getEventDisplayInfo(eventTypes)
 
           expect(displayInfo.isListeningToAll).toBe(false)
-          expect(displayInfo.displayedEvents).toEqual(eventTypes)
+          expect(displayInfo.displayedEvents).toEqual(['customer.created', 'invoice.drafted'])
           expect(displayInfo.eventCount).toBe(2)
         })
       })
@@ -180,12 +224,17 @@ describe('useWebhookEventTypes', () => {
   describe('groups structure', () => {
     describe('GIVEN events from different categories', () => {
       describe('WHEN groups are generated', () => {
-        it('THEN should sort groups alphabetically by category', () => {
+        it('THEN should sort groups alphabetically by category enum value', () => {
           const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
 
           const groupIds = result.current.groups.map((g) => g.id)
 
-          expect(groupIds).toEqual(['customer', 'invoice', 'payment_receipts', 'subscription'])
+          expect(groupIds).toEqual([
+            EventCategoryEnum.Customers,
+            EventCategoryEnum.Invoices,
+            EventCategoryEnum.PaymentReceipts,
+            EventCategoryEnum.SubscriptionsAndFees,
+          ])
         })
 
         it('THEN should format category labels correctly', () => {
@@ -195,24 +244,28 @@ describe('useWebhookEventTypes', () => {
 
           expect(labels).toContain('Customers')
           expect(labels).toContain('Invoices')
-          expect(labels).toContain('Subscriptions')
+          expect(labels).toContain('Subscriptions and fees')
           expect(labels).toContain('Payment receipts')
         })
 
-        it('THEN should use form-safe keys for item IDs', () => {
+        it('THEN should use EventTypeEnum keys for item IDs', () => {
           const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
 
-          const customerGroup = result.current.groups.find((g) => g.id === 'customer')
+          const customerGroup = result.current.groups.find(
+            (g) => g.id === EventCategoryEnum.Customers,
+          )
           const itemIds = customerGroup?.items.map((i) => i.id)
 
-          expect(itemIds).toContain('customer__created')
-          expect(itemIds).toContain('customer__updated')
+          expect(itemIds).toContain(EventTypeEnum.CustomerCreated)
+          expect(itemIds).toContain(EventTypeEnum.CustomerUpdated)
         })
 
         it('THEN should preserve original event names as item labels', () => {
           const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
 
-          const customerGroup = result.current.groups.find((g) => g.id === 'customer')
+          const customerGroup = result.current.groups.find(
+            (g) => g.id === EventCategoryEnum.Customers,
+          )
           const itemLabels = customerGroup?.items.map((i) => i.label)
 
           expect(itemLabels).toContain('customer.created')
@@ -222,10 +275,59 @@ describe('useWebhookEventTypes', () => {
         it('THEN should include event descriptions as sublabels', () => {
           const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
 
-          const customerGroup = result.current.groups.find((g) => g.id === 'customer')
-          const createdItem = customerGroup?.items.find((i) => i.id === 'customer__created')
+          const customerGroup = result.current.groups.find(
+            (g) => g.id === EventCategoryEnum.Customers,
+          )
+          const createdItem = customerGroup?.items.find(
+            (i) => i.id === EventTypeEnum.CustomerCreated,
+          )
 
           expect(createdItem?.sublabel).toBe('Customer created event')
+        })
+      })
+    })
+  })
+
+  describe('deprecated events filtering', () => {
+    describe('GIVEN some events are deprecated', () => {
+      beforeEach(() => {
+        jest.mocked(useEventTypesQuery).mockReturnValue({
+          data: {
+            eventTypes: [
+              {
+                key: EventTypeEnum.CustomerCreated,
+                name: 'customer.created',
+                description: 'Customer created event',
+                category: EventCategoryEnum.Customers,
+                deprecated: false,
+              },
+              {
+                key: EventTypeEnum.EventsErrors,
+                name: 'events.errors',
+                description: 'Deprecated events errors',
+                category: EventCategoryEnum.EventIngestion,
+                deprecated: true,
+              },
+            ],
+          },
+          loading: false,
+        } as ReturnType<typeof useEventTypesQuery>)
+      })
+
+      describe('WHEN the hook processes events', () => {
+        it('THEN should exclude deprecated events from groups', () => {
+          const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
+
+          const allIds = result.current.groups.flatMap((g) => g.items.map((i) => i.id))
+
+          expect(allIds).not.toContain(EventTypeEnum.EventsErrors)
+          expect(allIds).toContain(EventTypeEnum.CustomerCreated)
+        })
+
+        it('THEN should exclude deprecated events from allEventKeys', () => {
+          const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
+
+          expect(result.current.allEventKeys).not.toContain(EventTypeEnum.EventsErrors)
         })
       })
     })
@@ -260,6 +362,12 @@ describe('useWebhookEventTypes loading state', () => {
         const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
 
         expect(result.current.allEventNames).toEqual([])
+      })
+
+      it('THEN should return empty allEventKeys', () => {
+        const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
+
+        expect(result.current.allEventKeys).toEqual([])
       })
 
       it('THEN should return empty defaultEventFormValues', () => {

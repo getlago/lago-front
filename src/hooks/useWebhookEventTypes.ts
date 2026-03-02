@@ -2,13 +2,21 @@ import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
 import { CheckboxGroup } from '~/components/form'
-import { EventTypesQuery, useEventTypesQuery } from '~/generated/graphql'
+import {
+  EventCategoryEnum,
+  EventTypeEnum,
+  EventTypesQuery,
+  useEventTypesQuery,
+} from '~/generated/graphql'
 
 gql`
   query eventTypes {
     eventTypes {
+      key
       name
       description
+      category
+      deprecated
     }
   }
 `
@@ -16,68 +24,30 @@ gql`
 type EventTypeItem = EventTypesQuery['eventTypes'][number]
 
 /**
- * Extracts the category from an event name.
- * e.g., "customer.created" -> "customer"
- * e.g., "payment_receipts.plans" -> "payment_receipts"
+ * Formats an EventCategoryEnum value into a display label.
+ * e.g., "CUSTOMERS" -> "Customers"
+ * e.g., "SUBSCRIPTIONS_AND_FEES" -> "Subscriptions and fees"
+ * e.g., "CREDIT_NOTES" -> "Credit notes"
  */
-const extractCategory = (eventName: string): string => {
-  const dotIndex = eventName.indexOf('.')
-
-  if (dotIndex === -1) return eventName
-  return eventName.substring(0, dotIndex)
-}
-
-/**
- * Capitalizes a category slug into a display label without pluralization.
- * e.g., "customer" -> "Customer"
- * e.g., "payment_receipts" -> "Payment receipts"
- */
-const capitalizeCategoryLabel = (category: string): string => {
-  const withSpaces = category.replace(/_/g, ' ')
+const formatCategoryLabel = (category: EventCategoryEnum): string => {
+  const withSpaces = category.replace(/_/g, ' ').toLowerCase()
 
   return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
 }
 
 /**
- * Formats a category slug into a pluralized display label.
- * e.g., "customer" -> "Customers"
- * e.g., "payment_receipts" -> "Payment receipts"
- * e.g., "credit_note" -> "Credit notes"
- */
-const formatCategoryLabel = (category: string): string => {
-  const capitalized = capitalizeCategoryLabel(category)
-
-  if (!capitalized.endsWith('s')) {
-    return `${capitalized}s`
-  }
-
-  return capitalized
-}
-
-/**
- * Converts an event name to a form-safe key by replacing dots with double underscores.
- * TanStack Form interprets dots as nested paths, so we need to escape them.
- * e.g., "customer.created" -> "customer__created"
- */
-export const eventNameToFormKey = (eventName: string): string => {
-  return eventName.replace(/\./g, '__')
-}
-
-/**
- * Converts a form key back to the original event name.
- * e.g., "customer__created" -> "customer.created"
- */
-export const formKeyToEventName = (formKey: string): string => {
-  return formKey.replace(/__/g, '.')
-}
-
-/**
  * Transforms a list of event types into grouped checkbox data.
+ * Uses event.category for grouping and event.key as checkbox ID.
  */
 const transformEventTypesToGroups = (eventTypes: EventTypeItem[]): CheckboxGroup[] => {
+  // Filter out deprecated events and the special "all" event
+  const activeEvents = eventTypes.filter(
+    (event) => !event.deprecated && event.key !== EventTypeEnum.All,
+  )
+
   // Group events by category
-  const groupedByCategory = eventTypes.reduce<Record<string, EventTypeItem[]>>((acc, event) => {
-    const category = extractCategory(event.name)
+  const groupedByCategory = activeEvents.reduce<Record<string, EventTypeItem[]>>((acc, event) => {
+    const category = event.category
 
     if (!acc[category]) {
       acc[category] = []
@@ -86,34 +56,14 @@ const transformEventTypesToGroups = (eventTypes: EventTypeItem[]): CheckboxGroup
     return acc
   }, {})
 
-  const categories = Object.keys(groupedByCategory)
-
-  // Detect label collisions: when two different slugs produce the same pluralized label
-  // (e.g., "event" -> "Events" and "events" -> "Events"), fall back to capitalized-only labels.
-  const labelCount = new Map<string, number>()
-
-  for (const category of categories) {
-    const label = formatCategoryLabel(category)
-
-    labelCount.set(label, (labelCount.get(label) ?? 0) + 1)
-  }
-
-  const getCategoryLabel = (category: string): string => {
-    const pluralized = formatCategoryLabel(category)
-
-    // If the pluralized label is unique, use it; otherwise fall back to capitalized-only
-    return (labelCount.get(pluralized) ?? 0) > 1 ? capitalizeCategoryLabel(category) : pluralized
-  }
-
-  // Transform to CheckboxGroup format and sort alphabetically
+  // Transform to CheckboxGroup format and sort alphabetically by label
   return Object.entries(groupedByCategory)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([category, events]) => ({
       id: category,
-      label: getCategoryLabel(category),
+      label: formatCategoryLabel(category as EventCategoryEnum),
       items: events.map((event) => ({
-        // Use form-safe key (no dots) for the checkbox ID
-        id: eventNameToFormKey(event.name),
+        id: event.key,
         label: event.name,
         sublabel: event.description,
       })),
@@ -125,9 +75,9 @@ const transformEventTypesToGroups = (eventTypes: EventTypeItem[]): CheckboxGroup
  * Centralizes the logic for determining which events to display.
  */
 type WebhookEventDisplayInfo = {
-  /** Whether the webhook is listening to all events (eventTypes is null/undefined) */
+  /** Whether the webhook is listening to all events */
   isListeningToAll: boolean
-  /** The list of events to display (all events if listening to all, otherwise the specific ones) */
+  /** The list of events to display (human-readable names with dots) */
   displayedEvents: string[]
   /** The count of events being listened to */
   eventCount: number
@@ -138,73 +88,106 @@ type WebhookEventDisplayInfo = {
  *
  * Logic:
  * - null/undefined eventTypes → listening to ALL events
+ * - array containing EventTypeEnum.All → listening to ALL events
  * - empty array → listening to NO events
- * - array with values → listening to SPECIFIC events
+ * - array with specific values → listening to SPECIFIC events
  *
- * @param eventTypes - The eventTypes from the webhook (null = all, [] = none, [...] = specific)
- * @param allEventNames - All available event names
+ * @param eventTypes - The eventTypes from the webhook
+ * @param allEventNames - All available event display names (dotted format)
+ * @param eventKeyToNameMap - Mapping from EventTypeEnum keys to display names
  */
 const getWebhookEventDisplayInfo = (
-  eventTypes: string[] | null | undefined,
+  eventTypes: EventTypeEnum[] | null | undefined,
   allEventNames: string[],
+  eventKeyToNameMap: Record<string, string>,
 ): WebhookEventDisplayInfo => {
-  const isListeningToAll = eventTypes === null || eventTypes === undefined
-  const displayedEvents = isListeningToAll ? allEventNames : eventTypes
-  const eventCount = displayedEvents.length
+  const isListeningToAll =
+    eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)
+
+  if (isListeningToAll) {
+    return {
+      isListeningToAll: true,
+      displayedEvents: allEventNames,
+      eventCount: allEventNames.length,
+    }
+  }
+
+  const displayedEvents = eventTypes.map((key) => eventKeyToNameMap[key] ?? key)
 
   return {
-    isListeningToAll,
+    isListeningToAll: false,
     displayedEvents,
-    eventCount,
+    eventCount: displayedEvents.length,
   }
 }
 
 type UseWebhookEventTypes = () => {
   loading: boolean
   groups: CheckboxGroup[]
-  /** All available event names */
+  /** All available event keys (EventTypeEnum values, excluding 'all') */
+  allEventKeys: EventTypeEnum[]
+  /** All available event display names (dotted format) — used for logs filter compatibility */
   allEventNames: string[]
+  /** Mapping from EventTypeEnum key to display name */
+  eventKeyToNameMap: Record<string, string>
   /** Default form values for all events (all unchecked) — used for form initialization */
   defaultEventFormValues: Record<string, boolean>
   /**
    * Utility function to compute display info for a webhook's eventTypes.
-   * Centralizes the logic: null = all events, [] = none, [...] = specific.
+   * Centralizes the logic: null/All = all events, [] = none, [...] = specific.
    */
-  getEventDisplayInfo: (eventTypes: string[] | null | undefined) => WebhookEventDisplayInfo
+  getEventDisplayInfo: (eventTypes: EventTypeEnum[] | null | undefined) => WebhookEventDisplayInfo
 }
 
 export const useWebhookEventTypes: UseWebhookEventTypes = () => {
   const { data, loading } = useEventTypesQuery()
+
+  // Active events: exclude deprecated and the special "all" value
+  const activeEvents = useMemo(() => {
+    if (!data?.eventTypes) return []
+    return data.eventTypes.filter((e) => !e.deprecated && e.key !== EventTypeEnum.All)
+  }, [data?.eventTypes])
 
   const groups = useMemo(() => {
     if (!data?.eventTypes) return []
     return transformEventTypesToGroups(data.eventTypes)
   }, [data?.eventTypes])
 
-  const allEventNames = useMemo(() => {
-    return data?.eventTypes?.map((e) => e.name) ?? []
-  }, [data?.eventTypes])
+  const allEventKeys = useMemo(() => {
+    return activeEvents.map((e) => e.key)
+  }, [activeEvents])
 
-  // Builds the default form state for webhook event checkboxes: all events set to false (unchecked).
-  // Used to initialize the form and to derive the list of all available form keys.
-  const defaultEventFormValues = useMemo(() => {
-    if (!data?.eventTypes) return {}
-    return data.eventTypes.reduce<Record<string, boolean>>((acc, event) => {
-      acc[eventNameToFormKey(event.name)] = false
+  const allEventNames = useMemo(() => {
+    return activeEvents.map((e) => e.name)
+  }, [activeEvents])
+
+  const eventKeyToNameMap = useMemo(() => {
+    return activeEvents.reduce<Record<string, string>>((acc, event) => {
+      acc[event.key] = event.name
       return acc
     }, {})
-  }, [data?.eventTypes])
+  }, [activeEvents])
+
+  // Builds the default form state for webhook event checkboxes: all events set to false (unchecked).
+  const defaultEventFormValues = useMemo(() => {
+    return activeEvents.reduce<Record<string, boolean>>((acc, event) => {
+      acc[event.key] = false
+      return acc
+    }, {})
+  }, [activeEvents])
 
   const getEventDisplayInfo = useMemo(
-    () => (eventTypes: string[] | null | undefined) =>
-      getWebhookEventDisplayInfo(eventTypes, allEventNames),
-    [allEventNames],
+    () => (eventTypes: EventTypeEnum[] | null | undefined) =>
+      getWebhookEventDisplayInfo(eventTypes, allEventNames, eventKeyToNameMap),
+    [allEventNames, eventKeyToNameMap],
   )
 
   return {
     loading,
     groups,
+    allEventKeys,
     allEventNames,
+    eventKeyToNameMap,
     defaultEventFormValues,
     getEventDisplayInfo,
   }

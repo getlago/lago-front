@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
+  EventTypeEnum,
   GetOrganizationHmacDataQuery,
   GetWebhookListQuery,
   useGetOrganizationHmacDataQuery,
@@ -56,7 +57,7 @@ const mockWebhookListData: GetWebhookListQuery = {
       {
         id: 'webhook-1',
         webhookUrl: 'https://example.com/webhook1',
-        eventTypes: ['customer.created'],
+        eventTypes: [EventTypeEnum.CustomerCreated],
       },
       {
         id: 'webhook-2',
@@ -76,7 +77,7 @@ const maxWebhooksListData: GetWebhookListQuery = {
     collection: Array.from({ length: 25 }, (_, i) => ({
       id: `webhook-${i + 1}`,
       webhookUrl: `https://example.com/webhook${i + 1}`,
-      eventTypes: ['customer.created'],
+      eventTypes: [EventTypeEnum.CustomerCreated],
     })),
   },
 }

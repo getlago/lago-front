@@ -1,23 +1,21 @@
-import { eventNameToFormKey, formKeyToEventName } from '~/hooks/useWebhookEventTypes'
+import { EventTypeEnum } from '~/generated/graphql'
 
 /**
- * Converts the webhookEvents form state (Record<formKey, boolean>) to the eventTypes
+ * Converts the webhookEvents form state (Record<EventTypeEnum, boolean>) to the eventTypes
  * API value:
- *  - null     → filtering OFF (all checkboxes selected → receive everything)
- *  - []       → filtering ON, no events (no checkbox selected → receive nothing)
- *  - string[] → filtering ON (only selected events)
- *
- * Apollo Client serialises null in JSON correctly, so we do NOT need ["*"].
+ *  - [EventTypeEnum.All] → all checkboxes selected → receive everything
+ *  - []                  → no checkbox selected → receive nothing
+ *  - EventTypeEnum[]     → only selected events
  */
-export const formValuesToEventTypes = (webhookEvents: Record<string, boolean>): string[] | null => {
+export const formValuesToEventTypes = (webhookEvents: Record<string, boolean>): EventTypeEnum[] => {
   const entries = Object.entries(webhookEvents)
   const selectedEvents = entries
     .filter(([, checked]) => checked)
-    .map(([key]) => formKeyToEventName(key))
+    .map(([key]) => key as EventTypeEnum)
 
-  // All selected → null (filtering OFF, backend sends everything)
-  if (selectedEvents.length === entries.length) {
-    return null
+  // All selected → send [All] (backend sends everything)
+  if (selectedEvents.length === entries.length && entries.length > 0) {
+    return [EventTypeEnum.All]
   }
 
   // None or partial selection → return the array (possibly empty)
@@ -26,15 +24,15 @@ export const formValuesToEventTypes = (webhookEvents: Record<string, boolean>): 
 
 /**
  * Converts the eventTypes from the API back to the webhookEvents form state.
- *  - null / undefined → all checkboxes true (filtering OFF = receive everything)
- *  - []               → all checkboxes false (filtering ON, no events)
- *  - string[]         → matching checkboxes true
+ *  - null / undefined / contains EventTypeEnum.All → all checkboxes true (receive everything)
+ *  - []                                            → all checkboxes false (no events)
+ *  - EventTypeEnum[]                               → matching checkboxes true
  *
  * @param eventTypes  - value from the API
- * @param allFormKeys - all available form keys (from the event types list)
+ * @param allFormKeys - all available form keys (EventTypeEnum values from the event types list)
  */
 export const eventTypesToFormValues = (
-  eventTypes: string[] | null | undefined,
+  eventTypes: EventTypeEnum[] | null | undefined,
   allFormKeys: string[],
 ): Record<string, boolean> => {
   // Build a fresh record with all keys set to false
@@ -44,8 +42,8 @@ export const eventTypesToFormValues = (
     values[key] = false
   }
 
-  // null/undefined means filtering OFF → all events selected
-  if (eventTypes === null || eventTypes === undefined) {
+  // null/undefined or contains "all" means filtering OFF → all events selected
+  if (eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)) {
     for (const key of allFormKeys) {
       values[key] = true
     }
@@ -54,11 +52,9 @@ export const eventTypesToFormValues = (
   }
 
   // Empty array or specific events → set matching ones to true
-  for (const eventName of eventTypes) {
-    const key = eventNameToFormKey(eventName)
-
-    if (key in values) {
-      values[key] = true
+  for (const eventKey of eventTypes) {
+    if (eventKey in values) {
+      values[eventKey] = true
     }
   }
 
