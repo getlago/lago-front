@@ -1,6 +1,7 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
   SubscriptionUsageDetailDrawer,
@@ -17,7 +18,12 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
-import { LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import {
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+} from '~/core/router'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -611,6 +617,8 @@ export const SubscriptionCurrentUsageTable = ({
   customerId,
   subscriptionId,
 }: SubscriptionCurrentUsageTableProps) => {
+  const navigate = useNavigate()
+  const { planId = '' } = useParams()
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const [activeTab, setActiveTab] = useState<number>(0)
@@ -644,7 +652,7 @@ export const SubscriptionCurrentUsageTable = ({
 
   const queryParams = {
     context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.NoActiveSubscription],
     },
     variables: {
       customerId: (customerId || subscription?.customer.id) as string,
@@ -682,6 +690,32 @@ export const SubscriptionCurrentUsageTable = ({
 
   const refetchUsage = (forceProjected?: boolean) =>
     fetchProjected || forceProjected ? refetchUsageQueryProjected() : refetchUsageQuery()
+
+  useEffect(() => {
+    if (
+      hasDefinedGQLError('NoActiveSubscription', usageError) ||
+      hasDefinedGQLError('NoActiveSubscription', usageErrorProjected)
+    ) {
+      addToast({
+        severity: 'info',
+        translateKey: 'text_173142196943714qsq737sre',
+      })
+
+      const overviewPath = !!customerId
+        ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId,
+            subscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+          })
+        : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+            planId,
+            subscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+          })
+
+      navigate(overviewPath, { replace: true })
+    }
+  }, [usageError, usageErrorProjected, navigate, customerId, planId, subscriptionId])
 
   return (
     <SubscriptionCurrentUsageTableComponent
