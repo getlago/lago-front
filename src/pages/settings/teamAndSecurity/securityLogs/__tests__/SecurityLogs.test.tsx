@@ -1,6 +1,11 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 
-import { GetSecurityLogsDocument, LogEventEnum, LogTypeEnum } from '~/generated/graphql'
+import {
+  GetSecurityLogsDocument,
+  LagoApiError,
+  LogEventEnum,
+  LogTypeEnum,
+} from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
 import SecurityLogs, { SECURITY_LOGS_CONTAINER_TEST_ID } from '../SecurityLogs'
@@ -105,6 +110,38 @@ const loadingSecurityLogsMock = {
   },
 }
 
+const errorSecurityLogsMock = {
+  request: {
+    query: GetSecurityLogsDocument,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: null,
+    errors: [
+      {
+        message: 'Something went wrong',
+        extensions: { code: 'internal_error', details: {} },
+      },
+    ],
+  },
+}
+
+const featureUnavailableErrorMock = {
+  request: {
+    query: GetSecurityLogsDocument,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: null,
+    errors: [
+      {
+        message: 'Feature unavailable',
+        extensions: { code: LagoApiError.FeatureUnavailable, details: {} },
+      },
+    ],
+  },
+}
+
 async function prepare({ mocks = [securityLogsMock] }: { mocks?: TestMocksType } = {}) {
   await act(() =>
     render(<SecurityLogs />, {
@@ -173,6 +210,38 @@ describe('SecurityLogs', () => {
         })
 
         expect(screen.queryByText('user.signed_up')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the component renders with data', () => {
+      it('THEN should display the filter section and refresh button', async () => {
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getByTestId('table-security-logs')).toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId(SECURITY_LOGS_CONTAINER_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN an API error occurs', () => {
+      it('THEN should display the table with error state', async () => {
+        await prepare({ mocks: [errorSecurityLogsMock] })
+
+        await waitFor(() => {
+          expect(screen.getByTestId('table-security-logs')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN a FeatureUnavailable error occurs', () => {
+      it('THEN should display the table with error state', async () => {
+        await prepare({ mocks: [featureUnavailableErrorMock] })
+
+        await waitFor(() => {
+          expect(screen.getByTestId('table-security-logs')).toBeInTheDocument()
+        })
       })
     })
   })
