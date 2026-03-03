@@ -1,12 +1,9 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  TerminateCustomerSubscriptionDialog,
-  TerminateCustomerSubscriptionDialogRef,
-} from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
+import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
@@ -87,7 +84,7 @@ const SubscriptionDetails = () => {
   const { canEditSubscription, isStatusEditable } = useSubscriptionPermissionsActions()
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
-  const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
+  const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsQuery({
       variables: { subscriptionId: subscriptionId as string },
@@ -375,7 +372,7 @@ const SubscriptionDetails = () => {
                     variant="quaternary"
                     align="left"
                     onClick={() => {
-                      terminateSubscriptionDialogRef.current?.openDialog({
+                      openTerminateCustomerSubscriptionDialog({
                         id: subscription?.id as string,
                         name: subscription?.name as string,
                         status: subscription?.status as StatusTypeEnum,
@@ -430,8 +427,6 @@ const SubscriptionDetails = () => {
       </div>
 
       <NavigationTab className="px-4 md:px-12" loading={isSubscriptionLoading} tabs={tabs} />
-
-      <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
     </>
   )
 }
