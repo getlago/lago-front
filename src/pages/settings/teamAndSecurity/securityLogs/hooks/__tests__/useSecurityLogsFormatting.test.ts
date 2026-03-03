@@ -97,14 +97,14 @@ describe('useSecurityLogsFormatting', () => {
           const { result } = renderHook(() => useSecurityLogsFormatting())
           const log = createMockSecurityLog({
             logEvent: LogEventEnum.ApiKeyCreated,
-            resources: { name: 'My API Key', value_ending: '1234' },
+            resources: { name: 'My API Key', value_ending: 1234 },
           })
 
           result.current.getSecurityLogDescription(log)
 
           expect(mockTranslate).toHaveBeenCalledWith(
             'text_1771937987061yugieyprq64',
-            expect.objectContaining({ apiKeyName: 'My API Key', lastFour: '1234' }),
+            expect.objectContaining({ apiKeyName: 'My API Key', lastFour: 1234 }),
           )
         })
       })
@@ -114,14 +114,14 @@ describe('useSecurityLogsFormatting', () => {
           const { result } = renderHook(() => useSecurityLogsFormatting())
           const log = createMockSecurityLog({
             logEvent: LogEventEnum.ApiKeyDeleted,
-            resources: { name: 'Old Key', value_ending: '5678' },
+            resources: { name: 'Old Key', value_ending: 5678 },
           })
 
           result.current.getSecurityLogDescription(log)
 
           expect(mockTranslate).toHaveBeenCalledWith(
             'text_1771937987062c4wpkhw85ur',
-            expect.objectContaining({ apiKeyName: 'Old Key', lastFour: '5678' }),
+            expect.objectContaining({ apiKeyName: 'Old Key', lastFour: 5678 }),
           )
         })
       })
@@ -155,14 +155,14 @@ describe('useSecurityLogsFormatting', () => {
           const { result } = renderHook(() => useSecurityLogsFormatting())
           const log = createMockSecurityLog({
             logEvent: LogEventEnum.ApiKeyUpdated,
-            resources: { name: 'Updated Key', value_ending: '9012' },
+            resources: { name: 'Updated Key', value_ending: 9012 },
           })
 
           result.current.getSecurityLogDescription(log)
 
           expect(mockTranslate).toHaveBeenCalledWith(
             'text_17719379870627ay1unhe3sc',
-            expect.objectContaining({ apiKeyName: 'Updated Key', lastFour: '9012' }),
+            expect.objectContaining({ apiKeyName: 'Updated Key', lastFour: 9012 }),
           )
         })
       })
@@ -347,7 +347,6 @@ describe('useSecurityLogsFormatting', () => {
       it.each([
         { event: LogEventEnum.WebhookEndpointCreated, key: 'text_1771937987062g2z0d9cegyj' },
         { event: LogEventEnum.WebhookEndpointDeleted, key: 'text_177193798706284nfb2tmxkb' },
-        { event: LogEventEnum.WebhookEndpointUpdated, key: 'text_1771937987062rw8agotc8gs' },
       ])('THEN should call translate for $event with webhook url', ({ event, key }) => {
         const { result } = renderHook(() => useSecurityLogsFormatting())
         const log = createMockSecurityLog({
@@ -360,6 +359,29 @@ describe('useSecurityLogsFormatting', () => {
         expect(mockTranslate).toHaveBeenCalledWith(
           key,
           expect.objectContaining({ url: 'https://example.com/webhook' }),
+        )
+      })
+
+      it('THEN should call translate for WebhookEndpointUpdated with edited webhook urls', () => {
+        const { result } = renderHook(() => useSecurityLogsFormatting())
+        const log = createMockSecurityLog({
+          logEvent: LogEventEnum.WebhookEndpointUpdated,
+          resources: {
+            webhook_url: {
+              deleted: 'https://old.example.com/webhook',
+              added: 'https://new.example.com/webhook',
+            },
+          },
+        })
+
+        result.current.getSecurityLogDescription(log)
+
+        expect(mockTranslate).toHaveBeenCalledWith(
+          'text_1771937987062rw8agotc8gs',
+          expect.objectContaining({
+            urlFrom: 'https://old.example.com/webhook',
+            urlTo: 'https://new.example.com/webhook',
+          }),
         )
       })
     })

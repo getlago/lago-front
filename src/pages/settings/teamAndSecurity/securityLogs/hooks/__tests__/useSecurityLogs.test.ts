@@ -58,5 +58,37 @@ describe('useSecurityLogs', () => {
         })
       })
     })
+
+    describe('GIVEN a single security log', () => {
+      describe('WHEN formatSecurityLogs is called', () => {
+        it('THEN should preserve all original fields alongside the new id field', () => {
+          const logs = [
+            {
+              logId: 'log-3',
+              logEvent: LogEventEnum.ExportCreated,
+              logType: LogTypeEnum.Export,
+              deviceInfo: { browser: 'Firefox' },
+              resources: null,
+              loggedAt: '2025-02-01T09:00:00Z',
+              userEmail: 'export@example.com',
+            },
+          ]
+
+          const result = formatSecurityLogs(logs)
+
+          expect(result).toHaveLength(1)
+          expect(result[0]).toEqual({
+            id: 'log-3',
+            logId: 'log-3',
+            logEvent: LogEventEnum.ExportCreated,
+            logType: LogTypeEnum.Export,
+            deviceInfo: { browser: 'Firefox' },
+            resources: null,
+            loggedAt: '2025-02-01T09:00:00Z',
+            userEmail: 'export@example.com',
+          })
+        })
+      })
+    })
   })
 })
