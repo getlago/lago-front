@@ -18,7 +18,7 @@ export const isApiKeyResource = (resources: unknown): resources is ApiKeyResourc
     'name' in resources &&
     typeof resources.name === 'string' &&
     'value_ending' in resources &&
-    typeof resources.value_ending === 'number'
+    (typeof resources.value_ending === 'number' || typeof resources.value_ending === 'string')
   )
 }
 
