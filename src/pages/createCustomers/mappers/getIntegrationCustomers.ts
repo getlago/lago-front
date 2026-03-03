@@ -96,6 +96,7 @@ export const getIntegrationCustomers = ({
     ...(taxProvider
       ? [
           {
+            id: taxCustomer?.id,
             integrationCode: taxProvider.code,
             integrationType: taxProvider.__typename
               ?.toLowerCase()
@@ -108,6 +109,7 @@ export const getIntegrationCustomers = ({
     ...(accountingProvider
       ? [
           {
+            id: accountingCustomer?.id,
             integrationCode: accountingProvider.code,
             integrationType: accountingProvider.__typename
               ?.toLowerCase()
@@ -121,6 +123,7 @@ export const getIntegrationCustomers = ({
     ...(crmProvider
       ? [
           {
+            id: crmCustomer?.id,
             integrationCode: crmProvider.code,
             integrationType: crmProvider.__typename
               ?.toLowerCase()

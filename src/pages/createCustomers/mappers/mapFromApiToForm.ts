@@ -106,6 +106,7 @@ export const mapFromApiToForm = (
     url: customer?.url ?? undefined,
     accountingProviderCode: accountingProvider?.integrationCode ?? '',
     accountingCustomer: {
+      id: accountingProvider?.id ?? undefined,
       providerType: accountingProvider?.integrationType ?? undefined,
       accountingCustomerId: accountingProvider?.externalCustomerId ?? '',
       syncWithProvider: accountingProvider?.syncWithProvider ?? false,
@@ -118,6 +119,7 @@ export const mapFromApiToForm = (
     },
     crmProviderCode: crmProvider?.integrationCode ?? '',
     crmCustomer: {
+      id: crmProvider?.id ?? undefined,
       crmCustomerId: crmProvider?.externalCustomerId ?? '',
       syncWithProvider: crmProvider?.syncWithProvider ?? false,
       providerType: crmProvider?.integrationType ?? undefined,
@@ -125,6 +127,7 @@ export const mapFromApiToForm = (
     },
     taxProviderCode: taxProvider?.integrationCode ?? '',
     taxCustomer: {
+      id: taxProvider?.id ?? undefined,
       taxCustomerId: taxProvider?.externalCustomerId ?? '',
       syncWithProvider: taxProvider?.syncWithProvider ?? false,
       providerType: taxProvider?.integrationType ?? undefined,
