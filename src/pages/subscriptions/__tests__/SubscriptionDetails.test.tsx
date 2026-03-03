@@ -1,6 +1,10 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME, FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
 import { CUSTOMER_DETAILS_ROUTE, SUBSCRIPTIONS_ROUTE } from '~/core/router'
 import {
   GetSubscriptionForDetailsDocument,
@@ -41,6 +45,9 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }))
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 const mockSubscription = {
   id: 'subscription-1',
@@ -114,16 +121,21 @@ const renderSubscriptionDetails = (
   subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active,
   customerDeletedAt?: string | null,
 ) => {
-  return render(<SubscriptionDetails />, {
-    wrapper: (props: { children: React.ReactNode }) => (
-      <AllTheProviders
-        {...props}
-        mocks={createMocks(subscriptionStatus, customerDeletedAt)}
-        useParams={{ subscriptionId: 'subscription-1' }}
-        forceTypenames={true}
-      />
-    ),
-  })
+  return render(
+    <NiceModal.Provider>
+      <SubscriptionDetails />
+    </NiceModal.Provider>,
+    {
+      wrapper: (props: { children: React.ReactNode }) => (
+        <AllTheProviders
+          {...props}
+          mocks={createMocks(subscriptionStatus, customerDeletedAt)}
+          useParams={{ subscriptionId: 'subscription-1' }}
+          forceTypenames={true}
+        />
+      ),
+    },
+  )
 }
 
 const openPopper = async (user: ReturnType<typeof userEvent.setup>) => {
