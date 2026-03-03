@@ -12,10 +12,14 @@ import {
   FORM_DIALOG_TEST_ID,
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { StatusTypeEnum } from '~/generated/graphql'
+import { addToast } from '~/core/apolloClient'
+import { OnTerminationInvoiceEnum, StatusTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { useTerminateCustomerSubscriptionDialog } from '../TerminateCustomerSubscriptionDialog'
+import {
+  TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID,
+  useTerminateCustomerSubscriptionDialog,
+} from '../TerminateCustomerSubscriptionDialog'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
@@ -26,11 +30,24 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
 const mockUseGetInvoicesForTerminationQuery = jest.fn()
+
+let capturedMutationOnCompleted: ((data: Record<string, unknown>) => void) | undefined
+const mockTerminate = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useTerminateCustomerSubscriptionMutation: () => [jest.fn()],
+  useTerminateCustomerSubscriptionMutation: (options?: {
+    onCompleted?: (data: Record<string, unknown>) => void
+  }) => {
+    capturedMutationOnCompleted = options?.onCompleted
+    return [mockTerminate]
+  },
   useGetInvoicesForTerminationQuery: () => mockUseGetInvoicesForTerminationQuery(),
 }))
 
@@ -41,9 +58,11 @@ const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
 const TestWrapper = ({
   status = StatusTypeEnum.Active,
   payInAdvance = false,
+  callback,
 }: {
   status?: StatusTypeEnum
   payInAdvance?: boolean
+  callback?: (deletedAt?: string | null) => unknown
 }) => {
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
 
@@ -56,6 +75,7 @@ const TestWrapper = ({
           name: 'Test Subscription',
           status,
           payInAdvance,
+          callback,
         })
       }
     >
@@ -291,6 +311,139 @@ describe('TerminateCustomerSubscriptionDialog', () => {
           const refundRadio = document.querySelector('input[type="radio"][value="refund"]')
 
           expect(refundRadio).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN user submits the form for an active subscription without payInAdvance', () => {
+      it('THEN should call terminate mutation with correct payload', async () => {
+        mockTerminate.mockImplementation(async () => {
+          capturedMutationOnCompleted?.({
+            terminateSubscription: {
+              id: 'sub-123',
+              status: 'terminated',
+              terminatedAt: '2024-01-01T00:00:00Z',
+              customer: { id: 'cust-1', deletedAt: null, activeSubscriptionsCount: 0 },
+            },
+          })
+        })
+
+        await act(() =>
+          render(
+            <NiceModalWrapper>
+              <TestWrapper status={StatusTypeEnum.Active} payInAdvance={false} />
+            </NiceModalWrapper>,
+          ),
+        )
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
+        })
+
+        await waitFor(() => {
+          expect(mockTerminate).toHaveBeenCalledWith({
+            variables: {
+              input: {
+                id: 'sub-123',
+                onTerminationInvoice: OnTerminationInvoiceEnum.Generate,
+                onTerminationCreditNote: undefined,
+              },
+            },
+          })
+        })
+      })
+    })
+
+    describe('WHEN termination succeeds', () => {
+      it('THEN should show a success toast', async () => {
+        mockTerminate.mockImplementation(async () => {
+          capturedMutationOnCompleted?.({
+            terminateSubscription: {
+              id: 'sub-123',
+              status: 'terminated',
+              terminatedAt: '2024-01-01T00:00:00Z',
+              customer: { id: 'cust-1', deletedAt: null, activeSubscriptionsCount: 0 },
+            },
+          })
+        })
+
+        await act(() =>
+          render(
+            <NiceModalWrapper>
+              <TestWrapper status={StatusTypeEnum.Active} payInAdvance={false} />
+            </NiceModalWrapper>,
+          ),
+        )
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
+        })
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+      })
+
+      it('THEN should invoke the callback with deletedAt', async () => {
+        const mockCallback = jest.fn()
+
+        mockTerminate.mockImplementation(async () => {
+          capturedMutationOnCompleted?.({
+            terminateSubscription: {
+              id: 'sub-123',
+              status: 'terminated',
+              terminatedAt: '2024-01-01T00:00:00Z',
+              customer: {
+                id: 'cust-1',
+                deletedAt: '2024-01-01T00:00:00Z',
+                activeSubscriptionsCount: 0,
+              },
+            },
+          })
+        })
+
+        await act(() =>
+          render(
+            <NiceModalWrapper>
+              <TestWrapper
+                status={StatusTypeEnum.Active}
+                payInAdvance={false}
+                callback={mockCallback}
+              />
+            </NiceModalWrapper>,
+          ),
+        )
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
+        })
+
+        await waitFor(() => {
+          expect(mockCallback).toHaveBeenCalledWith('2024-01-01T00:00:00Z')
         })
       })
     })

@@ -52,6 +52,7 @@ gql`
   }
 `
 
+export const TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID = 'terminate-subscription-submit-button'
 const TERMINATE_SUBSCRIPTION_FORM_ID = 'terminate-subscription-form'
 const LOADING_ERROR_MESSAGE = 'loading'
 
@@ -299,7 +300,7 @@ export const useTerminateCustomerSubscriptionDialog = () => {
           ),
           mainAction: (
             <form.AppForm>
-              <form.SubmitButton danger>
+              <form.SubmitButton danger dataTest={TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID}>
                 {translate('text_62d7f6178ec94cd09370e351')}
               </form.SubmitButton>
             </form.AppForm>
