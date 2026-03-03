@@ -85,9 +85,9 @@ const RoleCreateEdit = () => {
       if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
         errorsToDisplay.onDynamic.fields = {
           ...errorsToDisplay.onDynamic.fields,
-          name: {
-            message: 'text_626162c62f790600f850b728',
-            path: ['name'],
+          code: {
+            message: 'text_1772549222703l8p7bejr3g9',
+            path: ['code'],
           },
         }
       }
