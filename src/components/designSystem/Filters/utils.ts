@@ -25,6 +25,7 @@ import {
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
+  SECURITY_LOGS_FILTER_PREFIX,
   SUBSCRIPTION_LIST_FILTER_PREFIX,
   WEBHOOK_LOGS_FILTER_PREFIX,
 } from '~/core/constants/filters'
@@ -56,6 +57,7 @@ import {
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
+  SecurityLogsAvailableFilters,
   SubscriptionAvailableFilters,
   UsageBillableMetricAvailableFilters,
   UsageBreakdownAvailableFilters,
@@ -182,6 +184,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       toDate: (value as string).split(',')[1] || undefined,
     }
   },
+  [AvailableFiltersEnum.logEvents]: (value: string) => value.split(',').filter(Boolean),
+  [AvailableFiltersEnum.logTypes]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.metadata]: (value: string) => parseMetadataFilter(value),
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
@@ -211,6 +215,11 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   },
   [AvailableFiltersEnum.webhookEventTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.webhookHttpStatuses]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.userIds]: (value: string) =>
+    value
+      .split(',')
+      .filter(Boolean)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.zipcodes]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -647,11 +656,10 @@ export const formatActiveFilterValueDisplay = (
       )
     case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
+    case AvailableFiltersEnum.userIds:
       return value
         .split(',')
-        .map(
-          (v) => v.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
-        )
+        .map((v) => v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0])
         .join(', ')
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
@@ -665,6 +673,14 @@ export const formatActiveFilterValueDisplay = (
         .map((v) => `${v.charAt(0).toUpperCase()}${v.slice(1).replace(/_/g, ' ')}`)
         .join(', ')
   }
+}
+
+export const formatFiltersForSecurityLogsQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams: defineDefaultToDateValue(searchParams, SECURITY_LOGS_FILTER_PREFIX),
+    availableFilters: SecurityLogsAvailableFilters,
+    filtersNamePrefix: SECURITY_LOGS_FILTER_PREFIX,
+  })
 }
 
 export const isOutstandingUrlParams = ({

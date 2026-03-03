@@ -12507,6 +12507,14 @@ export type UpdateBillingEntityEmailSettingMutationVariables = Exact<{
 
 export type UpdateBillingEntityEmailSettingMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null } | null };
 
+export type GetAllMembersForFilterQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAllMembersForFilterQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
+
 export type GetTaxProviderPresenceQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
@@ -31607,6 +31615,56 @@ export function useUpdateBillingEntityEmailSettingMutation(baseOptions?: Apollo.
 export type UpdateBillingEntityEmailSettingMutationHookResult = ReturnType<typeof useUpdateBillingEntityEmailSettingMutation>;
 export type UpdateBillingEntityEmailSettingMutationResult = Apollo.MutationResult<UpdateBillingEntityEmailSettingMutation>;
 export type UpdateBillingEntityEmailSettingMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityEmailSettingMutation, UpdateBillingEntityEmailSettingMutationVariables>;
+export const GetAllMembersForFilterDocument = gql`
+    query getAllMembersForFilter($page: Int, $limit: Int) {
+  memberships(page: $page, limit: $limit) {
+    collection {
+      id
+      user {
+        id
+        email
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAllMembersForFilterQuery__
+ *
+ * To run a query within a React component, call `useGetAllMembersForFilterQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllMembersForFilterQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllMembersForFilterQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAllMembersForFilterQuery(baseOptions?: Apollo.QueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>(GetAllMembersForFilterDocument, options);
+      }
+export function useGetAllMembersForFilterLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>(GetAllMembersForFilterDocument, options);
+        }
+// @ts-ignore
+export function useGetAllMembersForFilterSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>;
+export function useGetAllMembersForFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetAllMembersForFilterQuery | undefined, GetAllMembersForFilterQueryVariables>;
+export function useGetAllMembersForFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>(GetAllMembersForFilterDocument, options);
+        }
+export type GetAllMembersForFilterQueryHookResult = ReturnType<typeof useGetAllMembersForFilterQuery>;
+export type GetAllMembersForFilterLazyQueryHookResult = ReturnType<typeof useGetAllMembersForFilterLazyQuery>;
+export type GetAllMembersForFilterSuspenseQueryHookResult = ReturnType<typeof useGetAllMembersForFilterSuspenseQuery>;
+export type GetAllMembersForFilterQueryResult = Apollo.QueryResult<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>;
 export const GetTaxProviderPresenceDocument = gql`
     query getTaxProviderPresence($limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integrations(limit: $limit, types: $integrationsType) {

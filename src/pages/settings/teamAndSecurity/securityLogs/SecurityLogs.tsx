@@ -1,7 +1,14 @@
+import { useMemo } from 'react'
+
+import { Button } from '~/components/designSystem/Button'
+import { Filters, SecurityLogsAvailableFilters } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
-import { Table, TableColumn } from '~/components/designSystem/Table'
+import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { LogsLayout } from '~/components/developers/LogsLayout'
 import { SettingsPageHeaderContainer } from '~/components/layouts/Settings'
+import { hasDefinedGQLError } from '~/core/apolloClient'
+import { SECURITY_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { SecurityLogWithId } from './common/securityLogsTypes'
@@ -13,8 +20,15 @@ export const SECURITY_LOGS_CONTAINER_TEST_ID = 'security-logs-container'
 const SecurityLogs = () => {
   const { translate } = useInternationalization()
 
-  const { securityLogs, securityLogsMetadata, isLoadingSecurityLogs, fetchMoreSecurityLogs } =
-    useSecurityLogs()
+  const {
+    securityLogs,
+    securityLogsMetadata,
+    isLoadingSecurityLogs,
+    fetchMoreSecurityLogs,
+    refetchSecurityLogs,
+    securityLogsError,
+    hasFilters,
+  } = useSecurityLogs()
 
   const { getFormattedLogEvent, getSecurityLogDescription, getSecurityLogDate } =
     useSecurityLogsFormatting()
@@ -45,6 +59,35 @@ const SecurityLogs = () => {
     },
   ]
 
+  const tablePlaceholder: TablePlaceholder = useMemo(() => {
+    const emptyState = hasFilters
+      ? {
+          title: translate('text_1772037888232uwswdk5tahg'),
+          subtitle: translate('text_1772037888232iziwtsooe9f'),
+        }
+      : {
+          title: translate('text_1772037769752re3uqwz8msa'),
+          subtitle: translate('text_1772037769752vckbe8j9pbq'),
+        }
+
+    const errorState = hasDefinedGQLError('FeatureUnavailable', securityLogsError)
+      ? {
+          title: translate('text_1771855827236eqkaiznri70'),
+          subtitle: translate('text_17720377697524xye1g2ks8k'),
+        }
+      : {
+          title: translate('text_1747058197364dm3no1jnete'),
+          subtitle: translate('text_63e27c56dfe64b846474ef3b'),
+          buttonTitle: translate('text_63e27c56dfe64b846474ef3c'),
+          buttonAction: () => refetchSecurityLogs(),
+        }
+
+    return {
+      emptyState,
+      errorState,
+    }
+  }, [hasFilters, securityLogsError, refetchSecurityLogs, translate])
+
   return (
     <div
       className="flex flex-col gap-4 px-12 pb-20 pt-10"
@@ -55,6 +98,31 @@ const SecurityLogs = () => {
         <Typography>{translate('text_1771855926675ji0pee3p6a6')}</Typography>
       </SettingsPageHeaderContainer>
 
+      <LogsLayout.CTASection className="shadow-b">
+        <div>
+          <Filters.Provider
+            displayInDialog
+            filtersNamePrefix={SECURITY_LOGS_FILTER_PREFIX}
+            availableFilters={SecurityLogsAvailableFilters}
+          >
+            <Filters.Component />
+          </Filters.Provider>
+        </div>
+
+        <div className="h-8 w-px shadow-r" />
+
+        <Button
+          variant="quaternary"
+          size="small"
+          startIcon="reload"
+          loading={isLoadingSecurityLogs}
+          onClick={async () => {
+            await refetchSecurityLogs()
+          }}
+        >
+          {translate('text_1738748043939zqoqzz350yj')}
+        </Button>
+      </LogsLayout.CTASection>
       <InfiniteScroll
         onBottom={async () => {
           const { currentPage = 0, totalPages = 0 } = securityLogsMetadata || {}
@@ -72,6 +140,8 @@ const SecurityLogs = () => {
           columns={columns}
           data={securityLogs}
           isLoading={isLoadingSecurityLogs}
+          placeholder={tablePlaceholder}
+          hasError={!!securityLogsError}
         />
       </InfiniteScroll>
     </div>

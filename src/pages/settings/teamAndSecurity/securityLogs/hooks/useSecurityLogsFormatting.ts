@@ -3,6 +3,17 @@ import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import {
+  isApiKeyResource,
+  isBillingEntityResource,
+  isIntegrationResource,
+  isInviteResource,
+  isRoleEditedResource,
+  isRoleResource,
+  isRotatedApiKeyResource,
+  isWebhookEditedResource,
+  isWebhookResource,
+} from '../common/securityLogsResourcesTypeGuards'
 import { SecurityLogWithId } from '../common/securityLogsTypes'
 
 export const useSecurityLogsFormatting = () => {
@@ -24,17 +35,9 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getApiKeyResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('name' in securityLog.resources) &&
-      typeof securityLog.resources.name !== 'string' &&
-      !('value_ending' in securityLog.resources) &&
-      typeof securityLog.resources.value_ending !== 'string'
-    )
-      return {
-        apiKeyName: 'unknown',
-        lastFour: 'XXXX',
-      }
+    if (!isApiKeyResource(securityLog.resources)) {
+      return { apiKeyName: 'unknown', lastFour: 'XXXX' }
+    }
 
     return {
       apiKeyName: securityLog.resources.name,
@@ -43,22 +46,9 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getRotatedApiKeyResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('name' in securityLog.resources) &&
-      typeof securityLog.resources.name !== 'string' &&
-      !('value_ending' in securityLog.resources) &&
-      typeof securityLog.resources.value_ending !== 'object' &&
-      !('deleted' in securityLog.resources.value_ending) &&
-      !('added' in securityLog.resources.value_ending) &&
-      typeof securityLog.resources.value_ending.deleted !== 'string' &&
-      typeof securityLog.resources.value_ending.added !== 'string'
-    )
-      return {
-        apiKeyName: 'unknown',
-        lastFourFrom: 'XXXX',
-        lastFourTo: 'XXXX',
-      }
+    if (!isRotatedApiKeyResource(securityLog.resources)) {
+      return { apiKeyName: 'unknown', lastFourFrom: 'XXXX', lastFourTo: 'XXXX' }
+    }
 
     return {
       apiKeyName: securityLog.resources.name,
@@ -68,15 +58,9 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getBillingEntityResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('billing_entity_name' in securityLog.resources) &&
-      typeof securityLog.resources.billing_entity_name !== 'string'
-    )
-      return {
-        email: securityLog.userEmail,
-        billingEntityName: 'unknown',
-      }
+    if (!isBillingEntityResource(securityLog.resources)) {
+      return { email: securityLog.userEmail, billingEntityName: 'unknown' }
+    }
 
     return {
       email: securityLog.userEmail,
@@ -85,15 +69,9 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getIntegrationsResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('integration_name' in securityLog.resources) &&
-      typeof securityLog.resources.integration_name !== 'string'
-    )
-      return {
-        email: securityLog.userEmail,
-        integrationName: 'unknown',
-      }
+    if (!isIntegrationResource(securityLog.resources)) {
+      return { email: securityLog.userEmail, integrationName: 'unknown' }
+    }
 
     return {
       email: securityLog.userEmail,
@@ -102,15 +80,9 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getRoleResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('role_code' in securityLog.resources) &&
-      typeof securityLog.resources.role_code !== 'string'
-    )
-      return {
-        email: securityLog.userEmail,
-        role: 'unknown',
-      }
+    if (!isRoleResource(securityLog.resources)) {
+      return { email: securityLog.userEmail, role: 'unknown' }
+    }
 
     return {
       email: securityLog.userEmail,
@@ -119,15 +91,9 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getInviteResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('invitee_email' in securityLog.resources) &&
-      typeof securityLog.resources.invitee_email !== 'string'
-    )
-      return {
-        emailInviter: securityLog.userEmail,
-        emailInvitee: 'unknown',
-      }
+    if (!isInviteResource(securityLog.resources)) {
+      return { emailInviter: securityLog.userEmail, emailInvitee: 'unknown' }
+    }
 
     return {
       emailInviter: securityLog.userEmail,
@@ -136,19 +102,9 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getRoleEditedResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('email' in securityLog.resources) &&
-      typeof securityLog.resources.email !== 'string' &&
-      typeof securityLog.resources.roles !== 'object' &&
-      !('added' in securityLog.resources.roles) &&
-      typeof securityLog.resources.roles.added !== 'string'
-    )
-      return {
-        emailUpdated: 'unknown',
-        role: 'unknown',
-        emailUpdater: securityLog.userEmail,
-      }
+    if (!isRoleEditedResource(securityLog.resources)) {
+      return { emailUpdated: 'unknown', role: 'unknown', emailUpdater: securityLog.userEmail }
+    }
 
     return {
       emailUpdated: securityLog.resources.email,
@@ -158,17 +114,22 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getWebhookResources = (securityLog: SecurityLogWithId) => {
-    if (
-      !securityLog.resources &&
-      !('webhook_url' in securityLog.resources) &&
-      typeof securityLog.resources.webhook_url !== 'string'
-    )
-      return {
-        url: 'unknown',
-      }
+    if (!isWebhookResource(securityLog.resources)) {
+      return { url: 'unknown' }
+    }
 
     return {
       url: securityLog.resources.webhook_url,
+    }
+  }
+  const getWebhookEditedResources = (securityLog: SecurityLogWithId) => {
+    if (!isWebhookEditedResource(securityLog.resources)) {
+      return { urlFrom: 'unknown', urlTo: 'unknown' }
+    }
+
+    return {
+      urlFrom: securityLog.resources.webhook_url.deleted,
+      urlTo: securityLog.resources.webhook_url.added,
     }
   }
 
@@ -227,7 +188,7 @@ export const useSecurityLogsFormatting = () => {
       case LogEventEnum.WebhookEndpointDeleted:
         return translate('text_177193798706284nfb2tmxkb', getWebhookResources(securityLog))
       case LogEventEnum.WebhookEndpointUpdated:
-        return translate('text_1771937987062rw8agotc8gs', getWebhookResources(securityLog))
+        return translate('text_1771937987062rw8agotc8gs', getWebhookEditedResources(securityLog))
       default:
         return '-'
     }
