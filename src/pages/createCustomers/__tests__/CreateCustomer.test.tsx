@@ -2,6 +2,7 @@ import { RenderOptions, render as rtlRender, screen, waitFor } from '@testing-li
 import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
+import { PspErrorCode } from '~/core/apolloClient/errorUtils'
 import {
   GetAccountingIntegrationsForExternalAppsAccordionDocument,
   GetBillingEntitiesDocument,
@@ -9,6 +10,7 @@ import {
   GetTaxIntegrationsForExternalAppsAccordionDocument,
   PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument,
 } from '~/generated/graphql'
+import * as useCreateEditCustomerModule from '~/hooks/useCreateEditCustomer'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import CreateCustomer from '../CreateCustomer'
@@ -380,6 +382,143 @@ describe('CreateCustomer Integration Tests', () => {
         'false',
       )
       expect(screen.getByRole('button', { name: /create customer/i })).toBeInTheDocument()
+    })
+  })
+
+  describe('WHEN handling form submission errors', () => {
+    let hookSpy: jest.SpyInstance
+    const mockOnSave = jest.fn()
+    const mockOnClose = jest.fn()
+
+    beforeEach(() => {
+      hookSpy = jest.spyOn(useCreateEditCustomerModule, 'useCreateEditCustomer').mockReturnValue({
+        isEdition: false,
+        loading: false,
+        customer: undefined,
+        onClose: mockOnClose,
+        onSave: mockOnSave,
+      })
+      mockOnSave.mockReset()
+    })
+
+    afterEach(() => {
+      hookSpy.mockRestore()
+    })
+
+    it('THEN should show error on externalId when ValueAlreadyExist error is returned', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { externalId: ['value_already_exist'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+
+      await user.type(externalIdInput, 'test-customer')
+
+      const submitButton = screen.getByTestId('submit-customer')
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled()
+      })
+
+      await waitFor(() => {
+        expect(externalIdInput).toHaveAttribute('aria-invalid', 'true')
+      })
+    })
+
+    it('THEN should not reset form when Stripe third-party error is returned', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            locations: [{ line: 2, column: 3 }],
+            path: ['createCustomer'],
+            extensions: {
+              status: 422,
+              code: PspErrorCode.ThirdPartyError,
+              details: {
+                error: "Stripe: resource_missing - No such customer: 'non-existing'",
+              },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+
+      await user.type(externalIdInput, 'test-customer')
+
+      const submitButton = screen.getByTestId('submit-customer')
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled()
+      })
+
+      // Form should NOT have been reset — error was caught and returned early
+      await waitFor(() => {
+        expect(externalIdInput).toHaveValue('test-customer')
+      })
+    })
+
+    it('THEN should reset form when non-Stripe third-party error is returned', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Third Party Error',
+            extensions: {
+              status: 422,
+              code: PspErrorCode.ThirdPartyError,
+              details: {
+                error: 'SomeOtherProvider: some error message',
+              },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+
+      await user.type(externalIdInput, 'test-customer')
+
+      const submitButton = screen.getByTestId('submit-customer')
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled()
+      })
+
+      // Form should have been reset — non-Stripe error falls through
+      await waitFor(() => {
+        expect(externalIdInput).toHaveValue('')
+      })
     })
   })
 })
