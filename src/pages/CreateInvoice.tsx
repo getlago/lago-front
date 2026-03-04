@@ -74,9 +74,9 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
-import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -244,9 +244,14 @@ const CreateInvoice = () => {
   const { customerId, voidedInvoiceId = '' } = useParams()
   const navigate = useNavigate()
   const { goBack } = useLocationHistory()
-  const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
   const actions = usePermissionsInvoiceActions()
   const { hasFeatureFlag } = useOrganizationInfos()
+  const {
+    emitIframeMessage,
+    emitSalesForceEvent,
+    isRunningInIframeContext,
+    isRunningInSalesForceIframe,
+  } = useIframeConfig()
 
   const [showAddItem, setShowAddItem] = useState(false)
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
@@ -344,6 +349,12 @@ const CreateInvoice = () => {
         if (isRunningInSalesForceIframe) {
           emitSalesForceEvent({
             action: 'close',
+            rel: 'create-invoice',
+            invoiceId: createInvoiceResult.id,
+          })
+        } else if (isRunningInIframeContext) {
+          emitIframeMessage({
+            action: 'DONE',
             rel: 'create-invoice',
             invoiceId: createInvoiceResult.id,
           })
@@ -622,7 +633,7 @@ const CreateInvoice = () => {
           {translate('text_6453819268763979024acfe9')}
         </Typography>
 
-        {!isRunningInSalesForceIframe && (
+        {!isRunningInSalesForceIframe && !isRunningInIframeContext && (
           <Button
             variant="quaternary"
             icon="close"

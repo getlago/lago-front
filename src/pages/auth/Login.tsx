@@ -17,7 +17,7 @@ import { AuthenticationMethodsEnum, LagoApiError, useLoginUserMutation } from '~
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
-import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
+import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
 const { disableSignUp } = envGlobalVar()
@@ -32,7 +32,7 @@ gql`
 
 const Login = () => {
   const { translate } = useInternationalization()
-  const { isRunningInSalesForceIframe } = useSalesForceConfig()
+  const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
   const navigate = useNavigate()
   const { closePanel: closeDevTool } = useDeveloperTool()
   const client = useApolloClient()
@@ -128,7 +128,7 @@ const Login = () => {
             </Alert>
           )}
 
-          {!isRunningInSalesForceIframe && (
+          {!isRunningInSalesForceIframe && !isRunningInIframeContext && (
             <>
               <Stack spacing={4}>
                 <GoogleAuthButton
@@ -186,7 +186,7 @@ const Login = () => {
             {translate('text_620bc4d4269a55014d493f6d')}
           </Button>
 
-          {!disableSignUp && !isRunningInSalesForceIframe && (
+          {!disableSignUp && !isRunningInSalesForceIframe && !isRunningInIframeContext && (
             <Typography
               className="mx-auto text-center"
               variant="caption"

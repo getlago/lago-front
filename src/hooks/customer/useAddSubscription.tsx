@@ -25,7 +25,7 @@ import {
   useUpdateSubscriptionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
+import { useIframeConfig } from '~/hooks/useIframeConfig'
 
 gql`
   mutation createSubscription($input: CreateSubscriptionInput!) {
@@ -157,7 +157,12 @@ export const useAddSubscription: UseAddSubscription = ({
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { translate } = useInternationalization()
-  const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
+  const {
+    emitIframeMessage,
+    emitSalesForceEvent,
+    isRunningInIframeContext,
+    isRunningInSalesForceIframe,
+  } = useIframeConfig()
 
   const formType = useMemo(() => {
     if (location.pathname.includes('/update/subscription/')) return FORM_TYPE_ENUM.edition
@@ -181,6 +186,12 @@ export const useAddSubscription: UseAddSubscription = ({
         if (isRunningInSalesForceIframe) {
           emitSalesForceEvent({
             action: 'close',
+            rel: 'create-subscription',
+            subscriptionId: res?.createSubscription.id,
+          })
+        } else if (isRunningInIframeContext) {
+          emitIframeMessage({
+            action: 'DONE',
             rel: 'create-subscription',
             subscriptionId: res?.createSubscription.id,
           })
