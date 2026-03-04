@@ -29,9 +29,11 @@ gql`
 export const PlanDetailsOverview = ({
   planId,
   showEntitlementSection = true,
+  showProgressiveBillingSection = true,
 }: {
   planId?: string
   showEntitlementSection?: boolean
+  showProgressiveBillingSection?: boolean
 }) => {
   const { translate } = useInternationalization()
   const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsOverviewSectionQuery({
@@ -117,6 +119,7 @@ export const PlanDetailsOverview = ({
       <PlanDetailsAdvancedSettingsSection
         currency={currency}
         plan={plan}
+        showProgressiveBillingSection={showProgressiveBillingSection}
         showEntitlementSection={showEntitlementSection}
       />
     </section>
