@@ -1,10 +1,9 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { hasDefinedGQLError } from '~/core/apolloClient'
@@ -32,7 +31,7 @@ const RoleCreateEdit = () => {
 
   const { translate } = useInternationalization()
 
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
 
   const { roleId, isEdition, handleSave } = useRoleCreateEdit()
 
@@ -85,9 +84,9 @@ const RoleCreateEdit = () => {
       if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
         errorsToDisplay.onDynamic.fields = {
           ...errorsToDisplay.onDynamic.fields,
-          name: {
-            message: 'text_626162c62f790600f850b728',
-            path: ['name'],
+          code: {
+            message: 'text_1772549222703l8p7bejr3g9',
+            path: ['code'],
           },
         }
       }
@@ -141,7 +140,12 @@ const RoleCreateEdit = () => {
 
   const handleAbort = () => {
     if (form.state.isDirty) {
-      warningDialogRef.current?.openDialog()
+      centralizedDialog.open({
+        title: translate('text_665deda4babaf700d603ea13'),
+        description: translate('text_665dedd557dc3c00c62eb83d'),
+        actionText: translate('text_645388d5bdbd7b00abffa033'),
+        onAction: handleClose,
+      })
       return
     }
 
@@ -225,14 +229,6 @@ const RoleCreateEdit = () => {
           </form.AppForm>
         </CenteredPage.StickyFooter>
       </form>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={handleClose}
-      />
     </CenteredPage.Wrapper>
   )
 }

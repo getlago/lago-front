@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 
-import { CreateRoleInput, PermissionEnum } from '~/generated/graphql'
+import { CreateRoleInput, LagoApiError, PermissionEnum } from '~/generated/graphql'
 
 import { useRoleCreateEdit } from '../useRoleCreateEdit'
 
@@ -199,6 +199,9 @@ describe('useRoleCreateEdit', () => {
       expect(mockCreateRoleMutation).toHaveBeenCalledWith({
         variables: {
           input: formValues,
+        },
+        context: {
+          silentErrorCodes: [LagoApiError.UnprocessableEntity],
         },
       })
     })
