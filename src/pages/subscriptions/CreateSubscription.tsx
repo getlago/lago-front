@@ -72,8 +72,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
 import { BREAKPOINT_LG, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -247,7 +247,7 @@ const CreateSubscription = () => {
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
   const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { isRunningInSalesForceIframe } = useSalesForceConfig()
+  const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -555,7 +555,7 @@ const CreateSubscription = () => {
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {pageHeaderTitle}
         </Typography>
-        {!isRunningInSalesForceIframe && (
+        {!isRunningInSalesForceIframe && !isRunningInIframeContext && (
           <Button
             variant="quaternary"
             icon="close"
