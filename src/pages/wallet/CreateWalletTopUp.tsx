@@ -205,6 +205,7 @@ const CreateWalletTopUp = () => {
       ignorePaidTopUpLimits,
       invoiceCustomSection,
       paymentMethod,
+      priority,
       ...rest
     }) => {
       if (!wallet) return
@@ -233,6 +234,7 @@ const CreateWalletTopUp = () => {
           input: {
             ...rest,
             walletId: wallet.id,
+            priority: Number(priority) || Number(WALLET_TOP_UP_DEFAULT_PRIORITY),
             grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
             paidCredits: paidCredits === '' ? '0' : String(paidCredits),
             invoiceRequiresSuccessfulPayment,
