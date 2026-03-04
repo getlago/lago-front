@@ -5,6 +5,15 @@ import { render, testMockNavigateFn } from '~/test-utils'
 
 import RoleCreateEdit, { ROLE_CREATE_EDIT_FORM_ID, SUBMIT_ROLE_DATA_TEST } from '../RoleCreateEdit'
 
+const mockCentralizedDialogOpen = jest.fn().mockResolvedValue({ reason: 'close' })
+
+jest.mock('~/components/dialogs/CentralizedDialog', () => ({
+  useCentralizedDialog: () => ({
+    open: mockCentralizedDialogOpen,
+    close: jest.fn(),
+  }),
+}))
+
 const mockHandleSave = jest.fn().mockResolvedValue({ errors: [] })
 
 // Mock variables that can be changed per test
@@ -399,57 +408,62 @@ describe('RoleCreateEdit', () => {
   })
 
   describe('Form Behavior', () => {
-    it('opens warning dialog when canceling with dirty form', async () => {
-      const user = userEvent.setup()
+    describe('GIVEN the form is dirty', () => {
+      describe('WHEN clicking cancel', () => {
+        it('THEN should open centralized dialog with correct props', async () => {
+          const user = userEvent.setup()
 
-      await act(() => render(<RoleCreateEdit />))
+          await act(() => render(<RoleCreateEdit />))
 
-      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+          const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
 
-      await user.type(nameInput, 'Test')
+          await user.type(nameInput, 'Test')
 
-      const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
+          const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
 
-      await user.click(cancelButton)
+          await user.click(cancelButton)
 
-      await waitFor(() => {
-        expect(screen.getByText('text_665deda4babaf700d603ea13')).toBeInTheDocument()
+          await waitFor(() => {
+            expect(mockCentralizedDialogOpen).toHaveBeenCalledWith(
+              expect.objectContaining({
+                title: expect.any(String),
+                description: expect.any(String),
+                actionText: expect.any(String),
+                onAction: expect.any(Function),
+              }),
+            )
+          })
+        })
       })
     })
 
-    it('shows warning dialog description when opening warning dialog', async () => {
-      const user = userEvent.setup()
+    describe('GIVEN the form is not dirty', () => {
+      describe('WHEN clicking cancel', () => {
+        it('THEN should not open centralized dialog', async () => {
+          const user = userEvent.setup()
 
-      await act(() => render(<RoleCreateEdit />))
+          await act(() => render(<RoleCreateEdit />))
 
-      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+          const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
 
-      await user.type(nameInput, 'Test')
+          await user.click(cancelButton)
 
-      const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
+          expect(mockCentralizedDialogOpen).not.toHaveBeenCalled()
+        })
 
-      await user.click(cancelButton)
+        it('THEN should navigate away', async () => {
+          const user = userEvent.setup()
 
-      await waitFor(() => {
-        expect(screen.getByText('text_665dedd557dc3c00c62eb83d')).toBeInTheDocument()
-      })
-    })
+          await act(() => render(<RoleCreateEdit />))
 
-    it('shows warning dialog continue button when opening warning dialog', async () => {
-      const user = userEvent.setup()
+          const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
 
-      await act(() => render(<RoleCreateEdit />))
+          await user.click(cancelButton)
 
-      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
-
-      await user.type(nameInput, 'Test')
-
-      const cancelButton = screen.getByText('text_62e79671d23ae6ff149de968')
-
-      await user.click(cancelButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('text_645388d5bdbd7b00abffa033')).toBeInTheDocument()
+          await waitFor(() => {
+            expect(testMockNavigateFn).toHaveBeenCalled()
+          })
+        })
       })
     })
   })
@@ -518,7 +532,7 @@ describe('RoleCreateEdit', () => {
       expect(container).toMatchSnapshot()
     })
 
-    it('matches snapshot when warning dialog is open', async () => {
+    it('matches snapshot after dirty form cancel (dialog opened via hook)', async () => {
       const user = userEvent.setup()
 
       const { container } = await act(() => render(<RoleCreateEdit />))
@@ -532,7 +546,7 @@ describe('RoleCreateEdit', () => {
       await user.click(cancelButton)
 
       await waitFor(() => {
-        expect(screen.getByText('text_665deda4babaf700d603ea13')).toBeInTheDocument()
+        expect(mockCentralizedDialogOpen).toHaveBeenCalled()
       })
 
       expect(container).toMatchSnapshot()

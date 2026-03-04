@@ -135,6 +135,8 @@ describe('cleanPlanValues', () => {
     expect(result.billChargesMonthly).toBeUndefined()
     expect(result.billFixedChargesMonthly).toBeUndefined()
     expect(result.cascadeUpdates).toBeUndefined()
+    expect(result.entitlements).toBeUndefined()
+    expect(result.usageThresholds).toBeUndefined()
 
     // Should clean charges
     expect(result.charges).toHaveLength(1)
@@ -184,7 +186,10 @@ describe('cleanPlanValues', () => {
         taxes: undefined,
         payInAdvance: undefined,
         billChargesMonthly: undefined,
+        billFixedChargesMonthly: undefined,
         cascadeUpdates: undefined,
+        entitlements: undefined,
+        usageThresholds: undefined,
         charges: undefined,
         fixedCharges: undefined,
       })

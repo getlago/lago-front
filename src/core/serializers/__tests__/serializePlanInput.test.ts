@@ -101,7 +101,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -190,7 +190,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -281,7 +281,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -357,7 +357,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -434,7 +434,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -511,7 +511,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -582,7 +582,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -720,7 +720,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -808,7 +808,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -886,7 +886,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -955,6 +955,129 @@ describe('serializePlanInput()', () => {
           },
         ],
         entitlements: [],
+      })
+    })
+
+    it('strips IDs and extra fields from non-recurring usage thresholds', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        fixedCharges: [],
+        charges: [],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [
+          {
+            id: 'threshold-id-123',
+            amountCents: '100',
+            thresholdDisplayName: 'Non-recurring threshold',
+            recurring: false,
+            someExtraField: 'should-be-stripped',
+          } as never,
+        ],
+        recurringUsageThreshold: undefined,
+        entitlements: [],
+      })
+
+      // Verify that the serialized threshold only contains the expected fields
+      expect(plan.usageThresholds).toStrictEqual([
+        {
+          amountCents: 10000,
+          thresholdDisplayName: 'Non-recurring threshold',
+          recurring: false,
+        },
+      ])
+      // Explicitly verify id is NOT present
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('id')
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('someExtraField')
+    })
+
+    it('strips IDs and extra fields from recurring usage threshold', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        fixedCharges: [],
+        charges: [],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: {
+          id: 'recurring-threshold-id-456',
+          amountCents: '500',
+          thresholdDisplayName: 'Recurring threshold',
+          recurring: true,
+          anotherExtraField: 'also-stripped',
+        } as never,
+        entitlements: [],
+      })
+
+      // Verify that the serialized threshold only contains the expected fields
+      expect(plan.usageThresholds).toStrictEqual([
+        {
+          amountCents: 50000,
+          thresholdDisplayName: 'Recurring threshold',
+          recurring: true,
+        },
+      ])
+      // Explicitly verify id is NOT present
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('id')
+      expect(plan.usageThresholds?.[0]).not.toHaveProperty('anotherExtraField')
+    })
+
+    it('strips IDs from both recurring and non-recurring thresholds when both are present', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        fixedCharges: [],
+        charges: [],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [
+          {
+            id: 'non-rec-1',
+            amountCents: '100',
+            thresholdDisplayName: 'First',
+            recurring: false,
+          } as never,
+          {
+            id: 'non-rec-2',
+            amountCents: '200',
+            recurring: false,
+          } as never,
+        ],
+        recurringUsageThreshold: {
+          id: 'rec-1',
+          amountCents: '300',
+          thresholdDisplayName: 'Recurring',
+          recurring: true,
+        } as never,
+        entitlements: [],
+      })
+
+      expect(plan.usageThresholds).toHaveLength(3)
+
+      // Verify none of the thresholds have IDs
+      plan.usageThresholds?.forEach((threshold) => {
+        expect(threshold).not.toHaveProperty('id')
+        expect(Object.keys(threshold)).toEqual(
+          expect.arrayContaining(['amountCents', 'thresholdDisplayName', 'recurring']),
+        )
+        expect(Object.keys(threshold)).toHaveLength(3)
       })
     })
   })
@@ -1035,7 +1158,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1112,7 +1235,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1181,7 +1304,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         taxCodes: [],
         trialPeriod: 1,
-        usageThresholds: [],
+        usageThresholds: undefined,
       })
     })
   })
@@ -1255,7 +1378,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1328,7 +1451,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
-        usageThresholds: [],
+        usageThresholds: undefined,
         entitlements: [],
       })
     })
@@ -1443,7 +1566,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })
@@ -1557,7 +1680,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })
@@ -1624,7 +1747,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })

@@ -8,6 +8,7 @@ import {
   CreateRoleMutation,
   EditRoleMutation,
   GetCurrentUserInfosDocument,
+  LagoApiError,
   UpdateRoleInput,
   useCreateRoleMutation,
   useEditRoleMutation,
@@ -71,6 +72,9 @@ export const useRoleCreateEdit = (): {
     const result = await createRoleMutation({
       variables: {
         input: roleParams,
+      },
+      context: {
+        silentErrorCodes: [LagoApiError.UnprocessableEntity],
       },
     })
 
