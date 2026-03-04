@@ -1682,7 +1682,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })
@@ -1778,7 +1778,7 @@ describe('serializePlanInput()', () => {
           payInAdvance: true,
           trialPeriod: 1,
           taxCodes: [],
-          usageThresholds: [],
+          usageThresholds: undefined,
           entitlements: [],
         })
       })
