@@ -20,6 +20,7 @@ import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import {
   ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
+  CREATE_WALLET_TOP_UP_FORM_TEST_ID,
   IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
@@ -379,7 +380,10 @@ const CreateWalletTopUp = () => {
               />
             </section>
 
-            <section className="flex flex-col gap-6 pb-12 shadow-b">
+            <section
+              data-test={CREATE_WALLET_TOP_UP_FORM_TEST_ID}
+              className="flex flex-col gap-6 pb-12 shadow-b"
+            >
               <div className="flex flex-col gap-1">
                 <Typography variant="subhead1">
                   {translate('text_6657be42151661006d2f3b89')}

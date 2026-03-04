@@ -20,6 +20,9 @@ export const WALLET_TRANSACTION_ITEMS_ERROR_TEST_ID = 'wallet-transaction-items-
 export const WALLET_TRANSACTION_ITEMS_LIST_TEST_ID = 'wallet-transaction-items-list'
 export const WALLET_TRANSACTION_ITEM_ROW_TEST_ID = 'wallet-transaction-item-row'
 
+// CreateWalletTopUp - Form
+export const CREATE_WALLET_TOP_UP_FORM_TEST_ID = 'create-wallet-top-up-form'
+
 // CreateWallet & CreateWalletTopUp - Common
 export const SUBMIT_WALLET_DATA_TEST = 'submit-wallet'
 export const CLOSE_CREATE_WALLET_BUTTON_DATA_TEST = 'close-create-wallet-button'
