@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
-import Card from '@mui/material/Card'
 import { FC, useMemo } from 'react'
 
+import { Card } from '~/components/designSystem/Card'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
