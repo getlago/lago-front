@@ -10,6 +10,7 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
   formatFiltersForRevenueStreamsQuery,
+  formatFiltersForWebhookLogsQuery,
   formatMetadataFilter,
   getFilterValue,
   keyWithPrefix,
@@ -914,6 +915,150 @@ describe('Filters utils', () => {
       const result = formatMetadataFilter([])
 
       expect(result).toEqual('')
+    })
+  })
+
+  describe('formatFiltersForWebhookLogsQuery', () => {
+    it('should format webhook status filter with key mapping', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('dw_webhookStatus', 'succeeded,failed')
+
+      const result = formatFiltersForWebhookLogsQuery(searchParams)
+
+      expect(result).toHaveProperty('statuses', ['succeeded', 'failed'])
+    })
+
+    it('should format webhook event types filter with key mapping', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('dw_webhookEventTypes', 'invoice.created,customer.created')
+
+      const result = formatFiltersForWebhookLogsQuery(searchParams)
+
+      expect(result).toHaveProperty('eventTypes', ['invoice.created', 'customer.created'])
+    })
+
+    it('should format webhook http statuses filter with key mapping', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('dw_webhookHttpStatuses', '200,404,500')
+
+      const result = formatFiltersForWebhookLogsQuery(searchParams)
+
+      expect(result).toHaveProperty('httpStatuses', ['200', '404', '500'])
+    })
+
+    it('should format webhook date filter', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('dw_webhookDate', '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.000Z')
+
+      const result = formatFiltersForWebhookLogsQuery(searchParams)
+
+      expect(result).toHaveProperty('fromDate', '2024-01-01T00:00:00.000Z')
+      expect(result).toHaveProperty('toDate')
+    })
+
+    it('should set default toDate when no date filter is provided', () => {
+      const searchParams = new URLSearchParams()
+
+      const result = formatFiltersForWebhookLogsQuery(searchParams)
+
+      expect(result).toHaveProperty('toDate')
+    })
+
+    it('should ignore filters not in WebhookLogsAvailableFilters', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('dw_paymentStatus', 'failed')
+
+      const result = formatFiltersForWebhookLogsQuery(searchParams)
+
+      expect(result).not.toHaveProperty('paymentStatus')
+    })
+
+    it('should format all webhook filters together', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('dw_webhookStatus', 'failed')
+      searchParams.set('dw_webhookEventTypes', 'invoice.created')
+      searchParams.set('dw_webhookHttpStatuses', '500')
+
+      const result = formatFiltersForWebhookLogsQuery(searchParams)
+
+      expect(result).toHaveProperty('statuses', ['failed'])
+      expect(result).toHaveProperty('eventTypes', ['invoice.created'])
+      expect(result).toHaveProperty('httpStatuses', ['500'])
+    })
+  })
+
+  describe('FILTER_VALUE_MAP webhook entries', () => {
+    it('should parse webhookDate filter', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookDate](
+        '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.000Z',
+      )
+
+      expect(result).toEqual({
+        fromDate: '2024-01-01T00:00:00.000Z',
+        toDate: '2024-01-31T23:59:59.000Z',
+      })
+    })
+
+    it('should parse webhookDate filter with only fromDate', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookDate]('2024-01-01T00:00:00.000Z,')
+
+      expect(result).toEqual({
+        fromDate: '2024-01-01T00:00:00.000Z',
+        toDate: undefined,
+      })
+    })
+
+    it('should parse webhookDate filter with only toDate', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookDate](',2024-01-31T23:59:59.000Z')
+
+      expect(result).toEqual({
+        fromDate: undefined,
+        toDate: '2024-01-31T23:59:59.000Z',
+      })
+    })
+
+    it('should parse webhookEventTypes filter', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookEventTypes](
+        'invoice.created,customer.created,subscription.updated',
+      )
+
+      expect(result).toEqual(['invoice.created', 'customer.created', 'subscription.updated'])
+    })
+
+    it('should parse webhookEventTypes filter with single value', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookEventTypes]('invoice.created')
+
+      expect(result).toEqual(['invoice.created'])
+    })
+
+    it('should parse webhookHttpStatuses filter', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookHttpStatuses]('200,404,500')
+
+      expect(result).toEqual(['200', '404', '500'])
+    })
+
+    it('should parse webhookHttpStatuses filter with single value', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookHttpStatuses]('200')
+
+      expect(result).toEqual(['200'])
+    })
+
+    it('should parse webhookStatus filter', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookStatus]('succeeded,failed')
+
+      expect(result).toEqual(['succeeded', 'failed'])
+    })
+
+    it('should parse webhookStatus filter with single value', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookStatus]('pending')
+
+      expect(result).toEqual(['pending'])
     })
   })
 })

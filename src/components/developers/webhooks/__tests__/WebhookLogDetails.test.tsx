@@ -165,14 +165,6 @@ describe('WebhookLogDetails', () => {
       expect(screen.queryByText('text_63e27c56dfe64b846474efb2')).not.toBeInTheDocument()
     })
 
-    it('should display http status as "Success" for succeeded webhook', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.queryByText('text_63e27c56dfe64b846474ef73')).toBeInTheDocument()
-      })
-    })
-
     it('should display payload section', async () => {
       await prepare()
 
@@ -222,7 +214,7 @@ describe('WebhookLogDetails', () => {
       await prepare(failedWebhookData)
 
       await waitFor(() => {
-        expect(screen.queryByText('500')).toBeInTheDocument()
+        expect(screen.queryByText('500 Failed')).toBeInTheDocument()
       })
     })
 

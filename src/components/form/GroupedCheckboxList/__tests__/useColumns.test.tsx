@@ -59,7 +59,7 @@ describe('useColumns', () => {
 
         const checkboxColumn = result.current.find((col) => col.key === 'checkbox')
 
-        expect(checkboxColumn?.minWidth).toBe(50)
+        expect(checkboxColumn?.minWidth).toBe(40)
       })
     })
   })

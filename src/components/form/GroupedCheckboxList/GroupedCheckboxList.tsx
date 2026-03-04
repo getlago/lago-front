@@ -33,6 +33,7 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
   isEditable = true,
   isLoading = false,
   errors = [],
+  itemLabelVariant,
   errorScrollTarget = 'grouped-checkbox-list-errors',
 }: GroupedCheckboxListComponentProps<TValues>) {
   const { translate } = useInternationalization()
@@ -137,6 +138,7 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
     overallCheckboxValue,
     onOverallCheckboxChange: handleOverallCheckboxChange,
     onGroupCheckboxClick: handleGroupCheckboxClick,
+    itemLabelVariant,
     AppField: group.AppField,
   })
 

@@ -11,7 +11,6 @@ import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { EventItemFragment, useEventsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 gql`
   fragment EventItem on Event {
@@ -38,7 +37,6 @@ export const Events = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { '*': eventId } = useParams<{ '*': string }>()
-  const { panelSize: size } = useDeveloperTool()
   const logListRef = useRef<ListSectionRef>(null)
 
   const getEventsResult = useEventsQuery({
@@ -87,7 +85,7 @@ export const Events = () => {
   const shouldDisplayLogDetails = !!eventId && !!data?.events?.collection.length
 
   return (
-    <div className="not-last-child:shadow-b">
+    <div className="flex h-full flex-col not-last-child:shadow-b">
       <Typography variant="headline" className="p-4">
         {translate('text_1747058197364ivug6k5e2nc')}
       </Typography>
@@ -113,7 +111,6 @@ export const Events = () => {
         leftSide={<EventTable getEventsResult={getEventsResult} logListRef={logListRef} />}
         rightSide={<EventDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
-        sectionHeight={shouldDisplayLogDetails ? `calc(${size}vh - 182px)` : '100%'} // 182px is the height of the headers (52px+64px+64px+2px of borders)
       />
     </div>
   )

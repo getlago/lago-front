@@ -2,7 +2,7 @@ import { Icon } from 'lago-design-system'
 import { ComponentType, ReactNode } from 'react'
 
 import { ColumnConfig, ColumnHelpers } from '~/components/designSystem/Table/TableWithGroups'
-import { Typography } from '~/components/designSystem/Typography'
+import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -16,6 +16,7 @@ type UseColumnsParams<TValues extends Record<string, boolean>> = {
   overallCheckboxValue: boolean | undefined
   onOverallCheckboxChange: (_e: unknown, checked: boolean) => void
   onGroupCheckboxClick: (checked: boolean, groupItems: Array<{ id: string; label: string }>) => void
+  itemLabelVariant?: TypographyProps['variant']
   AppField: ComponentType<{
     name: keyof TValues & string
     key?: string
@@ -30,6 +31,7 @@ export const useColumns = <TValues extends Record<string, boolean>>({
   overallCheckboxValue,
   onOverallCheckboxChange,
   onGroupCheckboxClick,
+  itemLabelVariant,
   AppField,
 }: UseColumnsParams<TValues>): ColumnConfig[] => {
   const { translate } = useInternationalization()
@@ -60,15 +62,21 @@ export const useColumns = <TValues extends Record<string, boolean>>({
           </Typography>
         )}
         {typeof row.label === 'string' && !isGroup && (
-          <div className="flex flex-col pl-8">
+          <div className="flex flex-col py-3 pl-8">
             <div className="flex flex-row items-center gap-2">
               {!isEditable && createIcon(row.key)}
-              <Typography variant="body" color="grey700" noWrap>
+              <Typography variant={itemLabelVariant} color="grey700" noWrap>
                 {row.label}
               </Typography>
             </div>
             {row.sublabel && (
-              <Typography variant="caption" color="grey600">
+              <Typography
+                variant="caption"
+                color="grey600"
+                sx={{
+                  lineHeight: 1.3,
+                }}
+              >
                 {row.sublabel}
               </Typography>
             )}
@@ -94,7 +102,7 @@ export const useColumns = <TValues extends Record<string, boolean>>({
             onChange={onOverallCheckboxChange}
           />
         ),
-        minWidth: 50,
+        minWidth: 40,
         content: (row) => {
           if (row.type === 'group') {
             const checkboxValue = getGroupCheckboxValue(row.key, groupingMap, checkboxValues)

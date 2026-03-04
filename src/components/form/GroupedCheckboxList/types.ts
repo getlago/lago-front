@@ -2,6 +2,7 @@ import { useStore } from '@tanstack/react-form'
 import { ComponentType, ReactNode } from 'react'
 
 import { RowConfig } from '~/components/designSystem/Table/TableWithGroups'
+import { TypographyProps } from '~/components/designSystem/Typography'
 
 // ============================================================================
 // Data Types
@@ -32,6 +33,10 @@ export type GroupedCheckboxListProps = {
   isEditable?: boolean
   isLoading?: boolean
   errors?: string[]
+
+  // Appearance
+  /** Typography variant for item labels (e.g., "captionCode" for monospace). Defaults to Typography's default. */
+  itemLabelVariant?: TypographyProps['variant']
 
   // Optional: custom scroll target for error alert
   errorScrollTarget?: string

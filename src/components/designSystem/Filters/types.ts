@@ -88,6 +88,9 @@ export enum AvailableFiltersEnum {
   timeGranularity = 'timeGranularity',
   period = 'period',
   userEmails = 'userEmails',
+  webhookDate = 'webhookDate',
+  webhookEventTypes = 'webhookEventTypes',
+  webhookHttpStatuses = 'webhookHttpStatuses',
   webhookStatus = 'webhookStatus',
   zipcodes = 'zipcodes',
 }
@@ -177,7 +180,12 @@ export const AnalyticsInvoicesAvailableFilters = [
   AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 
-export const WebhookLogsAvailableFilters = [AvailableFiltersEnum.webhookStatus]
+export const WebhookLogsAvailableFilters = [
+  AvailableFiltersEnum.webhookDate,
+  AvailableFiltersEnum.webhookStatus,
+  AvailableFiltersEnum.webhookEventTypes,
+  AvailableFiltersEnum.webhookHttpStatuses,
+]
 
 export const UsageOverviewAvailableFilters = [
   AvailableFiltersEnum.date,
@@ -320,6 +328,9 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
   [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
   [AvailableFiltersEnum.userEmails]: 'text_1747666154075t42hri31gvz',
+  [AvailableFiltersEnum.webhookDate]: 'text_1771575899591jxhprdv5fuh',
+  [AvailableFiltersEnum.webhookEventTypes]: 'text_1771575899591p8b9e7wu4nh',
+  [AvailableFiltersEnum.webhookHttpStatuses]: 'text_1771575108779ayv0gbdcjfr',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.zipcodes]: 'text_1759909828496sof33smekse',
 }

@@ -107,7 +107,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -4491,7 +4491,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -8947,7 +8947,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -13331,7 +13331,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -19499,7 +19499,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -23883,7 +23883,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -28267,7 +28267,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -32634,7 +32634,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -37054,7 +37054,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -41461,7 +41461,7 @@ exports[`RolePermissionsForm Snapshot Tests - Checkbox Interactions matches snap
         >
           <div
             class="relative"
-            style="width: 400px; height: 40px;"
+            style="width: 390px; height: 40px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -45867,7 +45867,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in editable mode wi
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -50270,7 +50270,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state 1`
         >
           <div
             class="relative"
-            style="width: 1480px; height: 1240px;"
+            style="width: 1470px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -54676,7 +54676,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot in loading state wi
         >
           <div
             class="relative"
-            style="width: 1480px; height: 1240px;"
+            style="width: 1470px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -74016,7 +74016,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all invoice pe
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -78491,7 +78491,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with all permission
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -84676,7 +84676,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with default props 
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -89094,7 +89094,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with errors 1`] = `
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -93461,7 +93461,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with organization p
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -97939,7 +97939,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with single error 1
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
@@ -102306,7 +102306,7 @@ exports[`RolePermissionsForm Snapshot Tests matches snapshot with some permissio
         >
           <div
             class="relative"
-            style="width: 400px; height: 1240px;"
+            style="width: 390px; height: 1240px;"
           >
             <div
               class="sticky top-0 z-10 flex bg-white"
