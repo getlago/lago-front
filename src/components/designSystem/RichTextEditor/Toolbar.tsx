@@ -21,10 +21,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       isItalic: e.isActive('italic'),
       isParagraph: e.isActive('paragraph'),
       isBulletList: e.isActive('bulletList'),
+      isCode: e.isActive('code'),
+      isCodeBlock: e.isActive('codeBlock'),
       isH1: e.isActive('heading', { level: 1 }),
       isH2: e.isActive('heading', { level: 2 }),
       isH3: e.isActive('heading', { level: 3 }),
       isHeading: e.isActive('heading'),
+      canUndo: e.can().undo(),
+      canRedo: e.can().redo(),
     }),
   })
 
@@ -80,6 +84,24 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
   return (
     <div className="sticky top-0 z-10 flex flex-wrap gap-1 bg-white p-2 shadow-b">
+      {/* Undo / Redo */}
+      <Button
+        variant="secondary"
+        disabled={!editorState.canUndo}
+        onClick={() => editor.chain().focus().undo().run()}
+      >
+        Undo
+      </Button>
+      <Button
+        variant="secondary"
+        disabled={!editorState.canRedo}
+        onClick={() => editor.chain().focus().redo().run()}
+      >
+        Redo
+      </Button>
+
+      <Separator />
+
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         opener={
@@ -123,6 +145,12 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       >
         I
       </Button>
+      <Button
+        variant={editorState.isCode ? 'primary' : 'secondary'}
+        onClick={() => editor.chain().focus().toggleCode().run()}
+      >
+        {'<>'}
+      </Button>
 
       <Separator />
 
@@ -158,6 +186,12 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         }
       >
         Table
+      </Button>
+      <Button
+        variant={editorState.isCodeBlock ? 'primary' : 'secondary'}
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+      >
+        Code
       </Button>
 
       {/* Image */}
