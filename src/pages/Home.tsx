@@ -2,8 +2,11 @@ import { useEffect } from 'react'
 import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { getItemFromLS } from '~/core/apolloClient'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
+import {
+  ORGANIZATION_LS_KEY_ID,
+  REDIRECT_AFTER_LOGIN_LS_KEY,
+} from '~/core/constants/localStorageKeys'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ANALYTIC_ROUTE,
@@ -31,6 +34,17 @@ const Home = () => {
     // Make sure user permissions are loaded before performing redirection
     if (isUserLoading || isOrganizationLoading || !currentMembership) {
       return
+    }
+
+    // Check localStorage for redirect path from SSO login (Google/Okta).
+    // This handles the race condition where the onlyPublic route guard
+    // redirects here before the SSO callback can navigate to the intended page.
+    const ssoRedirectPath = getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+
+    if (ssoRedirectPath) {
+      removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+
+      return navigate(ssoRedirectPath, { replace: true })
     }
 
     // Check if there's a saved location from login redirect in router state

@@ -4,7 +4,14 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
-import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
+import {
+  hasDefinedGQLError,
+  LagoGQLError,
+  onLogIn,
+  removeItemFromLS,
+  setItemFromLS,
+} from '~/core/apolloClient'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { LagoApiError, useGoogleLoginUserMutation } from '~/generated/graphql'
 
@@ -60,7 +67,17 @@ const GoogleAuthCallback = () => {
             })
           }
         } else if (!!res.data?.googleLoginUser) {
+          // Store redirect path in localStorage before onLogIn to survive
+          // race condition with the onlyPublic route guard. When onLogIn sets
+          // authTokenVar, the guard may redirect to HOME before this callback
+          // can navigate — localStorage ensures Home can still find the path.
+          if (redirectPath) {
+            setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, redirectPath)
+          }
+
           await onLogIn(client, res.data?.googleLoginUser?.token)
+
+          removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
 
           if (redirectPath) {
             navigate({
