@@ -2,7 +2,7 @@ import { gql, useApolloClient } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
-import { generatePath, Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
@@ -33,6 +33,7 @@ gql`
 const Login = () => {
   const { translate } = useInternationalization()
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
+  const location = useLocation()
   const navigate = useNavigate()
   const { closePanel: closeDevTool } = useDeveloperTool()
   const client = useApolloClient()
@@ -141,7 +142,7 @@ const Login = () => {
                   startIcon="okta"
                   size="large"
                   variant="tertiary"
-                  onClick={() => navigate(LOGIN_OKTA)}
+                  onClick={() => navigate(LOGIN_OKTA, { state: location.state })}
                 >
                   {translate('text_664c90c9b2b6c2012aa50bce')}
                 </Button>

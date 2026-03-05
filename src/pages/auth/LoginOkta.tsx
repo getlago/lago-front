@@ -2,14 +2,15 @@ import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
-import { hasDefinedGQLError } from '~/core/apolloClient'
+import { hasDefinedGQLError, setItemFromLS } from '~/core/apolloClient'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { LOGIN_ROUTE } from '~/core/router'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import { LagoApiError, useFetchOktaAuthorizeUrlMutation } from '~/generated/graphql'
@@ -38,7 +39,9 @@ gql`
 
 const LoginOkta = () => {
   const { translate } = useInternationalization()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
+  const previousLocation = (location.state as { from?: Location } | null)?.from?.pathname
   const [errorAlert, setErrorAlert] = useState<LagoApiError>()
   const [errorField, setErrorField] = useState<LagoApiError>()
 
@@ -94,6 +97,11 @@ const LoginOkta = () => {
       if (data?.oktaAuthorize?.url) {
         setErrorField(undefined)
         setErrorAlert(undefined)
+
+        if (previousLocation) {
+          setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, previousLocation)
+        }
+
         window.location.href = addValuesToUrlState({
           url: data.oktaAuthorize.url,
           stateType: 'string',

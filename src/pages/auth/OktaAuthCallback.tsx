@@ -3,7 +3,14 @@ import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
+import {
+  getItemFromLS,
+  hasDefinedGQLError,
+  LagoGQLError,
+  onLogIn,
+  removeItemFromLS,
+} from '~/core/apolloClient'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { INVITATION_ROUTE_FORM, LOGIN_OKTA, LOGIN_ROUTE } from '~/core/router'
 import { LagoApiError, useOktaLoginUserMutation } from '~/generated/graphql'
 
@@ -66,7 +73,18 @@ const OktaAuthCallback = () => {
             })
           }
         } else if (!!res.data?.oktaLogin) {
+          // Read redirect path from localStorage (set by LoginOkta before Okta redirect)
+          const redirectPath = getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+
           await onLogIn(client, res.data?.oktaLogin?.token)
+
+          removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+
+          if (redirectPath) {
+            navigate({
+              pathname: redirectPath,
+            })
+          }
         }
       }
     }
