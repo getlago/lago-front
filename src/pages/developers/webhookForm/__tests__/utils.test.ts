@@ -82,13 +82,13 @@ describe('webhookForm utils', () => {
 
     describe('GIVEN eventTypes is undefined', () => {
       describe('WHEN converting to form values', () => {
-        it('THEN should return all keys set to true (listening to all)', () => {
+        it('THEN should return all keys set to false (creation mode)', () => {
           const result = eventTypesToFormValues(undefined, allFormKeys)
 
           expect(result).toEqual({
-            [EventTypeEnum.CustomerCreated]: true,
-            [EventTypeEnum.InvoiceCreated]: true,
-            [EventTypeEnum.SubscriptionStarted]: true,
+            [EventTypeEnum.CustomerCreated]: false,
+            [EventTypeEnum.InvoiceCreated]: false,
+            [EventTypeEnum.SubscriptionStarted]: false,
           })
         })
       })
