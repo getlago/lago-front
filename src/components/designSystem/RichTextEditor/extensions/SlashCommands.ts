@@ -38,6 +38,11 @@ export const slashCommandItems: SlashCommandItem[] = [
     command: (editor) =>
       editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
   },
+  {
+    title: 'Code Block',
+    description: 'Insert a code block',
+    command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
+  },
 ]
 
 export const SlashCommands = Extension.create({
