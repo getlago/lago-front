@@ -166,7 +166,10 @@ export const serializePlanInput = (values: PlanFormInput) => {
       addon: undefined,
       taxes: undefined,
       properties: {
-        ...fixedCharge.properties,
+        ...serializeProperties(
+          fixedCharge.properties as Properties,
+          fixedCharge.chargeModel as unknown as ChargeModelEnum,
+        ),
         // Cleaning properties that are not supported by FixedChargePropertiesInput
         // They are initialized by getPropertyShape method
         pricingGroupKeys: undefined,

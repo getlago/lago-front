@@ -1505,56 +1505,15 @@ describe('serializePlanInput()', () => {
                 freeUnits: undefined,
                 freeUnitsPerEvents: 0,
                 freeUnitsPerTotalAggregation: '1',
-                graduatedRanges: [
-                  {
-                    flatAmount: '1',
-                    fromValue: 0,
-                    perUnitAmount: '1',
-                  },
-                  {
-                    flatAmount: '1',
-                    fromValue: 1,
-                    perUnitAmount: '1',
-                  },
-                ],
-                graduatedPercentageRanges: [
-                  {
-                    fromValue: '0',
-                    toValue: '1',
-                    rate: '0',
-                    flatAmount: '0',
-                  },
-                  {
-                    fromValue: '2',
-                    toValue: null,
-                    rate: '10',
-                    flatAmount: '1',
-                  },
-                ],
+                graduatedRanges: undefined,
+                graduatedPercentageRanges: undefined,
                 pricingGroupKeys: undefined,
                 packageSize: undefined,
-                perTransactionMinAmount: '1',
+                perTransactionMaxAmount: undefined,
+                perTransactionMinAmount: undefined,
                 rate: '5',
-                volumeRanges: [
-                  {
-                    flatAmount: '1',
-                    fromValue: 0,
-                    perUnitAmount: '1',
-                  },
-                  {
-                    flatAmount: '1',
-                    fromValue: 1,
-                    perUnitAmount: '1',
-                  },
-                ],
-                customProperties: JSON.stringify({
-                  ranges: [
-                    { from: 0, to: 100, thirdPart: '0.13', firstPart: '0.12' },
-                    { from: 101, to: 2000, thirdPart: '0.10', firstPart: '0.09' },
-                    { from: 2001, to: 5000, thirdPart: '0.08', firstPart: '0.07' },
-                    { from: 5001, to: null, thirdPart: '0.06', firstPart: '0.05' },
-                  ],
-                }),
+                volumeRanges: undefined,
+                customProperties: undefined,
               },
               taxCodes: [],
             },
@@ -1619,35 +1578,12 @@ describe('serializePlanInput()', () => {
                 freeUnits: undefined,
                 freeUnitsPerEvents: 0,
                 freeUnitsPerTotalAggregation: '1',
-                graduatedRanges: [
-                  {
-                    flatAmount: '1',
-                    fromValue: 0,
-                    perUnitAmount: '1',
-                  },
-                  {
-                    flatAmount: '1',
-                    fromValue: 1,
-                    perUnitAmount: '1',
-                  },
-                ],
-                graduatedPercentageRanges: [
-                  {
-                    fromValue: '0',
-                    toValue: '1',
-                    rate: '0',
-                    flatAmount: '0',
-                  },
-                  {
-                    fromValue: '2',
-                    toValue: null,
-                    rate: '10',
-                    flatAmount: '1',
-                  },
-                ],
+                graduatedRanges: undefined,
+                graduatedPercentageRanges: undefined,
                 pricingGroupKeys: undefined,
                 packageSize: undefined,
-                perTransactionMinAmount: '1',
+                perTransactionMinAmount: undefined,
+                perTransactionMaxAmount: undefined,
                 rate: '5',
                 volumeRanges: [
                   {
@@ -1661,14 +1597,7 @@ describe('serializePlanInput()', () => {
                     perUnitAmount: '1',
                   },
                 ],
-                customProperties: JSON.stringify({
-                  ranges: [
-                    { from: 0, to: 100, thirdPart: '0.13', firstPart: '0.12' },
-                    { from: 101, to: 2000, thirdPart: '0.10', firstPart: '0.09' },
-                    { from: 2001, to: 5000, thirdPart: '0.08', firstPart: '0.07' },
-                    { from: 5001, to: null, thirdPart: '0.06', firstPart: '0.05' },
-                  ],
-                }),
+                customProperties: undefined,
               },
               taxCodes: [],
             },
@@ -1733,9 +1662,205 @@ describe('serializePlanInput()', () => {
               taxes: undefined,
               properties: {
                 amount: '5',
+                customProperties: undefined,
                 freeUnits: undefined,
-                pricingGroupKeys: undefined,
+                graduatedPercentageRanges: undefined,
+                graduatedRanges: undefined,
                 packageSize: undefined,
+                perTransactionMaxAmount: undefined,
+                perTransactionMinAmount: undefined,
+                pricingGroupKeys: undefined,
+                volumeRanges: undefined,
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: 'monthly',
+          minimumCommitment: {},
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          usageThresholds: undefined,
+          entitlements: [],
+        })
+      })
+    })
+
+    describe('graduated fixed charge', () => {
+      it('returns plan correctly serialized with flatAmount defaulted to 0', () => {
+        const plan = serializePlanInput({
+          amountCents: '1',
+          amountCurrency: CurrencyEnum.Eur,
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: FixedChargeChargeModelEnum.Graduated,
+              addOn: {
+                id: '5678',
+                name: 'simpleAddOn',
+                code: 'simple-addon',
+              },
+              properties: {
+                graduatedRanges: [
+                  {
+                    fromValue: '0',
+                    toValue: '1',
+                    perUnitAmount: '1',
+                    flatAmount: undefined as unknown as string,
+                  },
+                  {
+                    fromValue: '2',
+                    toValue: null,
+                    perUnitAmount: '1',
+                    flatAmount: undefined as unknown as string,
+                  },
+                ],
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: PlanInterval.Monthly,
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          nonRecurringUsageThresholds: [],
+          recurringUsageThreshold: undefined,
+          entitlements: [],
+        })
+
+        expect(plan).toStrictEqual({
+          amountCents: 100,
+          amountCurrency: 'EUR',
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: 'graduated',
+              addOnId: '5678',
+              addon: undefined,
+              taxes: undefined,
+              properties: {
+                customProperties: undefined,
+                freeUnits: undefined,
+                graduatedPercentageRanges: undefined,
+                graduatedRanges: [
+                  {
+                    flatAmount: '0',
+                    fromValue: '0',
+                    perUnitAmount: '1',
+                    toValue: '1',
+                  },
+                  {
+                    flatAmount: '0',
+                    fromValue: '2',
+                    perUnitAmount: '1',
+                    toValue: null,
+                  },
+                ],
+                packageSize: undefined,
+                perTransactionMaxAmount: undefined,
+                perTransactionMinAmount: undefined,
+                pricingGroupKeys: undefined,
+                volumeRanges: undefined,
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: 'monthly',
+          minimumCommitment: {},
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          usageThresholds: undefined,
+          entitlements: [],
+        })
+      })
+
+      it('returns plan correctly serialized with provided flatAmount values', () => {
+        const plan = serializePlanInput({
+          amountCents: '1',
+          amountCurrency: CurrencyEnum.Eur,
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: FixedChargeChargeModelEnum.Graduated,
+              addOn: {
+                id: '5678',
+                name: 'simpleAddOn',
+                code: 'simple-addon',
+              },
+              properties: {
+                graduatedRanges: [
+                  {
+                    fromValue: '0',
+                    toValue: '1',
+                    perUnitAmount: '5',
+                    flatAmount: '10',
+                  },
+                  {
+                    fromValue: '2',
+                    toValue: null,
+                    perUnitAmount: '3',
+                    flatAmount: '7',
+                  },
+                ],
+              },
+              taxCodes: [],
+            },
+          ],
+          code: 'my-plan',
+          interval: PlanInterval.Monthly,
+          name: 'My plan',
+          payInAdvance: true,
+          trialPeriod: 1,
+          taxCodes: [],
+          nonRecurringUsageThresholds: [],
+          recurringUsageThreshold: undefined,
+          entitlements: [],
+        })
+
+        expect(plan).toStrictEqual({
+          amountCents: 100,
+          amountCurrency: 'EUR',
+          billChargesMonthly: true,
+          charges: [],
+          fixedCharges: [
+            {
+              chargeModel: 'graduated',
+              addOnId: '5678',
+              addon: undefined,
+              taxes: undefined,
+              properties: {
+                customProperties: undefined,
+                freeUnits: undefined,
+                graduatedPercentageRanges: undefined,
+                graduatedRanges: [
+                  {
+                    flatAmount: '10',
+                    fromValue: '0',
+                    perUnitAmount: '5',
+                    toValue: '1',
+                  },
+                  {
+                    flatAmount: '7',
+                    fromValue: '2',
+                    perUnitAmount: '3',
+                    toValue: null,
+                  },
+                ],
+                packageSize: undefined,
+                perTransactionMaxAmount: undefined,
+                perTransactionMinAmount: undefined,
+                pricingGroupKeys: undefined,
+                volumeRanges: undefined,
               },
               taxCodes: [],
             },
