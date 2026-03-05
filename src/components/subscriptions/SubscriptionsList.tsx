@@ -1,10 +1,7 @@
-import { FC, RefObject, useRef } from 'react'
+import { FC } from 'react'
 import { generatePath, NavigateFunction, useNavigate } from 'react-router-dom'
 
-import {
-  TerminateCustomerSubscriptionDialog,
-  TerminateCustomerSubscriptionDialogRef,
-} from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
+import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -135,13 +132,15 @@ const annotateSubscriptions = (
 const generateActionColumn = ({
   subscription,
   hasSubscriptionsUpdatePermission,
-  terminateSubscriptionDialogRef,
+  openTerminateDialog,
   translate,
   navigate,
 }: {
   subscription: AnnotatedSubscription
   hasSubscriptionsUpdatePermission: boolean
-  terminateSubscriptionDialogRef: RefObject<TerminateCustomerSubscriptionDialogRef>
+  openTerminateDialog: ReturnType<
+    typeof useTerminateCustomerSubscriptionDialog
+  >['openTerminateCustomerSubscriptionDialog']
   translate: TranslateFunc
   navigate: NavigateFunction
 }) => {
@@ -220,7 +219,7 @@ const generateActionColumn = ({
           ? translate('text_64a6d736c23125004817627f')
           : translate('text_62d904b97e690a881f2b867c'),
       onAction: () => {
-        terminateSubscriptionDialogRef?.current?.openDialog({
+        openTerminateDialog({
           id: subscription.id,
           name: subscription.name as string,
           status: subscription.status as StatusTypeEnum,
@@ -250,7 +249,7 @@ export const SubscriptionsList: FC<SubscriptionsListProps> = ({
   const { hasPermissions } = usePermissions()
   const { isStatusEditable } = useSubscriptionPermissionsActions()
 
-  const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
+  const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
 
   const annotatedSubscriptions = annotateSubscriptions(subscriptions, {
     customerTimezone,
@@ -269,13 +268,11 @@ export const SubscriptionsList: FC<SubscriptionsListProps> = ({
             subscription,
             navigate,
             translate,
-            terminateSubscriptionDialogRef,
+            openTerminateDialog: openTerminateCustomerSubscriptionDialog,
             hasSubscriptionsUpdatePermission: hasPermissions(['subscriptionsUpdate']),
           })
         }
       />
-
-      <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
     </>
   )
 }

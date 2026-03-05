@@ -1,6 +1,7 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
   SubscriptionUsageDetailDrawer,
@@ -15,11 +16,12 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
-import { LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
@@ -47,6 +49,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
+
+import { usePremiumWarningDialog } from '../dialogs/PremiumWarningDialog'
 
 gql`
   query customerForSubscriptionUsage($customerId: ID!) {
@@ -271,7 +275,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
   isUsedinCustomerPortal,
   hasAccessToProjectedUsage,
 }: SubscriptionCurrentUsageTableComponentProps) => {
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
@@ -440,7 +444,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
             endIcon="sparkles"
             variant="tertiary"
             onClick={() =>
-              premiumWarningDialogRef.current?.openDialog({
+              premiumWarningDialog.open({
                 title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                 description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                 mailtoSubject: translate('text_1755599398258mj61iwjhhfk'),
@@ -601,8 +605,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
         translate={translate}
         locale={locale}
       />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </section>
   )
 }
@@ -611,6 +613,8 @@ export const SubscriptionCurrentUsageTable = ({
   customerId,
   subscriptionId,
 }: SubscriptionCurrentUsageTableProps) => {
+  const navigate = useNavigate()
+  const { planId = '' } = useParams()
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const [activeTab, setActiveTab] = useState<number>(0)
@@ -644,7 +648,7 @@ export const SubscriptionCurrentUsageTable = ({
 
   const queryParams = {
     context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.NoActiveSubscription],
     },
     variables: {
       customerId: (customerId || subscription?.customer.id) as string,
@@ -682,6 +686,32 @@ export const SubscriptionCurrentUsageTable = ({
 
   const refetchUsage = (forceProjected?: boolean) =>
     fetchProjected || forceProjected ? refetchUsageQueryProjected() : refetchUsageQuery()
+
+  useEffect(() => {
+    if (
+      hasDefinedGQLError('NoActiveSubscription', usageError) ||
+      hasDefinedGQLError('NoActiveSubscription', usageErrorProjected)
+    ) {
+      addToast({
+        severity: 'info',
+        translateKey: 'text_173142196943714qsq737sre',
+      })
+
+      const overviewPath = !!customerId
+        ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId,
+            subscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+          })
+        : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+            planId,
+            subscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+          })
+
+      navigate(overviewPath, { replace: true })
+    }
+  }, [usageError, usageErrorProjected, navigate, customerId, planId, subscriptionId])
 
   return (
     <SubscriptionCurrentUsageTableComponent
