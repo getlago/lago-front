@@ -143,6 +143,7 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       allowedHosts: ['app.lago.dev'],
       watch: {
+        usePolling: true,
         ignored: [
           '**/node_modules/**',
           '**/.git/**',
