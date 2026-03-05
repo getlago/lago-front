@@ -10799,7 +10799,7 @@ export type GetOrganizationHmacDataQuery = { __typename?: 'Query', organization?
 export type GetWebhookListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, eventTypes?: Array<EventTypeEnum> | null }> } };
+export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, eventTypes?: Array<EventTypeEnum> | null }> } };
 
 export type DeleteWebhookMutationVariables = Exact<{
   input: DestroyWebhookEndpointInput;
@@ -24262,6 +24262,7 @@ export const GetWebhookListDocument = gql`
   webhookEndpoints {
     collection {
       id
+      name
       webhookUrl
       eventTypes
     }

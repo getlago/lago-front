@@ -37,6 +37,7 @@ gql`
     webhookEndpoints {
       collection {
         id
+        name
         webhookUrl
         eventTypes
       }
@@ -101,10 +102,17 @@ export const Webhooks = () => {
                         key: 'id',
                         title: translate('text_1731675102864qdlsq84v1o8'),
                         maxSpace: true,
-                        content: ({ webhookUrl }) => (
-                          <Typography color="grey700" variant="body">
-                            {webhookUrl}
-                          </Typography>
+                        content: ({ name, webhookUrl }) => (
+                          <div className="flex flex-col p-2">
+                            <Typography color="grey700" variant="body" noWrap>
+                              {name || webhookUrl}
+                            </Typography>
+                            {!!name && (
+                              <Typography color="grey500" variant="caption" noWrap>
+                                {webhookUrl}
+                              </Typography>
+                            )}
+                          </div>
                         ),
                       },
                       {

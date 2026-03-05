@@ -56,11 +56,13 @@ const mockWebhookListData: GetWebhookListQuery = {
     collection: [
       {
         id: 'webhook-1',
+        name: 'My Webhook',
         webhookUrl: 'https://example.com/webhook1',
         eventTypes: [EventTypeEnum.CustomerCreated],
       },
       {
         id: 'webhook-2',
+        name: null,
         webhookUrl: 'https://example.com/webhook2',
         eventTypes: null,
       },
@@ -76,6 +78,7 @@ const maxWebhooksListData: GetWebhookListQuery = {
   webhookEndpoints: {
     collection: Array.from({ length: 25 }, (_, i) => ({
       id: `webhook-${i + 1}`,
+      name: null,
       webhookUrl: `https://example.com/webhook${i + 1}`,
       eventTypes: [EventTypeEnum.CustomerCreated],
     })),
@@ -98,9 +101,10 @@ describe('Webhooks', () => {
   })
 
   describe('GIVEN webhooks data is loaded', () => {
-    it('THEN should display webhook URLs in the table', () => {
+    it('THEN should display webhook name when present, and URL otherwise', () => {
       render(<Webhooks />)
 
+      expect(screen.getByText('My Webhook')).toBeInTheDocument()
       expect(screen.getByText('https://example.com/webhook1')).toBeInTheDocument()
       expect(screen.getByText('https://example.com/webhook2')).toBeInTheDocument()
     })

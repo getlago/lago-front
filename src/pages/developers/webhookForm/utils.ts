@@ -24,8 +24,8 @@ export const formValuesToEventTypes = (webhookEvents: Record<string, boolean>): 
 
 /**
  * Converts the eventTypes from the API back to the webhookEvents form state.
- *  - null / undefined / contains EventTypeEnum.All → all checkboxes true (receive everything)
- *  - []                                            → all checkboxes false (no events)
+ *  - undefined                                      → all checkboxes false (creation mode)
+ *  - null / contains EventTypeEnum.All             → all checkboxes true (receive everything)
  *  - EventTypeEnum[]                               → matching checkboxes true
  *
  * @param eventTypes  - value from the API
@@ -42,8 +42,13 @@ export const eventTypesToFormValues = (
     values[key] = false
   }
 
-  // null/undefined or contains "all" means filtering OFF → all events selected
-  if (eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)) {
+  // undefined → all checkboxes false (creation mode, no webhook loaded)
+  if (eventTypes === undefined) {
+    return values
+  }
+
+  // null or contains "all" means filtering OFF → all events selected
+  if (eventTypes === null || eventTypes.includes(EventTypeEnum.All)) {
     for (const key of allFormKeys) {
       values[key] = true
     }
