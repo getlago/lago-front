@@ -1,23 +1,42 @@
 import { cva } from 'class-variance-authority'
-import { Icon, IconName } from 'lago-design-system'
+import { ConditionalWrapper, Icon, IconName } from 'lago-design-system'
 import { ReactElement, useState } from 'react'
 
 import { tw } from '~/styles/utils'
 
 import { Avatar } from './Avatar'
+import { Button } from './Button'
+import { Tooltip } from './Tooltip'
 import { Typography } from './Typography'
+
+export const SELECTOR_END_CONTENT_TEST_ID = 'selector-end-content'
+export const SELECTOR_HOVER_ACTIONS_TEST_ID = 'selector-hover-actions'
+
+export const SELECTOR_HEIGHT = 72
 
 interface SelectorProps {
   title: string
   subtitle?: string
   icon: ReactElement | IconName
-  endIcon?: IconName | ReactElement
+  /** Right-side content. Hidden on hover when hoverActions is provided. */
+  endContent?: ReactElement
+  /** Content shown on hover, replacing endContent. */
+  hoverActions?: ReactElement
   titleFirst?: boolean
   selected?: boolean
   className?: string
   fullWidth?: boolean
   disabled?: boolean
   onClick?: () => Promise<void> | unknown
+}
+
+interface SelectorActionItem {
+  /** Icon name. Defaults to 'dots-horizontal' */
+  icon?: IconName
+  /** Tooltip text. When absent, no tooltip is rendered. */
+  tooltipCopy?: string
+  onClick: (e: React.MouseEvent) => void
+  disabled?: boolean
 }
 
 const selectorVariants = cva('flex h-18 items-center rounded-xl border p-4', {
@@ -62,7 +81,8 @@ export const Selector = ({
   title,
   subtitle,
   icon,
-  endIcon,
+  endContent,
+  hoverActions,
   titleFirst = true,
   className,
   selected = false,
@@ -79,6 +99,7 @@ export const Selector = ({
       role="button"
       tabIndex={clickable ? 0 : -1}
       className={tw(
+        'group/selector',
         selectorVariants({
           selected,
           disabled,
@@ -125,10 +146,45 @@ export const Selector = ({
         </Typography>
       </div>
       {loading && <Icon animation="spin" color="primary" name="processing" />}
-      {!loading && typeof endIcon === 'string' && <Icon name={endIcon} color="dark" />}
-      {!loading && typeof endIcon !== 'string' && endIcon}
+      {!loading && endContent && (
+        <div
+          data-test={SELECTOR_END_CONTENT_TEST_ID}
+          className={tw('flex items-center gap-3', hoverActions && 'group-hover/selector:hidden')}
+        >
+          {endContent}
+        </div>
+      )}
+      {!loading && hoverActions && (
+        <div
+          data-test={SELECTOR_HOVER_ACTIONS_TEST_ID}
+          className="hidden items-center gap-3 group-hover/selector:flex"
+        >
+          {hoverActions}
+        </div>
+      )}
     </div>
   )
 }
 
-export const SELECTOR_HEIGHT = 72
+export const SelectorActions = ({ actions }: { actions: SelectorActionItem[] }) => (
+  <>
+    {actions.map(({ icon = 'dots-horizontal', tooltipCopy, onClick, disabled }, index) => (
+      <ConditionalWrapper
+        key={index}
+        condition={!!tooltipCopy}
+        validWrapper={(children) => <Tooltip title={tooltipCopy ?? ''}>{children}</Tooltip>}
+        invalidWrapper={(children) => <>{children}</>}
+      >
+        <Button
+          icon={icon}
+          variant="quaternary"
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation()
+            onClick?.(e)
+          }}
+        />
+      </ConditionalWrapper>
+    ))}
+  </>
+)
