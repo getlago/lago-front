@@ -2,7 +2,7 @@ import { FetchResult, gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, PspErrorCode } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import {
   CUSTOMER_DETAILS_ROUTE,
@@ -211,7 +211,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
     )
 
   const [create] = useCreateCustomerMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity, PspErrorCode.ThirdPartyError] },
     onCompleted({ createCustomer }) {
       if (!!createCustomer) {
         addToast({
@@ -228,7 +228,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
   })
 
   const [update] = useUpdateCustomerMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity, PspErrorCode.ThirdPartyError] },
     update(cache, { data: updateCustomerData }) {
       if (updateCustomerData?.updateCustomer) {
         // Evict the customer from cache to force a fresh fetch when CustomerDetails remounts

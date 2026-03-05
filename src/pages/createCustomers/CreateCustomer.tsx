@@ -8,7 +8,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { hasDefinedGQLError } from '~/core/apolloClient'
+import { extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { PremiumIntegrationTypeEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,6 +28,8 @@ import { validationSchema } from './formInitialization/validationSchema'
 import { mapFromApiToForm } from './mappers/mapFromApiToForm'
 import { mapFromFormToApi } from './mappers/mapFromFormToApi'
 import MetadataAccordion from './metadataAccordion/MetadataAccordion'
+
+const STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS = 'Stripe: resource_missing'
 
 const CreateCustomer = () => {
   const { translate } = useInternationalization()
@@ -101,6 +103,22 @@ const CreateCustomer = () => {
               externalId: {
                 message: 'text_626162c62f790600f850b728',
                 path: ['externalId'],
+              },
+            },
+          },
+        })
+        return
+      }
+
+      const thirdPartyErrorMessage = extractThirdPartyErrorMessage(errors)
+
+      if (thirdPartyErrorMessage?.startsWith(STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS)) {
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              'paymentProviderCustomer.providerCustomerId': {
+                message: 'text_1772636865361lt8w6gchmv1',
+                path: ['paymentProviderCustomer', 'providerCustomerId'],
               },
             },
           },
