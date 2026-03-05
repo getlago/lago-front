@@ -65,13 +65,14 @@ const LoginOkta = () => {
   }, [])
 
   useEffect(() => {
-    if (fetchOktaAuthorizeUrlError) {
-      if (hasDefinedGQLError('DomainNotConfigured', fetchOktaAuthorizeUrlError)) {
-        setErrorField(LagoApiError.DomainNotConfigured)
-      } else {
-        setErrorAlert(LagoApiError.UnprocessableEntity)
-      }
+    if (!fetchOktaAuthorizeUrlError) return
+
+    if (hasDefinedGQLError('DomainNotConfigured', fetchOktaAuthorizeUrlError)) {
+      setErrorField(LagoApiError.DomainNotConfigured)
+      return
     }
+
+    setErrorAlert(LagoApiError.UnprocessableEntity)
   }, [fetchOktaAuthorizeUrlError])
 
   const formikProps = useFormik({
@@ -94,20 +95,20 @@ const LoginOkta = () => {
         },
       })
 
-      if (data?.oktaAuthorize?.url) {
-        setErrorField(undefined)
-        setErrorAlert(undefined)
+      if (!data?.oktaAuthorize?.url) return
 
-        if (previousLocation) {
-          setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, previousLocation)
-        }
+      setErrorField(undefined)
+      setErrorAlert(undefined)
 
-        window.location.href = addValuesToUrlState({
-          url: data.oktaAuthorize.url,
-          stateType: 'string',
-          values: {},
-        })
+      if (previousLocation) {
+        setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, previousLocation)
       }
+
+      window.location.href = addValuesToUrlState({
+        url: data.oktaAuthorize.url,
+        stateType: 'string',
+        values: {},
+      })
     },
   })
 

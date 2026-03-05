@@ -44,48 +44,52 @@ const OktaAuthCallback = () => {
   useEffect(() => {
     const oktaCallback = async () => {
       if (invitationToken) {
-        navigate({
+        return navigate({
           pathname: generatePath(INVITATION_ROUTE_FORM, {
             token: invitationToken as string,
           }),
           search: `?oktaCode=${code}&oktaState=${oktaState}`,
         })
-      } else {
-        const res = await oktaLoginUser({ variables: { input: { code, state: oktaState } } })
+      }
 
-        if (res.errors) {
-          if (hasDefinedGQLError('OktaUserinfoError', res.errors)) {
-            navigate({
-              pathname: LOGIN_OKTA,
-              search: `?lago_error_code=${LagoApiError.OktaUserinfoError}`,
-            })
-          } else if (hasDefinedGQLError('LoginMethodNotAuthorized', res.errors)) {
-            navigate({
-              pathname: LOGIN_ROUTE,
-              search: `?lago_error_code=${LagoApiError.OktaLoginMethodNotAuthorized}`,
-            })
-          } else {
-            navigate({
-              pathname: LOGIN_ROUTE,
-              search: `?lago_error_code=${
-                (res.errors[0].extensions as LagoGQLError['extensions']).code
-              }`,
-            })
-          }
-        } else if (!!res.data?.oktaLogin) {
-          // Read redirect path from localStorage (set by LoginOkta before Okta redirect)
-          const redirectPath = getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+      const res = await oktaLoginUser({ variables: { input: { code, state: oktaState } } })
 
-          await onLogIn(client, res.data?.oktaLogin?.token)
-
-          removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
-
-          if (redirectPath) {
-            navigate({
-              pathname: redirectPath,
-            })
-          }
+      if (res.errors) {
+        if (hasDefinedGQLError('OktaUserinfoError', res.errors)) {
+          return navigate({
+            pathname: LOGIN_OKTA,
+            search: `?lago_error_code=${LagoApiError.OktaUserinfoError}`,
+          })
         }
+
+        if (hasDefinedGQLError('LoginMethodNotAuthorized', res.errors)) {
+          return navigate({
+            pathname: LOGIN_ROUTE,
+            search: `?lago_error_code=${LagoApiError.OktaLoginMethodNotAuthorized}`,
+          })
+        }
+
+        return navigate({
+          pathname: LOGIN_ROUTE,
+          search: `?lago_error_code=${
+            (res.errors[0].extensions as LagoGQLError['extensions']).code
+          }`,
+        })
+      }
+
+      if (!res.data?.oktaLogin) {
+        return
+      }
+
+      // Read redirect path from localStorage (set by LoginOkta before Okta redirect)
+      const redirectPath = getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+
+      await onLogIn(client, res.data?.oktaLogin?.token)
+
+      removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+
+      if (redirectPath) {
+        navigate({ pathname: redirectPath })
       }
     }
 
