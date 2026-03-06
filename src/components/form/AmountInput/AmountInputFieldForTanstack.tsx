@@ -11,10 +11,11 @@ interface AmountInputFieldProps extends Omit<
 > {
   silentError?: boolean
   displayErrorText?: boolean
+  errorOverride?: string | boolean
 }
 
 const AmountInputField = forwardRef<HTMLDivElement, AmountInputFieldProps>(
-  ({ silentError = false, displayErrorText = true, ...props }, ref) => {
+  ({ silentError = false, displayErrorText = true, errorOverride, ...props }, ref) => {
     const field = useFieldContext<string | number | undefined>()
 
     const finalError = useFieldError({ silentError, displayErrorText, translateErrors: true })
@@ -27,7 +28,7 @@ const AmountInputField = forwardRef<HTMLDivElement, AmountInputFieldProps>(
         value={field.state.value}
         onChange={(value) => field.handleChange(value)}
         onBlur={field.handleBlur}
-        error={finalError}
+        error={errorOverride !== undefined ? errorOverride : finalError}
       />
     )
   },
