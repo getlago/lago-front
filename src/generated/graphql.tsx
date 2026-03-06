@@ -12507,6 +12507,14 @@ export type UpdateBillingEntityEmailSettingMutationVariables = Exact<{
 
 export type UpdateBillingEntityEmailSettingMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null } | null };
 
+export type GetAllMembersForFilterQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAllMembersForFilterQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
+
 export type GetTaxProviderPresenceQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
@@ -14585,6 +14593,21 @@ export type EditRoleMutationVariables = Exact<{
 
 
 export type EditRoleMutation = { __typename?: 'Mutation', updateRole?: { __typename?: 'Role', id: string } | null };
+
+export type SecurityLogItemFragment = { __typename?: 'SecurityLog', logId: string, logEvent: LogEventEnum, logType: LogTypeEnum, deviceInfo?: any | null, resources?: any | null, loggedAt: any, userEmail?: string | null };
+
+export type GetSecurityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  logEvents?: InputMaybe<Array<LogEventEnum> | LogEventEnum>;
+  logTypes?: InputMaybe<Array<LogTypeEnum> | LogTypeEnum>;
+  fromDate?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDate: Scalars['ISO8601DateTime']['input'];
+  userIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+}>;
+
+
+export type GetSecurityLogsQuery = { __typename?: 'Query', securityLogs?: { __typename?: 'SecurityLogCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'SecurityLog', logId: string, logEvent: LogEventEnum, logType: LogTypeEnum, deviceInfo?: any | null, resources?: any | null, loggedAt: any, userEmail?: string | null }> } | null };
 
 export type AddSubscriptionPlanFragment = { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null };
 
@@ -19269,6 +19292,17 @@ export const RoleFragmentFragmentDoc = gql`
     }
     revokedAt
   }
+}
+    `;
+export const SecurityLogItemFragmentDoc = gql`
+    fragment SecurityLogItem on SecurityLog {
+  logId
+  logEvent
+  logType
+  deviceInfo
+  resources
+  loggedAt
+  userEmail
 }
     `;
 export const AddSubscriptionPlanFragmentDoc = gql`
@@ -31581,6 +31615,56 @@ export function useUpdateBillingEntityEmailSettingMutation(baseOptions?: Apollo.
 export type UpdateBillingEntityEmailSettingMutationHookResult = ReturnType<typeof useUpdateBillingEntityEmailSettingMutation>;
 export type UpdateBillingEntityEmailSettingMutationResult = Apollo.MutationResult<UpdateBillingEntityEmailSettingMutation>;
 export type UpdateBillingEntityEmailSettingMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityEmailSettingMutation, UpdateBillingEntityEmailSettingMutationVariables>;
+export const GetAllMembersForFilterDocument = gql`
+    query getAllMembersForFilter($page: Int, $limit: Int) {
+  memberships(page: $page, limit: $limit) {
+    collection {
+      id
+      user {
+        id
+        email
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAllMembersForFilterQuery__
+ *
+ * To run a query within a React component, call `useGetAllMembersForFilterQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllMembersForFilterQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllMembersForFilterQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAllMembersForFilterQuery(baseOptions?: Apollo.QueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>(GetAllMembersForFilterDocument, options);
+      }
+export function useGetAllMembersForFilterLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>(GetAllMembersForFilterDocument, options);
+        }
+// @ts-ignore
+export function useGetAllMembersForFilterSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>;
+export function useGetAllMembersForFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetAllMembersForFilterQuery | undefined, GetAllMembersForFilterQueryVariables>;
+export function useGetAllMembersForFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>(GetAllMembersForFilterDocument, options);
+        }
+export type GetAllMembersForFilterQueryHookResult = ReturnType<typeof useGetAllMembersForFilterQuery>;
+export type GetAllMembersForFilterLazyQueryHookResult = ReturnType<typeof useGetAllMembersForFilterLazyQuery>;
+export type GetAllMembersForFilterSuspenseQueryHookResult = ReturnType<typeof useGetAllMembersForFilterSuspenseQuery>;
+export type GetAllMembersForFilterQueryResult = Apollo.QueryResult<GetAllMembersForFilterQuery, GetAllMembersForFilterQueryVariables>;
 export const GetTaxProviderPresenceDocument = gql`
     query getTaxProviderPresence($limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integrations(limit: $limit, types: $integrationsType) {
@@ -40453,6 +40537,69 @@ export function useEditRoleMutation(baseOptions?: Apollo.MutationHookOptions<Edi
 export type EditRoleMutationHookResult = ReturnType<typeof useEditRoleMutation>;
 export type EditRoleMutationResult = Apollo.MutationResult<EditRoleMutation>;
 export type EditRoleMutationOptions = Apollo.BaseMutationOptions<EditRoleMutation, EditRoleMutationVariables>;
+export const GetSecurityLogsDocument = gql`
+    query getSecurityLogs($page: Int, $limit: Int, $logEvents: [LogEventEnum!], $logTypes: [LogTypeEnum!], $fromDate: ISO8601DateTime, $toDate: ISO8601DateTime!, $userIds: [ID!]) {
+  securityLogs(
+    page: $page
+    limit: $limit
+    logEvents: $logEvents
+    logTypes: $logTypes
+    fromDatetime: $fromDate
+    toDatetime: $toDate
+    userIds: $userIds
+  ) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      ...SecurityLogItem
+    }
+  }
+}
+    ${SecurityLogItemFragmentDoc}`;
+
+/**
+ * __useGetSecurityLogsQuery__
+ *
+ * To run a query within a React component, call `useGetSecurityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSecurityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSecurityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      logEvents: // value for 'logEvents'
+ *      logTypes: // value for 'logTypes'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *      userIds: // value for 'userIds'
+ *   },
+ * });
+ */
+export function useGetSecurityLogsQuery(baseOptions: Apollo.QueryHookOptions<GetSecurityLogsQuery, GetSecurityLogsQueryVariables> & ({ variables: GetSecurityLogsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>(GetSecurityLogsDocument, options);
+      }
+export function useGetSecurityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>(GetSecurityLogsDocument, options);
+        }
+// @ts-ignore
+export function useGetSecurityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>;
+export function useGetSecurityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<GetSecurityLogsQuery | undefined, GetSecurityLogsQueryVariables>;
+export function useGetSecurityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>(GetSecurityLogsDocument, options);
+        }
+export type GetSecurityLogsQueryHookResult = ReturnType<typeof useGetSecurityLogsQuery>;
+export type GetSecurityLogsLazyQueryHookResult = ReturnType<typeof useGetSecurityLogsLazyQuery>;
+export type GetSecurityLogsSuspenseQueryHookResult = ReturnType<typeof useGetSecurityLogsSuspenseQuery>;
+export type GetSecurityLogsQueryResult = Apollo.QueryResult<GetSecurityLogsQuery, GetSecurityLogsQueryVariables>;
 export const GetPlansDocument = gql`
     query getPlans($page: Int, $limit: Int, $searchTerm: String) {
   plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
