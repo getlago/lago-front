@@ -476,8 +476,8 @@ export const settingRoutes: CustomRouteObject[] = [
         permissionsOr: [
           'organizationMembersView',
           'rolesView',
-          'organizationIntegrationsView',
           'authenticationMethodsView',
+          'securityLogsView',
         ],
       },
     ],
