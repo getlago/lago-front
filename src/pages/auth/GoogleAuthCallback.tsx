@@ -4,7 +4,14 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
-import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
+import {
+  hasDefinedGQLError,
+  LagoGQLError,
+  onLogIn,
+  removeItemFromLS,
+  setItemFromLS,
+} from '~/core/apolloClient'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { LagoApiError, useGoogleLoginUserMutation } from '~/generated/graphql'
 
@@ -36,48 +43,62 @@ const GoogleAuthCallback = () => {
 
   useEffect(() => {
     const googleCallback = async () => {
-      if (mode === 'login') {
-        const res = await googleLoginUser({
-          variables: {
-            input: {
-              code,
-            },
-          },
-        })
-
-        if (res.errors) {
-          if (hasDefinedGQLError('LoginMethodNotAuthorized', res.errors)) {
-            navigate({
-              pathname: LOGIN_ROUTE,
-              search: `?lago_error_code=${LagoApiError.GoogleLoginMethodNotAuthorized}`,
-            })
-          } else {
-            navigate({
-              pathname: LOGIN_ROUTE,
-              search: `?lago_error_code=${
-                (res.errors[0].extensions as LagoGQLError['extensions'])?.details.base[0]
-              }`,
-            })
-          }
-        } else if (!!res.data?.googleLoginUser) {
-          await onLogIn(client, res.data?.googleLoginUser?.token)
-
-          if (redirectPath) {
-            navigate({
-              pathname: redirectPath,
-            })
-          }
-        }
-      } else if (mode === 'signup') {
-        navigate({
+      if (mode === 'signup') {
+        return navigate({
           pathname: SIGN_UP_ROUTE,
           search: `?code=${code}`,
         })
-      } else if (mode === 'invite') {
-        navigate({
+      }
+
+      if (mode === 'invite') {
+        return navigate({
           pathname: generatePath(INVITATION_ROUTE_FORM, { token: invitationToken as string }),
           search: `?code=${code}`,
         })
+      }
+
+      if (mode !== 'login') {
+        return
+      }
+
+      const res = await googleLoginUser({
+        variables: { input: { code } },
+      })
+
+      if (res.errors) {
+        if (hasDefinedGQLError('LoginMethodNotAuthorized', res.errors)) {
+          return navigate({
+            pathname: LOGIN_ROUTE,
+            search: `?lago_error_code=${LagoApiError.GoogleLoginMethodNotAuthorized}`,
+          })
+        }
+
+        return navigate({
+          pathname: LOGIN_ROUTE,
+          search: `?lago_error_code=${
+            (res.errors[0].extensions as LagoGQLError['extensions'])?.details.base[0]
+          }`,
+        })
+      }
+
+      if (!res.data?.googleLoginUser) {
+        return
+      }
+
+      // Store redirect path in localStorage before onLogIn to survive
+      // race condition with the onlyPublic route guard. When onLogIn sets
+      // authTokenVar, the guard may redirect to HOME before this callback
+      // can navigate — localStorage ensures Home can still find the path.
+      if (redirectPath) {
+        setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, redirectPath)
+      }
+
+      await onLogIn(client, res.data?.googleLoginUser?.token)
+
+      removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
+
+      if (redirectPath) {
+        navigate({ pathname: redirectPath })
       }
     }
 
