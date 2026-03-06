@@ -82,7 +82,11 @@ const generateTabs = ({
       TEAM_AND_SECURITY_TAB_ROUTE,
       ROLE_DETAILS_ROUTE,
     ],
-    hidden: !hasPermissions(['organizationMembersView']) && !hasPermissions(['rolesView']),
+    hidden:
+      !hasPermissions(['organizationMembersView']) &&
+      !hasPermissions(['rolesView']) &&
+      !hasPermissions(['authenticationMethodsView']) &&
+      !hasPermissions(['securityLogsView']),
   },
   {
     title: translate('text_63ac86d797f728a87b2f9f85'),
