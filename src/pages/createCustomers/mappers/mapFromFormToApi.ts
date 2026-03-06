@@ -84,7 +84,10 @@ export const mapFromFormToApi = (
     state: values.billingAddress?.state,
     zipcode: values.billingAddress?.zipcode,
     country: values.billingAddress?.country,
-    shippingAddress: values.shippingAddress,
+    shippingAddress:
+      values.shippingAddress && Object.values(values.shippingAddress).some((value) => !!value)
+        ? values.shippingAddress
+        : null,
     timezone: values.timezone,
     url: values.url,
     paymentProvider,

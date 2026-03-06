@@ -116,14 +116,7 @@ describe('mapFromFormToApi', () => {
         state: '',
         zipcode: '',
         country: null,
-        shippingAddress: {
-          addressLine1: '',
-          addressLine2: '',
-          city: '',
-          state: '',
-          zipcode: '',
-          country: null,
-        },
+        shippingAddress: null,
         paymentProvider: undefined,
         paymentProviderCode: undefined,
         providerCustomer: null,
@@ -255,6 +248,25 @@ describe('mapFromFormToApi', () => {
         zipcode: '90210',
         country: CountryCode.Us,
       })
+    })
+
+    it('should return null when shipping address is empty', () => {
+      const formValues: CreateCustomerDefaultValues = {
+        ...emptyCreateCustomerDefaultValues,
+        externalId: 'customer-123',
+        shippingAddress: {
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          state: '',
+          zipcode: '',
+          country: null,
+        },
+      }
+
+      const result = mapFromFormToApi(formValues, {})
+
+      expect(result.shippingAddress).toBeNull()
     })
   })
 
