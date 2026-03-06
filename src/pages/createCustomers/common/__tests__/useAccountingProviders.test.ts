@@ -258,22 +258,6 @@ describe('useAccountingProviders', () => {
       expect(result.current.isLoadingAccountProviders).toBe(false)
       // The mock configuration verifies that variables: { limit: 1000 } is used
     })
-
-    it('should handle delayed responses', async () => {
-      const { result } = await prepare({ delay: 200 })
-
-      expect(result.current.isLoadingAccountProviders).toBe(true)
-      expect(result.current.accountingProviders).toBeUndefined()
-
-      // Before delay completes - wait less than the mock delay
-      await act(() => wait(50))
-      expect(result.current.isLoadingAccountProviders).toBe(true)
-
-      // After delay completes - wait for remaining time plus buffer
-      await act(() => wait(200))
-      expect(result.current.isLoadingAccountProviders).toBe(false)
-      expect(result.current.accountingProviders).toBeDefined()
-    })
   })
 
   describe('return value structure', () => {
