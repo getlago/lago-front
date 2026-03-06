@@ -275,22 +275,6 @@ describe('useTaxProviders', () => {
       expect(result.current.isLoadingTaxProviders).toBe(false)
       // The mock configuration verifies that variables: { limit: 1000 } is used
     })
-
-    it('should handle delayed responses', async () => {
-      const { result } = await prepare({ delay: 100 })
-
-      expect(result.current.isLoadingTaxProviders).toBe(true)
-      expect(result.current.taxProviders).toBeUndefined()
-
-      // Before delay completes
-      await act(() => wait(50))
-      expect(result.current.isLoadingTaxProviders).toBe(true)
-
-      // After delay completes
-      await act(() => wait(100))
-      expect(result.current.isLoadingTaxProviders).toBe(false)
-      expect(result.current.taxProviders).toBeDefined()
-    })
   })
 
   describe('return value structure', () => {

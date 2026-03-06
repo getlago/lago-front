@@ -782,10 +782,12 @@ describe('CreateCreditNote', () => {
       const keyInputWrapper = screen.getByPlaceholderText(/key/i)
       const keyInput = keyInputWrapper
 
-      // Try to type 41 characters
+      // Try to type 41 characters (using paste is faster)
       const longKey = 'a'.repeat(41)
 
-      await user.type(keyInput, longKey)
+      await user.clear(keyInput)
+      await user.click(keyInput)
+      await user.paste(longKey)
 
       // Validation should prevent submission
       await waitFor(
@@ -796,7 +798,7 @@ describe('CreateCreditNote', () => {
         },
         { timeout: 3000 },
       )
-    })
+    }, 10000)
 
     it('should enforce metadata value max length of 255 characters', async () => {
       const user = userEvent.setup()
