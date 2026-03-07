@@ -48,7 +48,7 @@
     "@eslint/compat": "1.4.1",
     "@eslint/eslintrc": "3.3.4",
     "@eslint/js": "9.39.3",
-    "@graphql-codegen/cli": "6.1.1",
+    "@graphql-codegen/cli": "6.1.2",
     "@graphql-codegen/typescript": "5.0.8",
     "@graphql-codegen/typescript-operations": "5.0.8",
     "@graphql-codegen/typescript-react-apollo": "4.4.0",
