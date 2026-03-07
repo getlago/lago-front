@@ -11,6 +11,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField } from '~/components/form'
 import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
@@ -49,11 +50,13 @@ gql`
 type CommitmentsSectionProps = {
   editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
   formikProps: FormikProps<PlanFormInput>
+  isInitiallyOpen?: boolean
 }
 
 export const CommitmentsSection = ({
   editInvoiceDisplayNameDialogRef,
   formikProps,
+  isInitiallyOpen = false,
 }: CommitmentsSectionProps) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
@@ -78,6 +81,7 @@ export const CommitmentsSection = ({
 
   const renderAddButton = () => (
     <Button
+      align="left"
       variant="inline"
       startIcon="plus"
       disabled={showMinimumCommitment}
@@ -98,6 +102,7 @@ export const CommitmentsSection = ({
   const renderMinimumCommitmentAccordion = useMemo(
     () => (
       <Accordion
+        initiallyOpen={isInitiallyOpen}
         className="w-full"
         summary={
           <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
@@ -191,25 +196,26 @@ export const CommitmentsSection = ({
       editInvoiceDisplayNameDialogRef,
       formikProps,
       hasErrorInGroup,
+      isInitiallyOpen,
       taxValueForBadgeDisplay,
       translate,
     ],
   )
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <div className="flex flex-col gap-1">
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_65d601bffb11e0f9d1d9f569')}
-        </Typography>
-        <Typography variant="caption" color="grey600">
-          {translate('text_6661fc17337de3591e29e451', {
-            interval: translate(
-              mapChargeIntervalCopy(formikProps.values.interval, false),
-            ).toLocaleLowerCase(),
-          })}
-        </Typography>
-      </div>
+    <CenteredPage.PageSection>
+      <CenteredPage.PageSectionTitle
+        title={translate('text_65d601bffb11e0f9d1d9f569')}
+        description={
+          <Typography variant="caption" color="grey600">
+            {translate('text_6661fc17337de3591e29e451', {
+              interval: translate(
+                mapChargeIntervalCopy(formikProps.values.interval, false),
+              ).toLocaleLowerCase(),
+            })}
+          </Typography>
+        }
+      />
 
       {showMinimumCommitment && renderMinimumCommitmentAccordion}
       {!showMinimumCommitment && !isPremium && (
@@ -220,7 +226,7 @@ export const CommitmentsSection = ({
         />
       )}
       {!showMinimumCommitment && isPremium && renderAddButton()}
-    </div>
+    </CenteredPage.PageSection>
   )
 }
 
