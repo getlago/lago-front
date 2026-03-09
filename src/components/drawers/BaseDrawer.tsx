@@ -29,6 +29,14 @@ export type BaseDrawerProps = {
   form?: FormDrawerProps
 }
 
+export const BASE_DRAWER_TEST_ID = 'base-drawer'
+export const BASE_DRAWER_BACKDROP_TEST_ID = 'base-drawer-backdrop'
+export const BASE_DRAWER_PAPER_TEST_ID = 'base-drawer-paper'
+export const BASE_DRAWER_HEADER_TEST_ID = 'base-drawer-header'
+export const BASE_DRAWER_CLOSE_BUTTON_TEST_ID = 'base-drawer-close-button'
+export const BASE_DRAWER_CONTENT_TEST_ID = 'base-drawer-content'
+export const BASE_DRAWER_ACTIONS_TEST_ID = 'base-drawer-actions'
+
 export const BaseDrawer = ({
   isOpen,
   title,
@@ -158,6 +166,7 @@ export const BaseDrawer = ({
           fullContentHeight && 'h-full',
           withPadding && 'px-4 pb-20 pt-12 md:px-12',
         )}
+        data-test={BASE_DRAWER_CONTENT_TEST_ID}
       >
         {children}
       </div>
@@ -169,6 +178,7 @@ export const BaseDrawer = ({
             'sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4',
             actionsClassName,
           )}
+          data-test={BASE_DRAWER_ACTIONS_TEST_ID}
         >
           {actions}
         </div>
@@ -177,7 +187,12 @@ export const BaseDrawer = ({
   )
 
   return createPortal(
-    <div className="fixed inset-0" style={{ zIndex }} role="presentation">
+    <div
+      className="fixed inset-0"
+      style={{ zIndex }}
+      role="presentation"
+      data-test={BASE_DRAWER_TEST_ID}
+    >
       {/* Backdrop — only the first drawer dims the page */}
       <div
         className={tw(
@@ -187,6 +202,7 @@ export const BaseDrawer = ({
         )}
         onClick={isTopmost ? onClose : undefined}
         aria-hidden="true"
+        data-test={BASE_DRAWER_BACKDROP_TEST_ID}
       />
 
       {/* Paper */}
@@ -194,6 +210,7 @@ export const BaseDrawer = ({
         ref={paperRef}
         role="dialog"
         aria-modal="true"
+        data-test={BASE_DRAWER_PAPER_TEST_ID}
         className={tw(
           'absolute bottom-0 right-0 top-0 flex w-full max-w-[816px] flex-col overflow-hidden rounded-l-xl bg-white shadow-xl',
           'origin-right transition-[transform,border-radius] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
@@ -210,7 +227,10 @@ export const BaseDrawer = ({
         )}
 
         {/* Header */}
-        <div className="sticky top-0 z-20 flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12">
+        <div
+          className="sticky top-0 z-20 flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12"
+          data-test={BASE_DRAWER_HEADER_TEST_ID}
+        >
           {typeof title === 'string' ? (
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {title}
@@ -218,7 +238,12 @@ export const BaseDrawer = ({
           ) : (
             title
           )}
-          <Button icon="close" variant="quaternary" onClick={onClose} />
+          <Button
+            icon="close"
+            variant="quaternary"
+            onClick={onClose}
+            data-test={BASE_DRAWER_CLOSE_BUTTON_TEST_ID}
+          />
         </div>
 
         {/* Content + Sticky bottom bar, wrapped in form when form prop is provided */}
