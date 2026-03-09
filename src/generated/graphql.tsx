@@ -440,6 +440,7 @@ export enum ApiKeysPermissionsEnum {
   PaymentReceipt = 'payment_receipt',
   PaymentRequest = 'payment_request',
   Plan = 'plan',
+  SecurityLog = 'security_log',
   Subscription = 'subscription',
   Tax = 'tax',
   Wallet = 'wallet',

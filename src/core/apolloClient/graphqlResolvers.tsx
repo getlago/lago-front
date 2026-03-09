@@ -92,6 +92,7 @@ export const typeDefs = gql`
     payment_request
     payment_method
     plan
+    security_log
     subscription
     tax
     wallet
