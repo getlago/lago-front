@@ -96,6 +96,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
   plans: ['PlansCreate', 'PlansDelete', 'PlansUpdate', 'PlansView'],
   pricingUnits: ['PricingUnitsCreate', 'PricingUnitsUpdate', 'PricingUnitsView'],
   roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
+  securityLogs: ['SecurityLogsView'],
   subscriptions: ['SubscriptionsCreate', 'SubscriptionsUpdate', 'SubscriptionsView'],
   wallets: ['WalletsCreate', 'WalletsTerminate', 'WalletsTopUp', 'WalletsUpdate'],
 }
@@ -125,6 +126,7 @@ export const groupNameMapping: Record<string, string> = {
   plans: 'text_62442e40cea25600b0b6d85a',
   pricingUnits: 'text_17502505476284yyq70yy6mx',
   roles: 'text_1765448879791epmkg4xijkn',
+  securityLogs: 'text_17730476805600nudrokzkk5',
   subscriptions: 'text_6250304370f0f700a8fdc28d',
   wallets: 'text_62d175066d2dbf1d50bc937c',
 }

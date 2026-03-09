@@ -174,6 +174,7 @@ const permissions: MemberForEditRoleForDialogFragment['permissions'] = {
   rolesDelete: true,
   rolesUpdate: true,
   rolesView: true,
+  securityLogsView: true,
   subscriptionsCreate: true,
   subscriptionsUpdate: true,
   subscriptionsView: true,
