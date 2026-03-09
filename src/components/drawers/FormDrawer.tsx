@@ -4,7 +4,6 @@ import { ReactNode } from 'react'
 import { Button } from '~/components/designSystem/Button'
 
 import { BaseDrawer } from './BaseDrawer'
-import { CLOSE_DRAWER_PARAMS } from './const'
 import { FormDrawerProps as FormProps } from './types'
 import { useDrawerActions } from './useDrawerActions'
 

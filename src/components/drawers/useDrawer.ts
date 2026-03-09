@@ -2,8 +2,8 @@ import NiceModal, { unregister, useModal } from '@ebay/nice-modal-react'
 import { useEffect, useId } from 'react'
 
 import CentralizedDrawer, { CentralizedDrawerProps } from './CentralizedDrawer'
-import FormDrawer, { FormDrawerProps } from './FormDrawer'
 import { CLOSE_DRAWER_PARAMS } from './const'
+import FormDrawer, { FormDrawerProps } from './FormDrawer'
 import { DrawerResult, HookDrawerReturnType } from './types'
 
 export const useDrawer = (): HookDrawerReturnType<CentralizedDrawerProps> => {

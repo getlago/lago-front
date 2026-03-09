@@ -197,7 +197,7 @@ export const BaseDrawer = ({
       >
         {/* Dimming overlay for pushed-back drawers */}
         {isPushedBack && (
-          <div className="pointer-events-none absolute inset-0 z-10 rounded-xl bg-grey-700/20" />
+          <div className="pointer-events-none absolute inset-0 z-30 rounded-xl bg-grey-700/20" />
         )}
 
         {/* Header */}
