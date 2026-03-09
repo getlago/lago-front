@@ -48,7 +48,8 @@ const WRITE_PERMISSION = 'write'
 const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
   permission === ApiKeysPermissionsEnum.ActivityLog ||
   permission === ApiKeysPermissionsEnum.Analytic ||
-  permission === ApiKeysPermissionsEnum.CustomerUsage
+  permission === ApiKeysPermissionsEnum.CustomerUsage ||
+  permission === ApiKeysPermissionsEnum.SecurityLog
 
 const isDefaultUnchecked = (permission: ApiKeysPermissionsEnum) =>
   permission === ApiKeysPermissionsEnum.Alert
@@ -98,6 +99,7 @@ const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.PaymentRequest]: 'text_1732894820485dzoobhyzly1',
   [ApiKeysPermissionsEnum.PaymentMethod]: 'text_64aeb7b998c4322918c84204',
   [ApiKeysPermissionsEnum.Plan]: 'text_62442e40cea25600b0b6d85a',
+  [ApiKeysPermissionsEnum.SecurityLog]: 'text_17730476805600nudrokzkk5',
   [ApiKeysPermissionsEnum.Subscription]: 'text_6250304370f0f700a8fdc28d',
   [ApiKeysPermissionsEnum.Tax]: 'text_645bb193927b375079d28a8f',
   [ApiKeysPermissionsEnum.Wallet]: 'text_62d175066d2dbf1d50bc937c',
