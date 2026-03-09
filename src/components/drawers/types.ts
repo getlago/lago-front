@@ -1,9 +1,7 @@
-export type DrawerResult =
-  | { reason: 'close' }
-  | { reason: 'success'; params?: unknown }
-  | { reason: 'error'; error: Error }
+import { HookOverlayReturnType, OverlayFormProps, OverlayResult } from '~/core/overlays/types'
 
-export type HookDrawerReturnType<Props> = {
-  open: (props: Props) => Promise<DrawerResult>
-  close: () => void
-}
+export type DrawerResult = OverlayResult
+
+export type HookDrawerReturnType<Props> = HookOverlayReturnType<Props>
+
+export type FormDrawerProps = OverlayFormProps

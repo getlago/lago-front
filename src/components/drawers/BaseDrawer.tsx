@@ -6,11 +6,11 @@ import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import {
-  DRAWER_MAX_WIDTH,
   DRAWER_PUSH_BACK_OFFSET,
   DRAWER_PUSH_BACK_SCALE,
   DRAWER_TRANSITION_DURATION,
 } from './const'
+import { FormDrawerProps } from './types'
 import { useDrawerStack } from './useDrawerStack'
 
 type DrawerState = 'unmounted' | 'mounting' | 'open' | 'closing'
@@ -18,14 +18,15 @@ type DrawerState = 'unmounted' | 'mounting' | 'open' | 'closing'
 export type BaseDrawerProps = {
   isOpen: boolean
   title: ReactNode
-  children: ReactNode | ((args: { closeDrawer: () => void }) => ReactNode)
+  children: ReactNode
   onClose: () => void
   onExited?: () => void
   className?: string
-  stickyBottomBar?: ReactNode | ((args: { closeDrawer: () => void }) => ReactNode)
-  stickyBottomBarClassName?: string
+  actions?: ReactNode
+  actionsClassName?: string
   withPadding?: boolean
   fullContentHeight?: boolean
+  form?: FormDrawerProps
 }
 
 export const BaseDrawer = ({
@@ -35,10 +36,11 @@ export const BaseDrawer = ({
   onClose,
   onExited,
   className,
-  stickyBottomBar,
-  stickyBottomBarClassName,
+  actions,
+  actionsClassName,
   withPadding = true,
   fullContentHeight,
+  form,
 }: BaseDrawerProps) => {
   const [state, setState] = useState<DrawerState>('unmounted')
   const paperRef = useRef<HTMLDivElement>(null)
@@ -129,26 +131,51 @@ export const BaseDrawer = ({
   const scale = isPushedBack ? Math.max(0.92, 1 - depthFromTop * (1 - DRAWER_PUSH_BACK_SCALE)) : 1
   const offset = isPushedBack ? depthFromTop * DRAWER_PUSH_BACK_OFFSET : 0
 
-  let paperTransform: string
+  const getPaperTransform = () => {
+    if (state !== 'open') return 'translateX(100%)'
+    if (isPushedBack) return `scale(${scale}) translateX(-${offset}px)`
 
-  if (state === 'open') {
-    paperTransform = isPushedBack ? `scale(${scale}) translateX(-${offset}px)` : 'translateX(0)'
-  } else {
-    paperTransform = 'translateX(100%)'
+    return 'translateX(0)'
   }
 
-  const easing = 'cubic-bezier(0.32, 0.72, 0, 1)'
+  const paperTransform = getPaperTransform()
+
+  const renderContent = () => (
+    <>
+      {/* Content */}
+      <div
+        className={tw(
+          'overflow-auto',
+          fullContentHeight && 'h-full',
+          withPadding && 'px-4 pb-20 pt-12 md:px-12',
+        )}
+      >
+        {children}
+      </div>
+
+      {/* Sticky bottom bar */}
+      {!!actions && (
+        <div
+          className={tw(
+            'sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4',
+            actionsClassName,
+          )}
+        >
+          {actions}
+        </div>
+      )}
+    </>
+  )
 
   return createPortal(
     <div className="fixed inset-0" style={{ zIndex }} role="presentation">
       {/* Backdrop — only the first drawer dims the page */}
       <div
         className={tw(
-          'absolute inset-0 transition-opacity',
+          'absolute inset-0 transition-opacity duration-300',
           isBottommost ? 'bg-grey-700/40' : 'bg-transparent',
           state === 'open' ? 'opacity-100' : 'opacity-0',
         )}
-        style={{ transitionDuration: `${DRAWER_TRANSITION_DURATION}ms` }}
         onClick={isTopmost ? onClose : undefined}
         aria-hidden="true"
       />
@@ -159,17 +186,13 @@ export const BaseDrawer = ({
         role="dialog"
         aria-modal="true"
         className={tw(
-          'absolute bottom-0 right-0 top-0 flex w-full flex-col overflow-hidden rounded-l-xl bg-white shadow-xl',
+          'absolute bottom-0 right-0 top-0 flex w-full max-w-[816px] flex-col overflow-hidden rounded-l-xl bg-white shadow-xl',
+          'origin-right transition-[transform,border-radius] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
           'md:w-[calc(100vw-48px)]',
-          !!stickyBottomBar && 'grid grid-rows-[72px_1fr_80px]',
+          !!actions && 'grid grid-rows-[72px_1fr_80px]',
           className,
         )}
-        style={{
-          maxWidth: DRAWER_MAX_WIDTH,
-          transform: paperTransform,
-          transformOrigin: 'right center',
-          transition: `transform ${DRAWER_TRANSITION_DURATION}ms ${easing}, border-radius ${DRAWER_TRANSITION_DURATION}ms ${easing}`,
-        }}
+        style={{ transform: paperTransform }}
         onTransitionEnd={handleTransitionEnd}
       >
         {/* Dimming overlay for pushed-back drawers */}
@@ -189,29 +212,20 @@ export const BaseDrawer = ({
           <Button icon="close" variant="quaternary" onClick={onClose} />
         </div>
 
-        {/* Content */}
-        <div
-          className={tw(
-            'overflow-auto',
-            fullContentHeight && 'h-full',
-            withPadding && 'px-4 pb-20 pt-12 md:px-12',
-          )}
-        >
-          {typeof children === 'function' ? children({ closeDrawer: onClose }) : children}
-        </div>
-
-        {/* Sticky bottom bar */}
-        {!!stickyBottomBar && (
-          <div
-            className={tw(
-              'sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4',
-              stickyBottomBarClassName,
-            )}
+        {/* Content + Sticky bottom bar, wrapped in form when form prop is provided */}
+        {form ? (
+          <form
+            id={form.id}
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.submit()
+            }}
+            className="contents"
           >
-            {typeof stickyBottomBar === 'function'
-              ? stickyBottomBar({ closeDrawer: onClose })
-              : stickyBottomBar}
-          </div>
+            {renderContent()}
+          </form>
+        ) : (
+          renderContent()
         )}
       </div>
     </div>,

@@ -15,9 +15,11 @@ import PremiumWarningDialog from '~/components/dialogs/PremiumWarningDialog'
 import CentralizedDrawer from '~/components/drawers/CentralizedDrawer'
 import {
   CENTRALIZED_DRAWER_NAME,
+  FORM_DRAWER_NAME,
   SECOND_LEVEL_DRAWER_NAME,
   THIRD_LEVEL_DRAWER_NAME,
 } from '~/components/drawers/const'
+import FormDrawer from '~/components/drawers/FormDrawer'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 NiceModal.register(PREMIUM_WARNING_DIALOG_NAME, PremiumWarningDialog)
@@ -27,3 +29,4 @@ NiceModal.register(FORM_DIALOG_OPENING_DIALOG_NAME, FormDialogOpeningDialog)
 NiceModal.register(CENTRALIZED_DRAWER_NAME, CentralizedDrawer)
 NiceModal.register(SECOND_LEVEL_DRAWER_NAME, CentralizedDrawer)
 NiceModal.register(THIRD_LEVEL_DRAWER_NAME, CentralizedDrawer)
+NiceModal.register(FORM_DRAWER_NAME, FormDrawer)

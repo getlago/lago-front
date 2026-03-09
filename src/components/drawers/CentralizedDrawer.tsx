@@ -12,9 +12,9 @@ import { DrawerResult, HookDrawerReturnType } from './types'
 
 export type CentralizedDrawerProps = {
   title: ReactNode
-  children: ReactNode | ((args: { closeDrawer: () => void }) => ReactNode)
-  stickyBottomBar?: ReactNode | ((args: { closeDrawer: () => void }) => ReactNode)
-  stickyBottomBarClassName?: string
+  children: ReactNode
+  actions?: ReactNode
+  actionsClassName?: string
   withPadding?: boolean
   fullContentHeight?: boolean
   className?: string
@@ -25,8 +25,8 @@ const CentralizedDrawer = create(
   ({
     title,
     children,
-    stickyBottomBar,
-    stickyBottomBarClassName,
+    actions,
+    actionsClassName,
     withPadding,
     fullContentHeight,
     className,
@@ -46,8 +46,8 @@ const CentralizedDrawer = create(
         title={title}
         onClose={handleClose}
         onExited={modal.remove}
-        stickyBottomBar={stickyBottomBar}
-        stickyBottomBarClassName={stickyBottomBarClassName}
+        actions={actions}
+        actionsClassName={actionsClassName}
         withPadding={withPadding}
         fullContentHeight={fullContentHeight}
         className={className}

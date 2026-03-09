@@ -24,7 +24,7 @@ import {
   setAuthErrorHandler,
 } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
-import '~/core/dialogs/registeredDialogs'
+import '~/core/overlays/registeredOverlays'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
