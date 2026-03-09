@@ -6,13 +6,8 @@ import { z } from 'zod'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  useCentralizedDrawer,
-  useSecondLevelDrawer,
-  useThirdLevelDrawer,
-} from '~/components/drawers/CentralizedDrawer'
-import { useFormDrawer } from '~/components/drawers/FormDrawer'
 import { DrawerResult } from '~/components/drawers/types'
+import { useDrawer, useFormDrawer } from '~/components/drawers/useDrawer'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 const Container = ({ children }: { children: React.ReactNode }) => (
@@ -24,11 +19,11 @@ const Block = ({ children }: { children: React.ReactNode }) => (
 )
 
 // ---------------------------------------------------------------------------
-// Example A — useCentralizedDrawer (generic, like useCentralizedDialog)
+// Example A — useDrawer (generic, like useCentralizedDialog)
 // ---------------------------------------------------------------------------
 
 const CentralizedDrawerExample = () => {
-  const drawer = useCentralizedDrawer()
+  const drawer = useDrawer()
   const [result, setResult] = useState<DrawerResult | null>(null)
 
   const handleOpen = () => {
@@ -39,7 +34,7 @@ const CentralizedDrawerExample = () => {
         children: (
           <div className="flex flex-col gap-4">
             <Typography>
-              This drawer was opened via <code>useCentralizedDrawer</code>, the same pattern as{' '}
+              This drawer was opened via <code>useDrawer</code>, the same pattern as{' '}
               <code>useCentralizedDialog</code>.
             </Typography>
             <Typography>Close this drawer to see the resolved result below the button.</Typography>
@@ -70,9 +65,9 @@ const CentralizedDrawerExample = () => {
 // ---------------------------------------------------------------------------
 
 const StackingDrawerExample = () => {
-  const firstDrawer = useCentralizedDrawer()
-  const secondDrawer = useSecondLevelDrawer()
-  const thirdDrawer = useThirdLevelDrawer()
+  const firstDrawer = useDrawer()
+  const secondDrawer = useDrawer()
+  const thirdDrawer = useDrawer()
   const [events, setEvents] = useState<string[]>([])
 
   const addEvent = (message: string) => {
@@ -294,7 +289,7 @@ const EditItemForm = withForm({
 })
 
 const FormDrawerFromDrawerExample = () => {
-  const drawer = useCentralizedDrawer()
+  const drawer = useDrawer()
   const formDrawer = useFormDrawer()
   const [events, setEvents] = useState<string[]>([])
 
@@ -402,7 +397,7 @@ const DrawerTest = () => {
       </Typography>
 
       <Typography className="mb-4" variant="subhead1">
-        Generic drawer via <code>useCentralizedDrawer</code>
+        Generic drawer via <code>useDrawer</code>
       </Typography>
       <Block>
         <CentralizedDrawerExample />

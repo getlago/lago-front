@@ -4,8 +4,8 @@ import { ReactNode } from 'react'
 import { Button } from '~/components/designSystem/Button'
 
 import { BaseDrawer } from './BaseDrawer'
-import { CLOSE_DRAWER_PARAMS, FORM_DRAWER_NAME } from './const'
-import { DrawerResult, FormDrawerProps as FormProps, HookDrawerReturnType } from './types'
+import { CLOSE_DRAWER_PARAMS } from './const'
+import { FormDrawerProps as FormProps } from './types'
 import { useDrawerActions } from './useDrawerActions'
 
 export type FormDrawerProps = {
@@ -72,15 +72,3 @@ const FormDrawer = create(
 )
 
 export default FormDrawer
-
-export const useFormDrawer = (): HookDrawerReturnType<FormDrawerProps> => {
-  const modal = useModal(FORM_DRAWER_NAME)
-
-  return {
-    open: (props: FormDrawerProps) => modal.show(props) as Promise<DrawerResult>,
-    close: () => {
-      modal.resolve(CLOSE_DRAWER_PARAMS)
-      modal.hide()
-    },
-  }
-}

@@ -1,9 +1,3 @@
-export const CENTRALIZED_DRAWER_NAME = 'CentralizedDrawer' as const
-export const SECOND_LEVEL_DRAWER_NAME = 'SecondLevelDrawer' as const
-export const THIRD_LEVEL_DRAWER_NAME = 'ThirdLevelDrawer' as const
-
-export const FORM_DRAWER_NAME = 'FormDrawer' as const
-
 export const CLOSE_DRAWER_PARAMS = { reason: 'close' } as const
 
 export const DRAWER_TRANSITION_DURATION = 300
