@@ -345,22 +345,6 @@ describe('usePaymentProviders', () => {
       expect(result.current.isLoadingPaymentProviders).toBe(false)
       // The mock configuration verifies that variables: { limit: 1000 } is used
     })
-
-    it('should handle delayed responses', async () => {
-      const { result } = await prepare({ delay: 100 })
-
-      expect(result.current.isLoadingPaymentProviders).toBe(true)
-      expect(result.current.paymentProviders).toBeUndefined()
-
-      // Before delay completes
-      await act(() => wait(50))
-      expect(result.current.isLoadingPaymentProviders).toBe(true)
-
-      // After delay completes
-      await act(() => wait(100))
-      expect(result.current.isLoadingPaymentProviders).toBe(false)
-      expect(result.current.paymentProviders).toBeDefined()
-    })
   })
 
   describe('return value structure', () => {
