@@ -127,9 +127,18 @@ export const BaseDrawer = ({
   if (state === 'unmounted') return null
 
   // Push-back transforms for stacked drawers
+  // Scale and offset both diminish so deep stacks don't overflow
   const isPushedBack = state === 'open' && !isTopmost
-  const scale = isPushedBack ? Math.max(0.92, 1 - depthFromTop * (1 - DRAWER_PUSH_BACK_SCALE)) : 1
-  const offset = isPushedBack ? depthFromTop * DRAWER_PUSH_BACK_OFFSET : 0
+  const scaleStep = 1 - DRAWER_PUSH_BACK_SCALE // 0.04
+  const scale = isPushedBack ? Math.max(0.88, 1 - depthFromTop * scaleStep) : 1
+  // Offset: sum of diminishing series (50, 25, 12.5, …) capped at ~100px total
+  let offset = 0
+
+  if (isPushedBack) {
+    for (let i = 0; i < depthFromTop; i++) {
+      offset += DRAWER_PUSH_BACK_OFFSET / Math.pow(2, i)
+    }
+  }
 
   const getPaperTransform = () => {
     if (state !== 'open') return 'translateX(100%)'

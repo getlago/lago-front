@@ -386,6 +386,114 @@ const FormDrawerFromDrawerExample = () => {
 }
 
 // ---------------------------------------------------------------------------
+// Example E — Unlimited stacking (5 levels deep)
+// ---------------------------------------------------------------------------
+
+const DeepStackContent = ({ level }: { level: number; onOpenNext?: () => void }) => (
+  <div className="flex flex-col gap-4">
+    <Typography>
+      This is drawer level <strong>{level}</strong>. Each level is its own <code>useDrawer()</code>{' '}
+      instance — no hardcoded limit.
+    </Typography>
+    {level >= 5 ? (
+      <Alert type="success">
+        <Typography variant="caption">
+          You reached level 5! Close drawers one by one with ESC or the close button.
+        </Typography>
+      </Alert>
+    ) : (
+      <Typography variant="caption" color="grey600">
+        Click the button below to go deeper.
+      </Typography>
+    )}
+  </div>
+)
+
+const DeepStackingExample = () => {
+  const drawer1 = useDrawer()
+  const drawer2 = useDrawer()
+  const drawer3 = useDrawer()
+  const drawer4 = useDrawer()
+  const drawer5 = useDrawer()
+  const [events, setEvents] = useState<string[]>([])
+
+  const addEvent = (message: string) => {
+    setEvents((prev) => [...prev, message])
+  }
+
+  const openLevel5 = () => {
+    addEvent('Drawer 5 opened')
+    drawer5
+      .open({
+        title: 'Level 5 — Maximum depth',
+        children: <DeepStackContent level={5} />,
+      })
+      .then((r) => addEvent(`Drawer 5 closed → ${JSON.stringify(r)}`))
+  }
+
+  const openLevel4 = () => {
+    addEvent('Drawer 4 opened')
+    drawer4
+      .open({
+        title: 'Level 4',
+        children: <DeepStackContent level={4} onOpenNext={openLevel5} />,
+        actions: <Button onClick={openLevel5}>Open Level 5</Button>,
+      })
+      .then((r) => addEvent(`Drawer 4 closed → ${JSON.stringify(r)}`))
+  }
+
+  const openLevel3 = () => {
+    addEvent('Drawer 3 opened')
+    drawer3
+      .open({
+        title: 'Level 3',
+        children: <DeepStackContent level={3} onOpenNext={openLevel4} />,
+        actions: <Button onClick={openLevel4}>Open Level 4</Button>,
+      })
+      .then((r) => addEvent(`Drawer 3 closed → ${JSON.stringify(r)}`))
+  }
+
+  const openLevel2 = () => {
+    addEvent('Drawer 2 opened')
+    drawer2
+      .open({
+        title: 'Level 2',
+        children: <DeepStackContent level={2} onOpenNext={openLevel3} />,
+        actions: <Button onClick={openLevel3}>Open Level 3</Button>,
+      })
+      .then((r) => addEvent(`Drawer 2 closed → ${JSON.stringify(r)}`))
+  }
+
+  const handleOpen = () => {
+    setEvents([])
+    addEvent('Drawer 1 opened')
+    drawer1
+      .open({
+        title: 'Level 1',
+        children: <DeepStackContent level={1} onOpenNext={openLevel2} />,
+        actions: <Button onClick={openLevel2}>Open Level 2</Button>,
+      })
+      .then((r) => addEvent(`Drawer 1 closed → ${JSON.stringify(r)}`))
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Button onClick={handleOpen}>Open 5-Level Deep Stack</Button>
+      {events.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-lg bg-grey-100 p-4">
+          <Typography variant="captionHl">Event log</Typography>
+          {events.map((event, i) => (
+            <Typography key={i} variant="captionCode">
+              {event}
+            </Typography>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Tab component
 // ---------------------------------------------------------------------------
 
@@ -404,14 +512,25 @@ const DrawerTest = () => {
       </Block>
 
       <Typography className="mb-4" variant="subhead1">
-        Stacking drawers (Stripe-style push-back)
+        Stacking drawers (3 levels)
       </Typography>
       <Typography className="mb-6" variant="body">
-        Opens a drawer that can open another drawer on top, up to 3 levels deep. Each new drawer
-        pushes the previous one back with scale + translateX.
+        Opens a drawer that can open another drawer on top, up to 3 levels. Each new drawer pushes
+        the previous one back with scale + translateX.
       </Typography>
       <Block>
         <StackingDrawerExample />
+      </Block>
+
+      <Typography className="mb-4" variant="subhead1">
+        Unlimited stacking (5 levels deep)
+      </Typography>
+      <Typography className="mb-6" variant="body">
+        Demonstrates that there is no hardcoded limit — each <code>useDrawer()</code> call gets its
+        own independent instance. Stack as many as you need.
+      </Typography>
+      <Block>
+        <DeepStackingExample />
       </Block>
 
       <Typography className="mb-4" variant="subhead1">
