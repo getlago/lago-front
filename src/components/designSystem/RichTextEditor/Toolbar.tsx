@@ -1,5 +1,6 @@
 import { Editor, useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
+import { useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -14,19 +15,32 @@ type ToolbarProps = {
 const Separator = () => <div className="mx-1 w-px bg-grey-300" />
 
 const Toolbar = ({ editor }: ToolbarProps) => {
+  const [linkInput, setLinkInput] = useState('')
+
   const editorState = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
       isBold: e.isActive('bold'),
       isItalic: e.isActive('italic'),
+      isUnderline: e.isActive('underline'),
+      isStrike: e.isActive('strike'),
       isParagraph: e.isActive('paragraph'),
       isBulletList: e.isActive('bulletList'),
+      isOrderedList: e.isActive('orderedList'),
       isCode: e.isActive('code'),
       isCodeBlock: e.isActive('codeBlock'),
       isH1: e.isActive('heading', { level: 1 }),
       isH2: e.isActive('heading', { level: 2 }),
       isH3: e.isActive('heading', { level: 3 }),
       isHeading: e.isActive('heading'),
+      isLink: e.isActive('link'),
+      isSuperscript: e.isActive('superscript'),
+      isSubscript: e.isActive('subscript'),
+      isHighlight: e.isActive('highlight'),
+      isAlignLeft: e.isActive({ textAlign: 'left' }),
+      isAlignCenter: e.isActive({ textAlign: 'center' }),
+      isAlignRight: e.isActive({ textAlign: 'right' }),
+      isAlignJustify: e.isActive({ textAlign: 'justify' }),
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
     }),
@@ -71,6 +85,62 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     },
   ]
 
+  const possibleListStylings = [
+    {
+      name: 'Bullet List',
+      value: 'bulletList',
+      label: '•',
+      isActive: editorState.isBulletList,
+      onButtonClick: () => {
+        editor.chain().focus().toggleBulletList().run()
+      },
+    },
+    {
+      name: 'Ordered List',
+      value: 'orderedList',
+      label: '1.',
+      isActive: editorState.isOrderedList,
+      onButtonClick: () => {
+        editor.chain().focus().toggleOrderedList().run()
+      },
+    },
+  ]
+
+  const possibleAlignments = [
+    {
+      name: 'Left',
+      value: 'left',
+      isActive: editorState.isAlignLeft,
+      onButtonClick: () => {
+        editor.chain().focus().setTextAlign('left').run()
+      },
+    },
+    {
+      name: 'Center',
+      value: 'center',
+      isActive: editorState.isAlignCenter,
+      onButtonClick: () => {
+        editor.chain().focus().setTextAlign('center').run()
+      },
+    },
+    {
+      name: 'Right',
+      value: 'right',
+      isActive: editorState.isAlignRight,
+      onButtonClick: () => {
+        editor.chain().focus().setTextAlign('right').run()
+      },
+    },
+    {
+      name: 'Justify',
+      value: 'justify',
+      isActive: editorState.isAlignJustify,
+      onButtonClick: () => {
+        editor.chain().focus().setTextAlign('justify').run()
+      },
+    },
+  ]
+
   const getActualTextStyling = () => {
     if (editorState.isH1) return 'heading-1'
     if (editorState.isH2) return 'heading-2'
@@ -79,8 +149,41 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     return 'multiple'
   }
 
+  const getActualListStyling = () => {
+    if (editorState.isBulletList) return 'bulletList'
+    if (editorState.isOrderedList) return 'orderedList'
+    return null
+  }
+
+  const getActualAlignment = () => {
+    if (editorState.isAlignCenter) return 'center'
+    if (editorState.isAlignRight) return 'right'
+    if (editorState.isAlignJustify) return 'justify'
+    return 'left'
+  }
+
   const actualTextStylingLabel =
     possibleTextStylings.find((s) => s.value === getActualTextStyling())?.label ?? 'M'
+
+  const actualListLabel =
+    possibleListStylings.find((s) => s.value === getActualListStyling())?.label ?? '•'
+
+  const actualAlignmentLabel =
+    possibleAlignments.find((s) => s.value === getActualAlignment())?.name ?? 'Left'
+
+  const handleSetLink = (closePopper: () => void) => {
+    if (linkInput) {
+      editor
+        .chain()
+        .focus()
+        .setLink({ href: linkInput.startsWith('http') ? linkInput : `https://${linkInput}` })
+        .run()
+    } else {
+      editor.chain().focus().unsetLink().run()
+    }
+    setLinkInput('')
+    closePopper()
+  }
 
   return (
     <div className="sticky top-0 z-10 flex flex-wrap gap-1 bg-white p-2 shadow-b">
@@ -102,6 +205,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       <Separator />
 
+      {/* Text styling dropdown */}
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         opener={
@@ -132,6 +236,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           </MenuPopper>
         )}
       </Popper>
+
       {/* Inline formatting */}
       <Button
         variant={editorState.isBold ? 'primary' : 'secondary'}
@@ -146,37 +251,170 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         I
       </Button>
       <Button
+        variant={editorState.isUnderline ? 'primary' : 'secondary'}
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+      >
+        U
+      </Button>
+      <Button
+        variant={editorState.isStrike ? 'primary' : 'secondary'}
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+      >
+        S
+      </Button>
+      <Button
         variant={editorState.isCode ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleCode().run()}
       >
         {'<>'}
       </Button>
-
-      <Separator />
-
-      {/* Lists */}
       <Button
-        variant={editorState.isBulletList ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        variant={editorState.isHighlight ? 'primary' : 'secondary'}
+        onClick={() => editor.chain().focus().toggleHighlight().run()}
       >
-        List
+        <Icon name="sparkles" />
       </Button>
 
       <Separator />
 
-      {/* Link */}
-      {/* <button
-        onClick={() => {
-          const url = window.prompt('URL:')
-
-          if (url) editor.chain().focus().setLink({ href: url }).run()
-        }}
-        className={`rounded px-3 py-1 text-sm ${
-          editor.isActive('link') ? 'bg-grey-800 text-white' : 'bg-grey-100'
-        }`}
+      {/* Superscript / Subscript */}
+      <Button
+        variant={editorState.isSuperscript ? 'primary' : 'secondary'}
+        onClick={() => editor.chain().focus().toggleSuperscript().run()}
       >
-        Link
-      </button> */}
+        X<sup className="text-[8px]">2</sup>
+      </Button>
+      <Button
+        variant={editorState.isSubscript ? 'primary' : 'secondary'}
+        onClick={() => editor.chain().focus().toggleSubscript().run()}
+      >
+        X<sub className="text-[8px]">2</sub>
+      </Button>
+
+      <Separator />
+
+      {/* List dropdown */}
+      <Popper
+        PopperProps={{ placement: 'bottom-start' }}
+        opener={
+          <Button
+            variant={editorState.isBulletList || editorState.isOrderedList ? 'primary' : 'secondary'}
+            endIcon="chevron-down"
+          >
+            {actualListLabel}
+          </Button>
+        }
+      >
+        {({ closePopper }) => (
+          <MenuPopper>
+            {possibleListStylings.map((styling) => (
+              <Button
+                key={styling.value}
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  styling.onButtonClick()
+                  closePopper()
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <Typography>{styling.label}</Typography>
+                  <Typography color="grey700">{styling.name}</Typography>
+                  {styling.isActive && <Icon name="checkmark" />}
+                </div>
+              </Button>
+            ))}
+          </MenuPopper>
+        )}
+      </Popper>
+
+      {/* Text align dropdown */}
+      <Popper
+        PopperProps={{ placement: 'bottom-start' }}
+        opener={
+          <Button variant="secondary" endIcon="chevron-down">
+            <Icon name="content-left-align" />
+          </Button>
+        }
+      >
+        {({ closePopper }) => (
+          <MenuPopper>
+            {possibleAlignments.map((alignment) => (
+              <Button
+                key={alignment.value}
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  alignment.onButtonClick()
+                  closePopper()
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <Typography color="grey700">{alignment.name}</Typography>
+                  {alignment.isActive && <Icon name="checkmark" />}
+                </div>
+              </Button>
+            ))}
+          </MenuPopper>
+        )}
+      </Popper>
+
+      <Separator />
+
+      {/* Link */}
+      <Popper
+        PopperProps={{ placement: 'bottom-start' }}
+        opener={
+          <Button variant={editorState.isLink ? 'primary' : 'secondary'}>
+            <Icon name="link" />
+          </Button>
+        }
+      >
+        {({ closePopper }) => (
+          <MenuPopper>
+            <div className="flex flex-col gap-2 p-3">
+              <Typography variant="captionHl" color="grey700">
+                URL
+              </Typography>
+              <input
+                type="text"
+                value={linkInput}
+                onChange={(e) => setLinkInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleSetLink(closePopper)
+                  }
+                }}
+                placeholder="https://example.com"
+                className="rounded border border-grey-300 px-3 py-1.5 text-sm outline-none focus:border-blue-600"
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="primary"
+                  onClick={() => handleSetLink(closePopper)}
+                >
+                  Apply
+                </Button>
+                {editorState.isLink && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      editor.chain().focus().unsetLink().run()
+                      setLinkInput('')
+                      closePopper()
+                    }}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+          </MenuPopper>
+        )}
+      </Popper>
+
+      <Separator />
 
       {/* Table */}
       <Button
@@ -193,18 +431,6 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       >
         Code
       </Button>
-
-      {/* Image */}
-      {/* <button
-        onClick={() => {
-          const url = window.prompt('Image URL:')
-
-          if (url) editor.chain().focus().setImage({ src: url }).run()
-        }}
-        className="bg-grey-100 rounded px-3 py-1 text-sm"
-      >
-        Image
-      </button> */}
     </div>
   )
 }
