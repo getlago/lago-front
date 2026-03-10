@@ -1,20 +1,42 @@
-import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
+import { useState } from 'react'
+
+import { Button } from '~/components/designSystem/Button'
+import RichTextEditor, {
+  RichTextEditorMode,
+} from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { Typography } from '~/components/designSystem/Typography'
 
 import Block from '../common/Block'
 import Container from '../common/Container'
 
+const mentionValues: Record<string, string> = {
+  customerName: 'Acme Corp',
+  planName: 'Pro Plan',
+  amountDue: '$149.00',
+  invoiceNumber: 'INV-2026-0042',
+  dueDate: 'March 25, 2026',
+  companyName: 'Lago Inc.',
+}
+
 const EditorTest = () => {
+  const [mode, setMode] = useState<RichTextEditorMode>('edit')
+
   return (
     <Container>
       <Typography className="mb-4" variant="headline">
         RichTextEditor
       </Typography>
-      <Typography className="mb-4" variant="subhead1">
-        Simple &#60;RichTextEditor/&#62;
-      </Typography>
+      <div className="mb-4 flex items-center gap-4">
+        <Typography variant="subhead1">Simple &#60;RichTextEditor/&#62;</Typography>
+        <Button
+          variant={mode === 'edit' ? 'primary' : 'secondary'}
+          onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
+        >
+          {mode === 'edit' ? 'Preview' : 'Edit'}
+        </Button>
+      </div>
       <Block className="h-80">
-        <RichTextEditor />
+        <RichTextEditor mode={mode} mentionValues={mentionValues} />
       </Block>
     </Container>
   )

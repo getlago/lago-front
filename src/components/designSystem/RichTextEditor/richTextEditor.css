@@ -130,8 +130,21 @@
     @apply bg-grey-100 font-medium;
   }
 
+  /* Preview mode — hide placeholder and remove cursor */
+  &[contenteditable='false'] {
+    caret-color: transparent;
+
+    p.is-editor-empty:first-child::before {
+      content: none;
+    }
+  }
+
   .variable-mention {
     @apply rounded bg-grey-300 px-1.5 py-0.5 text-base;
+  }
+
+  .variable-mention--resolved {
+    @apply bg-grey-200;
   }
 
   .link-card {
