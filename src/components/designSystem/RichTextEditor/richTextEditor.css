@@ -49,6 +49,33 @@
     @apply font-medium;
   }
 
+  u {
+    text-decoration: underline;
+  }
+
+  s {
+    text-decoration: line-through;
+  }
+
+  mark {
+    @apply rounded bg-yellow-100 px-0.5;
+  }
+
+  sup {
+    @apply text-xs;
+    vertical-align: super;
+  }
+
+  sub {
+    @apply text-xs;
+    vertical-align: sub;
+  }
+
+  a {
+    @apply text-blue-600 underline;
+    cursor: pointer;
+  }
+
   /* Lists */
   ul {
     @apply my-2 pl-6;
