@@ -11,12 +11,17 @@ import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
-import { EditorContent, useEditor } from '@tiptap/react'
+import { EditorContent, ReactRenderer, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import type { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
+import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { LinkCard } from './extensions/LinkCard'
+import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import { SlashCommands } from './extensions/SlashCommands'
+import { type MentionItem, MentionList, type MentionListRef } from './MentionList'
 import './richTextEditor.css'
 import Toolbar from './Toolbar'
 
@@ -61,8 +66,48 @@ const RichTextEditor = () => {
           char: '@',
           items: ({ query }) =>
             variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
-          // render: () => { ... }
-          // Same popup pattern as SlashMenu — build a MentionList component
+          render: () => {
+            let renderer: ReactRenderer<MentionListRef>
+            let popup: TippyInstance[]
+
+            return {
+              onStart: (props: SuggestionProps<MentionItem>) => {
+                renderer = new ReactRenderer(MentionList, {
+                  props,
+                  editor: props.editor,
+                })
+
+                popup = tippy('body', {
+                  getReferenceClientRect: props.clientRect as () => DOMRect,
+                  appendTo: () => document.body,
+                  content: renderer.element,
+                  showOnCreate: true,
+                  interactive: true,
+                  trigger: 'manual',
+                  placement: 'bottom-start',
+                })
+              },
+              onUpdate: (props: SuggestionProps<MentionItem>) => {
+                renderer.updateProps(props)
+
+                popup[0].setProps({
+                  getReferenceClientRect: props.clientRect as () => DOMRect,
+                })
+              },
+              onKeyDown: (props: SuggestionKeyDownProps) => {
+                if (props.event.key === 'Escape') {
+                  popup[0].hide()
+                  return true
+                }
+
+                return renderer.ref?.onKeyDown(props) ?? false
+              },
+              onExit: () => {
+                popup[0].destroy()
+                renderer.destroy()
+              },
+            }
+          },
         },
         renderHTML({ node }) {
           return [
@@ -73,6 +118,9 @@ const RichTextEditor = () => {
         },
       }),
       SlashCommands.configure({ translate }),
+      LinkCard,
+      LinkPasteHandler,
+      SlashCommands,
     ],
     editorProps: {
       attributes: {
