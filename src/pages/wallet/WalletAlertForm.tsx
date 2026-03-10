@@ -154,7 +154,7 @@ const WalletAlertForm = () => {
         ? sortAndFormatThresholds(
             existingAlert?.thresholds,
             currency,
-            existingAlert?.alertType === AlertTypeEnum.BillableMetricCurrentUsageUnits,
+            isCreditsAlert(existingAlert?.alertType),
           )
         : [
             {
@@ -180,7 +180,7 @@ const WalletAlertForm = () => {
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: async ({ alertType, thresholds, ...values }) => {
+    onSubmit: async ({ alertType, thresholds, walletId: currentWalletId, ...values }) => {
       const thresholdValue = (threshold: ThresholdInput) => {
         if (isCreditsAlert(alertType)) {
           return threshold.value.split('.')[0]
@@ -211,7 +211,7 @@ const WalletAlertForm = () => {
             input: {
               ...values,
               alertType,
-              walletId,
+              walletId: currentWalletId,
               thresholds: formattedThresholds || undefined,
             },
           },
@@ -364,8 +364,6 @@ const WalletAlertForm = () => {
                         const newFormikValues = {
                           ...formikProps.values,
                           alertType: value as AlertTypeEnum,
-                          // Reset billableMetricId when alertType is changed
-                          billableMetricId: '',
                         }
 
                         formikProps.setValues(newFormikValues)
