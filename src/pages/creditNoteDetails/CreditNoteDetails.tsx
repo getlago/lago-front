@@ -230,6 +230,16 @@ const CreditNoteDetails = () => {
       billingEntity: creditNote?.billingEntity,
       documentId: creditNote?.id,
       customerEmail: creditNote?.customer?.email,
+      documentData: {
+        amount: intlFormatNumber(
+          deserializeAmount(
+            creditNote?.totalAmountCents || 0,
+            creditNote?.currency || CurrencyEnum.Usd,
+          ),
+          { currency: creditNote?.currency || CurrencyEnum.Usd },
+        ),
+        creditNoteNumber: creditNote?.number,
+      },
     })
   }
 

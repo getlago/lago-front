@@ -24,6 +24,7 @@ import {
   BillingEntityEmailSettingsEnum,
   CreditNoteForVoidCreditNoteDialogFragmentDoc,
   CreditNoteTableItemFragment,
+  CurrencyEnum,
   GetCreditNotesListQuery,
   PremiumIntegrationTypeEnum,
   TimezoneEnum,
@@ -277,6 +278,20 @@ const CreditNotesTable = ({
                       billingEntity: creditNote?.billingEntity,
                       documentId: creditNote?.id,
                       customerEmail: creditNote?.customer?.email,
+                      documentData: {
+                        amount: intlFormatNumber(
+                          deserializeAmount(
+                            creditNote.totalAmountCents || 0,
+                            creditNote.currency || CurrencyEnum.Usd,
+                          ),
+                          { currency: creditNote.currency || CurrencyEnum.Usd },
+                        ),
+                        creditNoteNumber: creditNote.number,
+                        invoiceNumber: creditNote.invoice?.number,
+                        issueDate: creditNote.createdAt
+                          ? intlFormatDateTime(creditNote.createdAt).date
+                          : undefined,
+                      },
                     })
                   },
                 },

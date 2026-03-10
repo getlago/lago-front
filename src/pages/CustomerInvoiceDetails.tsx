@@ -50,6 +50,7 @@ import {
   CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
@@ -702,6 +703,14 @@ const CustomerInvoiceDetails = () => {
       billingEntity: invoice?.billingEntity,
       documentId: invoice?.id,
       customerEmail: invoice?.customer?.email,
+      documentData: {
+        amount: intlFormatNumber(
+          deserializeAmount(totalAmountCents || 0, currency || CurrencyEnum.Usd),
+          { currency: currency || CurrencyEnum.Usd },
+        ),
+        invoiceNumber: number,
+        issueDate: invoice?.issuingDate ? intlFormatDateTime(invoice.issuingDate).date : undefined,
+      },
     })
   }
 

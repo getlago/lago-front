@@ -248,6 +248,19 @@ const InvoicesList = ({
               billingEntity: invoice?.billingEntity,
               documentId: invoice?.id,
               customerEmail: invoice?.customer?.email,
+              documentData: {
+                amount: intlFormatNumber(
+                  deserializeAmount(
+                    invoice.totalAmountCents || 0,
+                    invoice.currency || CurrencyEnum.Usd,
+                  ),
+                  { currency: invoice.currency || CurrencyEnum.Usd },
+                ),
+                invoiceNumber: invoice.number,
+                issueDate: invoice.issuingDate
+                  ? intlFormatDateTime(invoice.issuingDate).date
+                  : undefined,
+              },
             })
           },
         }

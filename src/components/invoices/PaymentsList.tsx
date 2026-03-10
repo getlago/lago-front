@@ -173,16 +173,42 @@ export const PaymentsList: FC<PaymentsListProps> = ({
               ? {
                   startIcon: 'at',
                   title: translate('text_1770392315728uyw3zhs7kzh'),
-                  onAction: ({ paymentReceipt: _paymentReceipt }) => {
+                  onAction: (payment) => {
+                    const payable = payment.payable
+                    const payableInvoice = payable?.__typename === 'Invoice' && [payable]
+                    const requestPaymentInvoices =
+                      payable?.__typename === 'PaymentRequest' && payable?.invoices
+                    const paymentInvoices = payableInvoice || requestPaymentInvoices || []
+
+                    const formattedAmount = intlFormatNumber(
+                      deserializeAmount(
+                        payment.amountCents || 0,
+                        payment.amountCurrency || CurrencyEnum.Usd,
+                      ),
+                      { currency: payment.amountCurrency || CurrencyEnum.Usd },
+                    )
+
                     showResendEmailDialog({
                       subject: translate('text_1770631139987tf8b59zentb', {
                         organization: customer?.billingEntity.name,
-                        receiptNumber: _paymentReceipt?.number,
+                        receiptNumber: payment.paymentReceipt?.number,
                       }),
                       type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
                       billingEntity: customer?.billingEntity,
-                      documentId: _paymentReceipt?.id,
+                      documentId: payment.paymentReceipt?.id,
                       customerEmail: customer.email,
+                      documentData: {
+                        amount: formattedAmount,
+                        receiptNumber: payment.paymentReceipt?.number,
+                        paymentDate: payment.createdAt
+                          ? intlFormatDateTime(payment.createdAt).date
+                          : undefined,
+                        amountPaid: formattedAmount,
+                        invoices: paymentInvoices.map((inv) => ({
+                          number: inv.number,
+                          amount: '',
+                        })),
+                      },
                     })
                   },
                   disabled: !paymentReceipt?.id,
