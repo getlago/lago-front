@@ -6,6 +6,7 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -180,14 +181,6 @@ export const PaymentsList: FC<PaymentsListProps> = ({
                       payable?.__typename === 'PaymentRequest' && payable?.invoices
                     const paymentInvoices = payableInvoice || requestPaymentInvoices || []
 
-                    const formattedAmount = intlFormatNumber(
-                      deserializeAmount(
-                        payment.amountCents || 0,
-                        payment.amountCurrency || CurrencyEnum.Usd,
-                      ),
-                      { currency: payment.amountCurrency || CurrencyEnum.Usd },
-                    )
-
                     showResendEmailDialog({
                       subject: translate('text_1770631139987tf8b59zentb', {
                         organization: customer?.billingEntity.name,
@@ -197,18 +190,15 @@ export const PaymentsList: FC<PaymentsListProps> = ({
                       billingEntity: customer?.billingEntity,
                       documentId: payment.paymentReceipt?.id,
                       customerEmail: customer.email,
-                      documentData: {
-                        amount: formattedAmount,
-                        receiptNumber: payment.paymentReceipt?.number,
-                        paymentDate: payment.createdAt
-                          ? intlFormatDateTime(payment.createdAt).date
-                          : undefined,
-                        amountPaid: formattedAmount,
-                        invoices: paymentInvoices.map((inv) => ({
-                          number: inv.number,
-                          amount: '',
-                        })),
-                      },
+                      documentData: buildPaymentDocumentData({
+                        amountCents: payment.amountCents,
+                        amountCurrency: payment.amountCurrency,
+                        createdAt: payment.createdAt,
+                        paymentType: payment.paymentType,
+                        paymentReceipt: payment.paymentReceipt,
+                        invoices: paymentInvoices,
+                        translate,
+                      }),
                     })
                   },
                   disabled: !paymentReceipt?.id,

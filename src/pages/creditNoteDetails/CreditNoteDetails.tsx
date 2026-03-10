@@ -21,6 +21,7 @@ import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
@@ -230,16 +231,7 @@ const CreditNoteDetails = () => {
       billingEntity: creditNote?.billingEntity,
       documentId: creditNote?.id,
       customerEmail: creditNote?.customer?.email,
-      documentData: {
-        amount: intlFormatNumber(
-          deserializeAmount(
-            creditNote?.totalAmountCents || 0,
-            creditNote?.currency || CurrencyEnum.Usd,
-          ),
-          { currency: creditNote?.currency || CurrencyEnum.Usd },
-        ),
-        creditNoteNumber: creditNote?.number,
-      },
+      documentData: buildCreditNoteDocumentData(creditNote),
     })
   }
 

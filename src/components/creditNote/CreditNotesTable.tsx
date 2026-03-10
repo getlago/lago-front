@@ -12,6 +12,7 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -24,7 +25,6 @@ import {
   BillingEntityEmailSettingsEnum,
   CreditNoteForVoidCreditNoteDialogFragmentDoc,
   CreditNoteTableItemFragment,
-  CurrencyEnum,
   GetCreditNotesListQuery,
   PremiumIntegrationTypeEnum,
   TimezoneEnum,
@@ -278,20 +278,7 @@ const CreditNotesTable = ({
                       billingEntity: creditNote?.billingEntity,
                       documentId: creditNote?.id,
                       customerEmail: creditNote?.customer?.email,
-                      documentData: {
-                        amount: intlFormatNumber(
-                          deserializeAmount(
-                            creditNote.totalAmountCents || 0,
-                            creditNote.currency || CurrencyEnum.Usd,
-                          ),
-                          { currency: creditNote.currency || CurrencyEnum.Usd },
-                        ),
-                        creditNoteNumber: creditNote.number,
-                        invoiceNumber: creditNote.invoice?.number,
-                        issueDate: creditNote.createdAt
-                          ? intlFormatDateTime(creditNote.createdAt).date
-                          : undefined,
-                      },
+                      documentData: buildCreditNoteDocumentData(creditNote),
                     })
                   },
                 },

@@ -12,6 +12,7 @@ import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
@@ -227,31 +228,7 @@ const PaymentDetails = () => {
     return `${formattedDate.date} ${formattedDate.time} ${formattedDate.timezone}`
   }
 
-  const getPaymentMethodLabel = () => {
-    if (payment?.paymentType === PaymentTypeEnum.Manual) {
-      return translate('text_173799550683709p2rqkoqd5')
-    }
-
-    return payment?.paymentProviderType
-      ? translate(
-          {
-            [ProviderTypeEnum.Stripe]: 'text_62b1edddbf5f461ab971277d',
-            [ProviderTypeEnum.Adyen]: 'text_645d071272418a14c1c76a6d',
-            [ProviderTypeEnum.Gocardless]: 'text_634ea0ecc6147de10ddb6625',
-            [ProviderTypeEnum.Cashfree]: 'text_17367626793434wkg1rk0114',
-            [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
-            [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
-          }[payment.paymentProviderType],
-        )
-      : undefined
-  }
-
   const resendEmail = () => {
-    const formattedAmount = intlFormatNumber(
-      deserializeAmount(payment?.amountCents || 0, payment?.amountCurrency || CurrencyEnum.Usd),
-      { currency: payment?.amountCurrency || CurrencyEnum.Usd },
-    )
-
     showResendEmailDialog({
       subject: translate('text_1770631139987tf8b59zentb', {
         organization: payment?.customer?.billingEntity.name,
@@ -261,24 +238,17 @@ const PaymentDetails = () => {
       billingEntity: payment?.customer?.billingEntity,
       documentId: payment?.paymentReceipt?.id,
       customerEmail: payment?.customer?.email,
-      documentData: {
-        amount: formattedAmount,
-        receiptNumber: payment?.paymentReceipt?.number,
-        paymentDate: payment?.createdAt
-          ? intlFormatDateTime(payment.createdAt, {
-              timezone: customer?.applicableTimezone,
-            }).date
-          : undefined,
-        paymentMethod: getPaymentMethodLabel(),
-        amountPaid: formattedAmount,
-        invoices: invoices.map((inv) => ({
-          number: inv.number,
-          amount: intlFormatNumber(
-            deserializeAmount(inv.totalAmountCents || 0, inv.currency || CurrencyEnum.Usd),
-            { currency: inv.currency || CurrencyEnum.Usd },
-          ),
-        })),
-      },
+      documentData: buildPaymentDocumentData({
+        amountCents: payment?.amountCents,
+        amountCurrency: payment?.amountCurrency,
+        createdAt: payment?.createdAt,
+        paymentType: payment?.paymentType,
+        paymentProviderType: payment?.paymentProviderType,
+        paymentReceipt: payment?.paymentReceipt,
+        invoices,
+        timezone: customer?.applicableTimezone,
+        translate,
+      }),
     })
   }
 

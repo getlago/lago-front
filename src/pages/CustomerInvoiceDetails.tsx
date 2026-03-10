@@ -15,6 +15,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
   DisputeInvoiceDialog,
@@ -50,7 +51,6 @@ import {
   CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
@@ -703,14 +703,7 @@ const CustomerInvoiceDetails = () => {
       billingEntity: invoice?.billingEntity,
       documentId: invoice?.id,
       customerEmail: invoice?.customer?.email,
-      documentData: {
-        amount: intlFormatNumber(
-          deserializeAmount(totalAmountCents || 0, currency || CurrencyEnum.Usd),
-          { currency: currency || CurrencyEnum.Usd },
-        ),
-        invoiceNumber: number,
-        issueDate: invoice?.issuingDate ? intlFormatDateTime(invoice.issuingDate).date : undefined,
-      },
+      documentData: buildInvoiceDocumentData(invoice),
     })
   }
 

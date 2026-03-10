@@ -16,6 +16,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -248,19 +249,7 @@ const InvoicesList = ({
               billingEntity: invoice?.billingEntity,
               documentId: invoice?.id,
               customerEmail: invoice?.customer?.email,
-              documentData: {
-                amount: intlFormatNumber(
-                  deserializeAmount(
-                    invoice.totalAmountCents || 0,
-                    invoice.currency || CurrencyEnum.Usd,
-                  ),
-                  { currency: invoice.currency || CurrencyEnum.Usd },
-                ),
-                invoiceNumber: invoice.number,
-                issueDate: invoice.issuingDate
-                  ? intlFormatDateTime(invoice.issuingDate).date
-                  : undefined,
-              },
+              documentData: buildInvoiceDocumentData(invoice),
             })
           },
         }
