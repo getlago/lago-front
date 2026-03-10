@@ -44,6 +44,7 @@ const CouponDetails = lazyLoad(() => import('~/pages/CouponDetails'))
 const PaymentDetails = lazyLoad(() => import('~/pages/PaymentDetails'))
 const BillableMetricDetails = lazyLoad(() => import('~/pages/BillableMetricDetails'))
 const FeatureDetails = lazyLoad(() => import('~/pages/features/FeatureDetails'))
+const WalletDetails = lazyLoad(() => import('~/pages/wallet/WalletDetails'))
 
 // ----------- Routes -----------
 // Lists
@@ -98,6 +99,7 @@ export const CREATE_WALLET_TOP_UP_ROUTE = '/customer/:customerId/wallet/:walletI
 export const VOID_CREATE_WALLET_TOP_UP_ROUTE =
   '/customer/:customerId/wallet/:walletId/top-up/:voidedInvoiceId'
 
+export const WALLET_DETAILS_ROUTE = '/customer/:customerId/wallet-details/:walletId/:tab'
 export const CREATE_PAYMENT_ROUTE = '/create/payment'
 export const CREATE_INVOICE_PAYMENT_ROUTE = '/invoice/:invoiceId/create/payment'
 
@@ -195,6 +197,11 @@ export const objectListRoutes: CustomRouteObject[] = [
     private: true,
     element: <FeaturesList />,
     permissions: ['featuresView'],
+  },
+  {
+    path: [WALLET_DETAILS_ROUTE],
+    private: true,
+    element: <WalletDetails />,
   },
 ]
 
