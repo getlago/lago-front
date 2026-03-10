@@ -1,5 +1,7 @@
 import { drawerStack } from '../drawerStack'
 
+// The real drawerStack.ts uses import.meta.hot which Jest cannot handle,
+// so we use the __mocks__/drawerStack.ts implementation for testing.
 jest.mock('../drawerStack')
 
 describe('drawerStack', () => {

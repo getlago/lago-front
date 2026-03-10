@@ -1,3 +1,13 @@
+// Module-level pub/sub store that tracks which drawers are currently open, in order.
+// It lives outside React so multiple drawer instances can coordinate their stacking
+// (z-index, push-back transforms, topmost detection) without a context provider.
+//
+// The `subscribe` + `getSnapshot` API is designed for React's `useSyncExternalStore`,
+// which is how `useDrawerStack` reactively reads the stack.
+//
+// It also centralizes the body scroll lock: `overflow: hidden` is applied when the
+// first drawer opens and removed when the last one closes.
+
 type Listener = () => void
 
 type DrawerStackState = {
