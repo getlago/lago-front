@@ -1,5 +1,5 @@
 import type { SuggestionKeyDownProps } from '@tiptap/suggestion'
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -18,8 +18,20 @@ interface SlashMenuProps {
 
 export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, command }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   useEffect(() => setSelectedIndex(0), [items])
+
+  useEffect(() => {
+    itemRefs.current[selectedIndex]?.scrollIntoView({ block: 'nearest' })
+  }, [selectedIndex])
+
+  const setItemRef = useCallback(
+    (index: number) => (el: HTMLButtonElement | null) => {
+      itemRefs.current[index] = el
+    },
+    [],
+  )
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
@@ -46,6 +58,7 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
       <MenuPopper>
         {items.map((item, index) => (
           <Button
+            ref={setItemRef(index)}
             key={item.title}
             variant={index === selectedIndex ? 'secondary' : 'quaternary'}
             align="left"
