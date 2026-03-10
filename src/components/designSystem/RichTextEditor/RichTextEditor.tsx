@@ -1,11 +1,16 @@
+import Highlight from '@tiptap/extension-highlight'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Mention from '@tiptap/extension-mention'
 import Placeholder from '@tiptap/extension-placeholder'
+import Subscript from '@tiptap/extension-subscript'
+import Superscript from '@tiptap/extension-superscript'
 import { Table } from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
+import TextAlign from '@tiptap/extension-text-align'
+import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
@@ -27,6 +32,11 @@ const RichTextEditor = () => {
     extensions: [
       StarterKit,
       Link.configure({ openOnClick: false }),
+      Underline,
+      Superscript,
+      Subscript,
+      Highlight,
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Image,
       Table.configure({ resizable: true }),
       TableRow,
