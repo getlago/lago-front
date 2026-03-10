@@ -25,6 +25,7 @@ const ValueInput = ({
   shouldHandleUnits = false,
   translate,
   value,
+  unitsLabel,
 }: {
   currency: CurrencyEnum
   onChange: (value: string) => void
@@ -32,6 +33,7 @@ const ValueInput = ({
   shouldDisplayError?: boolean
   shouldHandleUnits?: boolean
   translate: TranslateFunc
+  unitsLabel?: string
 }) => {
   if (shouldHandleUnits) {
     return (
@@ -45,7 +47,7 @@ const ValueInput = ({
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              {translate('text_6282085b4f283b0102655884')}
+              {unitsLabel || translate('text_6282085b4f283b0102655884')}
             </InputAdornment>
           ),
         }}
@@ -76,6 +78,8 @@ const AlertThresholds = ({
   setThresholdValue,
   currency,
   shouldHandleUnits,
+  unitsLabel,
+  unitsTitle,
 }: {
   thresholds: ThresholdInput[]
   setThresholds: (thresholds: ThresholdInput[]) => void
@@ -90,6 +94,8 @@ const AlertThresholds = ({
   }) => void
   currency: CurrencyEnum
   shouldHandleUnits: boolean
+  unitsLabel?: string
+  unitsTitle?: string
 }) => {
   const { translate } = useInternationalization()
 
@@ -176,7 +182,7 @@ const AlertThresholds = ({
                   <Typography className="px-4" variant="captionHl">
                     {translate(
                       shouldHandleUnits
-                        ? 'text_1748858070139kmh56doz3la'
+                        ? unitsTitle || 'text_1748858070139kmh56doz3la'
                         : 'text_1748858044483q61vd2npre7',
                     )}
                   </Typography>
@@ -209,6 +215,7 @@ const AlertThresholds = ({
                         shouldHandleUnits={shouldHandleUnits}
                         translate={translate}
                         value={row.value}
+                        unitsLabel={unitsLabel}
                       />
                     </Tooltip>
                   )
@@ -278,6 +285,7 @@ const AlertThresholds = ({
                     shouldHandleUnits={shouldHandleUnits}
                     translate={translate}
                     value={row.value}
+                    unitsLabel={unitsLabel}
                   />
                 ),
               },
