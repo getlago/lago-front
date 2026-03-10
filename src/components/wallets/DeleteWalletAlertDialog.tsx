@@ -26,7 +26,9 @@ export const useDeleteWalletAlertDialog = () => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
 
-  const [deleteWalletALert] = useDestroyWalletAlertMutation()
+  const [deleteWalletALert] = useDestroyWalletAlertMutation({
+    refetchQueries: ['getWalletAlerts'],
+  })
 
   const openDeleteWalletAlertDialog = (data: DeleteWalletAlertDialogData) => {
     centralizedDialog.open({
