@@ -86,7 +86,7 @@ export const routes: CustomRouteObject[] = [
       ...customerRoutes,
       ...objectListRoutes,
       ...objectDetailsRoutes,
-      ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
+      ...([AppEnvEnum.qa, AppEnvEnum.development, AppEnvEnum.staging].includes(appEnv)
         ? [
             {
               path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
