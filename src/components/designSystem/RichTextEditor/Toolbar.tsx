@@ -79,6 +79,7 @@ const ToolbarDropdown = ({
 
 const Toolbar = ({ editor }: ToolbarProps) => {
   const [linkInput, setLinkInput] = useState('')
+  const [imageInput, setImageInput] = useState('')
 
   const editorState = useEditorState({
     editor,
@@ -259,6 +260,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     closePopper()
   }
 
+  const handleInsertImage = (closePopper: () => void) => {
+    if (imageInput) {
+      editor.chain().focus().setImage({ src: imageInput }).run()
+    }
+    setImageInput('')
+    closePopper()
+  }
+
   return (
     <div
       data-test={TOOLBAR_CONTAINER_TEST_ID}
@@ -422,6 +431,38 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       >
         Code
       </Button>
+
+      {/* Image */}
+      <Popper
+        PopperProps={{ placement: 'bottom-start' }}
+        opener={<Button variant="secondary">Image</Button>}
+      >
+        {({ closePopper }) => (
+          <MenuPopper>
+            <div className="flex flex-col gap-2 p-3">
+              <Typography variant="captionHl" color="grey700">
+                Image URL
+              </Typography>
+              <input
+                type="text"
+                value={imageInput}
+                onChange={(e) => setImageInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleInsertImage(closePopper)
+                  }
+                }}
+                placeholder="https://example.com/image.png"
+                className="rounded border border-grey-300 px-3 py-1.5 text-sm outline-none focus:border-blue-600"
+              />
+              <Button variant="primary" onClick={() => handleInsertImage(closePopper)}>
+                Insert
+              </Button>
+            </div>
+          </MenuPopper>
+        )}
+      </Popper>
     </div>
   )
 }
