@@ -3975,5 +3975,6 @@
   "text_1773051593209rwm715tl9i6": "Yes, delete",
   "text_17730638681767dkaxbmgifz": "Alert successfully deleted",
   "text_1773063868176dy5v3kvne2l": "Name",
-  "text_1773063868176jh122suh1lx": "Credits threshold"
+  "text_1773063868176jh122suh1lx": "Credits threshold",
+  "text_1773223136519pcuvc8zwoyf": "This threshold overlaps with previous one, please set a value lower than {{value}}"
 }
