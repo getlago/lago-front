@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { GlobalHeader, GlobalHeaderProvider } from '~/components/GlobalHeader'
+import { MainHeader, MainHeaderProvider } from '~/components/MainHeader'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -83,17 +83,17 @@ const MainNavLayout = () => {
           </NavLayout.Nav>
         </ClickAwayListener>
 
-        <GlobalHeaderProvider>
+        <MainHeaderProvider>
           <NavLayout.ContentWrapper ref={contentRef} data-test={MAIN_NAV_LAYOUT_CONTENT_TEST_ID}>
             {isLoading && <Spinner data-test={MAIN_NAV_LAYOUT_SPINNER_TEST_ID} />}
             {!isLoading && (
               <>
-                <GlobalHeader />
+                <MainHeader />
                 <Outlet />
               </>
             )}
           </NavLayout.ContentWrapper>
-        </GlobalHeaderProvider>
+        </MainHeaderProvider>
       </NavLayout.NavWrapper>
     </div>
   )

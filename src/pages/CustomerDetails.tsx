@@ -23,12 +23,12 @@ import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { StatusType } from '~/components/designSystem/Status'
 import {
-  GlobalHeader,
-  GlobalHeaderAction,
-  GlobalHeaderDropdownItem,
-  GlobalHeaderTab,
-  useGlobalHeaderTabContent,
-} from '~/components/GlobalHeader'
+  MainHeader,
+  MainHeaderAction,
+  MainHeaderDropdownItem,
+  MainHeaderTab,
+  useMainHeaderTabContent,
+} from '~/components/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -211,7 +211,7 @@ const CustomerDetails = () => {
     hasPermissions(['customersUpdate']) ||
     hasPermissions(['customersDelete'])
 
-  const headerActions: GlobalHeaderAction[] = [
+  const headerActions: MainHeaderAction[] = [
     {
       type: 'action',
       label: translate('text_641b1b19d6e64300632ca60c'),
@@ -314,7 +314,7 @@ const CustomerDetails = () => {
                   closePopper()
                 },
               },
-            ] satisfies GlobalHeaderDropdownItem[],
+            ] satisfies MainHeaderDropdownItem[],
           },
         ]
       : []),
@@ -332,7 +332,7 @@ const CustomerDetails = () => {
     : undefined
 
   // Unified tab definitions — single source of truth for bar metadata AND content
-  const customerTabs: GlobalHeaderTab[] = [
+  const customerTabs: MainHeaderTab[] = [
     {
       title: translate('text_628cf761cbe6820138b8f2e4'),
       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
@@ -456,13 +456,13 @@ const CustomerDetails = () => {
     },
   ]
 
-  const activeTabContent = useGlobalHeaderTabContent()
+  const activeTabContent = useMainHeaderTabContent()
 
   return (
     <div>
       {/* Header */}
-      <GlobalHeader.Configure
-        breadcrumb={[{ label: 'Customers', path: CUSTOMERS_LIST_ROUTE }]}
+      <MainHeader.Configure
+        backButton={{ path: CUSTOMERS_LIST_ROUTE }}
         title={customerName}
         actions={headerActions}
         entity={headerEntity}
