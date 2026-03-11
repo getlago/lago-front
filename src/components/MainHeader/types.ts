@@ -1,6 +1,7 @@
 import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
+import { ButtonVariant } from '~/components/designSystem/Button'
 import { StatusLabel, StatusType } from '~/components/designSystem/Status'
 import { TranslateData } from '~/core/translations'
 
@@ -41,7 +42,7 @@ export interface MainHeaderInPageAction {
   type: 'action'
   label: string
   onClick: () => void | Promise<void>
-  variant?: 'secondary' | 'inline'
+  variant?: ButtonVariant
   startIcon?: IconName
   disabled?: boolean
   dataTest?: string
@@ -82,11 +83,14 @@ export interface MainHeaderConfig {
   /** Action buttons rendered on the right side of the sticky header */
   actions?: MainHeaderAction[]
 
-  /** Entity section below the sticky header (avatar, name, metadata, badges) */
-  entity?: MainHeaderEntityConfig
+  /** Entity section — viewName is the page/entity heading */
+  entity: MainHeaderEntityConfig
 
   /** Tab definitions — each tab declares bar metadata AND content in a single object */
   tabs?: MainHeaderTab[]
+
+  /** Filter — pages include their own providers */
+  filtersSection?: ReactNode
 
   /** Global loading state — shows skeletons for title and entity */
   isLoading?: boolean

@@ -27,7 +27,7 @@ export const MainHeaderComponent: FC = () => {
   // No config = no header (backward compatible with unmigrated pages)
   if (!config) return null
 
-  const { backButton, title, actions, entity, tabs, isLoading } = config
+  const { backButton, title, actions, entity, tabs, filtersSection, isLoading } = config
 
   return (
     <header>
@@ -70,7 +70,10 @@ export const MainHeaderComponent: FC = () => {
       {(entity || isLoading) && <EntitySection entity={entity} isLoading={isLoading} />}
 
       {/* Tab bar — hidden for 0-1 tabs, content resolved via useMainHeaderTabContent */}
-      {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12" tabs={tabs} />}
+      {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12 mt-2" tabs={tabs} />}
+
+      {/* Filter section — chips, search, filters (self-contained ReactNode from page) */}
+      {filtersSection && <div className="mt-4 px-4 pb-3 shadow-b md:px-12">{filtersSection}</div>}
     </header>
   )
 }

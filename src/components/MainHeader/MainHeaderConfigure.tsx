@@ -14,6 +14,7 @@ function configSnapshot(config: MainHeaderConfig): string {
   return JSON.stringify(config, (key, value) => {
     if (typeof value === 'function') return undefined
     if (key === 'content') return undefined
+    if (key === 'filtersSection') return undefined
 
     return value
   })

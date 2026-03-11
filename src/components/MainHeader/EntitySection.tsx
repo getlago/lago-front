@@ -18,7 +18,7 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
 }) => {
   if (isLoading) {
     return (
-      <div className="mb-12 flex flex-col gap-2 px-12 pt-12">
+      <div className="mb-4 flex flex-col gap-2 px-12 pt-12">
         <Skeleton variant="text" className="w-50" />
         <Skeleton variant="text" className="w-32" />
       </div>
@@ -28,7 +28,7 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
   if (!entity) return null
 
   return (
-    <div className="mb-12 flex items-center gap-4 px-12 pt-12">
+    <div className="mb-4 flex items-center gap-4 px-12 pt-12">
       {entity.icon && (
         <Avatar variant="connector" size="large">
           <Icon name={entity.icon} color="dark" size="large" />
