@@ -69,22 +69,32 @@ export interface MainHeaderEntityConfig {
   icon?: IconName
 }
 
+// ─── Breadcrumb ──────────────────────────────────────────────────
+
+export interface BreadcrumbItem {
+  /** Human-readable label shown in the breadcrumb trail */
+  label: string
+  /** Route path — the item is rendered as a clickable link */
+  path: string
+}
+
 // ─── Main config ────────────────────────────────────────────────
 
 export interface MainHeaderConfig {
-  /** Temporary back button — will be replaced by breadcrumb system */
-  backButton?: {
-    path: string
-  }
+  /** Breadcrumb trail rendered above the entity name. When present, the sticky top bar is hidden. */
+  breadcrumb?: BreadcrumbItem[]
 
-  /** Main title displayed in the sticky header bar — styling is handled by MainHeader */
+  /** Temporary back button — coexists with breadcrumb during migration */
+  backButton?: { path: string }
+
+  /** Fallback title for the sticky top bar (only rendered when no breadcrumb) */
   title?: string
 
   /** Action buttons rendered on the right side of the sticky header */
   actions?: MainHeaderAction[]
 
-  /** Entity section — viewName is the page/entity heading */
-  entity: MainHeaderEntityConfig
+  /** Entity section — viewName is the page/entity heading. Optional during loading. */
+  entity?: MainHeaderEntityConfig
 
   /** Tab definitions — each tab declares bar metadata AND content in a single object */
   tabs?: MainHeaderTab[]

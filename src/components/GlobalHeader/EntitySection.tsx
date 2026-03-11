@@ -35,7 +35,7 @@ export const EntitySection: FC<{ entity?: GlobalHeaderEntityConfig; isLoading?: 
         </Avatar>
       )}
       <div>
-        <div className="mb-1 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <Typography color="textSecondary" variant="headline" forceBreak>
             {entity.viewName}
           </Typography>

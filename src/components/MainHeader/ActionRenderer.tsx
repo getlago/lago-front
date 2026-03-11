@@ -2,15 +2,33 @@ import { FC } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { MenuPopper } from '~/styles'
 
 import { MainHeaderAction } from './types'
 
 /**
- * Renders a single action based on its type.
- * Keeps the switch/case isolated for readability.
+ * Renders the full actions block: skeleton during loading, action buttons otherwise.
  */
-export const ActionRenderer: FC<{ action: MainHeaderAction }> = ({ action }) => {
+export const ActionsBlock: FC<{ actions?: MainHeaderAction[]; isLoading?: boolean }> = ({
+  actions,
+  isLoading,
+}) => {
+  if (isLoading) return <Skeleton variant="text" className="w-30" />
+
+  if (!actions || actions.length === 0) return null
+
+  return (
+    <div className="flex shrink-0 items-center justify-center gap-4">
+      {actions.map((action, index) => (
+        <ActionItem key={index} action={action} />
+      ))}
+    </div>
+  )
+}
+
+/** Renders a single action based on its type. */
+const ActionItem: FC<{ action: MainHeaderAction }> = ({ action }) => {
   switch (action.type) {
     case 'dropdown': {
       const visibleItems = action.items.filter((item) => !item.hidden)

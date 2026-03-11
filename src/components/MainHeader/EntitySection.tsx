@@ -9,8 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { MainHeaderEntityConfig } from './types'
 
 /**
- * Entity section rendered below the sticky header bar.
- * Owns all visual rendering — pages pass only data props.
+ * Entity section — renders as a fragment so the parent controls layout.
  */
 export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: boolean }> = ({
   entity,
@@ -18,24 +17,24 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
 }) => {
   if (isLoading) {
     return (
-      <div className="mb-4 flex flex-col gap-2 px-12 pt-12">
+      <>
         <Skeleton variant="text" className="w-50" />
         <Skeleton variant="text" className="w-32" />
-      </div>
+      </>
     )
   }
 
   if (!entity) return null
 
   return (
-    <div className="mb-4 flex items-center gap-4 px-12 pt-12">
+    <>
       {entity.icon && (
         <Avatar variant="connector" size="large">
           <Icon name={entity.icon} color="dark" size="large" />
         </Avatar>
       )}
       <div>
-        <div className="mb-1 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <Typography color="textSecondary" variant="headline" forceBreak>
             {entity.viewName}
           </Typography>
@@ -50,6 +49,6 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
         </div>
         {entity.metadata && <Typography>{entity.metadata}</Typography>}
       </div>
-    </div>
+    </>
   )
 }

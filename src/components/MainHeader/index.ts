@@ -8,6 +8,7 @@ export const MainHeader = Object.assign(MainHeaderComponent, {
 export { useMainHeaderTabContent } from './useMainHeaderTabContent'
 export { MainHeaderProvider } from './MainHeaderContext'
 export type {
+  BreadcrumbItem,
   MainHeaderAction,
   MainHeaderBadge,
   MainHeaderConfig,
