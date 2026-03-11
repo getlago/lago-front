@@ -7,6 +7,8 @@ import { MenuPopper } from '~/styles'
 
 import { MainHeaderAction } from './types'
 
+export const ACTIONS_BLOCK_TEST_ID = 'actions-block'
+
 /**
  * Renders the full actions block: skeleton during loading, action buttons otherwise.
  */
@@ -19,9 +21,12 @@ export const ActionsBlock: FC<{ actions?: MainHeaderAction[]; isLoading?: boolea
   if (!actions || actions.length === 0) return null
 
   return (
-    <div className="flex shrink-0 items-center justify-center gap-4">
-      {actions.map((action, index) => (
-        <ActionItem key={action.label + '_' + index} action={action} />
+    <div
+      className="flex shrink-0 items-center justify-center gap-4"
+      data-test={ACTIONS_BLOCK_TEST_ID}
+    >
+      {actions.map((action) => (
+        <ActionItem key={action.label} action={action} />
       ))}
     </div>
   )
@@ -46,9 +51,9 @@ const ActionItem: FC<{ action: MainHeaderAction }> = ({ action }) => {
         >
           {({ closePopper }) => (
             <MenuPopper>
-              {visibleItems.map((item, i) => (
+              {visibleItems.map((item) => (
                 <Button
-                  key={i}
+                  key={item.label}
                   variant="quaternary"
                   align="left"
                   disabled={item.disabled}

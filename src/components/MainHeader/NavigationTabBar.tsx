@@ -9,6 +9,8 @@ import { tw } from '~/styles/utils'
 
 import { isTabActive } from './utils'
 
+export const NAVIGATION_TAB_BAR_TEST_ID = 'navigation-tab-bar'
+
 export type NavigationTabBarItem = {
   link?: string
   title: string
@@ -54,7 +56,7 @@ export const NavigationTabBar = ({
   }, [nonHiddenTabs, pathname])
 
   return (
-    <div className={tw('flex flex-row shadow-b', className)}>
+    <div className={tw('flex flex-row shadow-b', className)} data-test={NAVIGATION_TAB_BAR_TEST_ID}>
       <Tabs
         className="min-h-13 w-full flex-1 items-center overflow-visible"
         variant="scrollable"
@@ -65,7 +67,7 @@ export const NavigationTabBar = ({
       >
         {nonHiddenTabs.map((tab, tabIndex) => (
           <Tab
-            key={`tab-${tabIndex}`}
+            key={tab.title}
             disableFocusRipple
             disableRipple
             role="tab"
