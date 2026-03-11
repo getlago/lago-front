@@ -196,8 +196,9 @@ const TableControls = ({ editor }: TableControlsProps) => {
     if (!tableEl) return
 
     const handleMouseOver = (e: Event) => {
-      const target = e.target as HTMLElement
-      const cell = target.closest('th, td')
+      if (!(e.target instanceof HTMLElement)) return
+
+      const cell = e.target.closest('th, td')
 
       if (!cell) return
 

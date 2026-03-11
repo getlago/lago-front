@@ -125,7 +125,7 @@ const RichTextEditor = ({
                 })
 
                 popup = tippy('body', {
-                  getReferenceClientRect: suggestionProps.clientRect as () => DOMRect,
+                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
                   appendTo: () => document.body,
                   content: renderer.element,
                   showOnCreate: true,
@@ -138,7 +138,7 @@ const RichTextEditor = ({
                 renderer.updateProps(suggestionProps)
 
                 popup[0].setProps({
-                  getReferenceClientRect: suggestionProps.clientRect as () => DOMRect,
+                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
                 })
               },
               onKeyDown: (keyDownProps) => {
@@ -194,19 +194,14 @@ const RichTextEditor = ({
   if (!editor) return null
 
   const handleSave = () => {
-    const storage = editor.storage
+    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
+    const storage = markdownExt?.storage
 
-    if (
-      'markdown' in storage &&
-      storage.markdown &&
-      typeof storage.markdown === 'object' &&
-      'getMarkdown' in storage.markdown &&
-      typeof storage.markdown.getMarkdown === 'function'
-    ) {
-      const markdown: string = storage.markdown.getMarkdown()
+    if (!storage || typeof storage.getMarkdown !== 'function') return
 
-      onSave?.(markdown)
-    }
+    const markdown: string = storage.getMarkdown()
+
+    onSave?.(markdown)
   }
 
   return (
