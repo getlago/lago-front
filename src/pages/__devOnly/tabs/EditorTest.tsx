@@ -40,6 +40,7 @@ const EditorTest = () => {
           mode={mode}
           mentionValues={mentionValues}
           onSave={(markdown: string) => {
+            // eslint-disable-next-line no-console
             console.log('Editor markdown:', markdown)
           }}
         />
