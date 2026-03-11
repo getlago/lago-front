@@ -109,7 +109,7 @@ export const MainHeaderComponent: FC = () => {
       {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12 mt-6" tabs={tabs} />}
 
       {/* Filter section */}
-      {filtersSection && <div className="mt-6 px-12 pb-4 shadow-b">{filtersSection}</div>}
+      {filtersSection && <div className="mt-6 px-12 pb-4">{filtersSection}</div>}
     </header>
   )
 }
