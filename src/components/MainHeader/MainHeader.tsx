@@ -50,12 +50,7 @@ export const MainHeaderComponent: FC = () => {
 
           {isLoading && <Skeleton variant="text" className="w-30" />}
           {!isLoading && title && (
-            <Typography
-              variant="bodyHl"
-              color="textSecondary"
-              noWrap
-              data-test="main-header-title"
-            >
+            <Typography variant="bodyHl" color="textSecondary" noWrap data-test="main-header-title">
               {title}
             </Typography>
           )}
