@@ -27,6 +27,7 @@ import { MentionList, type MentionListRef } from './MentionList'
 import { MentionNodeView } from './MentionNodeView'
 import './richTextEditor.css'
 import { RichTextEditorProvider } from './RichTextEditorContext'
+import TableControls from './TableControls'
 import Toolbar from './Toolbar'
 
 export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
@@ -214,7 +215,10 @@ const RichTextEditor = ({
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
-        <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
+        <div className="relative pb-8 pr-8">
+          <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
+          {!isPreview && <TableControls editor={editor} />}
+        </div>
         {!isPreview && onSave && (
           <div className="flex justify-end p-4">
             <Button data-test={RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID} onClick={handleSave}>
