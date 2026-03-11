@@ -81,7 +81,7 @@ export const SlashCommands = Extension.create({
               })
 
               popup = tippy('body', {
-                getReferenceClientRect: props.clientRect as () => DOMRect,
+                getReferenceClientRect: () => props.clientRect?.() ?? new DOMRect(),
                 appendTo: () => document.body,
                 content: renderer.element,
                 showOnCreate: true,
@@ -94,7 +94,7 @@ export const SlashCommands = Extension.create({
               renderer.updateProps(props)
 
               popup[0].setProps({
-                getReferenceClientRect: props.clientRect as () => DOMRect,
+                getReferenceClientRect: () => props.clientRect?.() ?? new DOMRect(),
               })
             },
             onKeyDown: (props: SuggestionKeyDownProps) => {
