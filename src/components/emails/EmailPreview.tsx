@@ -115,9 +115,6 @@ const EmailPreview = ({
                 <Typography variant="headline">
                   {documentData?.amount ?? translateWithContextualLocal(translationsKey.amount)}
                 </Typography>
-                <Typography variant="caption">
-                  {translateWithContextualLocal(translationsKey.total)}
-                </Typography>
                 <div className="my-6 h-px w-full bg-grey-300" />
                 <div className="flex w-full flex-col gap-1">
                   {type === BillingEntityEmailSettingsEnum.CreditNoteCreated && (
