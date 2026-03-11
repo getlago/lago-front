@@ -64,9 +64,7 @@ export const MainHeaderProvider: FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <MainHeaderWriteContext.Provider value={writeValue}>
-      <MainHeaderReadContext.Provider value={readValue}>
-        {children}
-      </MainHeaderReadContext.Provider>
+      <MainHeaderReadContext.Provider value={readValue}>{children}</MainHeaderReadContext.Provider>
     </MainHeaderWriteContext.Provider>
   )
 }

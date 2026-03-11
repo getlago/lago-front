@@ -5,7 +5,6 @@ import { Location, Outlet, useLocation } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { MainHeader, MainHeaderProvider } from '~/components/MainHeader'
-
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
