@@ -90,6 +90,10 @@ const WalletAlertForm = () => {
     alertType === AlertTypeEnum.WalletCreditsBalance ||
     alertType === AlertTypeEnum.WalletCreditsOngoingBalance
 
+  const isOngoingAlert = (alertType: AlertTypeEnum) =>
+    alertType === AlertTypeEnum.WalletOngoingBalanceAmount ||
+    alertType === AlertTypeEnum.WalletCreditsOngoingBalance
+
   const onLeave = useCallback(
     ({ replace = false }: { replace?: boolean } = {}) => {
       if (!!customerId) {
@@ -239,7 +243,7 @@ const WalletAlertForm = () => {
     )
 
     return localNonRecurringThresholds.some((threshold, i) =>
-      isThresholdValueValid(i, threshold.value, localNonRecurringThresholds),
+      isThresholdValueValid(i, threshold.value, localNonRecurringThresholds, true),
     )
   }, [formikProps.values.thresholds])
 
@@ -379,6 +383,8 @@ const WalletAlertForm = () => {
                         shouldHandleUnits={isCreditsAlert(formikProps.values.alertType)}
                         unitsLabel={translate('text_62d18855b22699e5cf55f889')}
                         unitsTitle={translate('text_1773063868176jh122suh1lx')}
+                        reversedThreshold={true}
+                        allowNegativeValues={isOngoingAlert(formikProps.values.alertType)}
                       />
                     )}
                   </div>
