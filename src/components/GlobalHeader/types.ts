@@ -68,13 +68,26 @@ export interface GlobalHeaderEntityConfig {
   icon?: IconName
 }
 
+// ─── Breadcrumb ──────────────────────────────────────────────────
+
+export interface BreadcrumbItem {
+  /** Human-readable label shown in the breadcrumb trail */
+  label: string
+  /** Route path — the item is rendered as a clickable link */
+  path: string
+}
+
 // ─── Main config ────────────────────────────────────────────────
 
 export interface GlobalHeaderConfig {
-  /** Temporary back button — will be replaced by breadcrumb system */
-  backButton?: {
-    path: string
-  }
+  /**
+   * Breadcrumb trail rendered above the title.
+   * - Omit for root-level list pages (no breadcrumb shown).
+   * - Provide an array of items for detail pages, e.g.
+   *   `[{ label: 'Customers', path: '/customers' }]`
+   *   The last item with a `path` is a clickable link; the page title is NOT repeated here.
+   */
+  breadcrumb?: BreadcrumbItem[]
 
   /** Main title displayed in the sticky header bar — styling is handled by GlobalHeader */
   title?: string

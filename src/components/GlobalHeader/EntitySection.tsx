@@ -18,17 +18,17 @@ export const EntitySection: FC<{ entity?: GlobalHeaderEntityConfig; isLoading?: 
 }) => {
   if (isLoading) {
     return (
-      <div className="mb-12 flex flex-col gap-2 px-12 pt-12">
+      <>
         <Skeleton variant="text" className="w-50" />
         <Skeleton variant="text" className="w-32" />
-      </div>
+      </>
     )
   }
 
   if (!entity) return null
 
   return (
-    <div className="mb-12 flex items-center gap-4 px-12 pt-12">
+    <>
       {entity.icon && (
         <Avatar variant="connector" size="large">
           <Icon name={entity.icon} color="dark" size="large" />
@@ -50,6 +50,6 @@ export const EntitySection: FC<{ entity?: GlobalHeaderEntityConfig; isLoading?: 
         </div>
         {entity.metadata && <Typography>{entity.metadata}</Typography>}
       </div>
-    </div>
+    </>
   )
 }

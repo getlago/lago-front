@@ -8,6 +8,7 @@ export const GlobalHeader = Object.assign(GlobalHeaderComponent, {
 export { useGlobalHeaderTabContent } from './useGlobalHeaderTabContent'
 export { GlobalHeaderProvider } from './GlobalHeaderContext'
 export type {
+  BreadcrumbItem,
   GlobalHeaderAction,
   GlobalHeaderBadge,
   GlobalHeaderConfig,
