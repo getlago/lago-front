@@ -462,7 +462,7 @@ const CustomerDetails = () => {
     <div>
       {/* Header */}
       <MainHeader.Configure
-        backButton={{ path: CUSTOMERS_LIST_ROUTE }}
+        breadcrumb={[{ label: 'Customer', path: CUSTOMERS_LIST_ROUTE }]}
         title={customerName}
         actions={headerActions}
         entity={headerEntity}

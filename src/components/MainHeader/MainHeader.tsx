@@ -68,7 +68,7 @@ export const MainHeaderComponent: FC = () => {
 
           {/* Entity section below the fallback top bar */}
           {hasEntity && (
-            <div className="px-12 pt-12">
+            <div className="px-12 pb-4 pt-12">
               <EntitySection entity={entity} isLoading={isLoading} />
             </div>
           )}
@@ -98,7 +98,7 @@ export const MainHeaderComponent: FC = () => {
 
           {/* Mobile — entity section below the sticky bar */}
           {hasEntity && (
-            <div className="px-12 pt-12 lg:hidden">
+            <div className="px-12 pb-4 pt-12 lg:hidden">
               <EntitySection entity={entity} isLoading={isLoading} />
             </div>
           )}
@@ -106,10 +106,10 @@ export const MainHeaderComponent: FC = () => {
       )}
 
       {/* Tab bar */}
-      {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12 mt-6" tabs={tabs} />}
+      {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12 mt-2" tabs={tabs} />}
 
       {/* Filter section */}
-      {filtersSection && <div className="mt-6 px-12 pb-4">{filtersSection}</div>}
+      {filtersSection && <div className="mt-4 px-12 pb-4">{filtersSection}</div>}
     </header>
   )
 }
