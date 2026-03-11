@@ -113,7 +113,7 @@
     }
   }
 
-  /* Tables — extra margin for Notion-style controls */
+  /* Tables */
   table {
     @apply my-8 border-collapse;
   }
