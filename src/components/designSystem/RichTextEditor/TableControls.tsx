@@ -277,14 +277,18 @@ const TableControls = ({ editor }: TableControlsProps) => {
   }
 
   return (
-    <div ref={wrapperRef} className="table-controls">
+    <div ref={wrapperRef} className="pointer-events-none absolute inset-0">
       {isInTable && layout && (
         <>
           {/* Row delete buttons — left of each row */}
           {layout.rows.map((row, i) => (
             <div
               key={`row-${i}`}
-              className={`table-controls__row-zone ${hoveredRow === i ? 'is-visible' : ''}`}
+              className={`absolute flex w-[22px] flex-col items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
+                hoveredRow === i
+                  ? 'pointer-events-auto opacity-100'
+                  : 'pointer-events-none opacity-0'
+              }`}
               style={{
                 left: layout.tableX - 26,
                 top: row.top,
@@ -295,7 +299,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
             >
               <button
                 type="button"
-                className="table-controls__inline-btn table-controls__inline-btn--remove"
+                className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
                 title="Delete row"
                 onClick={() => focusCellAndRun(row.cellPos, (chain) => chain.deleteRow())}
               >
@@ -308,7 +312,11 @@ const TableControls = ({ editor }: TableControlsProps) => {
           {layout.cols.map((col, i) => (
             <div
               key={`col-${i}`}
-              className={`table-controls__col-zone ${hoveredCol === i ? 'is-visible' : ''}`}
+              className={`absolute flex h-[22px] flex-row items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
+                hoveredCol === i
+                  ? 'pointer-events-auto opacity-100'
+                  : 'pointer-events-none opacity-0'
+              }`}
               style={{
                 left: col.left,
                 top: layout.tableY - 26,
@@ -319,7 +327,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
             >
               <button
                 type="button"
-                className="table-controls__inline-btn table-controls__inline-btn--remove"
+                className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
                 title="Delete column"
                 onClick={() => focusCellAndRun(col.cellPos, (chain) => chain.deleteColumn())}
               >
@@ -331,7 +339,9 @@ const TableControls = ({ editor }: TableControlsProps) => {
           {/* Add column button — right edge */}
           <button
             type="button"
-            className={`table-controls__add-col ${addColVisible ? 'is-visible' : ''}`}
+            className={`absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700 ${
+              addColVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+            }`}
             style={{
               left: layout.tableX + layout.tableWidth + 4,
               top: layout.tableY,
@@ -354,7 +364,9 @@ const TableControls = ({ editor }: TableControlsProps) => {
           {/* Add row button — bottom edge */}
           <button
             type="button"
-            className={`table-controls__add-row ${addRowVisible ? 'is-visible' : ''}`}
+            className={`absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700 ${
+              addRowVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+            }`}
             style={{
               left: layout.tableX,
               top: layout.tableY + layout.tableHeight + 4,
