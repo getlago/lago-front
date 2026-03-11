@@ -21,7 +21,7 @@ export const ActionsBlock: FC<{ actions?: MainHeaderAction[]; isLoading?: boolea
   return (
     <div className="flex shrink-0 items-center justify-center gap-4">
       {actions.map((action, index) => (
-        <ActionItem key={index} action={action} />
+        <ActionItem key={action.label + '_' + index} action={action} />
       ))}
     </div>
   )
