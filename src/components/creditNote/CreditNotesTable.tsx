@@ -12,6 +12,7 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -277,6 +278,7 @@ const CreditNotesTable = ({
                       billingEntity: creditNote?.billingEntity,
                       documentId: creditNote?.id,
                       customerEmail: creditNote?.customer?.email,
+                      documentData: buildCreditNoteDocumentData(creditNote),
                     })
                   },
                 },

@@ -12,6 +12,7 @@ import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
@@ -237,6 +238,17 @@ const PaymentDetails = () => {
       billingEntity: payment?.customer?.billingEntity,
       documentId: payment?.paymentReceipt?.id,
       customerEmail: payment?.customer?.email,
+      documentData: buildPaymentDocumentData({
+        amountCents: payment?.amountCents,
+        amountCurrency: payment?.amountCurrency,
+        createdAt: payment?.createdAt,
+        paymentType: payment?.paymentType,
+        paymentProviderType: payment?.paymentProviderType,
+        paymentReceipt: payment?.paymentReceipt,
+        invoices,
+        timezone: customer?.applicableTimezone,
+        translate,
+      }),
     })
   }
 

@@ -2,7 +2,7 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import EmailPreview, { BillingEntity } from '~/components/emails/EmailPreview'
+import EmailPreview, { BillingEntity, DocumentData } from '~/components/emails/EmailPreview'
 import {
   resendEmailFormDefaultValues,
   resendEmailFormValidationSchema,
@@ -111,12 +111,14 @@ export const useResendEmailDialog = () => {
     type,
     billingEntity,
     customerEmail,
+    documentData,
   }: {
     subject: string
     documentId: string | undefined
     type: BillingEntityEmailSettingsEnum
     billingEntity: BillingEntity | undefined
     customerEmail: string | null | undefined
+    documentData?: DocumentData
   }) => {
     if (!documentId) return
 
@@ -140,6 +142,7 @@ export const useResendEmailDialog = () => {
             type={type}
             billingEntity={billingEntity}
             showEmailHeader={false}
+            documentData={documentData}
           />
         ),
         mainAction: (
