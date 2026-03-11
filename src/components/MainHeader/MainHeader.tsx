@@ -12,6 +12,11 @@ import { EntitySection } from './EntitySection'
 import { useMainHeaderReader } from './MainHeaderContext'
 import { NavigationTabBar } from './NavigationTabBar'
 
+export const MAIN_HEADER_TEST_ID = 'main-header'
+export const MAIN_HEADER_TITLE_TEST_ID = 'main-header-title'
+export const MAIN_HEADER_FILTERS_TEST_ID = 'main-header-filters'
+export const MAIN_HEADER_BACK_BUTTON_TEST_ID = 'main-header-back-button'
+
 /**
  * MainHeader — layout-level component that reads from MainHeaderContext.
  *
@@ -31,7 +36,7 @@ export const MainHeaderComponent: FC = () => {
   const hasEntity = !!entity || isLoading
 
   return (
-    <header>
+    <header data-test={MAIN_HEADER_TEST_ID}>
       {/* TODO: remove this once all pages are migrated to breadcrumb pattern */}
       {backButton && !hasBreadcrumb ? (
         <>
@@ -47,6 +52,7 @@ export const MainHeaderComponent: FC = () => {
                   icon="arrow-left"
                   variant="quaternary"
                   onClick={() => navigate(backButton.path)}
+                  data-test={MAIN_HEADER_BACK_BUTTON_TEST_ID}
                 />
               )}
 
@@ -56,7 +62,7 @@ export const MainHeaderComponent: FC = () => {
                   variant="bodyHl"
                   color="textSecondary"
                   noWrap
-                  data-test="main-header-title"
+                  data-test={MAIN_HEADER_TITLE_TEST_ID}
                 >
                   {title}
                 </Typography>
@@ -109,7 +115,11 @@ export const MainHeaderComponent: FC = () => {
       {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12 mt-2" tabs={tabs} />}
 
       {/* Filter section */}
-      {filtersSection && <div className="mt-4 px-12 pb-4">{filtersSection}</div>}
+      {filtersSection && (
+        <div className="mt-4 px-12 pb-4" data-test={MAIN_HEADER_FILTERS_TEST_ID}>
+          {filtersSection}
+        </div>
+      )}
     </header>
   )
 }

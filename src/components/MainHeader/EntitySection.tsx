@@ -8,6 +8,10 @@ import { Typography } from '~/components/designSystem/Typography'
 
 import { MainHeaderEntityConfig } from './types'
 
+export const ENTITY_SECTION_TEST_ID = 'entity-section'
+export const ENTITY_SECTION_VIEW_NAME_TEST_ID = 'entity-section-view-name'
+export const ENTITY_SECTION_METADATA_TEST_ID = 'entity-section-metadata'
+
 /**
  * Entity section — renders as a fragment so the parent controls layout.
  */
@@ -33,21 +37,28 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
           <Icon name={entity.icon} color="dark" size="large" />
         </Avatar>
       )}
-      <div>
+      <div data-test={ENTITY_SECTION_TEST_ID}>
         <div className="flex items-center gap-2">
-          <Typography color="textSecondary" variant="headline" forceBreak>
+          <Typography
+            color="textSecondary"
+            variant="headline"
+            forceBreak
+            data-test={ENTITY_SECTION_VIEW_NAME_TEST_ID}
+          >
             {entity.viewName}
           </Typography>
-          {entity.badges?.map((badge, i) => (
+          {entity.badges?.map((badge) => (
             <Status
-              key={i}
+              key={`${badge.type}-${badge.label}`}
               type={badge.type}
               label={badge.label}
               labelVariables={badge.labelVariables}
             />
           ))}
         </div>
-        {entity.metadata && <Typography>{entity.metadata}</Typography>}
+        {entity.metadata && (
+          <Typography data-test={ENTITY_SECTION_METADATA_TEST_ID}>{entity.metadata}</Typography>
+        )}
       </div>
     </>
   )

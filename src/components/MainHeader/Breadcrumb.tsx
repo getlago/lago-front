@@ -5,6 +5,8 @@ import { Typography } from '~/components/designSystem/Typography'
 
 import { BreadcrumbItem } from './types'
 
+export const BREADCRUMB_NAV_TEST_ID = 'breadcrumb-nav'
+
 /**
  * Breadcrumb — renders a horizontal trail of navigable links.
  *
@@ -17,9 +19,13 @@ export const Breadcrumb: FC<{ items: BreadcrumbItem[] }> = ({ items }) => {
   if (items.length === 0) return null
 
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center gap-1 overflow-hidden">
+    <nav
+      aria-label="Breadcrumb"
+      className="flex items-center gap-1 overflow-hidden"
+      data-test={BREADCRUMB_NAV_TEST_ID}
+    >
       {items.map((item, index) => (
-        <Fragment key={`breadcrumb-${index}`}>
+        <Fragment key={item.path}>
           {index > 0 && (
             <Typography variant="captionHl" color="primary600" className="shrink-0">
               /
