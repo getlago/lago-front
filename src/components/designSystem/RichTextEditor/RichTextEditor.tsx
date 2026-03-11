@@ -113,7 +113,7 @@ const RichTextEditor = ({
                 })
 
                 popup = tippy('body', {
-                  getReferenceClientRect: suggestionProps.clientRect as () => DOMRect,
+                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
                   appendTo: () => document.body,
                   content: renderer.element,
                   showOnCreate: true,
@@ -126,7 +126,7 @@ const RichTextEditor = ({
                 renderer.updateProps(suggestionProps)
 
                 popup[0].setProps({
-                  getReferenceClientRect: suggestionProps.clientRect as () => DOMRect,
+                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
                 })
               },
               onKeyDown: (keyDownProps) => {
@@ -182,8 +182,12 @@ const RichTextEditor = ({
   if (!editor) return null
 
   const handleSave = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const markdown = (editor.storage as any).markdown.getMarkdown() as string
+    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
+    const storage = markdownExt?.storage
+
+    if (!storage || typeof storage.getMarkdown !== 'function') return
+
+    const markdown: string = storage.getMarkdown()
 
     onSave?.(markdown)
   }
