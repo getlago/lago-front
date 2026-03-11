@@ -115,9 +115,10 @@
     }
   }
 
-  /* Tables */
+  /* Tables — extra margin for Notion-style controls */
   table {
-    @apply my-2 w-full border-collapse;
+    @apply my-8 ml-8 border-collapse;
+    width: calc(100% - 2rem);
   }
 
   th,
@@ -162,4 +163,89 @@
   .link-card__url {
     @apply truncate text-xs text-grey-500;
   }
+
+  /* Selected cell highlight */
+  .selectedCell::after {
+    @apply pointer-events-none absolute inset-0 bg-blue-100/40;
+    content: '';
+  }
+
+  th,
+  td {
+    position: relative;
+  }
+}
+
+/* Table controls — Notion-style hover buttons */
+.table-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Row hover zone — left of each row */
+.table-controls__row-zone {
+  @apply absolute flex w-[22px] flex-col items-center justify-center gap-0.5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease-in-out;
+}
+
+.table-controls__row-zone.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Column hover zone — top of each column */
+.table-controls__col-zone {
+  @apply absolute flex h-[22px] flex-row items-center justify-center gap-0.5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease-in-out;
+}
+
+.table-controls__col-zone.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Inline add / remove buttons */
+.table-controls__inline-btn {
+  @apply flex h-[18px] w-[18px] items-center justify-center rounded text-xs font-medium leading-none transition-colors;
+}
+
+.table-controls__inline-btn--add {
+  @apply bg-grey-100 text-grey-500 hover:bg-grey-300 hover:text-grey-700;
+}
+
+.table-controls__inline-btn--remove {
+  @apply bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700;
+}
+
+/* "+" button on the right edge to add a column */
+.table-controls__add-col {
+  @apply absolute flex items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 hover:bg-grey-200 hover:text-grey-700;
+  width: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease-in-out, background-color 150ms ease-in-out, color 150ms ease-in-out;
+}
+
+.table-controls__add-col.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* "+" button on the bottom edge to add a row */
+.table-controls__add-row {
+  @apply absolute flex items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 hover:bg-grey-200 hover:text-grey-700;
+  height: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease-in-out, background-color 150ms ease-in-out, color 150ms ease-in-out;
+}
+
+.table-controls__add-row.is-visible {
+  opacity: 1;
+  pointer-events: auto;
 }

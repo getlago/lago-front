@@ -26,6 +26,7 @@ import { MentionList, type MentionListRef } from './MentionList'
 import { MentionNodeView } from './MentionNodeView'
 import './richTextEditor.css'
 import { RichTextEditorProvider } from './RichTextEditorContext'
+import TableControls from './TableControls'
 import Toolbar from './Toolbar'
 
 export type RichTextEditorMode = 'edit' | 'preview'
@@ -191,7 +192,10 @@ const RichTextEditor = ({
     <RichTextEditorProvider value={contextValue}>
       <div className="rich-text-editor relative h-full max-h-screen overflow-auto">
         {!isPreview && <Toolbar editor={editor} />}
-        <EditorContent editor={editor} />
+        <div className="relative pb-8 pr-8">
+          <EditorContent editor={editor} />
+          {!isPreview && <TableControls editor={editor} />}
+        </div>
         {!isPreview && onSave && (
           <div className="flex justify-end p-4">
             <Button onClick={handleSave}>Save</Button>
