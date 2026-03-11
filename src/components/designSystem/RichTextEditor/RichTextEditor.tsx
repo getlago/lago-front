@@ -15,7 +15,9 @@ import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useMemo } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
+import { Markdown } from 'tiptap-markdown'
 
+import { Button } from '~/components/designSystem/Button'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { LinkCard } from './extensions/LinkCard'
@@ -36,9 +38,16 @@ export type RichTextEditorMode = 'edit' | 'preview'
 interface RichTextEditorProps {
   mode?: RichTextEditorMode
   mentionValues?: Record<string, string>
+  content?: string
+  onSave?: (markdown: string) => void
 }
 
-const RichTextEditor = ({ mode = 'edit', mentionValues = {} }: RichTextEditorProps) => {
+const RichTextEditor = ({
+  mode = 'edit',
+  mentionValues = {},
+  content,
+  onSave,
+}: RichTextEditorProps) => {
   const { translate } = useInternationalization()
 
   const variableItems = [
@@ -73,6 +82,27 @@ const RichTextEditor = ({ mode = 'edit', mentionValues = {} }: RichTextEditorPro
       Mention.extend({
         addNodeView() {
           return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
+        },
+        addStorage() {
+          return {
+            markdown: {
+              serialize(
+                state: { write: (text: string) => void },
+                node: { attrs: { id: string; label?: string } },
+              ) {
+                state.write(`{${node.attrs.id}|${node.attrs.label ?? node.attrs.id}}`)
+              },
+              parse: {
+                updateDOM(element: HTMLElement) {
+                  element.innerHTML = element.innerHTML.replace(
+                    /\{\{(\w+)\|([^}]+)\}\}/g,
+                    (_match: string, id: string, label: string) =>
+                      `<span data-type="mention" data-id="${id}" class="variable-mention">@${label}</span>`,
+                  )
+                },
+              },
+            },
+          }
         },
       }).configure({
         HTMLAttributes: { class: 'variable-mention' },
@@ -134,13 +164,18 @@ const RichTextEditor = ({ mode = 'edit', mentionValues = {} }: RichTextEditorPro
       SlashCommands.configure({ translate }),
       LinkCard,
       LinkPasteHandler,
+      Markdown.configure({
+        html: true,
+        transformPastedText: true,
+        transformCopiedText: true,
+      }),
     ],
     editorProps: {
       attributes: {
         class: 'max-w-none focus:outline-none min-h-[300px] p-4',
       },
     },
-    content: '',
+    content: content ?? '',
   })
 
   const isPreview = mode === 'preview'
@@ -155,6 +190,13 @@ const RichTextEditor = ({ mode = 'edit', mentionValues = {} }: RichTextEditorPro
 
   if (!editor) return null
 
+  const handleSave = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const markdown = (editor.storage as any).markdown.getMarkdown() as string
+
+    onSave?.(markdown)
+  }
+
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
@@ -163,6 +205,11 @@ const RichTextEditor = ({ mode = 'edit', mentionValues = {} }: RichTextEditorPro
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
         <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
+        {!isPreview && onSave && (
+          <div className="flex justify-end p-4">
+            <Button onClick={handleSave}>Save</Button>
+          </div>
+        )}
       </div>
     </RichTextEditorProvider>
   )
