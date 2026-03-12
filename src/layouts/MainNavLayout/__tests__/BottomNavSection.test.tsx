@@ -83,17 +83,19 @@ describe('BottomNavSection', () => {
       expect(container.firstChild).toBeNull()
     })
 
-    it('renders section in staging with no permissions because design system tab is visible', () => {
-      // Staging environment where design system tab is visible
+    it('does not render section when all tabs are hidden in staging with no permissions', () => {
+      // Mock staging environment where design system tab is hidden
       envGlobalVar.mockReturnValue({ appEnv: 'staging' })
 
       // No permissions for settings or developer tools
       mockHasPermissions.mockReturnValue(false)
 
-      render(<BottomNavSection {...defaultProps} />)
+      const { container } = render(<BottomNavSection {...defaultProps} />)
 
       // Design system tab should be visible in staging, so section renders
-      expect(screen.getByTestId(BOTTOM_NAV_SECTION_TEST_ID)).toBeInTheDocument()
+      // All tabs should be hidden
+      expect(screen.queryByTestId(BOTTOM_NAV_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(container.firstChild).toBeNull()
     })
 
     it('renders section when at least one tab is visible (settings)', () => {
