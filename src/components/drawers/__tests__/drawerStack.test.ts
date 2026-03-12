@@ -88,6 +88,82 @@ describe('drawerStack', () => {
     })
   })
 
+  describe('GIVEN clearAll is called', () => {
+    describe('WHEN the stack has drawers', () => {
+      beforeEach(() => {
+        drawerStack.push('drawer-1')
+        drawerStack.push('drawer-2')
+        drawerStack.push('drawer-3')
+      })
+
+      it('THEN should remove all drawers from the stack', () => {
+        drawerStack.clearAll()
+
+        expect(drawerStack.getSnapshot()).toEqual([])
+      })
+
+      it('THEN should restore body overflow', () => {
+        drawerStack.clearAll()
+
+        expect(document.body.style.overflow).toBe('')
+      })
+
+      it('THEN should notify listeners', () => {
+        const listener = jest.fn()
+
+        drawerStack.subscribe(listener)
+        drawerStack.clearAll()
+
+        expect(listener).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should call onClear callbacks before clearing', () => {
+        const onClear = jest.fn()
+
+        drawerStack.onClear(onClear)
+        drawerStack.clearAll()
+
+        expect(onClear).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the stack is empty', () => {
+      it('THEN should not notify listeners', () => {
+        const listener = jest.fn()
+
+        drawerStack.subscribe(listener)
+        drawerStack.clearAll()
+
+        expect(listener).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not call onClear callbacks', () => {
+        const onClear = jest.fn()
+
+        drawerStack.onClear(onClear)
+        drawerStack.clearAll()
+
+        expect(onClear).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN an onClear callback is registered', () => {
+    describe('WHEN the callback is unregistered', () => {
+      it('THEN should no longer be called on clearAll', () => {
+        drawerStack.push('drawer-1')
+
+        const onClear = jest.fn()
+        const unregister = drawerStack.onClear(onClear)
+
+        unregister()
+        drawerStack.clearAll()
+
+        expect(onClear).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN a listener is subscribed', () => {
     describe('WHEN a drawer is pushed', () => {
       it('THEN should notify the listener', () => {

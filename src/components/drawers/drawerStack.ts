@@ -13,19 +13,24 @@ type Listener = () => void
 type DrawerStackState = {
   stack: string[]
   listeners: Set<Listener>
+  clearCallbacks: Set<Listener>
 }
 
 // Preserve state across HMR updates
 const getState = (): DrawerStackState => {
   if (import.meta.hot) {
     if (!import.meta.hot.data.drawerStack) {
-      import.meta.hot.data.drawerStack = { stack: [], listeners: new Set<Listener>() }
+      import.meta.hot.data.drawerStack = {
+        stack: [],
+        listeners: new Set<Listener>(),
+        clearCallbacks: new Set<Listener>(),
+      }
     }
 
     return import.meta.hot.data.drawerStack as DrawerStackState
   }
 
-  return { stack: [], listeners: new Set<Listener>() }
+  return { stack: [], listeners: new Set<Listener>(), clearCallbacks: new Set<Listener>() }
 }
 
 const state = getState()
@@ -62,6 +67,23 @@ export const drawerStack = {
 
     return () => {
       state.listeners.delete(listener)
+    }
+  },
+
+  onClear(callback: Listener) {
+    state.clearCallbacks.add(callback)
+
+    return () => {
+      state.clearCallbacks.delete(callback)
+    }
+  },
+
+  clearAll() {
+    if (state.stack.length > 0) {
+      state.clearCallbacks.forEach((cb) => cb())
+      state.stack = []
+      updateBodyScroll()
+      notify()
     }
   },
 

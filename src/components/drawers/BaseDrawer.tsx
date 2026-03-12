@@ -10,6 +10,7 @@ import {
   DRAWER_PUSH_BACK_SCALE,
   DRAWER_TRANSITION_DURATION,
 } from './const'
+import { drawerStack } from './drawerStack'
 import { FormDrawerProps } from './types'
 import { useDrawerStack } from './useDrawerStack'
 
@@ -116,6 +117,13 @@ export const BaseDrawer = ({
     },
     [state, handleExit],
   )
+
+  // Close this drawer when clearAll is called (e.g. on browser navigation)
+  useEffect(() => {
+    if (state !== 'open' && state !== 'mounting') return
+
+    return drawerStack.onClear(() => onClose())
+  }, [state, onClose])
 
   // ESC key closes topmost drawer only
   useEffect(() => {

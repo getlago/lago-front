@@ -1,8 +1,9 @@
 type Listener = () => void
 
-const state: { stack: string[]; listeners: Set<Listener> } = {
+const state: { stack: string[]; listeners: Set<Listener>; clearCallbacks: Set<Listener> } = {
   stack: [],
   listeners: new Set(),
+  clearCallbacks: new Set(),
 }
 
 const notify = () => {
@@ -37,6 +38,23 @@ export const drawerStack = {
 
     return () => {
       state.listeners.delete(listener)
+    }
+  },
+
+  onClear(callback: Listener) {
+    state.clearCallbacks.add(callback)
+
+    return () => {
+      state.clearCallbacks.delete(callback)
+    }
+  },
+
+  clearAll() {
+    if (state.stack.length > 0) {
+      state.clearCallbacks.forEach((cb) => cb())
+      state.stack = []
+      updateBodyScroll()
+      notify()
     }
   },
 
