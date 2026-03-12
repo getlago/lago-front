@@ -40,6 +40,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { MinimumCommitmentFormValues } from '~/components/plans/drawers/MinimumCommitmentDrawer'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
@@ -61,6 +62,7 @@ import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
+  CommitmentTypeEnum,
   CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
@@ -942,30 +944,36 @@ const CreateSubscription = () => {
                               />
                             </CenteredPage.SubsectionWrapper>
                           </Card>
+
+                          <Card className="gap-12">
+                            <CenteredPage.PageTitle
+                              title={translate('text_6661fc17337de3591e29e44d')}
+                              description={translate('text_66676ed0d8c3d481637e99b7')}
+                            />
+
+                            <CenteredPage.SubsectionWrapper>
+                              <Card className="gap-8">
+                                <CommitmentsSection
+                                  formikProps={planFormikProps}
+                                  onDrawerSave={(values: MinimumCommitmentFormValues) => {
+                                    planFormikProps.setFieldValue('minimumCommitment', {
+                                      ...planFormikProps.values.minimumCommitment,
+                                      ...values,
+                                      commitmentType: CommitmentTypeEnum.MinimumCommitment,
+                                    })
+                                  }}
+                                />
+
+                                {formType === FORM_TYPE_ENUM.creation && (
+                                  <>
+                                    <ProgressiveBillingSection />
+                                    <FeatureEntitlementSection />
+                                  </>
+                                )}
+                              </Card>
+                            </CenteredPage.SubsectionWrapper>
+                          </Card>
                         </PlanFormProvider>
-
-                        <Card className="gap-12">
-                          <CenteredPage.PageTitle
-                            title={translate('text_6661fc17337de3591e29e44d')}
-                            description={translate('text_66676ed0d8c3d481637e99b7')}
-                          />
-
-                          <CenteredPage.SubsectionWrapper>
-                            <Card className="gap-8">
-                              <CommitmentsSection
-                                formikProps={planFormikProps}
-                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                              />
-
-                              {formType === FORM_TYPE_ENUM.creation && (
-                                <>
-                                  <ProgressiveBillingSection />
-                                  <FeatureEntitlementSection />
-                                </>
-                              )}
-                            </Card>
-                          </CenteredPage.SubsectionWrapper>
-                        </Card>
                       </div>
                     </div>
                   </>
