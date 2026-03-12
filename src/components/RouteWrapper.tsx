@@ -1,9 +1,9 @@
 import { ReactNode, Suspense, useEffect } from 'react'
 import { RouteObject, useLocation, useNavigate, useRoutes } from 'react-router-dom'
 
-import { drawerStack } from '~/components/drawers/drawerStack'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
+import { drawerStack } from '~/components/drawers/drawerStack'
 import { CustomRouteObject, routes } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
