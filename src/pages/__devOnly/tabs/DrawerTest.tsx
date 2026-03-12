@@ -590,13 +590,30 @@ const DrawerTest = () => {
       <Block>
         <FormDrawerFromDrawerExample />
       </Block>
+      <Typography className="mb-4" variant="subhead1">
+        Open two drawer in one function
+      </Typography>
+      <Typography className="mb-6" variant="body">
+        Opens two drawers with the same action. Proves it keeps track of stacking order even when
+        multiple drawers are opened at the same time, not just one after another.
+      </Typography>
       <Block>
         <Button onClick={openBoth}>Open two drawers with separate hooks</Button>
       </Block>
+      <Typography className="mb-4" variant="subhead1">
+        Example of segregated responsibility
+      </Typography>
+      <Typography className="mb-6" variant="body">
+        Opens a drawer that does not know it exist in a drawer
+      </Typography>
       <Block>
         <Button onClick={openExample}>Open drawer</Button>
+        <Typography className="mb-6" variant="body">
+          Under is the same component that in the drawer before. It still works even if called
+          outside of the drawer
+        </Typography>
+        <Example />
       </Block>
-      <Example />
     </Container>
   )
 }
