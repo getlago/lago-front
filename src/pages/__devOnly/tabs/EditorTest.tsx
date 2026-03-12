@@ -35,7 +35,7 @@ const EditorTest = () => {
           {mode === 'edit' ? 'Preview' : 'Edit'}
         </Button>
       </div>
-      <Block className="h-80">
+      <Block>
         <RichTextEditor
           mode={mode}
           mentionValues={mentionValues}
