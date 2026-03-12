@@ -497,7 +497,44 @@ const DeepStackingExample = () => {
 // Tab component
 // ---------------------------------------------------------------------------
 
+const Example = () => {
+  const exampleDrawerTwo = useDrawer()
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Typography>This is an example component to open a drawer from the main page.</Typography>
+      <Button onClick={() => exampleDrawerTwo.open({ title: 'Another drawer', children: 'Hi' })}>
+        Open another drawer
+      </Button>
+    </div>
+  )
+}
+
 const DrawerTest = () => {
+  const drawerOne = useDrawer()
+  const drawerTwo = useDrawer()
+
+  const openBoth = () => {
+    drawerOne.open({
+      title: 'Drawer One',
+      children: <Typography>This is the first drawer.</Typography>,
+    })
+
+    drawerTwo.open({
+      title: 'Drawer Two',
+      children: <Typography>This is the second drawer.</Typography>,
+    })
+  }
+
+  const exampleDrawerOne = useDrawer()
+
+  const openExample = () => {
+    exampleDrawerOne.open({
+      title: 'Drawer One',
+      children: <Example />,
+    })
+  }
+
   return (
     <Container>
       <Typography className="mb-4" variant="headline">
@@ -553,6 +590,13 @@ const DrawerTest = () => {
       <Block>
         <FormDrawerFromDrawerExample />
       </Block>
+      <Block>
+        <Button onClick={openBoth}>Open two drawers with separate hooks</Button>
+      </Block>
+      <Block>
+        <Button onClick={openExample}>Open drawer</Button>
+      </Block>
+      <Example />
     </Container>
   )
 }
