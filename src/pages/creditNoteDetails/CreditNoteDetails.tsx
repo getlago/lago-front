@@ -85,6 +85,7 @@ gql`
       billingEntity {
         id
         name
+        email
         einvoicing
         emailSettings
         logoUrl

@@ -84,6 +84,7 @@ gql`
         id
         code
         name
+        email
         einvoicing
         emailSettings
       }

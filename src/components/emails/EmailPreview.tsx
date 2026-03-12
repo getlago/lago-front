@@ -68,6 +68,7 @@ const EmailPreview = ({
   const translationsKey = mapTranslationsKey(type)
 
   const billingEntityName = billingEntity?.name
+  const billingEntityEmail = billingEntity?.email
 
   return (
     <div className="flex w-full flex-1 justify-center bg-grey-100">
@@ -258,7 +259,9 @@ const EmailPreview = ({
                   <span className="mr-1">
                     {translateWithContextualLocal('text_64188b3d9735d5007d712276')}
                   </span>
-                  <span className="text-blue-600">billing@user_email.com</span>
+                  <span className="text-blue-600">
+                    {billingEntityEmail || 'billing@user_email.com'}
+                  </span>
                 </Typography>
               </>
             )}
