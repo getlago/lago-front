@@ -115,7 +115,7 @@ export function useCustomerDetailsHeaderTabs({
         customerId,
         tab: CustomerDetailsTabsOptions.payments,
       }),
-      content: <CustomerPaymentsTab externalCustomerId={externalId as string} />,
+      content: <CustomerPaymentsTab externalCustomerId={externalId || ''} />,
     },
     {
       title: translate('text_63725b30957fd5b26b308dd3'),
