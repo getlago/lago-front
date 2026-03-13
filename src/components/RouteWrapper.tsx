@@ -3,6 +3,7 @@ import { RouteObject, useLocation, useNavigate, useRoutes } from 'react-router-d
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
+import { drawerStack } from '~/components/drawers/drawerStack'
 import { CustomRouteObject, routes } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -83,8 +84,14 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
 
 export const RouteWrapper = () => {
   const { isAuthenticated } = useIsAuthenticated()
+  const location = useLocation()
   const navigate = useNavigate()
   const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
+
+  // Clear all open drawers on browser navigation (back/forward buttons)
+  useEffect(() => {
+    drawerStack.clearAll()
+  }, [location])
 
   // Listen for navigation requests from the MemoryRouter (devtools panel)
   // This allows the devtools panel to navigate in the BrowserRouter without a page reload
