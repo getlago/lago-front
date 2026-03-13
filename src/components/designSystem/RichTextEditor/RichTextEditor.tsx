@@ -99,7 +99,7 @@ const RichTextEditor = ({
               parse: {
                 updateDOM(element: HTMLElement) {
                   element.innerHTML = element.innerHTML.replace(
-                    /\{\{(\w+)\|([^}]+)\}\}/g,
+                    /\{(\w+)\|([^}]+)\}/g,
                     (_match: string, id: string, label: string) =>
                       `<span data-type="mention" data-id="${id}" class="variable-mention">@${label}</span>`,
                   )
