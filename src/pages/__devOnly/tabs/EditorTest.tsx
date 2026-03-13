@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import RichTextEditor, {
@@ -20,6 +20,16 @@ const mentionValues: Record<string, string> = {
 
 const EditorTest = () => {
   const [mode, setMode] = useState<RichTextEditorMode>('edit')
+  const getMarkdownRef = useRef<(() => string) | null>(null)
+
+  const handleSave = () => {
+    const markdown = getMarkdownRef.current?.()
+
+    if (markdown) {
+      // eslint-disable-next-line no-console
+      console.log('Editor markdown:', markdown)
+    }
+  }
 
   return (
     <Container>
@@ -34,16 +44,10 @@ const EditorTest = () => {
         >
           {mode === 'edit' ? 'Preview' : 'Edit'}
         </Button>
+        <Button onClick={handleSave}>Save</Button>
       </div>
       <Block>
-        <RichTextEditor
-          mode={mode}
-          mentionValues={mentionValues}
-          onSave={(markdown: string) => {
-            // eslint-disable-next-line no-console
-            console.log('Editor markdown:', markdown)
-          }}
-        />
+        <RichTextEditor mode={mode} mentionValues={mentionValues} getMarkdownRef={getMarkdownRef} />
       </Block>
     </Container>
   )

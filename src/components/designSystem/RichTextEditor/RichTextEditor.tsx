@@ -13,21 +13,25 @@ import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+<<<<<<< HEAD
 import { tw } from 'lago-design-system'
 import { useEffect, useMemo } from 'react'
+=======
+import { useEffect, useMemo, useRef } from 'react'
+>>>>>>> 5f0eee9de (feat: add custom block plan)
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 import { Markdown } from 'tiptap-markdown'
 
-import { Button } from '~/components/designSystem/Button'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { LinkCard } from './extensions/LinkCard'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
+import { PlanBlock } from './extensions/PlanBlock'
 import { SlashCommands } from './extensions/SlashCommands'
 import { MentionList, type MentionListRef } from './MentionList'
 import { MentionNodeView } from './MentionNodeView'
 import './richTextEditor.css'
-import { RichTextEditorProvider } from './RichTextEditorContext'
+import { EntityData, RichTextEditorProvider } from './RichTextEditorContext'
 import TableControls from './TableControls'
 import Toolbar from './Toolbar'
 
@@ -41,17 +45,24 @@ export type RichTextEditorMode = 'edit' | 'preview'
 interface RichTextEditorProps {
   mode?: RichTextEditorMode
   mentionValues?: Record<string, string>
+  entityDataMap?: Record<string, EntityData>
   content?: string
-  onSave?: (markdown: string) => void
+  getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+  onPlanBlocksChange?: (planIds: string[]) => void
 }
 
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
+  entityDataMap = {},
   content,
-  onSave,
+  getMarkdownRef,
+  onPlanBlocksChange,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
+  const onPlanBlocksChangeRef = useRef(onPlanBlocksChange)
+
+  onPlanBlocksChangeRef.current = onPlanBlocksChange
 
   const variableItems = [
     { id: 'customerName', label: 'Customer Name' },
@@ -167,6 +178,7 @@ const RichTextEditor = ({
       SlashCommands.configure({ translate }),
       LinkCard,
       LinkPasteHandler,
+      PlanBlock,
       Markdown.configure({
         html: true,
         transformPastedText: true,
@@ -179,6 +191,18 @@ const RichTextEditor = ({
       },
     },
     content: content ?? '',
+    onUpdate: ({ editor: editorInstance }) => {
+      if (!onPlanBlocksChangeRef.current) return
+
+      const planIds: string[] = []
+
+      editorInstance.state.doc.descendants((node) => {
+        if (node.type.name === 'planBlock' && node.attrs.planId) {
+          planIds.push(String(node.attrs.planId))
+        }
+      })
+      onPlanBlocksChangeRef.current(planIds)
+    },
   })
 
   const isPreview = mode === 'preview'
@@ -189,20 +213,31 @@ const RichTextEditor = ({
     }
   }, [editor, isPreview])
 
-  const contextValue = useMemo(() => ({ mode, mentionValues }), [mode, mentionValues])
+  const contextValue = useMemo(
+    () => ({ mode, mentionValues, entityDataMap }),
+    [mode, mentionValues, entityDataMap],
+  )
+
+  useEffect(() => {
+    if (!editor || !getMarkdownRef) return
+
+    getMarkdownRef.current = () => {
+      const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
+      const storage = markdownExt?.storage
+
+      if (!storage || typeof storage.getMarkdown !== 'function') return
+
+      return storage.getMarkdown()
+    }
+
+    return () => {
+      if (getMarkdownRef) {
+        getMarkdownRef.current = null
+      }
+    }
+  }, [editor, getMarkdownRef])
 
   if (!editor) return null
-
-  const handleSave = () => {
-    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === Markdown.name)
-    const storage = markdownExt?.storage
-
-    if (!storage || typeof storage.getMarkdown !== 'function') return
-
-    const markdown: string = storage.getMarkdown()
-
-    onSave?.(markdown)
-  }
 
   return (
     <RichTextEditorProvider value={contextValue}>
@@ -219,13 +254,6 @@ const RichTextEditor = ({
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
           {!isPreview && <TableControls editor={editor} />}
         </div>
-        {!isPreview && onSave && (
-          <div className="flex justify-end p-4">
-            <Button data-test={RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID} onClick={handleSave}>
-              Save
-            </Button>
-          </div>
-        )}
       </div>
     </RichTextEditorProvider>
   )
