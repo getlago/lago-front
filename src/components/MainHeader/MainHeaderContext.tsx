@@ -39,8 +39,9 @@ export const MainHeaderProvider: FC<PropsWithChildren> = ({ children }) => {
 
     if (process.env.NODE_ENV === 'development' && mountCountRef.current > 1) {
       // eslint-disable-next-line no-console
-      console.warn(
-        'Multiple MainHeader.Configure mounted simultaneously. Only the last one will be used.',
+      console.log(
+        `[MainHeader] ${mountCountRef.current} Configure instances mounted simultaneously and only the last one will be applied.\n` +
+          `If intentional (e.g. nested override), you can safely ignore this notice.`,
       )
     }
   }, [])
