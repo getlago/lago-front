@@ -92,6 +92,7 @@ describe('BottomNavSection', () => {
 
       const { container } = render(<BottomNavSection {...defaultProps} />)
 
+      // Design system tab should be visible in staging, so section renders
       // All tabs should be hidden
       expect(screen.queryByTestId(BOTTOM_NAV_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(container.firstChild).toBeNull()

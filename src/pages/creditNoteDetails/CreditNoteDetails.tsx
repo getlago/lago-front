@@ -21,6 +21,7 @@ import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
@@ -84,6 +85,7 @@ gql`
       billingEntity {
         id
         name
+        email
         einvoicing
         emailSettings
         logoUrl
@@ -230,6 +232,7 @@ const CreditNoteDetails = () => {
       billingEntity: creditNote?.billingEntity,
       documentId: creditNote?.id,
       customerEmail: creditNote?.customer?.email,
+      documentData: buildCreditNoteDocumentData(creditNote),
     })
   }
 

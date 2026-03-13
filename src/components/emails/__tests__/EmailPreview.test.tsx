@@ -292,4 +292,107 @@ describe('EmailPreview', () => {
       })
     })
   })
+
+  describe('GIVEN documentData is provided', () => {
+    describe('WHEN rendering InvoiceFinalized with documentData', () => {
+      it('THEN should render real invoice data instead of placeholders', () => {
+        render(
+          <EmailPreview
+            loading={false}
+            type={BillingEntityEmailSettingsEnum.InvoiceFinalized}
+            billingEntity={mockBillingEntity}
+            documentData={{
+              amount: '$1,234.56',
+              invoiceNumber: 'INV-2026-001',
+              issueDate: 'Mar 9, 2026',
+            }}
+          />,
+        )
+
+        expect(screen.getByText('$1,234.56')).toBeInTheDocument()
+        expect(screen.getByText('INV-2026-001')).toBeInTheDocument()
+        expect(screen.getByText('Mar 9, 2026')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendering CreditNoteCreated with documentData', () => {
+      it('THEN should render real credit note data instead of placeholders', () => {
+        render(
+          <EmailPreview
+            loading={false}
+            type={BillingEntityEmailSettingsEnum.CreditNoteCreated}
+            billingEntity={mockBillingEntity}
+            documentData={{
+              amount: '$500.00',
+              creditNoteNumber: 'CN-2026-001',
+              invoiceNumber: 'INV-2026-005',
+              issueDate: 'Mar 1, 2026',
+            }}
+          />,
+        )
+
+        expect(screen.getByText('$500.00')).toBeInTheDocument()
+        expect(screen.getByText('CN-2026-001')).toBeInTheDocument()
+        expect(screen.getByText('INV-2026-005')).toBeInTheDocument()
+        expect(screen.getByText('Mar 1, 2026')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendering PaymentReceiptCreated with documentData', () => {
+      it('THEN should render real payment data instead of placeholders', () => {
+        render(
+          <EmailPreview
+            loading={false}
+            type={BillingEntityEmailSettingsEnum.PaymentReceiptCreated}
+            billingEntity={mockBillingEntity}
+            documentData={{
+              amount: '$2,000.00',
+              receiptNumber: 'REC-2026-001',
+              paymentDate: 'Mar 9, 2026',
+              paymentMethod: 'Stripe',
+              amountPaid: '$2,000.00',
+              invoices: [
+                { number: 'INV-REAL-001', amount: '$1,000.00' },
+                { number: 'INV-REAL-002', amount: '$1,000.00' },
+              ],
+            }}
+          />,
+        )
+
+        // Amount appears in both headline and amount_paid field
+        expect(screen.getAllByText('$2,000.00').length).toBeGreaterThanOrEqual(2)
+        expect(screen.getByText('REC-2026-001')).toBeInTheDocument()
+        expect(screen.getByText('Mar 9, 2026')).toBeInTheDocument()
+        expect(screen.getByText('Stripe')).toBeInTheDocument()
+        expect(screen.getByText('INV-REAL-001')).toBeInTheDocument()
+        expect(screen.getByText('INV-REAL-002')).toBeInTheDocument()
+        // Fake invoices should not be present
+        expect(screen.queryByText('INV-001-001')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN documentData has only partial fields', () => {
+      it('THEN should render real data for provided fields and placeholders for missing ones', () => {
+        render(
+          <EmailPreview
+            loading={false}
+            type={BillingEntityEmailSettingsEnum.InvoiceFinalized}
+            billingEntity={mockBillingEntity}
+            documentData={{
+              amount: '$999.99',
+            }}
+          />,
+        )
+
+        expect(screen.getByText('$999.99')).toBeInTheDocument()
+        // Invoice number and issue date should still render (using placeholder translations)
+        const rows = screen
+          .getByText('$999.99')
+          .closest('.flex.flex-col')
+          ?.querySelectorAll('.flex.w-full.items-center.justify-between')
+
+        expect(rows?.length).toBeGreaterThanOrEqual(2)
+      })
+    })
+  })
 })

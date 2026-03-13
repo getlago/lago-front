@@ -10,6 +10,7 @@ import { ActionItem } from '~/components/designSystem/Table'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -108,6 +109,7 @@ gql`
       id
       name
       code
+      email
       einvoicing
       emailSettings
     }
@@ -439,6 +441,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 billingEntity: invoice?.billingEntity,
                 documentId: invoice?.id,
                 customerEmail: invoice?.customer?.email,
+                documentData: buildInvoiceDocumentData(invoice),
               })
             }
 

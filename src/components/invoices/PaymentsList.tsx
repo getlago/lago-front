@@ -6,6 +6,7 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -83,6 +84,7 @@ gql`
         id
         code
         name
+        email
         einvoicing
         emailSettings
       }
@@ -173,16 +175,31 @@ export const PaymentsList: FC<PaymentsListProps> = ({
               ? {
                   startIcon: 'at',
                   title: translate('text_1770392315728uyw3zhs7kzh'),
-                  onAction: ({ paymentReceipt: _paymentReceipt }) => {
+                  onAction: (payment) => {
+                    const payable = payment.payable
+                    const payableInvoice = payable?.__typename === 'Invoice' && [payable]
+                    const requestPaymentInvoices =
+                      payable?.__typename === 'PaymentRequest' && payable?.invoices
+                    const paymentInvoices = payableInvoice || requestPaymentInvoices || []
+
                     showResendEmailDialog({
                       subject: translate('text_1770631139987tf8b59zentb', {
                         organization: customer?.billingEntity.name,
-                        receiptNumber: _paymentReceipt?.number,
+                        receiptNumber: payment.paymentReceipt?.number,
                       }),
                       type: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
                       billingEntity: customer?.billingEntity,
-                      documentId: _paymentReceipt?.id,
+                      documentId: payment.paymentReceipt?.id,
                       customerEmail: customer.email,
+                      documentData: buildPaymentDocumentData({
+                        amountCents: payment.amountCents,
+                        amountCurrency: payment.amountCurrency,
+                        createdAt: payment.createdAt,
+                        paymentType: payment.paymentType,
+                        paymentReceipt: payment.paymentReceipt,
+                        invoices: paymentInvoices,
+                        translate,
+                      }),
                     })
                   },
                   disabled: !paymentReceipt?.id,

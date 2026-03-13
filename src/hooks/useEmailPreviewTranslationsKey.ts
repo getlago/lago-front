@@ -11,7 +11,6 @@ export const useEmailPreviewTranslationsKey = () => {
           subject: 'text_64188b3d9735d5007d71225c',
           invoice_from: 'text_64188b3d9735d5007d712266',
           amount: 'text_64188b3d9735d5007d712249',
-          total: 'text_64188b3d9735d5007d71226a',
           invoice_number: 'text_64188b3d9735d5007d71226c',
           invoice_number_value: 'text_64188b3d9735d5007d71226e',
           issue_date: 'text_64188b3d9735d5007d712270',

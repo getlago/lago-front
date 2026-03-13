@@ -53,6 +53,10 @@ export default {
   modulePaths: [],
 
   moduleNameMapper: {
+    // drawerStack.ts uses import.meta.hot (Vite HMR) which Jest cannot parse —
+    // always resolve to the mock that strips HMR. Must come before the ~/… rule.
+    '^~/components/drawers/drawerStack$':
+      '<rootDir>/src/components/drawers/__mocks__/drawerStack.ts',
     '^~/(.*)$': '<rootDir>/src/$1',
     'ace-builds': '<rootDir>/node_modules/ace-builds',
     '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.cjs',

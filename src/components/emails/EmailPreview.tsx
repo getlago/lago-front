@@ -26,6 +26,22 @@ export type BillingEntity =
   | NonNullable<GetCreditNoteForDetailsQuery['creditNote']>['billingEntity']
   | NonNullable<GetPaymentDetailsQuery['payment']>['customer']['billingEntity']
 
+export type DocumentData = {
+  // Common — formatted total amount (e.g., "$1,234.56")
+  amount?: string
+  // Invoice
+  invoiceNumber?: string
+  issueDate?: string
+  // Credit Note
+  creditNoteNumber?: string
+  // Payment Receipt
+  receiptNumber?: string
+  paymentDate?: string
+  paymentMethod?: string
+  amountPaid?: string
+  invoices?: Array<{ number: string; amount: string }>
+}
+
 type EmailPreviewProps = {
   loading: boolean
   display?: DisplayEnum
@@ -33,6 +49,7 @@ type EmailPreviewProps = {
   type?: BillingEntityEmailSettingsEnum
   billingEntity?: BillingEntity
   showEmailHeader?: boolean
+  documentData?: DocumentData
 }
 
 const { disablePdfGeneration } = envGlobalVar()
@@ -44,12 +61,14 @@ const EmailPreview = ({
   type,
   billingEntity,
   showEmailHeader = true,
+  documentData,
 }: EmailPreviewProps) => {
   const { translateWithContextualLocal } = useContextualLocale(invoiceLanguage)
   const { mapTranslationsKey } = useEmailPreviewTranslationsKey()
   const translationsKey = mapTranslationsKey(type)
 
   const billingEntityName = billingEntity?.name
+  const billingEntityEmail = billingEntity?.email
 
   return (
     <div className="flex w-full flex-1 justify-center bg-grey-100">
@@ -95,10 +114,7 @@ const EmailPreview = ({
                   })}
                 </Typography>
                 <Typography variant="headline">
-                  {translateWithContextualLocal(translationsKey.amount)}
-                </Typography>
-                <Typography variant="caption">
-                  {translateWithContextualLocal(translationsKey.total)}
+                  {documentData?.amount ?? translateWithContextualLocal(translationsKey.amount)}
                 </Typography>
                 <div className="my-6 h-px w-full bg-grey-300" />
                 <div className="flex w-full flex-col gap-1">
@@ -109,25 +125,45 @@ const EmailPreview = ({
                           translateWithContextualLocal(translationsKey.credit_note_number)}
                       </Typography>
                       <Typography variant="caption" color="grey700">
-                        {!!translationsKey.credit_note_number_value &&
-                          translateWithContextualLocal(translationsKey.credit_note_number_value)}
+                        {documentData?.creditNoteNumber ??
+                          (!!translationsKey.credit_note_number_value &&
+                            translateWithContextualLocal(translationsKey.credit_note_number_value))}
                       </Typography>
                     </div>
                   )}
                   {type === BillingEntityEmailSettingsEnum.PaymentReceiptCreated && (
                     <>
-                      {[
-                        [translationsKey.receipt_number, translationsKey.receipt_number_value],
-                        [translationsKey.payment_date, translationsKey.payment_date_value],
-                        [translationsKey.payment_method, translationsKey.payment_method_value],
-                        [translationsKey.amount_paid, translationsKey.amount_paid_value],
-                      ].map(([label, value]) => (
+                      {(
+                        [
+                          [
+                            translationsKey.receipt_number,
+                            translationsKey.receipt_number_value,
+                            documentData?.receiptNumber,
+                          ],
+                          [
+                            translationsKey.payment_date,
+                            translationsKey.payment_date_value,
+                            documentData?.paymentDate,
+                          ],
+                          [
+                            translationsKey.payment_method,
+                            translationsKey.payment_method_value,
+                            documentData?.paymentMethod,
+                          ],
+                          [
+                            translationsKey.amount_paid,
+                            translationsKey.amount_paid_value,
+                            documentData?.amountPaid,
+                          ],
+                        ] as const
+                      ).map(([label, fallbackValue, overrideValue]) => (
                         <div className="flex w-full items-center justify-between" key={label}>
                           <Typography variant="caption">
                             {!!label && translateWithContextualLocal(label)}
                           </Typography>
                           <Typography variant="caption" color="grey700">
-                            {!!value && translateWithContextualLocal(value)}
+                            {overrideValue ??
+                              (!!fallbackValue && translateWithContextualLocal(fallbackValue))}
                           </Typography>
                         </div>
                       ))}
@@ -141,16 +177,24 @@ const EmailPreview = ({
                         </Typography>
                       </div>
 
-                      {['INV-001-001', 'INV-001-002', 'INV-001-003', 'INV-001-004'].map(
-                        (invoice) => (
-                          <div className="flex w-full items-center justify-between" key={invoice}>
-                            <Typography variant="caption">{invoice}</Typography>
-                            <Typography variant="caption" color="grey700">
-                              $730,00
-                            </Typography>
-                          </div>
-                        ),
-                      )}
+                      {(
+                        documentData?.invoices ?? [
+                          { number: 'INV-001-001', amount: '$730,00' },
+                          { number: 'INV-001-002', amount: '$730,00' },
+                          { number: 'INV-001-003', amount: '$730,00' },
+                          { number: 'INV-001-004', amount: '$730,00' },
+                        ]
+                      ).map((invoice) => (
+                        <div
+                          className="flex w-full items-center justify-between"
+                          key={invoice.number}
+                        >
+                          <Typography variant="caption">{invoice.number}</Typography>
+                          <Typography variant="caption" color="grey700">
+                            {invoice.amount}
+                          </Typography>
+                        </div>
+                      ))}
                     </>
                   )}
 
@@ -160,7 +204,8 @@ const EmailPreview = ({
                         {translateWithContextualLocal(translationsKey.invoice_number)}
                       </Typography>
                       <Typography variant="caption" color="grey700">
-                        {translateWithContextualLocal(translationsKey.invoice_number_value)}
+                        {documentData?.invoiceNumber ??
+                          translateWithContextualLocal(translationsKey.invoice_number_value)}
                       </Typography>
                     </div>
                   )}
@@ -171,7 +216,8 @@ const EmailPreview = ({
                         {translateWithContextualLocal(translationsKey.issue_date)}
                       </Typography>
                       <Typography variant="caption" color="grey700">
-                        {translateWithContextualLocal(translationsKey.issue_date_value)}
+                        {documentData?.issueDate ??
+                          translateWithContextualLocal(translationsKey.issue_date_value)}
                       </Typography>
                     </div>
                   )}
@@ -213,7 +259,9 @@ const EmailPreview = ({
                   <span className="mr-1">
                     {translateWithContextualLocal('text_64188b3d9735d5007d712276')}
                   </span>
-                  <span className="text-blue-600">billing@user_email.com</span>
+                  <span className="text-blue-600">
+                    {billingEntityEmail || 'billing@user_email.com'}
+                  </span>
                 </Typography>
               </>
             )}
