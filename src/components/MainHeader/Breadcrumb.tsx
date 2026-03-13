@@ -21,7 +21,7 @@ export const Breadcrumb: FC<{ items: BreadcrumbItem[] }> = ({ items }) => {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="flex items-center gap-1 overflow-hidden"
+      className="flex items-center gap-1"
       data-test={BREADCRUMB_NAV_TEST_ID}
     >
       {items.map((item, index) => (
