@@ -1,31 +1,61 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Status, StatusType } from '~/components/designSystem/Status'
+import { Table } from '~/components/designSystem/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
-import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
-import { CREATE_WALLET_ROUTE } from '~/core/router'
+import WalletActions from '~/components/wallets/WalletActions'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CREATE_WALLET_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  CurrencyEnum,
   TimezoneEnum,
   useGetCustomerWalletListQuery,
-  WalletAccordionFragmentDoc,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
+  WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const ACTIVE_WALLET_COUNT_LIMIT = 6
 
 gql`
+  fragment WalletAccordion on Wallet {
+    id
+    balanceCents
+    consumedAmountCents
+    consumedCredits
+    createdAt
+    creditsBalance
+    currency
+    expirationAt
+    lastBalanceSyncAt
+    lastConsumedCreditAt
+    lastOngoingBalanceSyncAt
+    name
+    rateAmount
+    status
+    terminatedAt
+    ongoingBalanceCents
+    creditsOngoingBalance
+    priority
+
+    ...WalletInfosForTransactions
+  }
+
   fragment CustomerWallet on Wallet {
     ...WalletForUpdate
     ...WalletAccordion
@@ -46,7 +76,6 @@ gql`
   }
 
   ${WalletForUpdateFragmentDoc}
-  ${WalletAccordionFragmentDoc}
   ${WalletInfosForTransactionsFragmentDoc}
 `
 
@@ -55,15 +84,11 @@ interface CustomerWalletListProps {
   customerTimezone?: TimezoneEnum
 }
 
-export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWalletListProps) => {
+export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-
-  const [searchParams] = useSearchParams()
-  const walletId = searchParams?.get('walletId')
-  const transactionId = searchParams?.get('transactionId')
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 10 },
@@ -126,7 +151,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
       {loading && (
         <div className="flex flex-col gap-4">
           {[1, 2, 3].map((i) => (
-            <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
+            <Skeleton key={`customer-wallet-list-${i}`} variant="text" />
           ))}
         </div>
       )}
@@ -149,22 +174,165 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
               })
           }}
         >
-          <div className="flex flex-col gap-4">
-            {walletsCollection.map((wallet) => (
-              <WalletAccordion
-                key={`wallet-${wallet.id}`}
-                premiumWarningDialogRef={premiumWarningDialogRef}
-                wallet={wallet}
-                customerTimezone={customerTimezone}
-                initiallyOpen={wallet.id === walletId}
-                selectedTransaction={transactionId}
-              />
-            ))}
-          </div>
+          <Table
+            name="customer-wallet-list"
+            data={walletsCollection}
+            isLoading={loading}
+            hasError={!!error}
+            containerSize={0}
+            rowSize={72}
+            onRowActionLink={({ id }) =>
+              generatePath(WALLET_DETAILS_ROUTE, {
+                customerId,
+                walletId: id,
+                tab: WalletDetailsTabsOptionsEnum.overview,
+              })
+            }
+            columns={[
+              {
+                key: 'status',
+                title: translate('text_1772536695408q802eishgnx'),
+                content: ({ status }) => (
+                  <div className="pl-1">
+                    {status === WalletStatusEnum.Active && (
+                      <Status
+                        type={StatusType.success}
+                        label={translate('text_624efab67eb2570101d1180e')}
+                      />
+                    )}
+
+                    {status === WalletStatusEnum.Terminated && (
+                      <Status
+                        type={StatusType.danger}
+                        label={translate('text_62e2a2f2a79d60429eff3035')}
+                      />
+                    )}
+                  </div>
+                ),
+              },
+              {
+                key: 'id',
+                maxSpace: true,
+                title: translate('text_1772536695408sddzumtfq2t'),
+                content: ({ createdAt, currency, name, rateAmount }) => (
+                  <div className="flex flex-col">
+                    <Typography variant="bodyHl" color="grey700">
+                      {name ||
+                        translate('text_62da6ec24a8e24e44f8128b2', {
+                          createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
+                        })}
+                    </Typography>
+                    <Typography variant="caption" color="grey600">
+                      {`${translate('text_62da6ec24a8e24e44f812872', {
+                        rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        }),
+                      })}`}
+                    </Typography>
+                  </div>
+                ),
+              },
+              {
+                key: 'balanceCents',
+                title: translate('text_1772536695408yws01ove0kv'),
+                textAlign: 'right',
+                content: ({ balanceCents, currency, creditsBalance }) => {
+                  const amount = formatCredits({
+                    credits: creditsBalance?.toString(),
+                  })
+
+                  const amountCents = formatAmount({
+                    amountCents: deserializeAmount(
+                      balanceCents,
+                      currency || CurrencyEnum.Usd,
+                    )?.toString(),
+                    currency: currency,
+                  })
+
+                  return (
+                    <div className="flex flex-col">
+                      <Typography color="grey700" variant="body" noWrap>
+                        {amountCents}
+                      </Typography>
+
+                      <Typography color="grey600" variant="caption" noWrap>
+                        {translate(
+                          'text_62da6ec24a8e24e44f812896',
+                          {
+                            amount: amount,
+                          },
+                          Number(amount) || 0,
+                        )}
+                      </Typography>
+                    </div>
+                  )
+                },
+              },
+              {
+                key: 'ongoingBalanceCents',
+                title: translate('text_17725366954080ut3kxr0kvl'),
+                textAlign: 'right',
+                content: ({ currency, creditsOngoingBalance, ongoingBalanceCents, status }) => {
+                  const amount = formatCredits({
+                    credits: creditsOngoingBalance?.toString(),
+                  })
+
+                  const amountCents = formatAmount({
+                    amountCents: deserializeAmount(
+                      ongoingBalanceCents,
+                      currency || CurrencyEnum.Usd,
+                    )?.toString(),
+                    currency: currency,
+                  })
+
+                  const isWalletActive = status === WalletStatusEnum.Active
+
+                  return !isWalletActive ? null : (
+                    <div className="flex flex-col">
+                      <Typography color="grey700" variant="body" noWrap>
+                        {amountCents}
+                      </Typography>
+
+                      <Typography color="grey600" variant="caption" noWrap>
+                        {translate(
+                          'text_62da6ec24a8e24e44f812896',
+                          {
+                            amount: amount,
+                          },
+                          Number(amount) || 0,
+                        )}
+                      </Typography>
+                    </div>
+                  )
+                },
+              },
+              {
+                key: 'priority',
+                title: translate('text_1772536695408m4r9zfc2tcw'),
+                textAlign: 'right',
+                content: ({ priority }) => (
+                  <Typography variant="caption" color="grey600">
+                    {priority || '-'}
+                  </Typography>
+                ),
+              },
+            ]}
+            actionColumn={({ creditsBalance, currency, id, rateAmount, status }) => {
+              return (
+                <WalletActions
+                  walletId={id}
+                  customerId={customerId}
+                  status={status}
+                  creditsBalance={creditsBalance}
+                  rateAmount={rateAmount}
+                  currency={currency}
+                />
+              )
+            }}
+          />
         </InfiniteScroll>
       )}
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }
