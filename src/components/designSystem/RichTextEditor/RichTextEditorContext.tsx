@@ -2,17 +2,26 @@ import { createContext, useContext } from 'react'
 
 import type { RichTextEditorMode } from './RichTextEditor'
 
-export type EntityData = Record<string, string | number | boolean | null>
+export type EntityData = {
+  entityId: string
+  entityType: 'plan'
+  name: string
+  code: string
+  overrides?: unknown
+}
 
 interface RichTextEditorContextValue {
   mode: RichTextEditorMode
   mentionValues: Record<string, string>
-  entityDataMap?: Record<string, EntityData>
+  plans: Record<string, EntityData>
+  setPlan: (id: string, data: EntityData) => void
 }
 
 const RichTextEditorContext = createContext<RichTextEditorContextValue>({
   mode: 'edit',
   mentionValues: {},
+  plans: {},
+  setPlan: () => {},
 })
 
 export const RichTextEditorProvider = RichTextEditorContext.Provider
