@@ -189,6 +189,10 @@ export const useSecurityLogsFormatting = () => {
         return translate('text_177193798706284nfb2tmxkb', getWebhookResources(securityLog))
       case LogEventEnum.WebhookEndpointUpdated:
         return translate('text_1771937987062rw8agotc8gs', getWebhookEditedResources(securityLog))
+      case LogEventEnum.UserNewDeviceLoggedIn:
+        return translate('text_1773415705134l01iamqr6fk', {
+          email: securityLog.userEmail,
+        })
       default:
         return '-'
     }

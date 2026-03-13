@@ -83,6 +83,10 @@ describe('useSecurityLogsFormatting', () => {
         logEvent: LogEventEnum.WebhookEndpointUpdated,
         expected: 'webhook_endpoint.updated',
       },
+      {
+        logEvent: LogEventEnum.UserNewDeviceLoggedIn,
+        expected: 'user.new_device_logged_in',
+      },
     ])('THEN should format $logEvent as "$expected"', ({ logEvent, expected }) => {
       const { result } = renderHook(() => useSecurityLogsFormatting())
 
@@ -304,6 +308,7 @@ describe('useSecurityLogsFormatting', () => {
         { event: LogEventEnum.UserPasswordEdited, key: 'text_1771937987062gk7g578r4jp' },
         { event: LogEventEnum.UserPasswordResetRequested, key: 'text_1771937987062l3bixv068cp' },
         { event: LogEventEnum.UserSignedUp, key: 'text_1771937987062jy68yxfqjwx' },
+        { event: LogEventEnum.UserNewDeviceLoggedIn, key: 'text_1773415705134l01iamqr6fk' },
       ])('THEN should call translate for $event with email', ({ event, key }) => {
         const { result } = renderHook(() => useSecurityLogsFormatting())
         const log = createMockSecurityLog({

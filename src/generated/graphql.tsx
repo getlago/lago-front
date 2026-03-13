@@ -379,6 +379,7 @@ export type AlertThreshold = {
 export enum AlertTypeEnum {
   BillableMetricCurrentUsageAmount = 'billable_metric_current_usage_amount',
   BillableMetricCurrentUsageUnits = 'billable_metric_current_usage_units',
+  BillableMetricLifetimeUsageUnits = 'billable_metric_lifetime_usage_units',
   CurrentUsageAmount = 'current_usage_amount',
   LifetimeUsageAmount = 'lifetime_usage_amount'
 }
@@ -4687,6 +4688,8 @@ export enum LogEventEnum {
   UserDeleted = 'user_deleted',
   /** user.invited */
   UserInvited = 'user_invited',
+  /** user.new_device_logged_in */
+  UserNewDeviceLoggedIn = 'user_new_device_logged_in',
   /** user.password_edited */
   UserPasswordEdited = 'user_password_edited',
   /** user.password_reset_requested */
