@@ -180,7 +180,7 @@ exports[`Drawer Snapshot Tests matches snapshot with fullContentHeight and no pa
 
 exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
 <div
-  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_80px] css-hash-MuiPaper-root-MuiDrawer-paper
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_64px] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
@@ -220,7 +220,7 @@ exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
     </div>
   </div>
   <div
-    class="sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4"
+    class="sticky bottom-0 box-border flex items-center justify-end bg-white px-4 shadow-t md:px-12"
   >
     <div>
       <button>
@@ -236,7 +236,7 @@ exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
 
 exports[`Drawer Snapshot Tests matches snapshot with stickyBottomBar and custom className 1`] = `
 <div
-  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_80px] css-hash-MuiPaper-root-MuiDrawer-paper
+  class=MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiDrawer-paper MuiDrawer-paperAnchorRight w-full max-w-[816px] md:w-[calc(100vw-48px)] grid grid-rows-[72px_1fr_64px] css-hash-MuiPaper-root-MuiDrawer-paper
   tabindex="-1"
 >
   <div
@@ -276,7 +276,7 @@ exports[`Drawer Snapshot Tests matches snapshot with stickyBottomBar and custom 
     </div>
   </div>
   <div
-    class="sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4 custom-sticky-class"
+    class="sticky bottom-0 box-border flex items-center justify-end bg-white px-4 shadow-t md:px-12 custom-sticky-class"
   >
     <div>
       <button>

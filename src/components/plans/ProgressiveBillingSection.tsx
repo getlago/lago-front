@@ -12,8 +12,8 @@ import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { AmountInput, Switch, TextInput } from '~/components/form'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { PremiumIntegrationTypeEnum, UsageThresholdInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,9 +27,13 @@ type ThresholdTableData = UsageThresholdInput & { [key: string]: unknown }
 
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
+  isInitiallyOpen?: boolean
 }
 
-export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ formikProps }) => {
+export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
+  formikProps,
+  isInitiallyOpen,
+}) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
@@ -68,17 +72,11 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
   ])
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <div className="flex flex-col gap-1">
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_1724179887722baucvj7bvc1')}
-        </Typography>
-        <Typography
-          variant="caption"
-          color="grey600"
-          html={translate('text_1724179887723kdf3nisf6hp', { href: PROGRESSIVE_BILLING_DOC_URL })}
-        />
-      </div>
+    <CenteredPage.PageSection>
+      <CenteredPage.PageSectionTitle
+        title={translate('text_1724179887722baucvj7bvc1')}
+        description={translate('text_1724179887723kdf3nisf6hp')}
+      />
 
       {!hasPremiumIntegration && (
         <PremiumFeature
@@ -91,6 +89,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
       {hasPremiumIntegration && displayProgressiveBillingAccordion && (
         <Accordion
           className="w-full"
+          initiallyOpen={isInitiallyOpen}
           summary={
             <AccordionSummary
               hasErrorInGroup={hasErrorInGroup}
@@ -289,6 +288,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
 
       {hasPremiumIntegration && !displayProgressiveBillingAccordion && (
         <Button
+          align="left"
           variant="inline"
           startIcon="plus"
           disabled={displayProgressiveBillingAccordion}
@@ -300,7 +300,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
           {translate('text_1724233213996upb98e8b8xx')}
         </Button>
       )}
-    </div>
+    </CenteredPage.PageSection>
   )
 }
 
