@@ -3,13 +3,14 @@ import userEvent from '@testing-library/user-event'
 import { useLocation } from 'react-router-dom'
 
 import { initializeYup } from '~/formValidation/initializeYup'
+import {
+  CUSTOMER_ACTIONS_BUTTON_TEST_ID,
+  REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID,
+} from '~/hooks/customer/useCustomerDetailsHeaderActions'
 import * as useIsCustomerReadyForOverduePaymentModule from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { render } from '~/test-utils'
 
-import CustomerDetails, {
-  CUSTOMER_ACTIONS_BUTTON_TEST_ID,
-  REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID,
-} from '../CustomerDetails'
+import CustomerDetails from '../CustomerDetails'
 
 initializeYup()
 

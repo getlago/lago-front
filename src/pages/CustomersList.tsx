@@ -7,31 +7,23 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
-import { CREATE_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Avatar } from '~/components/designSystem/Avatar'
-import {
-  AvailableFiltersEnum,
-  AvailableQuickFilters,
-  CustomerAvailableFilters,
-  Filters,
-  formatFiltersForCustomerQuery,
-} from '~/components/designSystem/Filters'
+import { formatFiltersForCustomerQuery } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { MainHeader, MainHeaderAction } from '~/components/MainHeader'
+import { MainHeader } from '~/components/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { SearchInput } from '~/components/SearchInput'
-import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
-  PremiumIntegrationTypeEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomersListHeaderActions } from '~/hooks/customer/useCustomersListHeaderActions'
+import { useCustomersListHeaderFilters } from '~/hooks/customer/useCustomersListHeaderFilters'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -100,7 +92,7 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { intlFormatDateTimeOrgaTZ, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -126,54 +118,15 @@ const CustomersList = () => {
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
 
-  const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.RevenueShare,
-  )
-
-  const availableFilters = hasAccessToRevenueShare
-    ? CustomerAvailableFilters
-    : CustomerAvailableFilters.filter(
-        (filter) => filter !== AvailableFiltersEnum.customerAccountType,
-      )
-
-  const headerActions: MainHeaderAction[] = hasPermissions(['customersCreate'])
-    ? [
-        {
-          type: 'action',
-          label: translate('text_1734452833961s338w0x3b4s'),
-          variant: 'primary',
-          onClick: () => navigate(CREATE_CUSTOMER_ROUTE),
-          dataTest: CREATE_CUSTOMER_DATA_TEST,
-        },
-      ]
-    : []
-
-  const filtersSection = (
-    <Filters.Provider
-      filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
-      quickFiltersType={AvailableQuickFilters.customerAccountType}
-      availableFilters={availableFilters}
-    >
-      <div className="flex flex-col gap-4">
-        <Filters.QuickFilters />
-        <div className="flex items-center gap-3">
-          <SearchInput
-            onChange={debouncedSearch}
-            placeholder={translate('text_63befc65efcd9374da45b801')}
-            data-test="search-customers"
-          />
-          <Filters.Component />
-        </div>
-      </div>
-    </Filters.Provider>
-  )
+  const headerActions = useCustomersListHeaderActions()
+  const headerFilters = useCustomersListHeaderFilters({ debouncedSearch })
 
   return (
     <>
       <MainHeader.Configure
         entity={{ viewName: translate('text_624efab67eb2570101d117a5') }}
         actions={headerActions}
-        filtersSection={filtersSection}
+        filtersSection={headerFilters}
       />
 
       <div className="border-t border-grey-300">
