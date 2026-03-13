@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { usePlansQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
@@ -19,15 +20,28 @@ const validationSchema = z.object({
 })
 
 export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProps) => {
-  const { mode, entityDataMap } = useRichTextEditorContext()
+  const { mode, plans, setPlan } = useRichTextEditorContext()
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
   const hasAutoOpened = useRef(false)
 
   const planId = String(node.attrs.planId ?? '')
-  const planData = planId ? entityDataMap?.[planId] : undefined
   const isPreview = mode === 'preview'
   const isEmpty = !planId
+
+  const contextPlan = planId ? plans[planId] : undefined
+
+  const { data: plansData } = usePlansQuery({
+    variables: { limit: 100 },
+    skip: !!contextPlan,
+  })
+
+  const queryPlan = planId
+    ? plansData?.plans?.collection?.find((plan) => plan.id === planId)
+    : undefined
+
+  const planName = contextPlan?.name ?? queryPlan?.name
+  const planCode = contextPlan?.code ?? queryPlan?.code
 
   const defaultValues: {
     planId?: string
@@ -43,7 +57,15 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
     },
     onSubmit: async ({ value }) => {
       if (value.planId) {
+        const selectedPlan = plansData?.plans?.collection?.find((p) => p.id === value.planId)
+
         updateAttributes({ planId: value.planId })
+        setPlan(value.planId, {
+          entityId: value.planId,
+          entityType: 'plan',
+          name: selectedPlan?.name ?? '',
+          code: selectedPlan?.code ?? '',
+        })
       }
       drawer.close()
     },
@@ -84,6 +106,27 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
     openDrawer()
   }
 
+  if (isPreview) {
+    return (
+      <NodeViewWrapper>
+        <table>
+          <thead>
+            <tr>
+              <th>{planName ? 'Plan name' : 'Plan ID'}</th>
+              <th>{planCode ? 'Plan code' : 'Plan ID'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{planName ?? planId}</td>
+              <td>{planCode ?? planId}</td>
+            </tr>
+          </tbody>
+        </table>
+      </NodeViewWrapper>
+    )
+  }
+
   if (isEmpty) {
     return (
       <NodeViewWrapper>
@@ -104,23 +147,10 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
         className={`plan-block ${selected ? 'plan-block--selected' : ''}`}
         onClick={handleClick}
       >
-        {planData ? (
-          <table className="plan-block__table">
-            <thead>
-              <tr>
-                <th>Field</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(planData).map(([key, value]) => (
-                <tr key={key}>
-                  <td>{key}</td>
-                  <td>{String(value ?? '')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {planName ? (
+          <span>
+            {planName} ({planCode})
+          </span>
         ) : (
           <div className="plan-block__unresolved">
             <span>Plan: {planId}</span>
