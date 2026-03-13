@@ -62,6 +62,7 @@ import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import DialogTest from './tabs/DialogTest'
+import DrawerTest from './tabs/DrawerTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -72,6 +73,7 @@ const AVATAR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'av
 const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'skeleton' })
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
 const DIALOG_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'dialog' })
+const DRAWER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'drawer' })
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -2249,6 +2251,11 @@ const DesignSystem = () => {
             title: 'Dialogs',
             link: DIALOG_TAB_URL,
             component: <DialogTest />,
+          },
+          {
+            title: 'Drawers',
+            link: DRAWER_TAB_URL,
+            component: <DrawerTest />,
           },
           // disabled simple tab
           {

@@ -15,6 +15,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
   DisputeInvoiceDialog,
@@ -702,6 +703,7 @@ const CustomerInvoiceDetails = () => {
       billingEntity: invoice?.billingEntity,
       documentId: invoice?.id,
       customerEmail: invoice?.customer?.email,
+      documentData: buildInvoiceDocumentData(invoice),
     })
   }
 

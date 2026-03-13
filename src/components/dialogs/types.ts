@@ -1,21 +1,10 @@
-/**
- * Discriminated union type for all possible dialog results
- */
+import { OverlayResult } from '~/core/overlays/types'
+
 export type DialogResult =
-  | {
-      reason: 'close'
-    }
+  | OverlayResult
   | {
       reason: 'open-other-dialog'
       otherDialog: Promise<DialogResult>
-    }
-  | {
-      reason: 'success'
-      params?: unknown
-    }
-  | {
-      reason: 'error'
-      error: Error
     }
 
 export type HookDialogReturnType<Props> = {

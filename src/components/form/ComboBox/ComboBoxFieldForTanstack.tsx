@@ -10,7 +10,7 @@ const ComboBoxField = ({
   renderGroupHeader,
   ...props
 }: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'> & { dataTest?: string }) => {
-  const field = useFieldContext<string>()
+  const field = useFieldContext<string | undefined>()
 
   const error = useStore(field.store, (state) => state.meta.errors)
     .map((e) => e.message)
@@ -23,6 +23,14 @@ const ComboBoxField = ({
     errorMap,
   })
 
+  const onChange = (value: string) => {
+    if (value === '') {
+      return field.handleChange(undefined)
+    }
+
+    return field.handleChange(value)
+  }
+
   return renderGroupHeader ? (
     <ComboBox
       {...props}
@@ -30,7 +38,7 @@ const ComboBoxField = ({
       renderGroupHeader={renderGroupHeader}
       name={field.name}
       onChange={(value) => {
-        field.handleChange(value)
+        onChange(value)
       }}
       value={field.state.value}
       error={finalError}
@@ -42,7 +50,7 @@ const ComboBoxField = ({
       data={data as BasicComboBoxData[]}
       name={field.name}
       onChange={(value) => {
-        field.handleChange(value)
+        onChange(value)
       }}
       value={field.state.value}
       error={finalError}
