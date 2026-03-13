@@ -11,6 +11,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { MinimumCommitmentFormValues } from '~/components/plans/drawers/MinimumCommitmentDrawer'
 import { SubscriptionFeeFormValues } from '~/components/plans/drawers/SubscriptionFeeDrawer'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
@@ -39,6 +40,7 @@ import {
   PLANS_ROUTE,
 } from '~/core/router'
 import {
+  CommitmentTypeEnum,
   CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FixedChargeAccordionFragmentDoc,
@@ -226,6 +228,14 @@ const CreatePlan = () => {
     })
   }
 
+  const handleMinimumCommitmentSave = (values: MinimumCommitmentFormValues) => {
+    formikProps.setFieldValue('minimumCommitment', {
+      ...formikProps.values.minimumCommitment,
+      ...values,
+      commitmentType: CommitmentTypeEnum.MinimumCommitment,
+    })
+  }
+
   return (
     <PlanFormProvider
       currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
@@ -308,8 +318,7 @@ const CreatePlan = () => {
                   />
                   <CommitmentsSection
                     formikProps={formikProps}
-                    editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                    isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
+                    onDrawerSave={handleMinimumCommitmentSave}
                   />
 
                   <FeatureEntitlementSection formikProps={formikProps} isEdition={isEdition} />
