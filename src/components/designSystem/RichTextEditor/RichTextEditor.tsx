@@ -14,7 +14,7 @@ import Underline from '@tiptap/extension-underline'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { tw } from 'lago-design-system'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 import { Markdown } from 'tiptap-markdown'
 
@@ -41,7 +41,7 @@ export type RichTextEditorMode = 'edit' | 'preview'
 interface RichTextEditorProps {
   mode?: RichTextEditorMode
   mentionValues?: Record<string, string>
-  entityDataMap?: Record<string, EntityData>
+  plans?: Record<string, EntityData>
   content?: string
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
   onPlanBlocksChange?: (planIds: string[]) => void
@@ -50,15 +50,20 @@ interface RichTextEditorProps {
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
-  entityDataMap = {},
+  plans: plansFromProps = {},
   content,
   getMarkdownRef,
   onPlanBlocksChange,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onPlanBlocksChangeRef = useRef(onPlanBlocksChange)
+  const [plans, setPlans] = useState<Record<string, EntityData>>(plansFromProps)
 
   onPlanBlocksChangeRef.current = onPlanBlocksChange
+
+  const setPlan = useCallback((id: string, data: EntityData) => {
+    setPlans((prev) => ({ ...prev, [id]: data }))
+  }, [])
 
   const variableItems = [
     { id: 'customerName', label: 'Customer Name' },
@@ -210,8 +215,8 @@ const RichTextEditor = ({
   }, [editor, isPreview])
 
   const contextValue = useMemo(
-    () => ({ mode, mentionValues, entityDataMap }),
-    [mode, mentionValues, entityDataMap],
+    () => ({ mode, mentionValues, plans, setPlan }),
+    [mode, mentionValues, plans, setPlan],
   )
 
   useEffect(() => {
