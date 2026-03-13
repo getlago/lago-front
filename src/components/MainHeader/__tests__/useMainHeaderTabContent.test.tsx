@@ -55,7 +55,7 @@ describe('useMainHeaderTabContent', () => {
             const content = useMainHeaderTabContent()
 
             React.useEffect(() => {
-              writer.setConfig({ title: 'No tabs' })
+              writer.setConfig({ breadcrumb: [{ label: 'Test', path: '/test' }] })
             }, [writer])
 
             return content
@@ -70,7 +70,7 @@ describe('useMainHeaderTabContent', () => {
 
   describe('GIVEN a config with tabs', () => {
     const config: MainHeaderConfig = {
-      title: 'Customer',
+      breadcrumb: [{ label: 'Customers', path: '/customers' }],
       tabs: [tabOverview, tabInvoices],
     }
 

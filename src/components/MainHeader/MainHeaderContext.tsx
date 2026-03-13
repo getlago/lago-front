@@ -27,15 +27,11 @@ interface MainHeaderReadContextValue {
 const MainHeaderReadContext = createContext<MainHeaderReadContextValue | undefined>(undefined)
 
 export const MainHeaderProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [config, setConfigState] = useState<MainHeaderConfig | null>(null)
+  const [config, setConfig] = useState<MainHeaderConfig | null>(null)
   const mountCountRef = useRef(0)
 
-  const setConfig = useCallback((newConfig: MainHeaderConfig) => {
-    setConfigState(newConfig)
-  }, [])
-
   const resetConfig = useCallback(() => {
-    setConfigState(null)
+    setConfig(null)
   }, [])
 
   const registerConfigure = useCallback(() => {

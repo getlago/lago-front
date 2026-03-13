@@ -54,7 +54,7 @@ export type MainHeaderAction = MainHeaderDropdownAction | MainHeaderInPageAction
 
 export interface MainHeaderBadge {
   type: StatusType
-  label: StatusLabel | string
+  label: StatusLabel
   labelVariables?: TranslateData
 }
 
@@ -81,16 +81,10 @@ export interface BreadcrumbItem {
 // ─── Main config ────────────────────────────────────────────────
 
 export interface MainHeaderConfig {
-  /** Breadcrumb trail rendered above the entity name. When present, the sticky top bar is hidden. */
+  /** Breadcrumb trail rendered above the entity name */
   breadcrumb?: BreadcrumbItem[]
 
-  /** Temporary back button — coexists with breadcrumb during migration */
-  backButton?: { path: string }
-
-  /** Fallback title for the sticky top bar (only rendered when no breadcrumb) */
-  title?: string
-
-  /** Action buttons rendered on the right side of the sticky header */
+  /** Action buttons rendered on the right side of the header */
   actions?: MainHeaderAction[]
 
   /** Entity section — viewName is the page/entity heading. Optional during loading. */

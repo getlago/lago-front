@@ -1,19 +1,12 @@
 import { screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import React from 'react'
 
-import { render, testMockNavigateFn } from '~/test-utils'
+import { render } from '~/test-utils'
 
 import { ACTIONS_BLOCK_TEST_ID } from '../ActionRenderer'
 import { BREADCRUMB_NAV_TEST_ID } from '../Breadcrumb'
 import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '../EntitySection'
-import {
-  MAIN_HEADER_BACK_BUTTON_TEST_ID,
-  MAIN_HEADER_FILTERS_TEST_ID,
-  MAIN_HEADER_TEST_ID,
-  MAIN_HEADER_TITLE_TEST_ID,
-  MainHeaderComponent,
-} from '../MainHeader'
+import { MAIN_HEADER_FILTERS_TEST_ID, MainHeaderComponent } from '../MainHeader'
 import { MainHeaderConfig } from '../types'
 
 const mockUseMainHeaderReader = jest.fn()
@@ -39,56 +32,7 @@ describe('MainHeaderComponent', () => {
     })
   })
 
-  describe('GIVEN a config with backButton and title (fallback mode)', () => {
-    const config: MainHeaderConfig = {
-      backButton: { path: '/customers' },
-      title: 'Customer Details',
-    }
-
-    beforeEach(() => {
-      mockUseMainHeaderReader.mockReturnValue({ config })
-    })
-
-    describe('WHEN the component renders', () => {
-      it('THEN should display the header', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.getByTestId(MAIN_HEADER_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should display the back button', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.getByTestId(MAIN_HEADER_BACK_BUTTON_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should display the title', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.getByTestId(MAIN_HEADER_TITLE_TEST_ID)).toHaveTextContent('Customer Details')
-      })
-
-      it('THEN should not display the breadcrumb', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.queryByTestId(BREADCRUMB_NAV_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN the back button is clicked', () => {
-      it('THEN should navigate to the back path', async () => {
-        const user = userEvent.setup()
-
-        render(<MainHeaderComponent />)
-
-        await user.click(screen.getByTestId(MAIN_HEADER_BACK_BUTTON_TEST_ID))
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/customers')
-      })
-    })
-  })
-
-  describe('GIVEN a config with breadcrumb (breadcrumb mode)', () => {
+  describe('GIVEN a config with breadcrumb', () => {
     const config: MainHeaderConfig = {
       breadcrumb: [
         { label: 'Customers', path: '/customers' },
@@ -106,12 +50,6 @@ describe('MainHeaderComponent', () => {
         render(<MainHeaderComponent />)
 
         expect(screen.getByTestId(BREADCRUMB_NAV_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should not display the back button', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.queryByTestId(MAIN_HEADER_BACK_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
@@ -215,51 +153,6 @@ describe('MainHeaderComponent', () => {
 
         expect(screen.getByTestId(MAIN_HEADER_FILTERS_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId('custom-filter')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN a config with isLoading true and backButton', () => {
-    const config: MainHeaderConfig = {
-      backButton: { path: '/back' },
-      isLoading: true,
-    }
-
-    beforeEach(() => {
-      mockUseMainHeaderReader.mockReturnValue({ config })
-    })
-
-    describe('WHEN the component renders', () => {
-      it('THEN should not display the title', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.queryByTestId(MAIN_HEADER_TITLE_TEST_ID)).not.toBeInTheDocument()
-      })
-
-      it('THEN should display the back button', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.getByTestId(MAIN_HEADER_BACK_BUTTON_TEST_ID)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN backButton and breadcrumb are both set', () => {
-    const config: MainHeaderConfig = {
-      backButton: { path: '/back' },
-      breadcrumb: [{ label: 'Home', path: '/' }],
-    }
-
-    beforeEach(() => {
-      mockUseMainHeaderReader.mockReturnValue({ config })
-    })
-
-    describe('WHEN the component renders', () => {
-      it('THEN should use breadcrumb mode (breadcrumb takes priority)', () => {
-        render(<MainHeaderComponent />)
-
-        expect(screen.getByTestId(BREADCRUMB_NAV_TEST_ID)).toBeInTheDocument()
-        expect(screen.queryByTestId(MAIN_HEADER_BACK_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
