@@ -54,7 +54,7 @@ jobs:
           echo "${{ github.event_name == 'release' && github.event.release.tag_name || github.event.inputs.version }}" > LAGO_VERSION
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         id: build
         with:
           context: .
