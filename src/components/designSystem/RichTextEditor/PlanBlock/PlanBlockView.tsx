@@ -101,9 +101,8 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
   return (
     <NodeViewWrapper>
       <button
-        className={`plan-block ${selected ? 'plan-block--selected' : ''} ${!isPreview ? 'plan-block--clickable' : ''}`}
-        onClick={!isPreview ? handleClick : undefined}
-        tabIndex={!isPreview ? 0 : undefined}
+        className={`plan-block ${selected ? 'plan-block--selected' : ''}`}
+        onClick={handleClick}
       >
         {planData ? (
           <table className="plan-block__table">
