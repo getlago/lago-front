@@ -12,7 +12,8 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { MainHeader, useMainHeaderTabContent } from '~/components/MainHeader'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CUSTOMERS_LIST_ROUTE } from '~/core/router'

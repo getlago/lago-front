@@ -3,7 +3,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { AddCouponToCustomerDialogRef } from '~/components/customers/AddCouponToCustomerDialog'
 import { DeleteCustomerDialogRef } from '~/components/customers/DeleteCustomerDialog'
-import { MainHeaderAction, MainHeaderDropdownItem } from '~/components/MainHeader'
+import { MainHeaderAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
 import {
   CREATE_INVOICE_ROUTE,
   CREATE_SUBSCRIPTION,
@@ -141,7 +141,7 @@ export function useCustomerDetailsHeaderActions({
                   closePopper()
                 },
               },
-            ] satisfies MainHeaderDropdownItem[],
+            ] as MainHeaderDropdownItem[],
           },
         ]
       : []),

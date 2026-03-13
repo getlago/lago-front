@@ -1,5 +1,5 @@
 import { StatusType } from '~/components/designSystem/Status'
-import { MainHeaderEntityConfig } from '~/components/MainHeader'
+import { MainHeaderEntityConfig } from '~/components/MainHeader/types'
 import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
