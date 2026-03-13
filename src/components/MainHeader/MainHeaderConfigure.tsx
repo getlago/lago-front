@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from 'react'
+import { FC, useEffect, useLayoutEffect, useRef } from 'react'
 
 import { useMainHeaderWriter } from './MainHeaderContext'
 import { MainHeaderConfig } from './types'
@@ -25,15 +25,19 @@ function configSnapshot(config: MainHeaderConfig): string {
  * Works like <Helmet> / <Head> — renders nothing, communicates via Context.
  *
  * Loop prevention: a snapshot is computed from the config
- * on every render. The useEffect only calls setConfig when the snapshot
+ * on every render. The useLayoutEffect only calls setConfig when the snapshot
  * changes, so context-triggered re-renders (which produce the same data,
  * just new object references) are silently ignored. No useMemo required
  * from consumer pages.
+ *
+ * useLayoutEffect is used instead of useEffect for both setting and cleanup
+ * so that header transitions happen synchronously before the browser paints.
+ * This prevents the old header from lingering during route changes.
  */
 export const MainHeaderConfigure: FC<MainHeaderConfig> = (props) => {
   const { setConfig, resetConfig, registerConfigure, unregisterConfigure } = useMainHeaderWriter()
 
-  // Ref keeps the latest props available for the deferred useEffect,
+  // Ref keeps the latest props available for the useLayoutEffect,
   // so setConfig always receives the freshest values.
   const propsRef = useRef(props)
 
@@ -50,12 +54,14 @@ export const MainHeaderConfigure: FC<MainHeaderConfig> = (props) => {
   // Context-triggered re-renders produce identical snapshots → no setConfig → no loop.
   const snapshot = configSnapshot(props)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setConfig(propsRef.current)
   }, [snapshot, setConfig])
 
-  // Cleanup on unmount — reset config to null
-  useEffect(() => {
+  // Cleanup on unmount — reset config to null.
+  // useLayoutEffect ensures the reset happens before paint, so the old
+  // header never lingers when navigating to a different view.
+  useLayoutEffect(() => {
     return () => resetConfig()
   }, [resetConfig])
 
