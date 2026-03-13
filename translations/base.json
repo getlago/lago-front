@@ -3985,5 +3985,8 @@
   "text_1771963033467yduu33x3qw9": "Specifies the name that will be displayed on an invoice.",
   "text_17719630334671lxunwzo7ae": "Open drawer",
   "text_1772030294690kg96fwsazm4": "Frequency at which the fee recurs.",
-  "text_1772030324507alr5hywedel": "{{interval}} (inherit from plan)"
+  "text_1772030324507alr5hywedel": "{{interval}} (inherit from plan)",
+  "text_177334593394555w48sxw5na": "Agreed monthly minimum usage or payment that the customer is required to fulfill.",
+  "text_1773346168045bj2x1626228": "Commitment settings",
+  "text_1773346168045bj2x1626229": "Set specific tax rates to apply to this fee"
 }
