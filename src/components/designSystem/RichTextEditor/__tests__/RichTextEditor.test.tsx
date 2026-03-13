@@ -3,10 +3,7 @@ import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
 
-import RichTextEditor, {
-  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
-  RICH_TEXT_EDITOR_TEST_ID,
-} from '../RichTextEditor'
+import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
 
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}

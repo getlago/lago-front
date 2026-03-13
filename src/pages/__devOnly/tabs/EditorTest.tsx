@@ -31,6 +31,20 @@ const EditorTest = () => {
     }
   }
 
+  const preSavedContent = `# Hello World
+
+This is a pre-saved content with **bold** text, _italic_ text, and a [link](https://www.example.com).
+
+- Item 1
+- Item 2
+- Item 3
+
+{customerName|Customer Name} owes us {amountDue|Amount Due}.
+
+Best,
+{companyName|Company Name}
+`
+
   return (
     <Container>
       <Typography className="mb-4" variant="headline">
@@ -48,6 +62,10 @@ const EditorTest = () => {
       </div>
       <Block>
         <RichTextEditor mode={mode} mentionValues={mentionValues} getMarkdownRef={getMarkdownRef} />
+      </Block>
+      <Typography variant="subhead1">&#60;RichTextEditor/&#62; with pre-saved content</Typography>
+      <Block>
+        <RichTextEditor mode={mode} mentionValues={mentionValues} content={preSavedContent} />
       </Block>
     </Container>
   )

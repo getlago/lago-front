@@ -13,12 +13,8 @@ import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-<<<<<<< HEAD
 import { tw } from 'lago-design-system'
-import { useEffect, useMemo } from 'react'
-=======
 import { useEffect, useMemo, useRef } from 'react'
->>>>>>> 5f0eee9de (feat: add custom block plan)
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 import { Markdown } from 'tiptap-markdown'
 
@@ -109,7 +105,7 @@ const RichTextEditor = ({
               parse: {
                 updateDOM(element: HTMLElement) {
                   element.innerHTML = element.innerHTML.replaceAll(
-                    /\{\{(\w+)\|([^}]+)\}\}/g,
+                    /\{(\w+)\|([^}]+)\}/g,
                     (_match: string, id: string, label: string) =>
                       `<span data-type="mention" data-id="${id}" class="variable-mention">@${label}</span>`,
                   )
