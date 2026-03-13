@@ -150,6 +150,35 @@
     @apply bg-grey-200;
   }
 
+  /* Plan block */
+  .plan-block {
+    @apply my-2 rounded-lg border border-grey-300 p-3;
+  }
+
+  .plan-block--empty {
+    @apply flex cursor-pointer items-center justify-center border-dashed py-6 transition-colors hover:bg-grey-100;
+  }
+
+  .plan-block--clickable {
+    @apply cursor-pointer transition-colors hover:bg-grey-100;
+  }
+
+  .plan-block--selected {
+    @apply border-blue-600;
+  }
+
+  .plan-block__placeholder {
+    @apply text-sm text-grey-400;
+  }
+
+  .plan-block__unresolved {
+    @apply text-sm text-grey-500;
+  }
+
+  .plan-block__table {
+    @apply m-0 w-full;
+  }
+
   .link-card {
     @apply my-2 rounded-lg border border-grey-300 p-3 transition-colors hover:bg-grey-100;
   }

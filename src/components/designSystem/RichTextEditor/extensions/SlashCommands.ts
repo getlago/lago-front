@@ -43,6 +43,20 @@ export const slashCommandItems: SlashCommandItem[] = [
     description: 'Insert a code block',
     command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
   },
+  {
+    title: 'Plan',
+    description: 'Insert a plan block',
+    command: (editor) => {
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'planBlock',
+          attrs: { planId: '' },
+        })
+        .run()
+    },
+  },
 ]
 
 export const SlashCommands = Extension.create({
