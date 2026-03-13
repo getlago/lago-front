@@ -14,7 +14,10 @@ export const PlanBlock = Node.create({
 
   addAttributes() {
     return {
-      planId: { default: '' },
+      planId: {
+        default: '',
+        parseHTML: (element) => element.getAttribute('data-plan-id') ?? '',
+      },
     }
   },
 
@@ -40,7 +43,15 @@ export const PlanBlock = Node.create({
           state.write(`<!-- entity:plan:${planId} -->`)
           state.closeBlock(node)
         },
-        parse: {},
+        parse: {
+          updateDOM(element: HTMLElement) {
+            element.innerHTML = element.innerHTML.replace(
+              /<!--\s*entity:plan:(\S*?)\s*-->/g,
+              (_match: string, planId: string) =>
+                `<div data-type="plan-block" data-plan-id="${planId}"></div>`,
+            )
+          },
+        },
       },
     }
   },
