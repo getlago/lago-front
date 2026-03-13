@@ -2,8 +2,7 @@ import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { ButtonVariant } from '~/components/designSystem/Button'
-import { StatusLabel, StatusType } from '~/components/designSystem/Status'
-import { TranslateData } from '~/core/translations'
+import { StatusProps } from '~/components/designSystem/Status'
 
 import { NavigationTabBarItem } from './NavigationTabBar'
 
@@ -52,11 +51,7 @@ export type MainHeaderAction = MainHeaderDropdownAction | MainHeaderInPageAction
 
 // ─── Entity config ──────────────────────────────────────────────
 
-export interface MainHeaderBadge {
-  type: StatusType
-  label: StatusLabel
-  labelVariables?: TranslateData
-}
+export type MainHeaderBadge = Pick<StatusProps, 'type' | 'label' | 'labelVariables'>
 
 export interface MainHeaderEntityConfig {
   /** Display name — rendered as headline Typography */
