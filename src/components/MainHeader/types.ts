@@ -2,8 +2,7 @@ import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { ButtonVariant } from '~/components/designSystem/Button'
-import { StatusLabel, StatusType } from '~/components/designSystem/Status'
-import { TranslateData } from '~/core/translations'
+import { StatusProps } from '~/components/designSystem/Status'
 
 import { NavigationTabBarItem } from './NavigationTabBar'
 
@@ -52,11 +51,7 @@ export type MainHeaderAction = MainHeaderDropdownAction | MainHeaderInPageAction
 
 // ─── Entity config ──────────────────────────────────────────────
 
-export interface MainHeaderBadge {
-  type: StatusType
-  label: StatusLabel | string
-  labelVariables?: TranslateData
-}
+export type MainHeaderBadge = Pick<StatusProps, 'type' | 'label' | 'labelVariables'>
 
 export interface MainHeaderEntityConfig {
   /** Display name — rendered as headline Typography */
@@ -81,16 +76,10 @@ export interface BreadcrumbItem {
 // ─── Main config ────────────────────────────────────────────────
 
 export interface MainHeaderConfig {
-  /** Breadcrumb trail rendered above the entity name. When present, the sticky top bar is hidden. */
+  /** Breadcrumb trail rendered above the entity name */
   breadcrumb?: BreadcrumbItem[]
 
-  /** Temporary back button — coexists with breadcrumb during migration */
-  backButton?: { path: string }
-
-  /** Fallback title for the sticky top bar (only rendered when no breadcrumb) */
-  title?: string
-
-  /** Action buttons rendered on the right side of the sticky header */
+  /** Action buttons rendered on the right side of the header */
   actions?: MainHeaderAction[]
 
   /** Entity section — viewName is the page/entity heading. Optional during loading. */

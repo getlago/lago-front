@@ -9,8 +9,7 @@ const wrapper: FC<PropsWithChildren> = ({ children }) => (
 )
 
 const mockConfig: MainHeaderConfig = {
-  title: 'Test Title',
-  backButton: { path: '/back' },
+  breadcrumb: [{ label: 'Test', path: '/test' }],
 }
 
 describe('MainHeaderContext', () => {

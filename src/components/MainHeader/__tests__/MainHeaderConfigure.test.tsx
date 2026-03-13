@@ -7,8 +7,7 @@ import { MainHeaderProvider, useMainHeaderReader } from '../MainHeaderContext'
 import { MainHeaderConfig } from '../types'
 
 const mockConfig: MainHeaderConfig = {
-  title: 'Page Title',
-  backButton: { path: '/back' },
+  breadcrumb: [{ label: 'Page', path: '/page' }],
 }
 
 describe('MainHeaderConfigure', () => {
@@ -85,7 +84,7 @@ describe('MainHeaderConfigure', () => {
   })
 
   describe('GIVEN the config changes', () => {
-    describe('WHEN a new title is provided', () => {
+    describe('WHEN a new breadcrumb is provided', () => {
       it('THEN should update the context config', () => {
         const ReadConfigSpy: FC<{ onConfig: (config: MainHeaderConfig | null) => void }> = ({
           onConfig,
@@ -99,23 +98,26 @@ describe('MainHeaderConfigure', () => {
 
         let capturedConfig: MainHeaderConfig | null = null
 
+        const firstBreadcrumb = [{ label: 'First', path: '/first' }]
+        const updatedBreadcrumb = [{ label: 'Updated', path: '/updated' }]
+
         const { rerender } = render(
           <MainHeaderProvider>
-            <MainHeaderConfigure title="First Title" />
+            <MainHeaderConfigure breadcrumb={firstBreadcrumb} />
             <ReadConfigSpy onConfig={(c) => (capturedConfig = c)} />
           </MainHeaderProvider>,
         )
 
-        expect(capturedConfig).toEqual(expect.objectContaining({ title: 'First Title' }))
+        expect(capturedConfig).toEqual(expect.objectContaining({ breadcrumb: firstBreadcrumb }))
 
         rerender(
           <MainHeaderProvider>
-            <MainHeaderConfigure title="Updated Title" />
+            <MainHeaderConfigure breadcrumb={updatedBreadcrumb} />
             <ReadConfigSpy onConfig={(c) => (capturedConfig = c)} />
           </MainHeaderProvider>,
         )
 
-        expect(capturedConfig).toEqual(expect.objectContaining({ title: 'Updated Title' }))
+        expect(capturedConfig).toEqual(expect.objectContaining({ breadcrumb: updatedBreadcrumb }))
       })
     })
   })

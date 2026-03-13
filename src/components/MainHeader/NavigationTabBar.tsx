@@ -52,7 +52,7 @@ export const NavigationTabBar = ({
   const activeTabIndex = useMemo(() => {
     const idx = nonHiddenTabs.findIndex((tab) => isTabActive(tab, pathname))
 
-    return idx !== -1 ? idx : 0
+    return idx === -1 ? 0 : idx
   }, [nonHiddenTabs, pathname])
 
   return (
@@ -74,7 +74,7 @@ export const NavigationTabBar = ({
             component="button"
             className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
             disabled={tab.disabled}
-            icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
+            icon={tab.icon ? <Icon name={tab.icon} /> : undefined}
             iconPosition="start"
             label={<Typography variant="captionHl">{tab.title}</Typography>}
             value={tabIndex}
