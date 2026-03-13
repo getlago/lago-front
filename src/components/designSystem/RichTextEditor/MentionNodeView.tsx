@@ -14,7 +14,7 @@ export const MentionNodeView = ({ node }: NodeViewProps) => {
     if (resolvedValue) {
       return (
         <NodeViewWrapper as="span" className="variable-mention variable-mention--resolved">
-          {`{${resolvedValue}}`}
+          {`${resolvedValue}`}
         </NodeViewWrapper>
       )
     }
