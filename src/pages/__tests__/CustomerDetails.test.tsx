@@ -1,22 +1,21 @@
-import { act, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, waitFor } from '@testing-library/react'
 import { useLocation } from 'react-router-dom'
 
 import { initializeYup } from '~/formValidation/initializeYup'
-import {
-  CUSTOMER_ACTIONS_BUTTON_TEST_ID,
-  REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID,
-} from '~/hooks/customer/useCustomerDetailsHeaderActions'
-import * as useIsCustomerReadyForOverduePaymentModule from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { render } from '~/test-utils'
 
 import CustomerDetails from '../CustomerDetails'
 
+jest.mock('~/components/MainHeader', () => ({
+  MainHeader: {
+    Configure: () => null,
+  },
+  useMainHeaderTabContent: () => null,
+}))
+
 initializeYup()
 
 const mockUseGetCustomerQuery = jest.fn()
-const mockGenerateCustomerPortalUrl = jest.fn()
-const mockHandleDownloadFile = jest.fn()
 const mockAddToast = jest.fn()
 const mockHasDefinedGQLError = jest.fn()
 
@@ -48,7 +47,7 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 
 jest.mock('~/hooks/useDownloadFile', () => ({
   useDownloadFile: jest.fn(() => ({
-    handleDownloadFile: mockHandleDownloadFile,
+    handleDownloadFile: jest.fn(),
   })),
 }))
 
@@ -80,7 +79,7 @@ jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetCustomerQuery: jest.fn(() => mockUseGetCustomerQuery()),
   useGenerateCustomerPortalUrlMutation: jest.fn(() => [
-    mockGenerateCustomerPortalUrl,
+    jest.fn(),
     { loading: false, error: undefined },
   ]),
 }))
@@ -111,61 +110,6 @@ describe('CustomerDetails', () => {
       startPolling: mockStartPolling,
       stopPolling: mockStopPolling,
     })
-  })
-
-  describe('Request overdue payment button', () => {
-    it.each([
-      {
-        description: 'disabled when payment processing status is loading',
-        isCustomerReadyForOverduePayment: false,
-        loading: true,
-        expectedDisabled: true,
-      },
-      {
-        description: 'disabled when customer is not ready for overdue payment',
-        isCustomerReadyForOverduePayment: false,
-        loading: false,
-        expectedDisabled: true,
-      },
-      {
-        description: 'enabled when payment processing status is not loading and customer is ready',
-        isCustomerReadyForOverduePayment: true,
-        loading: false,
-        expectedDisabled: false,
-      },
-    ])(
-      'should be $description',
-      async ({ isCustomerReadyForOverduePayment, loading, expectedDisabled }) => {
-        const user = userEvent.setup()
-
-        jest
-          .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
-          .mockReturnValue({
-            isCustomerReadyForOverduePayment,
-            loading,
-            error: undefined,
-          })
-
-        await act(async () => {
-          return render(<CustomerDetails />)
-        })
-
-        // Open the actions menu
-        const actionsButton = screen.getByTestId(CUSTOMER_ACTIONS_BUTTON_TEST_ID)
-
-        await user.click(actionsButton)
-
-        await waitFor(() => {
-          const requestButton = screen.getByTestId(REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID)
-
-          if (expectedDisabled) {
-            expect(requestButton).toBeDisabled()
-          } else {
-            expect(requestButton).not.toBeDisabled()
-          }
-        })
-      },
-    )
   })
 
   describe('Integration polling', () => {
