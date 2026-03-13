@@ -3913,5 +3913,6 @@
   "text_1772037769752vckbe8j9pbq": "Security logs provide detailed records of all actions. However, there are currently no logs available for this organization.",
   "text_1772037888232uwswdk5tahg": "No security logs with the current filters",
   "text_1772037888232iziwtsooe9f": "Try updating your filtering options or remove them completely",
-  "text_17730476805600nudrokzkk5": "Security Logs"
+  "text_17730476805600nudrokzkk5": "Security Logs",
+  "text_1773415705134l01iamqr6fk": "{{email}} successfully logged in using a new device"
 }
