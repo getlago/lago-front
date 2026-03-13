@@ -5,6 +5,7 @@ import { tw } from '~/styles/utils'
 import { ActionsBlock } from './ActionRenderer'
 import { Breadcrumb } from './Breadcrumb'
 import { EntitySection } from './EntitySection'
+import { MainHeaderConfigure } from './MainHeaderConfigure'
 import { useMainHeaderReader } from './MainHeaderContext'
 import { NavigationTabBar } from './NavigationTabBar'
 
@@ -15,7 +16,7 @@ export const MAIN_HEADER_FILTERS_TEST_ID = 'main-header-filters'
  * MainHeader — layout-level component that reads from MainHeaderContext.
  * Renders the actual header based on the config provided by the nearest <MainHeader.Configure>.
  */
-export const MainHeaderComponent: FC = () => {
+const MainHeaderComponent: FC = () => {
   const { config } = useMainHeaderReader()
 
   if (!config) return null
@@ -67,3 +68,7 @@ export const MainHeaderComponent: FC = () => {
     </header>
   )
 }
+
+export const MainHeader = Object.assign(MainHeaderComponent, {
+  Configure: MainHeaderConfigure,
+})

@@ -6,7 +6,7 @@ import { render } from '~/test-utils'
 import { ACTIONS_BLOCK_TEST_ID } from '../ActionRenderer'
 import { BREADCRUMB_NAV_TEST_ID } from '../Breadcrumb'
 import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '../EntitySection'
-import { MAIN_HEADER_FILTERS_TEST_ID, MainHeaderComponent } from '../MainHeader'
+import { MAIN_HEADER_FILTERS_TEST_ID, MainHeader } from '../MainHeader'
 import { MainHeaderConfig } from '../types'
 
 const mockUseMainHeaderReader = jest.fn()
@@ -15,7 +15,7 @@ jest.mock('../MainHeaderContext', () => ({
   useMainHeaderReader: () => mockUseMainHeaderReader(),
 }))
 
-describe('MainHeaderComponent', () => {
+describe('MainHeader', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -25,7 +25,7 @@ describe('MainHeaderComponent', () => {
       it('THEN should render nothing', () => {
         mockUseMainHeaderReader.mockReturnValue({ config: null })
 
-        const { container } = render(<MainHeaderComponent />)
+        const { container } = render(<MainHeader />)
 
         expect(container.innerHTML).toBe('')
       })
@@ -47,7 +47,7 @@ describe('MainHeaderComponent', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should display the breadcrumb nav', () => {
-        render(<MainHeaderComponent />)
+        render(<MainHeader />)
 
         expect(screen.getByTestId(BREADCRUMB_NAV_TEST_ID)).toBeInTheDocument()
       })
@@ -65,7 +65,7 @@ describe('MainHeaderComponent', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should display the entity view name', () => {
-        render(<MainHeaderComponent />)
+        render(<MainHeader />)
 
         const viewNames = screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)
 
@@ -86,7 +86,7 @@ describe('MainHeaderComponent', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should display the actions block', () => {
-        render(<MainHeaderComponent />)
+        render(<MainHeader />)
 
         expect(screen.getByTestId(ACTIONS_BLOCK_TEST_ID)).toBeInTheDocument()
       })
@@ -107,7 +107,7 @@ describe('MainHeaderComponent', () => {
         }
 
         mockUseMainHeaderReader.mockReturnValue({ config })
-        render(<MainHeaderComponent />)
+        render(<MainHeader />)
 
         expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
       })
@@ -131,7 +131,7 @@ describe('MainHeaderComponent', () => {
         }
 
         mockUseMainHeaderReader.mockReturnValue({ config })
-        render(<MainHeaderComponent />)
+        render(<MainHeader />)
 
         expect(screen.getAllByRole('tab')).toHaveLength(2)
       })
@@ -149,7 +149,7 @@ describe('MainHeaderComponent', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should display the filters section', () => {
-        render(<MainHeaderComponent />)
+        render(<MainHeader />)
 
         expect(screen.getByTestId(MAIN_HEADER_FILTERS_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId('custom-filter')).toBeInTheDocument()
