@@ -1,7 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { useFormik } from 'formik'
 
-import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import {
@@ -14,7 +13,6 @@ import {
 import { DEFAULT_VOLUME_CHARGES, useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 
 type PrepareType = {
-  chargeCursor?: ChargeCursor
   chargeIndex?: number
   filterIndex?: number
   disabled?: boolean
@@ -22,7 +20,6 @@ type PrepareType = {
 }
 
 const prepare = async ({
-  chargeCursor = 'charges',
   chargeIndex = 0,
   filterIndex,
   disabled = false,
@@ -82,12 +79,19 @@ const prepare = async ({
         ? localCharge?.filters?.[filterIndex || 0].properties
         : localCharge?.properties
 
+    const wrappedSetFieldValue = (path: string, value: unknown) => {
+      formikProps.setFieldValue(`charges.${chargeIndex}.${path}`, value)
+    }
+
+    // Create a mock form object that bridges to formik
+    const mockForm = {
+      setFieldValue: (path: string, value: unknown) => wrappedSetFieldValue(path, value),
+    }
+
     return useVolumeChargeForm({
-      chargeCursor,
-      chargeIndex,
       disabled,
       propertyCursor,
-      setFieldValue: formikProps.setFieldValue,
+      form: mockForm,
       valuePointer,
     })
   })

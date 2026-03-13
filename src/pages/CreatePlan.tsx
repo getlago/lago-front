@@ -43,13 +43,12 @@ import {
   CommitmentTypeEnum,
   CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
-  FixedChargeAccordionFragmentDoc,
   FixedChargesOnPlanFormFragmentDoc,
-  PlanForFixedChargeAccordionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
   PlanInterval,
+  UsageChargeForDrawerFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
@@ -106,6 +105,7 @@ gql`
       id
       minAmountCents
       payInAdvance
+      chargeModel
       appliedPricingUnit {
         conversionRate
         pricingUnit {
@@ -124,11 +124,7 @@ gql`
         ...BillableMetricForPlan
       }
 
-      ...UsageChargeAccordion
-      chargeModel
-    }
-    fixedCharges {
-      ...FixedChargeAccordion
+      ...UsageChargeForDrawer
     }
 
     usageThresholds {
@@ -143,16 +139,14 @@ gql`
     ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
     ...FixedChargesOnPlanForm
-    ...PlanForFixedChargeAccordion
   }
 
-  ${FixedChargeAccordionFragmentDoc}
+  ${UsageChargeForDrawerFragmentDoc}
   ${PlanForUsageChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
   ${FixedChargesOnPlanFormFragmentDoc}
-  ${PlanForFixedChargeAccordionFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -290,8 +284,6 @@ const CreatePlan = () => {
                     canBeEdited={canBeEdited}
                     formikProps={formikProps}
                     isEdition={isEdition}
-                    editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
                   />
 
                   <UsageChargesSection
@@ -300,7 +292,6 @@ const CreatePlan = () => {
                     formikProps={formikProps}
                     premiumWarningDialogRef={premiumWarningDialogRef}
                     alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
-                    editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                   />
                 </CenteredPage.SubsectionWrapper>
               </CenteredPage.SectionWrapper>

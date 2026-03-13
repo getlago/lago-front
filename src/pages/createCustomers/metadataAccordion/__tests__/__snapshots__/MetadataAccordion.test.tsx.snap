@@ -485,3 +485,5 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
   </div>
 </div>
 `;
+
+exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN should render with initial metadata 1`] = `<div />`;

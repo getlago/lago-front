@@ -81,6 +81,30 @@ const PageSectionTitle = ({
   )
 }
 
+const SubsectionTitle = ({
+  title,
+  description,
+}: {
+  title: string
+  description?: string | JSX.Element
+}) => {
+  return (
+    <div className="flex flex-col gap-1">
+      <Typography variant="captionHl" color="grey700">
+        {title}
+      </Typography>
+      {description &&
+        (typeof description === 'string' ? (
+          <Typography variant="caption" color="grey600">
+            {description}
+          </Typography>
+        ) : (
+          description
+        ))}
+    </div>
+  )
+}
+
 const PageSection = ({ children }: PropsWithChildren) => {
   return <section className="flex flex-col gap-6">{children}</section>
 }
@@ -105,5 +129,6 @@ export const CenteredPage = {
   PageSectionTitle,
   PageTitle,
   SectionWrapper,
+  SubsectionTitle,
   SubsectionWrapper,
 }

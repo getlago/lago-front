@@ -1,8 +1,6 @@
-import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeFilterInput } from '~/components/plans/types'
 import { GraduatedPercentageRangeInput, PropertiesInput } from '~/generated/graphql'
 import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
@@ -14,18 +12,15 @@ type InfoCalculationRow = {
 }
 
 type useGraduatedPercentageChargeForm = ({
-  chargeCursor,
-  chargeIndex,
   disabled,
   propertyCursor,
-  setFieldValue,
+  form,
   valuePointer,
 }: {
-  chargeCursor: ChargeCursor
-  chargeIndex: number
   disabled?: boolean
   propertyCursor: string
-  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: any
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
@@ -51,14 +46,13 @@ export const DEFAULT_GRADUATED_PERCENTAGE_CHARGES = [
 ]
 
 export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm = ({
-  chargeCursor,
-  chargeIndex,
   disabled,
   propertyCursor,
-  setFieldValue,
+  form,
   valuePointer,
 }) => {
-  const formikIdentifier = `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`
+  const setFieldValue = (path: string, value: unknown) => form.setFieldValue(path, value)
+  const formikIdentifier = `${propertyCursor}.graduatedPercentageRanges`
   const graduatedPercentageRanges = useMemo(
     () => valuePointer?.graduatedPercentageRanges || [],
     [valuePointer],
@@ -135,10 +129,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
         return acc
       }, [])
 
-      setFieldValue(
-        `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`,
-        newgraduatedPercentageRanges,
-      )
+      setFieldValue(`${propertyCursor}.graduatedPercentageRanges`, newgraduatedPercentageRanges)
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {

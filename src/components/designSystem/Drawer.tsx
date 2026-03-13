@@ -18,6 +18,8 @@ import {
   PreventClosingDrawerDialogRef,
 } from './PreventClosingDrawerDialog'
 
+export const DRAWER_TRANSITION_DURATION = 250
+
 interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string
   stickyBottomBarClassName?: string
@@ -94,7 +96,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           anchor={anchor}
           elevation={4}
           onClose={closeAction}
-          transitionDuration={250}
+          transitionDuration={DRAWER_TRANSITION_DURATION}
           SlideProps={{ onEntered }}
           slotProps={{
             backdrop: {
