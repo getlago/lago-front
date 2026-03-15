@@ -26,8 +26,8 @@
     "lint": "prettier --check \"./src/**/*.{ts,tsx,svg}\" && eslint ."
   },
   "peerDependencies": {
-    "@mui/material": "5.18.0",
-    "@mui/x-date-pickers": "6.20.2",
+    "@mui/material": "7.3.9",
+    "@mui/x-date-pickers": "8.27.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.30.3"
