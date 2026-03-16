@@ -11,6 +11,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { FeatureEntitlementFormValues } from '~/components/plans/drawers/FeatureEntitlementDrawer'
 import { MinimumCommitmentFormValues } from '~/components/plans/drawers/MinimumCommitmentDrawer'
 import { SubscriptionFeeFormValues } from '~/components/plans/drawers/SubscriptionFeeDrawer'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
@@ -236,6 +237,33 @@ const CreatePlan = () => {
     })
   }
 
+  const handleEntitlementDrawerSave = (values: FeatureEntitlementFormValues) => {
+    const current = formikProps.values.entitlements || []
+    const existingIndex = current.findIndex((e) => e.featureCode === values.featureCode)
+
+    if (existingIndex >= 0) {
+      const updated = [...current]
+
+      updated[existingIndex] = {
+        featureId: values.featureId,
+        featureName: values.featureName,
+        featureCode: values.featureCode,
+        privileges: values.privileges,
+      }
+      formikProps.setFieldValue('entitlements', updated)
+    } else {
+      formikProps.setFieldValue('entitlements', [
+        ...current,
+        {
+          featureId: values.featureId,
+          featureName: values.featureName,
+          featureCode: values.featureCode,
+          privileges: values.privileges,
+        },
+      ])
+    }
+  }
+
   return (
     <PlanFormProvider
       currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
@@ -321,7 +349,11 @@ const CreatePlan = () => {
                     onDrawerSave={handleMinimumCommitmentSave}
                   />
 
-                  <FeatureEntitlementSection formikProps={formikProps} isEdition={isEdition} />
+                  <FeatureEntitlementSection
+                    formikProps={formikProps}
+                    isEdition={isEdition}
+                    onDrawerSave={handleEntitlementDrawerSave}
+                  />
                 </CenteredPage.SubsectionWrapper>
               </CenteredPage.SectionWrapper>
             </>

@@ -24,7 +24,10 @@ export interface MinimumCommitmentFormValues {
 }
 
 const minimumCommitmentSchema = z.object({
-  amountCents: z.string().min(1, 'text_1771342994699klxu2paz7g8'),
+  amountCents: z
+    .string()
+    .min(1, 'text_1771342994699klxu2paz7g8')
+    .refine((val) => Number(val) > 0, 'text_632d68358f1fedc68eed3e91'),
   invoiceDisplayName: z.string().optional(),
   taxes: z.array(z.custom<TaxForPlanAndChargesInPlanFormFragment>()),
 })
