@@ -47,6 +47,14 @@ export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSec
   const currency = formikProps.values.amountCurrency || CurrencyEnum.Usd
   const interval = formikProps.values.interval
 
+  const openMinimumCommitmentDrawer = () => {
+    minimumCommitmentDrawerRef.current?.openDrawer({
+      amountCents: commitment?.amountCents || '',
+      invoiceDisplayName: commitment?.invoiceDisplayName || undefined,
+      taxes: commitment?.taxes || [],
+    })
+  }
+
   return (
     <CenteredPage.PageSection>
       <CenteredPage.PageSectionTitle
@@ -87,7 +95,7 @@ export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSec
                 {
                   icon: 'pen',
                   tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
-                  onClick: () => {},
+                  onClick: () => openMinimumCommitmentDrawer(),
                 },
                 {
                   icon: 'trash',
@@ -100,13 +108,7 @@ export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSec
             />
           }
           data-test={OPEN_MINIMUM_COMMITMENT_DRAWER_TEST_ID}
-          onClick={() => {
-            minimumCommitmentDrawerRef.current?.openDrawer({
-              amountCents: commitment?.amountCents || '',
-              invoiceDisplayName: commitment?.invoiceDisplayName || undefined,
-              taxes: commitment?.taxes || [],
-            })
-          }}
+          onClick={() => openMinimumCommitmentDrawer()}
         />
       )}
 
