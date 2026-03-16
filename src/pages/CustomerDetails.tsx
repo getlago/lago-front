@@ -168,7 +168,9 @@ const CustomerDetails = () => {
     <div>
       {/* Header */}
       <MainHeader.Configure
-        breadcrumb={[{ label: 'Customer', path: CUSTOMERS_LIST_ROUTE }]}
+        breadcrumb={[
+          { label: translate('text_624efab67eb2570101d117a5'), path: CUSTOMERS_LIST_ROUTE },
+        ]}
         actions={actions}
         entity={entity}
         tabs={tabs}
