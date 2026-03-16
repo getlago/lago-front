@@ -61,6 +61,11 @@ const PlansList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
   const list = data?.plans?.collection || []
+
+  const canUpdatePlans = hasPermissions(['plansUpdate'])
+  const canCreatePlans = hasPermissions(['plansCreate'])
+  const canDeletePlans = hasPermissions(['plansDelete'])
+
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (!!variables?.searchTerm) {
       return {
@@ -68,7 +73,7 @@ const PlansList = () => {
         subtitle: translate('text_63bee1cc88d85f04deb0d67a'),
       }
     }
-    if (hasPermissions(['plansCreate'])) {
+    if (canCreatePlans) {
       return {
         title: translate('text_624451f920b6a500aab37618'),
         subtitle: translate('text_624451f920b6a500aab3761c'),
@@ -88,7 +93,7 @@ const PlansList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_62442e40cea25600b0b6d84a') }}
         actions={[
-          ...(hasPermissions(['plansCreate'])
+          ...(canCreatePlans
             ? [
                 {
                   type: 'action' as const,
@@ -189,11 +194,15 @@ const PlansList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_64fa1756d7ccc300a03a09f4')}
+          actionColumnTooltip={
+            canUpdatePlans && canCreatePlans && canDeletePlans
+              ? () => translate('text_64fa1756d7ccc300a03a09f4')
+              : undefined
+          }
           actionColumn={(plan) => {
             const actions: ActionItem<typeof plan>[] = []
 
-            if (hasPermissions(['plansUpdate'])) {
+            if (canUpdatePlans) {
               actions.push({
                 startIcon: 'pen',
                 title: translate('text_625fd39a15394c0117e7d792'),
@@ -207,7 +216,7 @@ const PlansList = () => {
               })
             }
 
-            if (hasPermissions(['plansCreate'])) {
+            if (canCreatePlans) {
               actions.push({
                 startIcon: 'duplicate',
                 title: translate('text_64fa170e02f348164797a6af'),
@@ -221,7 +230,7 @@ const PlansList = () => {
               })
             }
 
-            if (hasPermissions(['plansDelete'])) {
+            if (canDeletePlans) {
               actions.push({
                 startIcon: 'trash',
                 title: translate('text_625fd39a15394c0117e7d794'),

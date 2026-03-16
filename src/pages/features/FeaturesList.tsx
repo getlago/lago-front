@@ -73,6 +73,9 @@ const FeaturesList = () => {
   const features = featuresData?.features.collection
   const { debouncedSearch, isLoading } = useDebouncedSearch(getFeatures, featuresLoading)
 
+  const canUpdateFeatures = hasPermissions(['featuresUpdate'])
+  const canDeleteFeatures = hasPermissions(['featuresDelete'])
+
   const tablePlaceholder = useMemo(
     () => ({
       errorState: !!featuresVariables?.searchTerm
@@ -156,7 +159,11 @@ const FeaturesList = () => {
             })
           }
           placeholder={tablePlaceholder}
-          actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
+          actionColumnTooltip={
+            canUpdateFeatures && canDeleteFeatures
+              ? () => translate('text_626162c62f790600f850b7b6')
+              : undefined
+          }
           columns={[
             {
               key: 'name',
@@ -211,7 +218,7 @@ const FeaturesList = () => {
           actionColumn={(feature) => {
             const actions: ActionItem<typeof feature>[] = []
 
-            if (hasPermissions(['featuresUpdate'])) {
+            if (canUpdateFeatures) {
               actions.push({
                 title: translate('text_63e51ef4985f0ebd75c212fc'),
                 startIcon: 'pen',
@@ -221,7 +228,7 @@ const FeaturesList = () => {
               })
             }
 
-            if (hasPermissions(['featuresDelete'])) {
+            if (canDeleteFeatures) {
               actions.push({
                 title: translate('text_63ea0f84f400488553caa786'),
                 startIcon: 'trash',

@@ -81,6 +81,11 @@ const CouponsList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
   const list = data?.coupons?.collection || []
+
+  const canCreateCoupons = hasPermissions(['couponsCreate'])
+  const canUpdateCoupons = hasPermissions(['couponsUpdate'])
+  const canDeleteCoupons = hasPermissions(['couponsDelete'])
+
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
       return {
@@ -88,7 +93,7 @@ const CouponsList = () => {
         subtitle: translate('text_63beebbf4f60e2f553232775'),
       }
     }
-    if (hasPermissions(['couponsCreate'])) {
+    if (canCreateCoupons) {
       return {
         title: translate('text_62865498824cc10126ab296c'),
         subtitle: translate('text_62865498824cc10126ab2971'),
@@ -108,7 +113,7 @@ const CouponsList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_62865498824cc10126ab2956') }}
         actions={[
-          ...(hasPermissions(['couponsCreate'])
+          ...(canCreateCoupons
             ? [
                 {
                   type: 'action' as const,
@@ -205,12 +210,16 @@ const CouponsList = () => {
               content: ({ status }) => <Status {...couponStatusMapping(status)} />,
             },
           ]}
-          actionColumnTooltip={() => translate('text_62876a50ea3bba00b56d2c76')}
+          actionColumnTooltip={
+            canUpdateCoupons && canDeleteCoupons
+              ? () => translate('text_62876a50ea3bba00b56d2c76')
+              : undefined
+          }
           actionColumn={(coupon) => {
             const { id, status } = coupon
             const actions: ActionItem<typeof coupon>[] = []
 
-            if (hasPermissions(['couponsUpdate'])) {
+            if (canUpdateCoupons) {
               actions.push({
                 startIcon: 'pen',
                 title: translate('text_625fd39a15394c0117e7d792'),
@@ -232,7 +241,7 @@ const CouponsList = () => {
               })
             }
 
-            if (hasPermissions(['couponsDelete'])) {
+            if (canDeleteCoupons) {
               actions.push({
                 startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),

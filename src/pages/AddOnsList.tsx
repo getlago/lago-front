@@ -64,6 +64,11 @@ const AddOnsList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
   const list = data?.addOns?.collection || []
+
+  const canCreateAddOns = hasPermissions(['addonsCreate'])
+  const canUpdateAddOns = hasPermissions(['addonsUpdate'])
+  const canDeleteAddOns = hasPermissions(['addonsDelete'])
+
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
       return {
@@ -71,7 +76,7 @@ const AddOnsList = () => {
         subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
       }
     }
-    if (hasPermissions(['addonsCreate'])) {
+    if (canCreateAddOns) {
       return {
         title: translate('text_629728388c4d2300e2d380c9'),
         subtitle: translate('text_629728388c4d2300e2d380df'),
@@ -91,7 +96,7 @@ const AddOnsList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_629728388c4d2300e2d3809b') }}
         actions={[
-          ...(hasPermissions(['addonsCreate'])
+          ...(canCreateAddOns
             ? [
                 {
                   type: 'action' as const,
@@ -187,11 +192,15 @@ const AddOnsList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_629728388c4d2300e2d3810d')}
+          actionColumnTooltip={
+            canUpdateAddOns && canDeleteAddOns
+              ? () => translate('text_629728388c4d2300e2d3810d')
+              : undefined
+          }
           actionColumn={(addOn) => {
             const actions: ActionItem<typeof addOn>[] = []
 
-            if (hasPermissions(['addonsUpdate'])) {
+            if (canUpdateAddOns) {
               actions.push({
                 startIcon: 'pen',
                 title: translate('text_629728388c4d2300e2d3816a'),
@@ -199,7 +208,7 @@ const AddOnsList = () => {
               })
             }
 
-            if (hasPermissions(['addonsDelete'])) {
+            if (canDeleteAddOns) {
               actions.push({
                 startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),

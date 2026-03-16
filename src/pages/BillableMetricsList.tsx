@@ -63,6 +63,9 @@ const BillableMetricsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getBillableMetrics, loading)
   const list = data?.billableMetrics?.collection || []
 
+  const canUpdateBillableMetrics = hasPermissions(['billableMetricsUpdate'])
+  const canDeleteBillableMetrics = hasPermissions(['billableMetricsDelete'])
+
   return (
     <>
       <MainHeader.Configure
@@ -149,12 +152,16 @@ const BillableMetricsList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
+          actionColumnTooltip={
+            canUpdateBillableMetrics && canDeleteBillableMetrics
+              ? () => translate('text_6256de3bba111e00b3bfa51b')
+              : undefined
+          }
           actionColumn={(billableMetric) => {
             const { id } = billableMetric
             const actions: ActionItem<typeof billableMetric>[] = []
 
-            if (hasPermissions(['billableMetricsUpdate'])) {
+            if (canUpdateBillableMetrics) {
               actions.push({
                 startIcon: 'pen',
                 title: translate('text_6256de3bba111e00b3bfa531'),
@@ -167,7 +174,7 @@ const BillableMetricsList = () => {
               })
             }
 
-            if (hasPermissions(['billableMetricsDelete'])) {
+            if (canDeleteBillableMetrics) {
               actions.push({
                 startIcon: 'trash',
                 title: translate('text_6256de3bba111e00b3bfa533'),
