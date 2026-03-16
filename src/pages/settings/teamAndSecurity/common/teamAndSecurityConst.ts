@@ -2,6 +2,7 @@ export const teamAndSecurityGroupOptions = {
   members: 'members',
   roles: 'roles',
   authentication: 'authentication',
+  logs: 'logs',
 } as const
 
 export const teamAndSecurityTabOptions = {

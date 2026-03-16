@@ -89,6 +89,7 @@ gql`
       rolesDelete
       rolesUpdate
       rolesView
+      securityLogsView
       subscriptionsCreate
       subscriptionsUpdate
       subscriptionsView

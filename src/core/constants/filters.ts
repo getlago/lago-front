@@ -29,3 +29,5 @@ export const ACTIVITY_LOG_FILTER_PREFIX = 'actl'
 export const API_LOGS_FILTER_PREFIX = 'apil'
 
 export const SUBSCRIPTION_LIST_FILTER_PREFIX = 'sub'
+
+export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
