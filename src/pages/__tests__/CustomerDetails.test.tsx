@@ -6,10 +6,13 @@ import { render } from '~/test-utils'
 
 import CustomerDetails from '../CustomerDetails'
 
-jest.mock('~/components/MainHeader', () => ({
+jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
     Configure: () => null,
   },
+}))
+
+jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
   useMainHeaderTabContent: () => null,
 }))
 
