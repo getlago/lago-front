@@ -7,11 +7,12 @@ describe('teamAndSecurityConst', () => {
         members: 'members',
         roles: 'roles',
         authentication: 'authentication',
+        logs: 'logs',
       })
     })
 
-    it('has exactly 3 group options', () => {
-      expect(Object.keys(teamAndSecurityGroupOptions)).toHaveLength(3)
+    it('has exactly 4 group options', () => {
+      expect(Object.keys(teamAndSecurityGroupOptions)).toHaveLength(4)
     })
 
     it('contains a members group', () => {
@@ -24,6 +25,10 @@ describe('teamAndSecurityConst', () => {
 
     it('contains an authentication group', () => {
       expect(teamAndSecurityGroupOptions.authentication).toBe('authentication')
+    })
+
+    it('contains a logs group', () => {
+      expect(teamAndSecurityGroupOptions.logs).toBe('logs')
     })
   })
 

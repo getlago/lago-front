@@ -10,6 +10,7 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
   formatFiltersForRevenueStreamsQuery,
+  formatFiltersForSecurityLogsQuery,
   formatFiltersForWebhookLogsQuery,
   formatMetadataFilter,
   getFilterValue,
@@ -859,6 +860,28 @@ describe('Filters utils', () => {
 
       expect(result).toEqual(['credit'])
     })
+
+    it('should parse logEvents filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.logEvents](
+        'api_key_created,user_signed_up',
+      )
+
+      expect(result).toEqual(['api_key_created', 'user_signed_up'])
+    })
+
+    it('should parse logTypes filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.logTypes]('api_key,user')
+
+      expect(result).toEqual(['api_key', 'user'])
+    })
+
+    it('should parse userIds filter and extract ids before separator', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.userIds](
+        `user-1${filterDataInlineSeparator}alice@example.com,user-2${filterDataInlineSeparator}bob@example.com`,
+      )
+
+      expect(result).toEqual(['user-1', 'user-2'])
+    })
   })
 
   describe('formatMetadataFilter', () => {
@@ -1059,6 +1082,86 @@ describe('Filters utils', () => {
       const result = FILTER_VALUE_MAP[AvailableFiltersEnum.webhookStatus]('pending')
 
       expect(result).toEqual(['pending'])
+    })
+  })
+  describe('formatFiltersForSecurityLogsQuery', () => {
+    const currentTimeString = '2025-06-15T10:30:00.000Z'
+    const mockCurrentTime = DateTime.fromISO(currentTimeString).setZone('utc') as DateTime<true>
+
+    beforeEach(() => {
+      jest.spyOn(DateTime, 'now').mockImplementation(() => mockCurrentTime)
+    })
+
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    it('should format security log filters with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('secul_logEvents', 'api_key_created,user_signed_up')
+      searchParams.set('secul_logTypes', 'api_key,user')
+      searchParams.set(
+        'secul_userIds',
+        `user-1${filterDataInlineSeparator}alice@example.com,user-2${filterDataInlineSeparator}bob@example.com`,
+      )
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          logEvents: ['api_key_created', 'user_signed_up'],
+          logTypes: ['api_key', 'user'],
+          userIds: ['user-1', 'user-2'],
+        }),
+      )
+    })
+
+    it('should format security log filters with loggedDate', () => {
+      const searchParams = new URLSearchParams()
+      const pastDate = mockCurrentTime.minus({ days: 30 }).toISO()
+
+      searchParams.set('secul_loggedDate', `${pastDate},${currentTimeString}`)
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          fromDate: pastDate,
+          toDate: currentTimeString,
+        }),
+      )
+    })
+
+    it('should inject default toDate when no loggedDate is provided', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('secul_logEvents', 'api_key_created')
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          logEvents: ['api_key_created'],
+          fromDate: undefined,
+          toDate: currentTimeString,
+        }),
+      )
+    })
+
+    it('should ignore filters with a different prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('actl_logEvents', 'api_key_created')
+      searchParams.set('secul_logTypes', 'api_key')
+
+      const result = formatFiltersForSecurityLogsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          logTypes: ['api_key'],
+        }),
+      )
     })
   })
 })

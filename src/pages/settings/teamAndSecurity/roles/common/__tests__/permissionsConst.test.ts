@@ -88,6 +88,7 @@ describe('permissionsConst', () => {
         'plans',
         'pricingUnits',
         'roles',
+        'securityLogs',
         'subscriptions',
         'wallets',
       ]
