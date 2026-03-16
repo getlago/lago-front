@@ -40,6 +40,10 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        securityLogs: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
         customerPortalInvoices: {
           keyArgs: false,
           merge: mergePaginatedCollection,
