@@ -7,10 +7,8 @@ import { Breadcrumb } from './Breadcrumb'
 import { EntitySection } from './EntitySection'
 import { MainHeaderConfigure } from './MainHeaderConfigure'
 import { useMainHeaderReader } from './MainHeaderContext'
+import { MAIN_HEADER_FILTERS_TEST_ID, MAIN_HEADER_TEST_ID } from './mainHeaderTestIds'
 import { NavigationTabBar } from './NavigationTabBar'
-
-export const MAIN_HEADER_TEST_ID = 'main-header'
-export const MAIN_HEADER_FILTERS_TEST_ID = 'main-header-filters'
 
 /**
  * MainHeader — layout-level component that reads from MainHeaderContext.

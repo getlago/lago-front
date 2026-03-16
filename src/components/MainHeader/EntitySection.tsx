@@ -6,11 +6,12 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 
+import {
+  ENTITY_SECTION_METADATA_TEST_ID,
+  ENTITY_SECTION_TEST_ID,
+  ENTITY_SECTION_VIEW_NAME_TEST_ID,
+} from './mainHeaderTestIds'
 import { MainHeaderEntityConfig } from './types'
-
-export const ENTITY_SECTION_TEST_ID = 'entity-section'
-export const ENTITY_SECTION_VIEW_NAME_TEST_ID = 'entity-section-view-name'
-export const ENTITY_SECTION_METADATA_TEST_ID = 'entity-section-metadata'
 
 /**
  * Entity section — renders as a fragment so the parent controls layout.

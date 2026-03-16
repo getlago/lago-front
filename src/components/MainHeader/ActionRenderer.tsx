@@ -5,9 +5,8 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { MenuPopper } from '~/styles'
 
+import { ACTIONS_BLOCK_TEST_ID } from './mainHeaderTestIds'
 import { MainHeaderAction } from './types'
-
-export const ACTIONS_BLOCK_TEST_ID = 'actions-block'
 
 /**
  * Renders the full actions block: skeleton during loading, action buttons otherwise.
