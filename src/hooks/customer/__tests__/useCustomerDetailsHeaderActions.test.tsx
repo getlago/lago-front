@@ -3,6 +3,7 @@ import { RefObject } from 'react'
 
 import { AddCouponToCustomerDialogRef } from '~/components/customers/AddCouponToCustomerDialog'
 import { DeleteCustomerDialogRef } from '~/components/customers/DeleteCustomerDialog'
+import { MainHeaderDropdownAction, MainHeaderInPageAction } from '~/components/MainHeader/types'
 import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
 
 import { useCustomerDetailsHeaderActions } from '../useCustomerDetailsHeaderActions'
@@ -114,14 +115,10 @@ describe('useCustomerDetailsHeaderActions', () => {
       it('THEN should include dropdown items for all actions', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
-        const dropdownAction = result.current[1]
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
-        expect(dropdownAction.type).toBe('dropdown')
-
-        if (dropdownAction.type === 'dropdown') {
-          // 7 items: overdue, subscription, invoice, coupon, wallet, edit, delete
-          expect(dropdownAction.items).toHaveLength(7)
-        }
+        // 7 items: overdue, subscription, invoice, coupon, wallet, edit, delete
+        expect(dropdownAction.items).toHaveLength(7)
       })
     })
 
@@ -145,13 +142,10 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(params))
 
-        const dropdownAction = result.current[1]
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const walletItem = dropdownAction.items[4]
 
-        if (dropdownAction.type === 'dropdown') {
-          const walletItem = dropdownAction.items[4]
-
-          expect(walletItem.disabled).toBe(true)
-        }
+        expect(walletItem.disabled).toBe(true)
       })
     })
 
@@ -164,13 +158,10 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(params))
 
-        const dropdownAction = result.current[1]
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const overdueItem = dropdownAction.items[0]
 
-        if (dropdownAction.type === 'dropdown') {
-          const overdueItem = dropdownAction.items[0]
-
-          expect(overdueItem.hidden).toBe(true)
-        }
+        expect(overdueItem.hidden).toBe(true)
       })
     })
 
@@ -178,11 +169,9 @@ describe('useCustomerDetailsHeaderActions', () => {
       it('THEN should call generatePortalUrl with the customer id', async () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
-        const portalAction = result.current[0]
+        const portalAction = result.current[0] as MainHeaderInPageAction
 
-        if (portalAction.type === 'action') {
-          await portalAction.onClick()
-        }
+        await portalAction.onClick()
 
         expect(mockGeneratePortalUrl).toHaveBeenCalledWith({
           variables: { input: { id: 'cust-1' } },
@@ -191,58 +180,120 @@ describe('useCustomerDetailsHeaderActions', () => {
     })
 
     describe('WHEN a dropdown item onClick is called', () => {
+      it('THEN should navigate to the overdue payment route', () => {
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
+
+        dropdownAction.items[0].onClick(closePopper)
+
+        expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/request-overdue-payment')
+        expect(closePopper).toHaveBeenCalled()
+      })
+
       it('THEN should navigate to the subscription creation route', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
-        const dropdownAction = result.current[1]
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
 
-        if (dropdownAction.type === 'dropdown') {
-          const closePopper = jest.fn()
-          const subscriptionItem = dropdownAction.items[1]
+        dropdownAction.items[1].onClick(closePopper)
 
-          subscriptionItem.onClick(closePopper)
+        expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/create/subscription')
+        expect(closePopper).toHaveBeenCalled()
+      })
 
-          expect(mockNavigate).toHaveBeenCalled()
-          expect(closePopper).toHaveBeenCalled()
-        }
+      it('THEN should navigate to the invoice creation route', () => {
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
+
+        dropdownAction.items[2].onClick(closePopper)
+
+        expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/create-invoice')
+        expect(closePopper).toHaveBeenCalled()
+      })
+
+      it('THEN should navigate to the wallet creation route', () => {
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
+
+        dropdownAction.items[4].onClick(closePopper)
+
+        expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/wallet/create')
+        expect(closePopper).toHaveBeenCalled()
+      })
+
+      it('THEN should navigate to the customer edit route', () => {
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
+
+        dropdownAction.items[5].onClick(closePopper)
+
+        expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/edit')
+        expect(closePopper).toHaveBeenCalled()
+      })
+
+      it('THEN should navigate to customers list after delete', () => {
+        const onDeletedCapture = { fn: jest.fn() as (() => void) | undefined }
+
+        const deleteDialogRef = {
+          current: {
+            openDialog: jest.fn(({ onDeleted }: { onDeleted: () => void }) => {
+              onDeletedCapture.fn = onDeleted
+            }),
+          },
+        } as unknown as RefObject<DeleteCustomerDialogRef>
+
+        const { result } = renderHook(() =>
+          useCustomerDetailsHeaderActions({ ...defaultParams, deleteDialogRef }),
+        )
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
+
+        dropdownAction.items[6].onClick(closePopper)
+
+        // Simulate the onDeleted callback
+        onDeletedCapture.fn?.()
+
+        expect(mockNavigate).toHaveBeenCalledWith('/customers')
       })
 
       it('THEN should open delete dialog and close popper when delete is clicked', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
-        const dropdownAction = result.current[1]
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
 
-        if (dropdownAction.type === 'dropdown') {
-          const closePopper = jest.fn()
-          const deleteItem = dropdownAction.items[6]
+        dropdownAction.items[6].onClick(closePopper)
 
-          deleteItem.onClick(closePopper)
-
-          expect(
-            (defaultParams.deleteDialogRef.current as unknown as { openDialog: jest.Mock })
-              .openDialog,
-          ).toHaveBeenCalled()
-          expect(closePopper).toHaveBeenCalled()
-        }
+        expect(
+          (defaultParams.deleteDialogRef.current as unknown as { openDialog: jest.Mock })
+            .openDialog,
+        ).toHaveBeenCalled()
+        expect(closePopper).toHaveBeenCalled()
       })
 
       it('THEN should open add coupon dialog and close popper when coupon is clicked', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
-        const dropdownAction = result.current[1]
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
 
-        if (dropdownAction.type === 'dropdown') {
-          const closePopper = jest.fn()
-          const couponItem = dropdownAction.items[3]
+        dropdownAction.items[3].onClick(closePopper)
 
-          couponItem.onClick(closePopper)
-
-          expect(
-            (defaultParams.addCouponDialogRef.current as unknown as { openDialog: jest.Mock })
-              .openDialog,
-          ).toHaveBeenCalled()
-          expect(closePopper).toHaveBeenCalled()
-        }
+        expect(
+          (defaultParams.addCouponDialogRef.current as unknown as { openDialog: jest.Mock })
+            .openDialog,
+        ).toHaveBeenCalled()
+        expect(closePopper).toHaveBeenCalled()
       })
     })
 
@@ -257,13 +308,9 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
-        const dropdownAction = result.current[1]
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
-        if (dropdownAction.type === 'dropdown') {
-          const subscriptionItem = dropdownAction.items[1]
-
-          expect(subscriptionItem.hidden).toBe(true)
-        }
+        expect(dropdownAction.items[1].hidden).toBe(true)
       })
     })
   })
