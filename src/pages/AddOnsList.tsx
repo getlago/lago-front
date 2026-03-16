@@ -5,12 +5,11 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
-import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -20,12 +19,11 @@ import {
   UPDATE_ADD_ON_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { AddOnItemFragment, useAddOnsLazyQuery } from '~/generated/graphql'
+import { useAddOnsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment AddOnItem on AddOn {
@@ -65,8 +63,6 @@ const AddOnsList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
   const list = data?.addOns?.collection || []
-  const shouldShowItemActions = hasPermissions(['addonsUpdate', 'addonsDelete'])
-
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
       return {
@@ -91,22 +87,28 @@ const AddOnsList = () => {
 
   return (
     <>
-      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_629728388c4d2300e2d3809b')}
-        </Typography>
-        <PageHeader.Group>
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_629728388c4d2300e2d3809b') }}
+        actions={[
+          ...(hasPermissions(['addonsCreate'])
+            ? [
+                {
+                  type: 'action' as const,
+                  label: translate('text_629728388c4d2300e2d38085'),
+                  variant: 'primary' as const,
+                  onClick: () => navigate(CREATE_ADD_ON_ROUTE),
+                  dataTest: 'create-addon-cta',
+                },
+              ]
+            : []),
+        ]}
+        filtersSection={
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-          {hasPermissions(['addonsCreate']) && (
-            <ButtonLink type="button" to={CREATE_ADD_ON_ROUTE} data-test="create-addon-cta">
-              {translate('text_629728388c4d2300e2d38085')}
-            </ButtonLink>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+        }
+      />
 
       <InfiniteScroll
         onBottom={() => {
@@ -126,7 +128,7 @@ const AddOnsList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))]')}
+          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -186,35 +188,32 @@ const AddOnsList = () => {
           ]}
           actionColumnTooltip={() => translate('text_629728388c4d2300e2d3810d')}
           actionColumn={(addOn) => {
-            if (!shouldShowItemActions) return
+            const actions = []
 
-            return [
-              ...(hasPermissions(['addonsUpdate'])
-                ? [
-                    {
-                      startIcon: 'pen',
-                      title: translate('text_629728388c4d2300e2d3816a'),
-                      onAction: () =>
-                        navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id })),
-                    } as ActionItem<AddOnItemFragment>,
-                  ]
-                : []),
-              ...(hasPermissions(['addonsDelete'])
-                ? [
-                    {
-                      startIcon: 'trash',
-                      title: translate('text_629728388c4d2300e2d38182'),
-                      onAction: () =>
-                        deleteDialogRef.current?.openDialog({
-                          addOn,
-                          callback: () => {
-                            navigate(ADD_ONS_ROUTE)
-                          },
-                        }),
-                    } as ActionItem<AddOnItemFragment>,
-                  ]
-                : []),
-            ]
+            if (hasPermissions(['addonsUpdate'])) {
+              actions.push({
+                startIcon: 'pen' as const,
+                title: translate('text_629728388c4d2300e2d3816a'),
+                onAction: () => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id })),
+              })
+            }
+
+            if (hasPermissions(['addonsDelete'])) {
+              actions.push({
+                startIcon: 'trash' as const,
+                title: translate('text_629728388c4d2300e2d38182'),
+                onAction: () => {
+                  deleteDialogRef.current?.openDialog({
+                    addOn,
+                    callback: () => {
+                      navigate(ADD_ONS_ROUTE)
+                    },
+                  })
+                },
+              })
+            }
+
+            return actions
           }}
           placeholder={{
             errorState: !!variables?.searchTerm

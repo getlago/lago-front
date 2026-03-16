@@ -3,19 +3,16 @@ import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
-import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ADD_ONS_ROUTE, UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, useGetAddOnForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getAddOnForDetails($addOn: ID!) {
@@ -61,84 +58,49 @@ const AddOnDetails = () => {
     },
   )
 
-  const shouldShowActions = hasPermissions(['addonsCreate', 'addonsUpdate', 'addonsDelete'])
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      dataTest: 'addon-details-actions',
+      items: [
+        {
+          label: translate('text_625fd39a15394c0117e7d792'),
+          dataTest: 'addon-details-edit',
+          hidden: !hasPermissions(['addonsUpdate']),
+          onClick: (closePopper) => {
+            navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOnId as string }))
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_629728388c4d2300e2d38182'),
+          hidden: !addOn || !hasPermissions(['addonsDelete']),
+          onClick: (closePopper) => {
+            if (!addOn) return
+            deleteDialogRef.current?.openDialog({
+              addOn,
+              callback: () => {
+                navigate(ADD_ONS_ROUTE)
+              },
+            })
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group className="overflow-hidden">
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() => {
-              navigate(ADD_ONS_ROUTE)
-            }}
-          />
-          {isAddOnLoading && !addOn ? (
-            <Skeleton variant="text" className="w-50" />
-          ) : (
-            <Typography
-              variant="bodyHl"
-              color="textSecondary"
-              noWrap
-              data-test="addon-details-name"
-            >
-              {addOn?.name}
-            </Typography>
-          )}
-          <Typography variant="bodyHl" color="textSecondary" noWrap></Typography>
-        </PageHeader.Group>
-
-        {shouldShowActions && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down" data-test="addon-details-actions">
-                {translate('text_626162c62f790600f850b6fe')}
-              </Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  data-test="addon-details-edit"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOnId as string }))
-                    closePopper()
-                  }}
-                >
-                  {translate('text_625fd39a15394c0117e7d792')}
-                </Button>
-                {addOn && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      deleteDialogRef.current?.openDialog({
-                        addOn,
-                        callback: () => {
-                          navigate(ADD_ONS_ROUTE)
-                        },
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_629728388c4d2300e2d38182')}
-                  </Button>
-                )}
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      <DetailsPage.Header
+      <MainHeader.Configure
+        breadcrumb={[{ label: translate('text_629728388c4d2300e2d3809b'), path: ADD_ONS_ROUTE }]}
+        entity={{
+          viewName: addOn?.name || '',
+          metadata: translate('text_629728388c4d2300e2d3810b', { amountWithCurrency }),
+        }}
+        actions={actions}
         isLoading={isAddOnLoading}
-        icon="puzzle"
-        title={addOn?.name || ''}
-        description={translate('text_629728388c4d2300e2d3810b', { amountWithCurrency })}
       />
 
       <DetailsPage.Container>
