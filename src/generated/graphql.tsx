@@ -10130,11 +10130,6 @@ export type CreditNoteEstimateQueryVariables = Exact<{
 
 export type CreditNoteEstimateQuery = { __typename?: 'Query', creditNoteEstimate: { __typename?: 'CreditNoteEstimate', couponsAdjustmentAmountCents: any, currency: CurrencyEnum, maxCreditableAmountCents: any, maxRefundableAmountCents: any, maxOffsettableAmountCents: any, subTotalExcludingTaxesAmountCents: any, taxesAmountCents: any, taxesRate: number, appliedTaxes: Array<{ __typename?: 'CreditNoteAppliedTax', taxCode: string, taxName: string, taxRate: number, amountCents: any }>, items: Array<{ __typename?: 'CreditNoteItemEstimate', amountCents: any, fee: { __typename?: 'Fee', id: string } }> } };
 
-export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null };
-
 export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum };
 
 export type CustomerPortalInvoicesQueryVariables = Exact<{
@@ -10168,15 +10163,10 @@ export type GetCustomerPortalOverdueBalancesQueryVariables = Exact<{
 
 export type GetCustomerPortalOverdueBalancesQuery = { __typename?: 'Query', customerPortalOverdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> } };
 
-export type GetCustomerPortalUserCurrencyQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetCustomerPortalDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCustomerPortalUserCurrencyQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', currency?: CurrencyEnum | null } | null };
-
-export type GetPortalLocaleQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetPortalLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null, customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null } } | null };
+export type GetCustomerPortalDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, applicableTimezone: TimezoneEnum, premium: boolean, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null }, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null, customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
 
 export type UpdatePortalCustomerMutationVariables = Exact<{
   input: UpdateCustomerPortalCustomerInput;
@@ -10230,11 +10220,6 @@ export type TopUpPortalWalletMutationVariables = Exact<{
 export type TopUpPortalWalletMutation = { __typename?: 'Mutation', createCustomerPortalWalletTransaction?: { __typename?: 'CustomerPortalWalletTransactionCollection', collection: Array<{ __typename?: 'CustomerPortalWalletTransaction', id: string }> } | null };
 
 export type CustomerPortalWalletInfoFragment = { __typename?: 'CustomerPortalWallet', id: string, name?: string | null, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number, lastBalanceSyncAt?: any | null, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null };
-
-export type GetPortalCustomerDataQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetPortalCustomerDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', applicableTimezone: TimezoneEnum, premium: boolean } | null };
 
 export type GetPortalWalletsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13370,11 +13355,6 @@ export type EditCreditNoteMutationVariables = Exact<{
 
 
 export type EditCreditNoteMutation = { __typename?: 'Mutation', updateCreditNote?: { __typename?: 'CreditNote', id: string } | null };
-
-export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
 
 export type SupersetDashboardsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -20933,70 +20913,6 @@ export type CreditNoteEstimateQueryHookResult = ReturnType<typeof useCreditNoteE
 export type CreditNoteEstimateLazyQueryHookResult = ReturnType<typeof useCreditNoteEstimateLazyQuery>;
 export type CreditNoteEstimateSuspenseQueryHookResult = ReturnType<typeof useCreditNoteEstimateSuspenseQuery>;
 export type CreditNoteEstimateQueryResult = Apollo.QueryResult<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>;
-export const GetPortalCustomerInfosDocument = gql`
-    query getPortalCustomerInfos {
-  customerPortalUser {
-    id
-    customerType
-    name
-    firstname
-    lastname
-    legalName
-    legalNumber
-    taxIdentificationNumber
-    email
-    addressLine1
-    addressLine2
-    state
-    country
-    city
-    zipcode
-    shippingAddress {
-      addressLine1
-      addressLine2
-      city
-      country
-      state
-      zipcode
-    }
-  }
-}
-    `;
-
-/**
- * __useGetPortalCustomerInfosQuery__
- *
- * To run a query within a React component, call `useGetPortalCustomerInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPortalCustomerInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPortalCustomerInfosQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetPortalCustomerInfosQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
-      }
-export function useGetPortalCustomerInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
-        }
-// @ts-ignore
-export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>;
-export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerInfosQuery | undefined, GetPortalCustomerInfosQueryVariables>;
-export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
-        }
-export type GetPortalCustomerInfosQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosQuery>;
-export type GetPortalCustomerInfosLazyQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosLazyQuery>;
-export type GetPortalCustomerInfosSuspenseQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosSuspenseQuery>;
-export type GetPortalCustomerInfosQueryResult = Apollo.QueryResult<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>;
 export const CustomerPortalInvoicesDocument = gql`
     query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String, $status: [InvoiceStatusTypeEnum!]) {
   customerPortalInvoices(
@@ -21184,54 +21100,8 @@ export type GetCustomerPortalOverdueBalancesQueryHookResult = ReturnType<typeof 
 export type GetCustomerPortalOverdueBalancesLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalOverdueBalancesLazyQuery>;
 export type GetCustomerPortalOverdueBalancesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalOverdueBalancesSuspenseQuery>;
 export type GetCustomerPortalOverdueBalancesQueryResult = Apollo.QueryResult<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>;
-export const GetCustomerPortalUserCurrencyDocument = gql`
-    query getCustomerPortalUserCurrency {
-  customerPortalUser {
-    currency
-  }
-}
-    `;
-
-/**
- * __useGetCustomerPortalUserCurrencyQuery__
- *
- * To run a query within a React component, call `useGetCustomerPortalUserCurrencyQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerPortalUserCurrencyQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerPortalUserCurrencyQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetCustomerPortalUserCurrencyQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
-      }
-export function useGetCustomerPortalUserCurrencyLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
-        }
-// @ts-ignore
-export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>;
-export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalUserCurrencyQuery | undefined, GetCustomerPortalUserCurrencyQueryVariables>;
-export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
-        }
-export type GetCustomerPortalUserCurrencyQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencyQuery>;
-export type GetCustomerPortalUserCurrencyLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencyLazyQuery>;
-export type GetCustomerPortalUserCurrencySuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencySuspenseQuery>;
-export type GetCustomerPortalUserCurrencyQueryResult = Apollo.QueryResult<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>;
-export const GetPortalLocaleDocument = gql`
-    query getPortalLocale {
-  customerPortalOrganization {
-    id
-    premiumIntegrations
-  }
+export const GetCustomerPortalDataDocument = gql`
+    query getCustomerPortalData {
   customerPortalUser {
     id
     billingConfiguration {
@@ -21242,44 +21112,75 @@ export const GetPortalLocaleDocument = gql`
       id
       documentLocale
     }
+    applicableTimezone
+    premium
+    customerType
+    name
+    firstname
+    lastname
+    legalName
+    legalNumber
+    taxIdentificationNumber
+    email
+    addressLine1
+    addressLine2
+    state
+    country
+    city
+    zipcode
+    shippingAddress {
+      addressLine1
+      addressLine2
+      city
+      country
+      state
+      zipcode
+    }
+    currency
+  }
+  customerPortalOrganization {
+    id
+    name
+    logoUrl
+    premiumIntegrations
   }
 }
     `;
 
 /**
- * __useGetPortalLocaleQuery__
+ * __useGetCustomerPortalDataQuery__
  *
- * To run a query within a React component, call `useGetPortalLocaleQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPortalLocaleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCustomerPortalDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerPortalDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetPortalLocaleQuery({
+ * const { data, loading, error } = useGetCustomerPortalDataQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetPortalLocaleQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
+export function useGetCustomerPortalDataQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
+        return Apollo.useQuery<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>(GetCustomerPortalDataDocument, options);
       }
-export function useGetPortalLocaleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
+export function useGetCustomerPortalDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
+          return Apollo.useLazyQuery<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>(GetCustomerPortalDataDocument, options);
         }
 // @ts-ignore
-export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>;
-export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalLocaleQuery | undefined, GetPortalLocaleQueryVariables>;
-export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
+export function useGetCustomerPortalDataSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>;
+export function useGetCustomerPortalDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerPortalDataQuery | undefined, GetCustomerPortalDataQueryVariables>;
+export function useGetCustomerPortalDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
+          return Apollo.useSuspenseQuery<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>(GetCustomerPortalDataDocument, options);
         }
-export type GetPortalLocaleQueryHookResult = ReturnType<typeof useGetPortalLocaleQuery>;
-export type GetPortalLocaleLazyQueryHookResult = ReturnType<typeof useGetPortalLocaleLazyQuery>;
-export type GetPortalLocaleSuspenseQueryHookResult = ReturnType<typeof useGetPortalLocaleSuspenseQuery>;
-export type GetPortalLocaleQueryResult = Apollo.QueryResult<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>;
+export type GetCustomerPortalDataQueryHookResult = ReturnType<typeof useGetCustomerPortalDataQuery>;
+export type GetCustomerPortalDataLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalDataLazyQuery>;
+export type GetCustomerPortalDataSuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalDataSuspenseQuery>;
+export type GetCustomerPortalDataQueryResult = Apollo.QueryResult<GetCustomerPortalDataQuery, GetCustomerPortalDataQueryVariables>;
 export const UpdatePortalCustomerDocument = gql`
     mutation updatePortalCustomer($input: UpdateCustomerPortalCustomerInput!) {
   updateCustomerPortalCustomer(input: $input) {
@@ -21578,49 +21479,6 @@ export function useTopUpPortalWalletMutation(baseOptions?: Apollo.MutationHookOp
 export type TopUpPortalWalletMutationHookResult = ReturnType<typeof useTopUpPortalWalletMutation>;
 export type TopUpPortalWalletMutationResult = Apollo.MutationResult<TopUpPortalWalletMutation>;
 export type TopUpPortalWalletMutationOptions = Apollo.BaseMutationOptions<TopUpPortalWalletMutation, TopUpPortalWalletMutationVariables>;
-export const GetPortalCustomerDataDocument = gql`
-    query getPortalCustomerData {
-  customerPortalUser {
-    applicableTimezone
-    premium
-  }
-}
-    `;
-
-/**
- * __useGetPortalCustomerDataQuery__
- *
- * To run a query within a React component, call `useGetPortalCustomerDataQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPortalCustomerDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPortalCustomerDataQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetPortalCustomerDataQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
-      }
-export function useGetPortalCustomerDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
-        }
-// @ts-ignore
-export function useGetPortalCustomerDataSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>;
-export function useGetPortalCustomerDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalCustomerDataQuery | undefined, GetPortalCustomerDataQueryVariables>;
-export function useGetPortalCustomerDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
-        }
-export type GetPortalCustomerDataQueryHookResult = ReturnType<typeof useGetPortalCustomerDataQuery>;
-export type GetPortalCustomerDataLazyQueryHookResult = ReturnType<typeof useGetPortalCustomerDataLazyQuery>;
-export type GetPortalCustomerDataSuspenseQueryHookResult = ReturnType<typeof useGetPortalCustomerDataSuspenseQuery>;
-export type GetPortalCustomerDataQueryResult = Apollo.QueryResult<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>;
 export const GetPortalWalletsDocument = gql`
     query getPortalWallets($limit: Int, $page: Int, $status: WalletStatusEnum) {
   customerPortalWallets(limit: $limit, page: $page, status: $status) {
@@ -35942,51 +35800,6 @@ export function useEditCreditNoteMutation(baseOptions?: Apollo.MutationHookOptio
 export type EditCreditNoteMutationHookResult = ReturnType<typeof useEditCreditNoteMutation>;
 export type EditCreditNoteMutationResult = Apollo.MutationResult<EditCreditNoteMutation>;
 export type EditCreditNoteMutationOptions = Apollo.BaseMutationOptions<EditCreditNoteMutation, EditCreditNoteMutationVariables>;
-export const GetPortalOrgaInfosDocument = gql`
-    query getPortalOrgaInfos {
-  customerPortalOrganization {
-    id
-    name
-    logoUrl
-    premiumIntegrations
-  }
-}
-    `;
-
-/**
- * __useGetPortalOrgaInfosQuery__
- *
- * To run a query within a React component, call `useGetPortalOrgaInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPortalOrgaInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPortalOrgaInfosQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetPortalOrgaInfosQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
-      }
-export function useGetPortalOrgaInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
-        }
-// @ts-ignore
-export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>;
-export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>): Apollo.UseSuspenseQueryResult<GetPortalOrgaInfosQuery | undefined, GetPortalOrgaInfosQueryVariables>;
-export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
-        }
-export type GetPortalOrgaInfosQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosQuery>;
-export type GetPortalOrgaInfosLazyQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosLazyQuery>;
-export type GetPortalOrgaInfosSuspenseQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosSuspenseQuery>;
-export type GetPortalOrgaInfosQueryResult = Apollo.QueryResult<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>;
 export const SupersetDashboardsDocument = gql`
     query supersetDashboards {
   supersetDashboards {

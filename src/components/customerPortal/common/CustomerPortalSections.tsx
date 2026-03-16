@@ -1,3 +1,4 @@
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import PortalCustomerInfos from '~/components/customerPortal/PortalCustomerInfos'
@@ -5,20 +6,19 @@ import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
 import UsageSection from '~/components/customerPortal/usage/UsageSection'
 import WalletSection from '~/components/customerPortal/wallet/WalletSection'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 const CustomerPortalSections = () => {
   const { translate } = useCustomerPortalTranslate()
 
-  const { data: portalOrgaInfosData } = useGetPortalOrgaInfosQuery()
+  const { data: portalData } = useCustomerPortalData()
 
   const { viewWallet, viewSubscription, viewEditInformation } = useCustomerPortalNavigation()
 
-  const showPoweredBy =
-    !portalOrgaInfosData?.customerPortalOrganization?.premiumIntegrations?.includes(
-      PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
-    )
+  const showPoweredBy = !portalData?.customerPortalOrganization?.premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
+  )
 
   return (
     <div className="flex flex-col gap-12">

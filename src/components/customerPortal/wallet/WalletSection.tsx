@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -11,7 +12,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
   CustomerPortalWalletInfoFragment,
-  useGetPortalCustomerDataQuery,
   useGetPortalWalletsQuery,
   WalletStatusEnum,
 } from '~/generated/graphql'
@@ -33,13 +33,6 @@ gql`
     lastBalanceSyncAt
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
-  }
-
-  query getPortalCustomerData {
-    customerPortalUser {
-      applicableTimezone
-      premium
-    }
   }
 
   query getPortalWallets($limit: Int, $page: Int, $status: WalletStatusEnum) {
@@ -81,13 +74,13 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   const { translate, documentLocale } = useCustomerPortalTranslate()
 
   const {
-    data: customerPortalUserData,
+    data: customerPortalData,
     loading: customerPortalUserLoading,
     error: customerPortalUserError,
     refetch: customerPortalUserRefetch,
-  } = useGetPortalCustomerDataQuery()
+  } = useCustomerPortalData()
 
-  const customerPortalUser = customerPortalUserData?.customerPortalUser
+  const customerPortalUser = customerPortalData?.customerPortalUser
   const customerTimezone = customerPortalUser?.applicableTimezone
   const isPremium = !!customerPortalUser?.premium
 

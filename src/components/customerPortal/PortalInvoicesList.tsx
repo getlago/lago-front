@@ -3,6 +3,7 @@ import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useEffect } from 'react'
 
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -28,7 +29,6 @@ import {
   useDownloadCustomerPortalInvoiceMutation,
   useGetCustomerPortalInvoicesCollectionLazyQuery,
   useGetCustomerPortalOverdueBalancesLazyQuery,
-  useGetCustomerPortalUserCurrencyQuery,
 } from '~/generated/graphql'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
@@ -93,12 +93,6 @@ gql`
     }
   }
 
-  query getCustomerPortalUserCurrency {
-    customerPortalUser {
-      currency
-    }
-  }
-
   ${PortalInvoiceListItemFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
@@ -158,7 +152,7 @@ const PortalInvoicesList = () => {
       },
     })
 
-  const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
+  const { data: portalData } = useCustomerPortalData()
   const [getOverdueBalance, { data: overdueData, loading: overdueLoading, error: overdueError }] =
     useGetCustomerPortalOverdueBalancesLazyQuery()
   const [
@@ -173,7 +167,7 @@ const PortalInvoicesList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const customerCurrency = userCurrencyData?.customerPortalUser?.currency ?? CurrencyEnum.Usd
+  const customerCurrency = portalData?.customerPortalUser?.currency ?? CurrencyEnum.Usd
 
   const overdue = (
     overdueData?.customerPortalOverdueBalances?.collection || []

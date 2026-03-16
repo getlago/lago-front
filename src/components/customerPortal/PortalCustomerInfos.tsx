@@ -1,5 +1,4 @@
-import { gql } from '@apollo/client'
-
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -7,43 +6,7 @@ import useCustomerPortalTranslate from '~/components/customerPortal/common/useCu
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatAddress } from '~/core/formats/formatAddress'
-import {
-  CustomerAddressInput,
-  CustomerPortalCustomer,
-  CustomerTypeEnum,
-  useGetPortalCustomerInfosQuery,
-} from '~/generated/graphql'
-
-gql`
-  query getPortalCustomerInfos {
-    customerPortalUser {
-      id
-      customerType
-      name
-      firstname
-      lastname
-      legalName
-      legalNumber
-      taxIdentificationNumber
-      email
-      addressLine1
-      addressLine2
-      state
-      country
-      city
-      zipcode
-
-      shippingAddress {
-        addressLine1
-        addressLine2
-        city
-        country
-        state
-        zipcode
-      }
-    }
-  }
-`
+import { CustomerAddressInput, CustomerPortalCustomer, CustomerTypeEnum } from '~/generated/graphql'
 
 const FieldTitle = ({ title }: { title: string }) => (
   <Typography variant="body" color="grey600">
@@ -120,7 +83,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
     loading: portalCustomerInfosLoading,
     error: portalCustomerInfosError,
     refetch: portalCustomerInfosRefetch,
-  } = useGetPortalCustomerInfosQuery()
+  } = useCustomerPortalData()
 
   const customerPortalUser = portalCustomerInfosData?.customerPortalUser as CustomerPortalCustomer
 

@@ -48,10 +48,6 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
-        customerPortalUser: {
-          keyArgs: false,
-          merge: mergePaginatedCollection,
-        },
         customerPortalWallets: {
           keyArgs: false,
           merge: mergePaginatedCollection,

@@ -3,6 +3,7 @@ import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
 import { object, string } from 'yup'
 
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
@@ -18,7 +19,6 @@ import {
   CustomerTypeEnum,
   UpdateCustomerInput,
   UpdateCustomerPortalCustomerInput,
-  useGetPortalCustomerInfosQuery,
   useUpdatePortalCustomerMutation,
 } from '~/generated/graphql'
 
@@ -44,6 +44,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
     updatePortalCustomer,
     { loading: updatePortalCustomerLoading, error: updatePortalCustomerError },
   ] = useUpdatePortalCustomerMutation({
+    refetchQueries: ['getCustomerPortalData'],
     onCompleted(res) {
       if (res) {
         onSuccess?.()
@@ -305,7 +306,7 @@ const CustomerInformationPage = () => {
     loading: portalCustomerInfosLoading,
     error: portalCustomerInfosError,
     refetch: portalCustomerInfosRefetch,
-  } = useGetPortalCustomerInfosQuery()
+  } = useCustomerPortalData()
 
   const customerPortalUser = portalCustomerInfosData?.customerPortalUser
 
