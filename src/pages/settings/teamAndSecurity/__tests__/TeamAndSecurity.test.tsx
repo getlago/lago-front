@@ -6,6 +6,7 @@ import { render } from '~/test-utils'
 import TeamAndSecurity from '../TeamAndSecurity'
 
 const mockHasPermissions = jest.fn()
+const mockHasOrganizationPremiumAddon = jest.fn()
 
 jest.mock('../authentication/Authentication', () => {
   return {
@@ -39,6 +40,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {},
     loading: false,
+    hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
   }),
 }))
 
@@ -56,6 +58,7 @@ describe('TeamAndSecurity', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasOrganizationPremiumAddon.mockReturnValue(true)
   })
 
   afterEach(cleanup)
@@ -179,6 +182,19 @@ describe('TeamAndSecurity', () => {
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         return !permissions.includes('securityLogsView')
       })
+
+      render(<TeamAndSecurity />)
+
+      await waitFor(() => {
+        const tabs = screen.getAllByRole('tab')
+
+        expect(tabs).toHaveLength(3)
+        expect(tabs.find((tab) => tab.textContent === 'Security logs')).toBeUndefined()
+      })
+    })
+
+    it('hides Security logs tab when SecurityLogs premium addon is not available', async () => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
 
       render(<TeamAndSecurity />)
 

@@ -9,7 +9,9 @@ import {
   TEAM_AND_SECURITY_ROOT_ROUTE,
   TEAM_AND_SECURITY_TAB_ROUTE,
 } from '~/core/router'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import Authentication from './authentication/Authentication'
@@ -26,6 +28,7 @@ const TeamAndSecurity = () => {
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const tabs = useMemo(
     () => [
@@ -88,7 +91,9 @@ const TeamAndSecurity = () => {
           group: teamAndSecurityGroupOptions.logs,
         }),
         component: <SecurityLogs />,
-        hidden: !hasPermissions(['securityLogsView']),
+        hidden:
+          !hasPermissions(['securityLogsView']) ||
+          !hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.SecurityLogs),
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
