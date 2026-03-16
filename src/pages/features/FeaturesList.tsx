@@ -6,6 +6,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   DeleteFeatureDialog,
@@ -208,12 +209,12 @@ const FeaturesList = () => {
             },
           ]}
           actionColumn={(feature) => {
-            const actions = []
+            const actions: ActionItem<typeof feature>[] = []
 
             if (hasPermissions(['featuresUpdate'])) {
               actions.push({
                 title: translate('text_63e51ef4985f0ebd75c212fc'),
-                startIcon: 'pen' as const,
+                startIcon: 'pen',
                 onAction: async ({ id }: { id: string }) => {
                   navigate(generatePath(UPDATE_FEATURE_ROUTE, { featureId: id }))
                 },
@@ -223,7 +224,7 @@ const FeaturesList = () => {
             if (hasPermissions(['featuresDelete'])) {
               actions.push({
                 title: translate('text_63ea0f84f400488553caa786'),
-                startIcon: 'trash' as const,
+                startIcon: 'trash',
                 onAction: async () => {
                   deleteDialogRef.current?.openDialog({
                     feature: { id: feature.id },

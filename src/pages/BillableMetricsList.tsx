@@ -10,6 +10,7 @@ import {
 import { Avatar } from '~/components/designSystem/Avatar'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -149,12 +150,13 @@ const BillableMetricsList = () => {
             },
           ]}
           actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
-          actionColumn={({ id }) => {
-            const actions = []
+          actionColumn={(billableMetric) => {
+            const { id } = billableMetric
+            const actions: ActionItem<typeof billableMetric>[] = []
 
             if (hasPermissions(['billableMetricsUpdate'])) {
               actions.push({
-                startIcon: 'pen' as const,
+                startIcon: 'pen',
                 title: translate('text_6256de3bba111e00b3bfa531'),
                 onAction: () =>
                   navigate(
@@ -167,7 +169,7 @@ const BillableMetricsList = () => {
 
             if (hasPermissions(['billableMetricsDelete'])) {
               actions.push({
-                startIcon: 'trash' as const,
+                startIcon: 'trash',
                 title: translate('text_6256de3bba111e00b3bfa533'),
                 onAction: () => {
                   deleteDialogRef.current?.openDialog({ billableMetricId: id })

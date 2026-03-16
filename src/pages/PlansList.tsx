@@ -7,6 +7,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
@@ -190,11 +191,11 @@ const PlansList = () => {
           ]}
           actionColumnTooltip={() => translate('text_64fa1756d7ccc300a03a09f4')}
           actionColumn={(plan) => {
-            const actions = []
+            const actions: ActionItem<typeof plan>[] = []
 
             if (hasPermissions(['plansUpdate'])) {
               actions.push({
-                startIcon: 'pen' as const,
+                startIcon: 'pen',
                 title: translate('text_625fd39a15394c0117e7d792'),
                 dataTest: 'tab-internal-button-link-update-plan',
                 onAction: () =>
@@ -208,7 +209,7 @@ const PlansList = () => {
 
             if (hasPermissions(['plansCreate'])) {
               actions.push({
-                startIcon: 'duplicate' as const,
+                startIcon: 'duplicate',
                 title: translate('text_64fa170e02f348164797a6af'),
                 onAction: () => {
                   updateDuplicatePlanVar({
@@ -222,7 +223,7 @@ const PlansList = () => {
 
             if (hasPermissions(['plansDelete'])) {
               actions.push({
-                startIcon: 'trash' as const,
+                startIcon: 'trash',
                 title: translate('text_625fd39a15394c0117e7d794'),
                 onAction: () => {
                   deleteDialogRef.current?.openDialog({ plan })

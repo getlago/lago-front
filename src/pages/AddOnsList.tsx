@@ -8,6 +8,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -188,11 +189,11 @@ const AddOnsList = () => {
           ]}
           actionColumnTooltip={() => translate('text_629728388c4d2300e2d3810d')}
           actionColumn={(addOn) => {
-            const actions = []
+            const actions: ActionItem<typeof addOn>[] = []
 
             if (hasPermissions(['addonsUpdate'])) {
               actions.push({
-                startIcon: 'pen' as const,
+                startIcon: 'pen',
                 title: translate('text_629728388c4d2300e2d3816a'),
                 onAction: () => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id })),
               })
@@ -200,7 +201,7 @@ const AddOnsList = () => {
 
             if (hasPermissions(['addonsDelete'])) {
               actions.push({
-                startIcon: 'trash' as const,
+                startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),
                 onAction: () => {
                   deleteDialogRef.current?.openDialog({

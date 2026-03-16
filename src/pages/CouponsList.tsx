@@ -10,12 +10,13 @@ import {
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -30,7 +31,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment CouponItem on Coupon {
@@ -81,8 +81,6 @@ const CouponsList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
   const list = data?.coupons?.collection || []
-  const shouldShowItemActions = hasPermissions(['couponsCreate', 'couponsUpdate', 'couponsDelete'])
-
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
       return {
@@ -107,22 +105,28 @@ const CouponsList = () => {
 
   return (
     <>
-      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_62865498824cc10126ab2956')}
-        </Typography>
-        <PageHeader.Group>
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_62865498824cc10126ab2956') }}
+        actions={[
+          ...(hasPermissions(['couponsCreate'])
+            ? [
+                {
+                  type: 'action' as const,
+                  label: translate('text_62865498824cc10126ab2954'),
+                  variant: 'primary' as const,
+                  onClick: () => navigate(CREATE_COUPON_ROUTE),
+                  dataTest: 'add-coupon',
+                },
+              ]
+            : []),
+        ]}
+        filtersSection={
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63beebbf4f60e2f553232782')}
           />
-          {hasPermissions(['couponsCreate']) && (
-            <ButtonLink type="button" to={CREATE_COUPON_ROUTE} data-test="add-coupon">
-              {translate('text_62865498824cc10126ab2954')}
-            </ButtonLink>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+        }
+      />
 
       <InfiniteScroll
         onBottom={() => {
@@ -142,7 +146,7 @@ const CouponsList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))]')}
+          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -204,19 +208,19 @@ const CouponsList = () => {
           actionColumnTooltip={() => translate('text_62876a50ea3bba00b56d2c76')}
           actionColumn={(coupon) => {
             const { id, status } = coupon
+            const actions: ActionItem<typeof coupon>[] = []
 
-            if (!shouldShowItemActions) return
-
-            return [
-              {
+            if (hasPermissions(['couponsUpdate'])) {
+              actions.push({
                 startIcon: 'pen',
                 title: translate('text_625fd39a15394c0117e7d792'),
                 onAction: () => navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: id })),
                 disabled: status === CouponStatusEnum.Terminated,
                 tooltip: translate('text_62878d88ea3bba00b56d3412'),
                 tooltipListener: status !== CouponStatusEnum.Terminated,
-              },
-              {
+              })
+
+              actions.push({
                 startIcon: 'switch',
                 title: translate('text_62876a50ea3bba00b56d2cbc'),
                 onAction: () => {
@@ -225,15 +229,20 @@ const CouponsList = () => {
                 disabled: status === CouponStatusEnum.Terminated,
                 tooltip: translate('text_62878d88ea3bba00b56d33cf'),
                 tooltipListener: status !== CouponStatusEnum.Terminated,
-              },
-              {
+              })
+            }
+
+            if (hasPermissions(['couponsDelete'])) {
+              actions.push({
                 startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),
                 onAction: () => {
                   deleteDialogRef.current?.openDialog({ couponId: id })
                 },
-              },
-            ]
+              })
+            }
+
+            return actions
           }}
           placeholder={{
             errorState: !!variables?.searchTerm
