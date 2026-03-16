@@ -40,7 +40,7 @@ const MainHeaderComponent: FC = () => {
 
           {/* Desktop — entity inline below breadcrumb */}
           {hasEntity && (
-            <div className="hidden lg:block">
+            <div className="hidden pb-6 lg:block">
               <EntitySection entity={entity} isLoading={isLoading} />
             </div>
           )}
@@ -57,11 +57,11 @@ const MainHeaderComponent: FC = () => {
       )}
 
       {/* Tab bar */}
-      {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12 mt-2" tabs={tabs} />}
+      {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12" tabs={tabs} />}
 
       {/* Filter section */}
       {filtersSection && (
-        <div className="mt-4 px-12 pb-4" data-test={MAIN_HEADER_FILTERS_TEST_ID}>
+        <div className="px-12 pb-4" data-test={MAIN_HEADER_FILTERS_TEST_ID}>
           {filtersSection}
         </div>
       )}

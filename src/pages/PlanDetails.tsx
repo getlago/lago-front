@@ -25,7 +25,6 @@ import {
   useGetPlanForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { usePlanShouldShowActions } from '~/hooks/plans/usePlanShouldShowActions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -58,7 +57,6 @@ const PlanDetails = () => {
     skip: !planId,
   })
   const plan = planResult?.plan
-  const shouldShowActions = usePlanShouldShowActions()
 
   useEffect(() => {
     // WARNING: This page should not be used to show overriden plan's details
@@ -68,46 +66,47 @@ const PlanDetails = () => {
     }
   }, [navigate, plan?.parent?.id])
 
-  const actions: MainHeaderAction[] = shouldShowActions
-    ? [
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      items: [
         {
-          type: 'dropdown',
-          label: translate('text_626162c62f790600f850b6fe'),
-          items: [
-            {
-              label: translate('text_65281f686a80b400c8e2f6b3'),
-              onClick: (closePopper) => {
-                navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
-                closePopper()
-              },
-            },
-            {
-              label: translate('text_65281f686a80b400c8e2f6b6'),
-              onClick: (closePopper) => {
-                updateDuplicatePlanVar({
-                  type: 'duplicate',
-                  parentId: plan?.id,
-                })
-                navigate(CREATE_PLAN_ROUTE)
-                closePopper()
-              },
-            },
-            {
-              label: translate('text_625fd165963a7b00c8f597b5'),
-              onClick: (closePopper) => {
-                deletePlanDialogRef.current?.openDialog({
-                  plan: plan as DeletePlanDialogFragment,
-                  callback: () => {
-                    navigate(PLANS_ROUTE)
-                  },
-                })
-                closePopper()
-              },
-            },
-          ],
+          label: translate('text_65281f686a80b400c8e2f6b3'),
+          hidden: !hasPermissions(['plansUpdate']),
+          onClick: (closePopper) => {
+            navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
+            closePopper()
+          },
         },
-      ]
-    : []
+        {
+          label: translate('text_65281f686a80b400c8e2f6b6'),
+          hidden: !hasPermissions(['plansCreate']),
+          onClick: (closePopper) => {
+            updateDuplicatePlanVar({
+              type: 'duplicate',
+              parentId: plan?.id,
+            })
+            navigate(CREATE_PLAN_ROUTE)
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_625fd165963a7b00c8f597b5'),
+          hidden: !hasPermissions(['plansDelete']),
+          onClick: (closePopper) => {
+            deletePlanDialogRef.current?.openDialog({
+              plan: plan as DeletePlanDialogFragment,
+              callback: () => {
+                navigate(PLANS_ROUTE)
+              },
+            })
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
 
   const activeTabContent = useMainHeaderTabContent()
 

@@ -16,7 +16,6 @@ import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { usePlanShouldShowActions } from '~/hooks/plans/usePlanShouldShowActions'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -61,8 +60,6 @@ const PlansList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
   const list = data?.plans?.collection || []
-  const shouldShowItemActions = usePlanShouldShowActions()
-
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (!!variables?.searchTerm) {
       return {
@@ -191,43 +188,49 @@ const PlansList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={
-            shouldShowItemActions ? () => translate('text_64fa1756d7ccc300a03a09f4') : undefined
-          }
+          actionColumnTooltip={() => translate('text_64fa1756d7ccc300a03a09f4')}
           actionColumn={(plan) => {
-            return shouldShowItemActions
-              ? [
-                  {
-                    startIcon: 'pen',
-                    title: translate('text_625fd39a15394c0117e7d792'),
-                    dataTest: 'tab-internal-button-link-update-plan',
-                    onAction: () =>
-                      navigate(
-                        generatePath(UPDATE_PLAN_ROUTE, {
-                          planId: plan.id,
-                        }),
-                      ),
-                  },
-                  {
-                    startIcon: 'duplicate',
-                    title: translate('text_64fa170e02f348164797a6af'),
-                    onAction: () => {
-                      updateDuplicatePlanVar({
-                        type: 'duplicate',
-                        parentId: plan.id,
-                      })
-                      navigate(CREATE_PLAN_ROUTE)
-                    },
-                  },
-                  {
-                    startIcon: 'trash',
-                    title: translate('text_625fd39a15394c0117e7d794'),
-                    onAction: () => {
-                      deleteDialogRef.current?.openDialog({ plan })
-                    },
-                  },
-                ]
-              : undefined
+            const actions = []
+
+            if (hasPermissions(['plansUpdate'])) {
+              actions.push({
+                startIcon: 'pen' as const,
+                title: translate('text_625fd39a15394c0117e7d792'),
+                dataTest: 'tab-internal-button-link-update-plan',
+                onAction: () =>
+                  navigate(
+                    generatePath(UPDATE_PLAN_ROUTE, {
+                      planId: plan.id,
+                    }),
+                  ),
+              })
+            }
+
+            if (hasPermissions(['plansCreate'])) {
+              actions.push({
+                startIcon: 'duplicate' as const,
+                title: translate('text_64fa170e02f348164797a6af'),
+                onAction: () => {
+                  updateDuplicatePlanVar({
+                    type: 'duplicate',
+                    parentId: plan.id,
+                  })
+                  navigate(CREATE_PLAN_ROUTE)
+                },
+              })
+            }
+
+            if (hasPermissions(['plansDelete'])) {
+              actions.push({
+                startIcon: 'trash' as const,
+                title: translate('text_625fd39a15394c0117e7d794'),
+                onAction: () => {
+                  deleteDialogRef.current?.openDialog({ plan })
+                },
+              })
+            }
+
+            return actions
           }}
           placeholder={{
             errorState: !!variables?.searchTerm

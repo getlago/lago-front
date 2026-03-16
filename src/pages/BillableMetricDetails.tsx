@@ -22,7 +22,6 @@ import {
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
-import { useBillableMetricShouldShowActions } from '~/hooks/billableMetrics/useBillableMetricShouldShowActions'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -55,61 +54,60 @@ const BillableMetricDetails = () => {
 
   const billableMetric = data?.billableMetric
 
-  const shouldShowActions = useBillableMetricShouldShowActions()
-
-  const actions: MainHeaderAction[] = shouldShowActions
-    ? [
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      items: [
         {
-          type: 'dropdown',
-          label: translate('text_626162c62f790600f850b6fe'),
-          items: [
-            {
-              label: translate('text_1748440972215b2bo0i27zg4'),
-              onClick: (closePopper) => {
-                navigate(
-                  generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
-                    billableMetricId: billableMetricId as string,
-                  }),
-                )
-                closePopper()
-              },
-            },
-            {
-              label: translate('text_1748440972215htw8rqfn3tu'),
-              onClick: () => {
-                copyToClipboard(billableMetricId as string)
-                addToast({
-                  message: translate('text_1748441335808ev2ygtkq66n'),
-                  severity: 'success',
-                })
-              },
-            },
-            {
-              label: translate('text_1748447578763m2i8k8djc4r'),
-              onClick: () => {
-                navigate(
-                  generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
-                    billableMetricId: billableMetricId as string,
-                  }),
-                )
-              },
-            },
-            {
-              label: translate('text_1748440972215btigjp0mowx'),
-              onClick: (closePopper) => {
-                deleteBillableMetricDialogRef.current?.openDialog({
-                  billableMetricId: billableMetricId as string,
-                  callback: () => {
-                    navigate(generatePath(BILLABLE_METRICS_ROUTE))
-                  },
-                })
-                closePopper()
-              },
-            },
-          ],
+          label: translate('text_1748440972215b2bo0i27zg4'),
+          hidden: !hasPermissions(['billableMetricsUpdate']),
+          onClick: (closePopper) => {
+            navigate(
+              generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
+                billableMetricId: billableMetricId as string,
+              }),
+            )
+            closePopper()
+          },
         },
-      ]
-    : []
+        {
+          label: translate('text_1748440972215htw8rqfn3tu'),
+          onClick: () => {
+            copyToClipboard(billableMetricId as string)
+            addToast({
+              message: translate('text_1748441335808ev2ygtkq66n'),
+              severity: 'success',
+            })
+          },
+        },
+        {
+          label: translate('text_1748447578763m2i8k8djc4r'),
+          hidden: !hasPermissions(['billableMetricsCreate']),
+          onClick: () => {
+            navigate(
+              generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
+                billableMetricId: billableMetricId as string,
+              }),
+            )
+          },
+        },
+        {
+          label: translate('text_1748440972215btigjp0mowx'),
+          hidden: !hasPermissions(['billableMetricsDelete']),
+          onClick: (closePopper) => {
+            deleteBillableMetricDialogRef.current?.openDialog({
+              billableMetricId: billableMetricId as string,
+              callback: () => {
+                navigate(generatePath(BILLABLE_METRICS_ROUTE))
+              },
+            })
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
 
   const activeTabContent = useMainHeaderTabContent()
 

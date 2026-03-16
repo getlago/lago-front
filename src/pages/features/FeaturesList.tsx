@@ -1,18 +1,17 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
-import { Button } from '~/components/designSystem/Button'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
-import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   DeleteFeatureDialog,
   DeleteFeatureDialogRef,
 } from '~/components/features/DeleteFeatureDialog'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -21,11 +20,10 @@ import {
   UPDATE_FEATURE_ROUTE,
 } from '~/core/router/ObjectsRoutes'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
-import { FeatureForFeaturesListFragment, useGetFeaturesListLazyQuery } from '~/generated/graphql'
+import { useGetFeaturesListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment FeatureForFeaturesList on FeatureObject {
@@ -54,9 +52,6 @@ const FeaturesList = () => {
   const deleteDialogRef = useRef<DeleteFeatureDialogRef>(null)
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
-
-  const canDeleteFeature = hasPermissions(['featuresDelete'])
-  const canAccessFeatureForm = hasPermissions(['featuresCreate', 'featuresUpdate'])
 
   const [
     getFeatures,
@@ -109,26 +104,27 @@ const FeaturesList = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_1752692673070k7z0mmf0494')}
-        </Typography>
-
-        {canAccessFeatureForm && (
-          <PageHeader.Group>
-            <>
-              <SearchInput
-                onChange={debouncedSearch}
-                placeholder={translate('text_1752692673070xf4wtgsrsum')}
-              />
-
-              <Button variant="primary" onClick={() => navigate(CREATE_FEATURE_ROUTE)}>
-                {translate('text_1752693359315fi592i0bpyz')}
-              </Button>
-            </>
-          </PageHeader.Group>
-        )}
-      </PageHeader.Wrapper>
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_1752692673070k7z0mmf0494') }}
+        actions={[
+          ...(hasPermissions(['featuresCreate'])
+            ? [
+                {
+                  type: 'action' as const,
+                  label: translate('text_1752693359315fi592i0bpyz'),
+                  variant: 'primary' as const,
+                  onClick: () => navigate(CREATE_FEATURE_ROUTE),
+                },
+              ]
+            : []),
+        ]}
+        filtersSection={
+          <SearchInput
+            onChange={debouncedSearch}
+            placeholder={translate('text_1752692673070xf4wtgsrsum')}
+          />
+        }
+      />
 
       <InfiniteScroll
         onBottom={() => {
@@ -150,6 +146,7 @@ const FeaturesList = () => {
             default: 16,
             md: 48,
           }}
+          containerClassName={tw('border-t border-grey-300')}
           rowSize={72}
           onRowActionLink={(feature) =>
             generatePath(FEATURE_DETAILS_ROUTE, {
@@ -158,11 +155,7 @@ const FeaturesList = () => {
             })
           }
           placeholder={tablePlaceholder}
-          actionColumnTooltip={
-            canAccessFeatureForm && canDeleteFeature
-              ? () => translate('text_626162c62f790600f850b7b6')
-              : undefined
-          }
+          actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
           columns={[
             {
               key: 'name',
@@ -215,22 +208,22 @@ const FeaturesList = () => {
             },
           ]}
           actionColumn={(feature) => {
-            const actions: ActionItem<FeatureForFeaturesListFragment>[] = []
+            const actions = []
 
-            if (canAccessFeatureForm) {
+            if (hasPermissions(['featuresUpdate'])) {
               actions.push({
                 title: translate('text_63e51ef4985f0ebd75c212fc'),
-                startIcon: 'pen',
+                startIcon: 'pen' as const,
                 onAction: async ({ id }: { id: string }) => {
                   navigate(generatePath(UPDATE_FEATURE_ROUTE, { featureId: id }))
                 },
               })
             }
 
-            if (canDeleteFeature) {
+            if (hasPermissions(['featuresDelete'])) {
               actions.push({
                 title: translate('text_63ea0f84f400488553caa786'),
-                startIcon: 'trash',
+                startIcon: 'trash' as const,
                 onAction: async () => {
                   deleteDialogRef.current?.openDialog({
                     feature: { id: feature.id },

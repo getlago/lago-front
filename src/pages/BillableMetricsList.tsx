@@ -20,7 +20,6 @@ import {
   UPDATE_BILLABLE_METRIC_ROUTE,
 } from '~/core/router'
 import { useBillableMetricsLazyQuery } from '~/generated/graphql'
-import { useBillableMetricShouldShowActions } from '~/hooks/billableMetrics/useBillableMetricShouldShowActions'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -62,7 +61,6 @@ const BillableMetricsList = () => {
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getBillableMetrics, loading)
   const list = data?.billableMetrics?.collection || []
-  const shouldShowActions = useBillableMetricShouldShowActions()
 
   return (
     <>
@@ -150,38 +148,35 @@ const BillableMetricsList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={
-            shouldShowActions ? () => translate('text_6256de3bba111e00b3bfa51b') : undefined
-          }
-          actionColumn={
-            shouldShowActions
-              ? ({ id }) => {
-                  return [
-                    hasPermissions(['billableMetricsUpdate'])
-                      ? {
-                          startIcon: 'pen',
-                          title: translate('text_6256de3bba111e00b3bfa531'),
-                          onAction: () =>
-                            navigate(
-                              generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
-                                billableMetricId: id,
-                              }),
-                            ),
-                        }
-                      : null,
-                    hasPermissions(['billableMetricsDelete'])
-                      ? {
-                          startIcon: 'trash',
-                          title: translate('text_6256de3bba111e00b3bfa533'),
-                          onAction: () => {
-                            deleteDialogRef.current?.openDialog({ billableMetricId: id })
-                          },
-                        }
-                      : null,
-                  ]
-                }
-              : undefined
-          }
+          actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
+          actionColumn={({ id }) => {
+            const actions = []
+
+            if (hasPermissions(['billableMetricsUpdate'])) {
+              actions.push({
+                startIcon: 'pen' as const,
+                title: translate('text_6256de3bba111e00b3bfa531'),
+                onAction: () =>
+                  navigate(
+                    generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
+                      billableMetricId: id,
+                    }),
+                  ),
+              })
+            }
+
+            if (hasPermissions(['billableMetricsDelete'])) {
+              actions.push({
+                startIcon: 'trash' as const,
+                title: translate('text_6256de3bba111e00b3bfa533'),
+                onAction: () => {
+                  deleteDialogRef.current?.openDialog({ billableMetricId: id })
+                },
+              })
+            }
+
+            return actions
+          }}
           placeholder={{
             errorState: !!variables?.searchTerm
               ? {
