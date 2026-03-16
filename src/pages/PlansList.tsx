@@ -4,11 +4,11 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
@@ -16,10 +16,10 @@ import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePlanShouldShowActions } from '~/hooks/plans/usePlanShouldShowActions'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment PlanItem on Plan {
@@ -61,7 +61,7 @@ const PlansList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
   const list = data?.plans?.collection || []
-  const shouldShowItemActions = hasPermissions(['plansCreate', 'plansUpdate', 'plansDelete'])
+  const shouldShowItemActions = usePlanShouldShowActions()
 
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (!!variables?.searchTerm) {
@@ -87,22 +87,28 @@ const PlansList = () => {
 
   return (
     <>
-      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_62442e40cea25600b0b6d84a')}
-        </Typography>
-        <PageHeader.Group>
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_62442e40cea25600b0b6d84a') }}
+        actions={[
+          ...(hasPermissions(['plansCreate'])
+            ? [
+                {
+                  type: 'action' as const,
+                  label: translate('text_62442e40cea25600b0b6d84c'),
+                  variant: 'primary' as const,
+                  onClick: () => navigate(CREATE_PLAN_ROUTE),
+                  dataTest: 'create-plan',
+                },
+              ]
+            : []),
+        ]}
+        filtersSection={
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63bee1cc88d85f04deb0d63c')}
           />
-          {hasPermissions(['plansCreate']) && (
-            <ButtonLink type="button" to={CREATE_PLAN_ROUTE} data-test="create-plan">
-              {translate('text_62442e40cea25600b0b6d84c')}
-            </ButtonLink>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+        }
+      />
 
       <InfiniteScroll
         onBottom={() => {
@@ -122,7 +128,7 @@ const PlansList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))]')}
+          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -185,7 +191,9 @@ const PlansList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_64fa1756d7ccc300a03a09f4')}
+          actionColumnTooltip={
+            shouldShowItemActions ? () => translate('text_64fa1756d7ccc300a03a09f4') : undefined
+          }
           actionColumn={(plan) => {
             return shouldShowItemActions
               ? [
