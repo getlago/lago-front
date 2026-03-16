@@ -8,10 +8,10 @@ import {
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -20,11 +20,11 @@ import {
   UPDATE_BILLABLE_METRIC_ROUTE,
 } from '~/core/router'
 import { useBillableMetricsLazyQuery } from '~/generated/graphql'
+import { useBillableMetricShouldShowActions } from '~/hooks/billableMetrics/useBillableMetricShouldShowActions'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment BillableMetricItem on BillableMetric {
@@ -62,25 +62,32 @@ const BillableMetricsList = () => {
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getBillableMetrics, loading)
   const list = data?.billableMetrics?.collection || []
+  const shouldShowActions = useBillableMetricShouldShowActions()
 
   return (
     <>
-      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
-        <Typography variant="bodyHl" color="textSecondary">
-          {translate('text_623b497ad05b960101be3438')}
-        </Typography>
-        <PageHeader.Group>
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_623b497ad05b960101be3438') }}
+        actions={[
+          ...(hasPermissions(['billableMetricsCreate'])
+            ? [
+                {
+                  type: 'action' as const,
+                  label: translate('text_623b497ad05b960101be343a'),
+                  variant: 'primary' as const,
+                  onClick: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
+                  dataTest: 'create-bm',
+                },
+              ]
+            : []),
+        ]}
+        filtersSection={
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
-          {hasPermissions(['billableMetricsCreate']) && (
-            <ButtonLink data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
-              {translate('text_623b497ad05b960101be343a')}
-            </ButtonLink>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+        }
+      />
 
       <InfiniteScroll
         onBottom={() => {
@@ -100,7 +107,7 @@ const BillableMetricsList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))]')}
+          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -143,30 +150,38 @@ const BillableMetricsList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
-          actionColumn={({ id }) => {
-            return [
-              hasPermissions(['billableMetricsUpdate'])
-                ? {
-                    startIcon: 'pen',
-                    title: translate('text_6256de3bba111e00b3bfa531'),
-                    onAction: () =>
-                      navigate(
-                        generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId: id }),
-                      ),
-                  }
-                : null,
-              hasPermissions(['billableMetricsDelete'])
-                ? {
-                    startIcon: 'trash',
-                    title: translate('text_6256de3bba111e00b3bfa533'),
-                    onAction: () => {
-                      deleteDialogRef.current?.openDialog({ billableMetricId: id })
-                    },
-                  }
-                : null,
-            ]
-          }}
+          actionColumnTooltip={
+            shouldShowActions ? () => translate('text_6256de3bba111e00b3bfa51b') : undefined
+          }
+          actionColumn={
+            shouldShowActions
+              ? ({ id }) => {
+                  return [
+                    hasPermissions(['billableMetricsUpdate'])
+                      ? {
+                          startIcon: 'pen',
+                          title: translate('text_6256de3bba111e00b3bfa531'),
+                          onAction: () =>
+                            navigate(
+                              generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
+                                billableMetricId: id,
+                              }),
+                            ),
+                        }
+                      : null,
+                    hasPermissions(['billableMetricsDelete'])
+                      ? {
+                          startIcon: 'trash',
+                          title: translate('text_6256de3bba111e00b3bfa533'),
+                          onAction: () => {
+                            deleteDialogRef.current?.openDialog({ billableMetricId: id })
+                          },
+                        }
+                      : null,
+                  ]
+                }
+              : undefined
+          }
           placeholder={{
             errorState: !!variables?.searchTerm
               ? {
