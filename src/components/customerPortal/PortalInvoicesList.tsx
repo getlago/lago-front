@@ -97,6 +97,14 @@ gql`
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
+
+export const PORTAL_INVOICES_LIST_ERROR_TEST_ID = 'portal-invoices-list-error'
+export const PORTAL_INVOICES_LIST_CONTENT_TEST_ID = 'portal-invoices-list-content'
+export const PORTAL_INVOICES_LIST_TOTALS_TEST_ID = 'portal-invoices-list-totals'
+export const PORTAL_INVOICES_LIST_OVERDUE_TEST_ID = 'portal-invoices-list-overdue'
+export const PORTAL_INVOICES_LIST_SEARCH_TEST_ID = 'portal-invoices-list-search'
+export const PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID = 'portal-invoices-list-load-more'
+
 const INVOICE_TYPE_TRANSLATION_MAP: Record<InvoiceTypeEnum, string> = {
   [InvoiceTypeEnum.AddOn]: 'text_1728472697691t126b808cm9',
   [InvoiceTypeEnum.Credit]: 'text_1728472697691x8zhuzkp74r',
@@ -210,7 +218,7 @@ const PortalInvoicesList = () => {
 
   if (error) {
     return (
-      <section>
+      <section data-test={PORTAL_INVOICES_LIST_ERROR_TEST_ID}>
         <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
 
         <SectionError refresh={() => refetch()} />
@@ -219,11 +227,11 @@ const PortalInvoicesList = () => {
   }
 
   return (
-    <div>
+    <div data-test={PORTAL_INVOICES_LIST_CONTENT_TEST_ID}>
       <SectionTitle title={translate('text_6419c64eace749372fc72b37')} loading={loading} />
 
       <div className="grid grid-cols-2 gap-8">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1" data-test={PORTAL_INVOICES_LIST_TOTALS_TEST_ID}>
           {invoicesLoading && <LoaderInvoicesListTotal />}
 
           {!invoicesLoading && !invoicesError && (
@@ -243,7 +251,7 @@ const PortalInvoicesList = () => {
           )}
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1" data-test={PORTAL_INVOICES_LIST_OVERDUE_TEST_ID}>
           {overdueLoading && <LoaderInvoicesListTotal />}
 
           {!overdueLoading && !overdueError && (
@@ -404,6 +412,7 @@ const PortalInvoicesList = () => {
 
           {currentPage < totalPages && (
             <Button
+              data-test={PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID}
               className="mt-2"
               variant="quaternary"
               startIcon="chevron-down"

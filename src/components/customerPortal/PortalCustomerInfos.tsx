@@ -8,6 +8,13 @@ import { Typography } from '~/components/designSystem/Typography'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CustomerAddressInput, CustomerPortalCustomer, CustomerTypeEnum } from '~/generated/graphql'
 
+export const PORTAL_CUSTOMER_INFOS_TEST_ID = 'portal-customer-infos'
+export const PORTAL_CUSTOMER_INFOS_ERROR_TEST_ID = 'portal-customer-infos-error'
+export const PORTAL_CUSTOMER_INFOS_LOADING_TEST_ID = 'portal-customer-infos-loading'
+export const PORTAL_CUSTOMER_INFOS_CONTENT_TEST_ID = 'portal-customer-infos-content'
+export const PORTAL_CUSTOMER_INFOS_IDENTICAL_ADDRESSES_TEST_ID =
+  'portal-customer-infos-identical-addresses'
+
 const FieldTitle = ({ title }: { title: string }) => (
   <Typography variant="body" color="grey600">
     {title}
@@ -138,7 +145,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
 
   if (isError) {
     return (
-      <section>
+      <section data-test={PORTAL_CUSTOMER_INFOS_ERROR_TEST_ID}>
         <SectionTitle title={translate('text_6419c64eace749372fc72b07')} />
 
         <SectionError refresh={() => portalCustomerInfosRefetch()} />
@@ -158,7 +165,10 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
       {isLoading && <LoaderCustomerInformationSection />}
 
       {!isLoading && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
+        <div
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8"
+          data-test={PORTAL_CUSTOMER_INFOS_CONTENT_TEST_ID}
+        >
           <div className="flex flex-col gap-4">
             {customerFields
               .filter(
