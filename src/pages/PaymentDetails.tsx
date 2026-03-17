@@ -116,7 +116,7 @@ gql`
 
 const Loading = () => {
   return (
-    <div className="flex flex-row gap-8">
+    <div className="flex flex-col gap-8 lg:flex-row">
       <div className="flex w-full flex-col gap-3">
         {[1, 2, 3, 4].map((i) => (
           <div key={`key-skeleton-line-${i}`} className="flex flex-row gap-x-3">
@@ -381,7 +381,7 @@ const PaymentDetails = () => {
 
           {loading && <Loading />}
           {!loading && (
-            <div className="flex flex-row gap-8">
+            <div className="flex flex-col gap-8 lg:flex-row">
               <div className="flex flex-1 flex-col gap-3">
                 <InfoLine
                   label={translate('text_634687079be251fdb43833cb')}
