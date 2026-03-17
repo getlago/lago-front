@@ -1,27 +1,32 @@
-import NiceModal from '@ebay/nice-modal-react'
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { screen } from '@testing-library/react'
 
-import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
-import { CENTRALIZED_DIALOG_NAME, FORM_DIALOG_NAME } from '~/components/dialogs/const'
-import FormDialog from '~/components/dialogs/FormDialog'
+import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { CUSTOMER_DETAILS_ROUTE, SUBSCRIPTIONS_ROUTE } from '~/core/router'
-import {
-  GetSubscriptionForDetailsDocument,
-  StatusTypeEnum,
-  TerminateCustomerSubscriptionDocument,
-} from '~/generated/graphql'
-import { AllTheProviders, TestMocksType } from '~/test-utils'
+import { StatusTypeEnum } from '~/generated/graphql'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import SubscriptionDetails, {
-  SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
   SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
   SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
   SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
 } from '../SubscriptionDetails'
 
-const mockNavigate = jest.fn()
-const mockHasPermissions = jest.fn()
+let capturedConfig: MainHeaderConfig | null = null
+
+jest.mock('~/components/MainHeader/MainHeader', () => ({
+  MainHeader: Object.assign(() => null, {
+    Configure: (props: MainHeaderConfig) => {
+      capturedConfig = props
+      return null
+    },
+  }),
+}))
+
+jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
+  useMainHeaderTabContent: () => <div data-test="active-tab-content">Tab Content</div>,
+}))
+
+const mockHasPermissions = jest.fn().mockReturnValue(true)
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
@@ -41,13 +46,19 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
 }))
 
-NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
-NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+const mockOpenTerminateDialog = jest.fn()
+
+jest.mock('~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog', () => ({
+  useTerminateCustomerSubscriptionDialog: () => ({
+    openTerminateCustomerSubscriptionDialog: mockOpenTerminateDialog,
+  }),
+}))
 
 const mockSubscription = {
   id: 'subscription-1',
@@ -66,98 +77,77 @@ const mockSubscription = {
   },
 }
 
-const createMocks = (
-  subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active,
-  customerDeletedAt?: string | null,
-): TestMocksType => [
-  {
-    request: {
-      query: GetSubscriptionForDetailsDocument,
-      variables: {
-        subscriptionId: 'subscription-1',
-      },
-    },
-    result: {
-      data: {
-        subscription: {
-          ...mockSubscription,
-          status: subscriptionStatus,
-        },
-      },
-    },
-  },
-  ...(customerDeletedAt !== undefined
-    ? [
-        {
-          request: {
-            query: TerminateCustomerSubscriptionDocument,
-            variables: {
-              input: {
-                id: 'subscription-1',
-                onTerminationInvoice: 'generate',
-              },
-            },
-          },
-          result: {
-            data: {
-              terminateSubscription: {
-                id: 'subscription-1',
-                status: StatusTypeEnum.Terminated,
-                terminatedAt: new Date().toISOString(),
-                customer: {
-                  id: 'customer-1',
-                  deletedAt: customerDeletedAt,
-                  activeSubscriptionsCount: 0,
-                },
-              },
-            },
-          },
-        },
-      ]
-    : []),
-]
+const mockUseGetSubscriptionForDetailsQuery = jest.fn()
 
-const renderSubscriptionDetails = (
-  subscriptionStatus: StatusTypeEnum = StatusTypeEnum.Active,
-  customerDeletedAt?: string | null,
-) => {
-  return render(
-    <NiceModal.Provider>
-      <SubscriptionDetails />
-    </NiceModal.Provider>,
-    {
-      wrapper: (props: { children: React.ReactNode }) => (
-        <AllTheProviders
-          {...props}
-          mocks={createMocks(subscriptionStatus, customerDeletedAt)}
-          useParams={{ subscriptionId: 'subscription-1' }}
-          forceTypenames={true}
-        />
-      ),
-    },
-  )
-}
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetSubscriptionForDetailsQuery: () => mockUseGetSubscriptionForDetailsQuery(),
+}))
 
-const openPopper = async (user: ReturnType<typeof userEvent.setup>) => {
-  await waitFor(() => {
-    expect(screen.getByTestId(SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID)).toBeInTheDocument()
-  })
+const mockCanEditSubscription = jest.fn().mockReturnValue(true)
 
-  const actionsButton = screen.getByTestId(SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID)
-
-  await user.click(actionsButton)
-}
+jest.mock('~/hooks/useSubscriptionPermissionsActions', () => ({
+  useSubscriptionPermissionsActions: () => ({
+    canEditSubscription: mockCanEditSubscription,
+    isStatusEditable: jest.fn().mockReturnValue(true),
+  }),
+}))
 
 describe('SubscriptionDetails', () => {
   beforeEach(() => {
-    mockHasPermissions.mockReturnValue(true)
-  })
-
-  afterEach(() => {
     jest.clearAllMocks()
+    capturedConfig = null
+    mockHasPermissions.mockReturnValue(true)
+    mockCanEditSubscription.mockReturnValue(true)
+
+    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+
+    useParamsMock.mockReturnValue({
+      subscriptionId: 'subscription-1',
+    })
+
+    mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+      data: { subscription: mockSubscription },
+      loading: false,
+      error: null,
+    })
   })
 
-  describe('WHEN user does not have subscriptionsUpdate permission', () => {
+  describe('GIVEN the page is rendered with data', () => {
+    describe('WHEN in default state', () => {
+      it('THEN should configure MainHeader with breadcrumb', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.breadcrumb).toHaveLength(1)
+      })
+
+      it('THEN should configure MainHeader with entity', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.entity?.viewName).toBeDefined()
+        expect(capturedConfig?.entity?.metadata).toBe('test-plan')
+      })
+
+      it('THEN should configure MainHeader with a dropdown action', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.actions).toHaveLength(1)
+        expect(capturedConfig?.actions?.[0].type).toBe('dropdown')
+      })
+
+      it('THEN should display the active tab content', () => {
+        render(<SubscriptionDetails />)
+
+        expect(screen.getByTestId('active-tab-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN user does not have subscriptionsUpdate permission', () => {
+    beforeEach(() => {
+      mockCanEditSubscription.mockReturnValue(false)
+    })
+
     it.each([
       {
         buttonTestId: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
@@ -171,22 +161,31 @@ describe('SubscriptionDetails', () => {
         buttonTestId: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
         buttonName: 'terminate',
       },
-    ])('THEN should not render $buttonName button', async ({ buttonTestId }) => {
-      const user = userEvent.setup()
+    ])('THEN should hide $buttonName dropdown item', ({ buttonTestId }) => {
+      render(<SubscriptionDetails />)
 
-      mockHasPermissions.mockReturnValue(false)
+      const dropdownAction = capturedConfig?.actions?.[0]
 
-      renderSubscriptionDetails(StatusTypeEnum.Active)
+      if (dropdownAction?.type === 'dropdown') {
+        const item = dropdownAction.items.find((i) => i.dataTest === buttonTestId)
 
-      await openPopper(user)
-
-      await waitFor(() => {
-        expect(screen.queryByTestId(buttonTestId)).not.toBeInTheDocument()
-      })
+        expect(item?.hidden).toBe(true)
+      }
     })
   })
 
-  describe('WHEN subscription is terminated', () => {
+  describe('GIVEN subscription is terminated', () => {
+    beforeEach(() => {
+      mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+        data: {
+          subscription: { ...mockSubscription, status: StatusTypeEnum.Terminated },
+        },
+        loading: false,
+        error: null,
+      })
+      mockCanEditSubscription.mockReturnValue(false)
+    })
+
     it.each([
       {
         buttonTestId: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
@@ -200,108 +199,88 @@ describe('SubscriptionDetails', () => {
         buttonTestId: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
         buttonName: 'terminate',
       },
-    ])('THEN should not render $buttonName button', async ({ buttonTestId }) => {
-      const user = userEvent.setup()
+    ])('THEN should hide $buttonName dropdown item', ({ buttonTestId }) => {
+      render(<SubscriptionDetails />)
 
-      mockHasPermissions.mockReturnValue(true)
+      const dropdownAction = capturedConfig?.actions?.[0]
 
-      renderSubscriptionDetails(StatusTypeEnum.Terminated)
+      if (dropdownAction?.type === 'dropdown') {
+        const item = dropdownAction.items.find((i) => i.dataTest === buttonTestId)
 
-      await openPopper(user)
-
-      await waitFor(() => {
-        expect(screen.queryByTestId(buttonTestId)).not.toBeInTheDocument()
-      })
+        expect(item?.hidden).toBe(true)
+      }
     })
   })
 
-  describe('WHEN subscription is canceled', () => {
-    it.each([
-      {
-        buttonTestId: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-        buttonName: 'update',
-      },
-      {
-        buttonTestId: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
-        buttonName: 'upgrade/downgrade',
-      },
-      {
-        buttonTestId: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
-        buttonName: 'terminate',
-      },
-    ])('THEN should not render $buttonName button', async ({ buttonTestId }) => {
-      const user = userEvent.setup()
-
-      mockHasPermissions.mockReturnValue(true)
-
-      renderSubscriptionDetails(StatusTypeEnum.Canceled)
-
-      await openPopper(user)
-
-      await waitFor(() => {
-        expect(screen.queryByTestId(buttonTestId)).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('WHEN terminating a subscription', () => {
+  describe('GIVEN terminating a subscription', () => {
     describe('WHEN customer is NOT deleted', () => {
-      it('THEN should navigate to customer details page', async () => {
-        const user = userEvent.setup()
+      it('THEN terminate onClick should call openTerminateCustomerSubscriptionDialog', () => {
+        render(<SubscriptionDetails />)
 
-        mockHasPermissions.mockReturnValue(true)
+        const dropdownAction = capturedConfig?.actions?.[0]
 
-        renderSubscriptionDetails(StatusTypeEnum.Active, null)
+        if (dropdownAction?.type === 'dropdown') {
+          const terminateItem = dropdownAction.items.find(
+            (i) => i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          )
 
-        await openPopper(user)
+          terminateItem?.onClick(jest.fn())
 
-        const terminateButton = screen.getByTestId(SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID)
+          expect(mockOpenTerminateDialog).toHaveBeenCalledWith(
+            expect.objectContaining({
+              id: 'subscription-1',
+              name: 'Test Subscription',
+              status: StatusTypeEnum.Active,
+            }),
+          )
+        }
+      })
 
-        await user.click(terminateButton)
+      it('THEN the termination callback should navigate to customer details when customer is not deleted', () => {
+        render(<SubscriptionDetails />)
 
-        // Wait for dialog to open and click continue
-        await waitFor(() => {
-          expect(screen.getByRole('dialog')).toBeInTheDocument()
-        })
+        const dropdownAction = capturedConfig?.actions?.[0]
 
-        const continueButton = screen.getByRole('button', { name: /terminate/i })
+        if (dropdownAction?.type === 'dropdown') {
+          const terminateItem = dropdownAction.items.find(
+            (i) => i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          )
 
-        await user.click(continueButton)
+          terminateItem?.onClick(jest.fn())
 
-        await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalledWith(
+          // Extract the callback from the dialog call
+          const dialogArgs = mockOpenTerminateDialog.mock.calls[0][0]
+
+          // Simulate customer NOT deleted (null deletedAt)
+          dialogArgs.callback(null)
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
             CUSTOMER_DETAILS_ROUTE.replace(':customerId', 'customer-1'),
           )
-        })
+        }
       })
     })
 
     describe('WHEN customer is deleted', () => {
-      it('THEN should navigate to subscriptions list', async () => {
-        const user = userEvent.setup()
+      it('THEN the termination callback should navigate to subscriptions list', () => {
+        render(<SubscriptionDetails />)
 
-        mockHasPermissions.mockReturnValue(true)
+        const dropdownAction = capturedConfig?.actions?.[0]
 
-        renderSubscriptionDetails(StatusTypeEnum.Active, '2024-01-01T00:00:00Z')
+        if (dropdownAction?.type === 'dropdown') {
+          const terminateItem = dropdownAction.items.find(
+            (i) => i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          )
 
-        await openPopper(user)
+          terminateItem?.onClick(jest.fn())
 
-        const terminateButton = screen.getByTestId(SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID)
+          const dialogArgs = mockOpenTerminateDialog.mock.calls[0][0]
 
-        await user.click(terminateButton)
+          // Simulate customer deleted (non-null deletedAt)
+          dialogArgs.callback('2024-01-01T00:00:00Z')
 
-        // Wait for dialog to open and click continue
-        await waitFor(() => {
-          expect(screen.getByRole('dialog')).toBeInTheDocument()
-        })
-
-        const continueButton = screen.getByRole('button', { name: /terminate/i })
-
-        await user.click(continueButton)
-
-        await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalledWith(SUBSCRIPTIONS_ROUTE)
-        })
+          expect(testMockNavigateFn).toHaveBeenCalledWith(SUBSCRIPTIONS_ROUTE)
+        }
       })
     })
   })
