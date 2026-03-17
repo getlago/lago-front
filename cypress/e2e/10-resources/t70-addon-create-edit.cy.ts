@@ -1,3 +1,5 @@
+import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+
 describe('Add On', () => {
   beforeEach(() => {
     cy.login()
@@ -30,7 +32,7 @@ describe('Add On', () => {
 
     // Submit form
     cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="addon-details-name"]`).should('contain.text', addOnName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', addOnName)
   })
 
   it('should be able to edit the same coupon', () => {
@@ -49,6 +51,6 @@ describe('Add On', () => {
     cy.get('textarea[name="description"]').should('exist')
     cy.get('input[name="amountCents"]').type('20')
     cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="addon-details-name"]`).should('contain.text', addOnName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', addOnName)
   })
 })

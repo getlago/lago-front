@@ -3,12 +3,12 @@ import { screen } from '@testing-library/react'
 import { StatusType } from '~/components/designSystem/Status'
 import { render } from '~/test-utils'
 
+import { EntitySection } from '../EntitySection'
 import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
-  EntitySection,
-} from '../EntitySection'
+} from '../mainHeaderTestIds'
 import { MainHeaderEntityConfig } from '../types'
 
 describe('EntitySection', () => {

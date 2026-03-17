@@ -8,12 +8,10 @@ import {
   DeleteBillableMetricDialog,
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
-import { Button } from '~/components/designSystem/Button'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { addToast } from '~/core/apolloClient'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -27,7 +25,6 @@ import { useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getBillableMetricForHeaderDetails($id: ID!) {
@@ -57,110 +54,74 @@ const BillableMetricDetails = () => {
 
   const billableMetric = data?.billableMetric
 
-  const shouldShowActions = hasPermissions([
-    'billableMetricsCreate',
-    'billableMetricsUpdate',
-    'billableMetricsDelete',
-  ])
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      items: [
+        {
+          label: translate('text_1748440972215b2bo0i27zg4'),
+          hidden: !hasPermissions(['billableMetricsUpdate']),
+          onClick: (closePopper) => {
+            navigate(
+              generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
+                billableMetricId: billableMetricId as string,
+              }),
+            )
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1748440972215htw8rqfn3tu'),
+          onClick: () => {
+            copyToClipboard(billableMetricId as string)
+            addToast({
+              message: translate('text_1748441335808ev2ygtkq66n'),
+              severity: 'success',
+            })
+          },
+        },
+        {
+          label: translate('text_1748447578763m2i8k8djc4r'),
+          hidden: !hasPermissions(['billableMetricsCreate']),
+          onClick: () => {
+            navigate(
+              generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
+                billableMetricId: billableMetricId as string,
+              }),
+            )
+          },
+        },
+        {
+          label: translate('text_1748440972215btigjp0mowx'),
+          hidden: !hasPermissions(['billableMetricsDelete']),
+          onClick: (closePopper) => {
+            deleteBillableMetricDialogRef.current?.openDialog({
+              billableMetricId: billableMetricId as string,
+              callback: () => {
+                navigate(generatePath(BILLABLE_METRICS_ROUTE))
+              },
+            })
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
+  const activeTabContent = useMainHeaderTabContent()
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group className="overflow-hidden">
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() => navigate(generatePath(BILLABLE_METRICS_ROUTE))}
-          />
-          {loading && !billableMetric ? (
-            <Skeleton variant="text" className="w-50" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {billableMetric?.name}
-            </Typography>
-          )}
-        </PageHeader.Group>
-
-        {shouldShowActions && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(
-                      generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
-                        billableMetricId: billableMetricId as string,
-                      }),
-                    )
-                    closePopper()
-                  }}
-                >
-                  {translate('text_1748440972215b2bo0i27zg4')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    copyToClipboard(billableMetricId as string)
-                    addToast({
-                      message: translate('text_1748441335808ev2ygtkq66n'),
-                      severity: 'success',
-                    })
-                  }}
-                >
-                  {translate('text_1748440972215htw8rqfn3tu')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(
-                      generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
-                        billableMetricId: billableMetricId as string,
-                      }),
-                    )
-                  }}
-                >
-                  {translate('text_1748447578763m2i8k8djc4r')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    deleteBillableMetricDialogRef.current?.openDialog({
-                      billableMetricId: billableMetricId as string,
-                      callback: () => {
-                        navigate(generatePath(BILLABLE_METRICS_ROUTE))
-                      },
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_1748440972215btigjp0mowx')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      <DetailsPage.Header
-        isLoading={loading}
-        icon="board"
-        title={billableMetric?.name || ''}
-        description={billableMetric?.code || ''}
-      />
-
-      <NavigationTab
-        className="px-4 md:px-12"
-        loading={loading}
+      <MainHeader.Configure
+        breadcrumb={[
+          { label: translate('text_623b497ad05b960101be3438'), path: BILLABLE_METRICS_ROUTE },
+        ]}
+        entity={{
+          viewName: billableMetric?.name || '',
+          metadata: billableMetric?.code || '',
+        }}
+        actions={actions}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -168,8 +129,7 @@ const BillableMetricDetails = () => {
               billableMetricId: billableMetricId as string,
               tab: BillableMetricDetailsTabsOptionsEnum.overview,
             }),
-
-            component: (
+            content: (
               <DetailsPage.Container>
                 <BillableMetricDetailsOverview />
               </DetailsPage.Container>
@@ -181,7 +141,7 @@ const BillableMetricDetails = () => {
               billableMetricId: billableMetricId as string,
               tab: BillableMetricDetailsTabsOptionsEnum.activityLogs,
             }),
-            component: (
+            content: (
               <div className="px-12 py-6">
                 <BillableMetricDetailsActivityLogs billableMetricId={billableMetricId as string} />
               </div>
@@ -189,7 +149,10 @@ const BillableMetricDetails = () => {
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
+        isLoading={loading}
       />
+
+      <>{activeTabContent}</>
 
       <DeleteBillableMetricDialog ref={deleteBillableMetricDialogRef} />
     </>

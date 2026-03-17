@@ -3,10 +3,13 @@ import React from 'react'
 
 import { render } from '~/test-utils'
 
-import { ACTIONS_BLOCK_TEST_ID } from '../ActionRenderer'
 import { BREADCRUMB_NAV_TEST_ID } from '../Breadcrumb'
-import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '../EntitySection'
-import { MAIN_HEADER_FILTERS_TEST_ID, MainHeader } from '../MainHeader'
+import { MainHeader } from '../MainHeader'
+import {
+  ACTIONS_BLOCK_TEST_ID,
+  ENTITY_SECTION_VIEW_NAME_TEST_ID,
+  MAIN_HEADER_FILTERS_TEST_ID,
+} from '../mainHeaderTestIds'
 import { MainHeaderConfig } from '../types'
 
 const mockUseMainHeaderReader = jest.fn()

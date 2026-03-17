@@ -4,11 +4,12 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
@@ -19,7 +20,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment PlanItem on Plan {
@@ -61,7 +61,10 @@ const PlansList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
   const list = data?.plans?.collection || []
-  const shouldShowItemActions = hasPermissions(['plansCreate', 'plansUpdate', 'plansDelete'])
+
+  const canUpdatePlans = hasPermissions(['plansUpdate'])
+  const canCreatePlans = hasPermissions(['plansCreate'])
+  const canDeletePlans = hasPermissions(['plansDelete'])
 
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (!!variables?.searchTerm) {
@@ -70,7 +73,7 @@ const PlansList = () => {
         subtitle: translate('text_63bee1cc88d85f04deb0d67a'),
       }
     }
-    if (hasPermissions(['plansCreate'])) {
+    if (canCreatePlans) {
       return {
         title: translate('text_624451f920b6a500aab37618'),
         subtitle: translate('text_624451f920b6a500aab3761c'),
@@ -87,22 +90,28 @@ const PlansList = () => {
 
   return (
     <>
-      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_62442e40cea25600b0b6d84a')}
-        </Typography>
-        <PageHeader.Group>
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_62442e40cea25600b0b6d84a') }}
+        actions={[
+          ...(canCreatePlans
+            ? [
+                {
+                  type: 'action' as const,
+                  label: translate('text_62442e40cea25600b0b6d84c'),
+                  variant: 'primary' as const,
+                  onClick: () => navigate(CREATE_PLAN_ROUTE),
+                  dataTest: 'create-plan',
+                },
+              ]
+            : []),
+        ]}
+        filtersSection={
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63bee1cc88d85f04deb0d63c')}
           />
-          {hasPermissions(['plansCreate']) && (
-            <ButtonLink type="button" to={CREATE_PLAN_ROUTE} data-test="create-plan">
-              {translate('text_62442e40cea25600b0b6d84c')}
-            </ButtonLink>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+        }
+      />
 
       <InfiniteScroll
         onBottom={() => {
@@ -122,7 +131,7 @@ const PlansList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))]')}
+          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -185,41 +194,53 @@ const PlansList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_64fa1756d7ccc300a03a09f4')}
-          actionColumn={(plan) => {
-            return shouldShowItemActions
-              ? [
-                  {
-                    startIcon: 'pen',
-                    title: translate('text_625fd39a15394c0117e7d792'),
-                    dataTest: 'tab-internal-button-link-update-plan',
-                    onAction: () =>
-                      navigate(
-                        generatePath(UPDATE_PLAN_ROUTE, {
-                          planId: plan.id,
-                        }),
-                      ),
-                  },
-                  {
-                    startIcon: 'duplicate',
-                    title: translate('text_64fa170e02f348164797a6af'),
-                    onAction: () => {
-                      updateDuplicatePlanVar({
-                        type: 'duplicate',
-                        parentId: plan.id,
-                      })
-                      navigate(CREATE_PLAN_ROUTE)
-                    },
-                  },
-                  {
-                    startIcon: 'trash',
-                    title: translate('text_625fd39a15394c0117e7d794'),
-                    onAction: () => {
-                      deleteDialogRef.current?.openDialog({ plan })
-                    },
-                  },
-                ]
+          actionColumnTooltip={
+            canUpdatePlans && canCreatePlans && canDeletePlans
+              ? () => translate('text_64fa1756d7ccc300a03a09f4')
               : undefined
+          }
+          actionColumn={(plan) => {
+            const actions: ActionItem<typeof plan>[] = []
+
+            if (canUpdatePlans) {
+              actions.push({
+                startIcon: 'pen',
+                title: translate('text_625fd39a15394c0117e7d792'),
+                dataTest: 'tab-internal-button-link-update-plan',
+                onAction: () =>
+                  navigate(
+                    generatePath(UPDATE_PLAN_ROUTE, {
+                      planId: plan.id,
+                    }),
+                  ),
+              })
+            }
+
+            if (canCreatePlans) {
+              actions.push({
+                startIcon: 'duplicate',
+                title: translate('text_64fa170e02f348164797a6af'),
+                onAction: () => {
+                  updateDuplicatePlanVar({
+                    type: 'duplicate',
+                    parentId: plan.id,
+                  })
+                  navigate(CREATE_PLAN_ROUTE)
+                },
+              })
+            }
+
+            if (canDeletePlans) {
+              actions.push({
+                startIcon: 'trash',
+                title: translate('text_625fd39a15394c0117e7d794'),
+                onAction: () => {
+                  deleteDialogRef.current?.openDialog({ plan })
+                },
+              })
+            }
+
+            return actions
           }}
           placeholder={{
             errorState: !!variables?.searchTerm

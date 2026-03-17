@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
 
-import { ACTIONS_BLOCK_TEST_ID, ActionsBlock } from '../ActionRenderer'
+import { ActionsBlock } from '../ActionRenderer'
+import { ACTIONS_BLOCK_TEST_ID } from '../mainHeaderTestIds'
 import { MainHeaderAction } from '../types'
 
 describe('ActionsBlock', () => {

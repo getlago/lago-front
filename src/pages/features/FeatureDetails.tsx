@@ -2,11 +2,6 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import {
   DeleteFeatureDialog,
   DeleteFeatureDialogRef,
@@ -14,6 +9,9 @@ import {
 import { FeatureDetailsActivityLogs } from '~/components/features/FeatureDetailsActivityLogs'
 import { FeatureDetailsOverview } from '~/components/features/FeatureDetailsOverview'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { FEATURE_DETAILS_ROUTE, FEATURES_ROUTE, UPDATE_FEATURE_ROUTE } from '~/core/router'
 import {
@@ -23,7 +21,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getFeatureForDetails($feature: ID!) {
@@ -55,87 +52,51 @@ const FeatureDetails = () => {
 
   const feature = featureResult?.feature
 
-  const shouldShowActions = hasPermissions(['featuresCreate', 'featuresUpdate', 'featuresDelete'])
+  const actions: MainHeaderAction[] = feature
+    ? [
+        {
+          type: 'dropdown',
+          label: translate('text_626162c62f790600f850b6fe'),
+          dataTest: 'feature-details-actions',
+          items: [
+            {
+              label: translate('text_1756217474408noiuzsd087w'),
+              dataTest: 'feature-details-edit',
+              hidden: !hasPermissions(['featuresUpdate']),
+              onClick: (closePopper) => {
+                navigate(generatePath(UPDATE_FEATURE_ROUTE, { featureId: feature.id }))
+                closePopper()
+              },
+            },
+            {
+              label: translate('text_1752693359315sd2ms0qxvi3'),
+              hidden: !hasPermissions(['featuresDelete']),
+              onClick: (closePopper) => {
+                deleteDialogRef.current?.openDialog({
+                  feature,
+                  callback: () => {
+                    navigate(FEATURES_ROUTE)
+                  },
+                })
+                closePopper()
+              },
+            },
+          ],
+        },
+      ]
+    : []
+
+  const activeTabContent = useMainHeaderTabContent()
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group className="overflow-hidden">
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() => {
-              navigate(FEATURES_ROUTE)
-            }}
-          />
-          {isFeatureLoading && !feature ? (
-            <Skeleton variant="text" className="w-50" />
-          ) : (
-            <Typography
-              variant="bodyHl"
-              color="textSecondary"
-              noWrap
-              data-test="feature-details-name"
-            >
-              {feature?.name || feature?.code}
-            </Typography>
-          )}
-        </PageHeader.Group>
-
-        {shouldShowActions && !!feature && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down" data-test="feature-details-actions">
-                {translate('text_626162c62f790600f850b6fe')}
-              </Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  data-test="feature-details-edit"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(generatePath(UPDATE_FEATURE_ROUTE, { featureId: feature.id }))
-                    closePopper()
-                  }}
-                >
-                  {translate('text_1756217474408noiuzsd087w')}
-                </Button>
-                {!!feature && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      deleteDialogRef.current?.openDialog({
-                        feature,
-                        callback: () => {
-                          navigate(FEATURES_ROUTE)
-                        },
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_1752693359315sd2ms0qxvi3')}
-                  </Button>
-                )}
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      <DetailsPage.Header
-        isLoading={isFeatureLoading}
-        icon="switch"
-        title={feature?.name || '-'}
-        description={feature?.code || ''}
-      />
-
-      <NavigationTab
-        className="px-4 md:px-12"
+      <MainHeader.Configure
+        breadcrumb={[{ label: translate('text_1752692673070k7z0mmf0494'), path: FEATURES_ROUTE }]}
+        entity={{
+          viewName: feature?.name || '-',
+          metadata: feature?.code || '',
+        }}
+        actions={actions}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -143,25 +104,26 @@ const FeatureDetails = () => {
               featureId: featureId as string,
               tab: FeatureDetailsTabsOptionsEnum.overview,
             }),
-
-            component: (
+            content: (
               <DetailsPage.Container>
                 <FeatureDetailsOverview />
               </DetailsPage.Container>
             ),
           },
-
           {
             title: translate('text_1747314141347qq6rasuxisl'),
             link: generatePath(FEATURE_DETAILS_ROUTE, {
               featureId: featureId as string,
               tab: FeatureDetailsTabsOptionsEnum.activityLogs,
             }),
-            component: <FeatureDetailsActivityLogs featureId={featureId as string} />,
+            content: <FeatureDetailsActivityLogs featureId={featureId as string} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
+        isLoading={isFeatureLoading}
       />
+
+      <>{activeTabContent}</>
 
       <DeleteFeatureDialog ref={deleteDialogRef} />
     </>

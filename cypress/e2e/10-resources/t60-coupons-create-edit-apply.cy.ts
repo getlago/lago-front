@@ -1,3 +1,5 @@
+import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+
 import { customerName } from '../../support/reusableConstants'
 
 const randomId = Math.round(Math.random() * 10000)
@@ -25,7 +27,7 @@ describe('Coupons', () => {
 
     // Submit form
     cy.get('[data-test="submit"]').click()
-    cy.get('[data-test="coupon-details-name"]').should('contain.text', couponName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', couponName)
   })
 
   it('should be able to edit the same coupon', () => {
@@ -46,7 +48,7 @@ describe('Coupons', () => {
     cy.get('input[name="amountCents"]').type('1')
 
     cy.get('[data-test="submit"]').click()
-    cy.get('[data-test="coupon-details-name"]').should('contain.text', couponName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', couponName)
   })
 
   it('should be able to apply the coupon to a customer', () => {
